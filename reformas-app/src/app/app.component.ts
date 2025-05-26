@@ -208,6 +208,7 @@ export class AppComponent {
           ].map(
             ({ text, width }) =>
               new TableCell({
+                verticalAlign: VerticalAlign.CENTER,
                 width: { size: width, type: WidthType.PERCENTAGE },
                 children: [
                   new Paragraph({
@@ -388,6 +389,7 @@ export class AppComponent {
                 left: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
                 right: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
               },
+              margins: { top: 50, bottom: 50, left: 50, right: 50 },
             }),
             new TableCell({
               children: [],
@@ -601,6 +603,10 @@ export class AppComponent {
             }),
           ],
         }),
+        new Paragraph({
+          spacing: { after: 0 }, // 500 TWIP ≈ 0,35 cm de espacio
+          children: [],
+        }),
       ],
     });
 
@@ -609,6 +615,7 @@ export class AppComponent {
       new Footer({
         children: [
           new Paragraph({
+            spacing: { before: 400 },
             children: [
               new TextRun('Página '),
               // PageNumber.CURRENT es un literal string, así que lo metemos en un TextRun
@@ -648,8 +655,16 @@ export class AppComponent {
         new Paragraph({ pageBreakBefore: true }),
         // Página 2: índice
         new Paragraph({
-          text: 'Índice',
-          heading: HeadingLevel.HEADING_1, // <— usa el enum HeadingLevel.HEADING_1
+          alignment: AlignmentType.CENTER,
+          heading: HeadingLevel.HEADING_1,
+          children: [
+            new TextRun({
+              text: 'Índice',
+              bold: true,
+              size: 32,
+              color: '000000',
+            }),
+          ],
         }),
         new TableOfContents('Índice', {
           hyperlink: true,
@@ -669,7 +684,7 @@ export class AppComponent {
         }),
         new Paragraph({
           children: [
-            new TextRun('Estás en la página '),
+            new TextRun('Página'),
             new TextRun({ children: [PageNumber.CURRENT] }),
           ],
         })
