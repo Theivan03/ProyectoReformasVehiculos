@@ -1,0 +1,29 @@
+<h2 class="mb-4">Nueva Reforma</h2>
+<p>Por favor, seleccione las reformas que desea aplicar al vehículo.</p>
+
+<!-- Aquí irá el formulario o los pasos siguientes -->
+<div class="container mt-4">
+  <app-seleccion-secciones
+    *ngIf="mostrarSeleccion"
+    [seccionesPreseleccionadas]="codigosPreseleccionados"
+    (continuar)="onContinuar($event)"
+  >
+  </app-seleccion-secciones>
+
+  <app-mostrar-secciones
+    *ngIf="mostrarSubSelecciones"
+    [secciones]="seccionesSeleccionadas"
+    [respuestas]="respuestasGuardadas"
+    (volverASeleccion)="mostrarSeleccion = true; mostrarSubSelecciones = false"
+    (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
+  >
+  </app-mostrar-secciones>
+
+  <app-formulario-proyecto
+    *ngIf="mostrarFormularioProyecto"
+    [respuestas]="respuestasGuardadas"
+    (volverAReforma)="onVolverDesdeFormulario($event)"
+    [datosIniciales]="datosFormularioGuardados"
+  >
+  </app-formulario-proyecto>
+</div>
