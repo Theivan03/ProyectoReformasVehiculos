@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { generarDocumentoProyecto } from '../generadores/proyecto-word';
 import { generarDocumentoFinalObra } from '../generadores/certificado-final-obra';
 import { generarDocumentoTaller } from '../generadores/certificado-taller';
@@ -16,7 +16,8 @@ import { Router } from '@angular/router';
 export class GeneradorDocumentosComponent implements OnInit {
   constructor(private router: Router) {}
 
-  reformaData: any = history.state.reformaData;
+  @Input() reformaData: any;
+  @Output() volverAlFormulario = new EventEmitter<void>();
 
   ngOnInit(): void {
     console.log('Datos de reforma recibidos:', this.reformaData);
@@ -39,12 +40,7 @@ export class GeneradorDocumentosComponent implements OnInit {
     }
   }
 
-  volverAlFormulario(): void {
-    this.router.navigate(['/formulario'], {
-      state: {
-        datosFormulario: this.reformaData,
-        pagina: 4, // Puedes usar la última página visitada
-      },
-    });
+  volver(): void {
+    this.volverAlFormulario.emit(this.reformaData);
   }
 }

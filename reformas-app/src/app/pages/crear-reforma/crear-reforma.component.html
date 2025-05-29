@@ -24,5 +24,12 @@
     [respuestas]="respuestasGuardadas"
     [datosIniciales]="datosFormularioGuardados"
     (volverAReforma)="onVolverDesdeFormulario($event)"
+    (finalizarFormulario)="onFinalizarFormulario($event)"
   ></app-formulario-proyecto>
+
+  <app-generador-documentos
+    *ngIf="mostrarGenerador"
+    [reformaData]="datosGenerales"
+    (volverAlFormulario)="onVolverDesdeGenerador($event)"
+  ></app-generador-documentos>
 </div>

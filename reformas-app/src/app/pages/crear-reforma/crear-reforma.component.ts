@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { SeleccionSeccionesComponent } from '../seleccion-secciones/seleccion-secciones.component';
 import { MostrarSeccionesComponent } from '../mostrar-secciones/mostrar-secciones.component';
 import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-proyecto.component';
+import { GeneradorDocumentosComponent } from '../../generador-documentos/generador-documentos.component';
 
 @Component({
   selector: 'app-crear-reforma',
@@ -11,6 +12,7 @@ import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-p
     SeleccionSeccionesComponent,
     MostrarSeccionesComponent,
     FormularioProyectoComponent,
+    GeneradorDocumentosComponent,
   ],
   standalone: true,
   templateUrl: './crear-reforma.component.html',
@@ -20,6 +22,9 @@ export class CrearReformaComponent {
   mostrarSeleccion = true;
   mostrarSubSelecciones = false;
   mostrarFormularioProyecto = false;
+  mostrarGenerador = false;
+  datosGenerales: any = {};
+
   respuestasGuardadas: {
     [codigo: string]: { codigo: string; descripcion: string }[];
   } = {};
@@ -54,7 +59,10 @@ export class CrearReformaComponent {
   datosFormularioGuardados: any;
 
   onVolverDesdeFormulario(event: any): void {
-    this.datosFormularioGuardados = event.datosFormulario;
+    this.datosFormularioGuardados = {
+      ...event.datosFormulario,
+      paginaActual: 1,
+    };
     this.mostrarFormularioProyecto = false;
     this.mostrarSubSelecciones = true;
   }
@@ -66,5 +74,18 @@ export class CrearReformaComponent {
     this.mostrarSeleccion = false;
     this.mostrarSubSelecciones = false;
     this.mostrarFormularioProyecto = true;
+  }
+
+  onVolverDesdeGenerador(data: any): void {
+    this.datosFormularioGuardados = data;
+    data.paginaActual = 4;
+    this.mostrarGenerador = false;
+    this.mostrarFormularioProyecto = true;
+  }
+
+  onFinalizarFormulario(data: any): void {
+    this.datosGenerales = data;
+    this.mostrarFormularioProyecto = false;
+    this.mostrarGenerador = true;
   }
 }

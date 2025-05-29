@@ -6,6 +6,9 @@ import {
   Input,
   Output,
   ViewChild,
+  SimpleChange,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import talleres from '../../../assets/talleres.json';
 import { Router } from '@angular/router';
@@ -17,7 +20,7 @@ import { Router } from '@angular/router';
   templateUrl: './formulario-proyecto.component.html',
   styleUrl: './formulario-proyecto.component.css',
 })
-export class FormularioProyectoComponent {
+export class FormularioProyectoComponent implements OnChanges {
   constructor(private router: Router) {}
 
   paginaActual = 1;
@@ -86,13 +89,20 @@ export class FormularioProyectoComponent {
   @Input() respuestas: any;
   @Output() volverAReforma = new EventEmitter<any>();
   @Input() datosIniciales: any;
+  @Output() finalizarFormulario = new EventEmitter<any>();
 
-  ngOnInit(): void {
-    const state = history.state;
-    if (state?.datosFormulario) {
-      this.datos = { ...state.datosFormulario };
-      this.paginaActual = state.pagina || 1;
-      this.datos.tallerSeleccionado = this.datos.taller;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['datosIniciales'] && this.datosIniciales) {
+      this.datos = { ...this.datosIniciales };
+      if (this.datos.paginaActual) {
+        this.paginaActual = this.datos.paginaActual;
+      }
+
+      if (this.datos.taller && this.talleres?.length) {
+        const id = this.datos.taller.nombre;
+        const tallerReal = this.talleres.find((t) => t.nombre === id);
+        this.datos.tallerSeleccionado = tallerReal || null;
+      }
     }
 
     if (this.datosIniciales) {
@@ -154,9 +164,7 @@ export class FormularioProyectoComponent {
       codigosDetallados: this.respuestas,
     };
 
-    this.router.navigate(['/documentos'], {
-      state: { reformaData: finalData },
-    });
+    this.finalizarFormulario.emit(finalData);
   }
 
   generarReferencia(): void {

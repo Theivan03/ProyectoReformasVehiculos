@@ -4,6 +4,8 @@ import { EditarReformaComponent } from './pages/editar-reforma/editar-reforma.co
 import { HomeComponent } from './pages/home/home.component';
 import { GeneradorDocumentosComponent } from './generador-documentos/generador-documentos.component';
 import { FormularioProyectoComponent } from './pages/formulario-proyecto/formulario-proyecto.component';
+import { MostrarSeccionesComponent } from './pages/mostrar-secciones/mostrar-secciones.component';
+import { GestionarTallerComponent } from './formulario-taller/gestionar-taller.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -11,4 +13,5 @@ export const routes: Routes = [
   { path: 'editar-reforma', component: EditarReformaComponent },
   { path: 'documentos', component: GeneradorDocumentosComponent },
   { path: 'formulario', component: FormularioProyectoComponent },
+  { path: 'taller', component: GestionarTallerComponent },
 ];
