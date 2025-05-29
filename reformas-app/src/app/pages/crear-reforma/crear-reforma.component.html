@@ -22,8 +22,7 @@
   <app-formulario-proyecto
     *ngIf="mostrarFormularioProyecto"
     [respuestas]="respuestasGuardadas"
-    (volverAReforma)="onVolverDesdeFormulario($event)"
     [datosIniciales]="datosFormularioGuardados"
-  >
-  </app-formulario-proyecto>
+    (volverAReforma)="onVolverDesdeFormulario($event)"
+  ></app-formulario-proyecto>
 </div>

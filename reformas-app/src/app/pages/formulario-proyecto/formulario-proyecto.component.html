@@ -88,6 +88,7 @@
           *ngFor="
             let campo of [
               { label: 'Marca', model: 'marca' },
+              { label: 'Modelo', model: 'modelo' },
               { label: 'Denominación', model: 'denominacion' },
               { label: 'Tipo', model: 'tipo' },
               { label: 'Variante', model: 'variante' },
@@ -160,7 +161,14 @@
               { label: 'MMA eje 1', model: 'mmaEje1Antes' },
               { label: 'MMA eje 2', model: 'mmaEje2Antes' },
               { label: 'MMA conjunto', model: 'mmaConjuntoAntes' },
-              { label: 'Clasificación', model: 'clasificacionAntes' }
+              { label: 'Clasificación', model: 'clasificacionAntes' },
+              { label: 'Carga vertical', model: 'cargavertical' },
+              {
+                label: 'MMr remolque con barra de tracción',
+                model: 'mmrbarradetraccion'
+              },
+              { label: 'MMr remolque de eje central', model: 'mmrejecentral' },
+              { label: 'MMr remolque sin frenos', model: 'mmrsinfrenos' }
             ]
           "
         >
@@ -201,7 +209,17 @@
               { label: 'MMA eje 2', model: 'mmaEje2Despues' },
               { label: 'MMA conjunto', model: 'mmaConjuntoDespues' },
               { label: 'Clasificación', model: 'clasificacionDespues' },
-              { label: 'Plazas', model: 'plazasFinal' }
+              { label: 'Plazas', model: 'plazasFinal' },
+              { label: 'Carga vertical', model: 'cargaverticalDespues' },
+              {
+                label: 'MMr remolque con barra de tracción',
+                model: 'mmrbarradetraccionDespues'
+              },
+              {
+                label: 'MMr remolque de eje central',
+                model: 'mmrejecentralDespues'
+              },
+              { label: 'MMr remolque sin frenos', model: 'mmrsinfrenosDespues' }
             ]
           "
         >

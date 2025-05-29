@@ -1,0 +1,91 @@
+<div class="container mt-5">
+  <h2 class="mb-4 text-center mt" style="margin-top: 160px">
+    Generación de Documentos
+  </h2>
+
+  <div class="row g-4">
+    <!-- Proyecto Técnico -->
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Proyecto Técnico</h5>
+          <p class="card-text flex-grow-1">
+            Documento base que describe la reforma realizada, sus
+            características técnicas y todos los datos del vehículo implicados
+            en el proceso.
+          </p>
+          <button
+            class="btn btn-primary mt-auto w-100"
+            (click)="generar('proyecto')"
+          >
+            Generar Proyecto Técnico
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Certificado Final de Obra -->
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Certificado Final de Obra</h5>
+          <p class="card-text flex-grow-1">
+            Certificado emitido por el técnico competente, que garantiza que la
+            reforma ha sido ejecutada según el proyecto técnico y cumple con la
+            normativa.
+          </p>
+          <button
+            class="btn btn-primary mt-auto w-100"
+            (click)="generar(reformaData)"
+          >
+            Generar Certificado Final de Obra
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Certificado de Taller -->
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Certificado de Taller</h5>
+          <p class="card-text flex-grow-1">
+            Documento emitido por el taller instalador donde se certifica que la
+            reforma fue efectuada conforme a la reglamentación vigente.
+          </p>
+          <button
+            class="btn btn-primary mt-auto w-100"
+            (click)="generar(reformaData)"
+          >
+            Generar Certificado de Taller
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Declaración Responsable -->
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Declaración Responsable</h5>
+          <p class="card-text flex-grow-1">
+            Declaración firmada por el propietario o técnico responsable,
+            asumiendo que los datos facilitados y los trabajos realizados son
+            veraces.
+          </p>
+          <button
+            class="btn btn-primary mt-auto w-100"
+            (click)="generar(reformaData)"
+          >
+            Generar Declaración Responsable
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="mb-4 text-start">
+      <button class="btn btn-outline-secondary" (click)="volverAlFormulario()">
+        ← Volver al formulario
+      </button>
+    </div>
+  </div>
+</div>

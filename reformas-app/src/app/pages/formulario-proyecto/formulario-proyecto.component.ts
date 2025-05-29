@@ -8,6 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import talleres from '../../../assets/talleres.json';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-formulario-proyecto',
@@ -17,6 +18,8 @@ import talleres from '../../../assets/talleres.json';
   styleUrl: './formulario-proyecto.component.css',
 })
 export class FormularioProyectoComponent {
+  constructor(private router: Router) {}
+
   paginaActual = 1;
   totalPaginas = 4;
 
@@ -28,6 +31,7 @@ export class FormularioProyectoComponent {
     referenciaProyecto: '',
     revision: '00',
     marca: '---',
+    modelo: '---',
     denominacion: '---',
     tipo: '---',
     variante: '---',
@@ -52,6 +56,10 @@ export class FormularioProyectoComponent {
     mmaEje1Antes: '---',
     mmaEje2Antes: '---',
     mmaConjuntoAntes: '---',
+    mmrbarradetraccion: '---',
+    mmrejecentral: '---',
+    mmrsinfrenos: '---',
+    cargavertical: '---',
     clasificacionAntes: '---',
     plazasDespues: '---',
     longitudDespues: '---',
@@ -67,6 +75,10 @@ export class FormularioProyectoComponent {
     mmaEje2Despues: '---',
     mmaConjuntoDespues: '---',
     clasificacionDespues: '---',
+    mmrbarradetraccionDespues: '---',
+    mmrejecentralDespues: '---',
+    mmrsinfrenosDespues: '---',
+    cargaverticalDespues: '---',
     plazasFinal: '---',
     fechaProyecto: null,
   };
@@ -76,6 +88,13 @@ export class FormularioProyectoComponent {
   @Input() datosIniciales: any;
 
   ngOnInit(): void {
+    const state = history.state;
+    if (state?.datosFormulario) {
+      this.datos = { ...state.datosFormulario };
+      this.paginaActual = state.pagina || 1;
+      this.datos.tallerSeleccionado = this.datos.taller;
+    }
+
     if (this.datosIniciales) {
       this.datos = { ...this.datosIniciales };
     }
@@ -121,19 +140,23 @@ export class FormularioProyectoComponent {
     if (this.paginaActual === 1) {
       this.volverAReforma.emit({
         datosFormulario: this.datos,
+        pagina: this.paginaActual,
       });
     } else {
       this.paginaActual--;
     }
   }
 
-  enviarFormulario() {
+  enviarFormulario(): void {
+    this.datos.taller = this.datos.tallerSeleccionado;
     const finalData = {
       ...this.datos,
       codigosDetallados: this.respuestas,
     };
-    console.log('Formulario completado:', finalData);
-    // Aquí puedes guardarlo en un servicio o emitirlo
+
+    this.router.navigate(['/documentos'], {
+      state: { reformaData: finalData },
+    });
   }
 
   generarReferencia(): void {
