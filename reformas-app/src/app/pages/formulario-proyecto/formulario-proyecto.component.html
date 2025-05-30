@@ -48,7 +48,7 @@
           />
           <div class="invalid-feedback">Este campo es obligatorio.</div>
         </div>
-        <div class="col-md-6 mb-2">
+        <div class="col-md-4 mb-2">
           <label class="form-label">Taller *</label>
           <select
             class="form-select"
@@ -65,7 +65,7 @@
           </select>
           <div class="invalid-feedback">Este campo es obligatorio.</div>
         </div>
-        <div class="col-md-6 mb-2">
+        <div class="col-md-4 mb-2">
           <label class="form-label">Fecha del proyecto *</label>
           <input
             type="date"
@@ -77,6 +77,18 @@
             [class.is-invalid]="fechaProyecto.invalid && fechaProyecto.touched"
           />
           <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">¿Hay reformas previas? *</label>
+          <select
+            class="form-select"
+            [(ngModel)]="datos.reformasPrevias"
+            name="reformasPrevias"
+            required
+          >
+            <option [ngValue]="false">No</option>
+            <option [ngValue]="true">Sí</option>
+          </select>
         </div>
       </div>
     </div>

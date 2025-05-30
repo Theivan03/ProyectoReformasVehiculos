@@ -1,5 +1,9 @@
 <h2 class="mb-4">Nueva Reforma</h2>
-<p>Por favor, seleccione las reformas que desea aplicar al vehículo.</p>
+<p>
+  Inicie un nuevo proyecto de reforma. A lo largo del proceso podrá definir los
+  detalles técnicos, administrativos y generar la documentación necesaria para
+  su tramitación.
+</p>
 
 <!-- Aquí irá el formulario o los pasos siguientes -->
 <div class="container mt-4">
@@ -26,6 +30,14 @@
     (volverAReforma)="onVolverDesdeFormulario($event)"
     (finalizarFormulario)="onFinalizarFormulario($event)"
   ></app-formulario-proyecto>
+
+  <app-reformas-previas
+    *ngIf="mostrarReformasPrevias"
+    [datos]="datosGenerales"
+    (continuar)="irAGenerador($event)"
+    (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
+  >
+  </app-reformas-previas>
 
   <app-generador-documentos
     *ngIf="mostrarGenerador"

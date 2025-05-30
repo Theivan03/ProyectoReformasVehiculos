@@ -80,21 +80,30 @@
       </div>
     </div>
 
-    <button type="submit" class="btn btn-success mt-3">Guardar taller</button>
-  </form>
+    <!-- Botones (guardar + borrar en editar) -->
+    <div class="d-flex gap-2 mt-4" *ngIf="accion === 'editar'">
+      <button
+        type="submit"
+        class="btn btn-success flex-grow-1"
+        style="flex-basis: 75%"
+      >
+        Guardar cambios
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger"
+        style="flex-basis: 25%"
+        (click)="eliminarTaller()"
+      >
+        🗑️ Borrar
+      </button>
+    </div>
 
-  <!-- Pantalla de éxito -->
-  <div
-    *ngIf="guardado"
-    class="card p-4 mt-4 text-center shadow-sm border-success"
-  >
-    <h4 class="text-success mb-3">✅ Taller guardado correctamente</h4>
-    <p class="mb-4">Los cambios han sido registrados en el sistema.</p>
-    <button class="btn btn-outline-primary me-2" (click)="volverAlInicio()">
-      Volver al inicio
-    </button>
-    <button class="btn btn-outline-secondary" (click)="seguirEditando()">
-      Seguir editando
-    </button>
-  </div>
+    <!-- Botón guardar único en modo crear -->
+    <div class="mt-4" *ngIf="accion === 'crear'">
+      <button type="submit" class="btn btn-success w-100">
+        Guardar taller
+      </button>
+    </div>
+  </form>
 </div>

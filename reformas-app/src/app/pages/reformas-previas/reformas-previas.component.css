@@ -1,0 +1,49 @@
+.contenedor {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.descripcion {
+  font-size: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.campo-texto {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  resize: vertical;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.botones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn.primario {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}

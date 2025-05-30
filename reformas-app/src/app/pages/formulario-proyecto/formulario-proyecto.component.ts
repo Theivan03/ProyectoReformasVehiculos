@@ -6,32 +6,31 @@ import {
   Input,
   Output,
   ViewChild,
-  SimpleChange,
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import talleres from '../../../assets/talleres.json';
-import { Router } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-formulario-proyecto',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './formulario-proyecto.component.html',
   styleUrl: './formulario-proyecto.component.css',
 })
 export class FormularioProyectoComponent implements OnChanges {
-  constructor(private router: Router) {}
+  constructor(private http: HttpClient) {}
 
   paginaActual = 1;
   totalPaginas = 4;
 
-  talleres = talleres;
+  talleres: any[] = [];
 
   datos: any = {
     numeroProyecto: '',
     tallerSeleccionado: null,
     referenciaProyecto: '',
+    reformasPrevias: false,
     revision: '00',
     marca: '---',
     modelo: '---',
@@ -124,6 +123,24 @@ export class FormularioProyectoComponent implements OnChanges {
     }
   }
 
+  ngOnInit(): void {
+    this.http.get<any[]>('http://localhost:3000/talleres').subscribe({
+      next: (data) => {
+        this.talleres = data;
+
+        // Asignar el taller seleccionado si ya hay datos iniciales
+        if (this.datos.taller && this.talleres.length) {
+          const id = this.datos.taller.nombre;
+          const tallerReal = this.talleres.find((t) => t.nombre === id);
+          this.datos.tallerSeleccionado = tallerReal || null;
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar talleres del servidor:', err);
+      },
+    });
+  }
+
   siguiente(): void {
     if (!this.validarPaginaActual()) {
       return; // No avanzar si hay errores
@@ -148,6 +165,9 @@ export class FormularioProyectoComponent implements OnChanges {
 
   anterior() {
     if (this.paginaActual === 1) {
+      // Asignamos el taller antes del emit
+      this.datos.taller = this.datos.tallerSeleccionado;
+
       this.volverAReforma.emit({
         datosFormulario: this.datos,
         pagina: this.paginaActual,

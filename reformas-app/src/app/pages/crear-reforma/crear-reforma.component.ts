@@ -4,6 +4,7 @@ import { SeleccionSeccionesComponent } from '../seleccion-secciones/seleccion-se
 import { MostrarSeccionesComponent } from '../mostrar-secciones/mostrar-secciones.component';
 import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-proyecto.component';
 import { GeneradorDocumentosComponent } from '../../generador-documentos/generador-documentos.component';
+import { ReformasPreviasComponent } from '../reformas-previas/reformas-previas.component';
 
 @Component({
   selector: 'app-crear-reforma',
@@ -13,6 +14,7 @@ import { GeneradorDocumentosComponent } from '../../generador-documentos/generad
     MostrarSeccionesComponent,
     FormularioProyectoComponent,
     GeneradorDocumentosComponent,
+    ReformasPreviasComponent,
   ],
   standalone: true,
   templateUrl: './crear-reforma.component.html',
@@ -23,6 +25,7 @@ export class CrearReformaComponent {
   mostrarSubSelecciones = false;
   mostrarFormularioProyecto = false;
   mostrarGenerador = false;
+  mostrarReformasPrevias = false;
   datosGenerales: any = {};
 
   respuestasGuardadas: {
@@ -80,12 +83,34 @@ export class CrearReformaComponent {
     this.datosFormularioGuardados = data;
     data.paginaActual = 4;
     this.mostrarGenerador = false;
-    this.mostrarFormularioProyecto = true;
+    if (data.reformasPrevias) {
+      this.mostrarReformasPrevias = true;
+    } else {
+      this.mostrarFormularioProyecto = true;
+    }
   }
 
   onFinalizarFormulario(data: any): void {
     this.datosGenerales = data;
-    this.mostrarFormularioProyecto = false;
+    if (data.reformasPrevias === true) {
+      this.mostrarFormularioProyecto = false;
+      this.mostrarReformasPrevias = true;
+    } else {
+      this.mostrarFormularioProyecto = false;
+      this.mostrarGenerador = true;
+    }
+  }
+
+  irAGenerador(datos: any): void {
+    this.datosGenerales = datos;
+    this.mostrarReformasPrevias = false;
     this.mostrarGenerador = true;
+  }
+
+  onVolverDesdeReformasPrevias(data: any): void {
+    this.datosFormularioGuardados = data;
+    data.paginaActual = 4;
+    this.mostrarReformasPrevias = false;
+    this.mostrarFormularioProyecto = true;
   }
 }

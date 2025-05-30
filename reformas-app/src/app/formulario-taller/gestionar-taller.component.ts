@@ -51,49 +51,75 @@ export class GestionarTallerComponent {
     const taller = this.talleres.find(
       (t) => t.nombre === this.tallerSeleccionadoNombre
     );
+    console.log('Taller cargado:', taller); // ✅ Verifica que sea el taller completo
+
     if (taller) {
       this.formularioTaller = { ...taller };
+    } else {
+      console.warn('Taller no encontrado para cargar');
     }
   }
 
   guardarTaller(): void {
-    if (this.accion === 'crear') {
-      const yaExiste = this.talleres.some(
-        (t) => t.nombre === this.formularioTaller.nombre
-      );
-      if (yaExiste) {
-        alert('Ya existe un taller con ese nombre.');
-        return;
-      }
+    this.http.get<any[]>('http://localhost:3000/talleres').subscribe({
+      next: (talleres) => {
+        const nombre = this.formularioTaller.nombre;
 
-      this.talleres.push({ ...this.formularioTaller });
-    }
+        if (this.accion === 'crear') {
+          const yaExiste = talleres.some((t) => t.nombre === nombre);
+          if (yaExiste) {
+            alert('Ya existe un taller con ese nombre en el servidor.');
+            return;
+          }
 
-    if (this.accion === 'editar') {
-      const index = this.talleres.findIndex(
-        (t) => t.nombre === this.tallerSeleccionadoNombre
-      );
-      if (index !== -1) {
-        this.talleres[index] = { ...this.formularioTaller };
-        alert('Taller modificado localmente.');
-      } else {
-        alert('No se encontró el taller a modificar.');
-        return;
-      }
-    }
+          talleres.push({ ...this.formularioTaller });
+        }
 
-    // 🔁 Guardar cambios reales en el JSON del servidor
-    this.http.post('http://localhost:3000/talleres', this.talleres).subscribe({
-      next: () => {
-        alert('Cambios guardados correctamente en el archivo.');
-        this.resetFormulario();
-        this.accion = null;
-        this.tallerSeleccionadoNombre = null;
+        if (this.accion === 'editar') {
+          const index = talleres.findIndex(
+            (t) => t.nombre === this.tallerSeleccionadoNombre
+          );
+          if (index !== -1) {
+            talleres[index] = { ...this.formularioTaller };
+          }
+        }
+
+        this.http.post('http://localhost:3000/talleres', talleres).subscribe({
+          next: () => {
+            this.guardado = true;
+            this.volverAlInicio();
+          },
+          error: () => {
+            alert('Hubo un error al guardar en el servidor.');
+          },
+        });
       },
       error: () => {
-        alert('Hubo un error al guardar en el servidor.');
+        alert('No se pudo comprobar si el taller ya existe.');
       },
     });
+  }
+
+  eliminarTaller(): void {
+    const nombre = this.formularioTaller?.nombre?.trim().toLowerCase();
+
+    const confirmacion = confirm(`¿Eliminar el taller "${nombre}"?`);
+    if (!confirmacion) return;
+
+    const nombreCodificado = encodeURIComponent(nombre);
+
+    this.http
+      .delete(`http://localhost:3000/talleres/${nombreCodificado}`)
+      .subscribe({
+        next: () => {
+          alert('Taller eliminado correctamente.');
+          this.volverAlInicio();
+        },
+        error: (err) => {
+          console.error('Error al eliminar:', err);
+          alert(`No se pudo eliminar el taller "${nombre}".`);
+        },
+      });
   }
 
   resetFormulario(): void {
@@ -115,6 +141,11 @@ export class GestionarTallerComponent {
     this.accion = null;
     this.tallerSeleccionadoNombre = null;
     this.resetFormulario();
+
+    // ✅ refrescar talleres desde el servidor
+    this.http
+      .get<any[]>('http://localhost:3000/talleres')
+      .subscribe((data) => (this.talleres = data));
   }
 
   seguirEditando(): void {
