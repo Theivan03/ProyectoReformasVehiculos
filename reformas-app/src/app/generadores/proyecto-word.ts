@@ -1184,7 +1184,107 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     new Paragraph({
       pageBreakBefore: true,
     }),
-    new Paragraph({ pageBreakBefore: true }),
+  ];
+
+  const codigosImagenes = Object.values(data.codigosDetallados ?? {}).flat();
+  const tamañosResp = await fetch('http://localhost:3000/image-sizes');
+  const tamaños = await tamañosResp.json();
+
+  let alturaAcumulada = 0;
+  const alturaMaximaPagina = 700; // Aproximadamente útil en pt (842pt - márgenes)
+
+  for (const codigo of codigosImagenes) {
+    if (
+      typeof codigo !== 'object' ||
+      codigo === null ||
+      typeof (codigo as any).codigo !== 'string'
+    ) {
+      continue;
+    }
+    const codigoStr = (codigo as { codigo: string }).codigo;
+    const nombreBase = codigoStr.replace('.', '-');
+    const nombreArchivo = `${nombreBase}.png`;
+    const url = `http://localhost:3000/imgs/${nombreArchivo}`;
+    const tamaño = tamaños.find(
+      (img: { nombre: string }) => img.nombre === nombreArchivo
+    );
+
+    if (!tamaño) continue;
+
+    try {
+      const response = await fetch(url);
+      const buffer = await response.arrayBuffer();
+
+      const escala = 500 / tamaño.width;
+      const alturaEscalada = Math.round(tamaño.height * escala);
+
+      // 🔁 Verificar si cabe en la página actual
+      if (alturaAcumulada + alturaEscalada > alturaMaximaPagina) {
+        punto1_4Normativa.push(new Paragraph({ pageBreakBefore: true }));
+        alturaAcumulada = 0;
+      }
+
+      punto1_4Normativa.push(
+        new Paragraph({
+          spacing: { line: 260, after: 60 },
+          children: [
+            new TextRun({
+              text: `Código ${(codigo as { codigo: string }).codigo}`,
+              bold: true,
+              break: 1,
+            }),
+          ],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new ImageRun({
+              data: buffer,
+              transformation: {
+                width: 500,
+                height: alturaEscalada,
+              },
+              type: 'png',
+            }),
+          ],
+        })
+      );
+
+      alturaAcumulada += alturaEscalada + 100; // Añadimos margen entre imágenes
+    } catch (err) {
+      console.warn(
+        `No se pudo cargar la imagen para el código ${
+          (codigo as { codigo: string }).codigo
+        }`
+      );
+    }
+  }
+
+  const punto1_5Consideraciones = [
+    new Paragraph({ pageBreakBefore: true }), // Salto de página antes del título
+    new Paragraph({
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 260, after: 120 },
+      children: [
+        new TextRun({
+          text: '1.5- CONSIDERACIONES GENERALES',
+          bold: true,
+          color: '000000',
+        }),
+      ],
+    }),
+    ...[
+      'Una vez expuesto el listado de reformas pasamos a la explicación más detallada del proceso de realización en cada una de ellas.',
+      'Es importante señalar que los elementos añadidos al vehículo en esta reforma serán suministrados por una empresa especializada en vehículos todoterreno, por lo que no serán diseñados a lo largo de este proyecto, ya que todos han sido previamente creados específicamente para el modelo de vehículo que vamos a reformar, siguiendo los patrones del fabricante del vehículo. Por lo tanto es el fabricante el encargado del diseño de las piezas y del cumplimiento de las normativas europeas, adquiriendo así los certificados de calidad y códigos de homologación, así como el marcado CE de los mismos, para su posterior puesta en venta en el mercado.',
+      'El montaje de las piezas enumeradas deberá realizarse en un taller autorizado y especializado en este tipo de trabajos. El personal que lleve a cabo la transformación deberá poseer suficientes conocimientos en este tipo de montajes. En el momento en el que finalice la reforma, el taller deberá expedir un certificado de taller por las reformas realizadas.',
+      'Los trabajos de instalación de los elementos especificados anteriormente se realizarán previo desmontaje de los elementos sustituidos, incluyendo el desmontaje y acoplamiento posterior de todos aquellos otros elementos que faciliten el montaje definitivo.',
+    ].map(
+      (texto) =>
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        })
+    ),
   ];
 
   const section2 = {
@@ -1196,65 +1296,16 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ...punto1_2Antecedentes,
       ...punto1_3DatosVehiculo,
       ...punto1_4Normativa,
+      ...punto1_5Consideraciones,
     ],
   };
 
-  const imagenesPorCodigo: Paragraph[] = [];
-
-  for (const grupo of Object.values(data.codigosDetallados)) {
-    for (const item of grupo as any[]) {
-      const codigo = item.codigo.replace('.', '-'); // transforma 1.2 en 1-2
-      const ruta = `http://localhost:3000/imagenes/${codigo}.png`;
-
-      try {
-        const respuesta = await fetch(ruta);
-        if (!respuesta.ok) {
-          console.warn(`No se encontró imagen para el código: ${codigo}`);
-          continue;
-        }
-
-        const buffer = await respuesta.arrayBuffer();
-
-        imagenesPorCodigo.push(
-          new Paragraph({
-            spacing: { before: 300, after: 100 },
-            children: [
-              new TextRun({
-                text: `Código: ${item.codigo} - ${item.descripcion}`,
-                bold: true,
-              }),
-            ],
-          }),
-          new Paragraph({
-            children: [
-              new ImageRun({
-                data: buffer,
-                transformation: {
-                  width: 500,
-                  height: 300,
-                },
-                type: 'jpg',
-              }),
-            ],
-          })
-        );
-      } catch (error) {
-        console.error(`Error al obtener imagen para ${codigo}:`, error);
-      }
-    }
-  }
-
-  const sectionImagenes = {
-    properties: { type: SectionType.NEXT_PAGE },
-    children: imagenesPorCodigo,
-  };
-
-  // 5) Monta y descarga el documento
+  //5) Monta y descarga el documento
   const doc = new Document({
-    sections: [section1, section2, sectionImagenes],
+    sections: [section1, section2],
   });
 
-  // 2) Empaqueta y descarga
+  //2) Empaqueta y descarga
   const blob = await Packer.toBlob(doc);
   saveAs(blob, 'documento-avanzado.docx');
 }
