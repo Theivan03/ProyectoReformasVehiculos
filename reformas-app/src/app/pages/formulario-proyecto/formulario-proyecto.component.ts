@@ -83,6 +83,8 @@ export class FormularioProyectoComponent implements OnChanges {
     cargaverticalDespues: '---',
     plazasFinal: '---',
     fechaProyecto: null,
+    tipoVehiculo: null,
+    modificaciones: [],
   };
 
   @Input() respuestas: any;

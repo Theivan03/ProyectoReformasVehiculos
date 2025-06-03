@@ -1,0 +1,351 @@
+<div class="container mt-4">
+  <div class="card p-4 shadow-sm">
+    <h4 class="mb-3">Tipo de Vehículo</h4>
+
+    <!-- Selector tipo vehículo -->
+    <div class="mb-3">
+      <label class="form-label">Seleccione el tipo de vehículo:</label>
+      <select
+        class="form-select"
+        [(ngModel)]="tipoVehiculo"
+        (change)="onTipoCambio()"
+        [class.is-invalid]="tipoVehiculoInvalido"
+      >
+        <option [ngValue]="null">-- Seleccionar --</option>
+        <option value="coche">Coche</option>
+        <option value="moto">Moto</option>
+        <option value="camper">Camper</option>
+      </select>
+      <div class="invalid-feedback">Debe seleccionar un tipo de vehículo.</div>
+    </div>
+
+    <!-- Lista de modificaciones -->
+    <div *ngIf="modificaciones.length > 0" class="mt-4">
+      <h5 class="mb-3">Modificaciones aplicables</h5>
+      <div *ngFor="let mod of modificaciones; let i = index" class="mb-3">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="mod.seleccionado"
+            [id]="'mod-' + i"
+          />
+          <label class="form-check-label" [for]="'mod-' + i">
+            {{ mod.nombre }}
+          </label>
+        </div>
+
+        <!-- Muelles -->
+        <div
+          *ngIf="mod.nombre.includes('MUELLES') && mod.seleccionado"
+          class="mt-2 ms-4"
+        >
+          <label class="form-label">¿Qué elementos se han modificado?</label>
+          <div class="form-check" *ngFor="let item of detallesMuellesOpciones">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detallesMuelles![item.key]"
+              (ngModelChange)="actualizarError(i, mod)"
+            />
+            <label class="form-check-label">{{ item.label }}</label>
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+
+          <label class="form-label mt-3"
+            >¿Desea añadir la anotación de no modificación de dirección?</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.anotacion"
+            (ngModelChange)="actualizarError(i, mod)"
+          >
+            <option value="1">Sí</option>
+            <option value="2">No</option>
+          </select>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- Neumáticos -->
+        <div
+          *ngIf="mod.nombre === 'NEUMÁTICOS' && mod.seleccionado"
+          class="ms-4 mt-2"
+        >
+          <label class="form-label">Seleccione anotación si procede:</label>
+          <select class="form-select" [(ngModel)]="mod.anotacion">
+            <option [ngValue]="null">-- Seleccionar --</option>
+            <option value="1">Diferencia superior al 8%</option>
+            <option value="2">Indice de velocidad menor del original</option>
+          </select>
+        </div>
+
+        <!-- Aletines -->
+        <div
+          *ngIf="
+            mod.nombre.includes('ALETINES') && mod.seleccionado && mod.detalle
+          "
+          class="ms-4"
+        >
+          <label class="form-label">Seleccione el tipo:</label>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detalle.aletines"
+              (ngModelChange)="actualizarError(i, mod)"
+            />
+            <label class="form-check-label">Aletines</label>
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detalle.sobrealetines"
+              (ngModelChange)="actualizarError(i, mod)"
+            />
+            <label class="form-check-label">Sobrealetines</label>
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- Matrícula -->
+        <div
+          *ngIf="
+            mod.nombre.includes('MATRÍCULA') && mod.seleccionado && mod.detalle
+          "
+          class="ms-4"
+        >
+          <label class="form-label">Modificación de matrícula:</label>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detalle.instalacionPorta"
+            />
+            <label class="form-check-label">Portamatrículas trasero</label>
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detalle.reubicacionTrasera"
+            />
+            <label class="form-check-label"
+              >Reubicación matrícula trasera</label
+            >
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detalle.cambioUbicacionDelantera"
+            />
+            <label class="form-check-label"
+              >Cambio ubicación matrícula delantera</label
+            >
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- Mueble camper -->
+        <div
+          *ngIf="
+            mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
+            mod.seleccionado &&
+            mod.opcionesMueble
+          "
+          class="ms-4"
+        >
+          <label class="form-label">¿Qué tipo de mueble desea indicar?</label>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.opcionesMueble.muebleBajo"
+            />
+            <label class="form-check-label">Mueble bajo</label>
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.opcionesMueble.muebleAlto"
+            />
+            <label class="form-check-label">Mueble alto</label>
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.opcionesMueble.aseo"
+            />
+            <label class="form-check-label">Aseo</label>
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- Instalación eléctrica camper -->
+        <div
+          *ngIf="mod.nombre === 'INSTALACIÓN ELÉCTRICA' && mod.seleccionado"
+          class="ms-4"
+        >
+          <label class="form-label">¿Desea añadir anotación?</label>
+          <select class="form-select" [(ngModel)]="mod.anotacion">
+            <option [ngValue]="true">Sí</option>
+            <option [ngValue]="false">No</option>
+          </select>
+        </div>
+
+        <!-- Aumento o disminución de plazas -->
+        <div
+          *ngIf="
+            mod.nombre === 'AUMENTO O DISMINUCIÓN DE PLAZAS' && mod.seleccionado
+          "
+          class="ms-4"
+        >
+          <label class="form-label">Tipo de modificación:</label>
+          <select class="form-select" [(ngModel)]="mod.tipoCambio">
+            <option [ngValue]="null">-- Seleccionar --</option>
+            <option value="aumento">Aumento</option>
+            <option value="disminucion">Disminución</option>
+          </select>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- MMA/MMTA moto -->
+        <div
+          *ngIf="mod.nombre === 'REDUCCIÓN MMA Y MMTA' && mod.seleccionado"
+          class="ms-4"
+        >
+          <label class="form-label">¿Qué se modifica?</label>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [(ngModel)]="mod.ejeDelantero"
+            />
+            <label class="form-check-label">Reducción en eje delantero</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [(ngModel)]="mod.ejeTotal"
+            />
+            <label class="form-check-label">Reducción total</label>
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- Guardabarros -->
+        <div
+          *ngIf="mod.nombre === 'SUSTITUCIÓN GUARDABARROS' && mod.seleccionado"
+          class="ms-4"
+        >
+          <label class="form-label">¿Qué guardabarros se ha sustituido?</label>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [(ngModel)]="mod.guardabarrosDelantero"
+            />
+            <label class="form-check-label">Delantero</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [(ngModel)]="mod.guardabarrosTrasero"
+            />
+            <label class="form-check-label">Trasero</label>
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- Disco y pastilla de freno -->
+        <div
+          *ngIf="
+            mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' && mod.seleccionado
+          "
+          class="ms-4"
+        >
+          <label class="form-label"
+            >¿Qué componente de freno se ha modificado?</label
+          >
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [(ngModel)]="mod.discoFreno"
+            />
+            <label class="form-check-label">Disco de freno</label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [(ngModel)]="mod.pastillaFreno"
+            />
+            <label class="form-check-label">Pastilla de freno</label>
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- Luces -->
+        <div
+          *ngIf="mod.nombre === 'LUCES' && mod.seleccionado"
+          class="mt-3 ms-4 border-start ps-3"
+        >
+          <label class="form-label">
+            ¿Qué modificaciones se han hecho en luces?
+          </label>
+
+          <div
+            class="form-check mb-1"
+            *ngFor="let item of opcionesDescripcionLuces"
+          >
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.descripcionLuces![item.key]"
+            />
+            <label class="form-check-label">
+              {{ item.label }}
+            </label>
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="d-flex justify-content-between mt-4">
+      <button class="btn btn-outline-secondary" (click)="volverFormulario()">
+        ← Volver
+      </button>
+      <button class="btn btn-primary" (click)="continuarFormulario()">
+        Continuar →
+      </button>
+    </div>
+  </div>
+</div>

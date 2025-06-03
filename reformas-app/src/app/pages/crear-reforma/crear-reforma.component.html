@@ -34,10 +34,17 @@
   <app-reformas-previas
     *ngIf="mostrarReformasPrevias"
     [datos]="datosGenerales"
-    (continuar)="irAGenerador($event)"
+    (continuar)="onContinuarDesdeReformasPrevias($event)"
     (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
   >
   </app-reformas-previas>
+
+  <app-tipo-vehiculo
+    *ngIf="mostrarTipoVehiculo"
+    [datosPrevios]="datosGuardadosTipoVehiculo"
+    (continuar)="onContinuarTipoVehiculo($event)"
+    (volver)="onVolverDesdeTipoVehiculo($event)"
+  ></app-tipo-vehiculo>
 
   <app-generador-documentos
     *ngIf="mostrarGenerador"
