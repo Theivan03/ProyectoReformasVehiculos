@@ -6,6 +6,7 @@ import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-p
 import { GeneradorDocumentosComponent } from '../../generador-documentos/generador-documentos.component';
 import { ReformasPreviasComponent } from '../reformas-previas/reformas-previas.component';
 import { TipoVehiculoComponent } from '../tipo-vehiculo/tipo-vehiculo.component';
+import { ResumenModificacionesComponent } from '../resumen-modificaciones/resumen-modificaciones.component';
 
 @Component({
   selector: 'app-crear-reforma',
@@ -17,6 +18,7 @@ import { TipoVehiculoComponent } from '../tipo-vehiculo/tipo-vehiculo.component'
     GeneradorDocumentosComponent,
     ReformasPreviasComponent,
     TipoVehiculoComponent,
+    ResumenModificacionesComponent,
   ],
   standalone: true,
   templateUrl: './crear-reforma.component.html',
@@ -31,6 +33,8 @@ export class CrearReformaComponent {
   datosGenerales: any = {};
   mostrarTipoVehiculo = false;
   datosGuardadosTipoVehiculo: any = null;
+  mostrarResumenModificaciones = false;
+  datosResumenModificaciones: any = {};
 
   respuestasGuardadas: {
     [codigo: string]: { codigo: string; descripcion: string }[];
@@ -112,8 +116,13 @@ export class CrearReformaComponent {
 
     this.datosGenerales.tipoVehiculo = data.tipoVehiculo;
     this.datosGenerales.modificaciones = data.modificaciones;
+
+    this.datosResumenModificaciones = {
+      ...this.datosGenerales,
+    };
+
     this.mostrarTipoVehiculo = false;
-    this.mostrarGenerador = true;
+    this.mostrarResumenModificaciones = true;
   }
 
   onVolverDesdeTipoVehiculo(data: any): void {
@@ -135,6 +144,22 @@ export class CrearReformaComponent {
     }
   }
 
+  onVolverDesdeResumenModificaciones(data: any): void {
+    this.datosResumenModificaciones = data;
+    this.datosGuardadosTipoVehiculo = {
+      tipoVehiculo: data.tipoVehiculo,
+      modificaciones: data.modificaciones,
+    };
+    this.mostrarResumenModificaciones = false;
+    this.mostrarTipoVehiculo = true;
+  }
+
+  onContinuarDesdeResumenModificaciones(data: any): void {
+    this.datosGenerales = data;
+    this.mostrarResumenModificaciones = false;
+    this.mostrarGenerador = true;
+  }
+
   onVolverDesdeGenerador(data: any): void {
     this.datosFormularioGuardados = {
       ...data,
@@ -143,6 +168,6 @@ export class CrearReformaComponent {
 
     this.datosGenerales = data;
     this.mostrarGenerador = false;
-    this.mostrarTipoVehiculo = true;
+    this.mostrarResumenModificaciones = true;
   }
 }

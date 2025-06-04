@@ -2,56 +2,12 @@
   {
     "nombre": "GREMIS AUTOMOCIÓN, S.L.",
     "direccion": "Pol. Ind. C/ Gremis, 21-23",
-    "poblacion": "Teulad",
+    "poblacion": "Teulada",
     "provincia": "Alicante",
     "registroIndustrial": "03-65210",
     "registroEspecial": "A-2929",
     "responsable": "Rosa Mª Bertomeu Cervera",
     "telefono": "965740794",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
-  },
-  {
-    "nombre": "ejeplo creado desde el server2",
-    "direccion": "aa",
-    "poblacion": "a",
-    "provincia": "a",
-    "registroIndustrial": "a",
-    "registroEspecial": "a",
-    "responsable": "a",
-    "telefono": "a",
-    "especialidad": "a"
-  },
-  {
-    "nombre": "faasdd",
-    "direccion": "f",
-    "poblacion": "f",
-    "provincia": "f",
-    "registroIndustrial": "f",
-    "registroEspecial": "f",
-    "responsable": "f",
-    "telefono": "f",
-    "especialidad": "f"
-  },
-  {
-    "nombre": "p",
-    "direccion": "p",
-    "poblacion": "pp",
-    "provincia": "p",
-    "registroIndustrial": "p",
-    "registroEspecial": "p",
-    "responsable": "pp",
-    "telefono": "p",
-    "especialidad": "p"
-  },
-  {
-    "nombre": "l",
-    "direccion": "l",
-    "poblacion": "l",
-    "provincia": "l",
-    "registroIndustrial": "l",
-    "registroEspecial": "ll",
-    "responsable": "l",
-    "telefono": "l",
-    "especialidad": "l"
   }
 ]

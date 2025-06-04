@@ -46,6 +46,13 @@
     (volver)="onVolverDesdeTipoVehiculo($event)"
   ></app-tipo-vehiculo>
 
+  <app-resumen-modificaciones
+    *ngIf="mostrarResumenModificaciones"
+    [datosEntrada]="datosResumenModificaciones"
+    (volver)="onVolverDesdeResumenModificaciones($event)"
+    (continuar)="onContinuarDesdeResumenModificaciones($event)"
+  ></app-resumen-modificaciones>
+
   <app-generador-documentos
     *ngIf="mostrarGenerador"
     [reformaData]="datosGenerales"

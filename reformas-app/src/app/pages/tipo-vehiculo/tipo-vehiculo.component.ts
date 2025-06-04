@@ -1,37 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
-interface Modificacion {
-  nombre: string;
-  seleccionado: boolean;
-  anotacion?: string | boolean;
-  opcionesMueble?: {
-    muebleBajo: boolean;
-    muebleAlto: boolean;
-    aseo: boolean;
-  };
-  detallesMuelles?: Record<string, boolean>;
-  detalle?: {
-    aletines?: boolean;
-    sobrealetines?: boolean;
-    instalacionPorta?: boolean;
-    reubicacionTrasera?: boolean;
-    cambioUbicacionDelantera?: boolean;
-  };
-  tipoCambio?: 'aumento' | 'disminucion' | null;
-  ejeDelantero?: boolean;
-  ejeTotal?: boolean;
-  guardabarrosDelantero?: boolean;
-  guardabarrosTrasero?: boolean;
-  discoFreno?: boolean;
-  pastillaFreno?: boolean;
-  descripcionLuces?: Record<string, boolean>;
-}
+import { Modificacion } from '../../interfaces/modificacion';
 
 @Component({
   selector: 'app-tipo-vehiculo',
   imports: [CommonModule, FormsModule],
+  standalone: true,
   templateUrl: './tipo-vehiculo.component.html',
   styleUrl: './tipo-vehiculo.component.css',
 })
@@ -50,9 +25,6 @@ export class TipoVehiculoComponent implements OnInit {
     { key: 'muelleDelanteroSinRef', label: 'Muelle delantero sin referencia' },
     { key: 'ballestaDelantera', label: 'Ballesta delantera' },
     { key: 'amortiguadorDelantero', label: 'Amortiguador delantero' },
-    { key: 'muelleTraseroConRef', label: 'Muelle trasero con referencia' },
-    { key: 'muelleTraseroSinRef', label: 'Muelle trasero sin referencia' },
-    { key: 'ballestaTrasera', label: 'Ballesta trasera' },
     { key: 'amortiguadorTrasero', label: 'Amortiguador trasero' },
     { key: 'tacosDeGoma', label: 'Instalación de tacos de goma' },
     { key: 'kitElevacion', label: 'Instalación de kit de elevación' },
@@ -102,6 +74,10 @@ export class TipoVehiculoComponent implements OnInit {
       case 'coche':
         return [
           {
+            nombre: 'ENGANCHE DE REMOLQUE',
+            seleccionado: false,
+          },
+          {
             nombre: 'HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
             seleccionado: false,
           },
@@ -150,7 +126,7 @@ export class TipoVehiculoComponent implements OnInit {
             },
           },
           {
-            nombre: 'MATRÍCULA Y PORTAMATRÍCULA (TODO)',
+            nombre: 'MATRÍCULA Y PORTAMATRÍCULA',
             seleccionado: false,
             detalle: {
               instalacionPorta: false,
@@ -162,12 +138,13 @@ export class TipoVehiculoComponent implements OnInit {
           { nombre: 'AMORTIGUADOR DE DIRECCIÓN', seleccionado: false },
           { nombre: 'BARRA DE DIRECCIÓN', seleccionado: false },
           {
-            nombre: 'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS',
+            nombre:
+              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)',
             seleccionado: false,
           },
           {
             nombre:
-              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (regulable o no)',
+              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)',
             seleccionado: false,
           },
           { nombre: 'FAROS DELANTEROS PRINCIPALES', seleccionado: false },
@@ -199,10 +176,6 @@ export class TipoVehiculoComponent implements OnInit {
           },
           { nombre: 'MANILLAR', seleccionado: false },
           { nombre: 'VELOCÍMETRO', seleccionado: false },
-          {
-            nombre: 'CAMBIO DE EMPLAZAMIENTO DE PLACA DE MATRÍCULA',
-            seleccionado: false,
-          },
           { nombre: 'LATIGUILLOS', seleccionado: false },
           { nombre: 'RETROVISORES', seleccionado: false },
           { nombre: 'HORQUILLA DELANTERA', seleccionado: false },
@@ -319,7 +292,7 @@ export class TipoVehiculoComponent implements OnInit {
       }
 
       if (mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO') {
-        invalido = !(mod.discoFreno || mod.pastillaFreno);
+        invalido = !(mod.tieneDisco || mod.tienePastilla);
       }
 
       if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS') {
