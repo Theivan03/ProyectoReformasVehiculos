@@ -328,19 +328,6 @@
         class="mb-3"
       >
         <h3>Aletines y Sobrealetines</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
 
         <!-- Aletines -->
         <div *ngIf="mod.detalle?.aletines">
@@ -393,7 +380,7 @@
           </div>
 
           <div class="mb-2">
-            <label class="form-label">Ratio de curvatura:</label>
+            <label class="form-label">Ratio de curvatura mínimo:</label>
             <input
               type="text"
               class="form-control"
@@ -422,6 +409,28 @@
             </select>
           </div>
           <div class="mb-2">
+            <label class="form-label">Marca:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.marcaSobreletines"
+              name="marcaSobreletines{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && !mod.marcaSobreletines"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Referencia:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.referenciaAletines"
+              name="referenciaAletines{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && !mod.referenciaAletines"
+            />
+          </div>
+          <div class="mb-2">
             <label class="form-label">Ancho (mm):</label>
             <input
               type="number"
@@ -430,6 +439,17 @@
               name="anchoSobrealetines{{ i }}"
               required
               [class.is-invalid]="form.submitted && !mod.anchoSobrealetines"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Ratio de curvatura mínimo:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.curvaturaSobrealetines"
+              name="curvaturaSobrealetines{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && !mod.curvaturaSobrealetines"
             />
           </div>
         </div>
@@ -542,7 +562,7 @@
           />
         </div>
         <div class="mb-2">
-          <label class="form-label">Ratio de curvatura:</label>
+          <label class="form-label">Ratio de curvatura mínimo:</label>
           <input
             type="text"
             class="form-control"
@@ -631,7 +651,7 @@
         </div>
 
         <div class="mb-2">
-          <label class="form-label">Ratio de curvatura:</label>
+          <label class="form-label">Ratio de curvatura mínimo:</label>
           <input
             type="text"
             class="form-control"
@@ -722,7 +742,7 @@
         </div>
 
         <div class="mb-2">
-          <label class="form-label">Ratio de curvatura:</label>
+          <label class="form-label">Ratio de curvatura mínimo:</label>
           <input
             type="text"
             class="form-control"
@@ -946,7 +966,7 @@
         </div>
 
         <div class="mb-2">
-          <label class="form-label">Ratio de curvatura:</label>
+          <label class="form-label">Ratio de curvatura mínimo:</label>
           <input
             type="text"
             class="form-control"
@@ -1618,7 +1638,7 @@
         </div>
 
         <div class="mb-2">
-          <label class="form-label">Ratio de curvatura:</label>
+          <label class="form-label">Ratio de curvatura mínimo:</label>
           <input
             type="text"
             class="form-control"
@@ -2387,7 +2407,7 @@
         </div>
 
         <div class="mb-2">
-          <label class="form-label">Ratio de curvatura:</label>
+          <label class="form-label">Ratio de curvatura mínimo:</label>
           <input
             type="text"
             class="form-control"

@@ -11,6 +11,7 @@ export interface Modificacion {
   carreteraDesactivada?: boolean;
   clase?: string;
   claseBarra?: string;
+  marcaSobreletines?: string;
   claseBola?: string;
   dKn?: number;
   descripcion?: string;
@@ -255,6 +256,7 @@ export interface Modificacion {
   curvaturaProtectoresLaterales?: string;
   curvaturaDefensaDelantera?: string;
   curvaturaSoporteRuedaRepuesto?: string;
+  curvaturaSobrealetines?: string;
   marcaSeparadores?: string;
   referenciaSeparadores?: string;
   grosorSeparadores?: string;
