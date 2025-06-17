@@ -58,7 +58,9 @@
             required
             [class.is-invalid]="taller.invalid && taller.touched"
           >
-            <option [ngValue]="null">Seleccione un taller</option>
+            <option [ngValue]="null" disabled selected>
+              Seleccione un taller
+            </option>
             <option *ngFor="let t of talleres" [ngValue]="t">
               {{ t.nombre }}
             </option>
@@ -86,6 +88,9 @@
             name="reformasPrevias"
             required
           >
+            <option [ngValue]="null" disabled selected>
+              Seleccione una opción
+            </option>
             <option [ngValue]="false">No</option>
             <option [ngValue]="true">Sí</option>
           </select>
@@ -221,7 +226,6 @@
               { label: 'MMA eje 2', model: 'mmaEje2Despues' },
               { label: 'MMA conjunto', model: 'mmaConjuntoDespues' },
               { label: 'Clasificación', model: 'clasificacionDespues' },
-              { label: 'Plazas', model: 'plazasFinal' },
               { label: 'Carga vertical', model: 'cargaverticalDespues' },
               {
                 label: 'MMr remolque con barra de tracción',

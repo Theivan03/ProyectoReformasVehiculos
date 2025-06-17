@@ -31,7 +31,7 @@
       [(ngModel)]="tallerSeleccionadoNombre"
       (change)="cargarTaller()"
     >
-      <option [ngValue]="null">-- Seleccionar --</option>
+      <option [ngValue]="null" disabled selected>-- Seleccionar --</option>
       <option *ngFor="let t of talleres" [ngValue]="t.nombre">
         {{ t.nombre }}
       </option>

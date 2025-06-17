@@ -74,15 +74,11 @@ export class TipoVehiculoComponent implements OnInit {
       case 'coche':
         return [
           {
-            nombre: 'ENGANCHE DE REMOLQUE',
+            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
             seleccionado: false,
           },
           {
-            nombre: 'HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
-            seleccionado: false,
-          },
-          {
-            nombre: 'HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
+            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
             seleccionado: false,
           },
           { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
@@ -154,9 +150,19 @@ export class TipoVehiculoComponent implements OnInit {
           { nombre: '3ª LUZ DE FRENO', seleccionado: false },
           { nombre: 'DIURNAS', seleccionado: false },
           { nombre: 'ANTINIEBLA', seleccionado: false },
-          { nombre: 'PILOTO TRASERO', seleccionado: false },
+          {
+            nombre: 'PILOTO TRASERO',
+            seleccionado: false,
+            detalle: {
+              luzPosicionFreno: false,
+              intermitente: false,
+              marchaAtras: false,
+              catadioptrico: false,
+            },
+          },
           { nombre: 'INTERMITENTES', seleccionado: false },
           { nombre: 'SUSTITUCIÓN DE EJES', seleccionado: false },
+          { nombre: 'ESTRIBOS LATERALES O TALONERAS', seleccionado: false },
         ];
       case 'moto':
         return [
@@ -291,6 +297,16 @@ export class TipoVehiculoComponent implements OnInit {
         invalido = !Object.values(mod.descripcionLuces).some((v) => v);
       }
 
+      if (mod.nombre === 'PILOTO TRASERO' && mod.detalle) {
+        const opts = [
+          mod.detalle.luzPosicionFreno,
+          mod.detalle.intermitente,
+          mod.detalle.marchaAtras,
+          mod.detalle.catadioptrico,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
       if (mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO') {
         invalido = !(mod.tieneDisco || mod.tienePastilla);
       }
@@ -336,6 +352,16 @@ export class TipoVehiculoComponent implements OnInit {
 
     if (mod.nombre === 'LUCES' && mod.descripcionLuces) {
       invalido = !Object.values(mod.descripcionLuces).some((v) => v);
+    }
+
+    if (mod.nombre === 'PILOTO TRASERO' && mod.detalle) {
+      const opts = [
+        mod.detalle.luzPosicionFreno,
+        mod.detalle.intermitente,
+        mod.detalle.marchaAtras,
+        mod.detalle.catadioptrico,
+      ];
+      invalido = !opts.some((v) => v);
     }
 
     if (mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO') {

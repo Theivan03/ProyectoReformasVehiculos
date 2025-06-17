@@ -21,6 +21,10 @@ export class GeneradorDocumentosComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('Datos de reforma recibidos:', this.reformaData);
+    console.log(
+      'Datos de reforma recibidos:\n',
+      JSON.stringify(this.reformaData, null, 2)
+    );
   }
 
   generar(tipo: string): void {

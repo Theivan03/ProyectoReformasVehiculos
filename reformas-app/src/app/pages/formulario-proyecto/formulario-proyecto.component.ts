@@ -81,7 +81,6 @@ export class FormularioProyectoComponent implements OnChanges {
     mmrejecentralDespues: '---',
     mmrsinfrenosDespues: '---',
     cargaverticalDespues: '---',
-    plazasFinal: '---',
     fechaProyecto: null,
     tipoVehiculo: null,
     modificaciones: [],

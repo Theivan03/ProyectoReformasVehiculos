@@ -11,7 +11,7 @@
         (change)="onTipoCambio()"
         [class.is-invalid]="tipoVehiculoInvalido"
       >
-        <option [ngValue]="null">-- Seleccionar --</option>
+        <option [ngValue]="null" disabled selected>-- Seleccionar --</option>
         <option value="coche">Coche</option>
         <option value="moto">Moto</option>
         <option value="camper">Camper</option>
@@ -62,6 +62,9 @@
             [(ngModel)]="mod.anotacion"
             (ngModelChange)="actualizarError(i, mod)"
           >
+            <option [ngValue]="null" disabled selected>
+              -- Seleccionar --
+            </option>
             <option value="1">Sí</option>
             <option value="2">No</option>
           </select>
@@ -77,9 +80,45 @@
         >
           <label class="form-label">Seleccione anotación si procede:</label>
           <select class="form-select" [(ngModel)]="mod.anotacion">
-            <option [ngValue]="null">-- Seleccionar --</option>
+            <option [ngValue]="null" disabled selected>
+              -- Seleccionar --
+            </option>
             <option value="1">Diferencia superior al 8%</option>
             <option value="2">Indice de velocidad menor del original</option>
+          </select>
+        </div>
+
+        <!-- ESTRIBOS LATERALES O TALONERAS -->
+        <div
+          *ngIf="
+            mod.nombre === 'ESTRIBOS LATERALES O TALONERAS' && mod.seleccionado
+          "
+          class="ms-4 mt-2"
+        >
+          <label class="form-label"
+            >Seleccione cual de las dos opciones ha instalado:</label
+          >
+          <select class="form-select" [(ngModel)]="mod.estribosotaloneras">
+            <option [ngValue]="null" disabled selected>
+              -- Seleccionar --
+            </option>
+            <option value="estribos">Estribos</option>
+            <option value="taloneras">Taloneras</option>
+          </select>
+
+          <label class="form-label mt-3"
+            >¿Desea añadir la anotación de material antideslizante?</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.anotacionAntideslizante"
+            (ngModelChange)="actualizarError(i, mod)"
+          >
+            <option [ngValue]="null" disabled selected>
+              -- Seleccionar --
+            </option>
+            <option value="1">Sí</option>
+            <option value="2">No</option>
           </select>
         </div>
 
@@ -97,8 +136,11 @@
               class="form-check-input"
               [(ngModel)]="mod.detalle.aletines"
               (ngModelChange)="actualizarError(i, mod)"
+              id="aletines{{ i }}"
             />
-            <label class="form-check-label">Aletines</label>
+            <label class="form-check-label" for="aletines{{ i }}"
+              >Aletines</label
+            >
           </div>
           <div class="form-check">
             <input
@@ -106,8 +148,11 @@
               class="form-check-input"
               [(ngModel)]="mod.detalle.sobrealetines"
               (ngModelChange)="actualizarError(i, mod)"
+              id="sobrealetines{{ i }}"
             />
-            <label class="form-check-label">Sobrealetines</label>
+            <label class="form-check-label" for="sobrealetines{{ i }}"
+              >Sobrealetines</label
+            >
           </div>
           <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
             Debe seleccionar al menos una opción en este bloque.
@@ -122,33 +167,115 @@
           class="ms-4"
         >
           <label class="form-label">Modificación de matrícula:</label>
+
           <div class="form-check">
             <input
               type="checkbox"
               class="form-check-input"
+              id="instalacionPorta{{ i }}"
               [(ngModel)]="mod.detalle.instalacionPorta"
+              name="instalacionPorta{{ i }}"
             />
-            <label class="form-check-label">Portamatrículas trasero</label>
+            <label class="form-check-label" for="instalacionPorta{{ i }}">
+              Portamatrículas trasero
+            </label>
           </div>
+
           <div class="form-check">
             <input
               type="checkbox"
               class="form-check-input"
+              id="reubicacionTrasera{{ i }}"
               [(ngModel)]="mod.detalle.reubicacionTrasera"
+              name="reubicacionTrasera{{ i }}"
             />
-            <label class="form-check-label"
-              >Reubicación matrícula trasera</label
-            >
+            <label class="form-check-label" for="reubicacionTrasera{{ i }}">
+              Reubicación matrícula trasera
+            </label>
           </div>
+
           <div class="form-check">
             <input
               type="checkbox"
               class="form-check-input"
+              id="cambioUbicacionDelantera{{ i }}"
               [(ngModel)]="mod.detalle.cambioUbicacionDelantera"
+              name="cambioUbicacionDelantera{{ i }}"
             />
-            <label class="form-check-label"
-              >Cambio ubicación matrícula delantera</label
+            <label
+              class="form-check-label"
+              for="cambioUbicacionDelantera{{ i }}"
             >
+              Cambio ubicación matrícula delantera
+            </label>
+          </div>
+
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
+        <!-- Piloto trasero -->
+        <div
+          *ngIf="
+            mod.nombre.includes('PILOTO TRASERO') &&
+            mod.seleccionado &&
+            mod.detalle
+          "
+          class="ms-4"
+        >
+          <label class="form-label">¿Qué elementos va a sustituir?</label>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="luzPosYFreno{{ i }}"
+              [(ngModel)]="mod.detalle.luzPosicionFreno"
+              name="luzPosicionFreno{{ i }}"
+              (change)="actualizarError(i, mod)"
+            />
+            <label class="form-check-label" for="luzPosYFreno{{ i }}">
+              Luz de posición y freno
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="intermitente{{ i }}"
+              [(ngModel)]="mod.detalle.intermitente"
+              name="intermitente{{ i }}"
+              (change)="actualizarError(i, mod)"
+            />
+            <label class="form-check-label" for="intermitente{{ i }}">
+              Intermitente
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="marchaAtras{{ i }}"
+              [(ngModel)]="mod.detalle.marchaAtras"
+              name="marchaAtras{{ i }}"
+              (change)="actualizarError(i, mod)"
+            />
+            <label class="form-check-label" for="marchaAtras{{ i }}">
+              Marcha atrás
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="catadioptrico{{ i }}"
+              [(ngModel)]="mod.detalle.catadioptrico"
+              name="catadioptrico{{ i }}"
+              (change)="actualizarError(i, mod)"
+            />
+            <label class="form-check-label" for="catadioptrico{{ i }}">
+              Catadióptrico
+            </label>
           </div>
           <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
             Debe seleccionar al menos una opción en este bloque.
@@ -201,6 +328,9 @@
         >
           <label class="form-label">¿Desea añadir anotación?</label>
           <select class="form-select" [(ngModel)]="mod.anotacion">
+            <option [ngValue]="null" disabled selected>
+              -- Seleccionar --
+            </option>
             <option [ngValue]="true">Sí</option>
             <option [ngValue]="false">No</option>
           </select>
@@ -215,7 +345,9 @@
         >
           <label class="form-label">Tipo de modificación:</label>
           <select class="form-select" [(ngModel)]="mod.tipoCambio">
-            <option [ngValue]="null">-- Seleccionar --</option>
+            <option [ngValue]="null" disabled selected>
+              -- Seleccionar --
+            </option>
             <option value="aumento">Aumento</option>
             <option value="disminucion">Disminución</option>
           </select>

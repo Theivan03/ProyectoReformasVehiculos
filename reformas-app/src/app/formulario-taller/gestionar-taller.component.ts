@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import talleresData from '../../assets/talleres.json';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
@@ -32,7 +31,6 @@ export class GestionarTallerComponent {
   constructor(private http: HttpClient) {
     // Cargar talleres desde localStorage o desde el JSON original
     const guardados = localStorage.getItem('talleres');
-    this.talleres = guardados ? JSON.parse(guardados) : talleresData;
   }
 
   ngOnInit() {
