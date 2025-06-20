@@ -235,7 +235,46 @@
                 label: 'MMr remolque de eje central',
                 model: 'mmrejecentralDespues'
               },
-              { label: 'MMr remolque sin frenos', model: 'mmrsinfrenosDespues' }
+              {
+                label: 'MMr remolque sin frenos',
+                model: 'mmrsinfrenosDespues'
+              },
+              { label: 'Velocidad máxima', model: 'velocidadMaxima' }
+            ]
+          "
+        >
+          <div class="col-md-4 mb-2">
+            <label class="form-label">{{ campo.label }} *</label>
+            <input
+              class="form-control"
+              [(ngModel)]="datos[campo.model]"
+              [name]="campo.model"
+              #ctrl="ngModel"
+              required
+              [class.is-invalid]="ctrl.invalid && ctrl.touched"
+            />
+            <div class="invalid-feedback">Este campo es obligatorio.</div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Página 5 -->
+    <div *ngIf="paginaActual === 5">
+      <h5 class="mb-2 text-primary">***Presupuesto para la reforma***</h5>
+      <div class="row">
+        <ng-container
+          *ngFor="
+            let campo of [
+              {
+                label: 'Precio por los materiales usados',
+                model: 'materialesUsados'
+              },
+              { label: 'Precio por la mano de obra', model: 'manoDeObra' },
+              {
+                label: 'Precio total del presupuesto',
+                model: 'totalPresupuesto'
+              }
             ]
           "
         >

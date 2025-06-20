@@ -22,7 +22,7 @@ export class FormularioProyectoComponent implements OnChanges {
   constructor(private http: HttpClient) {}
 
   paginaActual = 1;
-  totalPaginas = 4;
+  totalPaginas = 5;
 
   talleres: any[] = [];
 
@@ -64,6 +64,7 @@ export class FormularioProyectoComponent implements OnChanges {
     cargavertical: '---',
     clasificacionAntes: '---',
     plazasDespues: '---',
+    plazasAntes: '---',
     longitudDespues: '---',
     anchuraDespues: '---',
     alturaDespues: '---',
@@ -81,6 +82,10 @@ export class FormularioProyectoComponent implements OnChanges {
     mmrejecentralDespues: '---',
     mmrsinfrenosDespues: '---',
     cargaverticalDespues: '---',
+    velocidadMaxima: '---',
+    materialesUsados: '---',
+    manoDeObra: '---',
+    totalPresupuesto: '---',
     fechaProyecto: null,
     tipoVehiculo: null,
     modificaciones: [],
@@ -125,7 +130,7 @@ export class FormularioProyectoComponent implements OnChanges {
   }
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://localhost:3000/talleres').subscribe({
+    this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
       next: (data) => {
         this.talleres = data;
 

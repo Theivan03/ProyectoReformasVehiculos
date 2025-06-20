@@ -35,7 +35,7 @@ export class GestionarTallerComponent {
 
   ngOnInit() {
     this.http
-      .get<any[]>('http://localhost:3000/talleres')
+      .get<any[]>('http://192.168.1.41:3000/talleres')
       .subscribe((data) => (this.talleres = data));
   }
 
@@ -59,7 +59,7 @@ export class GestionarTallerComponent {
   }
 
   guardarTaller(): void {
-    this.http.get<any[]>('http://localhost:3000/talleres').subscribe({
+    this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
       next: (talleres) => {
         const nombre = this.formularioTaller.nombre;
 
@@ -82,15 +82,17 @@ export class GestionarTallerComponent {
           }
         }
 
-        this.http.post('http://localhost:3000/talleres', talleres).subscribe({
-          next: () => {
-            this.guardado = true;
-            this.volverAlInicio();
-          },
-          error: () => {
-            alert('Hubo un error al guardar en el servidor.');
-          },
-        });
+        this.http
+          .post('http://192.168.1.41:3000/talleres', talleres)
+          .subscribe({
+            next: () => {
+              this.guardado = true;
+              this.volverAlInicio();
+            },
+            error: () => {
+              alert('Hubo un error al guardar en el servidor.');
+            },
+          });
       },
       error: () => {
         alert('No se pudo comprobar si el taller ya existe.');
@@ -107,7 +109,7 @@ export class GestionarTallerComponent {
     const nombreCodificado = encodeURIComponent(nombre);
 
     this.http
-      .delete(`http://localhost:3000/talleres/${nombreCodificado}`)
+      .delete(`http://192.168.1.41:3000/talleres/${nombreCodificado}`)
       .subscribe({
         next: () => {
           alert('Taller eliminado correctamente.');
@@ -142,7 +144,7 @@ export class GestionarTallerComponent {
 
     // ✅ refrescar talleres desde el servidor
     this.http
-      .get<any[]>('http://localhost:3000/talleres')
+      .get<any[]>('http://192.168.1.41:3000/talleres')
       .subscribe((data) => (this.talleres = data));
   }
 

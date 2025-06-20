@@ -102,6 +102,10 @@ export interface Modificacion {
   mmrEjeCentral?: number;
   neumaticos?: string;
   neumaticosMoto?: string;
+  neumaticoDelantero?: string;
+  medidasLlantaDelantero?: string;
+  neumaticoTrasero?: string;
+  medidasLlantaTrasero?: string;
   nombre: string;
   numeroEspirasDelantero?: number;
   opcionesMueble?: {
@@ -122,12 +126,20 @@ export interface Modificacion {
   referenciaBallestaDelantera?: string;
   referenciaConvergenciaReg?: string;
   referenciaDelantero?: string;
+  referenciaTrasero?: string;
   referenciaDiscoDelantero?: string;
   referenciaDiscoTrasero?: string;
   referenciaGuardabarrosDelantero?: string;
   referenciaMuelleDelanteroConRef?: string;
+  contrasenaAsiento?: string;
+  marcaAsiento?: string;
+  plazasAsiento?: number;
   referenciaPastillaDelantera?: string;
   referenciaPastillaTrasera?: string;
+  numCajones?: number;
+  cantidadClaraboya?: number;
+  cantidadVentanas?: number;
+  instalacionesSecundarias?: string;
   regulable?: boolean;
   seleccionado: boolean;
   sKg?: number;
@@ -138,7 +150,9 @@ export interface Modificacion {
   tipo?: string;
   tipoBarra?: string;
   tipoCambio?: 'aumento' | 'disminucion' | null;
+  posicionAsiento?: 'delanteras' | 'traseras';
   tipoFabricacion?: string;
+  homologacionBase?: string;
   tipoSuspensionDelantera?: string;
   tipoSuspensionTrasera?: string;
   tipoTacoDelantero?: string;
@@ -147,7 +161,11 @@ export interface Modificacion {
   ubicacion?: string;
   velocidadMaximaAntes?: string;
   velocidadMaximaDespues?: string;
+  velocidadMaxima?: string;
   plazasAntes?: number;
+  materialesUsados?: number;
+  manoDeObra?: number;
+  totalPresupuesto?: number;
   plazasDespues?: number;
   marcaAsientoIndividual?: string;
   marcajes?: string;
@@ -264,6 +282,8 @@ export interface Modificacion {
   marcaSnorkel?: string;
   medidasSnorkel?: string;
   tipoFabricacionParagolpesDelantero?: string;
+  tipoFabricacionGuardabarrosDelantero?: string;
+  tipoFabricacionGuardabarrosTrasero?: string;
   marcaParagolpes?: string;
   referenciaParagolpes?: string;
   medidasParagolpesDelantero?: string;
@@ -285,4 +305,5 @@ export interface Modificacion {
   marcataloneras?: string;
   dimensionesTaloneras?: string;
   accion?: 'instalacion' | 'sustitucion' | 'desmontaje';
+  posicionNeumaticoMoto?: 'delantero' | 'trasero' | 'delantero y trasero';
 }

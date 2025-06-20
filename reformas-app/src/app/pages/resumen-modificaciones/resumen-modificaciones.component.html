@@ -2432,19 +2432,6 @@
 
         <div *ngIf="mod.ejeDelantero">
           <h4>Reducción en eje delantero</h4>
-          <div class="mb-2">
-            <label>Tipo de acción:</label>
-            <select
-              class="form-select"
-              [(ngModel)]="mod.accion"
-              name="accion{{ i }}"
-              required
-            >
-              <option value="Instalacion">Instalación</option>
-              <option value="Sustitucion">Sustitución</option>
-              <option value="Desmontaje">Desmontaje</option>
-            </select>
-          </div>
           <label class="form-label">Kg totales:</label>
           <input
             type="number"
@@ -2477,38 +2464,74 @@
       >
         <h3>Llantas y Neumáticos</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
+          <label>Cual de los dos neumaticos?:</label>
           <select
             class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
+            [(ngModel)]="mod.neumaticosMoto"
+            name="neumaticosMoto{{ i }}"
             required
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
+            <option value="delantero">Delantero</option>
+            <option value="trasero">Trasero</option>
+            <option value="delantero y trasero">Trasero</option>
           </select>
         </div>
-        <div class="mb-2">
-          <label class="form-label">Neumáticos:</label>
+        <div
+          class="mb-2"
+          ngIf="mod.accion === 'delantero' || mod.accion === 'delantero y trasero'"
+        >
+          <label class="form-label">Neumático delantero:</label>
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.neumaticos"
-            name="neumaticos{{ i }}"
+            [(ngModel)]="mod.neumaticoDelantero"
+            name="neumaticoDelantero{{ i }}"
             required
-            [class.is-invalid]="form.submitted && !mod.neumaticos"
+            [class.is-invalid]="form.submitted && !mod.neumaticoDelantero"
           />
         </div>
-        <div class="mb-2">
-          <label class="form-label">Medidas de llanta:</label>
+        <div
+          class="mb-2"
+          ngIf="mod.accion === 'delantero' || mod.accion === 'delantero y trasero'"
+        >
+          <label class="form-label"
+            >Medidas de llanta neumático delantero:</label
+          >
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.medidasLlantas"
-            name="medidasLlantas{{ i }}"
+            [(ngModel)]="mod.medidasLlantaDelantero"
+            name="medidasLlantaDelantero{{ i }}"
             required
-            [class.is-invalid]="form.submitted && !mod.medidasLlantas"
+            [class.is-invalid]="form.submitted && !mod.medidasLlantaDelantero"
+          />
+        </div>
+        <div
+          class="mb-2"
+          ngIf="mod.accion === 'trasero' || mod.accion === 'delantero y trasero'"
+        >
+          <label class="form-label">Neumático trasero:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.neumaticoTrasero"
+            name="neumaticoTrasero{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && !mod.neumaticoTrasero"
+          />
+        </div>
+        <div
+          class="mb-2"
+          ngIf="mod.accion === 'trasero' || mod.accion === 'delantero y trasero'"
+        >
+          <label class="form-label">Medidas de llanta neumático trasero:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.medidasLlantaTrasero"
+            name="medidasLlantaTrasero{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && !mod.medidasLlantaTrasero"
           />
         </div>
       </div>
@@ -2523,19 +2546,6 @@
         class="mb-4"
       >
         <h3>Suspensión</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -2566,41 +2576,58 @@
         class="mb-4"
       >
         <h3>Sustitución de Guardabarros</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
 
         <div *ngIf="mod.guardabarrosDelantero">
           <h4>Guardabarros delantero</h4>
-          <label class="form-label">Marca:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marcaDelantero"
-            name="marcaDelantero{{ i }}"
-            required
-            [class.is-invalid]="form.submitted && !mod.marcaDelantero"
-          />
 
-          <label class="form-label mt-2">Referencia:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.referenciaDelantero"
-            name="referenciaDelantero{{ i }}"
-            required
-            [class.is-invalid]="form.submitted && !mod.referenciaDelantero"
-          />
+          <div class="mb-2">
+            <label class="form-label">Tipo de fabricación:</label>
+            <select
+              class="form-select"
+              [(ngModel)]="mod.tipoFabricacionGuardabarrosDelantero"
+              name="tipoFabricacionGuardabarrosDelantero{{ i }}"
+              required
+              [class.is-invalid]="
+                form.submitted && !mod.tipoFabricacionGuardabarrosDelantero
+              "
+            >
+              <option value="" disabled selected>Seleccione una opción</option>
+              <option value="comercial">Marca y Referencia</option>
+              <option value="artesanal">
+                Fabricado en acero de forma artesanal
+              </option>
+            </select>
+          </div>
+
+          <!-- Solo mostrar marca y referencia si la opción es 'comercial' -->
+          <div
+            *ngIf="mod.tipoFabricacionGuardabarrosDelantero === 'comercial'"
+            class="mb-2"
+          >
+            <label class="form-label">Marca:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.marcaDelantero"
+              name="marcaDelantero{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && !mod.marcaDelantero"
+            />
+          </div>
+          <div
+            *ngIf="mod.tipoFabricacionGuardabarrosDelantero === 'comercial'"
+            class="mb-2"
+          >
+            <label class="form-label">Referencia:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.referenciaDelantero"
+              name="referenciaDelantero{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && !mod.referenciaDelantero"
+            />
+          </div>
 
           <label class="form-label mt-2">Dimensiones (ej: 150x600mm):</label>
           <input
@@ -2615,6 +2642,54 @@
 
         <div *ngIf="mod.guardabarrosTrasero">
           <h4>Guardabarros trasero</h4>
+          <div class="mb-2">
+            <label class="form-label">Tipo de fabricación:</label>
+            <select
+              class="form-select"
+              [(ngModel)]="mod.tipoFabricacionGuardabarrosTrasero"
+              name="tipoFabricacionGuardabarrosTrasero{{ i }}"
+              required
+              [class.is-invalid]="
+                form.submitted && !mod.tipoFabricacionGuardabarrosTrasero
+              "
+            >
+              <option value="" disabled selected>Seleccione una opción</option>
+              <option value="comercial">Marca y Referencia</option>
+              <option value="artesanal">
+                Fabricado en acero de forma artesanal
+              </option>
+            </select>
+          </div>
+
+          <!-- Solo mostrar marca y referencia si la opción es 'comercial' -->
+          <div
+            *ngIf="mod.tipoFabricacionGuardabarrosTrasero === 'comercial'"
+            class="mb-2"
+          >
+            <label class="form-label">Marca:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.marcatRasero"
+              name="marcatRasero{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && !mod.marcatRasero"
+            />
+          </div>
+          <div
+            *ngIf="mod.tipoFabricacionGuardabarrosTrasero === 'comercial'"
+            class="mb-2"
+          >
+            <label class="form-label">Referencia:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.referenciaTrasero"
+              name="referenciaTrasero{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && !mod.referenciaTrasero"
+            />
+          </div>
           <label class="form-label">Dimensiones (ej: 150x600mm):</label>
           <input
             type="text"
@@ -2631,37 +2706,26 @@
       <div *ngIf="mod.nombre === 'MANILLAR' && mod.seleccionado" class="mb-4">
         <h3>Manillar</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marcaManillar{{ i }}"
             required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
-        <label class="form-label">Marca:</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="mod.marca"
-          name="marcaManillar{{ i }}"
-          required
-          [class.is-invalid]="form.submitted && !mod.marca"
-        />
+            [class.is-invalid]="form.submitted && !mod.marca"
+          />
 
-        <label class="form-label mt-2">Modelo:</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="mod.modelo"
-          name="modeloManillar{{ i }}"
-          required
-          [class.is-invalid]="form.submitted && !mod.modelo"
-        />
+          <label class="form-label mt-2">Modelo:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.modelo"
+            name="modeloManillar{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && !mod.modelo"
+          />
+        </div>
       </div>
 
       <!-- VELOCÍMETRO -->
@@ -2670,19 +2734,6 @@
         class="mb-4"
       >
         <h3>Velocímetro</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <label class="form-label">Marca:</label>
         <input
           type="text"
@@ -2720,19 +2771,6 @@
         class="mb-4"
       >
         <h3>Latiguillos</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Marca delanteros:</label>
           <input
@@ -2786,19 +2824,6 @@
       >
         <h3>Retrovisores</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
-        <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
             type="text"
@@ -2850,19 +2875,6 @@
         class="mb-4"
       >
         <h3>Horquilla Delantera</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -2917,19 +2929,6 @@
         class="mb-4"
       >
         <h3>Disco de Freno y Pinza de Freno</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
 
         <!-- Disco de freno -->
         <div class="mb-3">
@@ -2952,7 +2951,7 @@
               [(ngModel)]="mod.tienePastilla"
               name="tienePastilla{{ i }}"
             />
-            <label class="form-check-label">Pastilla de freno</label>
+            <label class="form-check-label">Pinza de freno</label>
           </div>
           <div
             *ngIf="form.submitted && !mod.tieneDisco && !mod.tienePastilla"
@@ -3038,7 +3037,7 @@
 
         <!-- Pastilla de freno -->
         <div *ngIf="mod.tienePastilla" class="mt-4">
-          <h4>Pastilla de Freno</h4>
+          <h4>Pinza de Freno</h4>
           <label class="form-label">¿Qué frenos se han modificado?</label>
           <div class="form-check">
             <input
@@ -3065,7 +3064,7 @@
 
           <!-- Campos Pastilla Delantera -->
           <div *ngIf="mod.pastillaDelantera" class="mt-2">
-            <label class="form-label">Marca pastilla delantera:</label>
+            <label class="form-label">Marca pinza delantera:</label>
             <input
               class="form-control"
               type="text"
@@ -3074,9 +3073,7 @@
               required
               [class.is-invalid]="form.submitted && !mod.marcaPastillaDelantera"
             />
-            <label class="form-label mt-2"
-              >Referencia pastilla delantera:</label
-            >
+            <label class="form-label mt-2">Referencia pinza delantera:</label>
             <input
               class="form-control"
               type="text"
@@ -3091,7 +3088,7 @@
 
           <!-- Campos Pastilla Trasera -->
           <div *ngIf="mod.pastillaTrasera" class="mt-2">
-            <label class="form-label">Marca pastilla trasera:</label>
+            <label class="form-label">Marca pinza trasera:</label>
             <input
               class="form-control"
               type="text"
@@ -3100,7 +3097,7 @@
               required
               [class.is-invalid]="form.submitted && !mod.marcaPastillaTrasera"
             />
-            <label class="form-label mt-2">Referencia pastilla trasera:</label>
+            <label class="form-label mt-2">Referencia pinza trasera:</label>
             <input
               class="form-control"
               type="text"
@@ -3119,25 +3116,12 @@
       <div *ngIf="mod.nombre === 'LUCES' && mod.seleccionado" class="mb-4">
         <h3>Luces</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
-        <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
             type="text"
             class="form-control"
             [(ngModel)]="mod.marca"
-            name="marcaLuces{{ i }}"
+            name="marca{{ i }}"
             required
             [class.is-invalid]="form.submitted && !mod.marca"
           />
@@ -3148,9 +3132,20 @@
             type="text"
             class="form-control"
             [(ngModel)]="mod.modelo"
-            name="modeloLuces{{ i }}"
+            name="modelo{{ i }}"
             required
             [class.is-invalid]="form.submitted && !mod.modelo"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referencia{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && !mod.marca"
           />
         </div>
         <div class="mb-2">
@@ -3159,7 +3154,7 @@
             type="text"
             class="form-control"
             [(ngModel)]="mod.marcajes"
-            name="marcajesLuces{{ i }}"
+            name="marcajes{{ i }}"
             required
             [class.is-invalid]="form.submitted && !mod.marcajes"
           />
@@ -3170,7 +3165,7 @@
             type="text"
             class="form-control"
             [(ngModel)]="mod.homologacion"
-            name="homologacionLuces{{ i }}"
+            name="homologacion{{ i }}"
             required
             [class.is-invalid]="form.submitted && !mod.homologacion"
           />
@@ -3196,19 +3191,6 @@
         class="mb-4"
       >
         <h3>Aumento o Disminución de Plazas</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Tipo de cambio:</label>
           <select
@@ -3258,19 +3240,6 @@
       >
         <h3>Sustitución de Banqueta por Asiento Individual</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
-        <div class="mb-2">
           <label class="form-label">Marca del asiento:</label>
           <input
             type="text"
@@ -3281,6 +3250,39 @@
             [class.is-invalid]="form.submitted && !mod.marcaAsiento"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.contrasenaAsiento"
+            name="contrasenaAsiento{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && !mod.contrasenaAsiento"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Plazas de la variante:</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="mod.plazasAsiento"
+            name="plazasAsiento{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && !mod.plazasAsiento"
+          />
+        </div>
+        <select
+          class="form-select"
+          [(ngModel)]="mod.posicionAsiento"
+          name="posicionAsiento{{ i }}"
+          required
+          [class.is-invalid]="form.submitted && !mod.posicionAsiento"
+        >
+          <option value="" disabled selected>Seleccione una opción</option>
+          <option value="delanteras">Delanteras</option>
+          <option value="traseras">Traseras</option>
+        </select>
       </div>
 
       <!-- INSTALACIÓN DE BASES GIRATORIAS -->
@@ -3291,19 +3293,6 @@
         class="mb-4"
       >
         <h3>Instalación de Bases Giratorias</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -3356,19 +3345,6 @@
         class="mb-4"
       >
         <h3>Calefacción Estacionaria</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -3424,36 +3400,10 @@
         class="mb-4"
       >
         <h3>Mobiliario Interior Vehículo</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
 
         <!-- Mueble bajo -->
         <div *ngIf="mod.opcionesMueble?.muebleBajo">
           <h4>Mueble Bajo</h4>
-          <div class="mb-2">
-            <label>Tipo de acción:</label>
-            <select
-              class="form-select"
-              [(ngModel)]="mod.accion"
-              name="accion{{ i }}"
-              required
-            >
-              <option value="Instalacion">Instalación</option>
-              <option value="Sustitucion">Sustitución</option>
-              <option value="Desmontaje">Desmontaje</option>
-            </select>
-          </div>
           <div class="mb-2">
             <label class="form-label">Medidas:</label>
             <input
@@ -3482,19 +3432,6 @@
         <div *ngIf="mod.opcionesMueble?.muebleAlto">
           <h4>Mueble Alto</h4>
           <div class="mb-2">
-            <label>Tipo de acción:</label>
-            <select
-              class="form-select"
-              [(ngModel)]="mod.accion"
-              name="accion{{ i }}"
-              required
-            >
-              <option value="Instalacion">Instalación</option>
-              <option value="Sustitucion">Sustitución</option>
-              <option value="Desmontaje">Desmontaje</option>
-            </select>
-          </div>
-          <div class="mb-2">
             <label class="form-label">Medidas:</label>
             <input
               type="text"
@@ -3510,19 +3447,6 @@
         <!-- Aseo -->
         <div *ngIf="mod.opcionesMueble?.aseo">
           <h4>Aseo</h4>
-          <div class="mb-2">
-            <label>Tipo de acción:</label>
-            <select
-              class="form-select"
-              [(ngModel)]="mod.accion"
-              name="accion{{ i }}"
-              required
-            >
-              <option value="Instalacion">Instalación</option>
-              <option value="Sustitucion">Sustitución</option>
-              <option value="Desmontaje">Desmontaje</option>
-            </select>
-          </div>
           <div class="mb-2">
             <label class="form-label">Medidas:</label>
             <input
@@ -3552,17 +3476,15 @@
       <div *ngIf="mod.nombre === 'CLARABOYA' && mod.seleccionado" class="mb-4">
         <h3>Claraboya</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
+          <label class="form-label">Cantidad de claraboyas:</label
+          ><input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.cantidadClaraboya"
+            name="cantidadClaraboya"
             required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            [class.is-invalid]="form.submitted && !mod.cantidadClaraboya"
+          />
         </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label
@@ -3614,17 +3536,15 @@
       <div *ngIf="mod.nombre === 'VENTANA' && mod.seleccionado" class="mb-4">
         <h3>Ventana</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
+          <label class="form-label">Cantidad de ventanas:</label
+          ><input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.cantidadVentanas"
+            name="cantidadVentanas"
             required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            [class.is-invalid]="form.submitted && !mod.cantidadVentanas"
+          />
         </div>
         <div class="mb-2">
           <label class="form-label">Descripción:</label
@@ -3690,19 +3610,6 @@
       >
         <h3>Depósito de Agua Sucia</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
-        <div class="mb-2">
           <label class="form-label">Cantidad de litros:</label
           ><input
             type="number"
@@ -3721,19 +3628,6 @@
         class="mb-4"
       >
         <h3>Depósito de Agua Limpia</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Cantidad de litros:</label
           ><input
@@ -3764,19 +3658,6 @@
         class="mb-4"
       >
         <h3>Bomba de Agua</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label
           ><input
@@ -3819,19 +3700,6 @@
       >
         <h3>Registro de llenado de agua</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
-        <div class="mb-2">
           <label class="form-label">Ubicación:</label>
           <input
             type="text"
@@ -3861,19 +3729,6 @@
         class="mb-4"
       >
         <h3>Toma exterior 230V</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Voltaje:</label>
           <input
@@ -3916,19 +3771,6 @@
       >
         <h3>Ducha exterior</h3>
         <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
-        <div class="mb-2">
           <label class="form-label">Ubicación:</label>
           <input
             type="text"
@@ -3947,19 +3789,6 @@
         class="mb-4"
       >
         <h3>Instalación Eléctrica</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
 
         <!-- Placa solar -->
         <h4>Placa Solar</h4>
@@ -4126,24 +3955,24 @@
             [class.is-invalid]="form.submitted && !mod.ubicacionControlador"
           />
         </div>
+
+        <h4>Instalaciones Secundarias</h4>
+        <div class="mb-2">
+          <label class="form-label"
+            >Describa otras instalaciones (una por línea):</label
+          >
+          <textarea
+            class="form-control"
+            rows="5"
+            [(ngModel)]="mod.instalacionesSecundarias"
+            name="instalacionesSecundarias{{ i }}"
+          ></textarea>
+        </div>
       </div>
 
       <!-- TOLDO -->
       <div *ngIf="mod.nombre === 'TOLDO' && mod.seleccionado" class="mb-4">
         <h3>Toldo</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-          >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
-        </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input

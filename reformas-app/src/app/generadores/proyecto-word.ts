@@ -18,6 +18,7 @@ import {
   VerticalAlign,
   ImageRun,
   ExternalHyperlink,
+  ShadingType,
 } from 'docx';
 import fs from 'fs';
 import path from 'path';
@@ -1049,7 +1050,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         ['MMA/MMTA eje 2º', data.mmaEje2Antes, 'kg'],
         ['MMTAC/MMC', data.mmaConjuntoAntes, 'kg'],
         ['Clasificación', data.clasificacionAntes, ''],
-        ['Nº de plazas de asiento', data.plazasDespues, ''],
+        ['Nº de plazas de asiento', data.plazasAntes, ''],
       ].map(([label, value, unit], i) => {
         const isTwoColumnRow = !unit;
         return new TableRow({
@@ -1101,7 +1102,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         ['MMA/MMTA eje 2º', data.mmaEje2Despues, 'kg'],
         ['MMTAC/MMC', data.mmaConjuntoDespues, 'kg'],
         ['Clasificación', data.clasificacionDespues],
-        ['Nº de plazas de asiento', data.plazasFinal],
+        ['Nº de plazas de asiento', data.plazasDespues],
       ].map(([label, value, unit]) => {
         const isTwoColumnRow = !unit;
         return new TableRow({
@@ -1194,7 +1195,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   ];
 
   const codigosImagenes = Object.values(data.codigosDetallados ?? {}).flat();
-  const tamañosResp = await fetch('http://localhost:3000/image-sizes');
+  const tamañosResp = await fetch('http://192.168.1.41:3000/image-sizes');
   const tamaños = await tamañosResp.json();
 
   let alturaAcumulada = 0;
@@ -1211,7 +1212,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     const codigoStr = (codigo as { codigo: string }).codigo;
     const nombreBase = codigoStr.replace('.', '-');
     const nombreArchivo = `${nombreBase}.png`;
-    const url = `http://localhost:3000/imgs/${nombreArchivo}`;
+    const url = `http://192.168.1.41:3000/imgs/${nombreArchivo}`;
     const tamaño = tamaños.find(
       (img: { nombre: string }) => img.nombre === nombreArchivo
     );
@@ -1389,10 +1390,59 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               },
             ];
 
-            // 2) Cabecera de la tabla
+            const dataRows = elementos
+              .filter(({ nombreMod }) =>
+                modificaciones.some(
+                  (m) => m.nombre === nombreMod && m.seleccionado
+                )
+              )
+              .map(
+                ({ etiqueta, valor }) =>
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        verticalAlign: VerticalAlign.CENTER,
+                        margins: {
+                          top: 200,
+                          bottom: 200,
+                          left: 200,
+                          right: 200,
+                        },
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            children: [new TextRun(etiqueta)],
+                          }),
+                        ],
+                      }),
+                      new TableCell({
+                        verticalAlign: VerticalAlign.CENTER,
+                        margins: {
+                          top: 200,
+                          bottom: 200,
+                          left: 200,
+                          right: 200,
+                        },
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            children: [new TextRun(String(valor))],
+                          }),
+                        ],
+                      }),
+                    ],
+                  })
+              );
+
+            if (dataRows.length === 0) {
+              return [];
+            }
+
             const headerRow = new TableRow({
               children: [
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
                   width: { size: 70, type: WidthType.PERCENTAGE },
                   children: [
                     new Paragraph({
@@ -1404,6 +1454,8 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
                   width: { size: 30, type: WidthType.PERCENTAGE },
                   children: [
                     new Paragraph({
@@ -1420,26 +1472,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               ],
             });
 
-            // 3) Filas: sólo para los mods seleccionados
-            const dataRows = elementos
-              .filter(({ nombreMod }) =>
-                modificaciones.some(
-                  (m) => m.nombre === nombreMod && m.seleccionado
-                )
-              )
-              .map(
-                ({ etiqueta, valor }) =>
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        children: [new Paragraph(etiqueta)],
-                      }),
-                      new TableCell({
-                        children: [new Paragraph(String(valor))],
-                      }),
-                    ],
-                  })
-              );
+            const spacer = new Paragraph({ spacing: { before: 400 } });
 
             // 4) Construye y devuelve la tabla completa
             const table = new Table({
@@ -1463,14 +1496,1040 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               rows: [headerRow, ...dataRows],
             });
 
-            const spacer = new Paragraph({
-              spacing: { before: 400 },
-            });
-
-            return table;
+            return [spacer, table];
           })(),
         ]
       : []),
+  ];
+
+  const punto1_6Avisos = [
+    ...(data.tipoVehiculo === 'coche'
+      ? (() => {
+          const textos = [
+            'El vehículo dispone de sistema de frenado ABS.',
+            'Se cumple en todo caso con la normativa de salientes exteriores.',
+            'Los anclajes del paragolpes delantero son los originales, no modificándose la altura libre. Se respetan los anclajes para los ganchos de rescate del vehículo, tanto el delantero como el trasero en su caso.',
+            'El sistema de remolcado delantero y trasero no se ve impedido tras la reforma.',
+            'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
+          ];
+
+          const bullets: Paragraph[] = textos
+            .map((txt, i) =>
+              data.opcionesCoche[i]
+                ? new Paragraph({
+                    bullet: { level: 0 },
+                    spacing: { before: 240, after: 120 },
+                    children: [new TextRun({ text: txt })],
+                  })
+                : null
+            )
+            .filter((p): p is Paragraph => p != null);
+
+          const fraseFinal = new Paragraph({
+            spacing: { before: 240, after: 120 },
+            children: [
+              new TextRun({
+                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo de aire al motor para su respectiva refrigeración.',
+              }),
+            ],
+          });
+
+          return [...bullets, fraseFinal];
+        })()
+      : []),
+
+    ...(data.tipoVehiculo === 'camper'
+      ? (() => {
+          const fraseFinal = new Paragraph({
+            spacing: { before: 240, after: 120 },
+            children: [
+              new TextRun({
+                text: 'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
+                break: 1,
+              }),
+              new TextRun({
+                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo del aire al motor para su respectiva refrigeración.',
+                break: 1,
+              }),
+              new TextRun({
+                text: 'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
+                break: 1,
+              }),
+            ],
+          });
+
+          return [fraseFinal];
+        })()
+      : []),
+
+    ...(data.tipoVehiculo === 'moto'
+      ? (() => {
+          const fraseFinal = new Paragraph({
+            spacing: { before: 240, after: 120 },
+            children: [
+              new TextRun({
+                text: 'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
+                break: 1,
+              }),
+              new TextRun({
+                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo del aire al motor para su respectiva refrigeración.',
+                break: 1,
+              }),
+              new TextRun({
+                text: 'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
+                break: 1,
+              }),
+            ],
+          });
+
+          return [fraseFinal];
+        })()
+      : []),
+  ];
+
+  const punto1_6_4_Materiales: Paragraph[] = [
+    // Título
+    new Paragraph({
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 260, after: 120 },
+      children: [
+        new TextRun({
+          text: '1.6.4- Materiales empleados',
+          bold: true,
+          color: '000000',
+        }),
+      ],
+    }),
+    // Texto
+    new Paragraph({
+      spacing: { after: 240 },
+      children: [
+        new TextRun({
+          text:
+            'Tornillería y fijación: Se utiliza tornillería según normativa DIN 931 8.8 ' +
+            'para los elementos metálicos. El diámetro mínimo de los tornillos ' +
+            'de fijación es de M5 y su calidad de UM8.8; el número de unidades ' +
+            'dispuestas en cada elemento varía en función de su peso y volumen.',
+        }),
+      ],
+    }),
+  ];
+
+  const response2 = await fetch('assets/firmaLuis.png');
+  const imageBuffer2 = await response2.arrayBuffer();
+
+  // 1.7 – CONCLUSIÓN
+  const punto1_7_Conclusion: Paragraph[] = [
+    // Título
+    new Paragraph({
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 260, after: 120 },
+      children: [
+        new TextRun({ text: '1.7- CONCLUSIÓN', bold: true, color: '000000' }),
+      ],
+    }),
+    // Texto
+    new Paragraph({
+      spacing: { after: 240 },
+      children: [
+        new TextRun({
+          text:
+            'Por todo lo anteriormente expuesto en la documentación que se aporta en ' +
+            'esta memoria y en los cálculos, pliego de condiciones, presupuesto y planos, ' +
+            'el vehículo es APTO para poder realizar la reforma proyectada.',
+        }),
+      ],
+    }),
+    // Pie de firma
+    new Paragraph({
+      alignment: 'right',
+      spacing: { after: 240 },
+      children: [
+        new TextRun({
+          text: 'Teulada, ' + new Date().toLocaleDateString(),
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      children: [
+        new ImageRun({
+          data: imageBuffer2,
+          transformation: {
+            width: 150,
+            height: 200,
+          },
+          type: 'png',
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'El Ingeniero Técnico Industrial' })],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'Luis Serrano Artesero' })],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'Col nº 11380 COITIG Valencia' })],
+    }),
+  ];
+
+  const punto2 = [
+    new Paragraph({ pageBreakBefore: true }),
+    new Paragraph({
+      heading: HeadingLevel.HEADING_1,
+      alignment: AlignmentType.CENTER,
+      children: [
+        new TextRun({
+          text: '2. CÁLCULOS JUSTIFICATIVOS',
+          color: '000000',
+          bold: true,
+          size: 32,
+        }),
+        new Paragraph({
+          text: '',
+          spacing: { before: 120, after: 120 },
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 260, after: 120 },
+      children: [
+        new TextRun({
+          text: '2.1- CONSIDERACIONES PREVIAS',
+          bold: true,
+          color: '000000',
+        }),
+      ],
+    }),
+
+    ...[
+      'Para cada una de las piezas sustituidas o añadidas se procede a continuación a calcular los esfuerzos máximos a soportar por cada una de ellas, para que a partir de ellos podamos justificar si los anclajes empleados son los adecuados.',
+      'En todos los casos los cálculos se realizarán suponiendo una hipótesis más desfavorable incluso que la que se puede dar en la práctica. Para ello se considerarán todas las fuerzas aplicadas en la misma dirección y sentido, aplicando dicha resultante como esfuerzo total, tanto a tracción como a cortadura.',
+      'Las fuerzas consideradas son las siguientes:',
+    ].map(
+      (texto) =>
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        })
+    ),
+
+    new Paragraph({
+      spacing: { before: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: '• Peso de la pieza' })],
+    }),
+    new Paragraph({
+      spacing: { before: 120 },
+      indent: { left: 400 },
+      children: [
+        new TextRun({
+          text: '• Fuerza sobre la pieza por efecto del frenado ',
+        }),
+      ],
+    }),
+    new Paragraph({
+      spacing: { before: 120 },
+      indent: { left: 400 },
+      children: [
+        new TextRun({
+          text: '• Fuerza aerodinámica ejercida por el aire sobre la pieza ',
+        }),
+      ],
+    }),
+    new Paragraph({
+      spacing: { before: 120 },
+      indent: { left: 400 },
+      children: [
+        new TextRun({ text: '• Fuerza centrífuga por efecto del giro ' }),
+      ],
+    }),
+
+    ...[
+      'Para obtener la fuerza de frenado y teniendo en cuenta el desarrollo actual de la tecnología aplicada sobe los vehículos podemos considerar un valor de deceleración de 10m/s2.',
+      'Para la obtención de los esfuerzos generados por la presión del aire sobre el vehículo y continuando con la premisa de realizar los cálculos para la situación más desfavorable posible, consideramos la presión ejercida a la velocidad máxima del vehículo. ',
+    ].map(
+      (texto) =>
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        })
+    ),
+    ...(data.velocidadMaxima !== '---'
+      ? [
+          new Paragraph({
+            spacing: { line: 260, after: 120 },
+            children: [
+              new TextRun({
+                text: `Velocidad máxima: ${data.velocidadMaxima} Km/h = ${(
+                  data.velocidadMaxima / 3.6
+                ).toFixed(2)} m/s`,
+              }),
+            ],
+          }),
+        ]
+      : []),
+
+    new Paragraph({
+      spacing: { before: 120 },
+      children: [
+        new TextRun({
+          text: 'Para la fuerza centrífuga y en base a lo indicado en la Instrucción de carreteras 3.1-IC, el valor máximo de aceleración centrifuga lo obtenemos en una situación de velocidad de 140 km/h (38,89 m/s) y radio de curva de 800m.',
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 260, after: 120 },
+      children: [
+        new TextRun({
+          text: '2.2- REPARTO DE MASAS SOBRE LOS EJES',
+          bold: true,
+          color: '000000',
+        }),
+      ],
+    }),
+  ];
+
+  const punto3 = [
+    new Paragraph({ pageBreakBefore: true }),
+    new Paragraph({
+      heading: HeadingLevel.HEADING_1,
+      alignment: AlignmentType.CENTER,
+      children: [
+        new TextRun({
+          text: '3. PLIEGO DE CONDICIONES',
+          color: '000000',
+          bold: true,
+          size: 32,
+        }),
+        new Paragraph({
+          text: '',
+          spacing: { before: 120 },
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      spacing: { before: 240, after: 120 },
+      children: [
+        new TextRun({
+          text: '1. CALIDAD DE LOS MATERIALES EMPLEADOS',
+          bold: true,
+          size: 25,
+        }),
+      ],
+    }),
+
+    ...[
+      'Todos los materiales serán de la calidad especificada y tendrán las dimensiones y espesores que se marquen en los distintos documentos del proyecto, reservándose el peticionario el derecho de realizar las pruebas y ensayos de calidad de dichos materiales conforme a las normas UNE, corriendo con los gastos de dichos ensayos por su cuenta.',
+      'Los materiales metálicos serán de acero de calidad especificada a lo largo del proyecto sin deformaciones, roturas u otros defectos.',
+      'La calidad de la tornillería será 8.8 o superior y en caso de sustituir tornillos originales se sustituirán por otros del mismo o mayor diámetro. Las bridas se ajustarán en diámetro y medida a las instrucciones.',
+      'En aquellos elementos que precisen soldaduras, éstas serán realizadas por personal especializado.',
+      'Los materiales utilizados para la reforma deben ser al menos de la misma calidad que los que tenía el vehículo antes de la misma.',
+      'En todo momento se han tenido en cuenta las calidades de los materiales empleados en la reforma del vehículo, y que son de calidad igual o superior a la que el vehículo incorporaba de origen.',
+      'Los diferentes elementos instalados o sustituidos en el vehículo deberán tener el marcado CE de homologación en la Unión Europea. Se deberán inspeccionar antes del montaje que tienen grabado el código de homologación europeo.',
+      'Para la fijación de los tornillos se utilizarán los soportes que vienen preinstalados de fábrica en el bastidor del vehículo. Si fuera necesario realizar algún taladro para la instalación de algún elemento, se realizará en lugares de gran resistencia.',
+      'Si fuera necesario desmontar alguna parte del vehículo para la instalación de algún elemento, se realizará siguiendo las instrucciones pertinentes. Se volverá a su colocación en la posición y estado que se encontraba.',
+    ].map(
+      (texto) =>
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        })
+    ),
+
+    new Paragraph({
+      spacing: { before: 240, after: 120 },
+      children: [
+        new TextRun({ text: '2. NORMAS DE EJECUCIÓN', bold: true, size: 25 }),
+      ],
+    }),
+
+    ...[
+      'La ejecución de la obra será realizada por un taller homologado por el Ministerio de Industria, Turismo y Comercio, y se ejecutará según proyecto.',
+      'Los elementos que se alabeen dentro del plazo de garantía serían sustituidos por el taller sin derecho a ningún tipo de indemnización.',
+      'El taller que realice la obra se ajustará a ejecutarla conforme al presente proyecto y a los reglamentos técnicos y normas UNE e ISO vigentes, teniendo completa responsabilidad al no cumplir el siguiente pliego de condiciones con respecto a la ejecución del presente proyecto de reforma de importancia en el vehículo del cliente.',
+      'Se observarán las normas de la Presidencia del Gobierno y del Ministerio de Industria, Turismo y Comercio que actualmente estén vigentes.',
+      'También se deberán respetar en todo momento las normas, requisitos e instrucciones fijadas por el fabricante del vehículo y los fabricantes de los distintos accesorios instalados.',
+      'Si en el transcurso del trabajo, y para buen fin de éste, fuese menester ejecutar cualquier clase de obra que no estuviese especificada, el taller estará obligado a ejecutarla con arreglo a las condiciones que señale la dirección facultativa, sin tener derecho a reclamación alguna.',
+      'La Dirección Facultativa se reservará el derecho de mandar retirar de la obra los materiales que a su juicio no reúnan las condiciones, y si éstos estuviesen montados, el taller estaría obligado a sustituirlos sin ningún tipo de indemnización.',
+      'La reforma no podrá efectuarse en ningún caso cuando implique riesgo de interferencia entre partes móviles del vehículo.',
+      'Se mantienen los anclajes de remolque originales del vehículo.',
+      'Debe asegurarse el correcto par de apriete de todos los tornillos, de forma que no exista riesgo de desprendimiento de los componentes instalados.',
+      'Los añadidos en carrocería no contienen ángulos penetrantes ni aristas vivas. Con radios de curvatura de las piezas mínimos de 2,5 mm.',
+      'El montaje de los muelles se realizará siguiendo las instrucciones de montaje fijadas por el fabricante.',
+      'Se certifica que no ha sido afectado ningún otro elemento de la suspensión del vehículo (salvo recambios), ni se ha manipulado el resto de componentes del vehículo.',
+      'Se mantienen los parámetros de dirección originales del vehículo. Ajustándose a la normativa UNE 26-192-87.',
+    ].map(
+      (texto) =>
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        })
+    ),
+
+    ...[
+      'Los elementos elásticos sustituidos del sistema de suspensión han sido ubicados en los emplazamientos de que disponían los originales.',
+      'No se podrá alterar ningún elemento fundamental del vehículo que no se detalle en este proyecto (depósito de combustible, sistema de dirección, etc.).',
+      'Cuando se incorporen equipos adicionales se incluirá, si es pertinente, el manual de instrucciones de montaje del equipamiento incorporado.',
+      'Cuando exista manual del fabricante del elemento instalado, en ningún momento se realizara operación alguna en contra de lo que el manual indique, debiendo dar constancia explícitamente de la obligación de realizar aquello que el fabricante considera como apropiado para la transformación del vehículo solicitada.',
+      'Se cumplirá estrictamente la normativa referente a Seguridad de máquinas en función de su año de fabricación por lo que a los equipos y dispositivos instalados se refiere (Real Decreto 1435/1992 BOE 297). Asimismo se deberá garantizar al usuario de las maquinas instaladas las garantías de seguridad que obliga el marcado CE y su previa declaración de conformidad del producto.',
+    ].map(
+      (texto) =>
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        })
+    ),
+
+    new Paragraph({ pageBreakBefore: true }),
+    new Paragraph({
+      spacing: { before: 240, after: 120 },
+      children: [
+        new TextRun({
+          text: '3. CERTIFICADOS Y AUTORIZACIONES.REQUSITOS DEL INFORME DE CONFORMIDAD',
+          bold: true,
+          size: 25,
+        }),
+      ],
+    }),
+
+    ...[
+      'Conforme a la legislación vigente, y en especial a lo estipulado en el Real Decreto 866/2010, de 2 de julio, por el que se regula la tramitación de las reformas de vehículos, y lo desarrollado en el Manual de Reformas de Vehículos vitgente, publicado por el Ministerio de Industria, Turismo y Comercio, para el tipo de reforma que nos ocupa, se deberá presentar los certificados y autorizaciones allí establecidos y presentarse ante los órganos de la Administración competentes en materia de inspección técnica de vehículos (ITV), junto con el vehículo para tramitar su legalización para circulación por vías públicas.	',
+      'En el Certificado de Dirección de Obra se indicará el organismo emisor del mencionado Informe de Conformidad.',
+    ].map(
+      (texto) =>
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        })
+    ),
+
+    new Paragraph({
+      spacing: { before: 240, after: 120 },
+      children: [
+        new TextRun({
+          text: '4. TALLER EJECUTOR',
+          bold: true,
+          size: 25,
+        }),
+      ],
+    }),
+
+    ...[
+      'El taller donde se realizará la reforma del vehículo objeto del presente proyectos es:',
+    ].map(
+      (texto) =>
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        })
+    ),
+
+    new Table({
+      alignment: AlignmentType.CENTER,
+      width: {
+        size: 75,
+        type: WidthType.PERCENTAGE,
+      },
+      margins: {
+        left: 200,
+        right: 200,
+      },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              shading: { type: ShadingType.CLEAR, fill: 'D3D3D3' },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: 'NOMBRE EMPRESA', bold: true }),
+                  ],
+                }),
+              ],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [new TextRun({ text: data.taller.nombre || '' })],
+                }),
+              ],
+            }),
+          ],
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              shading: { type: ShadingType.CLEAR, fill: 'D3D3D3' },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: 'DIRECCIÓN TALLER', bold: true }),
+                  ],
+                }),
+              ],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: data.taller.direccion || '' }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              shading: { type: ShadingType.CLEAR, fill: 'D3D3D3' },
+              children: [
+                new Paragraph({
+                  children: [new TextRun({ text: 'LOCALIDAD', bold: true })],
+                }),
+              ],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: data.taller.poblacion || '' }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              shading: { fill: 'D3D3D3' },
+              children: [
+                new Paragraph({
+                  children: [new TextRun({ text: 'PROVINCIA', bold: true })],
+                }),
+              ],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: data.taller.provincia || '' }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              shading: { fill: 'D3D3D3' },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: 'NÚMERO REGISTRO INDUSTRIAL',
+                      bold: true,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: data.taller.registroIndustrial || '',
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              shading: { fill: 'D3D3D3' },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: 'NÚMERO REGISTRO ESPECIAL',
+                      bold: true,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: data.taller.registroEspecial || '',
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120, after: 240 },
+      children: [
+        new TextRun({
+          text: 'Teulada, ' + new Date().toLocaleDateString(),
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      children: [
+        new ImageRun({
+          data: imageBuffer2,
+          transformation: {
+            width: 150,
+            height: 200,
+          },
+          type: 'png',
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'El Ingeniero Técnico Industrial' })],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'Luis Serrano Artesero' })],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'Col nº 11380 COITIG Valencia' })],
+    }),
+  ];
+
+  const punto4 = [
+    new Paragraph({ pageBreakBefore: true }),
+    new Paragraph({
+      heading: HeadingLevel.HEADING_1,
+      alignment: AlignmentType.CENTER,
+      children: [
+        new TextRun({
+          text: '4. PRESUPUESTO',
+          color: '000000',
+          bold: true,
+          size: 32,
+        }),
+        new Paragraph({
+          text: '',
+          spacing: { before: 120 },
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      spacing: { before: 260, after: 120 },
+      children: [
+        new TextRun({
+          text: 'El presupuesto del estudio y ejecución de la reforma llevada a cabo en el vehículo seleccionado para este proyecto, asciende a la cantidad final de: ',
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      spacing: { before: 260, after: 120 },
+      children: [
+        new TextRun({
+          text: 'Desglosados como sigue: ',
+        }),
+      ],
+    }),
+
+    new Table({
+      alignment: AlignmentType.CENTER,
+      width: {
+        size: 50,
+        type: WidthType.PERCENTAGE,
+      },
+      margins: {
+        left: 200,
+        right: 200,
+      },
+      borders: {
+        top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+        bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+        left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+        right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+        insideHorizontal: {
+          style: BorderStyle.SINGLE,
+          size: 1,
+          color: '000000',
+        },
+        insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      },
+      rows: [
+        // Encabezado
+        new TableRow({
+          children: [
+            new TableCell({
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: 'CONCEPTO', bold: true })],
+                }),
+              ],
+            }),
+            new TableCell({
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: 'EUROS', bold: true })],
+                }),
+              ],
+            }),
+          ],
+        }),
+        // Materiales
+        new TableRow({
+          children: [
+            new TableCell({
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [new Paragraph('Materiales usados en la reforma')],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph(data.materialesUsados?.toString() ?? '-'),
+              ],
+            }),
+          ],
+        }),
+        // Mano de obra
+        new TableRow({
+          children: [
+            new TableCell({
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [new Paragraph('Mano de obra')],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [new Paragraph(data.manoDeObra?.toString() ?? '-')],
+            }),
+          ],
+        }),
+        // Total presupuesto
+        new TableRow({
+          children: [
+            new TableCell({
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: 'Total presupuesto', bold: true }),
+                  ],
+                }),
+              ],
+            }),
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              margins: { left: 100, right: 100, top: 40, bottom: 40 },
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: data.totalPresupuesto?.toString() ?? '-',
+                      bold: true,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      spacing: { before: 260, after: 120 },
+      children: [
+        new TextRun({
+          text: '*(El precio de la Mano de Obra incluye el montaje y desmontaje de las piezas)',
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: 'right',
+      spacing: { after: 240 },
+      children: [
+        new TextRun({
+          text: 'Teulada, ' + new Date().toLocaleDateString(),
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      children: [
+        new ImageRun({
+          data: imageBuffer2,
+          transformation: {
+            width: 150,
+            height: 200,
+          },
+          type: 'png',
+        }),
+      ],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'El Ingeniero Técnico Industrial' })],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'Luis Serrano Artesero' })],
+    }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [new TextRun({ text: 'Col nº 11380 COITIG Valencia' })],
+    }),
+  ];
+
+  let tipo = data.tipoVehiculo;
+  let alto;
+  if (tipo === 'camper' || tipo === 'coche') {
+    alto = 400;
+  } else {
+    alto = 350;
+  }
+  const url = `http://192.168.1.41:3000/imgs/${tipo}.png`;
+  const response3 = await fetch(url);
+  const imageBuffer3 = await response3.arrayBuffer();
+
+  const punto5 = [
+    new Paragraph({ pageBreakBefore: true }),
+    new Paragraph({
+      heading: HeadingLevel.HEADING_1,
+      alignment: AlignmentType.CENTER,
+      children: [
+        new TextRun({
+          text: '5. PLANOS',
+          color: '000000',
+          bold: true,
+          size: 32,
+        }),
+        new Paragraph({
+          text: '',
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 120, after: 120 },
+      children: [
+        new TextRun({
+          text: 'PLANO Nº1: ESTADO DEL VEHÍCULO ANTES DE LA REFORMA',
+          bold: true,
+          size: 28,
+          color: '000000',
+        }),
+      ],
+    }),
+
+    //Falta la foto
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [
+        new ImageRun({
+          data: imageBuffer3,
+          transformation: {
+            width: 500,
+            height: alto,
+          },
+          type: 'png',
+        }),
+      ],
+    }),
+
+    new Table({
+      alignment: AlignmentType.CENTER,
+      width: { size: 65, type: WidthType.PERCENTAGE },
+      rows: [
+        ['Longitud', data.longitudAntes, 'mm'],
+        ['Anchura', data.anchuraAntes, 'mm'],
+        ['Altura', data.alturaAntes, 'mm'],
+        ['Voladizo', data.voladizoAntes, 'mm'],
+        ['Ancho de vías anterior', data.viaDelanteraAntes, 'mm'],
+        ['Ancho de vías posterior', data.viaTraseraAntes, 'mm'],
+        ['Neumáticos', data.neumaticoAntes, ''],
+        ['Masa del vehículo en orden de marcha (MOM)', data.momAntes, 'kg'],
+        ['MMA/MMTA', data.mmaAntes, 'kg'],
+        ['MMA/MMTA eje 1º', data.mmaEje1Antes, 'kg'],
+        ['MMA/MMTA eje 2º', data.mmaEje2Antes, 'kg'],
+        ['MMTAC/MMC', data.mmaConjuntoAntes, 'kg'],
+        ['Clasificación', data.clasificacionAntes, ''],
+        ['Nº de plazas de asiento', data.plazasAntes, ''],
+      ].map(([label, value, unit], i) => {
+        const isTwoColumnRow = !unit;
+        return new TableRow({
+          children: isTwoColumnRow
+            ? [
+                createCell(label, false, 50),
+                createCell(value, false, 50, 2, true),
+              ]
+            : [
+                createCell(label, false, 50),
+                createCell(value, false, 25),
+                createCell(unit, false, 25),
+              ],
+        });
+      }),
+    }),
+
+    new Paragraph({ pageBreakBefore: true }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 120, after: 120 },
+      children: [
+        new TextRun({
+          text: 'PLANO Nº2: ESTADO DEL VEHÍCULO DESPUÉS DE LA REFORMA',
+          bold: true,
+          size: 28,
+          color: '000000',
+        }),
+      ],
+    }),
+
+    // Falta la foto
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [
+        new ImageRun({
+          data: imageBuffer3,
+          transformation: {
+            width: 500,
+            height: alto,
+          },
+          type: 'png',
+        }),
+      ],
+    }),
+
+    new Table({
+      alignment: AlignmentType.CENTER,
+      width: { size: 65, type: WidthType.PERCENTAGE },
+      rows: [
+        ['Longitud', data.longitudDespues, 'mm'],
+        ['Anchura', data.anchuraDespues, 'mm'],
+        ['Altura', data.alturaDespues, 'mm'],
+        ['Voladizo', data.voladizoDespues, 'mm'],
+        ['Ancho de vías anterior', data.viaDelanteraDespues, 'mm'],
+        ['Ancho de vías posterior', data.viaTraseraDespues, 'mm'],
+        ['Neumáticos', data.neumaticoDespues],
+        ['Masa Real', data.masaRealDespues, 'kg'],
+        ['MMA/MMTA', data.mmaDespues, 'kg'],
+        ['MMA/MMTA eje 1º', data.mmaEje1Despues, 'kg'],
+        ['MMA/MMTA eje 2º', data.mmaEje2Despues, 'kg'],
+        ['MMTAC/MMC', data.mmaConjuntoDespues, 'kg'],
+        ['Clasificación', data.clasificacionDespues],
+        ['Nº de plazas de asiento', data.plazasDespues],
+      ].map(([label, value, unit]) => {
+        const isTwoColumnRow = !unit;
+        return new TableRow({
+          children: isTwoColumnRow
+            ? [
+                createCell(label, false, 50),
+                createCell(value, false, 50, 2, true),
+              ]
+            : [
+                createCell(label, false, 50),
+                createCell(value, false, 25),
+                createCell(unit, false, 25),
+              ],
+        });
+      }),
+    }),
+
+    new Paragraph({ pageBreakBefore: true }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 120, after: 120 },
+      children: [
+        new TextRun({
+          text: 'PLANO Nº3: REFORMAS REALIZADAS',
+          bold: true,
+          size: 28,
+          color: '000000',
+        }),
+      ],
+    }),
   ];
 
   const section2 = {
@@ -1485,12 +2544,30 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ...punto1_5Consideraciones,
       ...buildModificacionesParagraphs(modificaciones, data),
       ...punto1_6Tabla,
+      ...punto1_6Avisos,
       ...generarDocumentoProyectoParagraphs({ modificaciones }, data),
-    ].filter((child) => child !== null),
+      ...punto1_6_4_Materiales,
+      ...punto1_7_Conclusion,
+      ...punto2,
+      ...punto3,
+      ...punto4,
+      ...punto5,
+    ]
+      .flat()
+      .filter((child) => child !== null),
   };
 
   //5) Monta y descarga el documento
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            size: 22,
+          },
+        },
+      },
+    },
     sections: [section1, section2],
   });
 

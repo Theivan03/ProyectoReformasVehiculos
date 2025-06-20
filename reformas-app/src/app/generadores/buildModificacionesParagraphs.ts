@@ -1022,6 +1022,905 @@ export function buildModificacionesParagraphs(
     out.push(p);
   }
 
+  //
+  // Apartado de Motos
+  //
+
+  //
+  // 1) REDUCCIÓN MMA Y MMTA
+  //
+  const reduccion = modificaciones.find(
+    (m) =>
+      m.nombre === 'REDUCCIÓN MMA Y MMTA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (reduccion) {
+    raw = `- Reducción de MTMA en el eje delantero a ${reduccion.kgReduccionEjeDelantero}Kg, correspondiente a la MTMA del donante de la horquilla.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `- Reducción de la MTMA total a ${reduccion.kgReduccionTotal}Kg para no sobrecargar el eje delentero.`;
+
+    const pp = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (pp as any)._rawText = raw;
+    out.push(pp);
+  }
+
+  //
+  // 2) LLANTAS Y NEUMÁTICOS
+  //
+  const llantas = modificaciones.find(
+    (m) =>
+      m.nombre === 'LLANTAS Y NEUMÁTICOS' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (llantas) {
+    if (llantas.neumaticosMoto === 'delantero') {
+      raw = `- ${llantas.accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+    if (llantas.neumaticosMoto === 'trasero') {
+      raw = `- ${llantas.accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+    if (llantas.neumaticosMoto === 'delantero y trasero') {
+      raw = `- ${llantas.accion} de neumáticos ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantas} en la parte de delantera y en la parte trasera ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+  }
+
+  //
+  // 3) SUSPENSIÓN
+  //
+  const suspensionmoto = modificaciones.find(
+    (m) =>
+      m.nombre === 'SUSPENSIÓN' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (suspensionmoto) {
+    raw = `- Sustitución del sistema de suspensión instalando amortiguador trasero con botella regulable marca ${suspensionmoto.marca} referencia ${suspensionmoto.referencia}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 4) SUSTITUCIÓN GUARDABARROS
+  //
+  const guarda = modificaciones.find(
+    (m) =>
+      m.nombre === 'SUSTITUCIÓN GUARDABARROS' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (guarda?.guardabarrosDelantero) {
+    if (guarda.tipoFabricacionGuardabarrosDelantero === 'artesanal') {
+      raw = `- Sustitución de guardabarros delantero por otro artesanal fabricado en acero de dimensiones ${guarda.dimensionesDelantero}mm.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+    if (guarda.tipoFabricacionGuardabarrosDelantero === 'comercial') {
+      raw = `- Sustitución del guardabarros delantero por otro fabricado en plástico marca ${guarda.marca}, referencia ${guarda.referenciaDelantero} de dimensiones a ${guarda.dimensionesDelantero}mm.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (guarda?.guardabarrosTrasero) {
+      if (guarda.tipoFabricacionGuardabarrosTrasero === 'artesanal') {
+        raw = `- Sustitución de guardabarros trasero por otro artesanal fabricado en acero de dimensiones ${guarda.dimensionesTrasero}mm.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+      if (guarda.tipoFabricacionGuardabarrosTrasero === 'comercial') {
+        raw = `- Sustitución del guardabarros trasero por otro fabricado en plástico marca ${guarda.marca}, referencia ${guarda.referenciaTrasero} de dimensiones a ${guarda.dimensionesTrasero}mm.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+    }
+  }
+
+  //
+  // 5) MANILLAR
+  //
+  const manillar = modificaciones.find(
+    (m) =>
+      m.nombre === 'MANILLAR' && m.seleccionado && data.tipoVehiculo === 'moto'
+  );
+  if (manillar) {
+    raw = `- Sustitución de manillar por otro marca ${manillar.marca} modelo ${manillar.modelo}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 6) VELOCÍMETRO
+  //
+  const velocimetro = modificaciones.find(
+    (m) =>
+      m.nombre === 'VELOCÍMETRO' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (velocimetro) {
+    raw = `- Sustitución del velocímetro, por otro de la marca ${velocimetro.marca} referencia ${velocimetro.referencia} y contraseña de homologación ${velocimetro.homologacion}. Incorpora los testigos de intermitente derecho e izquierdo, luz larga y neutro.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 7) LATIGUILLOS
+  //
+  const latiguillos = modificaciones.find(
+    (m) =>
+      m.nombre === 'LATIGUILLOS' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (latiguillos) {
+    raw = `- Sustitución de los latiguillos de freno por unos metálicos en los dos ejes. En el eje delantero se han instalado unos latiguillos metálicos marca ${latiguillos.marcaDelanteros} ref. ${latiguillos.referenciaDelanteros} y en el eje trasero unos latiguillos metálicos marca ${latiguillos.marcaTraseros} ref. ${latiguillos.referenciaTraseros}. Ambos son de la misma longitud y sección que los originales y van instalados en la misma ubicación y utilizan los anclajes originales.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 8) RETROVISORES
+  //
+  const retrovisores = modificaciones.find(
+    (m) =>
+      m.nombre === 'RETROVISORES' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (retrovisores) {
+    raw = `- Sustitución y reubicación de espejos retrovisores por otros, marca ${retrovisores.marca}, modelo ${retrovisores.modelo}, con marcaje ${retrovisores.marcaje} y contraseña de homologación ${retrovisores.homologacion}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 9) HORQUILLA DELANTERA
+  //
+  const horquilladelantera = modificaciones.find(
+    (m) =>
+      m.nombre === 'HORQUILLA DELANTERA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (horquilladelantera) {
+    raw = `- Sustitución de horquilla delantera por otra procedente de una moto marca ${horquilladelantera.marca}, tipo ${horquilladelantera.tipo}, variante ${horquilladelantera.variante} y denominación comercial ${horquilladelantera.denominacion}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 10) DISCO DE FRENO Y PINZA DE FRENO
+  //
+  const frenos = modificaciones.find(
+    (m) =>
+      m.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'moto'
+  );
+  if (frenos) {
+    if (frenos?.tieneDisco) {
+      if (frenos?.discoDelantero) {
+        raw = `- Sustitución de disco de freno delantero por otro marca ${frenos.marcaDiscoDelantero} referencia ${frenos.referenciaDiscoDelantero}.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+      if (frenos?.discoTrasero) {
+        raw = `- Sustitución de disco de freno trasero por otro marca ${frenos.marcaDiscoDelantero} referencia ${frenos.referenciaDiscoTrasero}.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+    }
+
+    if (frenos?.tienePastilla) {
+      if (frenos?.pastillaDelantera) {
+        raw = `- Sustitución de disco de freno delantero por otro marca ${frenos.marcaPastillaDelantera} referencia ${frenos.referenciaPastillaDelantera}.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      if (frenos?.pastillaTrasera) {
+        if (frenos?.discoTrasero) {
+          raw = `- Sustitución de pinza de freno trasero por otro marca ${frenos.marcaPastillaTrasera} referencia ${frenos.referenciaPastillaTrasera}.`;
+
+          const p = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            indent: { left: 400 },
+            children: [new TextRun({ text: raw })],
+          });
+          (p as any)._rawText = raw;
+          out.push(p);
+        }
+      }
+    }
+
+    //
+    // 11) LUCES
+    //
+    const luces = modificaciones.find(
+      (m) =>
+        m.nombre === 'LUCES' && m.seleccionado && data.tipoVehiculo === 'moto'
+    );
+    if (luces) {
+      if (data.luzGrupoOptico) {
+        raw = `- Sustitución y reubicación de grupo óptico delantero por otro marca ${frenos.marca} modelo ${frenos.modelo} con luz de posición, cruce y carretera con los marcajes ${frenos.marcajes} y contraseña de homologación ${frenos.homologacion}.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      if (data.intermitenteDelantero) {
+        raw = `- Sustitución y reubicación de intermitentes anteriores en laterales de la horquilla, por otros marca ${frenos.marca}, referencia ${frenos.referencia} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      if (data.intermitenteTrasero) {
+        raw = `- Sustitución y reubicación de intermitentes posteriores en laterales del portamatrícula, por otros marca ${frenos.marca}, referencia ${frenos.referencia} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      if (data.catadioptrico) {
+        raw = `- Sustitución y reubicación de catadióptrico posterior en parte inferior de emplazamiento de placa de matrícula posterior, por otro marca ${frenos.marca} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      if (data.luzMatricula) {
+        raw = `- Sustitución y reubicación de luz de matrícula en parte superior de emplazamiento de placa matrícula, por otra marca ${frenos.marca} referencia ${frenos.marcaPastillaTrasera} con contraseña de homologación ${frenos.homologacion}.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+    }
+  }
+
+  //
+  // CAMPERS
+  //
+
+  //
+  // 1) CAMBIO DE CLASIFICACIÓN
+  //
+  const cambioclasi = modificaciones.find(
+    (m) =>
+      m.nombre === 'CAMBIO DE CLASIFICACIÓN' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (cambioclasi) {
+    raw = `- Cambio de clasificación del vehículo de ${data.clasificacionAntes} a ${data.clasificacionDespues}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 2) AUMENTO O DISMINUCIÓN DE PLAZAS
+  //
+  const aumentodisminucion = modificaciones.find(
+    (m) =>
+      m.nombre === 'AUMENTO O DISMINUCIÓN DE PLAZAS' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (aumentodisminucion) {
+    if (aumentodisminucion.tipoCambio === 'aumento') {
+      raw = `- Aumento de plazas de asiento pasando de ${aumentodisminucion.plazasAntes} plazas a ${aumentodisminucion.plazasDespues} plazas.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (aumentodisminucion.tipoCambio === 'disminucion') {
+      raw = `- Disminución de plazas de asiento pasando de ${aumentodisminucion.plazasAntes} a ${aumentodisminucion.plazasDespues} mediante la desinstalación de la fila de asientos y sus correspondientes cinturones de seguridad.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+  }
+
+  //
+  // 3) SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL
+  //
+  const banqueta = modificaciones.find(
+    (m) =>
+      m.nombre ===
+        'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (banqueta) {
+    raw = `- Sustitución de asiento delantero biplaza por uno individual procedente de ${banqueta.marcaAsiento}, contraseña de homologación ${banqueta.contrasenaAsiento}, de la variante de ${banqueta.plazasAsiento} plazas ${banqueta.posicionAsiento}, manteniéndose el cinturón de la plaza lateral derecha en anclaje original.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 4) INSTALACIÓN DE BASES GIRATORIAS
+  //
+  const giratiorias = modificaciones.find(
+    (m) =>
+      m.nombre === 'INSTALACIÓN DE BASES GIRATORIAS' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (giratiorias) {
+    raw = `- Instalación de bases giratorias en los asientos delanteros, marca ${giratiorias.marcaBaseGiratoria}, referencia ${giratiorias.referenciaConductor} (conductor) y ${giratiorias.referenciaAcompanante} (acompañante), sobre anclajes originales, con contraseña de homologación ${giratiorias.homologacionBase}. Las bases giratorias se instalan según instrucciones del fabricante y en anclajes originales.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 5) CALEFACCIÓN ESTACIONARIA
+  //
+  const calefac = modificaciones.find(
+    (m) =>
+      m.nombre === 'CALEFACCIÓN ESTACIONARIA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (calefac) {
+    raw = `- Instalación de sistema de calefacción marca ${calefac.marcaCalefaccion} modelo ${calefac.modeloCalefaccion} contraseña de homologación ${calefac.homologacionCalefaccion}, con salidas al espacio de carga del vehículo. El combustible utilizado es Diésel que se toma del depósito mediante espadín. ${calefac.descripcionCalefaccion} Se realiza instalación del sistema de alimentación según indicaciones de fabricante y se garantiza la estanqueidad del sistema.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 6) MOBILIARIO INTERIOR VEHÍCULO
+  //
+  const mobil = modificaciones.find(
+    (m) =>
+      m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (mobil) {
+    raw = `- Instalación de mobiliario para convertir el vehículo en furgón vivienda en la zona de carga del vehículo, compuesto por:`;
+
+    let p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `o Revestimiento interior de aislamiento y panelado, realizado en madera, ubicado en laterales, suelo y techo.`;
+
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `o Instalación de tarima sobre el suelo.`;
+
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    if (mobil.opcionesMueble?.muebleAlto) {
+      const hAlto = new Paragraph({
+        spacing: { before: 120, after: 60 },
+        indent: { left: 620 },
+        children: [
+          new TextRun({ text: 'MUEBLE BAJO', bold: true, color: 'FF0000' }),
+        ],
+      });
+      out.push(hAlto);
+
+      raw = `o Instalación de un mueble alto situado en el lateral derecho fabricados en madera de forma artesanal de medidas ${mobil.medidasMuebleAlto} con puerta abatible.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (mobil.opcionesMueble?.muebleBajo) {
+      const hBajo = new Paragraph({
+        spacing: { before: 120, after: 60 },
+        indent: { left: 620 },
+        children: [
+          new TextRun({ text: 'MUEBLE BAJO', bold: true, color: 'FF0000' }),
+        ],
+      });
+      out.push(hBajo);
+
+      raw = `o Instalación de mueble bajo situado en la parte media del lateral izquierdo, fabricado en madera de forma artesanal, de medidas ${mobil.medidasMuebleBajo} con ${mobil.numCajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (mobil.opcionesMueble?.aseo) {
+      const hAseo = new Paragraph({
+        spacing: { before: 120, after: 60 },
+        indent: { left: 620 },
+        children: [
+          new TextRun({ text: 'MUEBLE BAJO', bold: true, color: 'FF0000' }),
+        ],
+      });
+      out.push(hAseo);
+
+      raw = `o Instalación de aseo con persiana de medidas ${mobil.medidasAseo} en su interior se ubica un ${mobil.descripcionAseo}.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+  }
+
+  //
+  // 7) CLARABOYA
+  //
+  const claraboya = modificaciones.find(
+    (m) =>
+      m.nombre === 'CLARABOYA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (claraboya) {
+    raw = `- Instalación en el techo del vehículo ${claraboya.cantidadClaraboya} claraboyas, marca ${claraboya.marcaClaraboya} modelo ${claraboya.modeloClaraboya} ${claraboya.descripcionClaraboya}, con contraseña de homologación ${claraboya.homologacionClaraboya}, sin afectar a la estructura principal del vehículo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 8) VENTANA
+  //
+  const ventana = modificaciones.find(
+    (m) =>
+      m.nombre === 'VENTANA' && m.seleccionado && data.tipoVehiculo === 'camper'
+  );
+  if (ventana) {
+    raw = `- Instalación de ${ventana.cantidadVentanas} ventanas abatibles/correderas ${ventana.descripcionVentana} marca ${ventana.marcaVentana} modelo ${ventana.modeloVentana} de dimensiones ${ventana.dimensionesVentana}mm y contraseña de homologación ${ventana.homologacionVentana}, sin afectar a la estructura principal del vehículo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 9) DEPÓSITO DE AGUA SUCIA
+  //
+  const aguasucia = modificaciones.find(
+    (m) =>
+      m.nombre === 'DEPÓSITO DE AGUA SUCIA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (aguasucia) {
+    raw = `- Instalación de depósito para agua sucia de ${aguasucia.litrosAguaSucia} litros en la parte trasera en los bajos del vehículo. Este depósito se vacía mediante un grifo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 10) DEPÓSITO DE AGUA LIMPIA
+  //
+  const agualimpia = modificaciones.find(
+    (m) =>
+      m.nombre === 'DEPÓSITO DE AGUA LIMPIA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (agualimpia) {
+    raw = `- Instalación de depósito para agua limpia de ${agualimpia.litrosAguaLimpia} litros y medidas ${agualimpia.medidasAguaLimpia}mm en la parte trasera del lateral izquierdo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 12) BOMBA DE AGUA
+  //
+  const bombaagua = modificaciones.find(
+    (m) =>
+      m.nombre === 'BOMBA DE AGUA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (bombaagua) {
+    raw = `- Instalación de bomba de agua de 12V marca ${bombaagua.marcaBombaAgua} modelo ${bombaagua.modeloBombaAgua} ubicada en la parte trasera izquierda del vehículo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 13) REGISTRO DE LLENADO DE AGUA
+  //
+  const llenadoagua = modificaciones.find(
+    (m) =>
+      m.nombre === 'REGISTRO DE LLENADO DE AGUA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (llenadoagua) {
+    raw = `- Instalación de registro ${llenadoagua.ubicacionRegistroAgua} para llenado de agua, fabricado en plástico de Ø ${llenadoagua.tamanoRegistroAgua}mm, sin afectar a la estructura del vehículo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 14) TOMA EXTERIOR 230V
+  //
+  const toma230v = modificaciones.find(
+    (m) =>
+      m.nombre === 'TOMA EXTERIOR 230V' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (toma230v) {
+    raw = `- Instalación de una toma de corriente exterior de ${toma230v.voltajeTomaExterior}V en la ${toma230v.ubicacionTomaExterior} fabricado en plástico de medidas ${toma230v.medidasTomaExterior}mm, sin afectar a la estructura del vehículo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 15) DUCHA EXTERIOR
+  //
+  const duchaexterior = modificaciones.find(
+    (m) =>
+      m.nombre === 'DUCHA EXTERIOR' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (duchaexterior) {
+    raw = `- Instalación de registro con ducha exterior en la ${duchaexterior.ubicacionDuchaExterior} para llenado de agua, fabricado en plástico, sin afectar a la estructura del vehículo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  //
+  // 16) INSTALACIÓN ELÉCTRICA
+  //
+  const instalacionelectrica = modificaciones.find(
+    (m) =>
+      m.nombre === 'INSTALACIÓN ELÉCTRICA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (instalacionelectrica) {
+    raw = `- Instalación de sistema solar fotovoltaico compuesto por:`;
+
+    let p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `o Placa solar monocristalina marca ${instalacionelectrica.marcaPlacaSolar} modelo ${instalacionelectrica.modeloPlacaSolar} de ${instalacionelectrica.potenciaPlacaSolar}W de dimensiones ${instalacionelectrica.dimensionesPlacaSolar}mm situada en ${instalacionelectrica.ubicacionPlacaSolar} del vehículo. `;
+
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `o ${instalacionelectrica.cantidadBaterias} batería auxiliar de ${instalacionelectrica.potenciaBaterias}V situada en ${instalacionelectrica.ubicacionBaterias}.`;
+
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `o Inversor ${instalacionelectrica.potenciaInversor} marca ${instalacionelectrica.marcaInversor} situado en ${instalacionelectrica.ubicacionInversor}. `;
+
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `o Controlador de carga solar ${instalacionelectrica.modeloControlador} marca ${instalacionelectrica.marcaControlador} situado en ${instalacionelectrica.ubicacionControlador}.`;
+
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    out.push(
+      new Paragraph({
+        spacing: { line: 260, after: 120 },
+        children: [
+          new TextRun({ text: 'NOTA: ', bold: true }),
+          new TextRun({
+            text: 'Estos componentes únicamente podrán funcionar en estacionario, con el vehículo parado, mediante relé. Esta instalación es independiente de la principal y se desconecta automáticamente al arrancar el vehículo mediante relé.',
+          }),
+        ],
+      })
+    );
+
+    if (instalacionelectrica.instalacionesSecundarias) {
+      const lines = instalacionelectrica.instalacionesSecundarias
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter((l) => l.length);
+      lines.forEach((line) => {
+        raw = `- ${line}`;
+        const sec = new Paragraph({
+          spacing: { line: 260, after: 60 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (sec as any)._rawText = raw;
+        out.push(sec);
+      });
+    }
+  }
+
+  //
+  // 17) TOLDO
+  //
+  const toldo = modificaciones.find(
+    (m) =>
+      m.nombre === 'TOLDO' && m.seleccionado && data.tipoVehiculo === 'camper'
+  );
+  if (toldo) {
+    raw = `- Instalación de toldo marca ${toldo.marcaToldo} de medidas ${toldo.medidasToldo}mm en ${toldo.ubicacionToldo} del vehículo sin afectar a la estructura.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
   return out;
 }
 
@@ -1046,7 +1945,16 @@ export function generarDocumentoProyectoParagraphs(
 
   // 2) Filtra cada grupo según la primera palabra
   const montajes = all.filter(
-    (p) => !['Variación', 'Sustitución', 'Desmontaje'].includes(getFirstWord(p))
+    (p) =>
+      ![
+        'Variación',
+        'Sustitución',
+        'Desmontaje',
+        'TA',
+        'TA:',
+        '',
+        ' ',
+      ].includes(getFirstWord(p))
   );
   const variacionesYSus = all.filter((p) =>
     ['Variación', 'Sustitución'].includes(getFirstWord(p))

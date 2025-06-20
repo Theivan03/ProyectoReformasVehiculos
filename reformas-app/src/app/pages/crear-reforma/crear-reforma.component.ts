@@ -7,6 +7,7 @@ import { GeneradorDocumentosComponent } from '../../generador-documentos/generad
 import { ReformasPreviasComponent } from '../reformas-previas/reformas-previas.component';
 import { TipoVehiculoComponent } from '../tipo-vehiculo/tipo-vehiculo.component';
 import { ResumenModificacionesComponent } from '../resumen-modificaciones/resumen-modificaciones.component';
+import { CocheonoComponent } from '../cocheono/cocheono.component';
 
 @Component({
   selector: 'app-crear-reforma',
@@ -19,6 +20,7 @@ import { ResumenModificacionesComponent } from '../resumen-modificaciones/resume
     ReformasPreviasComponent,
     TipoVehiculoComponent,
     ResumenModificacionesComponent,
+    CocheonoComponent,
   ],
   standalone: true,
   templateUrl: './crear-reforma.component.html',
@@ -34,6 +36,7 @@ export class CrearReformaComponent {
   mostrarTipoVehiculo = false;
   datosGuardadosTipoVehiculo: any = null;
   mostrarResumenModificaciones = false;
+  mostrarCocheOno = false;
   datosResumenModificaciones: any = {};
 
   respuestasGuardadas: {
@@ -106,7 +109,7 @@ export class CrearReformaComponent {
 
   onVolverDesdeReformasPrevias(data: any): void {
     this.datosFormularioGuardados = data;
-    data.paginaActual = 4;
+    data.paginaActual = 5;
     this.mostrarReformasPrevias = false;
     this.mostrarFormularioProyecto = true;
   }
@@ -132,7 +135,7 @@ export class CrearReformaComponent {
 
     this.datosFormularioGuardados = {
       ...this.datosGenerales,
-      paginaActual: 4,
+      paginaActual: 5,
     };
 
     if (this.datosFormularioGuardados.reformasPrevias === true) {
@@ -155,19 +158,47 @@ export class CrearReformaComponent {
   }
 
   onContinuarDesdeResumenModificaciones(data: any): void {
-    this.datosGenerales = data;
     this.mostrarResumenModificaciones = false;
+    if (data.tipoVehiculo === 'coche') {
+      this.datosGenerales = data;
+      this.mostrarCocheOno = true;
+    } else {
+      this.datosGuardadosTipoVehiculo.opcionesCoche = [
+        false,
+        false,
+        false,
+        false,
+        false,
+      ];
+      this.datosGenerales = data;
+      this.mostrarGenerador = true;
+    }
+  }
+
+  onVolverDesdeCocheONo(data: any): void {
+    this.datosResumenModificaciones = data;
+    this.mostrarResumenModificaciones = true;
+    this.mostrarCocheOno = false;
+  }
+
+  onContinuarDesdeCocheONo(data: any): void {
+    this.datosGenerales = data;
     this.mostrarGenerador = true;
+    this.mostrarCocheOno = false;
   }
 
   onVolverDesdeGenerador(data: any): void {
     this.datosFormularioGuardados = {
       ...data,
-      paginaActual: 4,
+      paginaActual: 5,
     };
 
     this.datosGenerales = data;
     this.mostrarGenerador = false;
-    this.mostrarResumenModificaciones = true;
+    if (data.tipoVehiculo === 'coche') {
+      this.mostrarCocheOno = true;
+    } else {
+      this.mostrarResumenModificaciones = true;
+    }
   }
 }

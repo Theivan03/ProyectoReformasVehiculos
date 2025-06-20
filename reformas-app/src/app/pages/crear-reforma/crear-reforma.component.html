@@ -53,6 +53,13 @@
     (continuar)="onContinuarDesdeResumenModificaciones($event)"
   ></app-resumen-modificaciones>
 
+  <app-cocheono
+    *ngIf="mostrarCocheOno"
+    [datosEntrada]="datosResumenModificaciones"
+    (volver)="onVolverDesdeCocheONo($event)"
+    (continuar)="onContinuarDesdeCocheONo($event)"
+  ></app-cocheono>
+
   <app-generador-documentos
     *ngIf="mostrarGenerador"
     [reformaData]="datosGenerales"
