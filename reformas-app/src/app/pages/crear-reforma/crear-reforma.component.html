@@ -60,6 +60,13 @@
     (continuar)="onContinuarDesdeCocheONo($event)"
   ></app-cocheono>
 
+  <app-canva
+    *ngIf="mostrarCanva"
+    [datosEntrada]="datosResumenModificaciones"
+    (volver)="onVolverDesdeCanva()"
+    (continuar)="onContinuarDesdeCanva($event)"
+  ></app-canva>
+
   <app-generador-documentos
     *ngIf="mostrarGenerador"
     [reformaData]="datosGenerales"

@@ -20,21 +20,35 @@ import {
   ExternalHyperlink,
   ShadingType,
 } from 'docx';
-import fs from 'fs';
-import path from 'path';
 import saveAs from 'file-saver';
 import ingeniero from '../../assets/ingeniero.json';
 import { Modificacion } from '../interfaces/modificacion';
 import {
   buildModificacionesParagraphs,
   generarDocumentoProyectoParagraphs,
-} from './buildModificacionesParagraphs';
+  generarTablaLeyenda,
+} from '../Funciones/buildModificacionesParagraphs';
 
 export async function generarDocumentoProyecto(data: any): Promise<void> {
   const response = await fetch('assets/logo.png');
   const imageBuffer = await response.arrayBuffer();
 
   const modificaciones: Modificacion[] = data.modificaciones;
+
+  let tipo = data.tipoVehiculo;
+  let alto;
+
+  let url = `http://192.168.1.41:3000/imgs/${tipo}.png`;
+  const response3 = await fetch(url);
+  const imageBuffer3 = await response3.arrayBuffer();
+
+  url = `http://192.168.1.41:3000/imgs/planos/plano-generado-proyecto${data.numeroProyecto}.png`;
+  const response4 = await fetch(url);
+  const imageBuffer4 = await response4.arrayBuffer();
+
+  url = `http://192.168.1.41:3000/imgs/firma-generada.png`;
+  const response5 = await fetch(url);
+  const imageBuffer5 = await response5.arrayBuffer();
 
   const logoImage = new ImageRun({
     data: imageBuffer,
@@ -793,10 +807,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     ...[
       'Nombre: ' + ingeniero.nombre,
       'DNI: ' + ingeniero.dni,
-      'Domicilio: Avda. Mediterráneo, 134 – 1º - Oficina 4 ' +
-        ingeniero.direccionFiscal +
-        ' - ' +
-        ingeniero.oficina,
+      'Domicilio: ' + ingeniero.direccionFiscal + ' - ' + ingeniero.oficina,
       'Localidad: ' +
         ingeniero.codigoPostal +
         ' – ' +
@@ -1237,7 +1248,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
           spacing: { line: 260, after: 60 },
           children: [
             new TextRun({
-              text: `Código ${(codigo as { codigo: string }).codigo}`,
+              text: `Reforma ${(codigo as { codigo: string }).codigo}`,
               bold: true,
               break: 1,
             }),
@@ -1642,41 +1653,14 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
     // Pie de firma
     new Paragraph({
-      alignment: 'right',
-      spacing: { after: 240 },
-      children: [
-        new TextRun({
-          text: 'Teulada, ' + new Date().toLocaleDateString(),
-        }),
-      ],
-    }),
-    new Paragraph({
       alignment: AlignmentType.RIGHT,
       children: [
         new ImageRun({
-          data: imageBuffer2,
-          transformation: {
-            width: 150,
-            height: 200,
-          },
+          data: imageBuffer5,
+          transformation: { width: 170, height: 220 },
           type: 'png',
         }),
       ],
-    }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'El Ingeniero Técnico Industrial' })],
-    }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'Luis Serrano Artesero' })],
-    }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'Col nº 11380 COITIG Valencia' })],
     }),
   ];
 
@@ -2130,41 +2114,14 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
 
     new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120, after: 240 },
-      children: [
-        new TextRun({
-          text: 'Teulada, ' + new Date().toLocaleDateString(),
-        }),
-      ],
-    }),
-    new Paragraph({
       alignment: AlignmentType.RIGHT,
       children: [
         new ImageRun({
-          data: imageBuffer2,
-          transformation: {
-            width: 150,
-            height: 200,
-          },
+          data: imageBuffer5,
+          transformation: { width: 170, height: 220 },
           type: 'png',
         }),
       ],
-    }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'El Ingeniero Técnico Industrial' })],
-    }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'Luis Serrano Artesero' })],
-    }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'Col nº 11380 COITIG Valencia' })],
     }),
   ];
 
@@ -2323,54 +2280,22 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
 
     new Paragraph({
-      alignment: 'right',
-      spacing: { after: 240 },
-      children: [
-        new TextRun({
-          text: 'Teulada, ' + new Date().toLocaleDateString(),
-        }),
-      ],
-    }),
-    new Paragraph({
       alignment: AlignmentType.RIGHT,
       children: [
         new ImageRun({
-          data: imageBuffer2,
-          transformation: {
-            width: 150,
-            height: 200,
-          },
+          data: imageBuffer5,
+          transformation: { width: 170, height: 220 },
           type: 'png',
         }),
       ],
     }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'El Ingeniero Técnico Industrial' })],
-    }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'Luis Serrano Artesero' })],
-    }),
-    new Paragraph({
-      alignment: 'right',
-      spacing: { before: 120 },
-      children: [new TextRun({ text: 'Col nº 11380 COITIG Valencia' })],
-    }),
   ];
 
-  let tipo = data.tipoVehiculo;
-  let alto;
   if (tipo === 'camper' || tipo === 'coche') {
     alto = 400;
   } else {
     alto = 350;
   }
-  const url = `http://192.168.1.41:3000/imgs/${tipo}.png`;
-  const response3 = await fetch(url);
-  const imageBuffer3 = await response3.arrayBuffer();
 
   const punto5 = [
     new Paragraph({ pageBreakBefore: true }),
@@ -2403,7 +2328,6 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ],
     }),
 
-    //Falta la foto
     new Paragraph({
       alignment: AlignmentType.CENTER,
       children: [
@@ -2467,7 +2391,6 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ],
     }),
 
-    // Falta la foto
     new Paragraph({
       alignment: AlignmentType.CENTER,
       children: [
@@ -2527,6 +2450,33 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
           bold: true,
           size: 28,
           color: '000000',
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      children: [
+        new ImageRun({
+          data: imageBuffer4,
+          transformation: {
+            width: 500,
+            height: alto,
+          },
+          type: 'png',
+        }),
+      ],
+    }),
+
+    generarTablaLeyenda(data),
+
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      children: [
+        new ImageRun({
+          data: imageBuffer5,
+          transformation: { width: 170, height: 220 },
+          type: 'png',
         }),
       ],
     }),

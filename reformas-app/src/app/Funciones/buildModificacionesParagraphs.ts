@@ -1,4 +1,14 @@
-import { Paragraph, TextRun, HeadingLevel } from 'docx';
+import {
+  Paragraph,
+  TextRun,
+  HeadingLevel,
+  Table,
+  AlignmentType,
+  TableCell,
+  TableRow,
+  VerticalAlign,
+  WidthType,
+} from 'docx';
 import { Modificacion } from '../interfaces/modificacion';
 
 export function buildModificacionesParagraphs(
@@ -1990,4 +2000,84 @@ export function generarDocumentoProyectoParagraphs(
   appendSection('1.6.3- Montajes realizados', montajes);
 
   return out;
+}
+
+export function generarTablaLeyenda(data: any): Table {
+  const seleccionadas = data.modificaciones
+    .filter((mod: any) => mod.seleccionado)
+    .map((mod: any, i: number) => ({
+      numero: i + 1,
+      nombre: mod.nombre,
+    }));
+
+  const mitad = Math.ceil(seleccionadas.length / 2);
+  const col1 = seleccionadas.slice(0, mitad);
+  const col2 = seleccionadas.slice(mitad);
+
+  while (col2.length < col1.length) {
+    col2.push({ numero: null, nombre: '' });
+  }
+
+  const filas = [
+    // Cabecera LEYENDA centrada
+    new TableRow({
+      children: [
+        new TableCell({
+          margins: { top: 100, bottom: 100 },
+          columnSpan: 2,
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [new TextRun({ text: 'LEYENDA', bold: true })],
+            }),
+          ],
+        }),
+      ],
+    }),
+
+    // Filas numeradas en dos columnas con espaciado
+    ...col1.map(
+      (item: { numero: any; nombre: any }, index: string | number) =>
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { top: 100, bottom: 100, left: 200, right: 200 },
+              verticalAlign: VerticalAlign.CENTER,
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: item.numero ? `${item.numero}- ${item.nombre}` : '',
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableCell({
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              margins: { top: 100, bottom: 100, left: 200, right: 200 },
+              verticalAlign: VerticalAlign.CENTER,
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: col2[index].numero
+                        ? `${col2[index].numero}- ${col2[index].nombre}`
+                        : '',
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        })
+    ),
+  ];
+
+  return new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: filas,
+  });
 }

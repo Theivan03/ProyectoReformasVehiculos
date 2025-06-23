@@ -8,6 +8,7 @@ import { ReformasPreviasComponent } from '../reformas-previas/reformas-previas.c
 import { TipoVehiculoComponent } from '../tipo-vehiculo/tipo-vehiculo.component';
 import { ResumenModificacionesComponent } from '../resumen-modificaciones/resumen-modificaciones.component';
 import { CocheonoComponent } from '../cocheono/cocheono.component';
+import { CanvaComponent } from '../canva/canva.component';
 
 @Component({
   selector: 'app-crear-reforma',
@@ -21,6 +22,7 @@ import { CocheonoComponent } from '../cocheono/cocheono.component';
     TipoVehiculoComponent,
     ResumenModificacionesComponent,
     CocheonoComponent,
+    CanvaComponent,
   ],
   standalone: true,
   templateUrl: './crear-reforma.component.html',
@@ -38,6 +40,7 @@ export class CrearReformaComponent {
   mostrarResumenModificaciones = false;
   mostrarCocheOno = false;
   datosResumenModificaciones: any = {};
+  mostrarCanva = false;
 
   respuestasGuardadas: {
     [codigo: string]: { codigo: string; descripcion: string }[];
@@ -171,7 +174,7 @@ export class CrearReformaComponent {
         false,
       ];
       this.datosGenerales = data;
-      this.mostrarGenerador = true;
+      this.mostrarCanva = true;
     }
   }
 
@@ -183,8 +186,23 @@ export class CrearReformaComponent {
 
   onContinuarDesdeCocheONo(data: any): void {
     this.datosGenerales = data;
-    this.mostrarGenerador = true;
+    this.mostrarCanva = true;
     this.mostrarCocheOno = false;
+  }
+
+  onVolverDesdeCanva(): void {
+    this.mostrarCanva = false;
+    if (this.datosResumenModificaciones.tipoVehiculo === 'coche') {
+      this.mostrarCocheOno = true;
+    } else {
+      this.mostrarResumenModificaciones = true;
+    }
+  }
+
+  onContinuarDesdeCanva(data: any): void {
+    this.datosGenerales = data;
+    this.mostrarGenerador = true;
+    this.mostrarCanva = false;
   }
 
   onVolverDesdeGenerador(data: any): void {
@@ -195,10 +213,6 @@ export class CrearReformaComponent {
 
     this.datosGenerales = data;
     this.mostrarGenerador = false;
-    if (data.tipoVehiculo === 'coche') {
-      this.mostrarCocheOno = true;
-    } else {
-      this.mostrarResumenModificaciones = true;
-    }
+    this.mostrarCanva = true;
   }
 }
