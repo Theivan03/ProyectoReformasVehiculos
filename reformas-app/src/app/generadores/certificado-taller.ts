@@ -3,708 +3,194 @@ import {
   Packer,
   Paragraph,
   TextRun,
-  Header,
-  Footer,
-  TableOfContents,
   SectionType,
-  PageNumber,
-  HeadingLevel,
-  WidthType,
-  BorderStyle,
   AlignmentType,
-  Table,
-  TableRow,
-  TableCell,
-  VerticalAlign,
-  ImageRun,
-  ExternalHyperlink,
 } from 'docx';
 import saveAs from 'file-saver';
+import { Modificacion } from '../interfaces/modificacion';
+import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
 
 export async function generarDocumentoTaller(data: any): Promise<void> {
-  const response = await fetch('assets/logo.png');
-  const imageBuffer = await response.arrayBuffer();
+  const modificaciones: Modificacion[] = data.modificaciones;
 
-  const logoImage = new ImageRun({
-    data: imageBuffer,
-    transformation: {
-      width: 175,
-      height: 75,
-    },
-    type: 'png',
-  });
-
-  // 3) Genera el párrafo “REF/REV”
-  const refPara = new Paragraph({
-    alignment: AlignmentType.RIGHT,
-    children: [
-      new TextRun({
-        text: 'REF.: ' + data.ref,
-        size: 28,
-        color: 'FF0000',
-      }),
-      new TextRun({
-        text: ' REV 00',
-        size: 28,
-        color: 'FF0000',
-      }),
-    ],
-    spacing: {
-      before: 0, // Espacio después del párrafo
-    },
-  });
-
-  // 4) Construye tu tabla de header en 2 columnas (logo + datos)
-  const innerTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    borders: {
-      top: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      bottom: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      left: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      right: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      insideVertical: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-    },
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            width: { size: 35, type: WidthType.PERCENTAGE },
-            verticalAlign: VerticalAlign.CENTER,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [logoImage],
-              }),
-            ],
-          }),
-          new TableCell({
-            width: { size: 65, type: WidthType.PERCENTAGE },
-            verticalAlign: VerticalAlign.CENTER,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: '☎ 618 622 012',
-                    font: 'Arial',
-                    size: 28,
-                  }),
-                ],
-              }),
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: '✉ hablamos@projectes.es',
-                    font: 'Arial',
-                    size: 28,
-                  }),
-                ],
-              }),
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: '⌂ www.projectes.es',
-                    font: 'Arial',
-                    size: 28,
-                  }),
-                ],
-              }),
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: 'Colegiado 11.380 - COITIG Valencia',
-                    font: 'Arial',
-                    size: 28,
-                  }),
-                ],
-              }),
-            ],
-            margins: {
-              top: 300, // 300 TWIP ≈ 0.21 cm
-              bottom: 300,
-            },
-          }),
-        ],
-      }),
-    ],
-  });
-
-  // Tabla externa que envuelve (marco más grueso)
-  const headerTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    borders: {
-      top: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      bottom: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      left: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      right: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-      insideVertical: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-    },
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            margins: {
-              top: 20,
-              bottom: 20,
-              left: 40,
-              right: 40,
-            },
-            children: [innerTable],
-          }),
-        ],
-      }),
-    ],
-  });
-
-  const titleParagraph = new Paragraph({
-    alignment: AlignmentType.CENTER,
-    children: [
-      new TextRun({
-        text: 'PROYECTO TÉCNICO DE REFORMA DE VEHÍCULO',
-        bold: true,
-        size: 36, // tamaño de título
-      }),
-    ],
-  });
-
-  const innerDataTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    borders: {
-      top: { style: BorderStyle.DOTTED, size: 2, color: '000000' },
-      bottom: { style: BorderStyle.DOTTED, size: 2, color: '000000' },
-      left: { style: BorderStyle.DOTTED, size: 2, color: '000000' },
-      right: { style: BorderStyle.DOTTED, size: 2, color: '000000' },
-      insideHorizontal: {
-        style: BorderStyle.DOTTED,
-        size: 1,
-        color: '000000',
-      },
-      insideVertical: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-    },
-    rows: [
-      new TableRow({
-        children: [
-          { text: 'MARCA', width: 20 },
-          { text: 'JEEP', width: 25 },
-          { text: 'MODELO', width: 15 },
-          { text: 'WRANGLER UNLIMITED', width: 25 },
-        ].map(
-          ({ text, width }) =>
-            new TableCell({
-              verticalAlign: VerticalAlign.CENTER,
-              width: { size: width, type: WidthType.PERCENTAGE },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text, bold: true, size: 22 })],
-                }),
-              ],
-              margins: { top: 150, bottom: 150, left: 150, right: 150 },
-            })
-        ),
-      }),
-      ...[
-        ['Tipo/Variante/Versión:', 'JK / JXJF9 / C5HD3A'],
-        ['MATRÍCULA', '3639JFV'],
-        ['Nº BASTIDOR', '1C4HJWE50CL287950'],
-        ['FECHA 1ª MATRICULACIÓN', '27/03/2006'],
-        ['CONTRASEÑA HOMOLOG.', 'e4*2001/116*0116*11'],
-      ].map(
-        ([label, value]) =>
-          new TableRow({
-            children: [
-              new TableCell({
-                columnSpan: 2,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: label, size: 22 })],
-                  }),
-                ],
-                margins: { top: 150, bottom: 150, left: 150, right: 150 },
-              }),
-              new TableCell({
-                columnSpan: 2,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({ text: value, bold: true, size: 22 }),
-                    ],
-                  }),
-                ],
-                margins: { top: 150, bottom: 150, left: 150, right: 150 },
-              }),
-            ],
-          })
-      ),
-      new TableRow({
-        children: [
-          new TableCell({
-            columnSpan: 4,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: 'CODIGOS DE REFORMA (CR) según RD 866/2010',
-                    size: 22,
-                  }),
-                ],
-              }),
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: '4.4 - 4.5 - 5.1 - 8.52',
-                    bold: true,
-                    size: 22,
-                  }),
-                ],
-              }),
-            ],
-            margins: { top: 150, bottom: 150, left: 150, right: 150 },
-          }),
-        ],
-      }),
-      new TableRow({
-        children: [
-          new TableCell({
-            columnSpan: 4,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: 'TITULAR: JULIO GUNTHER ARAOS BUSTOS',
-                    bold: true,
-                    size: 22,
-                  }),
-                ],
-              }),
-            ],
-            margins: { top: 150, bottom: 150, left: 150, right: 150 },
-          }),
-        ],
-      }),
-    ],
-  });
-
-  const outerDataTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    borders: {
-      top: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      bottom: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      left: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      right: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      insideVertical: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-    },
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            children: [
-              titleParagraph,
-              new Paragraph(''), // espaciado
-              innerDataTable,
-            ],
-            margins: { top: 300, bottom: 300, left: 600, right: 300 },
-          }),
-        ],
-      }),
-    ],
-  });
-
-  const dataTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    borders: {
-      top: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      bottom: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      left: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      right: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      insideVertical: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-    },
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            margins: { top: 30, bottom: 30, left: 30, right: 50 },
-            children: [outerDataTable],
-          }),
-        ],
-      }),
-    ],
-  });
-
-  const signatureTable = new Table({
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            width: { size: 65, type: WidthType.PERCENTAGE },
-            verticalAlign: VerticalAlign.CENTER,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.RIGHT,
-                children: [new TextRun({ text: 'FIRMADO:', bold: true })],
-              }),
-              new Paragraph({
-                alignment: AlignmentType.RIGHT,
-                children: [
-                  new TextRun({ text: 'LUIS SERRANO ARTESERO', bold: true }),
-                ],
-              }),
-              new Paragraph({
-                alignment: AlignmentType.RIGHT,
-                children: [
-                  new TextRun({
-                    text: 'COL.11380 COGITI - VALENCIA',
-                    bold: true,
-                  }),
-                ],
-              }),
-            ],
-            borders: {
-              top: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              bottom: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              left: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              right: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-            },
-            margins: { top: 50, bottom: 50, left: 50, right: 50 },
-          }),
-          new TableCell({
-            children: [],
-            width: { size: 35, type: WidthType.PERCENTAGE },
-            borders: {
-              top: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              bottom: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              left: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              right: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-            },
-          }),
-        ],
-      }),
-    ],
-    width: { size: 100, type: WidthType.PERCENTAGE },
-  });
-
-  const webLink = new Paragraph({
-    alignment: AlignmentType.CENTER,
-    children: [
-      new ExternalHyperlink({
-        link: 'http://www.projectes.es',
-        children: [
-          new TextRun({
-            font: 'Arial',
-            text: 'WWW.PROJECTES.ES',
-            color: '000000',
-            bold: true,
-            size: 48, // 24pt
-            italics: true,
-            underline: {},
-          }),
-        ],
-      }),
-    ],
-  });
-
-  // 1) Header “tonto”
-  const header = new Header({
-    children: [
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        borders: {
-          top: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
-          bottom: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
-          left: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
-          right: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
-          insideHorizontal: {
-            style: BorderStyle.SINGLE,
-            size: 1,
-            color: 'BFBFBF',
-          },
-          insideVertical: {
-            style: BorderStyle.SINGLE,
-            size: 1,
-            color: 'BFBFBF',
-          },
-        },
-        rows: [
-          new TableRow({
-            children: [
-              // Columna 1 (25%), texto en 8 pt y negrita
-              new TableCell({
-                width: { size: 25, type: WidthType.PERCENTAGE },
-                verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'Luis Serrano Artesero',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'Ingeniero Técnico Industrial',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'Col. 11.380 COIIG Valencia',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: '☎ 618 622 012',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: '✉ hablamos@projectes.es',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: '⌂ www.projectes.es',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-
-              // Columna 2 (50%), texto en 8 pt y negrita
-              new TableCell({
-                width: { size: 50, type: WidthType.PERCENTAGE },
-                verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'PROYECTO TÉCNICO POR REFORMA DE UN VEHÍCULO',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'Marca KNAUS Modelo FIAT AUTO SPA I 10',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'Nº Bastidor ZFA2440007669248',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'SOLICITANTE: ALQUILA FACIL COSTA SL',
-                        bold: true,
-                        size: 16,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-
-              // Columna 3 (25%), texto en 10 pt y negrita
-              new TableCell({
-                width: { size: 25, type: WidthType.PERCENTAGE },
-                verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'REF.: PTRV 57/25',
-                        bold: true,
-                        size: 20,
-                        color: 'FF0000',
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'REV 00',
-                        bold: true,
-                        size: 20,
-                        color: 'FF0000',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-      new Paragraph({
-        spacing: { after: 0 }, // 500 TWIP ≈ 0,35 cm de espacio
-        children: [],
-      }),
-    ],
-  });
-
-  // 2) Función para crear footers, encapsulando el PageNumber en un TextRun
-  const makeFooter = () =>
-    new Footer({
+  const seccion = [
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
       children: [
-        new Paragraph({
-          spacing: { before: 400 },
-          children: [
-            new TextRun('Página '),
-            // PageNumber.CURRENT es un literal string, así que lo metemos en un TextRun
-            new TextRun({ children: [PageNumber.CURRENT] }),
-          ],
+        new TextRun({
+          text: 'ANEXO III (R.D. 866/2010 Y MANUAL DE REFORMAS DE VEHÍCULOS)',
+          bold: true,
+        }),
+        new TextRun({
+          text: ' CERTIFICADO DE TALLER',
+          bold: true,
         }),
       ],
-    });
+      spacing: { after: 300 },
+    }),
 
-  // 3) Primera sección: portada + TOC (págs 1–2)
-  const section1 = {
-    properties: {
-      type: SectionType.NEXT_PAGE,
-      pageNumberStart: 1,
-      titlePage: true,
-    },
-    headers: {
-      first: new Header({ children: [] }), // header invisible y sin espacio
-      default: header,
-    },
-    footers: {
-      first: new Footer({ children: [] }), // footer invisible y sin espacio
-      default: makeFooter(),
-    },
-    children: [
-      // Página 1: portada
-      refPara,
-      new Paragraph({ text: '', spacing: { before: 200 } }),
-      headerTable,
-      new Paragraph({ text: '', spacing: { before: 200 } }),
-      dataTable,
-      new Paragraph({ text: '', spacing: { before: 400 } }),
-      signatureTable,
-      new Paragraph({ text: '', spacing: { before: 400 } }),
-      webLink,
-
-      new Paragraph({ pageBreakBefore: true }),
-      // Página 2: índice
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        heading: HeadingLevel.HEADING_1,
-        children: [
-          new TextRun({
-            text: 'Índice',
-            bold: true,
-            size: 32,
-            color: '000000',
-          }),
-        ],
-      }),
-      new TableOfContents('Índice', {
-        hyperlink: true,
-        headingStyleRange: '1-1',
-      }),
-    ],
-  };
-
-  // 4) Segunda sección: páginas 3–7, reiniciando numeración
-  const children2: Paragraph[] = [];
-  for (let i = 1; i <= 4; i++) {
-    children2.push(
-      new Paragraph({
-        text: `Sección ${i}`,
-        heading: HeadingLevel.HEADING_1,
-        pageBreakBefore: i !== 1,
-      }),
-      new Paragraph({
-        children: [
-          new TextRun('Página'),
-          new TextRun({ children: [PageNumber.CURRENT] }),
-        ],
-      })
-    );
-  }
-  // Página 7 extra
-  children2.push(
     new Paragraph({
-      text: 'Contenido extra en la página final.',
-      pageBreakBefore: true,
+      children: [
+        new TextRun({
+          size: 22,
+          text: `D. ${data.taller.responsable}, expresamente autorizado por la empresa ${data.taller.nombre}, domiciliada en ${data.taller.poblacion}, provincia de ${data.taller.provincia}, ${data.taller.direccion}, teléfono ${data.taller.telefono} dedicada a la actividad de mecánica, con nº de registro industrial ${data.taller.registroIndustrial} y nº de registro especial (1) ${data.taller.registroEspecial}.`,
+        }),
+      ],
+      spacing: { after: 300 },
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [new TextRun({ text: 'CERTIFICA', bold: true })],
+      spacing: { after: 300 },
+    }),
+
+    new Paragraph({
+      children: [
+        new TextRun({
+          size: 22,
+          text: `Que la mencionada empresa ha realizado la/s reformas, y asume la responsabilidad de la ejecución, sobre el vehículo marca ${data.marca} tipo ${data.tipo}, variante ${data.variante}, versión ${data.version} y denominación comercial ${data.denominacion}, contraseña de homologación ${data.homologacion}, matrícula ${data.matricula}, y con n.º de bastidor ${data.bastidor}, de acuerdo con:\n`,
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: '- La normativa vigente en materia de reformas de vehículos.',
+          size: 22,
+        }),
+      ],
+      spacing: { after: 100, before: 100 },
     }),
     new Paragraph({
       children: [
-        new TextRun('Estás en la página '),
-        new TextRun({ children: [PageNumber.CURRENT] }),
+        new TextRun({
+          text: '- Las normas del fabricante del vehículo aplicables a la/s reforma/s llevadas a cabo en dicho vehículo.',
+          size: 22,
+        }),
       ],
-    })
-  );
+      spacing: { after: 100, before: 100 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: `- El proyecto técnico REF.: ${data.referenciaProyecto}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. Luis Serrano Artesero, Colegiado nº 11.380 del COITIG Valencia.`,
+          size: 22,
+        }),
+      ],
+      spacing: { after: 200 },
+    }),
 
-  const section2 = {
+    new Paragraph({
+      spacing: { after: 200 },
+      children: [
+        new TextRun({
+          text: 'OBSERVACIONES:',
+          bold: true,
+        }),
+      ],
+    }),
+
+    ...buildModificacionesParagraphs(modificaciones, data),
+
+    new Paragraph({
+      spacing: { after: 200 },
+      children: [
+        new TextRun({
+          size: 22,
+          text: 'Se garantiza el cumplimiento de lo previsto en el artículo 6 del Reglamento General de vehículos y, en su caso, en el artículo 9 del Real Decreto 1457/1986, de 10 enero, por el que se regula la actividad industrial en talleres de vehículos automóviles, de equipos y sus componentes, modificado por 455/2010, de 16 de abril.',
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      spacing: { after: 200 },
+      alignment: AlignmentType.CENTER,
+      children: [
+        new TextRun({
+          size: 22,
+          text: 'Firma y sello:',
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 1000, after: 300 },
+      children: [
+        new TextRun({
+          size: 22,
+          text: `Fdo: ${data.taller.responsable}`,
+          bold: true,
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      spacing: { before: 500, after: 500 },
+      children: [
+        new TextRun({
+          size: 22,
+          text: `En ${data.taller.poblacion}, a ${new Date(
+            data.fechaProyecto
+          ).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })}`,
+        }),
+      ],
+      indent: { left: 400 },
+    }),
+
+    new Paragraph({
+      children: [
+        new TextRun({
+          size: 22,
+          text: '(1)',
+          bold: true,
+        }),
+        new TextRun({
+          size: 22,
+          text: 'En el caso de que la reforma sea efectuada por un fabricante se indicará N/A.',
+        }),
+      ],
+      spacing: { after: 200 },
+    }),
+
+    new Paragraph({
+      children: [
+        new TextRun({
+          size: 22,
+          text: '(2)',
+          bold: true,
+        }),
+        new TextRun({
+          size: 22,
+          text:
+            'En el apartado de observaciones se debe especificar la identificación de los equipos o sistemas modificados. ' +
+            'Cualquier equipo o sistema modificado, sustituido o incorporado, debe ser identificado indicando sus referencias ' +
+            '(marca, modelo, número de homologación o marcaje) si estas existen.',
+        }),
+      ],
+    }),
+  ];
+
+  const section1 = {
     properties: { type: SectionType.NEXT_PAGE, pageNumberStart: 1 },
-    headers: { default: header },
-    footers: { default: makeFooter() },
-    children: children2,
+    children: [...seccion],
   };
 
   // 5) Monta y descarga el documento
   const doc = new Document({
-    sections: [section1, section2],
+    sections: [section1],
   });
 
   // 2) Empaqueta y descarga
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, 'documento-taller.docx');
+  saveAs(
+    blob,
+    `${data.referenciaProyecto} CT ${data.marca} ${data.modelo} ${data.matricula}.docx`
+  );
 }

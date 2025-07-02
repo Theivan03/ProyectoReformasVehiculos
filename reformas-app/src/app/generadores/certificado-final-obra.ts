@@ -16,6 +16,7 @@ import {
   TableRow,
   TableCell,
   VerticalAlign,
+  ImageRun,
 } from 'docx';
 import ingeniero from '../../assets/ingeniero.json';
 import saveAs from 'file-saver';
@@ -128,7 +129,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                     alignment: AlignmentType.CENTER,
                     children: [
                       new TextRun({
-                        text: 'PROYECTO TÉCNICO POR REFORMA DE UN VEHÍCULO',
+                        text: 'CERTIFICADO FINAL DE OBRA POR REFORMA DE UN VEHÍCULO',
                         bold: true,
                         size: 16,
                       }),
@@ -275,7 +276,19 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
     // TABLA DE DATOS DEL VEHÍCULO
     new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: { size: 85, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.DASHED, size: 4, color: '000000' },
+        bottom: { style: BorderStyle.DASHED, size: 4, color: '000000' },
+        left: { style: BorderStyle.DASHED, size: 4, color: '000000' },
+        right: { style: BorderStyle.DASHED, size: 4, color: '000000' },
+        insideHorizontal: {
+          style: BorderStyle.DASHED,
+          size: 4,
+          color: '000000',
+        },
+        insideVertical: { style: BorderStyle.DASHED, size: 4, color: '000000' },
+      },
       rows: [
         ['MARCA', data.marca],
         [
@@ -296,10 +309,14 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           new TableRow({
             children: [
               new TableCell({
-                children: [new Paragraph({ text: label })],
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                margins: { top: 100, bottom: 100, left: 200, right: 200 },
+                children: [new Paragraph(label)],
               }),
               new TableCell({
-                children: [new Paragraph({ text: value })],
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                margins: { top: 100, bottom: 100, left: 200, right: 200 },
+                children: [new Paragraph(value)],
               }),
             ],
           })
@@ -314,7 +331,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
     // TABLA DE DATOS DEL TALLER
     new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: { size: 70, type: WidthType.PERCENTAGE },
       rows: [
         ['NOMBRE EMPRESA', data.tallerSeleccionado.nombre],
         ['DIRECCIÓN TALLER', data.tallerSeleccionado.direccion],
@@ -664,7 +681,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       bullet: { level: 0 },
       children: [
         new TextRun(
-          '·	Los actos reglamentarios aplicables a cada una de ellas y que figuran en el Anexo I del presente certificado y documentación adicional correspondiente.'
+          'Los actos reglamentarios aplicables a cada una de ellas y que figuran en el Anexo I del presente certificado y documentación adicional correspondiente.'
         ),
       ],
       spacing: { after: 200 },
@@ -714,6 +731,94 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     }),
   ];
 
+  const imagenes_reformas = [
+    new Paragraph({ pageBreakBefore: true }),
+    new Paragraph({
+      alignment: 'right',
+      spacing: { before: 120 },
+      children: [
+        new TextRun({
+          text: 'Anexo 1: Relación de Actos Reglamentarios aplicables a la/s reforma/s efectuadas en el vehículo',
+          bold: true,
+        }),
+      ],
+    }),
+  ];
+
+  const codigosImagenes = Object.values(data.codigosDetallados ?? {}).flat();
+  const tamañosResp = await fetch('http://192.168.1.41:3000/image-sizes');
+  const tamaños = await tamañosResp.json();
+
+  let alturaAcumulada = 0;
+  const alturaMaximaPagina = 700; // Aproximadamente útil en pt (842pt - márgenes)
+
+  for (const codigo of codigosImagenes) {
+    if (
+      typeof codigo !== 'object' ||
+      codigo === null ||
+      typeof (codigo as any).codigo !== 'string'
+    ) {
+      continue;
+    }
+    const codigoStr = (codigo as { codigo: string }).codigo;
+    const nombreBase = codigoStr.replace('.', '-');
+    const nombreArchivo = `${nombreBase}.png`;
+    const url = `http://192.168.1.41:3000/imgs/${nombreArchivo}`;
+    const tamaño = tamaños.find(
+      (img: { nombre: string }) => img.nombre === nombreArchivo
+    );
+
+    if (!tamaño) continue;
+
+    try {
+      const response = await fetch(url);
+      const buffer = await response.arrayBuffer();
+
+      const escala = 500 / tamaño.width;
+      const alturaEscalada = Math.round(tamaño.height * escala);
+
+      // 🔁 Verificar si cabe en la página actual
+      if (alturaAcumulada + alturaEscalada > alturaMaximaPagina) {
+        imagenes_reformas.push(new Paragraph({ pageBreakBefore: true }));
+        alturaAcumulada = 0;
+      }
+
+      imagenes_reformas.push(
+        new Paragraph({
+          spacing: { line: 260, after: 60 },
+          children: [
+            new TextRun({
+              text: `Reforma ${(codigo as { codigo: string }).codigo}`,
+              bold: true,
+              break: 1,
+            }),
+          ],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new ImageRun({
+              data: buffer,
+              transformation: {
+                width: 500,
+                height: alturaEscalada,
+              },
+              type: 'png',
+            }),
+          ],
+        })
+      );
+
+      alturaAcumulada += alturaEscalada + 100; // Añadimos margen entre imágenes
+    } catch (err) {
+      console.warn(
+        `No se pudo cargar la imagen para el código ${
+          (codigo as { codigo: string }).codigo
+        }`
+      );
+    }
+  }
+
   const section1 = {
     properties: { type: SectionType.NEXT_PAGE, pageNumberStart: 1 },
     headers: { default: header },
@@ -734,5 +839,8 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
   // 2) Empaqueta y descarga
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, 'documento-final-obra.docx');
+  saveAs(
+    blob,
+    `${data.referenciaProyecto} CFO ${data.marca} ${data.modelo} ${data.matricula}.docx`
+  );
 }

@@ -20,6 +20,7 @@ export class ResumenModificacionesComponent implements OnInit {
     this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
       (mod: any) => mod.seleccionado
     );
+    console.log(this.datosEntrada);
   }
 
   formularioInvalido(): boolean {

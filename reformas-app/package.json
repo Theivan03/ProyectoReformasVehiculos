@@ -20,7 +20,11 @@
     "bootstrap": "^5.3.6",
     "canvas": "^3.1.1",
     "docx": "^9.5.0",
+    "docx-templates": "^4.14.1",
+    "docxtemplater": "^3.65.1",
+    "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
+    "pizzip": "^3.2.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

@@ -2473,12 +2473,15 @@
           >
             <option value="delantero">Delantero</option>
             <option value="trasero">Trasero</option>
-            <option value="delantero y trasero">Trasero</option>
+            <option value="delantero y trasero">Delantero y trasero</option>
           </select>
         </div>
         <div
           class="mb-2"
-          ngIf="mod.accion === 'delantero' || mod.accion === 'delantero y trasero'"
+          *ngIf="
+            mod.neumaticosMoto === 'delantero' ||
+            mod.neumaticosMoto === 'delantero y trasero'
+          "
         >
           <label class="form-label">Neumático delantero:</label>
           <input
@@ -2492,7 +2495,10 @@
         </div>
         <div
           class="mb-2"
-          ngIf="mod.accion === 'delantero' || mod.accion === 'delantero y trasero'"
+          *ngIf="
+            mod.neumaticosMoto === 'delantero' ||
+            mod.neumaticosMoto === 'delantero y trasero'
+          "
         >
           <label class="form-label"
             >Medidas de llanta neumático delantero:</label
@@ -2508,7 +2514,10 @@
         </div>
         <div
           class="mb-2"
-          ngIf="mod.accion === 'trasero' || mod.accion === 'delantero y trasero'"
+          *ngIf="
+            mod.neumaticosMoto === 'trasero' ||
+            mod.neumaticosMoto === 'delantero y trasero'
+          "
         >
           <label class="form-label">Neumático trasero:</label>
           <input
@@ -2522,7 +2531,10 @@
         </div>
         <div
           class="mb-2"
-          ngIf="mod.accion === 'trasero' || mod.accion === 'delantero y trasero'"
+          *ngIf="
+            mod.neumaticosMoto === 'trasero' ||
+            mod.neumaticosMoto === 'delantero y trasero'
+          "
         >
           <label class="form-label">Medidas de llanta neumático trasero:</label>
           <input

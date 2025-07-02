@@ -2523,5 +2523,8 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
   //2) Empaqueta y descarga
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, 'documento-avanzado.docx');
+  saveAs(
+    blob,
+    `${data.referenciaProyecto} PROYECTO ${data.marca} ${data.modelo} ${data.matricula}.docx`
+  );
 }
