@@ -19,6 +19,7 @@ import {
   ImageRun,
   ExternalHyperlink,
   ShadingType,
+  UnderlineType,
 } from 'docx';
 import saveAs from 'file-saver';
 import ingeniero from '../../assets/ingeniero.json';
@@ -27,6 +28,7 @@ import {
   buildModificacionesParagraphs,
   generarDocumentoProyectoParagraphs,
   generarTablaLeyenda,
+  generarDocumentoConWordArt,
 } from '../Funciones/buildModificacionesParagraphs';
 
 export async function generarDocumentoProyecto(data: any): Promise<void> {
@@ -428,18 +430,41 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         link: ingeniero.url,
         children: [
           new TextRun({
+            text: ingeniero.web.toUpperCase(),
             font: 'Arial',
-            text: ingeniero.web,
-            color: '000000',
+            size: 72,
             bold: true,
-            size: 48, // 24pt
             italics: true,
-            underline: {},
+            allCaps: true,
+            color: '0000FF',
+            underline: {
+              type: UnderlineType.SINGLE,
+              color: '0000FF',
+            },
           }),
         ],
       }),
     ],
   });
+
+  // const imgBuffer = await generarDocumentoConWordArt({
+  //   web: ingeniero.web,
+  //   url: ingeniero.url,
+  // });
+
+  // const webLink = new Paragraph({
+  //   alignment: AlignmentType.CENTER,
+  //   children: [
+  //     new ImageRun({
+  //       data: imgBuffer,
+  //       transformation: {
+  //         width: 600, // ajusta al tamaño que necesites
+  //         height: 150,
+  //       },
+  //       type: 'png',
+  //     }),
+  //   ],
+  // });
 
   // 1) Header
   const header = new Header({
@@ -467,7 +492,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
             children: [
               // Columna 1 (25%), texto en 8 pt y negrita
               new TableCell({
-                width: { size: 33, type: WidthType.PERCENTAGE },
+                width: { size: 40, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 100, right: 100 },
                 children: [
@@ -492,7 +517,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                     ],
                   }),
                   new Paragraph({
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                     children: [
                       new TextRun({
                         text: ingeniero.colegiado,
@@ -502,7 +527,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                     ],
                   }),
                   new Paragraph({
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                     children: [
                       new TextRun({
                         text: ingeniero.tlf,
@@ -512,7 +537,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                     ],
                   }),
                   new Paragraph({
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                     children: [
                       new TextRun({
                         text: ingeniero.correoEmpresa,
@@ -522,7 +547,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                     ],
                   }),
                   new Paragraph({
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                     children: [
                       new TextRun({
                         text: ingeniero.web,
@@ -536,7 +561,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
               // Columna 2 (50%), texto en 8 pt y negrita
               new TableCell({
-                width: { size: 34, type: WidthType.PERCENTAGE },
+                width: { size: 40, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 100, right: 100 },
                 children: [
@@ -585,7 +610,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
               // Columna 3 (25%), texto en 10 pt y negrita
               new TableCell({
-                width: { size: 33, type: WidthType.PERCENTAGE },
+                width: { size: 20, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 100, right: 100 },
                 children: [
@@ -595,7 +620,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       new TextRun({
                         text: 'REF.: ' + data.referenciaProyecto,
                         bold: true,
-                        size: 20,
+                        size: 18,
                         color: 'FF0000',
                       }),
                     ],
@@ -606,7 +631,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       new TextRun({
                         text: 'REV ' + data.revision,
                         bold: true,
-                        size: 20,
+                        size: 18,
                         color: 'FF0000',
                       }),
                     ],
@@ -1008,7 +1033,20 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         new TableRow({
           children: [
             createCell('FECHA 1ª MATRICULACIÓN', true, 33),
-            createCell(data.fechaMatriculacion, false, 33),
+            createCell(
+              data.fechaMatriculacion
+                ? new Date(data.fechaMatriculacion).toLocaleDateString(
+                    'es-ES',
+                    {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                    }
+                  )
+                : '',
+              false,
+              33
+            ),
           ],
         }),
         new TableRow({

@@ -263,34 +263,49 @@
     <div *ngIf="paginaActual === 5">
       <h5 class="mb-2 text-primary">***Presupuesto para la reforma***</h5>
       <div class="row">
-        <ng-container
-          *ngFor="
-            let campo of [
-              {
-                label: 'Precio por los materiales usados',
-                model: 'materialesUsados'
-              },
-              { label: 'Precio por la mano de obra', model: 'manoDeObra' },
-              {
-                label: 'Precio total del presupuesto',
-                model: 'totalPresupuesto'
-              }
-            ]
-          "
-        >
-          <div class="col-md-4 mb-2">
-            <label class="form-label">{{ campo.label }} *</label>
-            <input
-              class="form-control"
-              [(ngModel)]="datos[campo.model]"
-              [name]="campo.model"
-              #ctrl="ngModel"
-              required
-              [class.is-invalid]="ctrl.invalid && ctrl.touched"
-            />
-            <div class="invalid-feedback">Este campo es obligatorio.</div>
-          </div>
-        </ng-container>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Precio por los materiales usados *</label>
+          <input
+            type="number"
+            min="0"
+            class="form-control"
+            [(ngModel)]="datos.materialesUsados"
+            (ngModelChange)="actualizarTotal()"
+            name="materialesUsados"
+            #matField="ngModel"
+            required
+            [class.is-invalid]="matField.invalid && matField.touched"
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Precio por la mano de obra *</label>
+          <input
+            type="number"
+            min="0"
+            class="form-control"
+            [(ngModel)]="datos.manoDeObra"
+            (ngModelChange)="actualizarTotal()"
+            name="manoDeObra"
+            #moField="ngModel"
+            required
+            [class.is-invalid]="moField.invalid && moField.touched"
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Precio total del presupuesto *</label>
+          <input
+            type="number"
+            min="0"
+            class="form-control"
+            [(ngModel)]="datos.totalPresupuesto"
+            name="totalPresupuesto"
+            readonly
+          />
+        </div>
       </div>
     </div>
 

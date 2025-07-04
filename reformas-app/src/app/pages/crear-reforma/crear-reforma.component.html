@@ -67,6 +67,14 @@
     (continuar)="onContinuarDesdeCanva($event)"
   ></app-canva>
 
+  <app-imagenes
+    *ngIf="mostrarImagenes"
+    [datosEntrada]="datosGenerales"
+    (volver)="onVolverDesdeImagenes($event)"
+    (continuar)="onContinuarDesdeImagenes($event)"
+  >
+  </app-imagenes>
+
   <app-generador-documentos
     *ngIf="mostrarGenerador"
     [reformaData]="datosGenerales"

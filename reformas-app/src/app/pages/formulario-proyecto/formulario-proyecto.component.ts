@@ -10,6 +10,11 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+interface UltimoProyectoResp {
+  ultimo: number;
+}
 
 @Component({
   selector: 'app-formulario-proyecto',
@@ -19,8 +24,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
   styleUrl: './formulario-proyecto.component.css',
 })
 export class FormularioProyectoComponent implements OnChanges {
-  constructor(private http: HttpClient) {}
-
   paginaActual = 1;
   totalPaginas = 5;
 
@@ -30,6 +33,7 @@ export class FormularioProyectoComponent implements OnChanges {
     numeroProyecto: '',
     tallerSeleccionado: null,
     referenciaProyecto: '',
+    referenciaCFO: '',
     reformasPrevias: false,
     revision: '00',
     marca: '---',
@@ -83,9 +87,9 @@ export class FormularioProyectoComponent implements OnChanges {
     mmrsinfrenosDespues: '---',
     cargaverticalDespues: '---',
     velocidadMaxima: '---',
-    materialesUsados: '---',
-    manoDeObra: '---',
-    totalPresupuesto: '---',
+    materialesUsados: 0,
+    manoDeObra: 0,
+    totalPresupuesto: 0,
     fechaProyecto: null,
     tipoVehiculo: null,
     modificaciones: [],
@@ -95,6 +99,8 @@ export class FormularioProyectoComponent implements OnChanges {
   @Output() volverAReforma = new EventEmitter<any>();
   @Input() datosIniciales: any;
   @Output() finalizarFormulario = new EventEmitter<any>();
+
+  constructor(private http: HttpClient) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['datosIniciales'] && this.datosIniciales) {
@@ -122,11 +128,6 @@ export class FormularioProyectoComponent implements OnChanges {
         .join(' - ');
       this.datos.codigosReforma = codigos;
     }
-
-    if (!this.datos.fechaProyecto) {
-      const hoy = new Date().toISOString().split('T')[0];
-      this.datos.fechaProyecto = hoy;
-    }
   }
 
   ngOnInit(): void {
@@ -145,6 +146,28 @@ export class FormularioProyectoComponent implements OnChanges {
         console.error('Error al cargar talleres del servidor:', err);
       },
     });
+
+    this.http
+      .get<UltimoProyectoResp>('http://192.168.1.41:3000/ultimo-proyecto')
+      .subscribe({
+        next: (data) => {
+          console.log('Último proyecto recibido:', data);
+          this.datos.numeroProyecto = data.ultimo + 1;
+          this.generarReferencia();
+        },
+        error: (err) => {
+          console.error(
+            'Error al cargar el último número de proyecto desde el servidor:',
+            err
+          );
+        },
+      });
+  }
+
+  actualizarTotal(): void {
+    const mu = Number(this.datos.materialesUsados) || 0;
+    const mo = Number(this.datos.manoDeObra) || 0;
+    this.datos.totalPresupuesto = mu + mo;
   }
 
   siguiente(): void {
@@ -195,6 +218,7 @@ export class FormularioProyectoComponent implements OnChanges {
 
   generarReferencia(): void {
     const añoCorto = new Date().getFullYear().toString().slice(-2); // "25"
-    this.datos.referenciaProyecto = `PTRV ${this.datos.numeroProyecto}_${añoCorto}`;
+    this.datos.referenciaProyecto = `PTRV ${this.datos.numeroProyecto}/${añoCorto}`;
+    this.datos.referenciaCFO = `CFO ${this.datos.numeroProyecto}/${añoCorto}`;
   }
 }

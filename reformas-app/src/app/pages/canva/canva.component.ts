@@ -155,7 +155,7 @@ export class CanvaComponent implements OnInit {
       const imagenBase64 = canvas.toDataURL('image/png');
 
       this.http
-        .post('http://localhost:3000/guardar-imagen-plano', {
+        .post('http://192.168.1.41:3000/guardar-imagen-plano', {
           imagenBase64,
           nombreArchivo: `plano-generado-proyecto${this.datosEntrada.numeroProyecto}.png`,
         })
@@ -168,11 +168,18 @@ export class CanvaComponent implements OnInit {
   @ViewChild('firmaCompleta') firmaRef!: ElementRef;
 
   guardarFirma() {
-    html2canvas(this.firmaRef.nativeElement).then((canvas) => {
+    const el = this.firmaRef.nativeElement as HTMLElement;
+    const dpr = window.devicePixelRatio || 1;
+    const scale = dpr * 16;
+    html2canvas(el, {
+      scale: scale,
+      useCORS: true,
+      backgroundColor: null,
+    }).then((canvas) => {
       const imagenBase64 = canvas.toDataURL('image/png');
 
       this.http
-        .post('http://localhost:3000/guardar-firma', {
+        .post('http://192.168.1.41:3000/guardar-firma', {
           imagenBase64,
           nombreArchivo: 'firma-generada.png',
         })

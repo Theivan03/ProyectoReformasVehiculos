@@ -178,7 +178,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                     alignment: AlignmentType.CENTER,
                     children: [
                       new TextRun({
-                        text: 'REF.: ' + data.referenciaProyecto,
+                        text: 'REF.: ' + data.referenciaCFO,
                         bold: true,
                         size: 20,
                         color: 'FF0000',
@@ -278,16 +278,16 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     new Table({
       width: { size: 85, type: WidthType.PERCENTAGE },
       borders: {
-        top: { style: BorderStyle.DASHED, size: 4, color: '000000' },
-        bottom: { style: BorderStyle.DASHED, size: 4, color: '000000' },
-        left: { style: BorderStyle.DASHED, size: 4, color: '000000' },
-        right: { style: BorderStyle.DASHED, size: 4, color: '000000' },
+        top: { style: BorderStyle.NONE, size: 4, color: '000000' },
+        bottom: { style: BorderStyle.NONE, size: 4, color: '000000' },
+        left: { style: BorderStyle.NONE, size: 4, color: '000000' },
+        right: { style: BorderStyle.NONE, size: 4, color: '000000' },
         insideHorizontal: {
-          style: BorderStyle.DASHED,
+          style: BorderStyle.NONE,
           size: 4,
           color: '000000',
         },
-        insideVertical: { style: BorderStyle.DASHED, size: 4, color: '000000' },
+        insideVertical: { style: BorderStyle.NONE, size: 4, color: '000000' },
       },
       rows: [
         ['MARCA', data.marca],
@@ -710,7 +710,13 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       spacing: { after: 240 },
       children: [
         new TextRun({
-          text: 'Teulada, ' + new Date().toLocaleDateString(),
+          text:
+            'Teulada, ' +
+            new Date(data.fechaProyecto).toLocaleDateString('es-ES', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            }),
         }),
       ],
     }),

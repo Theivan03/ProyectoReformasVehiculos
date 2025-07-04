@@ -44,6 +44,12 @@ export class GeneradorDocumentosComponent implements OnInit {
     }
   }
 
+  guardarDB(): void {
+    // Aquí implementas la lógica para guardar el proyecto en tu base de datos
+    console.log('⏳ Guardando proyecto en la base de datos…');
+    // this.miServicio.guardarProyecto(this.datosProyecto).subscribe(...)
+  }
+
   volver(): void {
     this.volverAlFormulario.emit(this.reformaData);
   }

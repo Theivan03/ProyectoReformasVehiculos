@@ -1,0 +1,91 @@
+<!-- imagenes.component.html -->
+<div class="card p-4 shadow-sm mx-auto" style="max-width: 600px">
+  <h5 class="mb-4 text-center">
+    Paso {{ step }} de 2:
+    {{
+      step === 1
+        ? "Imágenes previas a la reforma"
+        : "Imágenes posteriores a la reforma"
+    }}
+  </h5>
+
+  <!-- STEP 1 -->
+  <div *ngIf="step === 1">
+    <label class="form-label">
+      Sube las imágenes <strong>previas</strong> a la reforma:
+    </label>
+    <input
+      type="file"
+      class="form-control mb-3"
+      (change)="onPrevSelected($event)"
+      accept="image/*"
+      multiple
+    />
+
+    <!-- Grid Bootstrap con ratio 1x1 -->
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
+      <div class="col" *ngFor="let src of prevPreviews">
+        <div class="ratio ratio-1x1">
+          <img
+            [src]="src"
+            class="img-fluid object-fit-cover rounded shadow-sm"
+            alt="preview"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-outline-secondary me-2" (click)="back()">
+        ← Anterior
+      </button>
+      <button
+        class="btn btn-primary"
+        [disabled]="prevImages.length === 0"
+        (click)="next()"
+      >
+        Siguiente →
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div *ngIf="step === 2">
+    <label class="form-label">
+      Sube las imágenes <strong>posteriores</strong> a la reforma:
+    </label>
+    <input
+      type="file"
+      class="form-control mb-3"
+      (change)="onPostSelected($event)"
+      accept="image/*"
+      multiple
+    />
+
+    <!-- Grid Bootstrap con ratio 1x1 -->
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
+      <div class="col" *ngFor="let src of postPreviews">
+        <div class="ratio ratio-1x1">
+          <img
+            [src]="src"
+            class="img-fluid object-fit-cover rounded shadow-sm"
+            alt="preview"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <button class="btn btn-outline-secondary" (click)="back()">
+        ← Anterior
+      </button>
+      <button
+        class="btn btn-success"
+        [disabled]="postImages.length === 0"
+        (click)="onSave()"
+      >
+        Guardar imágenes
+      </button>
+    </div>
+  </div>
+</div>

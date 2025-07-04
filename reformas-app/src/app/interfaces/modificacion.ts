@@ -2,6 +2,8 @@ export interface Modificacion {
   anotacion?: string | boolean;
   estribosotaloneras?: string | boolean;
   anotacionAntideslizante?: string | boolean;
+  anotacion1?: boolean | string;
+  anotacion2?: boolean | string;
   materialEstribos?: string;
   anchoAletines?: number;
   anchoSobrealetines?: number;
@@ -15,6 +17,8 @@ export interface Modificacion {
   claseBola?: string;
   dKn?: number;
   descripcion?: string;
+  tacosDelantero?: boolean;
+  tacosTrasero?: boolean;
   descripcionLuces?: Record<string, boolean>;
   detallesMuelles?: Record<string, boolean>;
   detalle?: {
@@ -53,6 +57,11 @@ export interface Modificacion {
   homologacion?: string;
   homologacionBarra?: string;
   homologacionBola?: string;
+  marcaEje?: string;
+  denominacionEje?: string;
+  contrasenaHomologacionEje?: string;
+  sustitucionEjeDelantero?: boolean;
+  sustitucionEjeTrasero?: boolean;
   homologacionVelocimetro?: string;
   indiceReferencia?: string;
   kgEjeDelantero?: number;

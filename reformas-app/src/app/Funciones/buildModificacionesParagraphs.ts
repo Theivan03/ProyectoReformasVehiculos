@@ -98,7 +98,7 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'NEUMÁTICOS' && m.seleccionado
   );
   if (neumaticos) {
-    raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${neumaticos.neumaticos}, montados sobre llantas de medidas ${neumaticos.medidas}”, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
+    raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${data.neumaticoDespues}, montados sobre llantas de medidas ${neumaticos.medidas}”, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -108,7 +108,7 @@ export function buildModificacionesParagraphs(
     (p as any)._rawText = raw;
     out.push(p);
 
-    if (neumaticos.anotacion === '1') {
+    if (neumaticos.anotacion1) {
       out.push(
         new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -125,7 +125,7 @@ export function buildModificacionesParagraphs(
       );
     }
 
-    if (neumaticos.anotacion === '2') {
+    if (neumaticos.anotacion2) {
       out.push(
         new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -878,7 +878,11 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'DIURNAS' && m.seleccionado
   );
   if (luzdiurna) {
-    raw = `- ${luzdiurna.accion} de luces diurnas marca ${luzdiurna.marcaDiurnas} con contraseña de homologación ${luzdiurna.homologacionDiurnas}.`;
+    let led = '';
+    if (luzdiurna.esLed) {
+      led = 'led';
+    }
+    raw = `- ${luzdiurna.accion} de luces diurnas ${led} marca ${luzdiurna.marcaDiurnas} con contraseña de homologación ${luzdiurna.homologacionDiurnas}.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -1003,7 +1007,14 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'SUSTITUCIÓN DE EJES' && m.seleccionado
   );
   if (sustiejes) {
-    raw = `- Sustitución del eje delantero por otro procedente de un vehículo marca ${data.marca} denominación comercial ${data.denominacion}, con contraseña de homologación de tipo ${data.homologacion}.`;
+    let raw = 'hola';
+    if (sustiejes.sustitucionEjeDelantero && sustiejes.sustitucionEjeTrasero) {
+      raw = `- Sustitución de ambos ejes por otros procedentes de un vehículo marca ${sustiejes.marcaEje} denominación comercial ${sustiejes.denominacionEje}, con contraseña de homologación de tipo ${sustiejes.contrasenaHomologacionEje}.`;
+    } else if (sustiejes.sustitucionEjeTrasero) {
+      raw = `- Sustitución del eje trasero por otro procedente de un vehículo marca ${sustiejes.marcaEje} denominación comercial ${sustiejes.denominacionEje}, con contraseña de homologación de tipo ${sustiejes.contrasenaHomologacionEje}.`;
+    } else if (sustiejes.sustitucionEjeDelantero) {
+      raw = `- Sustitución del eje delantero por otro procedente de un vehículo marca ${sustiejes.marcaEje} denominación comercial ${sustiejes.denominacionEje}, con contraseña de homologación de tipo ${sustiejes.contrasenaHomologacionEje}.`;
+    }
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -1593,15 +1604,6 @@ export function buildModificacionesParagraphs(
     out.push(p);
 
     if (mobil.opcionesMueble?.muebleAlto) {
-      const hAlto = new Paragraph({
-        spacing: { before: 120, after: 60 },
-        indent: { left: 620 },
-        children: [
-          new TextRun({ text: 'MUEBLE BAJO', bold: true, color: 'FF0000' }),
-        ],
-      });
-      out.push(hAlto);
-
       raw = `o Instalación de un mueble alto situado en el lateral derecho fabricados en madera de forma artesanal de medidas ${mobil.medidasMuebleAlto} con puerta abatible.`;
 
       const p = new Paragraph({
@@ -1614,15 +1616,6 @@ export function buildModificacionesParagraphs(
     }
 
     if (mobil.opcionesMueble?.muebleBajo) {
-      const hBajo = new Paragraph({
-        spacing: { before: 120, after: 60 },
-        indent: { left: 620 },
-        children: [
-          new TextRun({ text: 'MUEBLE BAJO', bold: true, color: 'FF0000' }),
-        ],
-      });
-      out.push(hBajo);
-
       raw = `o Instalación de mueble bajo situado en la parte media del lateral izquierdo, fabricado en madera de forma artesanal, de medidas ${mobil.medidasMuebleBajo} con ${mobil.numCajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo`;
 
       const p = new Paragraph({
@@ -1635,15 +1628,6 @@ export function buildModificacionesParagraphs(
     }
 
     if (mobil.opcionesMueble?.aseo) {
-      const hAseo = new Paragraph({
-        spacing: { before: 120, after: 60 },
-        indent: { left: 620 },
-        children: [
-          new TextRun({ text: 'MUEBLE BAJO', bold: true, color: 'FF0000' }),
-        ],
-      });
-      out.push(hAseo);
-
       raw = `o Instalación de aseo con persiana de medidas ${mobil.medidasAseo} en su interior se ubica un ${mobil.descripcionAseo}.`;
 
       const p = new Paragraph({
@@ -2080,4 +2064,70 @@ export function generarTablaLeyenda(data: any): Table {
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: filas,
   });
+}
+
+function renderWordArtBrowser(text: string): Promise<Uint8Array> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+
+    // 1) Ajustes de fuente
+    const fontSize = 64; // equivale a ~32 pt
+    const fontSpec = `italic bold ${fontSize}px "Arial Black"`;
+    ctx.font = fontSpec;
+
+    // 2) Medir texto y dar padding
+    const metrics = ctx.measureText(text);
+    const textWidth = Math.ceil(metrics.width);
+    const textHeight = fontSize;
+    const padding = 20;
+    canvas.width = textWidth + padding * 2;
+    canvas.height = textHeight + padding * 2;
+
+    // 3) Resetear estilo tras resize
+    ctx.font = fontSpec;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
+    ctx.lineJoin = 'round';
+
+    const x = padding;
+    const y = padding;
+
+    // 4) Sombra blanca intensa (glow)
+    ctx.shadowColor = '#FFFFFF';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // 5) Relleno de texto azul
+    ctx.fillStyle = '#0000FF';
+    ctx.fillText(text, x, y);
+
+    // 6) Desactivar sombra para el trazo
+    ctx.shadowBlur = 0;
+
+    // 7) Contorno blanco grueso
+    ctx.lineWidth = fontSize * 0.1;
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.strokeText(text, x, y);
+
+    // 8) Convertir a Uint8Array
+    canvas.toBlob((blob) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(new Uint8Array(reader.result as ArrayBuffer));
+      };
+      reader.readAsArrayBuffer(blob!);
+    }, 'image/png');
+  });
+}
+
+// 3) Uso en tu función de generación de documento
+export async function generarDocumentoConWordArt(ingeniero: {
+  web: string;
+  url: string;
+}) {
+  // 3.1) Genera el buffer de la imagen
+  const imgData = await renderWordArtBrowser(ingeniero.web.toUpperCase());
+  return imgData;
 }

@@ -9,6 +9,7 @@ import { TipoVehiculoComponent } from '../tipo-vehiculo/tipo-vehiculo.component'
 import { ResumenModificacionesComponent } from '../resumen-modificaciones/resumen-modificaciones.component';
 import { CocheonoComponent } from '../cocheono/cocheono.component';
 import { CanvaComponent } from '../canva/canva.component';
+import { ImagenesComponent } from '../imagenes/imagenes.component';
 
 @Component({
   selector: 'app-crear-reforma',
@@ -23,6 +24,7 @@ import { CanvaComponent } from '../canva/canva.component';
     ResumenModificacionesComponent,
     CocheonoComponent,
     CanvaComponent,
+    ImagenesComponent,
   ],
   standalone: true,
   templateUrl: './crear-reforma.component.html',
@@ -41,6 +43,7 @@ export class CrearReformaComponent {
   mostrarCocheOno = false;
   datosResumenModificaciones: any = {};
   mostrarCanva = false;
+  mostrarImagenes = false;
 
   respuestasGuardadas: {
     [codigo: string]: { codigo: string; descripcion: string }[];
@@ -201,8 +204,19 @@ export class CrearReformaComponent {
 
   onContinuarDesdeCanva(data: any): void {
     this.datosGenerales = data;
-    this.mostrarGenerador = true;
+    this.mostrarImagenes = true;
     this.mostrarCanva = false;
+  }
+
+  onVolverDesdeImagenes(data: any): void {
+    this.mostrarImagenes = false;
+    this.mostrarCanva = true;
+  }
+
+  onContinuarDesdeImagenes(data: any): void {
+    this.datosGenerales = data;
+    this.mostrarGenerador = true;
+    this.mostrarImagenes = false;
   }
 
   onVolverDesdeGenerador(data: any): void {
@@ -213,6 +227,6 @@ export class CrearReformaComponent {
 
     this.datosGenerales = data;
     this.mostrarGenerador = false;
-    this.mostrarCanva = true;
+    this.mostrarImagenes = true;
   }
 }

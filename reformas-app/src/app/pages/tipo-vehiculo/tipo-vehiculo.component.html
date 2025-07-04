@@ -41,14 +41,21 @@
           class="mt-2 ms-4"
         >
           <label class="form-label">¿Qué elementos se han modificado?</label>
-          <div class="form-check" *ngFor="let item of detallesMuellesOpciones">
+          <div
+            class="form-check"
+            *ngFor="let item of detallesMuellesOpciones; let idx = index"
+          >
             <input
               type="checkbox"
               class="form-check-input"
               [(ngModel)]="mod.detallesMuelles![item.key]"
-              (ngModelChange)="actualizarError(i, mod)"
+              (ngModelChange)="actualizarError(idx, mod)"
+              id="detalle-muelle-{{ idx }}"
+              name="detalle-muelle-{{ idx }}"
             />
-            <label class="form-check-label">{{ item.label }}</label>
+            <label class="form-check-label" for="detalle-muelle-{{ idx }}">
+              {{ item.label }}
+            </label>
           </div>
           <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
             Debe seleccionar al menos una opción en este bloque.
@@ -78,14 +85,67 @@
           *ngIf="mod.nombre === 'NEUMÁTICOS' && mod.seleccionado"
           class="ms-4 mt-2"
         >
-          <label class="form-label">Seleccione anotación si procede:</label>
-          <select class="form-select" [(ngModel)]="mod.anotacion">
-            <option [ngValue]="null" disabled selected>
-              -- Seleccionar --
-            </option>
-            <option value="1">Diferencia superior al 8%</option>
-            <option value="2">Indice de velocidad menor del original</option>
-          </select>
+          <label class="form-label">Seleccione anotaciones si procede:</label>
+
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.anotacion1"
+              (ngModelChange)="actualizarError(i, mod)"
+              id="anotacion1{{ i }}"
+            />
+            <label class="form-check-label" for="anotacion1{{ i }}"
+              >Diferencia superior al 8%</label
+            >
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.anotacion2"
+              (ngModelChange)="actualizarError(i, mod)"
+              id="anotacion2{{ i }}"
+            />
+            <label class="form-check-label" for="anotacion2{{ i }}"
+              >Índice de velocidad menor del original</label
+            >
+          </div>
+        </div>
+
+        <!-- SUSTITUCIÓN DE EJES -->
+        <div
+          *ngIf="mod.nombre === 'SUSTITUCIÓN DE EJES' && mod.seleccionado"
+          class="ms-4"
+        >
+          <label class="form-label">Seleccione el/los ejes:</label>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.sustitucionEjeDelantero"
+              (ngModelChange)="actualizarError(i, mod)"
+              id="sustitucionEjeDelantero{{ i }}"
+            />
+            <label class="form-check-label" for="sustitucionEjeDelantero{{ i }}"
+              >Delantero</label
+            >
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.sustitucionEjeTrasero"
+              (ngModelChange)="actualizarError(i, mod)"
+              id="sustitucionEjeTrasero{{ i }}"
+            />
+            <label class="form-check-label" for="sustitucionEjeTrasero{{ i }}"
+              >Trasero</label
+            >
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
         </div>
 
         <!-- ESTRIBOS LATERALES O TALONERAS -->
@@ -95,31 +155,37 @@
           "
           class="ms-4 mt-2"
         >
-          <label class="form-label"
-            >Seleccione cual de las dos opciones ha instalado:</label
+          <label class="form-label">Seleccione cuál instaló:</label>
+          <select
+            class="form-select mb-1"
+            [(ngModel)]="mod.estribosotaloneras"
+            (ngModelChange)="validarSubopciones()"
+            [class.is-invalid]="erroresSubopciones[i]"
+            name="estribosotaloneras{{ i }}"
+            [ngModelOptions]="{ standalone: true }"
           >
-          <select class="form-select" [(ngModel)]="mod.estribosotaloneras">
-            <option [ngValue]="null" disabled selected>
-              -- Seleccionar --
-            </option>
+            <option [ngValue]="null" disabled>-- Seleccionar --</option>
             <option value="estribos">Estribos</option>
             <option value="taloneras">Taloneras</option>
           </select>
 
-          <label class="form-label mt-3"
-            >¿Desea añadir la anotación de material antideslizante?</label
-          >
+          <label class="form-label">¿Material antideslizante?</label>
           <select
-            class="form-select"
+            class="form-select mb-1"
             [(ngModel)]="mod.anotacionAntideslizante"
-            (ngModelChange)="actualizarError(i, mod)"
+            (ngModelChange)="validarSubopciones()"
+            [class.is-invalid]="erroresSubopciones[i]"
+            name="anotacionAntideslizante{{ i }}"
+            [ngModelOptions]="{ standalone: true }"
           >
-            <option [ngValue]="null" disabled selected>
-              -- Seleccionar --
-            </option>
+            <option [ngValue]="null" disabled>-- Seleccionar --</option>
             <option value="1">Sí</option>
             <option value="2">No</option>
           </select>
+
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debes escoger ambas opciones antes de continuar.
+          </div>
         </div>
 
         <!-- Aletines -->

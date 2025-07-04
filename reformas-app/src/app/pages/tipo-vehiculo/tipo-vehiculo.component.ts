@@ -82,7 +82,12 @@ export class TipoVehiculoComponent implements OnInit {
             seleccionado: false,
           },
           { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
-          { nombre: 'NEUMÁTICOS', seleccionado: false, anotacion: '' },
+          {
+            nombre: 'NEUMÁTICOS',
+            seleccionado: false,
+            anotacion1: '',
+            anotacion2: '',
+          },
           { nombre: 'SEPARADORES DE RUEDA', seleccionado: false },
           {
             nombre: 'ALETINES Y SOBREALETINES',
@@ -102,7 +107,6 @@ export class TipoVehiculoComponent implements OnInit {
             seleccionado: false,
           },
           { nombre: 'SOPORTE PARA RUEDA DE REPUESTO', seleccionado: false },
-          { nombre: 'SUSPENSIÓN', seleccionado: false },
           {
             nombre:
               'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR',
@@ -161,7 +165,12 @@ export class TipoVehiculoComponent implements OnInit {
             },
           },
           { nombre: 'INTERMITENTES', seleccionado: false },
-          { nombre: 'SUSTITUCIÓN DE EJES', seleccionado: false },
+          {
+            nombre: 'SUSTITUCIÓN DE EJES',
+            seleccionado: false,
+            sustitucionEjeTrasero: false,
+            sustitucionEjeDelantero: false,
+          },
           { nombre: 'ESTRIBOS LATERALES O TALONERAS', seleccionado: false },
         ];
       case 'moto':
@@ -331,6 +340,17 @@ export class TipoVehiculoComponent implements OnInit {
         this.erroresSubopciones[index] = true;
         esValido = false;
       }
+
+      if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
+        // invalido = true si no tiene ambas selecciones
+        invalido =
+          mod.estribosotaloneras == null || mod.anotacionAntideslizante == null;
+      }
+      this.erroresSubopciones[index] = invalido;
+
+      if (invalido) {
+        esValido = false;
+      }
     });
 
     return esValido;
@@ -382,6 +402,10 @@ export class TipoVehiculoComponent implements OnInit {
 
     if (mod.nombre === 'INSTALACIÓN ELÉCTRICA') {
       invalido = mod.anotacion === undefined;
+    }
+
+    if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
+      invalido = !(mod.estribosotaloneras || mod.anotacionAntideslizante);
     }
 
     this.erroresSubopciones[index] = invalido;

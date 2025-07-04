@@ -24,6 +24,11 @@ app.post('/talleres', (req, res) => {
   res.status(200).send({ message: 'Talleres actualizados' });
 });
 
+app.get('/ultimo-proyecto', (req, res) => {
+  const data = fs.readFileSync('./ultimoProyecto.json', JSON.stringify(req.body, null, 2));
+  res.json(JSON.parse(data));
+});
+
 app.delete('/talleres/:nombre', (req, res) => {
   const nombreAEliminar = decodeURIComponent(req.params.nombre).trim().toLowerCase();
 
