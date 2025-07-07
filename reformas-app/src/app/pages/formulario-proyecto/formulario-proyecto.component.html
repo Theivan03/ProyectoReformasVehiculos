@@ -13,7 +13,6 @@
             [(ngModel)]="datos.numeroProyecto"
             name="numeroUsuario"
             #numeroUsuarioField="ngModel"
-            (ngModelChange)="generarReferencia()"
             required
             [class.is-invalid]="
               numeroUsuarioField.invalid && numeroUsuarioField.touched

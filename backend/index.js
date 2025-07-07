@@ -4,10 +4,14 @@ const cors = require('cors');
 const app = express();
 const path = require('path');
 const { imageSize } = require('image-size');
+const multer = require('multer');
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+
+const upload = multer({ storage: multer.memoryStorage() });
+const ULTIMO_PROYECTO_PATH = path.join(__dirname, 'ultimoProyecto.json');
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
@@ -22,11 +26,6 @@ app.get('/talleres', (req, res) => {
 app.post('/talleres', (req, res) => {
   fs.writeFileSync('./talleres.json', JSON.stringify(req.body, null, 2));
   res.status(200).send({ message: 'Talleres actualizados' });
-});
-
-app.get('/ultimo-proyecto', (req, res) => {
-  const data = fs.readFileSync('./ultimoProyecto.json', JSON.stringify(req.body, null, 2));
-  res.json(JSON.parse(data));
 });
 
 app.delete('/talleres/:nombre', (req, res) => {
@@ -109,4 +108,93 @@ app.post('/guardar-firma', (req, res) => {
 
   fs.writeFileSync(ruta, base64Data, 'base64');
   res.json({ message: 'Firma guardada', ruta });
+});
+
+app.post(
+  '/guardar-proyecto',
+  upload.fields([
+    { name: 'prevImage', maxCount: 4 },
+    { name: 'postImage', maxCount: 30 },
+  ]),
+  (req, res) => {
+    try {
+      // 1) Parseamos metadatos
+      let metadata = JSON.parse(req.body.metadata);
+      const num = String(metadata.numeroProyecto);
+
+      const añoAhora = new Date().getFullYear().toString();
+
+      // 2) Crear o limpiar carpeta raíz del proyecto
+      const projectDir = path.join(__dirname, 'proyectos', num+"_"+añoAhora);
+      if (fs.existsSync(projectDir)) {
+        // si existe, borramos todo para empezar limpio
+        fs.rmSync(projectDir, { recursive: true, force: true });
+      }
+      fs.mkdirSync(projectDir, { recursive: true });
+
+      // 3) Guardar metadata en proyecto.json (siempre sobreescribe)
+      const metadataPath = path.join(projectDir, 'proyecto.json');
+      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8');
+
+      // 4) Subcarpetas de imágenes (prev y post)
+      const prevDir = path.join(projectDir, 'prev');
+      const postDir = path.join(projectDir, 'post');
+      fs.mkdirSync(prevDir, { recursive: true });
+      fs.mkdirSync(postDir, { recursive: true });
+
+      // 5) Guardar cada imagen previa
+      const prevFiles = req.files['prevImage'] || [];
+      prevFiles.forEach((file, idx) => {
+        const fn = file.originalname || `prev-${idx}.png`;
+        fs.writeFileSync(path.join(prevDir, fn), file.buffer);
+      });
+
+      // 6) Guardar cada imagen posterior
+      const postFiles = req.files['postImage'] || [];
+      postFiles.forEach((file, idx) => {
+        const fn = file.originalname || `post-${idx}.png`;
+        fs.writeFileSync(path.join(postDir, fn), file.buffer);
+      });
+
+      const newCounter = { ultimo: num, año: añoAhora };
+      fs.writeFileSync(
+        ULTIMO_PROYECTO_PATH,
+        JSON.stringify(newCounter, null, 2),
+        'utf-8'
+      );
+
+       // 8) Devolver al cliente
+      return res.json({
+        message: 'Proyecto guardado correctamente',
+        proyecto: num,
+      });
+    } catch (e) {
+      console.error('Error en /guardar-proyecto:', e);
+      return res.status(500).json({ error: 'No se pudo guardar el proyecto' });
+    }
+  }
+);
+
+app.get('/ultimo-proyecto', (req, res) => {
+  try {
+    // Leemos el JSON de contador
+    const raw = fs.readFileSync(ULTIMO_PROYECTO_PATH, 'utf-8');
+    const data = JSON.parse(raw);
+    const añoGuardado = data.año;
+    const ultimoGuardado = Number(data.ultimo);
+
+    // Año actual en servidor
+    const añoAhora = new Date().getFullYear().toString();
+
+    // Calculamos el siguiente número
+    const siguiente = añoAhora !== añoGuardado
+      ? 1    // ha cambiado de año → arrancamos en 1
+      : ultimoGuardado + 1;
+
+    // Devolvemos sin tocar el archivo
+    res.json({ siguiente, año: añoAhora });
+  } catch (err) {
+    console.error('Error en GET /ultimo-proyecto:', err);
+    res.status(500).json({ error: 'No se pudo leer ultimoProyecto.json' });
+  }
 });

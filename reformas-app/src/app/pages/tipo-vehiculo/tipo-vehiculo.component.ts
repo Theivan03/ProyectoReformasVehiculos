@@ -251,6 +251,7 @@ export class TipoVehiculoComponent implements OnInit {
           },
           { nombre: 'TOLDO', seleccionado: false },
         ];
+      case 'industrial':
       default:
         return [];
     }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SeleccionSeccionesComponent } from '../seleccion-secciones/seleccion-secciones.component';
 import { MostrarSeccionesComponent } from '../mostrar-secciones/mostrar-secciones.component';
 import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-proyecto.component';
@@ -10,6 +10,7 @@ import { ResumenModificacionesComponent } from '../resumen-modificaciones/resume
 import { CocheonoComponent } from '../cocheono/cocheono.component';
 import { CanvaComponent } from '../canva/canva.component';
 import { ImagenesComponent } from '../imagenes/imagenes.component';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-crear-reforma',
@@ -30,7 +31,7 @@ import { ImagenesComponent } from '../imagenes/imagenes.component';
   templateUrl: './crear-reforma.component.html',
   styleUrl: './crear-reforma.component.css',
 })
-export class CrearReformaComponent {
+export class CrearReformaComponent implements OnInit {
   mostrarSeleccion = true;
   mostrarSubSelecciones = false;
   mostrarFormularioProyecto = false;
@@ -49,6 +50,17 @@ export class CrearReformaComponent {
     [codigo: string]: { codigo: string; descripcion: string }[];
   } = {};
   seccionesSeleccionadas: { codigo: string; descripcion: string }[] = [];
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.http.get<void>('http://192.168.1.41:3000/ultimo-proyecto').subscribe({
+      next: () => {},
+      error: (err) => {
+        console.error('No se pudo cargar el último proyecto:', err);
+      },
+    });
+  }
 
   onSeleccionCompletada(secciones: { codigo: string; descripcion: string }[]) {
     this.seccionesSeleccionadas = secciones;

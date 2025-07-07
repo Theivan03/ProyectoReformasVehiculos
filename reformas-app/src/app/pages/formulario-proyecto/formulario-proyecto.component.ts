@@ -13,7 +13,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 interface UltimoProyectoResp {
-  ultimo: number;
+  siguiente: number;
+  año: number;
 }
 
 @Component({
@@ -148,19 +149,16 @@ export class FormularioProyectoComponent implements OnChanges {
     });
 
     this.http
-      .get<UltimoProyectoResp>('http://192.168.1.41:3000/ultimo-proyecto')
+      .get<{ siguiente: number; año: string }>(
+        'http://192.168.1.41:3000/ultimo-proyecto'
+      )
       .subscribe({
         next: (data) => {
-          console.log('Último proyecto recibido:', data);
-          this.datos.numeroProyecto = data.ultimo + 1;
-          this.generarReferencia();
+          console.log(data);
+          this.datos.numeroProyecto = data.siguiente;
+          this.generarReferencia(data.año);
         },
-        error: (err) => {
-          console.error(
-            'Error al cargar el último número de proyecto desde el servidor:',
-            err
-          );
-        },
+        error: (err) => console.error('Error al cargar último proyecto:', err),
       });
   }
 
@@ -216,8 +214,8 @@ export class FormularioProyectoComponent implements OnChanges {
     this.finalizarFormulario.emit(finalData);
   }
 
-  generarReferencia(): void {
-    const añoCorto = new Date().getFullYear().toString().slice(-2); // "25"
+  generarReferencia(año: any): void {
+    const añoCorto = año.toString().slice(-2);
     this.datos.referenciaProyecto = `PTRV ${this.datos.numeroProyecto}/${añoCorto}`;
     this.datos.referenciaCFO = `CFO ${this.datos.numeroProyecto}/${añoCorto}`;
   }

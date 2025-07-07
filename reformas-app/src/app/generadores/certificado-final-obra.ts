@@ -5,10 +5,8 @@ import {
   TextRun,
   Header,
   Footer,
-  TableOfContents,
   SectionType,
   PageNumber,
-  HeadingLevel,
   WidthType,
   BorderStyle,
   AlignmentType,
@@ -17,11 +15,18 @@ import {
   TableCell,
   VerticalAlign,
   ImageRun,
+  HeadingLevel,
 } from 'docx';
 import ingeniero from '../../assets/ingeniero.json';
 import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
 import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
+
+interface ImageInfo {
+  buffer: ArrayBuffer;
+  width: number;
+  height: number;
+}
 
 export async function generarDocumentoFinalObra(data: any): Promise<void> {
   const modificaciones: Modificacion[] = data.modificaciones;
@@ -31,22 +36,6 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     children: [
       new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
-        borders: {
-          top: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
-          bottom: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
-          left: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
-          right: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
-          insideHorizontal: {
-            style: BorderStyle.SINGLE,
-            size: 1,
-            color: 'BFBFBF',
-          },
-          insideVertical: {
-            style: BorderStyle.SINGLE,
-            size: 1,
-            color: 'BFBFBF',
-          },
-        },
         rows: [
           new TableRow({
             children: [
@@ -278,16 +267,13 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     new Table({
       width: { size: 85, type: WidthType.PERCENTAGE },
       borders: {
-        top: { style: BorderStyle.NONE, size: 4, color: '000000' },
-        bottom: { style: BorderStyle.NONE, size: 4, color: '000000' },
-        left: { style: BorderStyle.NONE, size: 4, color: '000000' },
-        right: { style: BorderStyle.NONE, size: 4, color: '000000' },
-        insideHorizontal: {
-          style: BorderStyle.NONE,
-          size: 4,
-          color: '000000',
-        },
-        insideVertical: { style: BorderStyle.NONE, size: 4, color: '000000' },
+        // todas las líneas de la tabla a tamaño 0
+        top: { style: BorderStyle.NONE, size: 0 },
+        bottom: { style: BorderStyle.NONE, size: 0 },
+        left: { style: BorderStyle.NONE, size: 0 },
+        right: { style: BorderStyle.NONE, size: 0 },
+        insideHorizontal: { style: BorderStyle.NONE, size: 0 },
+        insideVertical: { style: BorderStyle.NONE, size: 0 },
       },
       rows: [
         ['MARCA', data.marca],
@@ -296,7 +282,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           `${data.tipo} / ${data.variante} / ${data.version}`,
         ],
         ['DENOMINACIÓN COMERCIAL', data.denominacion],
-        ['Nº de bastidor:', data.bastidor],
+        ['Nº DE BASTIDOR', data.bastidor],
         ['MATRÍCULA', data.matricula],
         ['CLASIFICACIÓN', data.clasificacion],
         [
@@ -309,14 +295,24 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           new TableRow({
             children: [
               new TableCell({
-                width: { size: 50, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 200, right: 200 },
-                children: [new Paragraph(label)],
+                children: [
+                  new Paragraph({
+                    text: String(label),
+                    alignment: AlignmentType.CENTER,
+                  }),
+                ],
               }),
               new TableCell({
-                width: { size: 50, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 200, right: 200 },
-                children: [new Paragraph(value)],
+                children: [
+                  new Paragraph({
+                    text: String(value),
+                    alignment: AlignmentType.CENTER,
+                  }),
+                ],
               }),
             ],
           })
@@ -332,25 +328,43 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     // TABLA DE DATOS DEL TALLER
     new Table({
       width: { size: 70, type: WidthType.PERCENTAGE },
+      alignment: AlignmentType.CENTER, // 1) Centra la tabla en la página
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0 },
+        bottom: { style: BorderStyle.NONE, size: 0 },
+        left: { style: BorderStyle.NONE, size: 0 },
+        right: { style: BorderStyle.NONE, size: 0 },
+        insideHorizontal: { style: BorderStyle.NONE, size: 0 },
+        insideVertical: { style: BorderStyle.NONE, size: 0 },
+      },
       rows: [
         ['NOMBRE EMPRESA', data.tallerSeleccionado.nombre],
         ['DIRECCIÓN TALLER', data.tallerSeleccionado.direccion],
         ['LOCALIDAD', data.tallerSeleccionado.poblacion],
         ['PROVINCIA', data.tallerSeleccionado.provincia],
-        [
-          'NÚMERO REGISTRO INDUSTRIAL',
-          data.tallerSeleccionado.registroIndustrial,
-        ],
-        ['NÚMERO REGISTRO ESPECIAL', data.tallerSeleccionado.registroEspecial],
+        ['Nº REGISTRO INDUSTRIAL', data.tallerSeleccionado.registroIndustrial],
+        ['Nº REGISTRO ESPECIAL', data.tallerSeleccionado.registroEspecial],
       ].map(
         ([label, value]) =>
           new TableRow({
             children: [
               new TableCell({
-                children: [new Paragraph({ text: label })],
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 150, bottom: 150, left: 150, right: 150 }, // 2) Aumenta márgenes
+                children: [
+                  new Paragraph({
+                    text: String(label),
+                  }),
+                ],
               }),
               new TableCell({
-                children: [new Paragraph({ text: value })],
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 150, bottom: 150, left: 150, right: 150 },
+                children: [
+                  new Paragraph({
+                    text: String(value),
+                  }),
+                ],
               }),
             ],
           })
@@ -825,6 +839,341 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     }
   }
 
+  // Función auxiliar para construir la tabla 2×N
+  async function generarPrevios(data: any): Promise<(Paragraph | Table)[]> {
+    // 2) Leemos los archivos File[] y extraemos buffer + dimensiones naturales
+    const prevFiles = data.prevImages as File[];
+    const infos: ImageInfo[] = await Promise.all(
+      prevFiles.map(async (file) => {
+        const buffer = await file.arrayBuffer();
+        // para medir dimensiones sin servidor
+        const blob = new Blob([buffer], { type: file.type });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        await new Promise<void>((res, rej) => {
+          img.onload = () => res();
+          img.onerror = () => rej(new Error('Error cargando imagen'));
+          img.src = url;
+        });
+        URL.revokeObjectURL(url);
+        return { buffer, width: img.naturalWidth, height: img.naturalHeight };
+      })
+    );
+
+    // 3) Creamos los dos párrafos iniciales
+    const saltoDePagina = new Paragraph({ pageBreakBefore: true });
+    const anexoPreviosTitle = new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
+      children: [
+        new TextRun({
+          text: 'Anexo 2. Fotografías del vehículo antes de la reforma',
+          bold: true,
+          color: '000000',
+        }),
+      ],
+    });
+
+    // 4) Función que construye la tabla 3 filas a partir de ImageInfo[]
+    function buildPreviosTable(images: ImageInfo[]): Table {
+      // Máximo ancho/alto (en puntos) que admitirá cada celda de foto única
+      const maxSingleW = 300;
+      const maxSingleH = 200;
+      // Máximo ancho/alto para las fotos que abarcan dos columnas
+      const maxDoubleW = maxSingleW * 2 + 20;
+      const maxDoubleH = 275;
+
+      const scale = (img: ImageInfo, maxW: number, maxH: number) => {
+        const s = Math.min(maxW / img.width, maxH / img.height, 1);
+        return {
+          width: Math.round(img.width * s),
+          height: Math.round(img.height * s),
+        };
+      };
+
+      const rows: TableRow[] = [];
+
+      // Fila 1: 2 imágenes lado a lado (infos[0], infos[1])
+      {
+        const left = images[0];
+        const right = images[1];
+        const sL = scale(left, maxSingleW, maxSingleH);
+        const sR = scale(right, maxSingleW, maxSingleH);
+
+        rows.push(
+          new TableRow({
+            children: [left, right].map(
+              (imgInfo, i) =>
+                new TableCell({
+                  width: { size: 50, type: WidthType.PERCENTAGE },
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  borders: {
+                    top: { style: BorderStyle.NONE, size: 0 },
+                    bottom: { style: BorderStyle.NONE, size: 0 },
+                    left: { style: BorderStyle.NONE, size: 0 },
+                    right: { style: BorderStyle.NONE, size: 0 },
+                  },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new ImageRun({
+                          data: imgInfo.buffer,
+                          transformation: i === 0 ? sL : sR,
+                          type: 'png',
+                        }),
+                      ],
+                    }),
+                  ],
+                })
+            ),
+          })
+        );
+      }
+
+      // Fila 2: foto 3, spanning 2 columnas
+      {
+        const imgInfo = images[2];
+        const s = scale(imgInfo, maxDoubleW, maxDoubleH);
+        rows.push(
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                verticalAlign: AlignmentType.CENTER,
+                margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                borders: {
+                  top: { style: BorderStyle.NONE, size: 0 },
+                  bottom: { style: BorderStyle.NONE, size: 0 },
+                  left: { style: BorderStyle.NONE, size: 0 },
+                  right: { style: BorderStyle.NONE, size: 0 },
+                },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new ImageRun({
+                        data: imgInfo.buffer,
+                        transformation: s,
+                        type: 'png',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          })
+        );
+      }
+
+      // Fila 3: foto 4, también span=2
+      {
+        const imgInfo = images[3];
+        const s = scale(imgInfo, maxDoubleW, maxDoubleH);
+        rows.push(
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                verticalAlign: AlignmentType.CENTER,
+                margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                borders: {
+                  top: { style: BorderStyle.NONE, size: 0 },
+                  bottom: { style: BorderStyle.NONE, size: 0 },
+                  left: { style: BorderStyle.NONE, size: 0 },
+                  right: { style: BorderStyle.NONE, size: 0 },
+                },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new ImageRun({
+                        data: imgInfo.buffer,
+                        transformation: s,
+                        type: 'png',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          })
+        );
+      }
+
+      return new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0 },
+          bottom: { style: BorderStyle.NONE, size: 0 },
+          left: { style: BorderStyle.NONE, size: 0 },
+          right: { style: BorderStyle.NONE, size: 0 },
+          insideHorizontal: { style: BorderStyle.NONE, size: 0 },
+          insideVertical: { style: BorderStyle.NONE, size: 0 },
+        },
+        rows,
+      });
+    }
+
+    // 5) Generamos la tabla pasando **infos** (nunca `data`)
+    const prevTable = buildPreviosTable(infos);
+
+    // 6) Devolvemos el array de nodos que luego incluirás en tu sección
+    return [saltoDePagina, anexoPreviosTitle, prevTable];
+  }
+
+  const anexosPrevios = await generarPrevios(data);
+
+  // Función auxiliar para construir la tabla 2×N
+  async function generarPosteriores(data: any): Promise<(Paragraph | Table)[]> {
+    // 1) Lee buffers + dimensiones naturales
+    const prevFiles = data.postImages as File[];
+    interface ImageInfo {
+      buffer: ArrayBuffer;
+      width: number;
+      height: number;
+    }
+
+    const infos: ImageInfo[] = await Promise.all(
+      prevFiles.map(async (file) => {
+        const buffer = await file.arrayBuffer();
+        const blob = new Blob([buffer], { type: file.type });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        await new Promise<void>((res, rej) => {
+          img.onload = () => res();
+          img.onerror = () => rej(new Error('No cargó la imagen'));
+          img.src = url;
+        });
+        URL.revokeObjectURL(url);
+        return { buffer, width: img.naturalWidth, height: img.naturalHeight };
+      })
+    );
+
+    const saltoDePagina = new Paragraph({ pageBreakBefore: true });
+    const anexoPreviosTitle = new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
+      children: [
+        new TextRun({
+          text: 'Anexo 3. Fotografías de la reforma',
+          bold: true,
+          color: '000000',
+        }),
+      ],
+    });
+
+    // 2) Tabla 2×N con escalado proporcional
+    function buildPreviosTable(images: ImageInfo[]): Table {
+      const rows: TableRow[] = [];
+
+      // Máximos en puntos (aprox. 1px = 1pt aquí para simplificar)
+      const maxCellWidth = 300;
+      const maxCellHeight = 250;
+
+      for (let i = 0; i < images.length; i += 2) {
+        const left = images[i];
+        const right = images[i + 1];
+
+        // Escalado proporcional de la izquierda
+        const scaleL = Math.min(
+          maxCellWidth / left.width,
+          maxCellHeight / left.height,
+          1
+        );
+        const wL = Math.round(left.width * scaleL);
+        const hL = Math.round(left.height * scaleL);
+
+        // Escalado proporcional de la derecha (si existe)
+        let wR = 0,
+          hR = 0;
+        if (right) {
+          const scaleR = Math.min(
+            maxCellWidth / right.width,
+            maxCellHeight / right.height,
+            1
+          );
+          wR = Math.round(right.width * scaleR);
+          hR = Math.round(right.height * scaleR);
+        }
+
+        rows.push(
+          new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                borders: {
+                  top: { style: BorderStyle.NONE, size: 0 },
+                  bottom: { style: BorderStyle.NONE, size: 0 },
+                  left: { style: BorderStyle.NONE, size: 0 },
+                  right: { style: BorderStyle.NONE, size: 0 },
+                },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new ImageRun({
+                        data: left.buffer,
+                        transformation: { width: wL, height: hL },
+                        type: 'png',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              new TableCell({
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                verticalAlign: AlignmentType.CENTER,
+                margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                borders: {
+                  top: { style: BorderStyle.NONE, size: 0 },
+                  bottom: { style: BorderStyle.NONE, size: 0 },
+                  left: { style: BorderStyle.NONE, size: 0 },
+                  right: { style: BorderStyle.NONE, size: 0 },
+                },
+                children: right
+                  ? [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [
+                          new ImageRun({
+                            data: right.buffer,
+                            transformation: { width: wR, height: hR },
+                            type: 'png',
+                          }),
+                        ],
+                      }),
+                    ]
+                  : [new Paragraph('')],
+              }),
+            ],
+          })
+        );
+      }
+
+      return new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0 },
+          bottom: { style: BorderStyle.NONE, size: 0 },
+          left: { style: BorderStyle.NONE, size: 0 },
+          right: { style: BorderStyle.NONE, size: 0 },
+          insideHorizontal: { style: BorderStyle.NONE, size: 0 },
+          insideVertical: { style: BorderStyle.NONE, size: 0 },
+        },
+        rows,
+      });
+    }
+
+    const prevTable = buildPreviosTable(infos);
+    return [saltoDePagina, anexoPreviosTitle, prevTable];
+  }
+
+  const anexosPorsteriores = await generarPosteriores(data);
+
   const section1 = {
     properties: { type: SectionType.NEXT_PAGE, pageNumberStart: 1 },
     headers: { default: header },
@@ -835,7 +1184,9 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       ...punto1_6Tabla.flat(),
       ...punto1_6Avisos,
       ...bloqueLegal,
-    ],
+      ...anexosPrevios,
+      ...anexosPorsteriores,
+    ].flat(),
   };
 
   // 5) Monta y descarga el documento

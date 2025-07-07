@@ -4,15 +4,15 @@
     Paso {{ step }} de 2:
     {{
       step === 1
-        ? "Imágenes previas a la reforma"
-        : "Imágenes posteriores a la reforma"
+        ? "Imágenes exteriores del vehículo (frontal, trasera, lateral derecho e izquierdo)"
+        : "Imágenes de los elementos reformados"
     }}
   </h5>
 
   <!-- STEP 1 -->
   <div *ngIf="step === 1">
     <label class="form-label">
-      Sube las imágenes <strong>previas</strong> a la reforma:
+      Sube las imágenes <strong>previas</strong> de las reformas realizadas:
     </label>
     <input
       type="file"
@@ -52,7 +52,7 @@
   <!-- STEP 2 -->
   <div *ngIf="step === 2">
     <label class="form-label">
-      Sube las imágenes <strong>posteriores</strong> a la reforma:
+      Sube las imágenes de las reformas realizadas:
     </label>
     <input
       type="file"
