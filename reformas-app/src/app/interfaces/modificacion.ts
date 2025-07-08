@@ -1,7 +1,14 @@
+export interface Mueble {
+  tipo: 'bajo' | 'alto' | 'aseo';
+  medidas: string;
+  descripcion?: string;
+}
+
 export interface Modificacion {
   anotacion?: string | boolean;
   estribosotaloneras?: string | boolean;
   anotacionAntideslizante?: string | boolean;
+  nTornillos?: number;
   anotacion1?: boolean | string;
   anotacion2?: boolean | string;
   materialEstribos?: string;
@@ -31,8 +38,15 @@ export interface Modificacion {
     intermitente?: boolean;
     marchaAtras?: boolean;
     catadioptrico?: boolean;
+    sustitucionEjeDelantero?: boolean;
+    sustitucionEjeTrasero?: boolean;
+    interDelantero?: boolean;
+    interTrasero?: boolean;
+    interLateral?: boolean;
   };
+  contrasenaHomologacionEje?: string;
   diametroEspiraDelantero?: number;
+  metrica?: number;
   diametroExteriorDelantero?: number;
   diametroTacoDelantero?: number;
   diametroTacoTrasero?: number;
@@ -59,9 +73,6 @@ export interface Modificacion {
   homologacionBola?: string;
   marcaEje?: string;
   denominacionEje?: string;
-  contrasenaHomologacionEje?: string;
-  sustitucionEjeDelantero?: boolean;
-  sustitucionEjeTrasero?: boolean;
   homologacionVelocimetro?: string;
   indiceReferencia?: string;
   kgEjeDelantero?: number;
@@ -117,6 +128,7 @@ export interface Modificacion {
   medidasLlantaTrasero?: string;
   nombre: string;
   numeroEspirasDelantero?: number;
+  muebles?: Mueble[];
   opcionesMueble?: {
     muebleBajo: boolean;
     muebleAlto: boolean;
@@ -291,6 +303,13 @@ export interface Modificacion {
   marcaSnorkel?: string;
   medidasSnorkel?: string;
   tipoFabricacionParagolpesDelantero?: string;
+  tipoFabricacionMuebleBajo?: string;
+  tipoFabricacionMuebleAlto?: string;
+  tipoFabricacionMuebleAseo?: string;
+  marcaMuebleAlto?: string;
+  referenciaMuebleAlto?: string;
+  referenciaMuebleBajo?: string;
+  marcaMuebleBajo?: string;
   tipoFabricacionGuardabarrosDelantero?: string;
   tipoFabricacionGuardabarrosTrasero?: string;
   marcaParagolpes?: string;

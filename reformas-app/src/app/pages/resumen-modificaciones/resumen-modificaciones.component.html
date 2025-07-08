@@ -96,6 +96,33 @@
             [class.is-invalid]="form.submitted && !mod.mmrBarraTraccion"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- Homologado en emplazamiento también homologado -->
@@ -397,6 +424,23 @@
               [class.is-invalid]="form.submitted && !mod.curvaturaAletines"
             />
           </div>
+          <div class="mb-2">
+            <label class="form-label"
+              >Selecciona valor de la metrica de los tornillos:</label
+            >
+            <select
+              class="form-select"
+              [(ngModel)]="mod.metrica"
+              name="metrica{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && mod.metrica == null"
+            >
+              <option [value]="null" disabled selected>Seleccione...</option>
+              <option *ngFor="let num of metricasTornillos" [value]="num">
+                {{ num }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <!-- Sobrealetines -->
@@ -463,6 +507,33 @@
             />
           </div>
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- SEPARADORES DE RUEDA -->
@@ -584,6 +655,33 @@
             [class.is-invalid]="form.submitted && !mod.curvaturaSnorkel"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- PARAGOLPES DELANTERO -->
@@ -676,6 +774,33 @@
             "
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- PARAGOLPES TRASERO -->
@@ -768,6 +893,33 @@
             "
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- CABRESTANTE -->
@@ -827,6 +979,33 @@
             [class.is-invalid]="form.submitted && !mod.capacidadCabrestanteKg"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- ANTIEMPOTRAMIENTO -->
@@ -860,6 +1039,33 @@
             [class.is-invalid]="form.submitted && !mod.medidasAntiempotramiento"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- SOPORTES PARA LUCES DE USO ESPECÍFICO -->
@@ -909,6 +1115,33 @@
             [class.is-invalid]="form.submitted && !mod.medidasLucesEspecificas"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- SOPORTE PARA RUEDA DE REPUESTO -->
@@ -1000,6 +1233,33 @@
             "
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- MUELLES, BALLESTAS Y AMORTIGUADORES -->
@@ -1794,6 +2054,33 @@
             "
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- Amortiguador de Dirección -->
@@ -2398,6 +2685,33 @@
             [class.is-invalid]="form.submitted && !mod.homologacionAntiniebla"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- PILOTO TRASERO -->
@@ -2555,7 +2869,9 @@
             [(ngModel)]="mod.contrasenaHomologacionEje"
             name="contrasenaHomologacionEje{{ i }}"
             required
-            [class.is-invalid]="form.submitted && !mod.contrasenaHomologacionEje"
+            [class.is-invalid]="
+              form.submitted && !mod.contrasenaHomologacionEje
+            "
           />
         </div>
       </div>
@@ -2634,6 +2950,33 @@
             "
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- MOTOS -->
@@ -2870,6 +3213,23 @@
             required
             [class.is-invalid]="form.submitted && !mod.dimensionesDelantero"
           />
+          <div class="mb-2">
+            <label class="form-label"
+              >Selecciona valor de la metrica de los tornillos:</label
+            >
+            <select
+              class="form-select"
+              [(ngModel)]="mod.metrica"
+              name="metrica{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && mod.metrica == null"
+            >
+              <option [value]="null" disabled selected>Seleccione...</option>
+              <option *ngFor="let num of metricasTornillos" [value]="num">
+                {{ num }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <div *ngIf="mod.guardabarrosTrasero">
@@ -2931,6 +3291,23 @@
             required
             [class.is-invalid]="form.submitted && !mod.dimensionesTrasero"
           />
+          <div class="mb-2">
+            <label class="form-label"
+              >Selecciona valor de la metrica de los tornillos:</label
+            >
+            <select
+              class="form-select"
+              [(ngModel)]="mod.metrica"
+              name="metrica{{ i }}"
+              required
+              [class.is-invalid]="form.submitted && mod.metrica == null"
+            >
+              <option [value]="null" disabled selected>Seleccione...</option>
+              <option *ngFor="let num of metricasTornillos" [value]="num">
+                {{ num }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -2958,6 +3335,33 @@
             [class.is-invalid]="form.submitted && !mod.modelo"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- VELOCÍMETRO -->
@@ -2994,6 +3398,33 @@
           name="homologacionVelocimetro{{ i }}"
           required
           [class.is-invalid]="form.submitted && !mod.homologacion"
+        />
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
         />
       </div>
 
@@ -3242,6 +3673,23 @@
                 form.submitted && !mod.referenciaDiscoDelantero
               "
             />
+            <div class="mb-2">
+              <label class="form-label"
+                >Selecciona valor de la metrica de los tornillos:</label
+              >
+              <select
+                class="form-select"
+                [(ngModel)]="mod.metrica"
+                name="metrica{{ i }}"
+                required
+                [class.is-invalid]="form.submitted && mod.metrica == null"
+              >
+                <option [value]="null" disabled selected>Seleccione...</option>
+                <option *ngFor="let num of metricasTornillos" [value]="num">
+                  {{ num }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <!-- Campos Disco Trasero -->
@@ -3264,6 +3712,23 @@
               required
               [class.is-invalid]="form.submitted && !mod.referenciaDiscoTrasero"
             />
+            <div class="mb-2">
+              <label class="form-label"
+                >Selecciona valor de la metrica de los tornillos:</label
+              >
+              <select
+                class="form-select"
+                [(ngModel)]="mod.metrica"
+                name="metrica{{ i }}"
+                required
+                [class.is-invalid]="form.submitted && mod.metrica == null"
+              >
+                <option [value]="null" disabled selected>Seleccione...</option>
+                <option *ngFor="let num of metricasTornillos" [value]="num">
+                  {{ num }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -3316,6 +3781,23 @@
                 form.submitted && !mod.referenciaPastillaDelantera
               "
             />
+            <div class="mb-2">
+              <label class="form-label"
+                >Selecciona valor de la metrica de los tornillos:</label
+              >
+              <select
+                class="form-select"
+                [(ngModel)]="mod.metrica"
+                name="metrica{{ i }}"
+                required
+                [class.is-invalid]="form.submitted && mod.metrica == null"
+              >
+                <option [value]="null" disabled selected>Seleccione...</option>
+                <option *ngFor="let num of metricasTornillos" [value]="num">
+                  {{ num }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <!-- Campos Pastilla Trasera -->
@@ -3340,6 +3822,23 @@
                 form.submitted && !mod.referenciaPastillaTrasera
               "
             />
+            <div class="mb-2">
+              <label class="form-label"
+                >Selecciona valor de la metrica de los tornillos:</label
+              >
+              <select
+                class="form-select"
+                [(ngModel)]="mod.metrica"
+                name="metrica{{ i }}"
+                required
+                [class.is-invalid]="form.submitted && mod.metrica == null"
+              >
+                <option [value]="null" disabled selected>Seleccione...</option>
+                <option *ngFor="let num of metricasTornillos" [value]="num">
+                  {{ num }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -3575,6 +4074,33 @@
             [class.is-invalid]="form.submitted && !mod.homologacionBase"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- CALEFACCIÓN ESTACIONARIA -->
@@ -3639,74 +4165,217 @@
       >
         <h3>Mobiliario Interior Vehículo</h3>
 
-        <!-- Mueble bajo -->
+        <!-- Mueble Bajo -->
         <div *ngIf="mod.opcionesMueble?.muebleBajo">
-          <h4>Mueble Bajo</h4>
-          <div class="mb-2">
+          <h4>
+            Mueble Bajo
+            <button
+              class="btn btn-success btn-sm ms-2"
+              (click)="anadirMueble(mod, 'bajo')"
+            >
+              + Añadir
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm ms-2"
+              (click)="borrarUltimoMueble(mod, 'bajo')"
+            >
+              ↺ Borrar último
+            </button>
+          </h4>
+          <div
+            *ngFor="let mueble of mod.mueblesBajo; let j = index"
+            class="border rounded p-2 mb-2"
+          >
             <label class="form-label">Medidas:</label>
             <input
               type="text"
-              class="form-control"
-              [(ngModel)]="mod.medidasMuebleBajo"
-              name="medidasMuebleBajo"
+              class="form-control mb-2"
+              [(ngModel)]="mueble.medidas"
+              name="medidasMuebleBajo{{ j }}"
               required
-              [class.is-invalid]="form.submitted && !mod.medidasMuebleBajo"
             />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Número de cajones:</label>
-            <input
-              type="number"
-              min="0"
-              min="0"
-              class="form-control"
-              [(ngModel)]="mod.numCajones"
-              name="numCajones"
-              required
-              [class.is-invalid]="form.submitted && !mod.numCajones"
-            />
+            <div class="mb-2">
+              <label class="form-label">Tipo de fabricación:</label>
+              <select
+                class="form-select"
+                [(ngModel)]="mod.tipoFabricacionMuebleBajo"
+                name="tipoFabricacionMuebleBajo{{ i }}"
+                required
+                [class.is-invalid]="
+                  form.submitted && !mod.tipoFabricacionMuebleBajo
+                "
+              >
+                <option value="" disabled selected>
+                  Seleccione una opción
+                </option>
+                <option value="comercial">Marca y Referencia</option>
+                <option value="aceroArtesanal">
+                  Fabricado en acero de forma artesanal
+                </option>
+                <option value="maderaArtesanal">
+                  Fabricado en madera de forma artesanal
+                </option>
+              </select>
+            </div>
+
+            <!-- Solo mostrar marca y referencia si la opción es 'comercial' -->
+            <div
+              *ngIf="mod.tipoFabricacionMuebleBajo === 'comercial'"
+              class="mb-2"
+            >
+              <label class="form-label">Marca:</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="mod.marcaMuebleBajo"
+                name="marcaMuebleBajo{{ i }}"
+                required
+                [class.is-invalid]="form.submitted && !mod.marcaMuebleBajo"
+              />
+            </div>
+            <div
+              *ngIf="mod.tipoFabricacionMuebleBajo === 'comercial'"
+              class="mb-2"
+            >
+              <label class="form-label">Referencia:</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="mod.referenciaMuebleBajo"
+                name="referenciaMuebleBajo{{ i }}"
+                required
+                [class.is-invalid]="form.submitted && !mod.referenciaMuebleBajo"
+              />
+            </div>
           </div>
         </div>
 
-        <!-- Mueble alto -->
+        <!-- Mueble Alto -->
         <div *ngIf="mod.opcionesMueble?.muebleAlto">
-          <h4>Mueble Alto</h4>
-          <div class="mb-2">
+          <h4>
+            Mueble Alto
+            <button
+              class="btn btn-success btn-sm ms-2"
+              (click)="anadirMueble(mod, 'alto')"
+            >
+              + Añadir
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm ms-2"
+              (click)="borrarUltimoMueble(mod, 'alto')"
+            >
+              ↺ Borrar último
+            </button>
+          </h4>
+          <div
+            *ngFor="let mueble of mod.mueblesAlto; let j = index"
+            class="border rounded p-2 mb-2"
+          >
             <label class="form-label">Medidas:</label>
             <input
               type="text"
               class="form-control"
-              [(ngModel)]="mod.medidasMuebleAlto"
-              name="medidasMuebleAlto"
+              [(ngModel)]="mueble.medidas"
+              name="medidasMuebleAlto{{ j }}"
               required
-              [class.is-invalid]="form.submitted && !mod.medidasMuebleAlto"
             />
+            <div class="mb-2">
+              <label class="form-label">Tipo de fabricación:</label>
+              <select
+                class="form-select"
+                [(ngModel)]="mod.tipoFabricacionMuebleAlto"
+                name="tipoFabricacionMuebleAlto{{ i }}"
+                required
+                [class.is-invalid]="
+                  form.submitted && !mod.tipoFabricacionMuebleAlto
+                "
+              >
+                <option value="" disabled selected>
+                  Seleccione una opción
+                </option>
+                <option value="comercial">Marca y Referencia</option>
+                <option value="aceroArtesanal">
+                  Fabricado en acero de forma artesanal
+                </option>
+                <option value="maderaArtesanal">
+                  Fabricado en madera de forma artesanal
+                </option>
+              </select>
+            </div>
+
+            <!-- Solo mostrar marca y referencia si la opción es 'comercial' -->
+            <div
+              *ngIf="mod.tipoFabricacionMuebleAlto === 'comercial'"
+              class="mb-2"
+            >
+              <label class="form-label">Marca:</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="mod.marcaMuebleAlto"
+                name="marcaMuebleAlto{{ i }}"
+                required
+                [class.is-invalid]="form.submitted && !mod.marcaMuebleAlto"
+              />
+            </div>
+            <div
+              *ngIf="mod.tipoFabricacionMuebleAlto === 'comercial'"
+              class="mb-2"
+            >
+              <label class="form-label">Referencia:</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="mod.referenciaMuebleAlto"
+                name="referenciaMuebleAlto{{ i }}"
+                required
+                [class.is-invalid]="form.submitted && !mod.referenciaMuebleAlto"
+              />
+            </div>
           </div>
         </div>
 
         <!-- Aseo -->
         <div *ngIf="mod.opcionesMueble?.aseo">
-          <h4>Aseo</h4>
-          <div class="mb-2">
+          <h4>
+            Aseo
+            <button
+              type="button"
+              class="btn btn-success btn-sm ms-2"
+              (click)="anadirMueble(mod, 'aseo')"
+            >
+              + Añadir
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm ms-2"
+              (click)="borrarUltimoMueble(mod, 'aseo')"
+            >
+              ↺ Borrar último
+            </button>
+          </h4>
+          <div
+            *ngFor="let aseo of mod.mueblesAseo; let j = index"
+            class="border rounded p-2 mb-2"
+          >
             <label class="form-label">Medidas:</label>
             <input
               type="text"
-              class="form-control"
-              [(ngModel)]="mod.medidasAseo"
-              name="medidasAseo"
+              class="form-control mb-2"
+              [(ngModel)]="aseo.medidas"
+              name="medidasAseo{{ j }}"
               required
-              [class.is-invalid]="form.submitted && !mod.medidasAseo"
             />
-          </div>
-          <div class="mb-2">
+
             <label class="form-label">Descripción del interior:</label>
             <textarea
               class="form-control"
               rows="3"
-              [(ngModel)]="mod.descripcionAseo"
-              name="descripcionAseo"
+              [(ngModel)]="aseo.descripcion"
+              name="descripcionAseo{{ j }}"
               required
-              [class.is-invalid]="form.submitted && !mod.descripcionAseo"
             ></textarea>
           </div>
         </div>
@@ -3862,6 +4531,33 @@
             [class.is-invalid]="form.submitted && !mod.litrosAguaSucia"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- DEPÓSITO DE AGUA LIMPIA -->
@@ -3894,6 +4590,33 @@
             [class.is-invalid]="form.submitted && !mod.medidasAguaLimpia"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- BOMBA DE AGUA -->
@@ -3935,6 +4658,33 @@
             [class.is-invalid]="form.submitted && !mod.ubicacionBombaAgua"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- REGISTRO DE LLENADO DE AGUA -->
@@ -4025,6 +4775,33 @@
             [class.is-invalid]="form.submitted && !mod.ubicacionDuchaExterior"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- INSTALACIÓN ELÉCTRICA -->
@@ -4098,7 +4875,6 @@
           <label class="form-label">Cantidad:</label>
           <input
             type="number"
-            min="0"
             min="0"
             class="form-control"
             [(ngModel)]="mod.cantidadBaterias"
@@ -4252,6 +5028,33 @@
             [class.is-invalid]="form.submitted && !mod.ubicacionToldo"
           />
         </div>
+        <div class="mb-2">
+          <label class="form-label"
+            >Selecciona valor de la metrica de los tornillos:</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="mod.metrica"
+            name="metrica{{ i }}"
+            required
+            [class.is-invalid]="form.submitted && mod.metrica == null"
+          >
+            <option [value]="null" disabled selected>Seleccione...</option>
+            <option *ngFor="let num of metricasTornillos" [value]="num">
+              {{ num }}
+            </option>
+          </select>
+        </div>
+        <label class="form-label">Nº de tornillos:</label>
+        <input
+          type="number"
+          min="0"
+          class="form-control"
+          [(ngModel)]="mod.nTornillos"
+          name="nTornillos"
+          required
+          [class.is-invalid]="form.submitted && !mod.nTornillos"
+        />
       </div>
 
       <!-- Añadir más bloques según las modificaciones necesarias -->

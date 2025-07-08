@@ -14,6 +14,11 @@ export class ResumenModificacionesComponent implements OnInit {
   @Output() continuar = new EventEmitter<any>();
   formSubmitted = false;
 
+  metricasTornillos: number[] = [
+    4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 20, 22, 24, 27, 30, 33, 36,
+    39, 42, 45, 48, 52, 56, 60, 64, 68,
+  ];
+
   modificacionesSeleccionadas: any[] = [];
 
   ngOnInit(): void {
@@ -21,6 +26,33 @@ export class ResumenModificacionesComponent implements OnInit {
       (mod: any) => mod.seleccionado
     );
     console.log(this.datosEntrada);
+  }
+
+  anadirMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {
+    if (tipo === 'bajo') {
+      mod.mueblesBajo = mod.mueblesBajo || [];
+      mod.mueblesBajo.push({ medidas: '', cajones: 0 });
+    }
+    if (tipo === 'alto') {
+      mod.mueblesAlto = mod.mueblesAlto || [];
+      mod.mueblesAlto.push({ medidas: '' });
+    }
+    if (tipo === 'aseo') {
+      mod.mueblesAseo = mod.mueblesAseo || [];
+      mod.mueblesAseo.push({ medidas: '', descripcion: '' });
+    }
+  }
+
+  borrarUltimoMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {
+    if (tipo === 'bajo' && mod.mueblesBajo?.length > 0) {
+      mod.mueblesBajo.pop();
+    }
+    if (tipo === 'alto' && mod.mueblesAlto?.length > 0) {
+      mod.mueblesAlto.pop();
+    }
+    if (tipo === 'aseo' && mod.mueblesAseo?.length > 0) {
+      mod.mueblesAseo.pop();
+    }
   }
 
   formularioInvalido(): boolean {

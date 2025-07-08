@@ -114,9 +114,59 @@
           </div>
         </div>
 
+        <!-- INTERMITENTES -->
+        <div
+          *ngIf="mod.nombre === 'INTERMITENTES' && mod.seleccionado"
+          class="ms-4"
+        >
+          <label class="form-label"
+            >Seleccione la posicion de los intermitentes:</label
+          >
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detalle!.interDelantero"
+              (ngModelChange)="actualizarError(i, mod)"
+              id="interDelantero{{ i }}"
+            />
+            <label class="form-check-label" for="interDelantero{{ i }}"
+              >Delanteros</label
+            >
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detalle!.interTrasero"
+              (ngModelChange)="actualizarError(i, mod)"
+              id="interTrasero{{ i }}"
+            />
+            <label class="form-check-label" for="interTrasero{{ i }}"
+              >Traseros</label
+            >
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [(ngModel)]="mod.detalle!.interLateral"
+              (ngModelChange)="actualizarError(i, mod)"
+              id="interLateral{{ i }}"
+            />
+            <label class="form-check-label" for="interLateral{{ i }}"
+              >Laterales</label
+            >
+          </div>
+          <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
+            Debe seleccionar al menos una opción en este bloque.
+          </div>
+        </div>
+
         <!-- SUSTITUCIÓN DE EJES -->
         <div
           *ngIf="mod.nombre === 'SUSTITUCIÓN DE EJES' && mod.seleccionado"
+          mod.detalle
           class="ms-4"
         >
           <label class="form-label">Seleccione el/los ejes:</label>
@@ -124,7 +174,7 @@
             <input
               type="checkbox"
               class="form-check-input"
-              [(ngModel)]="mod.sustitucionEjeDelantero"
+              [(ngModel)]="mod.detalle!.sustitucionEjeDelantero"
               (ngModelChange)="actualizarError(i, mod)"
               id="sustitucionEjeDelantero{{ i }}"
             />
@@ -136,7 +186,7 @@
             <input
               type="checkbox"
               class="form-check-input"
-              [(ngModel)]="mod.sustitucionEjeTrasero"
+              [(ngModel)]="mod.detalle!.sustitucionEjeTrasero"
               (ngModelChange)="actualizarError(i, mod)"
               id="sustitucionEjeTrasero{{ i }}"
             />
@@ -312,7 +362,7 @@
               id="intermitente{{ i }}"
               [(ngModel)]="mod.detalle.intermitente"
               name="intermitente{{ i }}"
-              (change)="actualizarError(i, mod)"
+              (ngModelChange)="actualizarError(i, mod)"
             />
             <label class="form-check-label" for="intermitente{{ i }}">
               Intermitente
@@ -325,7 +375,7 @@
               id="marchaAtras{{ i }}"
               [(ngModel)]="mod.detalle.marchaAtras"
               name="marchaAtras{{ i }}"
-              (change)="actualizarError(i, mod)"
+              (ngModelChange)="actualizarError(i, mod)"
             />
             <label class="form-check-label" for="marchaAtras{{ i }}">
               Marcha atrás
@@ -338,7 +388,7 @@
               id="catadioptrico{{ i }}"
               [(ngModel)]="mod.detalle.catadioptrico"
               name="catadioptrico{{ i }}"
-              (change)="actualizarError(i, mod)"
+              (ngModelChange)="actualizarError(i, mod)"
             />
             <label class="form-check-label" for="catadioptrico{{ i }}">
               Catadióptrico

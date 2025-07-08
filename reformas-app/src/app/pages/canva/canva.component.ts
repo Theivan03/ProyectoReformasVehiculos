@@ -49,11 +49,27 @@ export class CanvaComponent implements OnInit {
   ngOnInit(): void {
     let url = '';
 
-    if (
-      this.datosEntrada.marcadores &&
-      this.datosEntrada.marcadores.length > 0
-    ) {
+    if (Array.isArray(this.datosEntrada?.marcadores)) {
       this.markers = [...this.datosEntrada.marcadores];
+    }
+    if (Array.isArray(this.datosEntrada?.modificaciones)) {
+      this.datosEntrada.modificaciones.forEach((mod: any) => {
+        if (mod.seleccionado) {
+          if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
+            mod.mueblesBajo?.forEach((m: any) => {
+              this.labels.push(`Mueble bajo (${m.medidas || 'sin medidas'})`);
+            });
+            mod.mueblesAlto?.forEach((m: any) => {
+              this.labels.push(`Mueble alto (${m.medidas || 'sin medidas'})`);
+            });
+            mod.mueblesAseo?.forEach((m: any) => {
+              this.labels.push(`Aseo (${m.medidas || 'sin medidas'})`);
+            });
+          } else {
+            this.labels.push(mod.nombre);
+          }
+        }
+      });
     }
 
     switch (this.datosEntrada.tipoVehiculo) {
@@ -70,12 +86,6 @@ export class CanvaComponent implements OnInit {
     this.cargarImagenComoBase64(url).then((base64) => {
       this.imageSrc = base64;
     });
-
-    for (let i = 0; i < this.datosEntrada.modificaciones.length; i++) {
-      if (this.datosEntrada.modificaciones[i].seleccionado === true) {
-        this.labels.push(this.datosEntrada.modificaciones[i].nombre);
-      }
-    }
   }
 
   cargarImagenComoBase64(url: string): Promise<string> {
@@ -124,9 +134,7 @@ export class CanvaComponent implements OnInit {
   undoMarker(): void {
     if (this.markers.length > 0) {
       this.markers.pop();
-      this.selectedIndex = -1;
-      console.log('Marker removed, current markers:', this.markers);
-      console.log('Selected index reset to:', this.selectedIndex);
+      console.log('Último marcador borrado:', this.markers);
     }
   }
 

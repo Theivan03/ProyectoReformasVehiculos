@@ -1318,7 +1318,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   }
 
   const punto1_5Consideraciones = [
-    new Paragraph({ pageBreakBefore: true }), // Salto de página antes del título
+    new Paragraph({ pageBreakBefore: true }),
     new Paragraph({
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 260, after: 120 },
@@ -1332,7 +1332,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
     ...[
       'Una vez expuesto el listado de reformas pasamos a la explicación más detallada del proceso de realización en cada una de ellas.',
-      'Es importante señalar que los elementos añadidos al vehículo en esta reforma serán suministrados por una empresa especializada en vehículos todoterreno, por lo que no serán diseñados a lo largo de este proyecto, ya que todos han sido previamente creados específicamente para el modelo de vehículo que vamos a reformar, siguiendo los patrones del fabricante del vehículo. Por lo tanto es el fabricante el encargado del diseño de las piezas y del cumplimiento de las normativas europeas, adquiriendo así los certificados de calidad y códigos de homologación, así como el marcado CE de los mismos, para su posterior puesta en venta en el mercado.',
+      'Es importante señalar que los elementos añadidos al vehículo en esta reforma serán suministrados por una empresa especializada en vehículos, por lo que no serán diseñados a lo largo de este proyecto, ya que todos han sido previamente creados específicamente para el modelo de vehículo que vamos a reformar, siguiendo los patrones del fabricante del vehículo. Por lo tanto es el fabricante el encargado del diseño de las piezas y del cumplimiento de las normativas europeas, adquiriendo así los certificados de calidad y códigos de homologación, así como el marcado CE de los mismos, para su posterior puesta en venta en el mercado.',
       'El montaje de las piezas enumeradas deberá realizarse en un taller autorizado y especializado en este tipo de trabajos. El personal que lleve a cabo la transformación deberá poseer suficientes conocimientos en este tipo de montajes. En el momento en el que finalice la reforma, el taller deberá expedir un certificado de taller por las reformas realizadas.',
       'Los trabajos de instalación de los elementos especificados anteriormente se realizarán previo desmontaje de los elementos sustituidos, incluyendo el desmontaje y acoplamiento posterior de todos aquellos otros elementos que faciliten el montaje definitivo.',
     ].map(
@@ -2493,7 +2493,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
 
     new Paragraph({
-      alignment: AlignmentType.RIGHT,
+      alignment: AlignmentType.CENTER,
       children: [
         new ImageRun({
           data: imageBuffer4,
@@ -2520,6 +2520,155 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
   ];
 
+  async function generarPosteriores(data: any): Promise<(Paragraph | Table)[]> {
+    // 1) Lee buffers + dimensiones naturales
+    const prevFiles = data.postImages as File[];
+    interface ImageInfo {
+      buffer: ArrayBuffer;
+      width: number;
+      height: number;
+    }
+
+    const infos: ImageInfo[] = await Promise.all(
+      prevFiles.map(async (file) => {
+        const buffer = await file.arrayBuffer();
+        const blob = new Blob([buffer], { type: file.type });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        await new Promise<void>((res, rej) => {
+          img.onload = () => res();
+          img.onerror = () => rej(new Error('No cargó la imagen'));
+          img.src = url;
+        });
+        URL.revokeObjectURL(url);
+        return { buffer, width: img.naturalWidth, height: img.naturalHeight };
+      })
+    );
+
+    const saltoDePagina = new Paragraph({ pageBreakBefore: true });
+    const anexoPreviosTitle = new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
+      children: [
+        new TextRun({
+          text: 'Anexo 3. Fotografías de la reforma',
+          bold: true,
+          color: '000000',
+        }),
+      ],
+    });
+
+    // 2) Tabla 2×N con escalado proporcional
+    function buildPreviosTable(images: ImageInfo[]): Table {
+      const rows: TableRow[] = [];
+
+      // Máximos en puntos (aprox. 1px = 1pt aquí para simplificar)
+      const maxCellWidth = 300;
+      const maxCellHeight = 250;
+
+      for (let i = 0; i < images.length; i += 2) {
+        const left = images[i];
+        const right = images[i + 1];
+
+        // Escalado proporcional de la izquierda
+        const scaleL = Math.min(
+          maxCellWidth / left.width,
+          maxCellHeight / left.height,
+          1
+        );
+        const wL = Math.round(left.width * scaleL);
+        const hL = Math.round(left.height * scaleL);
+
+        // Escalado proporcional de la derecha (si existe)
+        let wR = 0,
+          hR = 0;
+        if (right) {
+          const scaleR = Math.min(
+            maxCellWidth / right.width,
+            maxCellHeight / right.height,
+            1
+          );
+          wR = Math.round(right.width * scaleR);
+          hR = Math.round(right.height * scaleR);
+        }
+
+        rows.push(
+          new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                borders: {
+                  top: { style: BorderStyle.NONE, size: 0 },
+                  bottom: { style: BorderStyle.NONE, size: 0 },
+                  left: { style: BorderStyle.NONE, size: 0 },
+                  right: { style: BorderStyle.NONE, size: 0 },
+                },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new ImageRun({
+                        data: left.buffer,
+                        transformation: { width: wL, height: hL },
+                        type: 'png',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              new TableCell({
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                verticalAlign: AlignmentType.CENTER,
+                margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                borders: {
+                  top: { style: BorderStyle.NONE, size: 0 },
+                  bottom: { style: BorderStyle.NONE, size: 0 },
+                  left: { style: BorderStyle.NONE, size: 0 },
+                  right: { style: BorderStyle.NONE, size: 0 },
+                },
+                children: right
+                  ? [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [
+                          new ImageRun({
+                            data: right.buffer,
+                            transformation: { width: wR, height: hR },
+                            type: 'png',
+                          }),
+                        ],
+                      }),
+                    ]
+                  : [new Paragraph('')],
+              }),
+            ],
+          })
+        );
+      }
+
+      return new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0 },
+          bottom: { style: BorderStyle.NONE, size: 0 },
+          left: { style: BorderStyle.NONE, size: 0 },
+          right: { style: BorderStyle.NONE, size: 0 },
+          insideHorizontal: { style: BorderStyle.NONE, size: 0 },
+          insideVertical: { style: BorderStyle.NONE, size: 0 },
+        },
+        rows,
+      });
+    }
+
+    const prevTable = buildPreviosTable(infos);
+    return [saltoDePagina, anexoPreviosTitle, prevTable];
+  }
+
+  const anexosPorsteriores = await generarPosteriores(data);
+
   const section2 = {
     properties: { type: SectionType.NEXT_PAGE, pageNumberStart: 1 },
     headers: { default: header },
@@ -2540,6 +2689,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ...punto3,
       ...punto4,
       ...punto5,
+      ...anexosPorsteriores,
     ]
       .flat()
       .filter((child) => child !== null),

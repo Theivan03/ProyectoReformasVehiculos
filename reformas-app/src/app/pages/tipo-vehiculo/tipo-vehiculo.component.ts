@@ -62,6 +62,16 @@ export class TipoVehiculoComponent implements OnInit {
         }
       );
     }
+    this.modificaciones = this.modificaciones.map((mod) => ({
+      ...mod,
+      detalle: {
+        interDelantero: false,
+        interTrasero: false,
+        interLateral: false,
+        sustitucionEjeDelantero: false,
+        sustitucionEjeTrasero: false,
+      },
+    }));
   }
 
   onTipoCambio(): void {
@@ -164,12 +174,22 @@ export class TipoVehiculoComponent implements OnInit {
               catadioptrico: false,
             },
           },
-          { nombre: 'INTERMITENTES', seleccionado: false },
+          {
+            nombre: 'INTERMITENTES',
+            seleccionado: false,
+            detalle: {
+              interDelantero: false,
+              interTrasero: false,
+              interLateral: false,
+            },
+          },
           {
             nombre: 'SUSTITUCIÓN DE EJES',
             seleccionado: false,
-            sustitucionEjeTrasero: false,
-            sustitucionEjeDelantero: false,
+            detalle: {
+              sustitucionEjeTrasero: false,
+              sustitucionEjeDelantero: false,
+            },
           },
           { nombre: 'ESTRIBOS LATERALES O TALONERAS', seleccionado: false },
         ];
@@ -347,6 +367,33 @@ export class TipoVehiculoComponent implements OnInit {
         invalido =
           mod.estribosotaloneras == null || mod.anotacionAntideslizante == null;
       }
+
+      if (mod.nombre === 'INTERMITENTES') {
+        const valido =
+          mod.detalle?.interDelantero ||
+          mod.detalle?.interTrasero ||
+          mod.detalle?.interLateral;
+        invalido = !valido;
+        if (!valido) esValido = false;
+      }
+
+      if (mod.nombre === 'SUSTITUCIÓN DE EJES') {
+        const valido =
+          mod.detalle?.sustitucionEjeDelantero ||
+          mod.detalle?.sustitucionEjeTrasero;
+        invalido = !valido;
+        if (!valido) esValido = false;
+      }
+
+      if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
+        const valido =
+          mod.detalle?.interDelantero ||
+          mod.detalle?.interTrasero ||
+          mod.detalle?.interLateral;
+        invalido = !valido;
+        if (!valido) esValido = false;
+      }
+
       this.erroresSubopciones[index] = invalido;
 
       if (invalido) {
@@ -407,6 +454,21 @@ export class TipoVehiculoComponent implements OnInit {
 
     if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
       invalido = !(mod.estribosotaloneras || mod.anotacionAntideslizante);
+    }
+
+    if (mod.nombre === 'INTERMITENTES') {
+      invalido = !(
+        mod.detalle?.interDelantero ||
+        mod.detalle?.interTrasero ||
+        mod.detalle?.interLateral
+      );
+    }
+
+    if (mod.nombre === 'SUSTITUCIÓN DE EJES') {
+      invalido = !(
+        mod.detalle?.sustitucionEjeTrasero ||
+        mod.detalle?.sustitucionEjeDelantero
+      );
     }
 
     this.erroresSubopciones[index] = invalido;
