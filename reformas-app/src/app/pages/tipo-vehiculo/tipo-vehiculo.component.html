@@ -414,24 +414,31 @@
               type="checkbox"
               class="form-check-input"
               [(ngModel)]="mod.opcionesMueble.muebleBajo"
+              id="muebleBajo{{ i }}"
             />
-            <label class="form-check-label">Mueble bajo</label>
+            <label class="form-check-label" for="muebleBajo{{ i }}"
+              >Mueble bajo</label
+            >
           </div>
           <div class="form-check">
             <input
               type="checkbox"
               class="form-check-input"
               [(ngModel)]="mod.opcionesMueble.muebleAlto"
+              id="muebleAlto{{ i }}"
             />
-            <label class="form-check-label">Mueble alto</label>
+            <label class="form-check-label" for="muebleAlto{{ i }}"
+              >Mueble alto</label
+            >
           </div>
           <div class="form-check">
             <input
               type="checkbox"
               class="form-check-input"
               [(ngModel)]="mod.opcionesMueble.aseo"
+              id="aseo{{ i }}"
             />
-            <label class="form-check-label">Aseo</label>
+            <label class="form-check-label" for="aseo{{ i }}">Aseo</label>
           </div>
           <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
             Debe seleccionar al menos una opción en este bloque.
@@ -484,16 +491,22 @@
               class="form-check-input"
               type="checkbox"
               [(ngModel)]="mod.ejeDelantero"
+              id="ejeDelantero{{ i }}"
             />
-            <label class="form-check-label">Reducción en eje delantero</label>
+            <label class="form-check-label" for="ejeDelantero{{ i }}"
+              >Reducción en eje delantero</label
+            >
           </div>
           <div class="form-check">
             <input
               class="form-check-input"
               type="checkbox"
               [(ngModel)]="mod.ejeTotal"
+              id="ejeTotal{{ i }}"
             />
-            <label class="form-check-label">Reducción total</label>
+            <label class="form-check-label" for="ejeTotal{{ i }}"
+              >Reducción total</label
+            >
           </div>
           <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
             Debe seleccionar al menos una opción en este bloque.
@@ -511,16 +524,22 @@
               class="form-check-input"
               type="checkbox"
               [(ngModel)]="mod.guardabarrosDelantero"
+              id="guardabarrosDelantero{{ i }}"
             />
-            <label class="form-check-label">Delantero</label>
+            <label class="form-check-label" for="guardabarrosDelantero{{ i }}"
+              >Delantero</label
+            >
           </div>
           <div class="form-check">
             <input
               class="form-check-input"
               type="checkbox"
               [(ngModel)]="mod.guardabarrosTrasero"
+              id="guardabarrosTrasero{{ i }}"
             />
-            <label class="form-check-label">Trasero</label>
+            <label class="form-check-label" for="guardabarrosTrasero{{ i }}"
+              >Trasero</label
+            >
           </div>
           <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
             Debe seleccionar al menos una opción en este bloque.
@@ -542,16 +561,22 @@
               class="form-check-input"
               type="checkbox"
               [(ngModel)]="mod.tieneDisco"
+              id="ejeDelantero{{ i }}"
             />
-            <label class="form-check-label">Disco de freno</label>
+            <label class="form-check-label" for="ejeDelantero{{ i }}"
+              >Disco de freno</label
+            >
           </div>
           <div class="form-check">
             <input
               class="form-check-input"
               type="checkbox"
               [(ngModel)]="mod.tienePastilla"
+              id="tienePastilla{{ i }}"
             />
-            <label class="form-check-label">Pastilla de freno</label>
+            <label class="form-check-label" for="tienePastilla{{ i }}"
+              >Pastilla de freno</label
+            >
           </div>
           <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
             Debe seleccionar al menos una opción en este bloque.
@@ -569,17 +594,19 @@
 
           <div
             class="form-check mb-1"
-            *ngFor="let item of opcionesDescripcionLuces"
+            *ngFor="let item of opcionesDescripcionLuces; let i = index"
           >
             <input
               type="checkbox"
               class="form-check-input"
+              id="luces-{{ i }}"
               [(ngModel)]="mod.descripcionLuces![item.key]"
             />
-            <label class="form-check-label">
+            <label class="form-check-label" [for]="'luces-' + i">
               {{ item.label }}
             </label>
           </div>
+
           <div *ngIf="erroresSubopciones[i]" class="text-danger mt-1">
             Debe seleccionar al menos una opción en este bloque.
           </div>
