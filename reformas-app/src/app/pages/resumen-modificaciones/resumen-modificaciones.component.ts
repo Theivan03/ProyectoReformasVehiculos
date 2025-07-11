@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 
 @Component({
@@ -41,6 +48,7 @@ export class ResumenModificacionesComponent implements OnInit {
       mod.mueblesAseo = mod.mueblesAseo || [];
       mod.mueblesAseo.push({ medidas: '', descripcion: '' });
     }
+    this.formSubmitted = false;
   }
 
   borrarUltimoMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {

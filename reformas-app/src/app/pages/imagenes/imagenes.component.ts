@@ -43,16 +43,34 @@ export class ImagenesComponent implements OnInit {
   }
 
   onPrevSelected(ev: Event) {
-    const files = (ev.target as HTMLInputElement).files;
-    if (!files) return;
-    this.prevImages = Array.from(files);
+    const input = ev.target as HTMLInputElement;
+    if (!input.files) return;
+
+    const files = Array.from(input.files);
+    // Límite de 4 imágenes previas
+    if (files.length > 4) {
+      alert('Solo puedes seleccionar hasta 4 imágenes previas');
+      input.value = ''; // limpia la selección
+      return;
+    }
+
+    this.prevImages = files;
     this.prevPreviews = this.prevImages.map((f) => URL.createObjectURL(f));
   }
 
   onPostSelected(ev: Event) {
-    const files = (ev.target as HTMLInputElement).files;
-    if (!files) return;
-    this.postImages = Array.from(files);
+    const input = ev.target as HTMLInputElement;
+    if (!input.files) return;
+
+    const files = Array.from(input.files);
+    // Límite de 30 imágenes posteriores
+    if (files.length > 30) {
+      alert('Solo puedes seleccionar hasta 30 imágenes de la reforma');
+      input.value = ''; // limpia la selección
+      return;
+    }
+
+    this.postImages = files;
     this.postPreviews = this.postImages.map((f) => URL.createObjectURL(f));
   }
 

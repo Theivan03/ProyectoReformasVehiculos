@@ -39,6 +39,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
   let tipo = data.tipoVehiculo;
   let alto;
+  let alto2;
 
   let url = `http://192.168.1.41:3000/imgs/${tipo}.png`;
   const response3 = await fetch(url);
@@ -1058,10 +1059,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ],
     }),
 
-    new Paragraph({
-      text: '',
-      spacing: { before: 120, after: 120 },
-    }),
+    new Paragraph({ pageBreakBefore: true }),
 
     // 1.3.1 Características antes de la reforma
     new Paragraph({
@@ -1084,7 +1082,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
     new Table({
       alignment: AlignmentType.CENTER,
-      width: { size: 65, type: WidthType.PERCENTAGE },
+      width: { size: 75, type: WidthType.PERCENTAGE },
       rows: [
         ['Longitud total (mm)', data.longitudAntes],
         ['Anchura (mm)', data.anchuraAntes],
@@ -1153,7 +1151,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
     new Table({
       alignment: AlignmentType.CENTER,
-      width: { size: 65, type: WidthType.PERCENTAGE },
+      width: { size: 75, type: WidthType.PERCENTAGE },
       rows: [
         ['Longitud total (mm)', data.longitudDespues],
         ['Anchura (mm)', data.anchuraDespues],
@@ -1272,9 +1270,6 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
           children: [new TextRun({ text: texto })],
         })
     ),
-    new Paragraph({
-      pageBreakBefore: true,
-    }),
   ];
 
   const codigosImagenes = Object.values(data.codigosDetallados ?? {}).flat();
@@ -1352,7 +1347,6 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   }
 
   const punto1_5Consideraciones = [
-    new Paragraph({ pageBreakBefore: true }),
     new Paragraph({
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 260, after: 120 },
@@ -1803,7 +1797,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ],
     }),
     new Paragraph({
-      spacing: { before: 120 },
+      spacing: { before: 120, after: 120 },
       indent: { left: 400 },
       children: [
         new TextRun({ text: '• Fuerza centrífuga por efecto del giro ' }),
@@ -1843,19 +1837,1862 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         }),
       ],
     }),
-
-    new Paragraph({
-      heading: HeadingLevel.HEADING_2,
-      spacing: { before: 260, after: 120 },
-      children: [
-        new TextRun({
-          text: '2.2- REPARTO DE MASAS SOBRE LOS EJES',
-          bold: true,
-          color: '000000',
-        }),
-      ],
-    }),
   ];
+
+  let punto2_2 = [];
+
+  function limpiarYParsear(valor: string): number | null {
+    const limpio = valor?.replace(',', '.').trim();
+    if (!limpio || limpio === '---' || isNaN(Number(limpio))) return null;
+    return parseFloat(limpio);
+  }
+
+  const momAntes = limpiarYParsear(data.momAntes);
+  const masaRealDespues = limpiarYParsear(data.masaRealDespues);
+  let plazasDespues = limpiarYParsear(data.plazasDespues);
+
+  if (plazasDespues === null) plazasDespues = 1;
+
+  if (momAntes === null || masaRealDespues === null) {
+    // Se asume que la diferencia es menor al 3%
+    punto2_2 = [
+      new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 260, after: 120 },
+        children: [
+          new TextRun({
+            text: '2.2- REPARTO DE MASAS SOBRE LOS EJES',
+            bold: true,
+            color: '000000',
+          }),
+        ],
+      }),
+      new Paragraph({
+        spacing: { before: 240, after: 120 },
+        children: [
+          new TextRun({
+            text: 'd) Cálculo de la resistencia del bastidor',
+            bold: true,
+            underline: {},
+          }),
+        ],
+      }),
+      new Paragraph({
+        spacing: { after: 240 },
+        children: [
+          new TextRun(
+            'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el PMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.'
+          ),
+        ],
+      }),
+    ];
+  } else {
+    const variacion = Math.abs(masaRealDespues - momAntes) / momAntes;
+
+    if (variacion > 0.03) {
+      punto2_2 = [
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 260, after: 120 },
+          children: [
+            new TextRun({
+              text: '2.2- REPARTO DE MASAS SOBRE LOS EJES',
+              bold: true,
+              color: '000000',
+            }),
+          ],
+        }),
+
+        new Paragraph({
+          text: 'a) Obtención de la Masa Real',
+          spacing: { after: 200 },
+        }),
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          text: 'Su valor se obtiene considerando las siguientes cargas:',
+        }),
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          text: '1- Peso de la Tara del vehículo después de la reforma:',
+        }),
+
+        // Tabla: Tara Vehículo
+        new Table({
+          alignment: AlignmentType.CENTER,
+          width: { size: 70, type: WidthType.PERCENTAGE },
+          borders: {
+            top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+            bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+            left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+            right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+            insideHorizontal: {
+              style: BorderStyle.SINGLE,
+              size: 1,
+              color: '000000',
+            },
+            insideVertical: {
+              style: BorderStyle.SINGLE,
+              size: 1,
+              color: '000000',
+            },
+          },
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Total',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Delantero',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Trasero',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+              ],
+            }),
+            new TableRow({
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Tara Vehículo',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaDespues,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje1Despues,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje2Despues,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+              ],
+            }),
+          ],
+        }),
+
+        new Paragraph({
+          text: 'Incluyéndose en este valor depósito de combustible',
+          spacing: { before: 120, after: 120 },
+        }),
+        new Paragraph({
+          text: '2- peso del conductor y ocupantes: Se consideran un valor de 75 kg por persona',
+          spacing: { before: 120, after: 120 },
+        }),
+
+        // Tabla: Masa Real
+        new Table({
+          alignment: AlignmentType.CENTER,
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [new Paragraph('Masa Real')],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph(
+                      limpiarYParsear(data.masaRealDespues) !== null
+                        ? (
+                            limpiarYParsear(data.masaRealDespues)! + 75
+                          ).toString()
+                        : ''
+                    ),
+                  ],
+                  verticalAlign: AlignmentType.CENTER,
+                }),
+              ],
+            }),
+          ],
+        }),
+
+        new Paragraph({
+          text: 'Nota: Mediante el pesaje del vehículo en báscula, se comprueba que la tara del vehículo después de la reforma ha sufrido un incremento superior al 3% permitido con respecto al vehículo de serie. Por esta razón, SÍ se considera necesario reflejar dicha modificación de peso en la ITV.',
+          spacing: { before: 200, after: 200 },
+        }),
+
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          text: 'b) Comprobaciones a efectuar',
+        }),
+        new Paragraph({
+          spacing: { after: 120 },
+          text: '1º) La Masa Real será en todo caso menor a los valores de MMA y MMTA para cualquier eje',
+        }),
+        new Paragraph({
+          spacing: { after: 120 },
+          text: '2º) La Masa Real, más el valor de 75 kg por ocupante adicional y una distribución uniforme de la carga útil será en todo caso menor a los valores de MMTA para cualquier eje.',
+        }),
+
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          text: 'Datos que afectan al vehículo:',
+        }),
+
+        // Tabla: Datos que afectan
+        new Table({
+          alignment: AlignmentType.CENTER,
+          width: { size: 80, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Ocupantes adic.',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'plazasDespues?.toString()',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Carga vertical acopl',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.cargaverticalDespues,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Total Kg ocup. Adicion.',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: (75 * plazasDespues!).toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Resto ocup. Del',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'variable ocupantes delanteros',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'MMA',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaDespues,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'ocupantes 2ª fila',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'variable ocupantes 2ª fila',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'MMA eje 1',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje1Despues,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'ocupantes 3ª fila',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'variable ocupantes 3ª fila',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'MMA eje 2',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje2Despues,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Peso ocupante',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '75',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Carga útil',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'variable carga útil',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+
+        // Tabla: Resultados por eje
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          text: 'c) Resultados obtenidos:',
+        }),
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          text: 'El reparto de cargas por ejes y las distintas comprobaciones queda reflejado en la siguiente tabla.',
+        }),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Distancia entre ejes',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  columnSpan: 2,
+                  children: [
+                    new Paragraph({
+                      text: 'data.distanciaEntreEjes.toString()',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      text: '',
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Total',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Delantero',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Trasero',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                // esta celda abarcará 2 filas (rowSpan)
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Distancia CDG a eje delantero (mm)',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                // etiqueta “Tara del vehículo tras la reforma”
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Tara del vehículo tras la reforma',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                // encabezados de columnas de datos
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: data.mmaDespues,
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: data.mmaEje1Despues,
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: data.mmaEje2Despues,
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: '900ej',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: 'Conductor',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '75',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '58',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '17',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: 'Masa Real',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text:
+                            limpiarYParsear(data.masaRealDespues) !== null
+                              ? (
+                                  limpiarYParsear(data.masaRealDespues)! + 75
+                                ).toString()
+                              : '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text:
+                            limpiarYParsear(data.masaRealDespues) !== null
+                              ? (
+                                  limpiarYParsear(data.masaRealDespues)! + 58
+                                ).toString()
+                              : '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text:
+                            limpiarYParsear(data.masaRealDespues) !== null
+                              ? (
+                                  limpiarYParsear(data.masaRealDespues)! + 17
+                                ).toString()
+                              : '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Ocup. Delant',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Ocup. 2ª fila',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Ocup. 3ª fila',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Carga útil',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Suma de cargas',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: '',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'MMA',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: data.mmaDespues })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: data.mmaEje1Despues })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: data.mmaEje2Despues })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          children: [
+            new TextRun(
+              'A continuación realizaremos de nuevo el reparto de cargas teniendo en cuenta una carga vertical en el punto de acoplamiento de '
+            ),
+            new TextRun({
+              text: 'LO QUE MARQUE LA HOMOLOGACIÓN O 4% DE LA MMR',
+              color: 'FF0000',
+              bold: false,
+              allCaps: false,
+            }),
+            new TextRun('.'),
+          ],
+        }),
+
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            // Fila 1
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Distancia CDG a eje delantero (mm)',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Tara del vehículo tras la reforma',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaDespues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje1Despues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje2Despues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 2
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '900ej',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Conductor',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '75',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '58',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '17',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 3
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [new Paragraph('')],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: 'Masa Real',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph(
+                      limpiarYParsear(data.masaRealDespues) !== null
+                        ? (
+                            limpiarYParsear(data.masaRealDespues)! + 75
+                          ).toString()
+                        : ''
+                    ),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph(
+                      limpiarYParsear(data.masaRealDespues) !== null
+                        ? (
+                            limpiarYParsear(data.masaRealDespues)! + 58
+                          ).toString()
+                        : ''
+                    ),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph(
+                      limpiarYParsear(data.masaRealDespues) !== null
+                        ? (
+                            limpiarYParsear(data.masaRealDespues)! + 17
+                          ).toString()
+                        : ''
+                    ),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 4 (Ocup. Delant)
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Ocup. Delant', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaDespues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje1Despues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje2Despues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 5 (Ocup. 2ª fila)
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Ocup. 2ª fila', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaDespues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje1Despues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: data.mmaEje2Despues.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 6 (Ocup. 3ª fila)
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Ocup. 3ª fila', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 7 (Carga útil)
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Carga útil', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 8
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'Carga vert. Acopl.' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: data.cargaverticalDespues }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: isNaN(parseFloat(data.cargaverticalDespues))
+                            ? '---'
+                            : (
+                                parseFloat(data.cargaverticalDespues) * 0.975
+                              ).toFixed(2),
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: isNaN(parseFloat(data.cargaverticalDespues))
+                            ? '---'
+                            : (
+                                parseFloat(data.cargaverticalDespues) * 0.025
+                              ).toFixed(2),
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 9
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'Suma de cargas' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            // Fila 10
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'MMA' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: data.mmaDespues })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: data.mmaEje1Despues })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: data.mmaEje2Despues })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+
+        // Conclusiones
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          text: 'Conclusiones',
+        }),
+        new Paragraph({
+          spacing: { after: 120 },
+          text: '1.- El reparto de cargas por eje no supera los máximos permitidos por el fabricante',
+        }),
+        new Paragraph({
+          spacing: { after: 120 },
+          text: '2.- La masa en cualquier condición en cada uno de los ejes, siempre supera el 25 % de la MMA',
+        }),
+        new Paragraph({
+          spacing: { after: 120 },
+          children: [
+            new TextRun({
+              text: '3.- Se comprueba que no se supera más del 15% la carga máxima técnicamente admisible en el eje trasero ni más del 10% o 100 Kg la masa máxima técnicamente admisible en carga.',
+              color: 'FF0000',
+            }),
+          ],
+        }),
+        new Paragraph({
+          spacing: { after: 120 },
+          children: [
+            new TextRun({
+              text: '4.- El vehículo no podrá superar la velocidad de 100Km/h cuando lleve instalado el remolque.',
+              color: 'FF0000',
+            }),
+          ],
+        }),
+        new Paragraph({
+          spacing: { before: 240, after: 120 },
+          children: [
+            new TextRun({
+              text: 'd) Cálculo de la resistencia del bastidor',
+              bold: true,
+              underline: {},
+            }),
+          ],
+        }),
+        new Paragraph({
+          spacing: { after: 240 },
+          children: [
+            new TextRun(
+              'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el PMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.'
+            ),
+          ],
+        }),
+      ];
+    } else {
+      punto2_2 = [
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 260, after: 120 },
+          children: [
+            new TextRun({
+              text: '2.2- REPARTO DE MASAS SOBRE LOS EJES',
+              bold: true,
+              color: '000000',
+            }),
+          ],
+        }),
+        new Paragraph({
+          spacing: { before: 240, after: 120 },
+          children: [
+            new TextRun({
+              text: 'd) Cálculo de la resistencia del bastidor',
+              bold: true,
+              underline: {},
+            }),
+          ],
+        }),
+        new Paragraph({
+          spacing: { after: 240 },
+          children: [
+            new TextRun(
+              'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el PMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.'
+            ),
+          ],
+        }),
+      ];
+    }
+  }
 
   const punto3 = [
     new Paragraph({ pageBreakBefore: true }),
@@ -2364,9 +4201,11 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   ];
 
   if (tipo === 'camper' || tipo === 'coche') {
-    alto = 400;
+    alto = 200;
+    alto2 = 400;
   } else {
     alto = 350;
+    alto2 = 350;
   }
 
   const punto5 = [
@@ -2406,7 +4245,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         new ImageRun({
           data: imageBuffer3,
           transformation: {
-            width: 500,
+            width: 300,
             height: alto,
           },
           type: 'png',
@@ -2416,7 +4255,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
     new Table({
       alignment: AlignmentType.CENTER,
-      width: { size: 65, type: WidthType.PERCENTAGE },
+      width: { size: 85, type: WidthType.PERCENTAGE },
       rows: [
         ['Longitud total (mm)', data.longitudAntes],
         ['Anchura (mm)', data.anchuraAntes],
@@ -2486,7 +4325,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         new ImageRun({
           data: imageBuffer3,
           transformation: {
-            width: 500,
+            width: 300,
             height: alto,
           },
           type: 'png',
@@ -2496,7 +4335,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
     new Table({
       alignment: AlignmentType.CENTER,
-      width: { size: 65, type: WidthType.PERCENTAGE },
+      width: { size: 85, type: WidthType.PERCENTAGE },
       rows: [
         ['Longitud total (mm)', data.longitudDespues],
         ['Anchura (mm)', data.anchuraDespues],
@@ -2567,7 +4406,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
           data: imageBuffer4,
           transformation: {
             width: 500,
-            height: alto,
+            height: alto2,
           },
           type: 'png',
         }),
@@ -2754,6 +4593,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ...punto1_6_4_Materiales,
       ...punto1_7_Conclusion,
       ...punto2,
+      ...punto2_2,
       ...punto3,
       ...punto4,
       ...punto5,
