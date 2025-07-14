@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-gestionar-taller',
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [FormsModule, HttpClientModule],
   standalone: true,
   templateUrl: './gestionar-taller.component.html',
   styleUrl: './gestionar-taller.component.css',

@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import codigosReforma from '../../../assets/codigos_reforma_vehiculo.json';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-mostrar-secciones',
-  imports: [CommonModule],
+  imports: [],
   standalone: true,
   templateUrl: './mostrar-secciones.component.html',
   styleUrl: './mostrar-secciones.component.css',

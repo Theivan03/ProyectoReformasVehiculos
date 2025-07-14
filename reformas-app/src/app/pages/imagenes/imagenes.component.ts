@@ -1,10 +1,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import loadImage from 'blueimp-load-image';
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-imagenes',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DragDropModule],
   templateUrl: './imagenes.component.html',
   styleUrl: './imagenes.component.css',
 })
@@ -18,8 +24,8 @@ export class ImagenesComponent implements OnInit {
   @Output() continuar = new EventEmitter<any>();
 
   step = 1;
-  prevImages: File[] = [];
-  postImages: File[] = [];
+  prevImages: Blob[] = [];
+  postImages: Blob[] = [];
   prevPreviews: string[] = [];
   postPreviews: string[] = [];
 
@@ -42,36 +48,62 @@ export class ImagenesComponent implements OnInit {
     }
   }
 
-  onPrevSelected(ev: Event) {
+  async onPrevSelected(ev: Event) {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
-
     const files = Array.from(input.files);
-    // Límite de 4 imágenes previas
+
     if (files.length > 4) {
       alert('Solo puedes seleccionar hasta 4 imágenes previas');
-      input.value = ''; // limpia la selección
+      input.value = '';
       return;
     }
 
-    this.prevImages = files;
-    this.prevPreviews = this.prevImages.map((f) => URL.createObjectURL(f));
+    // Normalizamos cada File y construimos previews
+    const blobs = await Promise.all(
+      files.map((f) => this.normalizeOrientation(f))
+    );
+    this.prevImages = blobs;
+    this.prevPreviews = blobs.map((b) => URL.createObjectURL(b));
   }
 
-  onPostSelected(ev: Event) {
+  async onPostSelected(ev: Event) {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
-
     const files = Array.from(input.files);
-    // Límite de 30 imágenes posteriores
+
     if (files.length > 30) {
-      alert('Solo puedes seleccionar hasta 30 imágenes de la reforma');
-      input.value = ''; // limpia la selección
+      alert('Solo puedes seleccionar hasta 30 imágenes posteriores');
+      input.value = '';
       return;
     }
 
-    this.postImages = files;
-    this.postPreviews = this.postImages.map((f) => URL.createObjectURL(f));
+    const blobs = await Promise.all(
+      files.map((f) => this.normalizeOrientation(f))
+    );
+    this.postImages = blobs;
+    this.postPreviews = blobs.map((b) => URL.createObjectURL(b));
+  }
+
+  private normalizeOrientation(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      loadImage(
+        file,
+        (canvasElement) => {
+          if (!(canvasElement instanceof HTMLCanvasElement)) {
+            return reject('No se pudo procesar la imagen');
+          }
+          canvasElement.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject('Error creando Blob desde canvas');
+          }, file.type);
+        },
+        {
+          canvas: true,
+          orientation: true,
+        }
+      );
+    });
   }
 
   next() {
@@ -97,5 +129,53 @@ export class ImagenesComponent implements OnInit {
     this.datosEntrada.prevImages = this.prevImages;
     this.datosEntrada.postImages = this.postImages;
     this.continuar.emit(this.datosEntrada);
+  }
+
+  movePrev(i: number) {
+    if (i === 0) return;
+    [this.prevPreviews[i - 1], this.prevPreviews[i]] = [
+      this.prevPreviews[i],
+      this.prevPreviews[i - 1],
+    ];
+    [this.prevImages[i - 1], this.prevImages[i]] = [
+      this.prevImages[i],
+      this.prevImages[i - 1],
+    ];
+  }
+
+  moveNext(i: number) {
+    if (i === this.prevPreviews.length - 1) return;
+    [this.prevPreviews[i + 1], this.prevPreviews[i]] = [
+      this.prevPreviews[i],
+      this.prevPreviews[i + 1],
+    ];
+    [this.prevImages[i + 1], this.prevImages[i]] = [
+      this.prevImages[i],
+      this.prevImages[i + 1],
+    ];
+  }
+
+  // lo mismo para postImages/postPreviews:
+  movePrevPost(i: number) {
+    if (i === 0) return;
+    [this.postPreviews[i - 1], this.postPreviews[i]] = [
+      this.postPreviews[i],
+      this.postPreviews[i - 1],
+    ];
+    [this.postImages[i - 1], this.postImages[i]] = [
+      this.postImages[i],
+      this.postImages[i - 1],
+    ];
+  }
+  moveNextPost(i: number) {
+    if (i === this.postPreviews.length - 1) return;
+    [this.postPreviews[i + 1], this.postPreviews[i]] = [
+      this.postPreviews[i],
+      this.postPreviews[i + 1],
+    ];
+    [this.postImages[i + 1], this.postImages[i]] = [
+      this.postImages[i],
+      this.postImages[i + 1],
+    ];
   }
 }

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   EventEmitter,
@@ -11,7 +11,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-resumen-modificaciones',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './resumen-modificaciones.component.html',
   styleUrl: './resumen-modificaciones.component.css',
 })

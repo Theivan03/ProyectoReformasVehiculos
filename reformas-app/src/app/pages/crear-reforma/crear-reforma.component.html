@@ -7,77 +7,87 @@
 
 <!-- Aquí irá el formulario o los pasos siguientes -->
 <div class="container mt-4">
-  <app-seleccion-secciones
-    *ngIf="mostrarSeleccion"
-    [seccionesPreseleccionadas]="codigosPreseleccionados"
-    (continuar)="onContinuar($event)"
-  >
-  </app-seleccion-secciones>
+  @if (mostrarSeleccion) {
+    <app-seleccion-secciones
+      [seccionesPreseleccionadas]="codigosPreseleccionados"
+      (continuar)="onContinuar($event)"
+      >
+    </app-seleccion-secciones>
+  }
 
-  <app-mostrar-secciones
-    *ngIf="mostrarSubSelecciones"
-    [secciones]="seccionesSeleccionadas"
-    [respuestas]="respuestasGuardadas"
-    (volverASeleccion)="mostrarSeleccion = true; mostrarSubSelecciones = false"
-    (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
-  >
-  </app-mostrar-secciones>
+  @if (mostrarSubSelecciones) {
+    <app-mostrar-secciones
+      [secciones]="seccionesSeleccionadas"
+      [respuestas]="respuestasGuardadas"
+      (volverASeleccion)="mostrarSeleccion = true; mostrarSubSelecciones = false"
+      (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
+      >
+    </app-mostrar-secciones>
+  }
 
-  <app-formulario-proyecto
-    *ngIf="mostrarFormularioProyecto"
-    [respuestas]="respuestasGuardadas"
-    [datosIniciales]="datosFormularioGuardados"
-    (volverAReforma)="onVolverDesdeFormulario($event)"
-    (finalizarFormulario)="onFinalizarFormulario($event)"
-  ></app-formulario-proyecto>
+  @if (mostrarFormularioProyecto) {
+    <app-formulario-proyecto
+      [respuestas]="respuestasGuardadas"
+      [datosIniciales]="datosFormularioGuardados"
+      (volverAReforma)="onVolverDesdeFormulario($event)"
+      (finalizarFormulario)="onFinalizarFormulario($event)"
+    ></app-formulario-proyecto>
+  }
 
-  <app-reformas-previas
-    *ngIf="mostrarReformasPrevias"
-    [datos]="datosGenerales"
-    (continuar)="onContinuarDesdeReformasPrevias($event)"
-    (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
-  >
-  </app-reformas-previas>
+  @if (mostrarReformasPrevias) {
+    <app-reformas-previas
+      [datos]="datosGenerales"
+      (continuar)="onContinuarDesdeReformasPrevias($event)"
+      (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
+      >
+    </app-reformas-previas>
+  }
 
-  <app-tipo-vehiculo
-    *ngIf="mostrarTipoVehiculo"
-    [datosPrevios]="datosGuardadosTipoVehiculo"
-    (continuar)="onContinuarTipoVehiculo($event)"
-    (volver)="onVolverDesdeTipoVehiculo($event)"
-  ></app-tipo-vehiculo>
+  @if (mostrarTipoVehiculo) {
+    <app-tipo-vehiculo
+      [datosPrevios]="datosGuardadosTipoVehiculo"
+      (continuar)="onContinuarTipoVehiculo($event)"
+      (volver)="onVolverDesdeTipoVehiculo($event)"
+    ></app-tipo-vehiculo>
+  }
 
-  <app-resumen-modificaciones
-    *ngIf="mostrarResumenModificaciones"
-    [datosEntrada]="datosResumenModificaciones"
-    (volver)="onVolverDesdeResumenModificaciones($event)"
-    (continuar)="onContinuarDesdeResumenModificaciones($event)"
-  ></app-resumen-modificaciones>
+  @if (mostrarResumenModificaciones) {
+    <app-resumen-modificaciones
+      [datosEntrada]="datosResumenModificaciones"
+      (volver)="onVolverDesdeResumenModificaciones($event)"
+      (continuar)="onContinuarDesdeResumenModificaciones($event)"
+    ></app-resumen-modificaciones>
+  }
 
-  <app-cocheono
-    *ngIf="mostrarCocheOno"
-    [datosEntrada]="datosResumenModificaciones"
-    (volver)="onVolverDesdeCocheONo($event)"
-    (continuar)="onContinuarDesdeCocheONo($event)"
-  ></app-cocheono>
+  @if (mostrarCocheOno) {
+    <app-cocheono
+      [datosEntrada]="datosResumenModificaciones"
+      (volver)="onVolverDesdeCocheONo($event)"
+      (continuar)="onContinuarDesdeCocheONo($event)"
+    ></app-cocheono>
+  }
 
-  <app-canva
-    *ngIf="mostrarCanva"
-    [datosEntrada]="datosResumenModificaciones"
-    (volver)="onVolverDesdeCanva()"
-    (continuar)="onContinuarDesdeCanva($event)"
-  ></app-canva>
+  @if (mostrarCanva) {
+    <app-canva
+      [datosEntrada]="datosResumenModificaciones"
+      (volver)="onVolverDesdeCanva()"
+      (continuar)="onContinuarDesdeCanva($event)"
+    ></app-canva>
+  }
 
-  <app-imagenes
-    *ngIf="mostrarImagenes"
-    [datosEntrada]="datosGenerales"
-    (volver)="onVolverDesdeImagenes($event)"
-    (continuar)="onContinuarDesdeImagenes($event)"
-  >
-  </app-imagenes>
+  @if (mostrarImagenes) {
+    <app-imagenes
+      [datosEntrada]="datosGenerales"
+      (volver)="onVolverDesdeImagenes($event)"
+      (continuar)="onContinuarDesdeImagenes($event)"
+      >
+    </app-imagenes>
+  }
 
-  <app-generador-documentos
-    *ngIf="mostrarGenerador"
-    [reformaData]="datosGenerales"
-    (volverAlFormulario)="onVolverDesdeGenerador($event)"
-  ></app-generador-documentos>
+  @if (mostrarGenerador) {
+    <app-generador-documentos
+      [reformaData]="datosGenerales"
+      (volverAlFormulario)="onVolverDesdeGenerador($event)"
+    ></app-generador-documentos>
+  }
 </div>

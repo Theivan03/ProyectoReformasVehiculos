@@ -10,7 +10,7 @@
   </h5>
 
   <!-- STEP 1 -->
-  <div *ngIf="step === 1">
+  <ng-container *ngIf="step === 1">
     <label class="form-label">
       Sube las imágenes <strong>previas</strong> de las reformas realizadas:
     </label>
@@ -22,15 +22,44 @@
       multiple
     />
 
-    <!-- Grid Bootstrap con ratio 1x1 -->
     <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
-      <div class="col" *ngFor="let src of prevPreviews">
-        <div class="ratio ratio-1x1">
+      <div class="col" *ngFor="let preview of prevPreviews; let i = index">
+        <div class="ratio ratio-1x1 position-relative">
           <img
-            [src]="src"
+            [src]="preview"
             class="img-fluid object-fit-cover rounded shadow-sm"
-            alt="preview"
+            alt="preview {{ i + 1 }}"
           />
+          <div
+            class="position-absolute bottom-0 start-50 translate-middle-x mb-1"
+          >
+            <button
+              type="button"
+              class="btn btn-sm text-white m-1"
+              [disabled]="i === 0"
+              (click)="movePrev(i)"
+              aria-label="Subir imagen"
+              style="
+                background-color: rgba(0, 123, 255, 0.8);
+                border-color: rgba(0, 123, 255, 0.8);
+              "
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm text-white"
+              [disabled]="i === prevPreviews.length - 1"
+              (click)="moveNext(i)"
+              aria-label="Bajar imagen"
+              style="
+                background-color: rgba(0, 123, 255, 0.8);
+                border-color: rgba(0, 123, 255, 0.8);
+              "
+            >
+              ↓
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -47,10 +76,10 @@
         Siguiente →
       </button>
     </div>
-  </div>
+  </ng-container>
 
   <!-- STEP 2 -->
-  <div *ngIf="step === 2">
+  <ng-container *ngIf="step === 2">
     <label class="form-label">
       Sube las imágenes de las reformas realizadas:
     </label>
@@ -62,15 +91,44 @@
       multiple
     />
 
-    <!-- Grid Bootstrap con ratio 1x1 -->
     <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
-      <div class="col" *ngFor="let src of postPreviews">
-        <div class="ratio ratio-1x1">
+      <div class="col" *ngFor="let preview of postPreviews; let i = index">
+        <div class="ratio ratio-1x1 position-relative">
           <img
-            [src]="src"
+            [src]="preview"
             class="img-fluid object-fit-cover rounded shadow-sm"
-            alt="preview"
+            alt="preview {{ i + 1 }}"
           />
+          <div
+            class="position-absolute bottom-0 start-50 translate-middle-x mb-1"
+          >
+            <!-- <button
+              type="button"
+              class="btn btn-sm text-white"
+              [disabled]="i === 0"
+              (click)="movePrevPost(i)"
+              aria-label="Subir imagen"
+              style="
+                background-color: rgba(0, 123, 255, 0.8);
+                border-color: rgba(0, 123, 255, 0.8);
+              "
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm text-white"
+              [disabled]="i === postPreviews.length - 1"
+              (click)="moveNextPost(i)"
+              aria-label="Bajar imagen"
+              style="
+                background-color: rgba(0, 123, 255, 0.8);
+                border-color: rgba(0, 123, 255, 0.8);
+              "
+            >
+              ↓
+            </button> -->
+          </div>
         </div>
       </div>
     </div>
@@ -87,5 +145,5 @@
         Guardar imágenes
       </button>
     </div>
-  </div>
+  </ng-container>
 </div>

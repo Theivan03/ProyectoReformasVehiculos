@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import opciones from '../../../assets/opciones_reforma_vehiculos.json';
 
 @Component({
   selector: 'app-seleccion-secciones',
-  imports: [CommonModule],
+  imports: [],
   standalone: true,
   templateUrl: './seleccion-secciones.component.html',
   styleUrl: './seleccion-secciones.component.css',

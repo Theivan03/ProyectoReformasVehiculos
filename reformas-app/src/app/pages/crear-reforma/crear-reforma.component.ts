@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { SeleccionSeccionesComponent } from '../seleccion-secciones/seleccion-secciones.component';
 import { MostrarSeccionesComponent } from '../mostrar-secciones/mostrar-secciones.component';
@@ -15,7 +15,6 @@ import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-crear-reforma',
   imports: [
-    CommonModule,
     SeleccionSeccionesComponent,
     MostrarSeccionesComponent,
     FormularioProyectoComponent,
@@ -25,8 +24,8 @@ import { HttpClient } from '@angular/common/http';
     ResumenModificacionesComponent,
     CocheonoComponent,
     CanvaComponent,
-    ImagenesComponent,
-  ],
+    ImagenesComponent
+],
   standalone: true,
   templateUrl: './crear-reforma.component.html',
   styleUrl: './crear-reforma.component.css',

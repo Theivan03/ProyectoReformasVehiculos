@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-reformas-previas',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './reformas-previas.component.html',
   styleUrl: './reformas-previas.component.css',
 })

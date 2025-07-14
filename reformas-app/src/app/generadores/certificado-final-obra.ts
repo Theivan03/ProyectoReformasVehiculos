@@ -21,11 +21,13 @@ import ingeniero from '../../assets/ingeniero.json';
 import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
 import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
+import loadImage from 'blueimp-load-image';
 
 interface ImageInfo {
   buffer: ArrayBuffer;
   width: number;
   height: number;
+  mimeType: string;
 }
 
 export async function generarDocumentoFinalObra(data: any): Promise<void> {
@@ -840,70 +842,106 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
   }
 
   // Función auxiliar para construir la tabla 2×N
+  function normalizeOrientation(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      loadImage(
+        file,
+        (canvas) => {
+          if (!(canvas instanceof HTMLCanvasElement)) {
+            return reject('Error al procesar imagen');
+          }
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject('No se pudo generar Blob');
+          }, file.type);
+        },
+        { canvas: true, orientation: true }
+      );
+    });
+  }
+
+  function mimeToExt(mime: string): 'jpg' | 'png' | 'gif' | 'bmp' {
+    const sub = mime.split('/')[1]?.toLowerCase();
+    switch (sub) {
+      case 'jpeg':
+      case 'pjpeg':
+        return 'jpg';
+      case 'png':
+        return 'png';
+      case 'gif':
+        return 'gif';
+      case 'bmp':
+        return 'bmp';
+      default:
+        return 'png'; // nunca devolvemos 'svg'
+    }
+  }
+
+  // Función auxiliar para construir la tabla 2×N
   async function generarPrevios(data: any): Promise<(Paragraph | Table)[]> {
-    // 2) Leemos los archivos File[] y extraemos buffer + dimensiones naturales
-    const prevFiles = data.prevImages as File[];
+    // 1) Normalizar orientación de los 4 primeros File a Blob
+    const raw = (data.prevImages as File[]).slice(0, 4);
+    const blobs = await Promise.all(raw.map((f) => normalizeOrientation(f)));
+
+    // 2) Extraer buffer, dimensiones y mimeType
     const infos: ImageInfo[] = await Promise.all(
-      prevFiles.map(async (file) => {
-        const buffer = await file.arrayBuffer();
-        // para medir dimensiones sin servidor
-        const blob = new Blob([buffer], { type: file.type });
+      blobs.map(async (blob) => {
+        const buffer = await blob.arrayBuffer();
         const url = URL.createObjectURL(blob);
         const img = new Image();
         await new Promise<void>((res, rej) => {
           img.onload = () => res();
-          img.onerror = () => rej(new Error('Error cargando imagen'));
+          img.onerror = () => rej('No cargó la imagen');
           img.src = url;
         });
         URL.revokeObjectURL(url);
-        return { buffer, width: img.naturalWidth, height: img.naturalHeight };
+        return {
+          buffer,
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+          mimeType: blob.type,
+        };
       })
     );
 
-    // 3) Creamos los dos párrafos iniciales
-    const saltoDePagina = new Paragraph({ pageBreakBefore: true });
-    const anexoPreviosTitle = new Paragraph({
+    // 3) Párrafos iniciales
+    const salto = new Paragraph({ pageBreakBefore: true });
+    const title = new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { after: 300 },
       children: [
         new TextRun({
           text: 'Anexo 2. Fotografías del vehículo antes de la reforma',
           bold: true,
-          color: '000000',
         }),
       ],
     });
 
-    // 4) Función que construye la tabla 3 filas a partir de ImageInfo[]
+    // 4) Construir tabla 2×1 + 1×2 + 1×2
     function buildPreviosTable(images: ImageInfo[]): Table {
-      // Máximo ancho/alto (en puntos) que admitirá cada celda de foto única
-      const maxSingleW = 300;
-      const maxSingleH = 200;
-      // Máximo ancho/alto para las fotos que abarcan dos columnas
-      const maxDoubleW = maxSingleW * 2 + 20;
-      const maxDoubleH = 275;
-
-      const scale = (img: ImageInfo, maxW: number, maxH: number) => {
-        const s = Math.min(maxW / img.width, maxH / img.height, 1);
+      const maxW1 = 300,
+        maxH1 = 200;
+      const maxW2 = maxW1 * 2 + 20,
+        maxH2 = 275;
+      const scale = (info: ImageInfo, mw: number, mh: number) => {
+        const s = Math.min(mw / info.width, mh / info.height, 1);
         return {
-          width: Math.round(img.width * s),
-          height: Math.round(img.height * s),
+          width: Math.round(info.width * s),
+          height: Math.round(info.height * s),
         };
       };
 
       const rows: TableRow[] = [];
 
-      // Fila 1: 2 imágenes lado a lado (infos[0], infos[1])
+      // Fila 1: dos celdas al 50%
       {
-        const left = images[0];
-        const right = images[1];
-        const sL = scale(left, maxSingleW, maxSingleH);
-        const sR = scale(right, maxSingleW, maxSingleH);
-
+        const [L, R] = images;
+        const sL = scale(L, maxW1, maxH1);
+        const sR = scale(R, maxW1, maxH1);
         rows.push(
           new TableRow({
-            children: [left, right].map(
-              (imgInfo, i) =>
+            children: [L, R].map(
+              (info, i) =>
                 new TableCell({
                   width: { size: 50, type: WidthType.PERCENTAGE },
                   margins: { top: 50, bottom: 50, left: 50, right: 50 },
@@ -918,9 +956,9 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new ImageRun({
-                          data: imgInfo.buffer,
+                          data: info.buffer,
                           transformation: i === 0 ? sL : sR,
-                          type: 'png',
+                          type: mimeToExt(info.mimeType),
                         }),
                       ],
                     }),
@@ -931,10 +969,10 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
         );
       }
 
-      // Fila 2: foto 3, spanning 2 columnas
+      // Fila 2: imagen 3 spanning 2 columnas
       {
-        const imgInfo = images[2];
-        const s = scale(imgInfo, maxDoubleW, maxDoubleH);
+        const I = images[2],
+          s = scale(I, maxW2, maxH2);
         rows.push(
           new TableRow({
             children: [
@@ -953,9 +991,9 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                     alignment: AlignmentType.CENTER,
                     children: [
                       new ImageRun({
-                        data: imgInfo.buffer,
+                        data: I.buffer,
                         transformation: s,
-                        type: 'png',
+                        type: mimeToExt(I.mimeType),
                       }),
                     ],
                   }),
@@ -966,10 +1004,10 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
         );
       }
 
-      // Fila 3: foto 4, también span=2
+      // Fila 3: imagen 4 spanning 2 columnas
       {
-        const imgInfo = images[3];
-        const s = scale(imgInfo, maxDoubleW, maxDoubleH);
+        const I = images[3],
+          s = scale(I, maxW2, maxH2);
         rows.push(
           new TableRow({
             children: [
@@ -988,9 +1026,9 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                     alignment: AlignmentType.CENTER,
                     children: [
                       new ImageRun({
-                        data: imgInfo.buffer,
+                        data: I.buffer,
                         transformation: s,
-                        type: 'png',
+                        type: mimeToExt(I.mimeType),
                       }),
                     ],
                   }),
@@ -1015,29 +1053,23 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       });
     }
 
-    // 5) Generamos la tabla pasando **infos** (nunca `data`)
     const prevTable = buildPreviosTable(infos);
-
-    // 6) Devolvemos el array de nodos que luego incluirás en tu sección
-    return [saltoDePagina, anexoPreviosTitle, prevTable];
+    return [salto, title, prevTable];
   }
 
   const anexosPrevios = await generarPrevios(data);
 
-  // Función auxiliar para construir la tabla 2×N
   async function generarPosteriores(data: any): Promise<(Paragraph | Table)[]> {
-    // 1) Lee buffers + dimensiones naturales
-    const prevFiles = data.postImages as File[];
-    interface ImageInfo {
-      buffer: ArrayBuffer;
-      width: number;
-      height: number;
-    }
+    // Normalizas los File a Blob rotados
+    const rawFiles = data.postImages as File[];
+    const orientedBlobs = await Promise.all(
+      rawFiles.map((f) => normalizeOrientation(f))
+    );
 
+    // 2) Aquí lees el arrayBuffer y guardas también el mimeType
     const infos: ImageInfo[] = await Promise.all(
-      prevFiles.map(async (file) => {
-        const buffer = await file.arrayBuffer();
-        const blob = new Blob([buffer], { type: file.type });
+      orientedBlobs.map(async (blob) => {
+        const buffer = await blob.arrayBuffer();
         const url = URL.createObjectURL(blob);
         const img = new Image();
         await new Promise<void>((res, rej) => {
@@ -1046,28 +1078,19 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           img.src = url;
         });
         URL.revokeObjectURL(url);
-        return { buffer, width: img.naturalWidth, height: img.naturalHeight };
+        return {
+          buffer,
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+          mimeType: blob.type,
+        };
       })
     );
 
-    const saltoDePagina = new Paragraph({ pageBreakBefore: true });
-    const anexoPreviosTitle = new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 300 },
-      children: [
-        new TextRun({
-          text: 'Anexo 3. Fotografías de la reforma',
-          bold: true,
-          color: '000000',
-        }),
-      ],
-    });
+    // ... tus Paragraphs de título, pageBreak, etc. ...
 
-    // 2) Tabla 2×N con escalado proporcional
     function buildPreviosTable(images: ImageInfo[]): Table {
       const rows: TableRow[] = [];
-
-      // Máximos en puntos (aprox. 1px = 1pt aquí para simplificar)
       const maxCellWidth = 300;
       const maxCellHeight = 250;
 
@@ -1075,7 +1098,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
         const left = images[i];
         const right = images[i + 1];
 
-        // Escalado proporcional de la izquierda
+        // escalados igual que antes...
         const scaleL = Math.min(
           maxCellWidth / left.width,
           maxCellHeight / left.height,
@@ -1084,7 +1107,6 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
         const wL = Math.round(left.width * scaleL);
         const hL = Math.round(left.height * scaleL);
 
-        // Escalado proporcional de la derecha (si existe)
         let wR = 0,
           hR = 0;
         if (right) {
@@ -1117,16 +1139,15 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                       new ImageRun({
                         data: left.buffer,
                         transformation: { width: wL, height: hL },
-                        type: 'png',
+                        type: mimeToExt(left.mimeType),
                       }),
                     ],
                   }),
                 ],
               }),
-
               new TableCell({
-                width: { size: 50, type: WidthType.PERCENTAGE },
                 verticalAlign: AlignmentType.CENTER,
+                width: { size: 50, type: WidthType.PERCENTAGE },
                 margins: { top: 50, bottom: 50, left: 50, right: 50 },
                 borders: {
                   top: { style: BorderStyle.NONE, size: 0 },
@@ -1142,7 +1163,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                           new ImageRun({
                             data: right.buffer,
                             transformation: { width: wR, height: hR },
-                            type: 'png',
+                            type: mimeToExt(right.mimeType),
                           }),
                         ],
                       }),
@@ -1169,7 +1190,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     }
 
     const prevTable = buildPreviosTable(infos);
-    return [saltoDePagina, anexoPreviosTitle, prevTable];
+    return [prevTable];
   }
 
   const anexosPorsteriores = await generarPosteriores(data);

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, NgForm } from '@angular/forms';
 import {
   Component,
@@ -20,7 +20,7 @@ interface UltimoProyectoResp {
 @Component({
   selector: 'app-formulario-proyecto',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [FormsModule, HttpClientModule],
   templateUrl: './formulario-proyecto.component.html',
   styleUrl: './formulario-proyecto.component.css',
 })

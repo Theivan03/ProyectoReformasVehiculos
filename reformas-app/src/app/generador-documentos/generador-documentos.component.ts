@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { generarDocumentoProyecto } from '../generadores/proyecto-word';
 import { generarDocumentoFinalObra } from '../generadores/certificado-final-obra';
@@ -9,7 +9,7 @@ import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-generador-documentos',
-  imports: [CommonModule],
+  imports: [],
   standalone: true,
   templateUrl: './generador-documentos.component.html',
   styleUrl: './generador-documentos.component.css',

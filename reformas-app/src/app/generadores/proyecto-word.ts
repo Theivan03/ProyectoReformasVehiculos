@@ -28,8 +28,15 @@ import {
   buildModificacionesParagraphs,
   generarDocumentoProyectoParagraphs,
   generarTablaLeyenda,
-  generarDocumentoConWordArt,
 } from '../Funciones/buildModificacionesParagraphs';
+import loadImage from 'blueimp-load-image';
+
+interface ImageInfo {
+  buffer: ArrayBuffer;
+  width: number;
+  height: number;
+  mimeType: string;
+}
 
 export async function generarDocumentoProyecto(data: any): Promise<void> {
   const response = await fetch('assets/logo.png');
@@ -4427,19 +4434,52 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }),
   ];
 
-  async function generarPosteriores(data: any): Promise<(Paragraph | Table)[]> {
-    // 1) Lee buffers + dimensiones naturales
-    const prevFiles = data.postImages as File[];
-    interface ImageInfo {
-      buffer: ArrayBuffer;
-      width: number;
-      height: number;
-    }
+  function normalizeOrientation(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      loadImage(
+        file,
+        (canvas) => {
+          if (!(canvas instanceof HTMLCanvasElement)) {
+            return reject('Error al procesar imagen');
+          }
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject('No se pudo generar Blob');
+          }, file.type);
+        },
+        { canvas: true, orientation: true }
+      );
+    });
+  }
 
+  function mimeToExt(mime: string): 'jpg' | 'png' | 'gif' | 'bmp' {
+    const sub = mime.split('/')[1]?.toLowerCase();
+    switch (sub) {
+      case 'jpeg':
+      case 'pjpeg':
+        return 'jpg';
+      case 'png':
+        return 'png';
+      case 'gif':
+        return 'gif';
+      case 'bmp':
+        return 'bmp';
+      default:
+        return 'png'; // nunca devolvemos 'svg'
+    }
+  }
+
+  async function generarPosteriores(data: any): Promise<(Paragraph | Table)[]> {
+    // Normalizas los File a Blob rotados
+    const rawFiles = data.postImages as File[];
+    const orientedBlobs = await Promise.all(
+      rawFiles.map((f) => normalizeOrientation(f))
+    );
+
+    // 2) Aquí lees el arrayBuffer y guardas también el mimeType
     const infos: ImageInfo[] = await Promise.all(
-      prevFiles.map(async (file) => {
-        const buffer = await file.arrayBuffer();
-        const blob = new Blob([buffer], { type: file.type });
+      orientedBlobs.map(async (blob) => {
+        const buffer = await blob.arrayBuffer();
         const url = URL.createObjectURL(blob);
         const img = new Image();
         await new Promise<void>((res, rej) => {
@@ -4448,28 +4488,19 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
           img.src = url;
         });
         URL.revokeObjectURL(url);
-        return { buffer, width: img.naturalWidth, height: img.naturalHeight };
+        return {
+          buffer,
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+          mimeType: blob.type,
+        };
       })
     );
 
-    const saltoDePagina = new Paragraph({ pageBreakBefore: true });
-    const anexoPreviosTitle = new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 300 },
-      children: [
-        new TextRun({
-          text: 'Anexo 3. Fotografías de la reforma',
-          bold: true,
-          color: '000000',
-        }),
-      ],
-    });
+    // ... tus Paragraphs de título, pageBreak, etc. ...
 
-    // 2) Tabla 2×N con escalado proporcional
     function buildPreviosTable(images: ImageInfo[]): Table {
       const rows: TableRow[] = [];
-
-      // Máximos en puntos (aprox. 1px = 1pt aquí para simplificar)
       const maxCellWidth = 300;
       const maxCellHeight = 250;
 
@@ -4477,7 +4508,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         const left = images[i];
         const right = images[i + 1];
 
-        // Escalado proporcional de la izquierda
+        // escalados igual que antes...
         const scaleL = Math.min(
           maxCellWidth / left.width,
           maxCellHeight / left.height,
@@ -4486,7 +4517,6 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
         const wL = Math.round(left.width * scaleL);
         const hL = Math.round(left.height * scaleL);
 
-        // Escalado proporcional de la derecha (si existe)
         let wR = 0,
           hR = 0;
         if (right) {
@@ -4519,16 +4549,15 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       new ImageRun({
                         data: left.buffer,
                         transformation: { width: wL, height: hL },
-                        type: 'png',
+                        type: mimeToExt(left.mimeType),
                       }),
                     ],
                   }),
                 ],
               }),
-
               new TableCell({
-                width: { size: 50, type: WidthType.PERCENTAGE },
                 verticalAlign: AlignmentType.CENTER,
+                width: { size: 50, type: WidthType.PERCENTAGE },
                 margins: { top: 50, bottom: 50, left: 50, right: 50 },
                 borders: {
                   top: { style: BorderStyle.NONE, size: 0 },
@@ -4544,7 +4573,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                           new ImageRun({
                             data: right.buffer,
                             transformation: { width: wR, height: hR },
-                            type: 'png',
+                            type: mimeToExt(right.mimeType),
                           }),
                         ],
                       }),
@@ -4571,7 +4600,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     }
 
     const prevTable = buildPreviosTable(infos);
-    return [saltoDePagina, anexoPreviosTitle, prevTable];
+    return [prevTable];
   }
 
   const anexosPorsteriores = await generarPosteriores(data);

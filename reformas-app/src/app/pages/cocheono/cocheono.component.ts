@@ -1,11 +1,11 @@
 import { FormsModule, NgForm } from '@angular/forms';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-cocheono',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './cocheono.component.html',
   styleUrl: './cocheono.component.css',
 })
