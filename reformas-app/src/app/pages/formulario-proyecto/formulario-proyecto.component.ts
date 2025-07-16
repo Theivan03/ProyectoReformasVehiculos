@@ -1,4 +1,3 @@
-
 import { FormsModule, NgForm } from '@angular/forms';
 import {
   Component,
@@ -10,25 +9,31 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-interface UltimoProyectoResp {
-  siguiente: number;
-  año: number;
-}
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-formulario-proyecto',
   standalone: true,
-  imports: [FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './formulario-proyecto.component.html',
   styleUrl: './formulario-proyecto.component.css',
 })
 export class FormularioProyectoComponent implements OnChanges {
   paginaActual = 1;
-  totalPaginas = 5;
 
   talleres: any[] = [];
+
+  get necesitaPasoExtra(): boolean {
+    const mma = parseFloat(this.datos.momAntes as any) || 0;
+    const masa = parseFloat(this.datos.masaRealDespues as any) || 0;
+    const extra = !!mma && !!masa && Math.abs(mma - masa) / mma > 0.03;
+    return extra;
+  }
+
+  /** Total de páginas dinámico: 5 o 6 */
+  get totalPaginas(): number {
+    return this.necesitaPasoExtra ? 6 : 5;
+  }
 
   datos: any = {
     numeroProyecto: '',
@@ -58,15 +63,15 @@ export class FormularioProyectoComponent implements OnChanges {
     viaDelanteraAntes: '---',
     viaTraseraAntes: '---',
     neumaticoAntes: '---',
-    momAntes: '---',
-    mmaAntes: '---',
-    mmaEje1Antes: '---',
-    mmaEje2Antes: '---',
-    mmaConjuntoAntes: '---',
-    mmrbarradetraccion: '---',
-    mmrejecentral: '---',
-    mmrsinfrenos: '---',
-    cargavertical: '---',
+    momAntes: '1000',
+    mmaAntes: '1',
+    mmaEje1Antes: '2',
+    mmaEje2Antes: '3',
+    mmaConjuntoAntes: '4',
+    mmrbarradetraccion: '5',
+    mmrejecentral: '6',
+    mmrsinfrenos: '7',
+    cargavertical: '8',
     clasificacionAntes: '---',
     plazasDespues: '---',
     plazasAntes: '---',
@@ -77,24 +82,35 @@ export class FormularioProyectoComponent implements OnChanges {
     viaDelanteraDespues: '---',
     viaTraseraDespues: '---',
     neumaticoDespues: '---',
-    masaRealDespues: '---',
-    mmaDespues: '---',
-    mmaEje1Despues: '---',
-    mmaEje2Despues: '---',
-    mmaConjuntoDespues: '---',
+    masaRealDespues: '2000',
+    mmaDespues: '123',
+    mmaEje1Despues: '123',
+    mmaEje2Despues: '123',
+    mmaConjuntoDespues: '123',
     clasificacionDespues: '---',
-    mmrbarradetraccionDespues: '---',
-    mmrejecentralDespues: '---',
-    mmrsinfrenosDespues: '---',
-    cargaverticalDespues: '---',
+    mmrbarradetraccionDespues: '321',
+    mmrejecentralDespues: '321',
+    mmrsinfrenosDespues: '321',
+    cargaverticalDespues: '321',
     velocidadMaxima: '---',
     materialesUsados: 0,
     manoDeObra: 0,
     totalPresupuesto: 0,
     fechaProyecto: null,
     tipoVehiculo: null,
+    taraTotal: 1,
+    taraDelante: 2,
+    taraDetras: 3,
+    asientosDelanteros: 4,
+    asientos2Fila: 5,
+    asientos3Fila: 6,
+    cargaUtilTotal: 7,
+    distanciaEntreEjes: 10,
+    ocupantesAdicionales: 11,
     modificaciones: [],
   };
+
+  año: string = '';
 
   @Input() respuestas: any;
   @Output() volverAReforma = new EventEmitter<any>();
@@ -105,7 +121,14 @@ export class FormularioProyectoComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['datosIniciales'] && this.datosIniciales) {
+      const anteriorNumero = this.datos?.numeroProyecto;
+
       this.datos = { ...this.datosIniciales };
+
+      if (this.datos.numeroProyecto !== anteriorNumero) {
+        this.generarReferencia(this.año);
+      }
+
       if (this.datos.paginaActual) {
         this.paginaActual = this.datos.paginaActual;
       }
@@ -155,11 +178,17 @@ export class FormularioProyectoComponent implements OnChanges {
       .subscribe({
         next: (data) => {
           console.log(data);
+          this.año = data.año;
           this.datos.numeroProyecto = data.siguiente;
           this.generarReferencia(data.año);
         },
         error: (err) => console.error('Error al cargar último proyecto:', err),
       });
+  }
+
+  onNumeroProyectoChange(valor: any): void {
+    this.datos.numeroProyecto = valor;
+    this.generarReferencia(this.año);
   }
 
   actualizarTotal(): void {
@@ -170,12 +199,21 @@ export class FormularioProyectoComponent implements OnChanges {
 
   siguiente(): void {
     if (!this.validarPaginaActual()) {
-      return; // No avanzar si hay errores
+      return;
     }
-
-    if (this.paginaActual < this.totalPaginas) {
+    // Si estamos en 4 y necesitamos la extra, vamos a 5; si no, saltamos a 6
+    if (this.paginaActual === 4 && this.necesitaPasoExtra) {
+      this.paginaActual = 5;
+    } else if (this.paginaActual === 4 || this.paginaActual === 5) {
+      // 4 sin extra o 5 (extra) siempre llevan al presupuesto (nuevo 6 o antiguo 5)
+      this.paginaActual = this.totalPaginas;
+    } else if (this.paginaActual === 6) {
+      this.enviarFormulario();
+    } else {
       this.paginaActual++;
     }
+
+    console.log(this.paginaActual);
   }
 
   @ViewChild('formulario') formulario!: NgForm;
@@ -190,8 +228,11 @@ export class FormularioProyectoComponent implements OnChanges {
     return !!this.formulario.valid;
   }
 
-  anterior() {
-    if (this.paginaActual === 1) {
+  anterior(): void {
+    if (this.paginaActual === this.totalPaginas && this.necesitaPasoExtra) {
+      // desde 6 volvemos al extra (5)
+      this.paginaActual = 5;
+    } else if (this.paginaActual === 1) {
       // Asignamos el taller antes del emit
       this.datos.taller = this.datos.tallerSeleccionado;
 
@@ -215,6 +256,7 @@ export class FormularioProyectoComponent implements OnChanges {
   }
 
   generarReferencia(año: any): void {
+    console.log('🧠 generando referencia con año:', año);
     const añoCorto = año.toString().slice(-2);
     this.datos.referenciaProyecto = `PTRV ${this.datos.numeroProyecto}/${añoCorto}`;
     this.datos.referenciaCFO = `CFO ${this.datos.numeroProyecto}/${añoCorto}`;

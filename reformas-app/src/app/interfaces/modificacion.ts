@@ -334,4 +334,13 @@ export interface Modificacion {
   dimensionesTaloneras?: string;
   accion?: 'instalacion' | 'sustitucion' | 'desmontaje';
   posicionNeumaticoMoto?: 'delantero' | 'trasero' | 'delantero y trasero';
+  taraTotal?: number;
+  taraDelante?: number;
+  taraDetras?: number;
+  asientosDelanteros?: number;
+  asientos2Fila?: number;
+  asientos3Fila?: number;
+  cargaUtilTotal?: number;
+  distanciaEntreEjes?: number;
+  ocupantesAdicionales?: number;
 }

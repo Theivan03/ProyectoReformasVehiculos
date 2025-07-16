@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import codigosReforma from '../../../assets/codigos_reforma_vehiculo.json';
 
-
 @Component({
   selector: 'app-mostrar-secciones',
   imports: [],
@@ -27,6 +26,14 @@ export class MostrarSeccionesComponent implements OnInit {
       );
       return { ...s, opciones: codigos };
     });
+
+    for (let i = this.seccionesFiltradas.length - 1; i >= 0; i--) {
+      const codigo = this.seccionesFiltradas[i].codigo;
+      if (this.respuestas[codigo] && this.respuestas[codigo].length > 0) {
+        this.indiceActual = i;
+        break;
+      }
+    }
   }
 
   isOpcionSeleccionada(seccionCodigo: string, opcionCodigo: string): boolean {

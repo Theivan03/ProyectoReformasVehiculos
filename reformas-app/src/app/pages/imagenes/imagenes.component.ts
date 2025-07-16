@@ -28,6 +28,8 @@ export class ImagenesComponent implements OnInit {
   postImages: Blob[] = [];
   prevPreviews: string[] = [];
   postPreviews: string[] = [];
+  errorPrevImagesCount = false;
+  errorPostImagesCount = false;
 
   ngOnInit(): void {
     // Restaurar paso si venimos del siguiente componente
@@ -53,8 +55,8 @@ export class ImagenesComponent implements OnInit {
     if (!input.files) return;
     const files = Array.from(input.files);
 
-    if (files.length > 4) {
-      alert('Solo puedes seleccionar hasta 4 imágenes previas');
+    if (files.length < 4 || files.length > 4) {
+      this.errorPrevImagesCount = true;
       input.value = '';
       return;
     }
@@ -73,7 +75,7 @@ export class ImagenesComponent implements OnInit {
     const files = Array.from(input.files);
 
     if (files.length > 30) {
-      alert('Solo puedes seleccionar hasta 30 imágenes posteriores');
+      this.errorPrevImagesCount = true;
       input.value = '';
       return;
     }

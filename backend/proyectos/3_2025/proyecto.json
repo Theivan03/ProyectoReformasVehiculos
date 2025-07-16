@@ -1,5 +1,5 @@
 {
-  "numeroProyecto": 2,
+  "numeroProyecto": 3,
   "tallerSeleccionado": {
     "nombre": "GREMIS AUTOMOCIÓN, S.L.",
     "direccion": "Pol. Ind. C/ Gremis, 21-23",
@@ -11,8 +11,8 @@
     "telefono": "965740794",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
   },
-  "referenciaProyecto": "PTRV 2/25",
-  "referenciaCFO": "CFO 2/25",
+  "referenciaProyecto": "PTRV 3/25",
+  "referenciaCFO": "CFO 3/25",
   "reformasPrevias": false,
   "revision": "00",
   "marca": "---",
@@ -23,9 +23,9 @@
   "version": "---",
   "matricula": "---",
   "bastidor": "---",
-  "fechaMatriculacion": "2025-07-19",
+  "fechaMatriculacion": "2025-07-11",
   "homologacion": "---",
-  "codigosReforma": "1.1",
+  "codigosReforma": "3.2",
   "propietario": "---",
   "categoria": "---",
   "clasificacion": "---",
@@ -69,7 +69,7 @@
   "materialesUsados": 0,
   "manoDeObra": 0,
   "totalPresupuesto": 0,
-  "fechaProyecto": "2025-07-11",
+  "fechaProyecto": "2025-07-16",
   "tipoVehiculo": "coche",
   "taraTotal": 1,
   "taraDelante": 2,
@@ -98,7 +98,7 @@
       "seleccionado": true,
       "anotacion1": "",
       "anotacion2": "",
-      "medidas": "vc"
+      "medidas": "sdf"
     },
     {
       "nombre": "SEPARADORES DE RUEDA",
@@ -258,10 +258,10 @@
     "especialidad": "mantenimiento y reparación de vehículos a motor"
   },
   "codigosDetallados": {
-    "1": [
+    "3": [
       {
-        "codigo": "1.1",
-        "descripcion": "Sustitución total o parcial del bastidor o de la estructura autoportante, cuando la parte sustituida sea la que lleva grabado el número de identificación del vehículo"
+        "codigo": "3.2",
+        "descripcion": "Modificación del sistema de accionamiento del embrague, así como de la ubicación, sustitución, adición o desinstalación del mismo"
       }
     ]
   },
@@ -274,8 +274,8 @@
   ],
   "marcadores": [
     {
-      "x": 0.4473348847517731,
-      "y": 0.3120393990929705,
+      "x": 0.29839871453900707,
+      "y": 0.27575821995464855,
       "label": "1",
       "etiqueta": "NEUMÁTICOS"
     }
@@ -288,11 +288,6 @@
     {}
   ],
   "postImages": [
-    {},
-    {},
-    {},
-    {},
-    {},
     {},
     {},
     {},

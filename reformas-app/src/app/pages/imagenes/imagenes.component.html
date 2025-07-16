@@ -64,7 +64,12 @@
       </div>
     </div>
 
-    <div class="d-flex justify-content-end">
+    <div *ngIf="errorPrevImagesCount" class="alert alert-danger p-2">
+      Debe subir exactamente <strong>4 imágenes</strong> (frontal, trasera,
+      lateral derecho e izquierdo o viceversa).
+    </div>
+
+    <div class="d-flex justify-content-between">
       <button class="btn btn-outline-secondary me-2" (click)="back()">
         ← Anterior
       </button>
@@ -131,6 +136,10 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div *ngIf="errorPostImagesCount" class="alert alert-danger p-2">
+      Debe subir un máximo de <strong>30 imágenes</strong> por favor.
     </div>
 
     <div class="d-flex justify-content-between">

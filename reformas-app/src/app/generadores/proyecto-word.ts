@@ -1848,6 +1848,39 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
   let punto2_2 = [];
 
+  const reparto = {
+    masaReal: { del: 0.536, tras: 0.464 },
+    ocupDel: { del: 0.78, tras: 0.22 },
+    ocup2: { del: 0.96, tras: 0.04 },
+    ocup3: { del: 0.0, tras: 0.0 },
+    cargaUtil: { del: 0.105, tras: 0.895 },
+  };
+  const aientostotal = data.asientosDelanteros + 1;
+  const ocupDelTotal = (aientostotal ?? 0) * 75;
+  const ocup2Total = (data.asientos2Fila ?? 0) * 75;
+  const ocup3Total = (data.asientos3Fila ?? 0) * 75;
+  const cargaUtilTotal = Number(data.cargaUtilTotal ?? 0);
+  const masaRealTotal = Number(data.masaRealDespues ?? 0) + 75;
+
+  const masaRealDel = Math.round(masaRealTotal * reparto.masaReal.del);
+  const masaRealTras = masaRealTotal - masaRealDel;
+
+  const ocupDelDel = Math.round(ocupDelTotal * reparto.ocupDel.del);
+  const ocupDelTras = ocupDelTotal - ocupDelDel;
+
+  const ocup2Del = Math.round(ocup2Total * reparto.ocup2.del);
+  const ocup2Tras = ocup2Total - ocup2Del;
+
+  const ocup3Del = Math.round(ocup3Total * reparto.ocup3.del);
+  const ocup3Tras = ocup3Total - ocup3Del;
+
+  const cargaUtilDel = Math.round(cargaUtilTotal * reparto.cargaUtil.del);
+  const cargaUtilTras = cargaUtilTotal - cargaUtilDel;
+
+  const sumaDel = masaRealDel + ocupDelDel + ocup2Del + ocup3Del + cargaUtilDel;
+  const sumaTras =
+    masaRealTras + ocupDelTras + ocup2Tras + ocup3Tras + cargaUtilTras;
+
   function limpiarYParsear(valor: string): number | null {
     const limpio = valor?.replace(',', '.').trim();
     if (!limpio || limpio === '---' || isNaN(Number(limpio))) return null;
@@ -2004,7 +2037,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaDespues,
+                      text: data.taraTotal?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2014,7 +2047,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje1Despues,
+                      text: data.taraDelante?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2024,7 +2057,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje2Despues,
+                      text: data.taraDetras?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2118,7 +2151,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: 'plazasDespues?.toString()',
+                      text: data.ocupantesAdicionales?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2136,7 +2169,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.cargaverticalDespues,
+                      text: data.cargaverticalDespues?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2177,7 +2210,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: 'variable ocupantes delanteros',
+                      text: data.asientosDelanteros?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2218,7 +2251,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: 'variable ocupantes 2ª fila',
+                      text: data.asientos2Fila?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2259,7 +2292,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: 'variable ocupantes 3ª fila',
+                      text: data.asientos3Fila?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2323,7 +2356,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: 'variable carga útil',
+                      text: data.cargaUtilTotal?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2373,7 +2406,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   columnSpan: 2,
                   children: [
                     new Paragraph({
-                      text: 'data.distanciaEntreEjes.toString()',
+                      text: data.distanciaEntreEjes?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2488,7 +2521,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.mmaDespues,
+                          text: data.mmaDespues?.toString() ?? '-',
                           bold: true,
                         }),
                       ],
@@ -2501,7 +2534,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.mmaEje1Despues,
+                          text: data.mmaEje1Despues?.toString() ?? '-',
                           bold: true,
                         }),
                       ],
@@ -2514,7 +2547,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.mmaEje2Despues,
+                          text: data.mmaEje2Despues?.toString() ?? '-',
                           bold: true,
                         }),
                       ],
@@ -2628,12 +2661,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            limpiarYParsear(data.masaRealDespues) !== null
-                              ? (
-                                  limpiarYParsear(data.masaRealDespues)! + 58
-                                ).toString()
-                              : '',
+                          text: masaRealDel.toString(),
                         }),
                       ],
                     }),
@@ -2645,12 +2673,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            limpiarYParsear(data.masaRealDespues) !== null
-                              ? (
-                                  limpiarYParsear(data.masaRealDespues)! + 17
-                                ).toString()
-                              : '',
+                          text: masaRealTras.toString(),
                         }),
                       ],
                     }),
@@ -2693,7 +2716,8 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text:
+                            (data.asientosDelanteros * 75)?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2705,7 +2729,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: ocupDelDel.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2717,7 +2741,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: ocupDelTras.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2760,7 +2784,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: (data.asientos2Fila * 75)?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2772,7 +2796,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: ocup2Del.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2784,7 +2808,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: ocup2Tras.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2827,7 +2851,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: (data.asientos3Fila * 75)?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2839,7 +2863,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: ocup3Del.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2851,7 +2875,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: ocup3Tras.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2894,7 +2918,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: data.cargaUtilTotal?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2906,7 +2930,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: cargaUtilDel.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2918,7 +2942,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: cargaUtilTras.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2961,7 +2985,15 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text:
+                            (
+                              Number(data.cargaUtilTotal) +
+                              75 +
+                              Number(data.masaRealDespues) +
+                              Number(data.asientosDelanteros) +
+                              Number(data.asientos2Fila) +
+                              Number(data.asientos3Fila)
+                            )?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2973,7 +3005,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: sumaDel.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2985,7 +3017,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: sumaTras.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -3069,6 +3101,8 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
             new TextRun('.'),
           ],
         }),
+
+        new Paragraph({ pageBreakBefore: true }),
 
         new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
@@ -3195,37 +3229,33 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                 new TableCell({
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
-                    new Paragraph(
-                      limpiarYParsear(data.masaRealDespues) !== null
-                        ? (
-                            limpiarYParsear(data.masaRealDespues)! + 75
-                          ).toString()
-                        : ''
-                    ),
+                    new Paragraph({
+                      text:
+                        limpiarYParsear(data.masaRealDespues) !== null
+                          ? (
+                              limpiarYParsear(data.masaRealDespues)! + 75
+                            ).toString()
+                          : '',
+                      alignment: AlignmentType.CENTER,
+                    }),
                   ],
                 }),
                 new TableCell({
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
-                    new Paragraph(
-                      limpiarYParsear(data.masaRealDespues) !== null
-                        ? (
-                            limpiarYParsear(data.masaRealDespues)! + 58
-                          ).toString()
-                        : ''
-                    ),
+                    new Paragraph({
+                      text: masaRealDel.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
                   ],
                 }),
                 new TableCell({
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
-                    new Paragraph(
-                      limpiarYParsear(data.masaRealDespues) !== null
-                        ? (
-                            limpiarYParsear(data.masaRealDespues)! + 17
-                          ).toString()
-                        : ''
-                    ),
+                    new Paragraph({
+                      text: masaRealTras.toString(),
+                      alignment: AlignmentType.CENTER,
+                    }),
                   ],
                 }),
               ],
@@ -3258,7 +3288,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaDespues.toString(),
+                      text: (data.asientosDelanteros * 75).toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3267,7 +3297,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje1Despues.toString(),
+                      text: ocupDelDel.toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3276,7 +3306,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje2Despues.toString(),
+                      text: ocupDelTras.toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3311,7 +3341,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaDespues.toString(),
+                      text: (data.asientos2Fila * 75).toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3320,7 +3350,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje1Despues.toString(),
+                      text: ocup2Del.toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3329,7 +3359,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje2Despues.toString(),
+                      text: ocup2Tras.toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3364,7 +3394,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '',
+                      text: (data.asientos3Fila * 75).toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3373,7 +3403,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '',
+                      text: ocup3Del.toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3382,7 +3412,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '',
+                      text: ocup3Tras.toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3418,7 +3448,9 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
+                      children: [
+                        new TextRun({ text: data.cargaUtilTotal.toString() }),
+                      ],
                     }),
                   ],
                 }),
@@ -3427,7 +3459,9 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
+                      children: [
+                        new TextRun({ text: cargaUtilDel.toString() }),
+                      ],
                     }),
                   ],
                 }),
@@ -3436,7 +3470,9 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
+                      children: [
+                        new TextRun({ text: cargaUtilTras.toString() }),
+                      ],
                     }),
                   ],
                 }),
@@ -3538,7 +3574,19 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
+                      children: [
+                        new TextRun({
+                          text:
+                            (
+                              Number(data.cargaUtilTotal) +
+                              75 +
+                              Number(data.masaRealDespues) +
+                              Number(data.asientosDelanteros) +
+                              Number(data.asientos2Fila) +
+                              Number(data.asientos3Fila)
+                            )?.toString() ?? '-',
+                        }),
+                      ],
                     }),
                   ],
                 }),
@@ -3547,7 +3595,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
+                      children: [new TextRun({ text: sumaDel.toString() })],
                     }),
                   ],
                 }),
@@ -3556,7 +3604,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
+                      children: [new TextRun({ text: sumaTras.toString() })],
                     }),
                   ],
                 }),
