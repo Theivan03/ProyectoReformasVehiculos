@@ -1,15 +1,16 @@
-
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { generarDocumentoProyecto } from '../generadores/proyecto-word';
 import { generarDocumentoFinalObra } from '../generadores/certificado-final-obra';
 import { generarDocumentoTaller } from '../generadores/certificado-taller';
 import { generarDocumentoResponsable } from '../generadores/declaracion-responsable';
-import { Router } from '@angular/router';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import saveAs from 'file-saver';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-generador-documentos',
-  imports: [],
+  imports: [CommonModule],
   standalone: true,
   templateUrl: './generador-documentos.component.html',
   styleUrl: './generador-documentos.component.css',
@@ -18,6 +19,7 @@ export class GeneradorDocumentosComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   progreso: number = -1;
+  isLoading = false;
 
   @Input() reformaData: any;
   @Output() volverAlFormulario = new EventEmitter<void>();
@@ -30,10 +32,50 @@ export class GeneradorDocumentosComponent implements OnInit {
     );
   }
 
-  generar(tipo: string): void {
+  async generar(tipo: string): Promise<void> {
     switch (tipo) {
       case 'proyecto':
-        generarDocumentoProyecto(this.reformaData);
+        this.isLoading = true;
+        // Permitimos que Angular pinte el overlay antes del trabajo pesado
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        try {
+          // 1) Generar .docx
+          const blobDocx: Blob = await generarDocumentoProyecto(
+            this.reformaData
+          );
+          const nombreBase =
+            `${this.reformaData.referenciaProyecto} PROYECTO ` +
+            `${this.reformaData.marca} ${this.reformaData.modelo} ${this.reformaData.matricula}`;
+
+          // 2) Descargar .docx
+          saveAs(blobDocx, `${nombreBase}.docx`);
+
+          // 3) Enviar al servidor para convertir a PDF
+          const formData = new FormData();
+          formData.append('doc', blobDocx, `${nombreBase}.docx`);
+
+          this.http
+            .post('http://192.168.1.41:3000/convertir-docx-a-pdf', formData, {
+              responseType: 'blob',
+            })
+            .subscribe({
+              next: (blobPdf: Blob) => {
+                // 4) Descargar PDF
+                saveAs(blobPdf, `${nombreBase}.pdf`);
+                this.isLoading = false;
+              },
+              error: (err) => {
+                console.error('Error generando PDF:', err);
+                alert('No se pudo generar el PDF en el servidor.');
+                this.isLoading = false;
+              },
+            });
+        } catch (err) {
+          console.error('Error generando DOCX:', err);
+          alert('Ha ocurrido un error al crear el DOCX.');
+          this.isLoading = false;
+        }
         break;
       case 'certificado-obra':
         generarDocumentoFinalObra(this.reformaData);
@@ -97,5 +139,24 @@ export class GeneradorDocumentosComponent implements OnInit {
 
   volver(): void {
     this.volverAlFormulario.emit(this.reformaData);
+  }
+
+  sendDocxToPdf(file: Blob): Observable<Blob> {
+    const formData = new FormData();
+    formData.append('doc', file, 'document.docx');
+    return this.http.post('/convertir-docx-a-pdf', formData, {
+      responseType: 'blob',
+    });
+  }
+
+  convertAndDownload(file: Blob) {
+    this.sendDocxToPdf(file).subscribe((pdfBlob) => {
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'documento.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
   }
 }

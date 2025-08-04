@@ -324,7 +324,9 @@ export function buildModificacionesParagraphs(
   //
   const soporteslucesespecificas = modificaciones.find(
     (m) =>
-      m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado && m.detalle?.aletines
+      m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' &&
+      m.seleccionado &&
+      m.detalle?.aletines
   );
   if (soporteslucesespecificas) {
     raw = `- ${soporteslucesespecificas.accion} de soporte para luces de uso específico en condiciones reglamentarias ${soporteslucesespecificas.ubicacionLucesEspecificas}, fabricado en acero de medidas ${soporteslucesespecificas.medidasLucesEspecificas} mm.`;
@@ -1060,7 +1062,7 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado
   );
   if (estribostaloneras) {
-    raw = `- ${estribostaloneras.accion} de ${estribostaloneras.estribosotaloneras} laterales marca ${estribostaloneras.marcataloneras} fabricados en ${estribostaloneras.materialEstribos}, de dimensiones ${estribostaloneras.dimensionesTaloneras}mm.`;
+    raw = `- ${estribostaloneras.accion} de ${estribostaloneras.detalle?.estribosotaloneras} laterales marca ${estribostaloneras.marcataloneras} fabricados en ${estribostaloneras.materialEstribos}, de dimensiones ${estribostaloneras.dimensionesTaloneras}mm.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -1991,7 +1993,7 @@ export function generarDocumentoProyectoParagraphs(
   const appendSection = (title: string, paras: Paragraph[]) => {
     out.push(
       new Paragraph({
-        heading: HeadingLevel.HEADING_2,
+        heading: HeadingLevel.HEADING_4,
         spacing: { before: 260, after: 120 },
         children: [new TextRun({ text: title, bold: true, color: '000000' })],
       })
@@ -2034,6 +2036,7 @@ export function generarTablaLeyenda(data: any): Table {
   const filas = [
     // Cabecera LEYENDA centrada
     new TableRow({
+      cantSplit: true,
       children: [
         new TableCell({
           margins: { top: 100, bottom: 100 },
@@ -2053,6 +2056,7 @@ export function generarTablaLeyenda(data: any): Table {
     ...col1.map(
       (item: { numero: any; nombre: any }, index: string | number) =>
         new TableRow({
+          cantSplit: true,
           children: [
             new TableCell({
               width: { size: 50, type: WidthType.PERCENTAGE },

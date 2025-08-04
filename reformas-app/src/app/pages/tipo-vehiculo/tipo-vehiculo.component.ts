@@ -1,4 +1,3 @@
-
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Modificacion } from '../../interfaces/modificacion';
@@ -24,6 +23,7 @@ export class TipoVehiculoComponent implements OnInit {
     { key: 'muelleDelanteroConRef', label: 'Muelle delantero con referencia' },
     { key: 'muelleDelanteroSinRef', label: 'Muelle delantero sin referencia' },
     { key: 'ballestaDelantera', label: 'Ballesta delantera' },
+    { key: 'ballestaTrasera', label: 'Ballesta trasera' },
     { key: 'amortiguadorDelantero', label: 'Amortiguador delantero' },
     { key: 'amortiguadorTrasero', label: 'Amortiguador trasero' },
     { key: 'tacosDeGoma', label: 'Instalación de tacos de goma' },
@@ -62,16 +62,35 @@ export class TipoVehiculoComponent implements OnInit {
         }
       );
     }
-    this.modificaciones = this.modificaciones.map((mod) => ({
-      ...mod,
-      detalle: {
-        interDelantero: false,
-        interTrasero: false,
-        interLateral: false,
-        sustitucionEjeDelantero: false,
-        sustitucionEjeTrasero: false,
-      },
-    }));
+    this.modificaciones = this.datosPrevios.modificaciones.map(
+      (mod: Modificacion) => {
+        // Si viene preexistente, devuélvelo tal cual:
+        if (mod.detalle) {
+          return mod;
+        }
+        // Si no tiene detalle, ponle un objecto vacío (o con propiedades por defecto según nombre)
+        if (mod.nombre === 'ALETINES Y SOBREALETINES') {
+          return {
+            ...mod,
+            detalle: {
+              aletines: false,
+              sobrealetines: false,
+            },
+          };
+        }
+        // Para el resto que necesiten detalle:
+        return {
+          ...mod,
+          detalle: {
+            interDelantero: false,
+            interTrasero: false,
+            interLateral: false,
+            sustitucionEjeDelantero: false,
+            sustitucionEjeTrasero: false,
+          },
+        };
+      }
+    );
   }
 
   onTipoCambio(): void {
@@ -126,10 +145,10 @@ export class TipoVehiculoComponent implements OnInit {
               muelleDelanteroConRef: false,
               muelleDelanteroSinRef: false,
               ballestaDelantera: false,
+              ballestaTrasera: false,
               amortiguadorDelantero: false,
               muelleTraseroConRef: false,
               muelleTraseroSinRef: false,
-              ballestaTrasera: false,
               amortiguadorTrasero: false,
               tacosDeGoma: false,
               kitElevacion: false,
@@ -191,7 +210,14 @@ export class TipoVehiculoComponent implements OnInit {
               sustitucionEjeDelantero: false,
             },
           },
-          { nombre: 'ESTRIBOS LATERALES O TALONERAS', seleccionado: false },
+          {
+            nombre: 'ESTRIBOS LATERALES O TALONERAS',
+            seleccionado: false,
+            detalle: {
+              estribosotaloneras: false,
+              anotacionAntideslizante: false,
+            },
+          },
         ];
       case 'moto':
         return [
@@ -365,7 +391,8 @@ export class TipoVehiculoComponent implements OnInit {
       if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
         // invalido = true si no tiene ambas selecciones
         invalido =
-          mod.estribosotaloneras == null || mod.anotacionAntideslizante == null;
+          mod.detalle?.estribosotaloneras == null ||
+          mod.detalle?.anotacionAntideslizante == null;
       }
 
       if (mod.nombre === 'INTERMITENTES') {
@@ -387,9 +414,8 @@ export class TipoVehiculoComponent implements OnInit {
 
       if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
         const valido =
-          mod.detalle?.interDelantero ||
-          mod.detalle?.interTrasero ||
-          mod.detalle?.interLateral;
+          mod.detalle?.estribosotaloneras ||
+          mod.detalle?.anotacionAntideslizante;
         invalido = !valido;
         if (!valido) esValido = false;
       }
@@ -453,7 +479,9 @@ export class TipoVehiculoComponent implements OnInit {
     }
 
     if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
-      invalido = !(mod.estribosotaloneras || mod.anotacionAntideslizante);
+      invalido = !(
+        mod.detalle?.estribosotaloneras || mod.detalle?.anotacionAntideslizante
+      );
     }
 
     if (mod.nombre === 'INTERMITENTES') {

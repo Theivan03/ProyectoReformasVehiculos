@@ -7,21 +7,21 @@
         <button
           class="btn btn-outline-secondary btn-sm"
           (click)="undoMarker(); $event.stopPropagation()"
-          >
+        >
           ↺ Borrar último marcador
         </button>
       </div>
       <table class="table">
         <tbody>
           @for (label of labels; track label; let i = $index) {
-            <tr
-              (click)="selectRow(i)"
-              [ngClass]="{ 'table-primary': selectedIndex === i }"
-              style="cursor: pointer"
-              >
-              <td>{{ i + 1 }}</td>
-              <td>{{ label }}</td>
-            </tr>
+          <tr
+            (click)="selectRow(i)"
+            [ngClass]="{ 'table-primary': selectedIndex === i }"
+            style="cursor: pointer"
+          >
+            <td>{{ i + 1 }}</td>
+            <td>{{ label }}</td>
+          </tr>
           }
         </tbody>
       </table>
@@ -34,51 +34,51 @@
         class="position-relative"
         style="display: inline-block; max-width: 100%"
         (click)="onImageClick($event)"
-        >
+      >
         <img
           #canvasImg
           [src]="imageSrc"
           alt="Diagrama vehículo"
           class="img-fluid"
           style="max-height: 500px"
-          />
-          @for (m of markers; track m) {
-            <div
-              class="position-absolute bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-semibold"
-              [style.left.%]="m.x * 100"
-              [style.top.%]="m.y * 100"
-            style="
-              width: 18px;
-              height: 18px;
-              font-size: 0.8rem;
-              transform: translate(-50%, -50%);
-              line-height: 1;
-              padding: 0;
-            "
-              >
-              {{ m.label }}
-            </div>
-          }
+        />
+        @for (m of markers; track m) {
+        <div
+          class="position-absolute bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-semibold"
+          [style.left.%]="m.x * 100"
+          [style.top.%]="m.y * 100"
+          style="
+            width: 18px;
+            height: 18px;
+            font-size: 0.8rem;
+            transform: translate(-50%, -50%);
+            line-height: 1;
+            padding: 0;
+          "
+        >
+          {{ m.label }}
         </div>
+        }
       </div>
     </div>
+  </div>
 
-    <!-- Botones de navegación -->
-    <div class="d-flex justify-content-between mt-4">
-      <button class="btn btn-outline-secondary" (click)="onBack()">
-        ← Volver
-      </button>
-      <button
-        class="btn btn-primary"
-        [disabled]="markers.length === 0"
-        (click)="onContinue()"
-        >
-        Continuar →
-      </button>
-    </div>
+  <!-- Botones de navegación -->
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-secondary" (click)="onBack()">
+      ← Volver
+    </button>
+    <button
+      class="btn btn-primary"
+      [disabled]="markers.length === 0"
+      (click)="onContinue()"
+    >
+      Continuar →
+    </button>
+  </div>
 
-    <div
-      #firmaCompleta
+  <div
+    #firmaCompleta
     style="
       position: absolute;
       top: -9999px;
@@ -87,16 +87,16 @@
       height: 220px;
       opacity: 1;
     "
-      >
-      <div style="position: relative; width: 100%; height: 100%">
-        <!-- Firma -->
-        <img
-          src="assets/firmaLuis.png"
-          style="width: 100%; height: 100%; object-fit: contain"
-          />
+  >
+    <div style="position: relative; width: 100%; height: 100%">
+      <!-- Firma -->
+      <img
+        src="assets/firmaLuis.png"
+        style="width: 100%; height: 100%; object-fit: contain"
+      />
 
-          <!-- Texto encima -->
-          <div
+      <!-- Texto encima -->
+      <div
         style="
           position: absolute;
           top: 0;
@@ -109,15 +109,14 @@
           font-family: serif;
           pointer-events: none;
         "
-            >
-            <p style="margin: 20px 0 0 0">
-              Teulada,
-              {{ datosEntrada.fechaProyecto | date : "d 'de' MMMM 'de' y" : "es" }}
-            </p>
-            <p style="margin-top: 90px">El Ingeniero Técnico Industrial</p>
-            <p style="margin-top: -8px">Luis Serrano Artesero</p>
-            <p style="margin-top: -8px">Col nº 11380 COITIG Valencia</p>
-          </div>
-        </div>
+      >
+        <p style="margin: 20px 0 0 0">
+          {{ fechaFirma }}
+        </p>
+        <p style="margin-top: 90px">El Ingeniero Técnico Industrial</p>
+        <p style="margin-top: -8px">Luis Serrano Artesero</p>
+        <p style="margin-top: -8px">Col nº 11380 COITIG Valencia</p>
       </div>
     </div>
+  </div>
+</div>

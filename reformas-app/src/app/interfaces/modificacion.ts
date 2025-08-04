@@ -6,8 +6,6 @@ export interface Mueble {
 
 export interface Modificacion {
   anotacion?: string | boolean;
-  estribosotaloneras?: string | boolean;
-  anotacionAntideslizante?: string | boolean;
   nTornillos?: number;
   anotacion1?: boolean | string;
   anotacion2?: boolean | string;
@@ -43,6 +41,8 @@ export interface Modificacion {
     interDelantero?: boolean;
     interTrasero?: boolean;
     interLateral?: boolean;
+    estribosotaloneras?: boolean;
+    anotacionAntideslizante?: boolean;
   };
   contrasenaHomologacionEje?: string;
   diametroEspiraDelantero?: number;
@@ -86,6 +86,7 @@ export interface Modificacion {
   marcaAmortiguadorTrasero?: string;
   marcaAletines?: string;
   marcaBallestaDelantera?: string;
+  marcaBallestaTrasera?: string;
   marcaBarra?: string;
   marcaBarraDireccion?: string;
   marcaBola?: string;
@@ -145,6 +146,7 @@ export interface Modificacion {
   referenciaAmortiguador?: string;
   referenciaAletines?: string;
   referenciaBallestaDelantera?: string;
+  referenciaBallestaTrasera?: string;
   referenciaConvergenciaReg?: string;
   referenciaDelantero?: string;
   referenciaTrasero?: string;
@@ -343,4 +345,6 @@ export interface Modificacion {
   cargaUtilTotal?: number;
   distanciaEntreEjes?: number;
   ocupantesAdicionales?: number;
+  metricaSobrealetines?: number;
+  metricaAletines?: number;
 }

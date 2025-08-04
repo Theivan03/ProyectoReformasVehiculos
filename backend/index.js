@@ -5,6 +5,8 @@ const app = express();
 const path = require('path');
 const { imageSize } = require('image-size');
 const multer = require('multer');
+const { exec } = require('child_process');
+const uploadDocx = multer({ dest: 'uploads_docx/' });
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
@@ -197,4 +199,41 @@ app.get('/ultimo-proyecto', (req, res) => {
     console.error('Error en GET /ultimo-proyecto:', err);
     res.status(500).json({ error: 'No se pudo leer ultimoProyecto.json' });
   }
+});
+
+app.post('/convertir-docx-a-pdf', uploadDocx.single('doc'), (req, res) => {
+  const docxPath = path.resolve(req.file.path);
+  const outputDir = path.join(__dirname, 'pdf_generados');
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+
+  // Nombre final del PDF
+  const pdfPath = path.join(outputDir, path.parse(docxPath).name + '.pdf');
+
+  // Construimos el comando PowerShell
+  // - Visible = false, sin alertas; 17 = wdFormatPDF
+  const psCommand = [
+    `powershell -NoProfile -NonInteractive -Command "& {`,
+    `  $word = New-Object -ComObject Word.Application;`,
+    `  $word.Visible = $false;`,
+    `  $word.DisplayAlerts = 0;`,
+    `  $doc = $word.Documents.Open('${docxPath.replace(/'/g,"''")}');`,
+    `  $doc.Fields.Update();`,
+    `  $doc.SaveAs('${pdfPath.replace(/'/g,"''")}', [ref] 17);`,
+    `  $doc.Close();`,
+    `  $word.Quit();`,
+    `}"`,
+  ].join(' ');
+
+  exec(psCommand, (err, stdout, stderr) => {
+    if (err) {
+      console.error('Error al convertir con Word COM:', stderr || err);
+      return res.status(500).json({ error: 'Fallo al generar PDF con Word.' });
+    }
+
+    // Enviamos el PDF y limpiamos temporales
+    res.sendFile(pdfPath, () => {
+      fs.unlinkSync(docxPath);
+      fs.unlinkSync(pdfPath);
+    });
+  });
 });

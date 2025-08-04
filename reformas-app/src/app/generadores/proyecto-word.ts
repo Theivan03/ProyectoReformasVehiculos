@@ -30,6 +30,7 @@ import {
   generarTablaLeyenda,
 } from '../Funciones/buildModificacionesParagraphs';
 import loadImage from 'blueimp-load-image';
+import { buildCalculos } from '../Funciones/calculos';
 
 interface ImageInfo {
   buffer: ArrayBuffer;
@@ -38,7 +39,7 @@ interface ImageInfo {
   mimeType: string;
 }
 
-export async function generarDocumentoProyecto(data: any): Promise<void> {
+export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const response = await fetch('assets/logo.png');
   const imageBuffer = await response.arrayBuffer();
 
@@ -751,7 +752,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   // 4) Punto 1.1
   const punto1_1MemoriaDescriptiva = [
     new Paragraph({
-      heading: HeadingLevel.HEADING_1,
+      heading: HeadingLevel.HEADING_2,
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
@@ -831,7 +832,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       spacing: { before: 120, after: 120 },
       children: [
         new TextRun({
-          text: '1.1.1.1 - Autor del proyecto',
+          text: '1.1.1 - Autor del proyecto',
           color: '000000',
           bold: true,
         }),
@@ -1674,7 +1675,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   const punto1_6_4_Materiales: Paragraph[] = [
     // Título
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      heading: HeadingLevel.HEADING_4,
       spacing: { before: 260, after: 120 },
       children: [
         new TextRun({
@@ -1700,7 +1701,6 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   ];
 
   const response2 = await fetch('assets/firmaLuis.png');
-  const imageBuffer2 = await response2.arrayBuffer();
 
   // 1.7 – CONCLUSIÓN
   const punto1_7_Conclusion: Paragraph[] = [
@@ -1727,6 +1727,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
     // Pie de firma
     new Paragraph({
       alignment: AlignmentType.RIGHT,
+      spacing: { after: 240 },
       children: [
         new ImageRun({
           data: imageBuffer5,
@@ -1740,7 +1741,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   const punto2 = [
     new Paragraph({ pageBreakBefore: true }),
     new Paragraph({
-      heading: HeadingLevel.HEADING_1,
+      heading: HeadingLevel.HEADING_2,
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
@@ -2382,6 +2383,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       text: '',
@@ -2390,6 +2392,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2403,6 +2406,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   columnSpan: 2,
                   children: [
                     new Paragraph({
@@ -2412,6 +2416,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       text: '',
@@ -2426,6 +2431,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       text: '',
@@ -2434,6 +2440,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2442,6 +2449,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2455,6 +2463,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2468,6 +2477,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2488,6 +2498,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               children: [
                 // esta celda abarcará 2 filas (rowSpan)
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2502,6 +2513,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                 }),
                 // etiqueta “Tara del vehículo tras la reforma”
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2516,6 +2528,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                 }),
                 // encabezados de columnas de datos
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2529,6 +2542,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2542,6 +2556,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2561,6 +2576,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       text: '900ej',
@@ -2569,6 +2585,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       text: 'Conductor',
@@ -2577,6 +2594,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2589,6 +2607,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2601,6 +2620,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2619,6 +2639,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2631,6 +2652,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       text: 'Masa Real',
@@ -2639,6 +2661,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2656,6 +2679,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2668,6 +2692,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2686,6 +2711,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2698,6 +2724,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2711,6 +2738,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2724,6 +2752,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2736,6 +2765,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2754,6 +2784,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2766,6 +2797,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2779,6 +2811,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2791,6 +2824,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2803,6 +2837,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2821,6 +2856,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2833,6 +2869,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2846,6 +2883,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2858,6 +2896,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2870,6 +2909,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2888,6 +2928,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2900,6 +2941,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2913,6 +2955,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2925,6 +2968,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2937,6 +2981,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2955,6 +3000,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2967,6 +3013,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -2980,6 +3027,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3000,6 +3048,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3012,6 +3061,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3030,6 +3080,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
               cantSplit: true,
               children: [
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3042,6 +3093,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
                   ],
                 }),
                 new TableCell({
+                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3752,7 +3804,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   const punto3 = [
     new Paragraph({ pageBreakBefore: true }),
     new Paragraph({
-      heading: HeadingLevel.HEADING_1,
+      heading: HeadingLevel.HEADING_2,
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
@@ -3890,6 +3942,18 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       width: {
         size: 75,
         type: WidthType.PERCENTAGE,
+      },
+      borders: {
+        top: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+        bottom: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+        left: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+        right: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+        insideHorizontal: {
+          style: BorderStyle.SINGLE,
+          size: 1,
+          color: '000000',
+        },
+        insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
       },
       margins: {
         left: 200,
@@ -4079,6 +4143,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
     new Paragraph({
       alignment: AlignmentType.RIGHT,
+      spacing: { before: 300 },
       children: [
         new ImageRun({
           data: imageBuffer5,
@@ -4092,7 +4157,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   const punto4 = [
     new Paragraph({ pageBreakBefore: true }),
     new Paragraph({
-      heading: HeadingLevel.HEADING_1,
+      heading: HeadingLevel.HEADING_2,
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
@@ -4245,6 +4310,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
     new Paragraph({
       alignment: AlignmentType.RIGHT,
+      spacing: { after: 240 },
       children: [
         new ImageRun({
           data: imageBuffer5,
@@ -4266,7 +4332,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
   const punto5 = [
     new Paragraph({ pageBreakBefore: true }),
     new Paragraph({
-      heading: HeadingLevel.HEADING_1,
+      heading: HeadingLevel.HEADING_2,
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
@@ -4283,7 +4349,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { before: 120, after: 120 },
+      spacing: { after: 120 },
       children: [
         new TextRun({
           text: 'PLANO Nº1: ESTADO DEL VEHÍCULO ANTES DE LA REFORMA',
@@ -4296,6 +4362,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
     new Paragraph({
       alignment: AlignmentType.CENTER,
+      spacing: { after: 240 },
       children: [
         new ImageRun({
           data: imageBuffer3,
@@ -4376,6 +4443,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
     new Paragraph({
       alignment: AlignmentType.CENTER,
+      spacing: { after: 240 },
       children: [
         new ImageRun({
           data: imageBuffer3,
@@ -4472,6 +4540,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
     new Paragraph({
       alignment: AlignmentType.RIGHT,
+      spacing: { after: 240 },
       children: [
         new ImageRun({
           data: imageBuffer5,
@@ -4671,6 +4740,7 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
       ...punto1_7_Conclusion,
       ...punto2,
       ...punto2_2,
+      ...(await buildCalculos(data.modificaciones, data)),
       ...punto3,
       ...punto4,
       ...punto5,
@@ -4696,8 +4766,9 @@ export async function generarDocumentoProyecto(data: any): Promise<void> {
 
   //2) Empaqueta y descarga
   const blob = await Packer.toBlob(doc);
-  saveAs(
-    blob,
-    `${data.referenciaProyecto} PROYECTO ${data.marca} ${data.modelo} ${data.matricula}.docx`
-  );
+  return blob;
+  // saveAs(
+  //   blob,
+  //   `${data.referenciaProyecto} PROYECTO ${data.marca} ${data.modelo} ${data.matricula}.docx`
+  // );
 }

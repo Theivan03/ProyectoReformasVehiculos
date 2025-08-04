@@ -41,6 +41,9 @@ export class CanvaComponent implements OnInit {
   markers: Marker[] = [];
   imageSrc = '';
 
+  firmaUrl = '';
+  fechaFirma = '';
+
   private tipoVehiculoAnterior = '';
   private etiquetasAnteriores: string[] = [];
 
@@ -48,6 +51,9 @@ export class CanvaComponent implements OnInit {
 
   ngOnInit(): void {
     let url = '';
+
+    this.firmaUrl = 'http://192.168.1.41:3000/imgs/firma-generada.png';
+    this.fechaFirma = this.calcularFechaHoy();
 
     if (
       this.tipoVehiculoAnterior &&
@@ -115,6 +121,15 @@ export class CanvaComponent implements OnInit {
     this.cargarImagenComoBase64(url).then((base64) => (this.imageSrc = base64));
   }
 
+  calcularFechaHoy() {
+    const hoy = new Date();
+    return `Teulada, ${hoy.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })}`;
+  }
+
   cargarImagenComoBase64(url: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -164,8 +179,8 @@ export class CanvaComponent implements OnInit {
   onContinue(): void {
     this.datosEntrada.marcadores = this.markers;
     this.guardarImagen();
-    this.continuar.emit(this.datosEntrada);
     this.guardarFirma();
+    this.continuar.emit(this.datosEntrada);
   }
 
   guardarImagen() {
@@ -183,6 +198,30 @@ export class CanvaComponent implements OnInit {
         })
         .subscribe((res) => console.log('Imagen guardada:', res));
     });
+  }
+
+  guardaarFirma() {
+    this.fechaFirma = this.calcularFechaHoy();
+    this.firmaUrl =
+      'http://192.168.1.41:3000/imgs/firma-generada.png?ts=' + Date.now();
+
+    setTimeout(() => {
+      html2canvas(this.firmaRef.nativeElement, {
+        scale: window.devicePixelRatio! * 16,
+        backgroundColor: null,
+        useCORS: true,
+      }).then((canvas) => {
+        const imagenBase64 = canvas.toDataURL('image/png');
+        this.http
+          .post('http://192.168.1.41:3000/guardar-firma', {
+            imagenBase64,
+            nombreArchivo: 'firma-generada.png',
+          })
+          .subscribe(() =>
+            console.log('Firma guardada y servidor sobreescribió')
+          );
+      });
+    }, 0);
   }
 
   guardarFirma() {
