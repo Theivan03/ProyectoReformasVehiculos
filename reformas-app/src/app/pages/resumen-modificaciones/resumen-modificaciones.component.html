@@ -433,8 +433,8 @@
             <label>Tipo de acción:</label>
             <select
               class="form-select"
-              [(ngModel)]="mod.accion"
-              name="accion{{ i }}"
+              [(ngModel)]="mod.accionSobreletines"
+              name="accionSobreletines{{ i }}"
               required
               [class.is-invalid]="formSubmitted && mod.accion === undefined"
             >
@@ -459,10 +459,10 @@
             <input
               type="text"
               class="form-control"
-              [(ngModel)]="mod.referenciaAletines"
-              name="referenciaAletines{{ i }}"
+              [(ngModel)]="mod.referenciaSobreletines"
+              name="referenciaSobreletines{{ i }}"
               required
-              [class.is-invalid]="formSubmitted && !mod.referenciaAletines"
+              [class.is-invalid]="formSubmitted && !mod.referenciaSobreletines"
             />
           </div>
           <div class="mb-2">

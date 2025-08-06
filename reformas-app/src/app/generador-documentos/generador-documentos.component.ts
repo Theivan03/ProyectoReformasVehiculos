@@ -52,25 +52,26 @@ export class GeneradorDocumentosComponent implements OnInit {
           saveAs(blobDocx, `${nombreBase}.docx`);
 
           // 3) Enviar al servidor para convertir a PDF
-          const formData = new FormData();
-          formData.append('doc', blobDocx, `${nombreBase}.docx`);
+          // const formData = new FormData();
+          // formData.append('doc', blobDocx, `${nombreBase}.docx`);
 
-          this.http
-            .post('http://192.168.1.41:3000/convertir-docx-a-pdf', formData, {
-              responseType: 'blob',
-            })
-            .subscribe({
-              next: (blobPdf: Blob) => {
-                // 4) Descargar PDF
-                saveAs(blobPdf, `${nombreBase}.pdf`);
-                this.isLoading = false;
-              },
-              error: (err) => {
-                console.error('Error generando PDF:', err);
-                alert('No se pudo generar el PDF en el servidor.');
-                this.isLoading = false;
-              },
-            });
+          // this.http
+          //   .post('http://192.168.1.41:3000/convertir-docx-a-pdf', formData, {
+          //     responseType: 'blob',
+          //   })
+          //   .subscribe({
+          //     next: (blobPdf: Blob) => {
+          //       // 4) Descargar PDF
+          //       saveAs(blobPdf, `${nombreBase}.pdf`);
+          //       this.isLoading = false;
+          //     },
+          //     error: (err) => {
+          //       console.error('Error generando PDF:', err);
+          //       alert('No se pudo generar el PDF en el servidor.');
+          //       this.isLoading = false;
+          //     },
+          //   });
+          this.isLoading = false;
         } catch (err) {
           console.error('Error generando DOCX:', err);
           alert('Ha ocurrido un error al crear el DOCX.');

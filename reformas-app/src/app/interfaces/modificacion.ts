@@ -145,6 +145,7 @@ export interface Modificacion {
   referencia?: string;
   referenciaAmortiguador?: string;
   referenciaAletines?: string;
+  referenciaSobreletines?: string;
   referenciaBallestaDelantera?: string;
   referenciaBallestaTrasera?: string;
   referenciaConvergenciaReg?: string;

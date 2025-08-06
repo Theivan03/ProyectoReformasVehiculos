@@ -204,36 +204,32 @@ app.get('/ultimo-proyecto', (req, res) => {
 app.post('/convertir-docx-a-pdf', uploadDocx.single('doc'), (req, res) => {
   const docxPath = path.resolve(req.file.path);
   const outputDir = path.join(__dirname, 'pdf_generados');
-  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
-  // Nombre final del PDF
   const pdfPath = path.join(outputDir, path.parse(docxPath).name + '.pdf');
+  const comando = `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"` +
+                  ` --headless --convert-to pdf "${docxPath}" --outdir "${outputDir}"`;
 
-  // Construimos el comando PowerShell
-  // - Visible = false, sin alertas; 17 = wdFormatPDF
-  const psCommand = [
-    `powershell -NoProfile -NonInteractive -Command "& {`,
-    `  $word = New-Object -ComObject Word.Application;`,
-    `  $word.Visible = $false;`,
-    `  $word.DisplayAlerts = 0;`,
-    `  $doc = $word.Documents.Open('${docxPath.replace(/'/g,"''")}');`,
-    `  $doc.Fields.Update();`,
-    `  $doc.SaveAs('${pdfPath.replace(/'/g,"''")}', [ref] 17);`,
-    `  $doc.Close();`,
-    `  $word.Quit();`,
-    `}"`,
-  ].join(' ');
-
-  exec(psCommand, (err, stdout, stderr) => {
+  exec(comando, (err, stdout, stderr) => {
     if (err) {
-      console.error('Error al convertir con Word COM:', stderr || err);
-      return res.status(500).json({ error: 'Fallo al generar PDF con Word.' });
+      console.error('Error convirtiendo a PDF:', stderr || err);
+      // respuesta de error al cliente
+      return res.status(500).json({ error: 'Fallo al convertir a PDF' });
     }
 
-    // Enviamos el PDF y limpiamos temporales
-    res.sendFile(pdfPath, () => {
-      fs.unlinkSync(docxPath);
-      fs.unlinkSync(pdfPath);
+    // enviamos el PDF al cliente
+    res.sendFile(pdfPath, (sendErr) => {
+      if (sendErr) {
+        console.error('Error enviando el PDF:', sendErr);
+      }
+      // y ahora borramos ambos ficheros sin que rompa si no existen
+      [docxPath, pdfPath].forEach((file) => {
+        fs.rm(file, { force: true }, (rmErr) => {
+          if (rmErr) {
+            console.warn(`No se pudo borrar ${file}:`, rmErr.message);
+          }
+        });
+      });
     });
   });
 });

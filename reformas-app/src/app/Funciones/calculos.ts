@@ -2184,22 +2184,6 @@ export async function buildCalculos(
     })
   );
 
-  out.push(new Paragraph({ text: '' }));
-
-  out.push(
-    new Paragraph({
-      heading: HeadingLevel.HEADING_2,
-      children: [
-        new TextRun({
-          text: '2.4 CÁLCULO DEL SISTEMA DE SUSPENSIÓN ',
-          color: '000000',
-        }),
-      ],
-    })
-  );
-
-  out.push(new Paragraph({ text: '' }));
-
   const mod = modificaciones.find(
     (m) =>
       m.nombre ===
@@ -2209,509 +2193,741 @@ export async function buildCalculos(
 
   // 1) Muelles delanteros con referencia
   if (mod) {
-    if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
-      muelles();
-    }
+    out.push(new Paragraph({ text: '' }));
 
-    // 2) Muelles delanteros sin referencia
-    if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
-      muelles();
-    }
-  }
-
-  out.push(new Paragraph({ text: '' }));
-
-  contador = 1;
-
-  if (mod?.detallesMuelles?.['ballestaDelantera']) {
     out.push(
       new Paragraph({
+        heading: HeadingLevel.HEADING_2,
         children: [
           new TextRun({
-            text: '2.4.' + contador + ' Cálculo de las ballestas',
+            text: '2.4 CÁLCULO DEL SISTEMA DE SUSPENSIÓN ',
+            color: '000000',
             bold: true,
           }),
         ],
       })
     );
-    contador++;
+
+    contador = 1;
 
     out.push(new Paragraph({ text: '' }));
 
-    out.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: 'Las MMA a considerar en los cálculos son las siguientes:',
-          }),
-        ],
-      })
-    );
-
-    // 2) Tabla: CARACTERÍSTICAS DEL VEHÍCULO
-    const tablaVehiculo = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          cantSplit: true,
-          children: [
-            new TableCell({
-              columnSpan: 2,
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [
-                    new TextRun({
-                      text: 'CARACTERÍSTICAS DEL VEHÍCULO',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-        }),
-        ...[
-          ['MTMA/MMA (Kg)', '2000'],
-          ['MTMA/MMA eje 1', '1500'],
-          ['MTMA/MMA eje 2', '1000'],
-        ].map(
-          ([d, v]) =>
-            new TableRow({
-              cantSplit: true,
-              children: [d, v].map(
-                (txt) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: txt })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaVehiculo);
-    out.push(new Paragraph({ text: '' }));
-
-    out.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: 'Para calcular la carga que puede ser soportada por una ballesta, se emplea la siguiente formulación por flexión:',
-          }),
-        ],
-      })
-    );
-
-    out.push(new Paragraph({ text: '' }));
-    out.push(new Paragraph({ text: '' }));
-
-    // 3) Tabla: CÁLCULO DE LA BALLESTA EN EL EJE 1 (inputs)
-    const tablaInputEje1 = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          cantSplit: true,
-          children: [],
-        }),
-        ...[
-          ['CÁLCULO DE LA BALLESTA EN EL EJE 1:', ' '],
-          [' ', ' '],
-          ['Número de hojas N=', '7'],
-          ['Ancho de la hoja b=', '50 mm'],
-          ['Espesor de la hoja e=', '8 mm'],
-          ['Longitud total ballesta 2L=', '800 mm'],
-          ['Esfuerzo de la flexión σ=', '60 Kg/mm²'],
-        ].map(
-          ([d, v]) =>
-            new TableRow({
-              cantSplit: true,
-              children: [d, v].map(
-                (txt) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: txt })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaInputEje1);
-    out.push(new Paragraph({ text: '' }));
-    out.push(new Paragraph({ text: '' }));
-
-    const arrayBuffer = await (
-      await fetch('../assets/ballesta.png')
-    ).arrayBuffer();
-    const imageData = new Uint8Array(arrayBuffer);
-
-    out.push(
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [
-          new ImageRun({
-            data: imageData,
-            type: 'png',
-            transformation: {
-              width: 400,
-              height: 300,
-            },
-          }),
-        ],
-      })
-    );
-
-    // 4) Tabla: RESULTADO F = … Kg
-    const tablaF = new Table({
-      width: { size: 50, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          cantSplit: true,
-          children: ['F=', '560', 'Kg'].map(
-            (txt, i) =>
-              new TableCell({
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: txt,
-                        shading:
-                          i === 1
-                            ? { type: ShadingType.CLEAR, fill: 'FFFFFF' }
-                            : undefined,
-                      }),
-                    ],
-                  }),
-                ],
-              })
-          ),
-        }),
-      ],
-    });
-    out.push(tablaF);
-    out.push(new Paragraph({ text: '' }));
-
-    out.push(
-      new Paragraph({
-        text: 'Por lo tanto, la carga total que puede soportar la ballesta de la suspensión delantera será igual a:',
-      })
-    );
-
-    // 5) Tabla: RESULTADO 2F = … Kg (celdas rellenadas en rojo/verdes según valor)
-    const tabla2F = new Table({
-      width: { size: 50, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          cantSplit: true,
-          children: ['2F=', '1120', 'Kg'].map(
-            (txt, i) =>
-              new TableCell({
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                shading:
-                  i === 1
-                    ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                    : undefined,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: txt })],
-                  }),
-                ],
-              })
-          ),
-        }),
-      ],
-    });
-    out.push(tabla2F);
-    out.push(new Paragraph({ text: '' }));
-    out.push(new Paragraph({ text: '' }));
-
-    // 6) Tabla: CÁLCULO DE LA BALLESTA EN EL EJE 2 (inputs)
-    const tablaInputEje2 = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        ...[
-          ['CÁLCULO DE LA BALLESTA EN EL EJE 1:', ' '],
-          [' ', ' '],
-          ['Número de hojas N=', '9'],
-          ['Ancho de la hoja b=', '60 mm'],
-          ['Espesor de la hoja e=', '12 mm'],
-          ['Longitud total ballesta 2L=', '750 mm'],
-          ['Esfuerzo de la flexión σ=', '60 Kg/mm²'],
-        ].map(
-          ([d, v]) =>
-            new TableRow({
-              cantSplit: true,
-              children: [d, v].map(
-                (txt) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: txt })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaInputEje2);
-    out.push(new Paragraph({ text: '' }));
-    out.push(new Paragraph({ text: '' }));
-
-    // 7) Tabla: F eje 2
-    const tablaFEje2 = new Table({
-      width: { size: 50, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          cantSplit: true,
-          children: ['F=', '2073,6', 'Kg'].map(
-            (txt, i) =>
-              new TableCell({
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: txt })],
-                  }),
-                ],
-              })
-          ),
-        }),
-      ],
-    });
-    out.push(tablaFEje2);
-    out.push(new Paragraph({ text: '' }));
-    out.push(new Paragraph({ text: '' }));
-
-    // 8) Tabla: 2F eje 2
-    const tabla2FEje2 = new Table({
-      width: { size: 50, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          cantSplit: true,
-          children: ['2F=', '4147,2', 'Kg'].map(
-            (txt, i) =>
-              new TableCell({
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                shading:
-                  i === 1
-                    ? { type: ShadingType.CLEAR, fill: '00B050' }
-                    : undefined,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: txt })],
-                  }),
-                ],
-              })
-          ),
-        }),
-      ],
-    });
-    out.push(tabla2FEje2);
-    out.push(new Paragraph({ text: '' }));
-    out.push(new Paragraph({ text: '' }));
-  }
-
-  if (mod?.detallesMuelles?.['tacosDeGoma']) {
-    out.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: '2.4.' + contador + ' Cálculo de los tacos de nylon',
-            bold: true,
-          }),
-        ],
-      })
-    );
-    out.push(new Paragraph({ text: '' }));
-    contador++;
-
-    // 2) Tabla: CARACTERÍSTICAS DEL VEHÍCULO Y TACOS
-    const tablaVehiculoTacos = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          cantSplit: true,
-          children: [
-            new TableCell({
-              columnSpan: 2,
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [
-                    new TextRun({
-                      text: 'CARACTERÍSTICAS DEL VEHÍCULO Y TACOS',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-        }),
-        ...[
-          ['MTMA/MMA (Kg)', '2000'],
-          ['MTMA/MMA eje 1', '1500'],
-          ['MTMA/MMA eje 2', '1000'],
-          ['PUNTOS DE APOYO', '2'],
-          ['Resistencia a compresión del nylon (Kg/cm²)', '917'],
-        ].map(
-          ([desc, val]) =>
-            new TableRow({
-              cantSplit: true,
-              children: [desc, val].map(
-                (txt) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: txt })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaVehiculoTacos);
-    out.push(new Paragraph({ text: '' }));
-    out.push(new Paragraph({ text: '' }));
-
-    // 3) Texto explicativo
-    out.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: 'Capacidad de carga de los tacos de goma.',
-          }),
-          new TextRun({
-            text: ' Los tacos instalados deberán estar diseñados para soportar las masas máximas en cada eje.',
-          }),
-        ],
-      })
-    );
-    out.push(new Paragraph({ text: '' }));
-
-    const COL_WIDTH = 33.33; // porcentaje para cada una de las 3 columnas
-
-    if (mod?.tacosDelantero) {
+    if (
+      mod?.detallesMuelles?.['muelleDelanteroConRef'] ||
+      mod?.detallesMuelles?.['muelleDelanteroSinRef']
+    ) {
       out.push(
         new Paragraph({
           children: [
             new TextRun({
-              text: ' Peso a soportar por cada taco de goma en el eje delantero:',
+              text: '2.4.' + contador + ' Cálculo de los muelles',
+              bold: true,
             }),
           ],
         })
       );
-      // 4) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 1
+      contador++;
 
-      const tablaPesoPorTaco = new Table({
+      const tablaMMA = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
+          // Encabezado
           new TableRow({
             cantSplit: true,
             children: [
-              // 1ª columna: texto completo
               new TableCell({
-                width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
+                columnSpan: 2,
                 margins: CELL_MARGINS,
                 verticalAlign: VerticalAlign.CENTER,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
                 children: [
-                  new Paragraph({
-                    alignment: AlignmentType.LEFT,
-                    children: [
-                      new TextRun({
-                        text: 'Peso a soportar por taco (Kg) =',
-                        bold: false,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              // 2ª columna: MMA/MMTA sobre Nº puntos de apoyo con línea divisoria
-              new TableCell({
-                width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    border: {
-                      bottom: {
-                        style: BorderStyle.SINGLE,
-                        size: 4,
-                        color: '000000',
-                      },
-                    },
-                    children: [new TextRun({ text: 'MMA/MMTA', bold: true })],
-                  }),
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
                     children: [
                       new TextRun({
-                        text: 'Nº puntos de apoyo',
-                        italics: true,
+                        text: 'MMA A CONSIDERAR EN CÁLCULOS',
                       }),
                     ],
-                  }),
-                ],
-              }),
-              // 3ª columna: "=" y "500"
-              new TableCell({
-                width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: '= 700' })],
                   }),
                 ],
               }),
             ],
           }),
+          // Filas de datos
+          ...[
+            ['MTMA/MMA (Kg)', '2000'],
+            ['MTMA/MMA eje 1', '1500'],
+            ['MTMA/MMA eje 2', '1000'],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    verticalAlign: VerticalAlign.CENTER,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun({ text: desc })],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    verticalAlign: VerticalAlign.CENTER,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun({ text: val })],
+                      }),
+                    ],
+                  }),
+                ],
+              })
+          ),
         ],
       });
-
-      out.push(tablaPesoPorTaco);
+      out.push(tablaMMA);
+      out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
 
-      // 5) Tabla: DIMENSIONES DEL TACO
-      const tablaDimensionesTaco = new Table({
+      // 3) Características muelle (Acero EN 12070-2 SiCr)
+      const tablaCaracteristicasMuelle = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Encabezado
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Características muelle (Acero EN 12070-2 SiCr)',
+              'Kg/mm²',
+              'MPa',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Filas
+          ...[
+            ['Resistencia mecánica (Rm)', '204', '2001,24'],
+            ['Resistencia elástica (Re)', '176', '1726,56'],
+            [
+              'Resistencia práctica del muelle a cizalla/cortadura (Rc)',
+              '114',
+              '1118,34',
+            ],
+            ['Módulo de elasticidad al cizallamiento', '8104', '79500,24'],
+            ['Incremento del alargamiento mínimo (A)', '5%', ''],
+          ].map(
+            ([d, v1, v2]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [d, v1, v2].map(
+                  (text) =>
+                    new TableCell({
+                      margins: CELL_MARGINS,
+                      verticalAlign: VerticalAlign.CENTER,
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun({ text })],
+                        }),
+                      ],
+                    })
+                ),
+              })
+          ),
+        ],
+      });
+      out.push(tablaCaracteristicasMuelle);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // 4) Características geométricas muelles delanteros
+      const tablaGeomDelanteros = new Table({
         width: { size: 50, type: WidthType.PERCENTAGE },
+        rows: [
+          // Encabezado
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Características geométricas muelles delanteros',
+              'mm',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Filas
+          ...[
+            ['Diámetro exterior (Dext)', '105,00'],
+            ['Diámetro interior (Dint)', '75,00'],
+            ['Diámetro medio (Dm)', '90,00'],
+            ['Diámetro de espira (De)', '15,00'],
+            ['Longitud libre (L0)', '470,00'],
+            ['Número de espiras (n)', '7,00'],
+            ['Curvatura (C)', '6,00'],
+            ['Rigidez (K) N/mm', '98,59'],
+          ].map(
+            ([d, v]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [d, v].map(
+                  (text) =>
+                    new TableCell({
+                      margins: CELL_MARGINS,
+                      verticalAlign: VerticalAlign.CENTER,
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun({ text })],
+                        }),
+                      ],
+                    })
+                ),
+              })
+          ),
+        ],
+      });
+      out.push(tablaGeomDelanteros);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // 5) Cálculo del esfuerzo máximo cortante (EMC) delanteros
+      const tablaEMCDelanteros = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Título
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                columnSpan: 3,
+                margins: CELL_MARGINS,
+                verticalAlign: VerticalAlign.CENTER,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CÁLCULO DEL ESFUERZO MÁXIMO CORTANTE (EMC)',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          // Encabezados de datos
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Esf. Máx. Cortante 1 muelle (N)',
+              'Esf. Máx. Cortante eje delantero (N)',
+              'Coeficiente de seguridad K>1',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Valores
+          new TableRow({
+            cantSplit: true,
+            children: ['16468,92', '32937,83', '2,24'].map(
+              (v, i) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading:
+                    i === 2
+                      ? { type: ShadingType.CLEAR, fill: '00B050' }
+                      : undefined,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+        ],
+      });
+      out.push(tablaEMCDelanteros);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // 6) Cálculo carga máx (Q) flecha delanteros
+      const tablaQDelanteros = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Título
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                columnSpan: 5,
+                margins: CELL_MARGINS,
+                verticalAlign: VerticalAlign.CENTER,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CÁLCULO LA CARGA MÁX (Q) EN FUNCIÓN DE LA FLECHA DEL MUELLE',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          // Encabezados
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Long. Mín muelle (mm)',
+              'Flecha del resorte (mm)',
+              'Carga máx Q (N)',
+              'Carga máx eje 1 Q (N)',
+              'Coef. Seguridad K>1',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Valores
+          new TableRow({
+            cantSplit: true,
+            children: ['105,00', '365,00', '35984,11', '71968,22', '4,89'].map(
+              (v, i) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading:
+                    i === 4
+                      ? { type: ShadingType.CLEAR, fill: '00B050' }
+                      : undefined,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+        ],
+      });
+      out.push(tablaQDelanteros);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // 7) Esfuerzo del muelle delanteros
+      const tablaEsfuerzoDelanteros = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Encabezado datos
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Fuerza máx eje delantero (N)',
+              'Factor de Bergsträsser Kb',
+              'Esfuerzo del muelle (T) MPa',
+              'Coeficiente de seguridad K>1',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Valores
+          new TableRow({
+            cantSplit: true,
+            children: ['7357,50', '1,24', '618,58', '1,81'].map(
+              (v, i) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading:
+                    i === 3
+                      ? { type: ShadingType.CLEAR, fill: '00B050' }
+                      : undefined,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+        ],
+      });
+      out.push(tablaEsfuerzoDelanteros);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // 8) Características geométricas muelles traseros
+      const tablaGeomTraseros = new Table({
+        width: { size: 50, type: WidthType.PERCENTAGE },
+        rows: [
+          // Encabezado
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Características geométricas muelles traseros',
+              'mm',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Filas
+          ...[
+            ['Diámetro exterior (Dext)', '106,00'],
+            ['Diámetro interior (Dint)', '68,00'],
+            ['Diámetro medio (Dm)', '87,00'],
+            ['Diámetro de espira (De)', '19,00'],
+            ['Longitud libre (L0)', '465,00'],
+            ['Número de espiras (n)', '8,00'],
+            ['Curvatura (C)', '4,58'],
+            ['Rigidez (K) N/mm', '245,84'],
+          ].map(
+            ([d, v]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [d, v].map(
+                  (text) =>
+                    new TableCell({
+                      margins: CELL_MARGINS,
+                      verticalAlign: VerticalAlign.CENTER,
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun({ text })],
+                        }),
+                      ],
+                    })
+                ),
+              })
+          ),
+        ],
+      });
+      out.push(tablaGeomTraseros);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // 9) EMC traseros
+      const tablaEMCTraseros = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Título
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                columnSpan: 3,
+                margins: CELL_MARGINS,
+                verticalAlign: VerticalAlign.CENTER,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CÁLCULO DEL ESFUERZO MÁXIMO CORTANTE (EMC)',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          // Encabezados
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Esf. Máx. Cortante 1 muelle (N)',
+              'Esf. Máx. Cortante eje delantero (N)',
+              'Coeficiente de seguridad K>1',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Valores
+          new TableRow({
+            cantSplit: true,
+            children: ['34623,84', '69247,69', '7,06'].map(
+              (v, i) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading:
+                    i === 2
+                      ? { type: ShadingType.CLEAR, fill: '00B050' }
+                      : undefined,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+        ],
+      });
+      out.push(tablaEMCTraseros);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // 10) Q traseros
+      const tablaQTraseros = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Título
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                columnSpan: 5,
+                margins: CELL_MARGINS,
+                verticalAlign: VerticalAlign.CENTER,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CÁLCULO LA CARGA MÁX (Q) EN FUNCIÓN DE LA FLECHA DEL MUELLE',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          // Encabezados
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Long. Mín muelle (mm)',
+              'Flecha del resorte (mm)',
+              'Carga máx Q (N)',
+              'Carga máx eje 1 Q (N)',
+              'Coef. Seguridad K>1',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Valores
+          new TableRow({
+            cantSplit: true,
+            children: [
+              '152,00',
+              '313,00',
+              '76946,60',
+              '153893,21',
+              '15,69',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading:
+                    i === 4
+                      ? { type: ShadingType.CLEAR, fill: '00B050' }
+                      : undefined,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+        ],
+      });
+      out.push(tablaQTraseros);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // 11) Esfuerzo traseros
+      const tablaEsfuerzoTraseros = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Encabezado datos
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Fuerza máx eje delantero (N)',
+              'Factor de Bergsträsser Kb',
+              'Esfuerzo del muelle (T) MPa',
+              'Coeficiente de seguridad K>1',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+          // Valores
+          new TableRow({
+            cantSplit: true,
+            children: ['4905,00', '1,33', '210,15', '5,32'].map(
+              (v, i) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading:
+                    i === 3
+                      ? { type: ShadingType.CLEAR, fill: '00B050' }
+                      : undefined,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+        ],
+      });
+      out.push(tablaEsfuerzoTraseros);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+    }
+
+    out.push(new Paragraph({ text: '' }));
+
+    contador = 1;
+
+    if (
+      mod?.detallesMuelles?.['ballestaDelantera'] ||
+      mod?.detallesMuelles?.['ballestaTrasera']
+    ) {
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.4.' + contador + ' Cálculo de las ballestas',
+              bold: true,
+            }),
+          ],
+        })
+      );
+      contador++;
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las MMA a considerar en los cálculos son las siguientes:',
+            }),
+          ],
+        })
+      );
+
+      // 2) Tabla: CARACTERÍSTICAS DEL VEHÍCULO
+      const tablaVehiculo = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
           new TableRow({
             cantSplit: true,
@@ -2724,18 +2940,331 @@ export async function buildCalculos(
                 children: [
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: 'DIMENSIONES DEL TACO' })],
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS DEL VEHÍCULO',
+                      }),
+                    ],
                   }),
                 ],
               }),
             ],
           }),
           ...[
-            ['Diámetro (cm)', '9'],
-            ['Radio (cm)', '4,5'],
-            ['Espesor (cm)', '4,5'],
-            ['Superficie (cm²)', '63,585'],
-            ['Res. Máxima a compresión (Kg)', '58307,445'],
+            ['MTMA/MMA (Kg)', '2000'],
+            ['MTMA/MMA eje 1', '1500'],
+            ['MTMA/MMA eje 2', '1000'],
+          ].map(
+            ([d, v]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [d, v].map(
+                  (txt) =>
+                    new TableCell({
+                      margins: CELL_MARGINS,
+                      verticalAlign: VerticalAlign.CENTER,
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun({ text: txt })],
+                        }),
+                      ],
+                    })
+                ),
+              })
+          ),
+        ],
+      });
+      out.push(tablaVehiculo);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para calcular la carga que puede ser soportada por una ballesta, se emplea la siguiente formulación por flexión:',
+            }),
+          ],
+        })
+      );
+
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      if (mod?.detallesMuelles?.['ballestaDelantera']) {
+        // 3) Tabla: CÁLCULO DE LA BALLESTA EN EL EJE 1 (inputs)
+        const tablaInputEje1 = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: [],
+            }),
+            ...[
+              ['CÁLCULO DE LA BALLESTA EN EL EJE 1:', ' '],
+              [' ', ' '],
+              ['Número de hojas N=', '7'],
+              ['Ancho de la hoja b=', '50 mm'],
+              ['Espesor de la hoja e=', '8 mm'],
+              ['Longitud total ballesta 2L=', '800 mm'],
+              ['Esfuerzo de la flexión σ=', '60 Kg/mm²'],
+            ].map(
+              ([d, v]) =>
+                new TableRow({
+                  cantSplit: true,
+                  children: [d, v].map(
+                    (txt) =>
+                      new TableCell({
+                        margins: CELL_MARGINS,
+                        verticalAlign: VerticalAlign.CENTER,
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            children: [new TextRun({ text: txt })],
+                          }),
+                        ],
+                      })
+                  ),
+                })
+            ),
+          ],
+        });
+        out.push(tablaInputEje1);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+
+        const arrayBuffer = await (
+          await fetch('../assets/ballesta.png')
+        ).arrayBuffer();
+        const imageData = new Uint8Array(arrayBuffer);
+
+        out.push(
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new ImageRun({
+                data: imageData,
+                type: 'png',
+                transformation: {
+                  width: 400,
+                  height: 300,
+                },
+              }),
+            ],
+          })
+        );
+
+        // 4) Tabla: RESULTADO F = … Kg
+        const tablaF = new Table({
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: ['F=', '560', 'Kg'].map(
+                (txt, i) =>
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    verticalAlign: VerticalAlign.CENTER,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [
+                          new TextRun({
+                            text: txt,
+                            shading:
+                              i === 1
+                                ? { type: ShadingType.CLEAR, fill: 'FFFFFF' }
+                                : undefined,
+                          }),
+                        ],
+                      }),
+                    ],
+                  })
+              ),
+            }),
+          ],
+        });
+        out.push(tablaF);
+        out.push(new Paragraph({ text: '' }));
+      }
+
+      if (mod?.detallesMuelles?.['ballestaTrasera']) {
+        out.push(
+          new Paragraph({
+            text: 'Por lo tanto, la carga total que puede soportar la ballesta de la suspensión delantera será igual a:',
+          })
+        );
+
+        // 5) Tabla: RESULTADO 2F = … Kg (celdas rellenadas en rojo/verdes según valor)
+        const tabla2F = new Table({
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: ['2F=', '1120', 'Kg'].map(
+                (txt, i) =>
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    verticalAlign: VerticalAlign.CENTER,
+                    shading:
+                      i === 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : undefined,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun({ text: txt })],
+                      }),
+                    ],
+                  })
+              ),
+            }),
+          ],
+        });
+        out.push(tabla2F);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+
+        // 6) Tabla: CÁLCULO DE LA BALLESTA EN EL EJE 2 (inputs)
+        const tablaInputEje2 = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            ...[
+              ['CÁLCULO DE LA BALLESTA EN EL EJE 2:', ' '],
+              [' ', ' '],
+              ['Número de hojas N=', '9'],
+              ['Ancho de la hoja b=', '60 mm'],
+              ['Espesor de la hoja e=', '12 mm'],
+              ['Longitud total ballesta 2L=', '750 mm'],
+              ['Esfuerzo de la flexión σ=', '60 Kg/mm²'],
+            ].map(
+              ([d, v]) =>
+                new TableRow({
+                  cantSplit: true,
+                  children: [d, v].map(
+                    (txt) =>
+                      new TableCell({
+                        margins: CELL_MARGINS,
+                        verticalAlign: VerticalAlign.CENTER,
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            children: [new TextRun({ text: txt })],
+                          }),
+                        ],
+                      })
+                  ),
+                })
+            ),
+          ],
+        });
+        out.push(tablaInputEje2);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+
+        // 7) Tabla: F eje 2
+        const tablaFEje2 = new Table({
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: ['F=', '2073,6', 'Kg'].map(
+                (txt, i) =>
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    verticalAlign: VerticalAlign.CENTER,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun({ text: txt })],
+                      }),
+                    ],
+                  })
+              ),
+            }),
+          ],
+        });
+        out.push(tablaFEje2);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+
+        // 8) Tabla: 2F eje 2
+        const tabla2FEje2 = new Table({
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: ['2F=', '4147,2', 'Kg'].map(
+                (txt, i) =>
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    verticalAlign: VerticalAlign.CENTER,
+                    shading:
+                      i === 1
+                        ? { type: ShadingType.CLEAR, fill: '00B050' }
+                        : undefined,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun({ text: txt })],
+                      }),
+                    ],
+                  })
+              ),
+            }),
+          ],
+        });
+        out.push(tabla2FEje2);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+      }
+    }
+
+    if (mod?.detallesMuelles?.['tacosDeGoma']) {
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.4.' + contador + ' Cálculo de los tacos de nylon',
+              bold: true,
+            }),
+          ],
+        })
+      );
+      out.push(new Paragraph({ text: '' }));
+      contador++;
+
+      // 2) Tabla: CARACTERÍSTICAS DEL VEHÍCULO Y TACOS
+      const tablaVehiculoTacos = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                margins: CELL_MARGINS,
+                verticalAlign: VerticalAlign.CENTER,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS DEL VEHÍCULO Y TACOS',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          ...[
+            ['MTMA/MMA (Kg)', '2000'],
+            ['MTMA/MMA eje 1', '1500'],
+            ['MTMA/MMA eje 2', '1000'],
+            ['PUNTOS DE APOYO', '2'],
+            ['Resistencia a compresión del nylon (Kg/cm²)', '917'],
           ].map(
             ([desc, val]) =>
               new TableRow({
@@ -2757,146 +3286,299 @@ export async function buildCalculos(
           ),
         ],
       });
-      out.push(tablaDimensionesTaco);
+      out.push(tablaVehiculoTacos);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
-    }
 
-    if (mod?.tacosTrasero) {
+      // 3) Texto explicativo
       out.push(
         new Paragraph({
           children: [
             new TextRun({
-              text: ' Peso a soportar por cada taco de goma en el eje trasero:',
+              text: 'Capacidad de carga de los tacos de goma.',
+            }),
+            new TextRun({
+              text: ' Los tacos instalados deberán estar diseñados para soportar las masas máximas en cada eje.',
             }),
           ],
         })
       );
-
       out.push(new Paragraph({ text: '' }));
 
-      // 6) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 2
-      const tablaPesoEje2 = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
+      const COL_WIDTH = 33.33; // porcentaje para cada una de las 3 columnas
+
+      if (mod?.tacosDelantero) {
+        out.push(
+          new Paragraph({
             children: [
-              // 1ª columna: texto completo
-              new TableCell({
-                width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.LEFT,
-                    children: [
-                      new TextRun({
-                        text: 'Peso a soportar por taco (Kg) =',
-                        bold: false,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              // 2ª columna: MMA/MMTA sobre Nº puntos de apoyo con línea divisoria
-              new TableCell({
-                width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    border: {
-                      bottom: {
-                        style: BorderStyle.SINGLE,
-                        size: 4,
-                        color: '000000',
-                      },
-                    },
-                    children: [new TextRun({ text: 'MMA/MMTA', bold: true })],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'Nº puntos de apoyo',
-                        italics: true,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              // 3ª columna: "=" y "500"
-              new TableCell({
-                width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: '= 500' })],
-                  }),
-                ],
+              new TextRun({
+                text: ' Peso a soportar por cada taco de goma en el eje delantero:',
               }),
             ],
-          }),
-        ],
-      });
-      out.push(tablaPesoEje2);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
+          })
+        );
+        // 4) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 1
 
-      const tablaDimensionesTacoTrasero = new Table({
-        width: { size: 50, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                columnSpan: 2,
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: 'DIMENSIONES DEL TACO' })],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          ...[
-            ['Diámetro (cm)', '9'],
-            ['Radio (cm)', '4,5'],
-            ['Espesor (cm)', '4,5'],
-            ['Superficie (cm²)', '63,585'],
-            ['Res. Máxima a compresión (Kg)', '58307,445'],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [desc, val].map(
-                  (txt) =>
-                    new TableCell({
-                      margins: CELL_MARGINS,
-                      verticalAlign: VerticalAlign.CENTER,
+        const tablaPesoPorTaco = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: [
+                // 1ª columna: texto completo
+                new TableCell({
+                  width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.LEFT,
                       children: [
-                        new Paragraph({
-                          alignment: AlignmentType.CENTER,
-                          children: [new TextRun({ text: txt })],
+                        new TextRun({
+                          text: 'Peso a soportar por taco (Kg) =',
+                          bold: false,
                         }),
                       ],
-                    })
-                ),
-              })
-          ),
-        ],
-      });
-      out.push(tablaDimensionesTacoTrasero);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
+                    }),
+                  ],
+                }),
+                // 2ª columna: MMA/MMTA sobre Nº puntos de apoyo con línea divisoria
+                new TableCell({
+                  width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      border: {
+                        bottom: {
+                          style: BorderStyle.SINGLE,
+                          size: 4,
+                          color: '000000',
+                        },
+                      },
+                      children: [new TextRun({ text: 'MMA/MMTA', bold: true })],
+                    }),
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Nº puntos de apoyo',
+                          italics: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                // 3ª columna: "=" y "500"
+                new TableCell({
+                  width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '= 700' })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        });
+
+        out.push(tablaPesoPorTaco);
+        out.push(new Paragraph({ text: '' }));
+
+        // 5) Tabla: DIMENSIONES DEL TACO
+        const tablaDimensionesTaco = new Table({
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  columnSpan: 2,
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'DIMENSIONES DEL TACO' })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            ...[
+              ['Diámetro (cm)', '9'],
+              ['Radio (cm)', '4,5'],
+              ['Espesor (cm)', '4,5'],
+              ['Superficie (cm²)', '63,585'],
+              ['Res. Máxima a compresión (Kg)', '58307,445'],
+            ].map(
+              ([desc, val]) =>
+                new TableRow({
+                  cantSplit: true,
+                  children: [desc, val].map(
+                    (txt) =>
+                      new TableCell({
+                        margins: CELL_MARGINS,
+                        verticalAlign: VerticalAlign.CENTER,
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            children: [new TextRun({ text: txt })],
+                          }),
+                        ],
+                      })
+                  ),
+                })
+            ),
+          ],
+        });
+        out.push(tablaDimensionesTaco);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+      }
+
+      if (mod?.tacosTrasero) {
+        out.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: ' Peso a soportar por cada taco de goma en el eje trasero:',
+              }),
+            ],
+          })
+        );
+
+        out.push(new Paragraph({ text: '' }));
+
+        // 6) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 2
+        const tablaPesoEje2 = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: [
+                // 1ª columna: texto completo
+                new TableCell({
+                  width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.LEFT,
+                      children: [
+                        new TextRun({
+                          text: 'Peso a soportar por taco (Kg) =',
+                          bold: false,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                // 2ª columna: MMA/MMTA sobre Nº puntos de apoyo con línea divisoria
+                new TableCell({
+                  width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      border: {
+                        bottom: {
+                          style: BorderStyle.SINGLE,
+                          size: 4,
+                          color: '000000',
+                        },
+                      },
+                      children: [new TextRun({ text: 'MMA/MMTA', bold: true })],
+                    }),
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Nº puntos de apoyo',
+                          italics: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                // 3ª columna: "=" y "500"
+                new TableCell({
+                  width: { size: COL_WIDTH, type: WidthType.PERCENTAGE },
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: '= 500' })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        });
+        out.push(tablaPesoEje2);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+
+        const tablaDimensionesTacoTrasero = new Table({
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  columnSpan: 2,
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'DIMENSIONES DEL TACO' })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            ...[
+              ['Diámetro (cm)', '9'],
+              ['Radio (cm)', '4,5'],
+              ['Espesor (cm)', '4,5'],
+              ['Superficie (cm²)', '63,585'],
+              ['Res. Máxima a compresión (Kg)', '58307,445'],
+            ].map(
+              ([desc, val]) =>
+                new TableRow({
+                  cantSplit: true,
+                  children: [desc, val].map(
+                    (txt) =>
+                      new TableCell({
+                        margins: CELL_MARGINS,
+                        verticalAlign: VerticalAlign.CENTER,
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.CENTER,
+                            children: [new TextRun({ text: txt })],
+                          }),
+                        ],
+                      })
+                  ),
+                })
+            ),
+          ],
+        });
+        out.push(tablaDimensionesTacoTrasero);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+      }
     }
   }
 
@@ -2926,664 +3608,6 @@ export async function buildCalculos(
       ],
     })
   );
-
-  return out;
-}
-
-export function muelles(): (Paragraph | Table)[] {
-  const out: (Paragraph | Table)[] = [];
-
-  const tablaMMA = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      // Encabezado
-      new TableRow({
-        cantSplit: true,
-        children: [
-          new TableCell({
-            columnSpan: 2,
-            margins: CELL_MARGINS,
-            verticalAlign: VerticalAlign.CENTER,
-            shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: 'MMA A CONSIDERAR EN CÁLCULOS',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-      // Filas de datos
-      ...[
-        ['MTMA/MMA (Kg)', '2000'],
-        ['MTMA/MMA eje 1', '1500'],
-        ['MTMA/MMA eje 2', '1000'],
-      ].map(
-        ([desc, val]) =>
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: desc })],
-                  }),
-                ],
-              }),
-              new TableCell({
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: val })],
-                  }),
-                ],
-              }),
-            ],
-          })
-      ),
-    ],
-  });
-  out.push(tablaMMA);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 3) Características muelle (Acero EN 12070-2 SiCr)
-  const tablaCaracteristicasMuelle = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      // Encabezado
-      new TableRow({
-        cantSplit: true,
-        children: [
-          'Características muelle (Acero EN 12070-2 SiCr)',
-          'Kg/mm²',
-          'MPa',
-        ].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Filas
-      ...[
-        ['Resistencia mecánica (Rm)', '204', '2001,24'],
-        ['Resistencia elástica (Re)', '176', '1726,56'],
-        [
-          'Resistencia práctica del muelle a cizalla/cortadura (Rc)',
-          '114',
-          '1118,34',
-        ],
-        ['Módulo de elasticidad al cizallamiento', '8104', '79500,24'],
-        ['Incremento del alargamiento mínimo (A)', '5%', ''],
-      ].map(
-        ([d, v1, v2]) =>
-          new TableRow({
-            cantSplit: true,
-            children: [d, v1, v2].map(
-              (text) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text })],
-                    }),
-                  ],
-                })
-            ),
-          })
-      ),
-    ],
-  });
-  out.push(tablaCaracteristicasMuelle);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 4) Características geométricas muelles delanteros
-  const tablaGeomDelanteros = new Table({
-    width: { size: 50, type: WidthType.PERCENTAGE },
-    rows: [
-      // Encabezado
-      new TableRow({
-        cantSplit: true,
-        children: ['Características geométricas muelles delanteros', 'mm'].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Filas
-      ...[
-        ['Diámetro exterior (Dext)', '105,00'],
-        ['Diámetro interior (Dint)', '75,00'],
-        ['Diámetro medio (Dm)', '90,00'],
-        ['Diámetro de espira (De)', '15,00'],
-        ['Longitud libre (L0)', '470,00'],
-        ['Número de espiras (n)', '7,00'],
-        ['Curvatura (C)', '6,00'],
-        ['Rigidez (K) N/mm', '98,59'],
-      ].map(
-        ([d, v]) =>
-          new TableRow({
-            cantSplit: true,
-            children: [d, v].map(
-              (text) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text })],
-                    }),
-                  ],
-                })
-            ),
-          })
-      ),
-    ],
-  });
-  out.push(tablaGeomDelanteros);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 5) Cálculo del esfuerzo máximo cortante (EMC) delanteros
-  const tablaEMCDelanteros = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      // Título
-      new TableRow({
-        cantSplit: true,
-        children: [
-          new TableCell({
-            columnSpan: 3,
-            margins: CELL_MARGINS,
-            verticalAlign: VerticalAlign.CENTER,
-            shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: 'CÁLCULO DEL ESFUERZO MÁXIMO CORTANTE (EMC)',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-      // Encabezados de datos
-      new TableRow({
-        cantSplit: true,
-        children: [
-          'Esf. Máx. Cortante 1 muelle (N)',
-          'Esf. Máx. Cortante eje delantero (N)',
-          'Coeficiente de seguridad K>1',
-        ].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Valores
-      new TableRow({
-        cantSplit: true,
-        children: ['16468,92', '32937,83', '2,24'].map(
-          (v, i) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading:
-                i === 2
-                  ? { type: ShadingType.CLEAR, fill: '00B050' }
-                  : undefined,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: v })],
-                }),
-              ],
-            })
-        ),
-      }),
-    ],
-  });
-  out.push(tablaEMCDelanteros);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 6) Cálculo carga máx (Q) flecha delanteros
-  const tablaQDelanteros = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      // Título
-      new TableRow({
-        cantSplit: true,
-        children: [
-          new TableCell({
-            columnSpan: 5,
-            margins: CELL_MARGINS,
-            verticalAlign: VerticalAlign.CENTER,
-            shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: 'CÁLCULO LA CARGA MÁX (Q) EN FUNCIÓN DE LA FLECHA DEL MUELLE',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-      // Encabezados
-      new TableRow({
-        cantSplit: true,
-        children: [
-          'Long. Mín muelle (mm)',
-          'Flecha del resorte (mm)',
-          'Carga máx Q (N)',
-          'Carga máx eje 1 Q (N)',
-          'Coef. Seguridad K>1',
-        ].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Valores
-      new TableRow({
-        cantSplit: true,
-        children: ['105,00', '365,00', '35984,11', '71968,22', '4,89'].map(
-          (v, i) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading:
-                i === 4
-                  ? { type: ShadingType.CLEAR, fill: '00B050' }
-                  : undefined,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: v })],
-                }),
-              ],
-            })
-        ),
-      }),
-    ],
-  });
-  out.push(tablaQDelanteros);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 7) Esfuerzo del muelle delanteros
-  const tablaEsfuerzoDelanteros = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      // Encabezado datos
-      new TableRow({
-        cantSplit: true,
-        children: [
-          'Fuerza máx eje delantero (N)',
-          'Factor de Bergsträsser Kb',
-          'Esfuerzo del muelle (T) MPa',
-          'Coeficiente de seguridad K>1',
-        ].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Valores
-      new TableRow({
-        cantSplit: true,
-        children: ['7357,50', '1,24', '618,58', '1,81'].map(
-          (v, i) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading:
-                i === 3
-                  ? { type: ShadingType.CLEAR, fill: '00B050' }
-                  : undefined,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: v })],
-                }),
-              ],
-            })
-        ),
-      }),
-    ],
-  });
-  out.push(tablaEsfuerzoDelanteros);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 8) Características geométricas muelles traseros
-  const tablaGeomTraseros = new Table({
-    width: { size: 50, type: WidthType.PERCENTAGE },
-    rows: [
-      // Encabezado
-      new TableRow({
-        cantSplit: true,
-        children: ['Características geométricas muelles traseros', 'mm'].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Filas
-      ...[
-        ['Diámetro exterior (Dext)', '106,00'],
-        ['Diámetro interior (Dint)', '68,00'],
-        ['Diámetro medio (Dm)', '87,00'],
-        ['Diámetro de espira (De)', '19,00'],
-        ['Longitud libre (L0)', '465,00'],
-        ['Número de espiras (n)', '8,00'],
-        ['Curvatura (C)', '4,58'],
-        ['Rigidez (K) N/mm', '245,84'],
-      ].map(
-        ([d, v]) =>
-          new TableRow({
-            cantSplit: true,
-            children: [d, v].map(
-              (text) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text })],
-                    }),
-                  ],
-                })
-            ),
-          })
-      ),
-    ],
-  });
-  out.push(tablaGeomTraseros);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 9) EMC traseros
-  const tablaEMCTraseros = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      // Título
-      new TableRow({
-        cantSplit: true,
-        children: [
-          new TableCell({
-            columnSpan: 3,
-            margins: CELL_MARGINS,
-            verticalAlign: VerticalAlign.CENTER,
-            shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: 'CÁLCULO DEL ESFUERZO MÁXIMO CORTANTE (EMC)',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-      // Encabezados
-      new TableRow({
-        cantSplit: true,
-        children: [
-          'Esf. Máx. Cortante 1 muelle (N)',
-          'Esf. Máx. Cortante eje delantero (N)',
-          'Coeficiente de seguridad K>1',
-        ].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Valores
-      new TableRow({
-        cantSplit: true,
-        children: ['34623,84', '69247,69', '7,06'].map(
-          (v, i) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading:
-                i === 2
-                  ? { type: ShadingType.CLEAR, fill: '00B050' }
-                  : undefined,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: v })],
-                }),
-              ],
-            })
-        ),
-      }),
-    ],
-  });
-  out.push(tablaEMCTraseros);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 10) Q traseros
-  const tablaQTraseros = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      // Título
-      new TableRow({
-        cantSplit: true,
-        children: [
-          new TableCell({
-            columnSpan: 5,
-            margins: CELL_MARGINS,
-            verticalAlign: VerticalAlign.CENTER,
-            shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: 'CÁLCULO LA CARGA MÁX (Q) EN FUNCIÓN DE LA FLECHA DEL MUELLE',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-      // Encabezados
-      new TableRow({
-        cantSplit: true,
-        children: [
-          'Long. Mín muelle (mm)',
-          'Flecha del resorte (mm)',
-          'Carga máx Q (N)',
-          'Carga máx eje 1 Q (N)',
-          'Coef. Seguridad K>1',
-        ].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Valores
-      new TableRow({
-        cantSplit: true,
-        children: ['152,00', '313,00', '76946,60', '153893,21', '15,69'].map(
-          (v, i) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading:
-                i === 4
-                  ? { type: ShadingType.CLEAR, fill: '00B050' }
-                  : undefined,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: v })],
-                }),
-              ],
-            })
-        ),
-      }),
-    ],
-  });
-  out.push(tablaQTraseros);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
-
-  // 11) Esfuerzo traseros
-  const tablaEsfuerzoTraseros = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      // Encabezado datos
-      new TableRow({
-        cantSplit: true,
-        children: [
-          'Fuerza máx eje delantero (N)',
-          'Factor de Bergsträsser Kb',
-          'Esfuerzo del muelle (T) MPa',
-          'Coeficiente de seguridad K>1',
-        ].map(
-          (h) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: h })],
-                }),
-              ],
-            })
-        ),
-      }),
-      // Valores
-      new TableRow({
-        cantSplit: true,
-        children: ['4905,00', '1,33', '210,15', '5,32'].map(
-          (v, i) =>
-            new TableCell({
-              margins: CELL_MARGINS,
-              verticalAlign: VerticalAlign.CENTER,
-              shading:
-                i === 3
-                  ? { type: ShadingType.CLEAR, fill: '00B050' }
-                  : undefined,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: v })],
-                }),
-              ],
-            })
-        ),
-      }),
-    ],
-  });
-  out.push(tablaEsfuerzoTraseros);
-  out.push(new Paragraph({ text: '' }));
-  out.push(new Paragraph({ text: '' }));
 
   return out;
 }
