@@ -30,6 +30,7 @@ export class CanvaComponent implements OnInit {
   @Input() datosEntrada: any;
   @Output() continuar = new EventEmitter<any>();
   @Output() volver = new EventEmitter<any>();
+  @Output() autosave = new EventEmitter<any>();
 
   @ViewChild('canvasContainer') canvasContainer!: ElementRef;
   @ViewChild('canvasImg', { static: true })
@@ -49,49 +50,66 @@ export class CanvaComponent implements OnInit {
 
   constructor(private http: HttpClient) {}
 
+  private snapshot(): any {
+    return {
+      ...(this.datosEntrada || {}),
+      marcadores: this.markers,
+      fechaFirma: this.fechaFirma,
+      firmaUrl: this.firmaUrl,
+    };
+  }
+  private emitAutosave() {
+    this.autosave.emit(this.snapshot());
+  }
+
   ngOnInit(): void {
-    let url = '';
+    // ====== FECHA / FIRMA inicial ======
+    this.fechaFirma = this.datosEntrada?.fechaFirma || this.calcularFechaHoy();
+    this.firmaUrl =
+      this.datosEntrada?.firmaUrl ||
+      'http://192.168.1.41:3000/imgs/firma-generada.png';
 
-    this.firmaUrl = 'http://192.168.1.41:3000/imgs/firma-generada.png';
-    this.fechaFirma = this.calcularFechaHoy();
+    // ====== Tipo / reset marcadores si cambió el tipo ======
+    const tipoActual = (this.datosEntrada?.tipoVehiculo || '')
+      .toString()
+      .trim()
+      .toLowerCase();
 
-    if (
-      this.tipoVehiculoAnterior &&
-      this.datosEntrada.tipoVehiculo !== this.tipoVehiculoAnterior
-    ) {
+    if (this.tipoVehiculoAnterior && tipoActual !== this.tipoVehiculoAnterior) {
       this.markers = [];
     }
-    this.tipoVehiculoAnterior = this.datosEntrada.tipoVehiculo;
+    this.tipoVehiculoAnterior = tipoActual;
 
-    // Recuperar marcadores desde datosEntrada
+    // ====== Restaurar marcadores si vienen del padre ======
     if (Array.isArray(this.datosEntrada?.marcadores)) {
       this.markers = [...this.datosEntrada.marcadores];
     }
 
-    // Generar nuevas etiquetas
+    // ====== Construir labels a partir de las modificaciones ======
     const nuevasLabels: string[] = [];
+    const mods = Array.isArray(this.datosEntrada?.modificaciones)
+      ? this.datosEntrada.modificaciones
+      : [];
 
-    if (Array.isArray(this.datosEntrada?.modificaciones)) {
-      for (const mod of this.datosEntrada.modificaciones) {
-        if (!mod.seleccionado) continue;
+    for (const mod of mods) {
+      if (!mod?.seleccionado) continue;
 
-        if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
-          mod.mueblesBajo?.forEach((m: any) =>
-            nuevasLabels.push(`Mueble bajo (${m.medidas || 'sin medidas'})`)
-          );
-          mod.mueblesAlto?.forEach((m: any) =>
-            nuevasLabels.push(`Mueble alto (${m.medidas || 'sin medidas'})`)
-          );
-          mod.mueblesAseo?.forEach((m: any) =>
-            nuevasLabels.push(`Aseo (${m.medidas || 'sin medidas'})`)
-          );
-        } else {
-          nuevasLabels.push(mod.nombre);
-        }
+      if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
+        mod.mueblesBajo?.forEach((m: any) =>
+          nuevasLabels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`)
+        );
+        mod.mueblesAlto?.forEach((m: any) =>
+          nuevasLabels.push(`Mueble alto (${m?.medidas || 'sin medidas'})`)
+        );
+        mod.mueblesAseo?.forEach((m: any) =>
+          nuevasLabels.push(`Aseo (${m?.medidas || 'sin medidas'})`)
+        );
+      } else {
+        nuevasLabels.push(mod.nombre);
       }
     }
 
-    // Reasignar números de los marcadores en base a su etiqueta real
+    // Reasignar números de marcadores segun su etiqueta
     if (this.markers.length > 0) {
       this.markers = this.markers
         .map((m) => {
@@ -99,6 +117,7 @@ export class CanvaComponent implements OnInit {
           if (newIndex !== -1) {
             return { ...m, label: (newIndex + 1).toString() };
           }
+          // si la etiqueta ya no existe, descartamos ese marcador
           return null;
         })
         .filter((m) => m !== null) as Marker[];
@@ -107,7 +126,9 @@ export class CanvaComponent implements OnInit {
     this.labels = nuevasLabels;
     this.etiquetasAnteriores = [...nuevasLabels];
 
-    switch (this.datosEntrada.tipoVehiculo) {
+    // ====== Imagen de fondo por tipo ======
+    let url = '';
+    switch (tipoActual) {
       case 'camper':
         url = 'http://192.168.1.41:3000/imgs/camper.png';
         break;
@@ -119,6 +140,9 @@ export class CanvaComponent implements OnInit {
     }
 
     this.cargarImagenComoBase64(url).then((base64) => (this.imageSrc = base64));
+
+    // Primer autosave al entrar (estado restaurado o en blanco)
+    this.emitAutosave();
   }
 
   calcularFechaHoy() {
@@ -149,6 +173,7 @@ export class CanvaComponent implements OnInit {
 
   selectRow(idx: number): void {
     this.selectedIndex = idx;
+    this.emitAutosave();
   }
 
   onImageClick(event: MouseEvent): void {
@@ -165,25 +190,37 @@ export class CanvaComponent implements OnInit {
       label: (this.selectedIndex + 1).toString(),
       etiqueta: this.labels[this.selectedIndex], // ← aquí lo importante
     });
+
+    this.emitAutosave();
   }
 
   undoMarker(): void {
     this.markers.pop();
+    this.emitAutosave();
   }
 
   onBack(): void {
     this.datosEntrada.marcadores = this.markers;
-    this.volver.emit();
+    this.datosEntrada.fechaFirma = this.fechaFirma;
+    this.datosEntrada.firmaUrl = this.firmaUrl;
+    this.emitAutosave();
+    this.volver.emit(this.snapshot()); // devuelve todo por si el padre quiere usarlo
   }
 
   onContinue(): void {
     this.datosEntrada.marcadores = this.markers;
+    this.datosEntrada.fechaFirma = this.fechaFirma;
+    this.datosEntrada.firmaUrl = this.firmaUrl;
+
+    // Guardamos imágenes (side-effects) y autosave antes de continuar
+    this.emitAutosave();
     this.guardarImagen();
     this.guardarFirma();
-    this.continuar.emit(this.datosEntrada);
+
+    this.continuar.emit(this.snapshot());
   }
 
-  guardarImagen() {
+  private guardarImagen() {
     const originalClass = this.canvasContainer?.nativeElement.className;
     this.canvasContainer?.nativeElement.classList.remove('border');
 
@@ -198,30 +235,6 @@ export class CanvaComponent implements OnInit {
         })
         .subscribe((res) => console.log('Imagen guardada:', res));
     });
-  }
-
-  guardaarFirma() {
-    this.fechaFirma = this.calcularFechaHoy();
-    this.firmaUrl =
-      'http://192.168.1.41:3000/imgs/firma-generada.png?ts=' + Date.now();
-
-    setTimeout(() => {
-      html2canvas(this.firmaRef.nativeElement, {
-        scale: window.devicePixelRatio! * 16,
-        backgroundColor: null,
-        useCORS: true,
-      }).then((canvas) => {
-        const imagenBase64 = canvas.toDataURL('image/png');
-        this.http
-          .post('http://192.168.1.41:3000/guardar-firma', {
-            imagenBase64,
-            nombreArchivo: 'firma-generada.png',
-          })
-          .subscribe(() =>
-            console.log('Firma guardada y servidor sobreescribió')
-          );
-      });
-    }, 0);
   }
 
   guardarFirma() {

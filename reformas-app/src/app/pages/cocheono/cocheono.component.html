@@ -1,93 +1,98 @@
-@if (datosEntrada.tipoVehiculo === 'coche') {
-  <div class="p-3">
-    <form #form="ngForm" (ngSubmit)="onContinuar(form)" novalidate>
-      <h4>Pasos de seguridad y normativas</h4>
-      <div class="form-check mb-2">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [(ngModel)]="opcionesCoche[0]"
-          name="opt0"
-          id="opt0"
-          required
-          />
-          <label class="form-check-label" for="opt0">
-            El vehículo dispone de sistema de frenado ABS.
-          </label>
-        </div>
-        <div class="form-check mb-2">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            [(ngModel)]="opcionesCoche[1]"
-            name="opt1"
-            id="opt1"
-            required
-            />
-            <label class="form-check-label" for="opt1">
-              Se cumple en todo caso con la normativa de salientes exteriores.
-            </label>
-          </div>
-          <div class="form-check mb-2">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="opcionesCoche[2]"
-              name="opt2"
-              id="opt2"
-              required
-              />
-              <label class="form-check-label" for="opt2">
-                Los anclajes del paragolpes delantero son los originales, no
-                modificándose la altura libre.
-              </label>
-            </div>
-            <div class="form-check mb-2">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                [(ngModel)]="opcionesCoche[3]"
-                name="opt3"
-                id="opt3"
-                required
-                />
-                <label class="form-check-label" for="opt3">
-                  El sistema de remolcado delantero y trasero no se ve impedido tras la
-                  reforma.
-                </label>
-              </div>
-              <div class="form-check mb-2">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  [(ngModel)]="opcionesCoche[4]"
-                  name="opt4"
-                  id="opt4"
-                  required
-                  />
-                  <label class="form-check-label" for="opt4">
-                    Ninguna pieza asociada a las reformas presenta aristas vivas o cortantes
-                    peligrosas.
-                  </label>
-                </div>
-                <!-- Validación -->
-                @if (form.submitted && !anyOpcionCocheSeleccionada()) {
-                  <div
-                    class="text-danger mt-2"
-                    >
-                    Debe marcar al menos una condición para continuar.
-                  </div>
-                }
-                <div class="mt-3 d-flex justify-content-between">
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    (click)="onVolver()"
-                    >
-                    ← Volver
-                  </button>
-                  <button type="submit" class="btn btn-success">Continuar</button>
-                </div>
-              </form>
-            </div>
-          }
+@if ( (datosEntrada?.tipoVehiculo || '').toLowerCase() === 'coche' ) {
+<div class="p-3">
+  <form #form="ngForm" (ngSubmit)="onContinuar(form)" novalidate>
+    <h4>Pasos de seguridad y normativas</h4>
+
+    <div class="form-check mb-2">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [(ngModel)]="opcionesCoche[0]"
+        name="opt0"
+        id="opt0"
+        (ngModelChange)="onCambioOpcion()"
+      />
+      <label class="form-check-label" for="opt0">
+        El vehículo dispone de sistema de frenado ABS.
+      </label>
+    </div>
+
+    <div class="form-check mb-2">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [(ngModel)]="opcionesCoche[1]"
+        name="opt1"
+        id="opt1"
+        (ngModelChange)="onCambioOpcion()"
+      />
+      <label class="form-check-label" for="opt1">
+        Se cumple en todo caso con la normativa de salientes exteriores.
+      </label>
+    </div>
+
+    <div class="form-check mb-2">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [(ngModel)]="opcionesCoche[2]"
+        name="opt2"
+        id="opt2"
+        (ngModelChange)="onCambioOpcion()"
+      />
+      <label class="form-check-label" for="opt2">
+        Los anclajes del paragolpes delantero son los originales, no
+        modificándose la altura libre.
+      </label>
+    </div>
+
+    <div class="form-check mb-2">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [(ngModel)]="opcionesCoche[3]"
+        name="opt3"
+        id="opt3"
+        (ngModelChange)="onCambioOpcion()"
+      />
+      <label class="form-check-label" for="opt3">
+        El sistema de remolcado delantero y trasero no se ve impedido tras la
+        reforma.
+      </label>
+    </div>
+
+    <div class="form-check mb-2">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [(ngModel)]="opcionesCoche[4]"
+        name="opt4"
+        id="opt4"
+        (ngModelChange)="onCambioOpcion()"
+      />
+      <label class="form-check-label" for="opt4">
+        Ninguna pieza asociada a las reformas presenta aristas vivas o cortantes
+        peligrosas.
+      </label>
+    </div>
+
+    <!-- Validación “al menos una” -->
+    @if (form.submitted && !anyOpcionCocheSeleccionada()) {
+    <div class="text-danger mt-2">
+      Debe marcar al menos una condición para continuar.
+    </div>
+    }
+
+    <div class="mt-3 d-flex justify-content-between">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="onVolver()"
+      >
+        ← Volver
+      </button>
+      <button type="submit" class="btn btn-success">Continuar</button>
+    </div>
+  </form>
+</div>
+}

@@ -1,92 +1,108 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import loadImage from 'blueimp-load-image';
-import {
-  CdkDragDrop,
-  DragDropModule,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-imagenes',
   standalone: true,
-  imports: [CommonModule, DragDropModule],
+  imports: [CommonModule],
   templateUrl: './imagenes.component.html',
-  styleUrl: './imagenes.component.css',
+  styleUrls: ['./imagenes.component.css'],
 })
 export class ImagenesComponent implements OnInit {
   @Input() datosEntrada: any;
 
-  /** Emitimos para volver al paso anterior */
-  @Output() volver = new EventEmitter<void>();
-
-  /** Emitimos al terminar el paso 2 */
+  /** ← atrás */
+  @Output() volver = new EventEmitter<any>();
+  /** → continuar */
   @Output() continuar = new EventEmitter<any>();
+  /** autosave continuo al padre */
+  @Output() autosave = new EventEmitter<any>();
 
   step = 1;
+
+  // En memoria (runtime)
   prevImages: Blob[] = [];
   postImages: Blob[] = [];
-  prevPreviews: string[] = [];
-  postPreviews: string[] = [];
+  prevPreviews: string[] = []; // dataURL
+  postPreviews: string[] = []; // dataURL
+
+  // Persistibles (para localStorage via el padre)
+  private prevImagesB64: string[] = [];
+  private postImagesB64: string[] = [];
+
   errorPrevImagesCount = false;
   errorPostImagesCount = false;
 
-  ngOnInit(): void {
-    // Restaurar paso si venimos del siguiente componente
-    if (this.datosEntrada?.step) {
-      this.step = this.datosEntrada.step;
-    }
+  async ngOnInit(): Promise<void> {
+    // Paso guardado
+    if (this.datosEntrada?.step) this.step = this.datosEntrada.step;
 
-    // Si ya había imágenes previas en datosEntrada, recupéralas
-    if (Array.isArray(this.datosEntrada?.prevImages)) {
+    // Restaurar desde base64 si existen (preferente, porque persiste)
+    if (Array.isArray(this.datosEntrada?.prevImagesB64)) {
+      this.prevImagesB64 = [...this.datosEntrada.prevImagesB64];
+      this.prevPreviews = [...this.prevImagesB64];
+      this.prevImages = await Promise.all(
+        this.prevImagesB64.map((b64) => this.dataUrlToBlob(b64))
+      );
+    } else if (Array.isArray(this.datosEntrada?.prevImages)) {
+      // (compatibilidad) si te llegan Blobs desde el padre
       this.prevImages = this.datosEntrada.prevImages;
-      this.prevPreviews = this.prevImages.map((f) => URL.createObjectURL(f));
+      this.prevPreviews = await Promise.all(
+        this.prevImages.map((b) => this.blobToDataUrl(b))
+      );
+      this.prevImagesB64 = [...this.prevPreviews];
     }
 
-    // Igual con las posteriores
-    if (Array.isArray(this.datosEntrada?.postImages)) {
+    if (Array.isArray(this.datosEntrada?.postImagesB64)) {
+      this.postImagesB64 = [...this.datosEntrada.postImagesB64];
+      this.postPreviews = [...this.postImagesB64];
+      this.postImages = await Promise.all(
+        this.postImagesB64.map((b64) => this.dataUrlToBlob(b64))
+      );
+    } else if (Array.isArray(this.datosEntrada?.postImages)) {
       this.postImages = this.datosEntrada.postImages;
-      this.postPreviews = this.postImages.map((f) => URL.createObjectURL(f));
-    }
-  }
-
-  async onPrevSelected(ev: Event) {
-    const input = ev.target as HTMLInputElement;
-    if (!input.files) return;
-    const files = Array.from(input.files);
-
-    if (files.length < 4 || files.length > 4) {
-      this.errorPrevImagesCount = true;
-      input.value = '';
-      return;
+      this.postPreviews = await Promise.all(
+        this.postImages.map((b) => this.blobToDataUrl(b))
+      );
+      this.postImagesB64 = [...this.postPreviews];
     }
 
-    // Normalizamos cada File y construimos previews
-    const blobs = await Promise.all(
-      files.map((f) => this.normalizeOrientation(f))
-    );
-    this.prevImages = blobs;
-    this.prevPreviews = blobs.map((b) => URL.createObjectURL(b));
+    this.emitAutosave(); // snapshot inicial
   }
 
-  async onPostSelected(ev: Event) {
-    const input = ev.target as HTMLInputElement;
-    if (!input.files) return;
-    const files = Array.from(input.files);
-
-    if (files.length > 30) {
-      this.errorPrevImagesCount = true;
-      input.value = '';
-      return;
-    }
-
-    const blobs = await Promise.all(
-      files.map((f) => this.normalizeOrientation(f))
-    );
-    this.postImages = blobs;
-    this.postPreviews = blobs.map((b) => URL.createObjectURL(b));
+  // ========= Helpers (Blob <-> dataURL) =========
+  private blobToDataUrl(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result));
+      fr.onerror = reject;
+      fr.readAsDataURL(blob);
+    });
   }
 
+  private async dataUrlToBlob(dataUrl: string): Promise<Blob> {
+    const res = await fetch(dataUrl);
+    return await res.blob();
+  }
+
+  private snapshot() {
+    return {
+      ...(this.datosEntrada || {}),
+      step: this.step,
+      prevImagesB64: this.prevImagesB64,
+      postImagesB64: this.postImagesB64,
+      // opcional: mantén también en RAM por si el padre quiere pasarlas de vuelta
+      prevImages: this.prevImages,
+      postImages: this.postImages,
+    };
+  }
+
+  private emitAutosave() {
+    this.autosave.emit(this.snapshot());
+  }
+
+  // ========= Carga y normalización =========
   private normalizeOrientation(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
       loadImage(
@@ -100,49 +116,73 @@ export class ImagenesComponent implements OnInit {
             else reject('Error creando Blob desde canvas');
           }, file.type);
         },
-        {
-          canvas: true,
-          orientation: true,
-        }
+        { canvas: true, orientation: true }
       );
     });
   }
 
-  next() {
-    if (this.step === 1) {
-      this.step = 2;
+  async onPrevSelected(ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    if (!input.files) return;
+    const files = Array.from(input.files);
+
+    if (files.length !== 4) {
+      this.errorPrevImagesCount = true;
+      input.value = '';
+      return;
     }
+    this.errorPrevImagesCount = false;
+
+    const blobs = await Promise.all(
+      files.map((f) => this.normalizeOrientation(f))
+    );
+    this.prevImages = blobs;
+    this.prevPreviews = await Promise.all(
+      blobs.map((b) => this.blobToDataUrl(b))
+    );
+    this.prevImagesB64 = [...this.prevPreviews];
+    this.emitAutosave();
   }
 
-  back() {
-    if (this.step === 2) {
-      this.step = 1;
-    } else {
-      this.datosEntrada.step = this.step;
-      this.datosEntrada.prevImages = this.prevImages;
-      this.datosEntrada.postImages = this.postImages;
-      this.volver.emit(this.datosEntrada);
+  async onPostSelected(ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    if (!input.files) return;
+    const files = Array.from(input.files);
+
+    if (files.length > 30) {
+      this.errorPostImagesCount = true;
+      input.value = '';
+      return;
     }
+    this.errorPostImagesCount = false;
+
+    const blobs = await Promise.all(
+      files.map((f) => this.normalizeOrientation(f))
+    );
+    this.postImages = blobs;
+    this.postPreviews = await Promise.all(
+      blobs.map((b) => this.blobToDataUrl(b))
+    );
+    this.postImagesB64 = [...this.postPreviews];
+    this.emitAutosave();
   }
 
-  onSave() {
-    // Guardamos el estado en datosEntrada para recuperarlo al volver
-    this.datosEntrada.step = this.step;
-    this.datosEntrada.prevImages = this.prevImages;
-    this.datosEntrada.postImages = this.postImages;
-    this.continuar.emit(this.datosEntrada);
-  }
-
+  // ========= Reordenar (prev) =========
   movePrev(i: number) {
     if (i === 0) return;
     [this.prevPreviews[i - 1], this.prevPreviews[i]] = [
       this.prevPreviews[i],
       this.prevPreviews[i - 1],
     ];
+    [this.prevImagesB64[i - 1], this.prevImagesB64[i]] = [
+      this.prevImagesB64[i],
+      this.prevImagesB64[i - 1],
+    ];
     [this.prevImages[i - 1], this.prevImages[i]] = [
       this.prevImages[i],
       this.prevImages[i - 1],
     ];
+    this.emitAutosave();
   }
 
   moveNext(i: number) {
@@ -151,33 +191,73 @@ export class ImagenesComponent implements OnInit {
       this.prevPreviews[i],
       this.prevPreviews[i + 1],
     ];
+    [this.prevImagesB64[i + 1], this.prevImagesB64[i]] = [
+      this.prevImagesB64[i],
+      this.prevImagesB64[i + 1],
+    ];
     [this.prevImages[i + 1], this.prevImages[i]] = [
       this.prevImages[i],
       this.prevImages[i + 1],
     ];
+    this.emitAutosave();
   }
 
-  // lo mismo para postImages/postPreviews:
+  // ========= Reordenar (post) =========
   movePrevPost(i: number) {
     if (i === 0) return;
     [this.postPreviews[i - 1], this.postPreviews[i]] = [
       this.postPreviews[i],
       this.postPreviews[i - 1],
     ];
+    [this.postImagesB64[i - 1], this.postImagesB64[i]] = [
+      this.postImagesB64[i],
+      this.postImagesB64[i - 1],
+    ];
     [this.postImages[i - 1], this.postImages[i]] = [
       this.postImages[i],
       this.postImages[i - 1],
     ];
+    this.emitAutosave();
   }
+
   moveNextPost(i: number) {
     if (i === this.postPreviews.length - 1) return;
     [this.postPreviews[i + 1], this.postPreviews[i]] = [
       this.postPreviews[i],
       this.postPreviews[i + 1],
     ];
+    [this.postImagesB64[i + 1], this.postImagesB64[i]] = [
+      this.postImagesB64[i],
+      this.postImagesB64[i + 1],
+    ];
     [this.postImages[i + 1], this.postImages[i]] = [
       this.postImages[i],
       this.postImages[i + 1],
     ];
+    this.emitAutosave();
+  }
+
+  // ========= Navegación =========
+  next() {
+    if (this.step === 1) {
+      this.step = 2;
+      this.emitAutosave();
+    }
+  }
+
+  back() {
+    if (this.step === 2) {
+      this.step = 1;
+      this.emitAutosave();
+    } else {
+      // paso 1 → volver al padre
+      const snap = this.snapshot();
+      this.volver.emit(snap);
+    }
+  }
+
+  onSave() {
+    const snap = this.snapshot();
+    this.continuar.emit(snap);
   }
 }

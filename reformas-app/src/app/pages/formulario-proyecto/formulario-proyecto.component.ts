@@ -111,10 +111,14 @@ export class FormularioProyectoComponent implements OnChanges {
 
   año: string = '';
 
+  compararTalleres = (a: any, b: any) =>
+    a && b ? a.nombre === b.nombre : a === b;
+
   @Input() respuestas: any;
   @Output() volverAReforma = new EventEmitter<any>();
   @Input() datosIniciales: any;
   @Output() finalizarFormulario = new EventEmitter<any>();
+  @Output() autosave = new EventEmitter<{ datos: any; paginaActual: number }>();
 
   constructor(private http: HttpClient) {}
 
@@ -131,6 +135,8 @@ export class FormularioProyectoComponent implements OnChanges {
       if (this.datos.paginaActual) {
         this.paginaActual = this.datos.paginaActual;
       }
+
+      this.paginaActual = Math.min(this.paginaActual, this.totalPaginas);
 
       if (this.datos.taller && this.talleres?.length) {
         const id = this.datos.taller.nombre;
@@ -159,7 +165,8 @@ export class FormularioProyectoComponent implements OnChanges {
         this.talleres = data;
 
         // Asignar el taller seleccionado si ya hay datos iniciales
-        if (this.datos.taller && this.talleres.length) {
+        const sel = this.datos.tallerSeleccionado || this.datos.taller;
+        if (sel && this.talleres.length) {
           const id = this.datos.taller.nombre;
           const tallerReal = this.talleres.find((t) => t.nombre === id);
           this.datos.tallerSeleccionado = tallerReal || null;
@@ -196,23 +203,28 @@ export class FormularioProyectoComponent implements OnChanges {
     this.datos.totalPresupuesto = mu + mo;
   }
 
+  private emitAutosave() {
+    this.autosave.emit({
+      datos: { ...this.datos, paginaActual: this.paginaActual },
+      paginaActual: this.paginaActual,
+    });
+  }
+
   siguiente(): void {
-    if (!this.validarPaginaActual()) {
-      return;
-    }
-    // Si estamos en 4 y necesitamos la extra, vamos a 5; si no, saltamos a 6
+    if (!this.validarPaginaActual()) return;
+
     if (this.paginaActual === 4 && this.necesitaPasoExtra) {
       this.paginaActual = 5;
     } else if (this.paginaActual === 4 || this.paginaActual === 5) {
-      // 4 sin extra o 5 (extra) siempre llevan al presupuesto (nuevo 6 o antiguo 5)
       this.paginaActual = this.totalPaginas;
     } else if (this.paginaActual === 6) {
       this.enviarFormulario();
+      return;
     } else {
       this.paginaActual++;
     }
 
-    console.log(this.paginaActual);
+    this.emitAutosave();
   }
 
   @ViewChild('formulario') formulario!: NgForm;
@@ -229,19 +241,22 @@ export class FormularioProyectoComponent implements OnChanges {
 
   anterior(): void {
     if (this.paginaActual === this.totalPaginas && this.necesitaPasoExtra) {
-      // desde 6 volvemos al extra (5)
       this.paginaActual = 5;
-    } else if (this.paginaActual === 1) {
-      // Asignamos el taller antes del emit
-      this.datos.taller = this.datos.tallerSeleccionado;
+      this.emitAutosave();
+      return;
+    }
 
+    if (this.paginaActual === 1) {
+      this.datos.taller = this.datos.tallerSeleccionado;
       this.volverAReforma.emit({
         datosFormulario: this.datos,
         pagina: this.paginaActual,
       });
-    } else {
-      this.paginaActual--;
+      return;
     }
+
+    this.paginaActual--;
+    this.emitAutosave();
   }
 
   enviarFormulario(): void {

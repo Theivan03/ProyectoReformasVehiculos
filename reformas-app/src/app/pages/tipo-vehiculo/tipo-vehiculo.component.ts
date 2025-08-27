@@ -13,6 +13,10 @@ export class TipoVehiculoComponent implements OnInit {
   @Input() datosPrevios: any;
   @Output() continuar = new EventEmitter<any>();
   @Output() volver = new EventEmitter<any>();
+  @Output() autosave = new EventEmitter<{
+    tipoVehiculo: string;
+    modificaciones: Modificacion[];
+  }>();
 
   tipoVehiculo: string = '';
   modificaciones: Modificacion[] = [];
@@ -64,40 +68,42 @@ export class TipoVehiculoComponent implements OnInit {
         }
       );
     }
-    this.modificaciones = this.datosPrevios.modificaciones.map(
-      (mod: Modificacion) => {
-        // Si viene preexistente, devuélvelo tal cual:
-        if (mod.detalle) {
-          return mod;
-        }
-        // Si no tiene detalle, ponle un objecto vacío (o con propiedades por defecto según nombre)
-        if (mod.nombre === 'ALETINES Y SOBREALETINES') {
-          return {
-            ...mod,
-            detalle: {
-              aletines: false,
-              sobrealetines: false,
-            },
-          };
-        }
-        // Para el resto que necesiten detalle:
-        return {
-          ...mod,
-          detalle: {
-            interDelantero: false,
-            interTrasero: false,
-            interLateral: false,
-            sustitucionEjeDelantero: false,
-            sustitucionEjeTrasero: false,
-          },
-        };
+    this.modificaciones = (this.modificaciones || []).map((mod: any) => {
+      if (mod.detalle) return mod;
+      if (mod.nombre === 'ALETINES Y SOBREALETINES') {
+        return { ...mod, detalle: { aletines: false, sobrealetines: false } };
       }
-    );
+      return {
+        ...mod,
+        detalle: {
+          interDelantero: false,
+          interTrasero: false,
+          interLateral: false,
+          sustitucionEjeDelantero: false,
+          sustitucionEjeTrasero: false,
+        },
+      };
+    });
+
+    // Primer autosave al cargar con datos previos
+    this.emitAutosave();
+  }
+
+  private emitAutosave() {
+    this.autosave.emit({
+      tipoVehiculo: this.tipoVehiculo,
+      modificaciones: this.modificaciones,
+    });
   }
 
   onTipoCambio(): void {
     this.modificaciones = this.obtenerModificacionesPorTipo(this.tipoVehiculo);
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
+    this.emitAutosave();
+  }
+
+  onCambioSubopcion(): void {
+    this.emitAutosave(); // guarda cada interacción relevante
   }
 
   obtenerModificacionesPorTipo(tipo: string): Modificacion[] {
@@ -316,6 +322,7 @@ export class TipoVehiculoComponent implements OnInit {
     }
 
     this.tipoVehiculoInvalido = false;
+    this.emitAutosave();
 
     this.continuar.emit({
       tipoVehiculo: this.tipoVehiculo,
@@ -324,6 +331,7 @@ export class TipoVehiculoComponent implements OnInit {
   }
 
   volverFormulario(): void {
+    this.emitAutosave();
     this.volver.emit({
       tipoVehiculo: this.tipoVehiculo,
       modificaciones: this.modificaciones,

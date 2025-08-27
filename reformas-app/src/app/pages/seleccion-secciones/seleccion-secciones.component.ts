@@ -1,27 +1,39 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-
 import opciones from '../../../assets/opciones_reforma_vehiculos.json';
 
 @Component({
   selector: 'app-seleccion-secciones',
-  imports: [],
   standalone: true,
+  imports: [],
   templateUrl: './seleccion-secciones.component.html',
-  styleUrl: './seleccion-secciones.component.css',
+  styleUrls: ['./seleccion-secciones.component.css'],
 })
 export class SeleccionSeccionesComponent implements OnInit {
-  @Input() seccionesPreseleccionadas: string[] = [];
+  private _pre: string[] = [];
+
+  @Input() set seccionesPreseleccionadas(v: string[] | null | undefined) {
+    this._pre = Array.isArray(v) ? v : [];
+    this.syncFromPre();
+  }
+  get seccionesPreseleccionadas() {
+    return this._pre;
+  }
+
   @Output() continuar = new EventEmitter<
     { codigo: string; descripcion: string }[]
   >();
 
-  opcionesReforma: { codigo: string; descripcion: string }[] = opciones;
+  opcionesReforma: { codigo: string; descripcion: string }[] = opciones as any;
   seccionesSeleccionadas: { codigo: string; descripcion: string }[] = [];
 
   ngOnInit(): void {
-    // Restaurar las selecciones anteriores si hay
+    this.syncFromPre();
+  }
+
+  private syncFromPre() {
+    if (!Array.isArray(this.opcionesReforma)) return;
     this.seccionesSeleccionadas = this.opcionesReforma.filter((op) =>
-      this.seccionesPreseleccionadas.includes(op.codigo)
+      this._pre.includes(op.codigo)
     );
   }
 
@@ -29,17 +41,13 @@ export class SeleccionSeccionesComponent implements OnInit {
     const existe = this.seccionesSeleccionadas.find(
       (s) => s.codigo === opcion.codigo
     );
-    if (existe) {
-      this.seccionesSeleccionadas = this.seccionesSeleccionadas.filter(
-        (s) => s.codigo !== opcion.codigo
-      );
-    } else {
-      this.seccionesSeleccionadas.push(opcion);
-    }
+    this.seccionesSeleccionadas = existe
+      ? this.seccionesSeleccionadas.filter((s) => s.codigo !== opcion.codigo)
+      : [...this.seccionesSeleccionadas, opcion];
   }
 
   enviarSeleccion() {
-    const ordenadas = this.seccionesSeleccionadas.sort(
+    const ordenadas = [...this.seccionesSeleccionadas].sort(
       (a, b) => Number(a.codigo) - Number(b.codigo)
     );
     this.continuar.emit(ordenadas);

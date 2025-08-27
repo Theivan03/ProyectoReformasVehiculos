@@ -14,4 +14,7 @@ export const routes: Routes = [
   { path: 'documentos', component: GeneradorDocumentosComponent },
   { path: 'formulario', component: FormularioProyectoComponent },
   { path: 'taller', component: GestionarTallerComponent },
+  { path: 'reforma/:step', component: CrearReformaComponent },
+  { path: 'reforma', redirectTo: 'reforma/seleccion', pathMatch: 'full' },
+  { path: '**', redirectTo: 'reforma/seleccion' },
 ];

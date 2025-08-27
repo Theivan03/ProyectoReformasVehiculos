@@ -58,6 +58,7 @@
           <select
             class="form-select"
             [(ngModel)]="datos.tallerSeleccionado"
+            [compareWith]="compararTalleres"
             name="tallerSeleccionado"
             #tallerField="ngModel"
             required
@@ -68,6 +69,7 @@
               {{ t.nombre }}
             </option>
           </select>
+
           <div class="invalid-feedback">Este campo es obligatorio.</div>
         </div>
 

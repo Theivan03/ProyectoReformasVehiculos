@@ -5,71 +5,81 @@
   su tramitación.
 </p>
 
-<!-- Aquí irá el formulario o los pasos siguientes -->
 <div class="container mt-4">
   @if (mostrarSeleccion) {
   <app-seleccion-secciones
-    [seccionesPreseleccionadas]="codigosPreseleccionados"
+    [seccionesPreseleccionadas]="codigosPreseleccionados || []"
     (continuar)="onContinuar($event)"
   >
   </app-seleccion-secciones>
   } @if (mostrarSubSelecciones) {
   <app-mostrar-secciones
-    [secciones]="seccionesSeleccionadas"
-    [respuestas]="respuestasGuardadas"
-    (volverASeleccion)="mostrarSeleccion = true; mostrarSubSelecciones = false"
+    [secciones]="seccionesSeleccionadas || []"
+    [respuestas]="respuestasGuardadas || {}"
+    (volverASeleccion)="volverASeleccionDesdeSubseleccion()"
     (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
   >
   </app-mostrar-secciones>
   } @if (mostrarFormularioProyecto) {
   <app-formulario-proyecto
-    [respuestas]="respuestasGuardadas"
-    [datosIniciales]="datosFormularioGuardados"
+    [respuestas]="respuestasGuardadas || {}"
+    [datosIniciales]="datosFormularioGuardados || null"
+    (autosave)="onAutosaveFormulario($event)"
     (volverAReforma)="onVolverDesdeFormulario($event)"
     (finalizarFormulario)="onFinalizarFormulario($event)"
-  ></app-formulario-proyecto>
+  >
+  </app-formulario-proyecto>
   } @if (mostrarReformasPrevias) {
   <app-reformas-previas
-    [datos]="datosGenerales"
+    [datos]="datosGenerales || {}"
+    (autosave)="onAutosaveReformasPrevias($event)"
     (continuar)="onContinuarDesdeReformasPrevias($event)"
     (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
   >
   </app-reformas-previas>
   } @if (mostrarTipoVehiculo) {
   <app-tipo-vehiculo
-    [datosPrevios]="datosGuardadosTipoVehiculo"
+    [datosPrevios]="datosGuardadosTipoVehiculo || {}"
+    (autosave)="onAutosaveTipoVehiculo($event)"
     (continuar)="onContinuarTipoVehiculo($event)"
     (volver)="onVolverDesdeTipoVehiculo($event)"
-  ></app-tipo-vehiculo>
+  >
+  </app-tipo-vehiculo>
   } @if (mostrarResumenModificaciones) {
   <app-resumen-modificaciones
-    [datosEntrada]="datosResumenModificaciones"
+    [datosEntrada]="datosParaResumen"
     (volver)="onVolverDesdeResumenModificaciones($event)"
     (continuar)="onContinuarDesdeResumenModificaciones($event)"
-  ></app-resumen-modificaciones>
+  >
+  </app-resumen-modificaciones>
   } @if (mostrarCocheOno) {
   <app-cocheono
-    [datosEntrada]="datosResumenModificaciones"
+    [datosEntrada]="datosParaResumen"
     (volver)="onVolverDesdeCocheONo($event)"
     (continuar)="onContinuarDesdeCocheONo($event)"
-  ></app-cocheono>
+  >
+  </app-cocheono>
   } @if (mostrarCanva) {
   <app-canva
-    [datosEntrada]="datosResumenModificaciones"
+    [datosEntrada]="datosParaResumen"
+    (autosave)="onAutosaveCanva($event)"
     (volver)="onVolverDesdeCanva()"
     (continuar)="onContinuarDesdeCanva($event)"
-  ></app-canva>
+  >
+  </app-canva>
   } @if (mostrarImagenes) {
   <app-imagenes
-    [datosEntrada]="datosGenerales"
+    [datosEntrada]="datosParaResumen"
+    (autosave)="onAutosaveImagenes($event)"
     (volver)="onVolverDesdeImagenes($event)"
     (continuar)="onContinuarDesdeImagenes($event)"
   >
   </app-imagenes>
   } @if (mostrarGenerador) {
   <app-generador-documentos
-    [reformaData]="datosGenerales"
+    [reformaData]="datosGenerales || {}"
     (volverAlFormulario)="onVolverDesdeGenerador($event)"
-  ></app-generador-documentos>
+  >
+  </app-generador-documentos>
   }
 </div>

@@ -2,8 +2,10 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -15,8 +17,8 @@ import { FormsModule, NgForm } from '@angular/forms';
   templateUrl: './resumen-modificaciones.component.html',
   styleUrl: './resumen-modificaciones.component.css',
 })
-export class ResumenModificacionesComponent implements OnInit {
-  @Input() datosEntrada: any;
+export class ResumenModificacionesComponent implements OnInit, OnChanges {
+  @Input() datosEntrada: any = {};
   @Output() volver = new EventEmitter<any>();
   @Output() continuar = new EventEmitter<any>();
   formSubmitted = false;
@@ -27,6 +29,19 @@ export class ResumenModificacionesComponent implements OnInit {
   ];
 
   modificacionesSeleccionadas: any[] = [];
+
+  ngOnChanges(_: SimpleChanges): void {
+    this.rebuild(); // se recalcula cada vez que llega el input
+  }
+
+  private rebuild() {
+    const mods = Array.isArray(this.datosEntrada?.modificaciones)
+      ? this.datosEntrada.modificaciones
+      : [];
+    this.modificacionesSeleccionadas = mods.filter(
+      (m: { seleccionado: any }) => m?.seleccionado
+    );
+  }
 
   ngOnInit(): void {
     this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
