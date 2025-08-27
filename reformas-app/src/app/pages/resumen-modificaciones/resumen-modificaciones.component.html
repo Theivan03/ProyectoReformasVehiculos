@@ -1281,6 +1281,60 @@
               "
             />
           </div>
+          <div class="mb-2">
+            <label class="form-label">Diámetro exterior (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.diametroExteriorDelantero"
+              name="diametroExteriorDelantero{{ i }}"
+              required
+              [class.is-invalid]="
+                formSubmitted && !mod.diametroExteriorDelantero
+              "
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Longitud (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.longitudDelantero"
+              name="longitudDelantero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.longitudDelantero"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Diámetro de espira (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.diametroEspiraDelantero"
+              name="diametroEspiraDelantero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.diametroEspiraDelantero"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Número de espiras:</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.numeroEspirasDelantero"
+              name="numeroEspirasDelantero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.numeroEspirasDelantero"
+            />
+          </div>
         </div>
         }
         <!-- Muelle delantero sin referencia -->
@@ -1352,6 +1406,163 @@
               name="numeroEspirasDelantero{{ i }}"
               required
               [class.is-invalid]="formSubmitted && !mod.numeroEspirasDelantero"
+            />
+          </div>
+        </div>
+        }
+
+        <!-- Muelle trasero con referencia -->
+        @if (mod.detallesMuelles?.muelleTraseroConRef) {
+        <div>
+          <h4>Muelle Trasero con Referencia</h4>
+          <div class="mb-2">
+            <label class="form-label">Marca:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.marcaMuelleTraseroConRef"
+              name="marcaMuelleTraseroConRef{{ i }}"
+              required
+              [class.is-invalid]="
+                formSubmitted && !mod.marcaMuelleTraseroConRef
+              "
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Referencia:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.referenciaMuelleTraseroConRef"
+              name="referenciaMuelleTraseroConRef{{ i }}"
+              required
+              [class.is-invalid]="
+                formSubmitted && !mod.referenciaMuelleTraseroConRef
+              "
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Diámetro exterior (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.diametroExteriorTrasero"
+              name="diametroExteriorTrasero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.diametroExteriorTrasero"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Longitud (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.longitudTrasero"
+              name="longitudTrasero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.longitudTrasero"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Diámetro de espira (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.diametroEspiraTrasero"
+              name="diametroEspiraTrasero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.diametroEspiraTrasero"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Número de espiras:</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.numeroEspirasTrasero"
+              name="numeroEspirasTrasero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.numeroEspirasTrasero"
+            />
+          </div>
+        </div>
+        }
+
+        <!-- Muelle trasero sin referencia -->
+        @if (mod.detallesMuelles?.muelleTraseroSinRef) {
+        <div>
+          <h4>Muelle Trasero sin Referencia</h4>
+          <div class="mb-2">
+            <label class="form-label">Marca:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.marcaMuelleTraseroSinRef"
+              name="{{ 'marcaMuelleTraseroSinRef' + i }}"
+              required
+              [class.is-invalid]="
+                formSubmitted && !mod.marcaMuelleTraseroSinRef
+              "
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Diámetro exterior (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.diametroExteriorTrasero"
+              name="diametroExteriorTrasero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.diametroExteriorTrasero"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Longitud (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.longitudTrasero"
+              name="longitudTrasero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.longitudTrasero"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Diámetro de espira (mm):</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.diametroEspiraTrasero"
+              name="diametroEspiraTrasero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.diametroEspiraTrasero"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Número de espiras:</label>
+            <input
+              type="number"
+              min="0"
+              min="0"
+              class="form-control"
+              [(ngModel)]="mod.numeroEspirasTrasero"
+              name="numeroEspirasTrasero{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.numeroEspirasTrasero"
             />
           </div>
         </div>

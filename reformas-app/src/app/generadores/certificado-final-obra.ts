@@ -738,7 +738,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     }),
     new Paragraph({
       alignment: 'right',
-      spacing: { before: 120 },
+      spacing: { before: 1500 },
       children: [new TextRun({ text: 'El Ingeniero Técnico Industrial' })],
     }),
     new Paragraph({

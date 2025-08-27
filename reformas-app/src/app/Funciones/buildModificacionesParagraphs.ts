@@ -399,114 +399,232 @@ export function buildModificacionesParagraphs(
     if (mod.detallesMuelles?.['muelleDelanteroConRef']) {
       raw = `- Muelles delanteros marca ${mod.marcaMuelleDelanteroConRef} referencia ${mod.referenciaMuelleDelanteroConRef}.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+      pushCasuistica(
+        out,
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        }),
+        raw
+      );
     }
 
     // 2) Muelles delanteros sin referencia
     if (mod.detallesMuelles?.['muelleDelanteroSinRef']) {
       raw = `- Muelles delanteros marca ${mod.marcaMuelleDelanteroSinRef}, sin referencia de dimensiones:`;
 
+      // Párrafo principal
       const p = new Paragraph({
         spacing: { line: 260, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
       (p as any)._rawText = raw;
+      (p as any)._fromCasuistica = true; // 👈 marca
       out.push(p);
+
       const indentLeft = 620;
       const spacing = { line: 260, after: 120 };
-      out.push(
+
+      // Subpárrafos (viñetas)
+      const p1 = new Paragraph({
+        indent: { left: indentLeft },
+        spacing,
+        children: [
+          new TextRun(
+            `• Diámetro exterior ${mod.diametroExteriorDelantero} mm`
+          ),
+        ],
+      });
+      (
+        p1 as any
+      )._rawText = `• Diámetro exterior ${mod.diametroExteriorDelantero} mm`;
+      (p1 as any)._fromCasuistica = true; // 👈 marca
+      out.push(p1);
+
+      const p2 = new Paragraph({
+        indent: { left: indentLeft },
+        spacing,
+        children: [
+          new TextRun(`• Longitud de muelle ${mod.longitudDelantero} mm`),
+        ],
+      });
+      (p2 as any)._rawText = `• Longitud de muelle ${mod.longitudDelantero} mm`;
+      (p2 as any)._fromCasuistica = true;
+      out.push(p2);
+
+      const p3 = new Paragraph({
+        indent: { left: indentLeft },
+        spacing,
+        children: [
+          new TextRun(
+            `• Diámetro de la espira ${mod.diametroEspiraDelantero} mm`
+          ),
+        ],
+      });
+      (
+        p3 as any
+      )._rawText = `• Diámetro de la espira ${mod.diametroEspiraDelantero} mm`;
+      (p3 as any)._fromCasuistica = true;
+      out.push(p3);
+
+      const p4 = new Paragraph({
+        indent: { left: indentLeft },
+        spacing,
+        children: [
+          new TextRun(`• Número de espiras ${mod.numeroEspirasDelantero}.`),
+        ],
+      });
+      (
+        p4 as any
+      )._rawText = `• Número de espiras ${mod.numeroEspirasDelantero}.`;
+      (p4 as any)._fromCasuistica = true;
+      out.push(p4);
+    }
+
+    // 2.1) Muelles traseros con referencia
+    if (mod.detallesMuelles?.['muelleTraseroConRef']) {
+      raw = `- Muelles traseros marca ${mod.marcaMuelleTraseroConRef} referencia ${mod.referenciaMuelleTraseroConRef}.`;
+
+      pushCasuistica(
+        out,
         new Paragraph({
-          indent: { left: indentLeft },
-          spacing,
-          children: [
-            new TextRun(
-              `• Diámetro exterior ${mod.diametroExteriorDelantero} mm`
-            ),
-          ],
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
         }),
-        new Paragraph({
-          indent: { left: indentLeft },
-          spacing,
-          children: [
-            new TextRun(`• Longitud de muelle ${mod.longitudDelantero} mm`),
-          ],
-        }),
-        new Paragraph({
-          indent: { left: indentLeft },
-          spacing,
-          children: [
-            new TextRun(
-              `• Diámetro de la espira ${mod.diametroEspiraDelantero} mm`
-            ),
-          ],
-        }),
-        new Paragraph({
-          indent: { left: indentLeft },
-          spacing,
-          children: [
-            new TextRun(`• Número de espiras ${mod.numeroEspirasDelantero}.`),
-          ],
-        })
+        raw
       );
+    }
+
+    // 2.2) Muelles traseros sin referencia
+    if (mod.detallesMuelles?.['muelleTraseroSinRef']) {
+      raw = `- Muelles traseros marca ${mod.marcaMuelleTraseroSinRef}, sin referencia de dimensiones:`;
+
+      // Párrafo principal
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      (p as any)._fromCasuistica = true; // 👈 marca
+      out.push(p);
+
+      const indentLeft = 620;
+      const spacing = { line: 260, after: 120 };
+
+      // Subpárrafos (viñetas)
+      const p1 = new Paragraph({
+        indent: { left: indentLeft },
+        spacing,
+        children: [
+          new TextRun(`• Diámetro exterior ${mod.diametroExteriorTrasero} mm`),
+        ],
+      });
+      (
+        p1 as any
+      )._rawText = `• Diámetro exterior ${mod.diametroExteriorTrasero} mm`;
+      (p1 as any)._fromCasuistica = true; // 👈 marca
+      out.push(p1);
+
+      const p2 = new Paragraph({
+        indent: { left: indentLeft },
+        spacing,
+        children: [
+          new TextRun(`• Longitud de muelle ${mod.longitudTrasero} mm`),
+        ],
+      });
+      (p2 as any)._rawText = `• Longitud de muelle ${mod.longitudTrasero} mm`;
+      (p2 as any)._fromCasuistica = true;
+      out.push(p2);
+
+      const p3 = new Paragraph({
+        indent: { left: indentLeft },
+        spacing,
+        children: [
+          new TextRun(
+            `• Diámetro de la espira ${mod.diametroEspiraTrasero} mm`
+          ),
+        ],
+      });
+      (
+        p3 as any
+      )._rawText = `• Diámetro de la espira ${mod.diametroEspiraTrasero} mm`;
+      (p3 as any)._fromCasuistica = true;
+      out.push(p3);
+
+      const p4 = new Paragraph({
+        indent: { left: indentLeft },
+        spacing,
+        children: [
+          new TextRun(`• Número de espiras ${mod.numeroEspirasTrasero}.`),
+        ],
+      });
+      (p4 as any)._rawText = `• Número de espiras ${mod.numeroEspirasTrasero}.`;
+      (p4 as any)._fromCasuistica = true;
+      out.push(p4);
     }
 
     // 3) Ballesta delantera
     if (mod.detallesMuelles?.['ballestaDelantera']) {
       raw = `- Ballesta delantera marca ${mod.marcaBallestaDelantera} referencia ${mod.referenciaBallestaDelantera}.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+      pushCasuistica(
+        out,
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        }),
+        raw
+      );
     }
 
     // 4) Amortiguador delantero
     if (mod.detallesMuelles?.['amortiguadorDelantero']) {
       raw = `- Amortiguadores delanteros marca ${mod.marcaAmortiguadorDelantero} referencia ${mod.referenciaAmortiguadorDelantero}.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+      pushCasuistica(
+        out,
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        }),
+        raw
+      );
     }
 
     // 5) Amortiguador trasero
     if (mod.detallesMuelles?.['amortiguadorTrasero']) {
       raw = `- Amortiguadores traseros marca ${mod.marcaAmortiguadorTrasero} referencia ${mod.referenciaAmortiguadorTrasero}.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+      pushCasuistica(
+        out,
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        }),
+        raw
+      );
     }
 
     // 6) Tacos de goma
     if (mod.detallesMuelles?.['tacosDeGoma']) {
       raw = `- Instalación de tacos de goma sobre amortiguadores delanteros de ${mod.diametroTacoDelantero} mm de diámetro y ${mod.espesorTacoDelantero} mm de espesor, y traseros de ${mod.diametroTacoTrasero} mm de diámetro y ${mod.espesorTacoTrasero} mm de espesor.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+      pushCasuistica(
+        out,
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        }),
+        raw
+      );
     }
 
     // 7) Kit de elevación (delantero, trasero o ambos)
@@ -538,13 +656,23 @@ export function buildModificacionesParagraphs(
         marcas.join(' y ') +
         `, compuestos por:`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+      // const p = new Paragraph({
+      //   spacing: { line: 260, after: 120 },
+      //   indent: { left: 400 },
+      //   children: [new TextRun({ text: raw })],
+      // });
+      // (p as any)._rawText = raw;
+      // out.push(p);
+
+      pushCasuistica(
+        out,
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        }),
+        raw
+      );
 
       // 2) DETALLE MUELLES DELANTEROS
       if (mod.detallesMuelles?.['kitElevacionDelantero']) {
@@ -554,13 +682,23 @@ export function buildModificacionesParagraphs(
           `${mod.espesorTacoDelantero} mm de espesor ` +
           `instalado en cada muelle delantero, marca ${mod.marcaKitElevacionDelantera}.`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
+        // const p = new Paragraph({
+        //   spacing: { line: 260, after: 120 },
+        //   indent: { left: 400 },
+        //   children: [new TextRun({ text: raw })],
+        // });
+        // (p as any)._rawText = raw;
+        // out.push(p);
+
+        pushCasuistica(
+          out,
+          new Paragraph({
+            spacing: { line: 260, after: 120 },
+            indent: { left: 400 },
+            children: [new TextRun({ text: raw })],
+          }),
+          raw
+        );
       }
 
       // 3) DETALLE BALLESTAS TRASERAS
@@ -575,13 +713,23 @@ export function buildModificacionesParagraphs(
           `${mod.diametroTacoTrasero} x ${mod.espesorTacoTrasero} mm de espesor ` +
           `sobre ballesta trasera, marca ${mod.marcaKitElevacionTrasera}.`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
+        // const p = new Paragraph({
+        //   spacing: { line: 260, after: 120 },
+        //   indent: { left: 400 },
+        //   children: [new TextRun({ text: raw })],
+        // });
+        // (p as any)._rawText = raw;
+        // out.push(p);
+
+        pushCasuistica(
+          out,
+          new Paragraph({
+            spacing: { line: 260, after: 120 },
+            indent: { left: 400 },
+            children: [new TextRun({ text: raw })],
+          }),
+          raw
+        );
       }
     }
 
@@ -589,12 +737,22 @@ export function buildModificacionesParagraphs(
     if (mod.anotacion) {
       raw = `Estos dispositivos no modifican las condiciones técnicas de dirección. Se asegura la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+      // const p = new Paragraph({
+      //   spacing: { line: 260, after: 120 },
+      //   children: [new TextRun({ text: raw })],
+      // });
+      // (p as any)._rawText = raw;
+      // out.push(p);
+
+      pushCasuistica(
+        out,
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        }),
+        raw
+      );
     }
   }
 
@@ -841,7 +999,7 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'LUZ DE POSICIÓN' && m.seleccionado
   );
   if (luzdeposicion) {
-    const esLed = mod.esLed === true ? 'LED' : 'tradicional';
+    const esLed = luzdeposicion?.esLedPosicion ? 'LED' : 'tradicional';
     raw = `- ${luzdeposicion.accion} de luz de posición con sistema ${esLed} marca ${luzdeposicion.marcaPosicion} con marcaje ${luzdeposicion.marcajePosicion} y contraseña de homologación ${luzdeposicion.homologacionPosicion}, accionada desde los mandos originales.`;
 
     const p = new Paragraph({
@@ -1956,9 +2114,7 @@ export function getFirstWord(p: Paragraph): string {
 }
 
 export function generarDocumentoProyectoParagraphs(
-  modificaciones: {
-    modificaciones: Modificacion[];
-  },
+  modificaciones: { modificaciones: Modificacion[] },
   data: any
 ): Paragraph[] {
   const all = buildModificacionesParagraphs(
@@ -1966,29 +2122,49 @@ export function generarDocumentoProyectoParagraphs(
     data
   );
 
-  all.forEach((p, i) => console.log(i, getFirstWord(p)));
+  const first = (p: Paragraph) => getFirstWord(p); // tu helper existente
 
-  // 2) Filtra cada grupo según la primera palabra
-  const montajes = all.filter(
+  // Clasificación base
+  let montajesBase = all.filter(
     (p) =>
-      ![
-        'Variación',
-        'Sustitución',
-        'Desmontaje',
-        'TA',
-        'TA:',
-        '',
-        ' ',
-      ].includes(getFirstWord(p))
+      !['Variación', 'Sustitución', 'Desmontaje', '', ' '].includes(first(p))
   );
-  const variacionesYSus = all.filter((p) =>
-    ['Variación', 'Sustitución'].includes(getFirstWord(p))
-  );
-  const desmontajes = all.filter((p) =>
-    ['Desmontaje'].includes(getFirstWord(p))
+  let desmontajesBase = all.filter((p) => first(p) === 'Desmontaje');
+  let variacionesBase = all.filter((p) =>
+    ['Variación', 'Sustitución'].includes(first(p))
   );
 
-  // 3) Función helper para encabezado + contenido
+  // Párrafos de casuística (solo existen cuando la principal y la subopción están seleccionadas)
+  const casuisticaParas = all.filter(
+    (p: any) => (p as any)._fromCasuistica === true
+  );
+
+  // Deduplicación por _rawText (si no existe, usa una firma rápida del contenido)
+  const keyOf = (p: any) =>
+    (p?._rawText as string) ??
+    JSON.stringify(
+      (p?.options?.children ?? []).map((tr: any) => tr?.options?.text ?? '')
+    );
+
+  const uniqueMerge = (base: Paragraph[], extra: Paragraph[]) => {
+    const seen = new Set<string>(base.map((p: any) => keyOf(p)));
+    const out = [...base];
+    for (const p of extra) {
+      const k = keyOf(p as any);
+      if (!seen.has(k)) {
+        seen.add(k);
+        out.push(p);
+      }
+    }
+    return out;
+  };
+
+  // Añade casuística a los tres grupos
+  const montajes = uniqueMerge(montajesBase, casuisticaParas);
+  const desmontajes = uniqueMerge(desmontajesBase, casuisticaParas);
+  const variacionesYSus = uniqueMerge(variacionesBase, casuisticaParas);
+
+  // Pintado
   const out: Paragraph[] = [];
   const appendSection = (title: string, paras: Paragraph[]) => {
     out.push(
@@ -2015,6 +2191,13 @@ export function generarDocumentoProyectoParagraphs(
   appendSection('1.6.3- Montajes realizados', montajes);
 
   return out;
+}
+
+// helper local dentro de buildModificacionesParagraphs
+function pushCasuistica(out: Paragraph[], p: Paragraph, raw?: string) {
+  (p as any)._fromCasuistica = true; // ← marca inequívoca
+  if (raw) (p as any)._rawText = raw; // si ya usas _rawText, lo mantenemos
+  out.push(p);
 }
 
 export function generarTablaLeyenda(data: any): Table {
@@ -2094,7 +2277,8 @@ export function generarTablaLeyenda(data: any): Table {
   ];
 
   return new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    alignment: AlignmentType.CENTER,
+    width: { size: 85, type: WidthType.PERCENTAGE },
     rows: filas,
   });
 }

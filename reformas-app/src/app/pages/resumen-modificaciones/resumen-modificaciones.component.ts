@@ -1,4 +1,3 @@
-
 import {
   Component,
   EventEmitter,
@@ -12,6 +11,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 @Component({
   selector: 'app-resumen-modificaciones',
   imports: [FormsModule],
+  standalone: true,
   templateUrl: './resumen-modificaciones.component.html',
   styleUrl: './resumen-modificaciones.component.css',
 })

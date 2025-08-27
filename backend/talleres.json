@@ -9,5 +9,16 @@
     "responsable": "Rosa Mª Bertomeu Cervera",
     "telefono": "965740794",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "César Pons Vera",
+    "direccion": "Camí de Canor, 9",
+    "poblacion": "Benissa",
+    "provincia": "Alicante",
+    "registroIndustrial": "03-90878",
+    "registroEspecial": "A-3570",
+    "responsable": "César Pons Vera",
+    "telefono": "965785776",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
   }
 ]

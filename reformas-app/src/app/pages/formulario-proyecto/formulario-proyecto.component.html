@@ -124,8 +124,7 @@
           *ngFor="
             let campo of [
               { label: 'Marca', model: 'marca' },
-              { label: 'Modelo', model: 'modelo' },
-              { label: 'Denominación', model: 'denominacion' },
+              { label: 'Denominación', model: 'modelo' },
               { label: 'Tipo', model: 'tipo' },
               { label: 'Variante', model: 'variante' },
               { label: 'Versión', model: 'version' },
@@ -452,9 +451,10 @@
           <input
             type="number"
             min="0"
+            step="0.01"
             class="form-control"
             [(ngModel)]="datos.materialesUsados"
-            (ngModelChange)="actualizarTotal()"
+            (ngModelChange)="limitarDecimales('materialesUsados', $event)"
             name="materialesUsados"
             #matField="ngModel"
             required
@@ -462,14 +462,16 @@
           />
           <div class="invalid-feedback">Este campo es obligatorio.</div>
         </div>
+
         <div class="col-md-4 mb-2">
           <label class="form-label">Precio por mano de obra *</label>
           <input
             type="number"
             min="0"
+            step="0.01"
             class="form-control"
             [(ngModel)]="datos.manoDeObra"
-            (ngModelChange)="actualizarTotal()"
+            (ngModelChange)="limitarDecimales('manoDeObra', $event)"
             name="manoDeObra"
             #moField="ngModel"
             required
@@ -477,13 +479,15 @@
           />
           <div class="invalid-feedback">Este campo es obligatorio.</div>
         </div>
+
         <div class="col-md-4 mb-2">
           <label class="form-label">Total presupuesto *</label>
           <input
             type="number"
             min="0"
+            step="0.01"
             class="form-control"
-            [(ngModel)]="datos.totalPresupuesto"
+            [value]="datos.totalPresupuesto?.toFixed(2)"
             name="totalPresupuesto"
             readonly
           />

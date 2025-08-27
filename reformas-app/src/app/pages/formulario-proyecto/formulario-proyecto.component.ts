@@ -44,7 +44,6 @@ export class FormularioProyectoComponent implements OnChanges {
     revision: '00',
     marca: '---',
     modelo: '---',
-    denominacion: '---',
     tipo: '---',
     variante: '---',
     version: '---',
@@ -260,5 +259,12 @@ export class FormularioProyectoComponent implements OnChanges {
     const añoCorto = año.toString().slice(-2);
     this.datos.referenciaProyecto = `PTRV ${this.datos.numeroProyecto}/${añoCorto}`;
     this.datos.referenciaCFO = `CFO ${this.datos.numeroProyecto}/${añoCorto}`;
+  }
+
+  limitarDecimales(campo: keyof typeof this.datos, valor: any) {
+    if (valor !== null && valor !== undefined && valor !== '') {
+      this.datos[campo] = parseFloat(parseFloat(valor).toFixed(2));
+    }
+    this.actualizarTotal(); // para recalcular el total con el valor corregido
   }
 }

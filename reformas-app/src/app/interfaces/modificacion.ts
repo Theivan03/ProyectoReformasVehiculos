@@ -83,6 +83,13 @@ export interface Modificacion {
   marca?: string;
   marcaAmortiguador?: string;
   marcaAmortiguadorDelantero?: string;
+  marcaMuelleTraseroSinRef?: string;
+  referenciaMuelleTraseroConRef?: string;
+  marcaMuelleTraseroConRef?: string;
+  diametroExteriorTrasero?: number;
+  longitudTrasero?: number;
+  numeroEspirasTrasero?: number;
+  diametroEspiraTrasero?: number;
   marcaAmortiguadorTrasero?: string;
   marcaAletines?: string;
   marcaBallestaDelantera?: string;

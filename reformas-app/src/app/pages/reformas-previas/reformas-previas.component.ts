@@ -1,10 +1,10 @@
-
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-reformas-previas',
   imports: [FormsModule],
+  standalone: true,
   templateUrl: './reformas-previas.component.html',
   styleUrl: './reformas-previas.component.css',
 })

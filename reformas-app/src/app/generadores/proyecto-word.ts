@@ -227,7 +227,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         children: [
           { text: 'MARCA', width: 20 },
           { text: data.marca, width: 25 },
-          { text: 'MODELO', width: 15 },
+          { text: 'DENOMINACIÓN', width: 15 },
           { text: data.modelo, width: 25 },
         ].map(
           ({ text, width }) =>
@@ -247,11 +247,20 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       ...[
         [
           'Tipo/Variante/Versión:',
-          data.tipo + ' / ' + data.version + ' / ' + data.variante,
+          data.tipo + ' / ' + data.variante + ' / ' + data.version,
         ],
         ['MATRÍCULA', data.matricula],
         ['Nº BASTIDOR', data.bastidor],
-        ['FECHA 1ª MATRICULACIÓN', data.fechaMatriculacion],
+        [
+          'FECHA 1ª MATRICULACIÓN',
+          data.fechaMatriculacion
+            ? new Date(data.fechaMatriculacion).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              })
+            : '',
+        ],
         ['CONTRASEÑA HOMOLOG.', data.homologacion],
       ].map(
         ([label, value]) =>
@@ -588,7 +597,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     alignment: AlignmentType.CENTER,
                     children: [
                       new TextRun({
-                        text: 'Marca ' + data.marca + ' Modelo ' + data.modelo,
+                        text:
+                          'Marca ' +
+                          data.marca +
+                          ' Denominación ' +
+                          data.modelo,
                         bold: true,
                         size: 16,
                       }),
@@ -784,7 +797,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           'El siguiente proyecto técnico tiene como objeto principal la reforma y sustitución de algunas de las partes de un vehículo marca '
         ),
         new TextRun({ text: data.matricula, bold: true }),
-        new TextRun(' modelo '),
+        new TextRun(' denominación '),
         new TextRun({ text: data.modelo, bold: true }),
         new TextRun(' con número de bastidor '),
         new TextRun({ text: data.bastidor, bold: true }),
@@ -867,6 +880,19 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     ),
   ];
 
+  const texto = data.reformasPrevias
+    ? data.descripcionReformas || ''
+    : 'No procede';
+
+  const partes = texto.split(/\r?\n/);
+  const children: TextRun[] = [];
+  partes.forEach((linea: any, i: number) => {
+    // si hay líneas vacías, mantenlas
+    children.push(new TextRun({ text: linea }));
+    if (i < partes.length - 1)
+      children.push(new TextRun({ text: ' - ', break: 1 }));
+  });
+
   const punto1_2Antecedentes = [
     new Paragraph({
       heading: HeadingLevel.HEADING_2,
@@ -909,11 +935,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       text: 'Reformas efectuadas anteriormente:',
     }),
     new Paragraph({
-      spacing: {
-        line: 260,
-        after: 120,
-      },
-      text: data.reformasPrevias ? data.descripcionReformas : 'No procede',
+      spacing: { line: 260, after: 120 },
+      children, // 👈 en vez de "text: ..."
     }),
     new Paragraph({
       pageBreakBefore: true,
@@ -940,7 +963,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         children: [
           new Paragraph({
             alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text, bold })],
+            children: [new TextRun({ text, bold, size: 20 })],
           }),
         ],
       });
@@ -956,7 +979,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         },
         children: [
           new Paragraph({
-            children: [new TextRun({ text, bold })],
+            children: [new TextRun({ text, bold, size: 20 })],
           }),
         ],
       });
@@ -1018,7 +1041,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new TableRow({
           children: [
             createCell('DENOMINACIÓN COMERCIAL', true, 33),
-            createCell(data.denominacion, false, 33),
+            createCell(data.modelo, false, 33),
           ],
         }),
         new TableRow({
@@ -4322,7 +4345,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   ];
 
   if (tipo === 'camper' || tipo === 'coche') {
-    alto = 200;
+    alto = 250;
     alto2 = 400;
   } else {
     alto = 350;
@@ -4367,7 +4390,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new ImageRun({
           data: imageBuffer3,
           transformation: {
-            width: 300,
+            width: 350,
             height: alto,
           },
           type: 'png',
@@ -4448,7 +4471,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new ImageRun({
           data: imageBuffer3,
           transformation: {
-            width: 300,
+            width: 350,
             height: alto,
           },
           type: 'png',

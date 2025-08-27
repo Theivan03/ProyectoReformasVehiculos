@@ -22,6 +22,8 @@ export class TipoVehiculoComponent implements OnInit {
   detallesMuellesOpciones = [
     { key: 'muelleDelanteroConRef', label: 'Muelle delantero con referencia' },
     { key: 'muelleDelanteroSinRef', label: 'Muelle delantero sin referencia' },
+    { key: 'muelleTraseroConRef', label: 'Muelle trasero con referencia' },
+    { key: 'muelleTraseroSinRef', label: 'Muelle trasero sin referencia' },
     { key: 'ballestaDelantera', label: 'Ballesta delantera' },
     { key: 'ballestaTrasera', label: 'Ballesta trasera' },
     { key: 'amortiguadorDelantero', label: 'Amortiguador delantero' },

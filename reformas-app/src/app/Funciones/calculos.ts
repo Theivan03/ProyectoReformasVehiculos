@@ -2619,7 +2619,11 @@ export async function buildCalculos(
       out.push(tablaEsfuerzoDelanteros);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
-
+    }
+    if (
+      mod?.detallesMuelles?.['muelleTraseroConRef'] ||
+      mod?.detallesMuelles?.['muelleTraseroSinRef']
+    ) {
       // 8) Características geométricas muelles traseros
       const tablaGeomTraseros = new Table({
         width: { size: 50, type: WidthType.PERCENTAGE },
@@ -2991,15 +2995,35 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
 
+      const arrayBuffer = await (
+        await fetch('../assets/ballesta.png')
+      ).arrayBuffer();
+      const imageData = new Uint8Array(arrayBuffer);
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new ImageRun({
+              data: imageData,
+              type: 'png',
+              transformation: {
+                width: 400,
+                height: 300,
+              },
+            }),
+          ],
+        })
+      );
+
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
       if (mod?.detallesMuelles?.['ballestaDelantera']) {
         // 3) Tabla: CÁLCULO DE LA BALLESTA EN EL EJE 1 (inputs)
         const tablaInputEje1 = new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
-            new TableRow({
-              cantSplit: true,
-              children: [],
-            }),
             ...[
               ['CÁLCULO DE LA BALLESTA EN EL EJE 1:', ' '],
               [' ', ' '],
@@ -3033,27 +3057,6 @@ export async function buildCalculos(
         out.push(new Paragraph({ text: '' }));
         out.push(new Paragraph({ text: '' }));
 
-        const arrayBuffer = await (
-          await fetch('../assets/ballesta.png')
-        ).arrayBuffer();
-        const imageData = new Uint8Array(arrayBuffer);
-
-        out.push(
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            children: [
-              new ImageRun({
-                data: imageData,
-                type: 'png',
-                transformation: {
-                  width: 400,
-                  height: 300,
-                },
-              }),
-            ],
-          })
-        );
-
         // 4) Tabla: RESULTADO F = … Kg
         const tablaF = new Table({
           width: { size: 50, type: WidthType.PERCENTAGE },
@@ -3086,14 +3089,6 @@ export async function buildCalculos(
         });
         out.push(tablaF);
         out.push(new Paragraph({ text: '' }));
-      }
-
-      if (mod?.detallesMuelles?.['ballestaTrasera']) {
-        out.push(
-          new Paragraph({
-            text: 'Por lo tanto, la carga total que puede soportar la ballesta de la suspensión delantera será igual a:',
-          })
-        );
 
         // 5) Tabla: RESULTADO 2F = … Kg (celdas rellenadas en rojo/verdes según valor)
         const tabla2F = new Table({
@@ -3121,10 +3116,16 @@ export async function buildCalculos(
             }),
           ],
         });
-        out.push(tabla2F);
         out.push(new Paragraph({ text: '' }));
         out.push(new Paragraph({ text: '' }));
 
+        out.push(tabla2F);
+
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+      }
+
+      if (mod?.detallesMuelles?.['ballestaTrasera']) {
         // 6) Tabla: CÁLCULO DE LA BALLESTA EN EL EJE 2 (inputs)
         const tablaInputEje2 = new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
@@ -3162,33 +3163,7 @@ export async function buildCalculos(
         out.push(new Paragraph({ text: '' }));
         out.push(new Paragraph({ text: '' }));
 
-        // 7) Tabla: F eje 2
-        const tablaFEje2 = new Table({
-          width: { size: 50, type: WidthType.PERCENTAGE },
-          rows: [
-            new TableRow({
-              cantSplit: true,
-              children: ['F=', '2073,6', 'Kg'].map(
-                (txt, i) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: txt })],
-                      }),
-                    ],
-                  })
-              ),
-            }),
-          ],
-        });
-        out.push(tablaFEje2);
-        out.push(new Paragraph({ text: '' }));
-        out.push(new Paragraph({ text: '' }));
-
-        // 8) Tabla: 2F eje 2
+        // 7) Tabla: 2F eje 2
         const tabla2FEje2 = new Table({
           width: { size: 50, type: WidthType.PERCENTAGE },
           rows: [
@@ -3215,6 +3190,39 @@ export async function buildCalculos(
           ],
         });
         out.push(tabla2FEje2);
+
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+
+        out.push(
+          new Paragraph({
+            text: 'Por lo tanto, la carga total que puede soportar la ballesta de la suspensión trasera será igual a:',
+          })
+        );
+        // 8) Tabla: F eje 2
+        const tablaFEje2 = new Table({
+          width: { size: 50, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              cantSplit: true,
+              children: ['F=', '2073,6', 'Kg'].map(
+                (txt, i) =>
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    verticalAlign: VerticalAlign.CENTER,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun({ text: txt })],
+                      }),
+                    ],
+                  })
+              ),
+            }),
+          ],
+        });
+        out.push(tablaFEje2);
+
         out.push(new Paragraph({ text: '' }));
         out.push(new Paragraph({ text: '' }));
       }

@@ -8,86 +8,68 @@
 <!-- Aquí irá el formulario o los pasos siguientes -->
 <div class="container mt-4">
   @if (mostrarSeleccion) {
-    <app-seleccion-secciones
-      [seccionesPreseleccionadas]="codigosPreseleccionados"
-      (continuar)="onContinuar($event)"
-      >
-    </app-seleccion-secciones>
-  }
-
-  @if (mostrarSubSelecciones) {
-    <app-mostrar-secciones
-      [secciones]="seccionesSeleccionadas"
-      [respuestas]="respuestasGuardadas"
-      (volverASeleccion)="mostrarSeleccion = true; mostrarSubSelecciones = false"
-      (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
-      >
-    </app-mostrar-secciones>
-  }
-
-  @if (mostrarFormularioProyecto) {
-    <app-formulario-proyecto
-      [respuestas]="respuestasGuardadas"
-      [datosIniciales]="datosFormularioGuardados"
-      (volverAReforma)="onVolverDesdeFormulario($event)"
-      (finalizarFormulario)="onFinalizarFormulario($event)"
-    ></app-formulario-proyecto>
-  }
-
-  @if (mostrarReformasPrevias) {
-    <app-reformas-previas
-      [datos]="datosGenerales"
-      (continuar)="onContinuarDesdeReformasPrevias($event)"
-      (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
-      >
-    </app-reformas-previas>
-  }
-
-  @if (mostrarTipoVehiculo) {
-    <app-tipo-vehiculo
-      [datosPrevios]="datosGuardadosTipoVehiculo"
-      (continuar)="onContinuarTipoVehiculo($event)"
-      (volver)="onVolverDesdeTipoVehiculo($event)"
-    ></app-tipo-vehiculo>
-  }
-
-  @if (mostrarResumenModificaciones) {
-    <app-resumen-modificaciones
-      [datosEntrada]="datosResumenModificaciones"
-      (volver)="onVolverDesdeResumenModificaciones($event)"
-      (continuar)="onContinuarDesdeResumenModificaciones($event)"
-    ></app-resumen-modificaciones>
-  }
-
-  @if (mostrarCocheOno) {
-    <app-cocheono
-      [datosEntrada]="datosResumenModificaciones"
-      (volver)="onVolverDesdeCocheONo($event)"
-      (continuar)="onContinuarDesdeCocheONo($event)"
-    ></app-cocheono>
-  }
-
-  @if (mostrarCanva) {
-    <app-canva
-      [datosEntrada]="datosResumenModificaciones"
-      (volver)="onVolverDesdeCanva()"
-      (continuar)="onContinuarDesdeCanva($event)"
-    ></app-canva>
-  }
-
-  @if (mostrarImagenes) {
-    <app-imagenes
-      [datosEntrada]="datosGenerales"
-      (volver)="onVolverDesdeImagenes($event)"
-      (continuar)="onContinuarDesdeImagenes($event)"
-      >
-    </app-imagenes>
-  }
-
-  @if (mostrarGenerador) {
-    <app-generador-documentos
-      [reformaData]="datosGenerales"
-      (volverAlFormulario)="onVolverDesdeGenerador($event)"
-    ></app-generador-documentos>
+  <app-seleccion-secciones
+    [seccionesPreseleccionadas]="codigosPreseleccionados"
+    (continuar)="onContinuar($event)"
+  >
+  </app-seleccion-secciones>
+  } @if (mostrarSubSelecciones) {
+  <app-mostrar-secciones
+    [secciones]="seccionesSeleccionadas"
+    [respuestas]="respuestasGuardadas"
+    (volverASeleccion)="mostrarSeleccion = true; mostrarSubSelecciones = false"
+    (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
+  >
+  </app-mostrar-secciones>
+  } @if (mostrarFormularioProyecto) {
+  <app-formulario-proyecto
+    [respuestas]="respuestasGuardadas"
+    [datosIniciales]="datosFormularioGuardados"
+    (volverAReforma)="onVolverDesdeFormulario($event)"
+    (finalizarFormulario)="onFinalizarFormulario($event)"
+  ></app-formulario-proyecto>
+  } @if (mostrarReformasPrevias) {
+  <app-reformas-previas
+    [datos]="datosGenerales"
+    (continuar)="onContinuarDesdeReformasPrevias($event)"
+    (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
+  >
+  </app-reformas-previas>
+  } @if (mostrarTipoVehiculo) {
+  <app-tipo-vehiculo
+    [datosPrevios]="datosGuardadosTipoVehiculo"
+    (continuar)="onContinuarTipoVehiculo($event)"
+    (volver)="onVolverDesdeTipoVehiculo($event)"
+  ></app-tipo-vehiculo>
+  } @if (mostrarResumenModificaciones) {
+  <app-resumen-modificaciones
+    [datosEntrada]="datosResumenModificaciones"
+    (volver)="onVolverDesdeResumenModificaciones($event)"
+    (continuar)="onContinuarDesdeResumenModificaciones($event)"
+  ></app-resumen-modificaciones>
+  } @if (mostrarCocheOno) {
+  <app-cocheono
+    [datosEntrada]="datosResumenModificaciones"
+    (volver)="onVolverDesdeCocheONo($event)"
+    (continuar)="onContinuarDesdeCocheONo($event)"
+  ></app-cocheono>
+  } @if (mostrarCanva) {
+  <app-canva
+    [datosEntrada]="datosResumenModificaciones"
+    (volver)="onVolverDesdeCanva()"
+    (continuar)="onContinuarDesdeCanva($event)"
+  ></app-canva>
+  } @if (mostrarImagenes) {
+  <app-imagenes
+    [datosEntrada]="datosGenerales"
+    (volver)="onVolverDesdeImagenes($event)"
+    (continuar)="onContinuarDesdeImagenes($event)"
+  >
+  </app-imagenes>
+  } @if (mostrarGenerador) {
+  <app-generador-documentos
+    [reformaData]="datosGenerales"
+    (volverAlFormulario)="onVolverDesdeGenerador($event)"
+  ></app-generador-documentos>
   }
 </div>
