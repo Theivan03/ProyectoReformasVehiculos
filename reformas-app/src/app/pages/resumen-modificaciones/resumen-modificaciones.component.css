@@ -1,0 +1,52 @@
+/* Card limpia y consistente con Bootstrap */
+.mod-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+  border: 1px solid #e8eaef;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(16,24,40,.04);
+}
+
+.mod-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #e6e8ed;
+  margin-bottom: 16px;
+}
+
+.mod-card__title {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: .2px;
+}
+
+.mod-card__hint {
+  color: #6b7280; /* text-muted */
+  font-size: .85rem;
+}
+
+.mod-sep {
+  margin: 10px 0 14px;
+  border-color: #eef0f4;
+  opacity: 1;
+}
+
+/* Floating labels más compactas */
+.form-floating > label {
+  color: #6b7280;
+}
+.form-control, .form-select {
+  border-radius: 10px;
+}
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.1);
+  border-color: #93c5fd;
+}
+
+/* En pantallas muy pequeñas, separa mejor */
+@media (max-width: 576px) {
+  .mod-card { padding: 12px; }
+}

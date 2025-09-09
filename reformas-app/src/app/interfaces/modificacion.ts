@@ -2,6 +2,7 @@ export interface Mueble {
   tipo: 'bajo' | 'alto' | 'aseo';
   medidas: string;
   descripcion?: string;
+  peso?: number;
 }
 
 export interface Modificacion {
@@ -18,6 +19,12 @@ export interface Modificacion {
   carreteraDesactivada?: boolean;
   clase?: string;
   claseBarra?: string;
+  cdgconductor?: number;
+  cdgocdelant?: number;
+  cdgocu2?: number;
+  cdgocu3?: number;
+  cdgcargautil?: number;
+  cdgcargavert?: number;
   marcaSobreletines?: string;
   claseBola?: string;
   dKn?: number;
@@ -86,6 +93,10 @@ export interface Modificacion {
   marcaMuelleTraseroSinRef?: string;
   referenciaMuelleTraseroConRef?: string;
   marcaMuelleTraseroConRef?: string;
+  numeroEspirasSinTrasero?: number;
+  longitudSinTrasero?: number;
+  diametroExteriorSinTrasero?: number;
+  diametroEspiraSinTrasero?: number;
   diametroExteriorTrasero?: number;
   longitudTrasero?: number;
   numeroEspirasTrasero?: number;
@@ -301,7 +312,6 @@ export interface Modificacion {
   curvaturaParagolpesDelantero?: string;
   curvaturaParagolpesTrasero?: string;
   curvaturaAletines?: string;
-  curvaturaEstribosLaterales?: string;
   curvaturaProtectoresLaterales?: string;
   curvaturaDefensaDelantera?: string;
   curvaturaSoporteRuedaRepuesto?: string;
@@ -316,6 +326,9 @@ export interface Modificacion {
   tipoFabricacionMuebleBajo?: string;
   tipoFabricacionMuebleAlto?: string;
   tipoFabricacionMuebleAseo?: string;
+  tornillosMuebleAseo?: number;
+  tornillosMuebleAlto?: number;
+  tornillosMuebleBajo?: number;
   marcaMuebleAlto?: string;
   referenciaMuebleAlto?: string;
   referenciaMuebleBajo?: string;
@@ -355,4 +368,125 @@ export interface Modificacion {
   ocupantesAdicionales?: number;
   metricaSobrealetines?: number;
   metricaAletines?: number;
+  numTornillosAletines?: number;
+  pesoPiezaKgAletines?: number;
+  superficieFrontalM2Aletines?: number;
+  coefAerodinamicoCwAletines?: number;
+  velocidadAireV2msAletines?: number;
+  densidadAireKgM3Aletines?: number;
+  radioCurvaRAletines?: number;
+  coefSeguridadKAletines?: number;
+  resTraccionMinTornillo88Kgmm2Aletines?: number;
+  seccionResistenteAsAletines?: number;
+
+  pesoPiezaKgSnorkel?: number;
+  anchuraPiezaMSnorkel?: number;
+  metricaSnorkel?: number;
+  alturaPiezaMSnorkel?: number;
+  coefAerodinamicoSnorkel?: number;
+  nTornillosSnorkel?: number;
+  calidadTornilloSnorkel?: number;
+  seccionResistenteAsSnorkel?: number;
+  resTraccionMinTornillo88Kgmm2Snorkel?: number;
+  cwCoefAerodinamicoSnorkel?: number;
+  densidadAireKgM3Snorkel?: number;
+  velocidadAireV2msSnorkel?: number;
+  coefSeguridadKSnorkel?: number;
+
+  diametroPernoCmCabrestante?: number;
+  materialPernoCabrestante?: string;
+  tensionMinCortanteKgCm2Cabrestante?: number;
+  nTornillosCabrestante?: number;
+  diametroPernoChasisMmCabrestante?: number;
+  materialPernoChasisCabrestante?: string;
+  tensionMinCortanteChasisKgCm2Cabrestante?: number;
+  metricaCabrestante?: number;
+  nPernosChasisCabrestante?: number;
+
+  metricaLuces?: number;
+  metricaLucesEspecificas?: number;
+  pesoPiezaKgLucesEspecificas?: number;
+  anchuraPiezaMLucesEspecificas?: number;
+  alturaPiezaMLucesEspecificas?: number;
+  coefAerodinamicoLucesEspecificas?: number;
+  nTornillosLucesEspecificas?: number;
+  calidadTornilloLucesEspecificas?: number;
+  seccionResistenteAsLucesEspecificas?: number;
+  resTraccionMinTornillo88Kgmm2LucesEspecificas?: number;
+  cwCoefAerodinamicoLucesEspecificas?: number;
+  densidadAireKgM3LucesEspecificas?: number;
+  velocidadAireV2msLucesEspecificas?: number;
+  radioCurvaRLucesEspecificas?: number;
+  coefSeguridadKLucesEspecificas?: number;
+
+  pesoPiezaKgParagolpesDelantero?: number;
+  superficieFrontalM2ParagolpesDelantero?: number;
+  seccionResistenteAsParagolpesDelantero?: number;
+  resTraccionMinTornillo88Kgmm2ParagolpesDelantero?: number;
+  metricaParaDelantero?: number;
+  ntornillosParaDelantero?: number;
+  cwCoefAerodinamicoParagolpesDelantero?: number;
+  densidadAireKgM3ParagolpesDelantero?: number;
+  velocidadAireV2msParagolpesDelantero?: number;
+  radioCurvaRParagolpesDelantero?: number;
+  coefSeguridadKParagolpesDelantero?: number;
+
+  pesoPiezaKgParagolpesTrasero?: number;
+  anchuraMParagolpesTrasero?: number;
+  alturaMParagolpesTrasero?: number;
+  coefAerodinamicoParagolpesTrasero?: number;
+  nTornillosParagolpesTrasero?: number;
+  calidadTornilloParagolpesTrasero?: number;
+  densidadAireKgM3ParagolpesTrasero?: number;
+  radioCurvaRParagolpesTrasero?: number;
+  coefSeguridadKParagolpesTrasero?: number;
+  velocidadAireV2msParagolpesTrasero?: number;
+  resTraccionMinTornillo88Kgmm2ParagolpesTrasero?: number;
+  seccionResistenteAsParagolpesTrasero?: number;
+  metricaParaTrasero?: number;
+
+  curvaturaEstribosLaterales?: number;
+  pesoPiezaKgEstribos?: number;
+  anchuraMEstribos?: number;
+  alturaMEstribos?: number;
+  coefAerodinamicoEstribos?: number;
+  metricaTalonera?: number;
+  nTornillosEstribos?: number;
+  calidadTornilloEstribos?: number;
+  seccionResistenteAsEstribos?: number;
+  resTraccionMinTornillo88Kgmm2Estribos?: number;
+  densidadAireKgM3Estribos?: number;
+  velocidadAireV2msEstribos?: number;
+  radioCurvaREstribos?: number;
+  coefSeguridadKEstribos?: number;
+
+  diametroExteriorDelanteroRef?: number;
+  longitudLibreDelanteroRef?: number;
+  diametroEspiraDelanteroRef?: number;
+  numeroEspirasDelanteroRef?: number;
+
+  diametroExteriorDelanteroSinRef?: number;
+  longitudLibreDelanteroSinRef?: number;
+  diametroEspiraDelanteroSinRef?: number;
+  numeroEspirasDelanteroSinRef?: number;
+
+  diametroExteriorTraseroRef?: number;
+  longitudLibreTraseroRef?: number;
+  diametroEspiraTraseroRef?: number;
+  numeroEspirasTraseroRef?: number;
+
+  diametroExteriorTraseroSinRef?: number;
+  longitudLibreTraseroSinRef?: number;
+  diametroEspiraTraseroSinRef?: number;
+  numeroEspirasTraseroSinRef?: number;
+
+  numHojasBallestaDelantera?: number;
+  anchoHojaBallestaDelantera?: number;
+  espesorHojaBallestaDelantera?: number;
+  longitudBallestaDelantera?: number;
+
+  numHojasBallestaTrasera?: number;
+  anchoHojaBallestaTrasera?: number;
+  espesorHojaBallestaTrasera?: number;
+  longitudBallestaTrasera?: number;
 }

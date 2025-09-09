@@ -401,21 +401,21 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 etiqueta: 'Paragolpes delantero',
                 valor: modificaciones.find(
                   (m) => m.nombre === 'PARAGOLPES DELANTERO'
-                )!.curvaturaParagolpesDelantero!,
+                )!.radioCurvaRParagolpesDelantero!,
               },
               {
                 nombreMod: 'PARAGOLPES TRASERO',
                 etiqueta: 'Paragolpes trasero',
                 valor: modificaciones.find(
                   (m) => m.nombre === 'PARAGOLPES TRASERO'
-                )!.curvaturaParagolpesTrasero!,
+                )!.radioCurvaRParagolpesTrasero!,
               },
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
                 etiqueta: 'Aletines',
                 valor: modificaciones.find(
                   (m) => m.nombre === 'ALETINES Y SOBREALETINES'
-                )!.curvaturaAletines!,
+                )!.radioCurvaRAletines!,
               },
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
@@ -808,6 +808,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       imagenes_reformas.push(
         new Paragraph({
           spacing: { line: 260, after: 60 },
+          indent: { left: 850 },
           children: [
             new TextRun({
               text: `Reforma ${(codigo as { codigo: string }).codigo}`,
@@ -1205,6 +1206,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       ...punto1_6Tabla.flat(),
       ...punto1_6Avisos,
       ...bloqueLegal,
+      ...imagenes_reformas,
       ...anexosPrevios,
       ...anexosPorsteriores,
     ].flat(),

@@ -1,9 +1,18 @@
-<h2 class="mb-4">Nueva Reforma</h2>
-<p>
-  Inicie un nuevo proyecto de reforma. A lo largo del proceso podrá definir los
-  detalles técnicos, administrativos y generar la documentación necesaria para
-  su tramitación.
-</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-1">Nueva Reforma</h2>
+    <p class="mb-0">
+      Inicie un nuevo proyecto de reforma. A lo largo del proceso podrá definir
+      los detalles técnicos, administrativos y generar la documentación
+      necesaria para su tramitación.
+    </p>
+  </div>
+
+  <!-- Botón reset -->
+  <button class="btn btn-danger btn-lg fw-bold" (click)="resetReforma()">
+    🗑️ Reiniciar
+  </button>
+</div>
 
 <div class="container mt-4">
   @if (mostrarSeleccion) {

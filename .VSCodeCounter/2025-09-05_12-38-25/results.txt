@@ -1,0 +1,166 @@
+Date : 2025-09-05 12:38:25
+Directory : c:\ProyectoVehiculos\ProyectoReformasVehiculos
+Total : 100 files,  43182 codes, 968 comments, 1561 blanks, all 45711 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| JSON               |         20 |     18,814 |          4 |         20 |     18,838 |
+| TypeScript         |         44 |     14,983 |        614 |      1,178 |     16,775 |
+| HTML               |         16 |      8,996 |        325 |        260 |      9,581 |
+| JavaScript         |          1 |        181 |         15 |         39 |        235 |
+| PostCSS            |         16 |        146 |          8 |         38 |        192 |
+| Markdown           |          2 |         37 |          0 |         25 |         62 |
+| JSON with Comments |          1 |         25 |          2 |          1 |         28 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                      | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                         |        100 |     43,182 |        968 |      1,561 |     45,711 |
+| . (Files)                                                                                                                                 |          3 |        215 |          0 |          3 |        218 |
+| backend                                                                                                                                   |         11 |      2,943 |         15 |         41 |      2,999 |
+| backend (Files)                                                                                                                           |          5 |      1,252 |         15 |         41 |      1,308 |
+| backend\proyectos                                                                                                                         |          6 |      1,691 |          0 |          0 |      1,691 |
+| backend\proyectos\1_2025                                                                                                                  |          1 |        273 |          0 |          0 |        273 |
+| backend\proyectos\1_2026                                                                                                                  |          1 |        273 |          0 |          0 |        273 |
+| backend\proyectos\2_2025                                                                                                                  |          1 |        301 |          0 |          0 |        301 |
+| backend\proyectos\2_2026                                                                                                                  |          1 |        274 |          0 |          0 |        274 |
+| backend\proyectos\3_2025                                                                                                                  |          1 |        296 |          0 |          0 |        296 |
+| backend\proyectos\3_2026                                                                                                                  |          1 |        274 |          0 |          0 |        274 |
+| reformas-app                                                                                                                              |         86 |     40,024 |        953 |      1,517 |     42,494 |
+| reformas-app (Files)                                                                                                                      |          7 |     15,435 |          6 |         30 |     15,471 |
+| reformas-app\src                                                                                                                          |         79 |     24,589 |        947 |      1,487 |     27,023 |
+| reformas-app\src (Files)                                                                                                                  |          3 |         24 |          1 |          6 |         31 |
+| reformas-app\src\app                                                                                                                      |         73 |     24,101 |        946 |      1,470 |     26,517 |
+| reformas-app\src\app (Files)                                                                                                              |          6 |        112 |          5 |         21 |        138 |
+| reformas-app\src\app\Funciones                                                                                                            |          2 |      5,860 |        392 |        453 |      6,705 |
+| reformas-app\src\app\formulario-taller                                                                                                    |          4 |        268 |          8 |         33 |        309 |
+| reformas-app\src\app\generador-documentos                                                                                                 |          4 |        249 |         32 |         33 |        314 |
+| reformas-app\src\app\generadores                                                                                                          |          4 |      5,952 |        122 |        265 |      6,339 |
+| reformas-app\src\app\interfaces                                                                                                           |          1 |        451 |          0 |         11 |        462 |
+| reformas-app\src\app\pages                                                                                                                |         48 |     11,164 |        387 |        636 |     12,187 |
+| reformas-app\src\app\pages\canva                                                                                                          |          4 |        393 |         22 |         54 |        469 |
+| reformas-app\src\app\pages\cocheono                                                                                                       |          4 |        176 |         14 |         31 |        221 |
+| reformas-app\src\app\pages\crear-reforma                                                                                                  |          4 |        581 |         18 |         68 |        667 |
+| reformas-app\src\app\pages\editar-reforma                                                                                                 |          4 |         27 |          0 |         11 |         38 |
+| reformas-app\src\app\pages\formulario-proyecto                                                                                            |          4 |        849 |          9 |         68 |        926 |
+| reformas-app\src\app\pages\home                                                                                                           |          4 |         31 |          0 |         11 |         42 |
+| reformas-app\src\app\pages\imagenes                                                                                                       |          4 |        386 |         48 |         48 |        482 |
+| reformas-app\src\app\pages\mostrar-secciones                                                                                              |          4 |        180 |          0 |         24 |        204 |
+| reformas-app\src\app\pages\reformas-previas                                                                                               |          4 |        106 |          0 |         22 |        128 |
+| reformas-app\src\app\pages\resumen-modificaciones                                                                                         |          4 |      7,256 |        256 |        213 |      7,725 |
+| reformas-app\src\app\pages\seleccion-secciones                                                                                            |          4 |        117 |          0 |         24 |        141 |
+| reformas-app\src\app\pages\tipo-vehiculo                                                                                                  |          4 |      1,062 |         20 |         62 |      1,144 |
+| reformas-app\src\app\services                                                                                                             |          4 |         45 |          0 |         18 |         63 |
+| reformas-app\src\assets                                                                                                                   |          3 |        464 |          0 |         11 |        475 |
++-------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                                                                                  | language           | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\README.md                                                                                  | Markdown           |          1 |          0 |          1 |          2 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\index.js                                                                           | JavaScript         |        181 |         15 |         39 |        235 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\package-lock.json                                                                  | JSON               |      1,025 |          0 |          1 |      1,026 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\package.json                                                                       | JSON               |         18 |          0 |          1 |         19 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\1_2025\proyecto.json                                                     | JSON               |        273 |          0 |          0 |        273 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\1_2026\proyecto.json                                                     | JSON               |        273 |          0 |          0 |        273 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\2_2025\proyecto.json                                                     | JSON               |        301 |          0 |          0 |        301 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\2_2026\proyecto.json                                                     | JSON               |        274 |          0 |          0 |        274 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\3_2025\proyecto.json                                                     | JSON               |        296 |          0 |          0 |        296 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\3_2026\proyecto.json                                                     | JSON               |        274 |          0 |          0 |        274 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\talleres.json                                                                      | JSON               |         24 |          0 |          0 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\ultimoProyecto.json                                                                | JSON               |          4 |          0 |          0 |          4 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\package-lock.json                                                                          | JSON               |        208 |          0 |          1 |        209 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\package.json                                                                               | JSON               |          6 |          0 |          1 |          7 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\README.md                                                                     | Markdown           |         36 |          0 |         24 |         60 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\angular.json                                                                  | JSON               |        114 |          0 |          1 |        115 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\package-lock.json                                                             | JSON               |     15,184 |          0 |          1 |     15,185 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\package.json                                                                  | JSON               |         48 |          0 |          1 |         49 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\Funciones\buildModificacionesParagraphs.ts                            | TypeScript         |      1,905 |        260 |        269 |      2,434 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\Funciones\calculos.ts                                                 | TypeScript         |      3,955 |        132 |        184 |      4,271 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\app.component.css                                                     | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\app.component.html                                                    | HTML               |         46 |          5 |          7 |         58 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\app.component.spec.ts                                                 | TypeScript         |         25 |          0 |          5 |         30 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\app.component.ts                                                      | TypeScript         |         11 |          0 |          3 |         14 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\app.config.ts                                                         | TypeScript         |         11 |          0 |          3 |         14 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\app.routes.ts                                                         | TypeScript         |         19 |          0 |          2 |         21 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\formulario-taller\gestionar-taller.component.css                      | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\formulario-taller\gestionar-taller.component.html                     | HTML               |        114 |          6 |          4 |        124 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\formulario-taller\gestionar-taller.component.spec.ts                  | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\formulario-taller\gestionar-taller.component.ts                       | TypeScript         |        136 |          2 |         22 |        160 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\generador-documentos\generador-documentos.component.css               | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\generador-documentos\generador-documentos.component.html              | HTML               |        121 |          4 |          8 |        133 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\generador-documentos\generador-documentos.component.spec.ts           | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\generador-documentos\generador-documentos.component.ts                | TypeScript         |        110 |         28 |         18 |        156 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\generadores\certificado-final-obra.ts                                 | TypeScript         |      1,128 |         28 |         71 |      1,227 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\generadores\certificado-taller.ts                                     | TypeScript         |        177 |          2 |         18 |        197 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\generadores\declaracion-responsable.ts                                | TypeScript         |         73 |         15 |         13 |        101 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\generadores\proyecto-word.ts                                          | TypeScript         |      4,574 |         77 |        163 |      4,814 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\interfaces\modificacion.ts                                            | TypeScript         |        451 |          0 |         11 |        462 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\canva\canva.component.css                                       | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\canva\canva.component.html                                      | HTML               |        114 |          6 |          5 |        125 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\canva\canva.component.spec.ts                                   | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\canva\canva.component.ts                                        | TypeScript         |        261 |         16 |         42 |        319 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\cocheono\cocheono.component.css                                 | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\cocheono\cocheono.component.html                                | HTML               |         90 |          1 |          8 |         99 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\cocheono\cocheono.component.spec.ts                             | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\cocheono\cocheono.component.ts                                  | TypeScript         |         68 |         13 |         16 |         97 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\crear-reforma\crear-reforma.component.css                       | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\crear-reforma\crear-reforma.component.html                      | HTML               |         84 |          0 |          2 |         86 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\crear-reforma\crear-reforma.component.spec.ts                   | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\crear-reforma\crear-reforma.component.ts                        | TypeScript         |        479 |         18 |         59 |        556 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\editar-reforma\editar-reforma.component.css                     | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\editar-reforma\editar-reforma.component.html                    | HTML               |          1 |          0 |          1 |          2 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\editar-reforma\editar-reforma.component.spec.ts                 | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\editar-reforma\editar-reforma.component.ts                      | TypeScript         |          8 |          0 |          3 |         11 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\formulario-proyecto\formulario-proyecto.component.css           | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\formulario-proyecto\formulario-proyecto.component.html          | HTML               |        582 |          6 |         23 |        611 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\formulario-proyecto\formulario-proyecto.component.spec.ts       | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\formulario-proyecto\formulario-proyecto.component.ts            | TypeScript         |        249 |          3 |         38 |        290 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\home\home.component.css                                         | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\home\home.component.html                                        | HTML               |          5 |          0 |          1 |          6 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\home\home.component.spec.ts                                     | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\home\home.component.ts                                          | TypeScript         |          8 |          0 |          3 |         11 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\imagenes\imagenes.component.css                                 | PostCSS            |         27 |          4 |          4 |         35 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\imagenes\imagenes.component.html                                | HTML               |        121 |         29 |          9 |        159 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\imagenes\imagenes.component.spec.ts                             | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\imagenes\imagenes.component.ts                                  | TypeScript         |        220 |         15 |         29 |        264 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\mostrar-secciones\mostrar-secciones.component.css               | PostCSS            |         17 |          0 |          4 |         21 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\mostrar-secciones\mostrar-secciones.component.html              | HTML               |         43 |          0 |          1 |         44 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\mostrar-secciones\mostrar-secciones.component.spec.ts           | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\mostrar-secciones\mostrar-secciones.component.ts                | TypeScript         |        102 |          0 |         13 |        115 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\reformas-previas\reformas-previas.component.css                 | PostCSS            |         42 |          0 |          8 |         50 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\reformas-previas\reformas-previas.component.html                | HTML               |         26 |          0 |          4 |         30 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\reformas-previas\reformas-previas.component.spec.ts             | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\reformas-previas\reformas-previas.component.ts                  | TypeScript         |         20 |          0 |          4 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\resumen-modificaciones\resumen-modificaciones.component.css     | PostCSS            |         43 |          3 |          7 |         53 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\resumen-modificaciones\resumen-modificaciones.component.html    | HTML               |      7,025 |        250 |        179 |      7,454 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\resumen-modificaciones\resumen-modificaciones.component.spec.ts | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\resumen-modificaciones\resumen-modificaciones.component.ts      | TypeScript         |        170 |          3 |         21 |        194 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\seleccion-secciones\seleccion-secciones.component.css           | PostCSS            |         17 |          0 |          4 |         21 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\seleccion-secciones\seleccion-secciones.component.html          | HTML               |         29 |          0 |          3 |         32 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\seleccion-secciones\seleccion-secciones.component.spec.ts       | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\seleccion-secciones\seleccion-secciones.component.ts            | TypeScript         |         53 |          0 |         11 |         64 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\tipo-vehiculo\tipo-vehiculo.component.css                       | PostCSS            |          0 |          0 |          1 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\tipo-vehiculo\tipo-vehiculo.component.html                      | HTML               |        582 |         18 |          4 |        604 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\tipo-vehiculo\tipo-vehiculo.component.spec.ts                   | TypeScript         |         18 |          0 |          6 |         24 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\tipo-vehiculo\tipo-vehiculo.component.ts                        | TypeScript         |        462 |          2 |         51 |        515 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\services\datos-reforma.service.spec.ts                                | TypeScript         |         12 |          0 |          5 |         17 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\services\datos-reforma.service.ts                                     | TypeScript         |         14 |          0 |          5 |         19 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\services\reformas.service.spec.ts                                     | TypeScript         |         12 |          0 |          5 |         17 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\services\reformas.service.ts                                          | TypeScript         |          7 |          0 |          3 |         10 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\assets\codigos_reforma_vehiculo.json                                      | JSON               |        398 |          0 |          9 |        407 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\assets\ingeniero.json                                                     | JSON               |         20 |          0 |          1 |         21 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\assets\opciones_reforma_vehiculos.json                                    | JSON               |         46 |          0 |          1 |         47 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\index.html                                                                | HTML               |         13 |          0 |          1 |         14 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\main.ts                                                                   | TypeScript         |         11 |          0 |          4 |         15 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\styles.css                                                                | PostCSS            |          0 |          1 |          1 |          2 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\tsconfig.app.json                                                             | JSON               |         15 |          2 |          1 |         18 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\tsconfig.json                                                                 | JSON with Comments |         25 |          2 |          1 |         28 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\tsconfig.spec.json                                                            | JSON               |         13 |          2 |          1 |         16 |
+| Total                                                                                                                                     |                    |     43,182 |        968 |      1,561 |     45,711 |
++-------------------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

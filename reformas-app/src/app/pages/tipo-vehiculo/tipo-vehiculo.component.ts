@@ -430,6 +430,15 @@ export class TipoVehiculoComponent implements OnInit {
         if (!valido) esValido = false;
       }
 
+      if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
+        const valido =
+          mod.opcionesMueble?.muebleBajo ||
+          mod.opcionesMueble?.muebleAlto ||
+          mod.opcionesMueble?.aseo;
+        invalido = !valido;
+        if (!valido) esValido = false;
+      }
+
       this.erroresSubopciones[index] = invalido;
 
       if (invalido) {
@@ -506,6 +515,14 @@ export class TipoVehiculoComponent implements OnInit {
       invalido = !(
         mod.detalle?.sustitucionEjeTrasero ||
         mod.detalle?.sustitucionEjeDelantero
+      );
+    }
+
+    if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
+      invalido = !(
+        mod.opcionesMueble?.muebleAlto ||
+        mod.opcionesMueble?.muebleBajo ||
+        mod.opcionesMueble?.aseo
       );
     }
 

@@ -121,26 +121,18 @@ export class ImagenesComponent implements OnInit {
     });
   }
 
-  async onPrevSelected(ev: Event) {
+  async onPrevSelected(ev: Event, index: number) {
     const input = ev.target as HTMLInputElement;
-    if (!input.files) return;
-    const files = Array.from(input.files);
+    if (!input.files || input.files.length === 0) return;
 
-    if (files.length !== 4) {
-      this.errorPrevImagesCount = true;
-      input.value = '';
-      return;
-    }
-    this.errorPrevImagesCount = false;
+    const file = input.files[0];
+    const blob = await this.normalizeOrientation(file);
+    const preview = await this.blobToDataUrl(blob);
 
-    const blobs = await Promise.all(
-      files.map((f) => this.normalizeOrientation(f))
-    );
-    this.prevImages = blobs;
-    this.prevPreviews = await Promise.all(
-      blobs.map((b) => this.blobToDataUrl(b))
-    );
-    this.prevImagesB64 = [...this.prevPreviews];
+    this.prevImages[index] = blob;
+    this.prevPreviews[index] = preview;
+    this.prevImagesB64[index] = preview;
+
     this.emitAutosave();
   }
 
@@ -164,7 +156,12 @@ export class ImagenesComponent implements OnInit {
       blobs.map((b) => this.blobToDataUrl(b))
     );
     this.postImagesB64 = [...this.postPreviews];
+
     this.emitAutosave();
+  }
+
+  isValidPreview(previews: string[]): number {
+    return previews.filter((p) => !!p).length;
   }
 
   // ========= Reordenar (prev) =========

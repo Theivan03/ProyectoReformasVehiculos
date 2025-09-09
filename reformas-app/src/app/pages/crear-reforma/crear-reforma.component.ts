@@ -87,6 +87,29 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
   constructor(private route: ActivatedRoute, private router: Router) {}
 
+  resetReforma() {
+    try {
+      // Borra todos los datos guardados en navegador
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Reinicia el estado interno de la app
+      this.step = 'seleccion';
+      this.codigosPreseleccionados = undefined;
+      this.seccionesSeleccionadas = undefined;
+      this.respuestasGuardadas = undefined;
+      this.datosFormularioGuardados = undefined;
+      this.datosGenerales = undefined;
+      this.datosGuardadosTipoVehiculo = undefined;
+      this.datosResumenModificaciones = undefined;
+
+      // Navega a la primera pantalla
+      this.router.navigate(['/reforma', 'seleccion']);
+    } catch (e) {
+      console.error('Error al reiniciar la reforma:', e);
+    }
+  }
+
   // Getters para el template
   get mostrarSeleccion() {
     return this.step === 'seleccion';

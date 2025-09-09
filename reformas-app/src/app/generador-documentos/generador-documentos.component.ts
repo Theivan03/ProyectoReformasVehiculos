@@ -25,11 +25,7 @@ export class GeneradorDocumentosComponent implements OnInit {
   @Output() volverAlFormulario = new EventEmitter<void>();
 
   ngOnInit(): void {
-    console.log('Datos de reforma recibidos:', this.reformaData);
-    console.log(
-      'Datos de reforma recibidos:\n',
-      JSON.stringify(this.reformaData, null, 2)
-    );
+    console.log('Datos recibidos en GeneradorDocumentos:', this.reformaData);
   }
 
   async generar(tipo: string): Promise<void> {
@@ -124,8 +120,6 @@ export class GeneradorDocumentosComponent implements OnInit {
             // Calculamos el porcentaje de subida
             this.progreso = Math.round((100 * event.loaded) / event.total);
           } else if (event.type === HttpEventType.Response) {
-            // Respuesta final del servidor
-            console.log('Respuesta servidor:', event.body);
             alert(`Proyecto ${event.body.proyecto} guardado correctamente`);
             this.progreso = -1;
           }

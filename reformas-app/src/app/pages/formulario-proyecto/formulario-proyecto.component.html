@@ -207,11 +207,11 @@
               { label: 'Clasificación', model: 'clasificacionAntes' },
               { label: 'Carga vertical', model: 'cargavertical' },
               {
-                label: 'MMr remolque con barra de tracción',
+                label: 'MMR remolque con barra de tracción',
                 model: 'mmrbarradetraccion'
               },
-              { label: 'MMr remolque de eje central', model: 'mmrejecentral' },
-              { label: 'MMr remolque sin frenos', model: 'mmrsinfrenos' }
+              { label: 'MMR remolque de eje central', model: 'mmrejecentral' },
+              { label: 'MMR remolque sin frenos', model: 'mmrsinfrenos' }
             ]
           "
         >
@@ -261,15 +261,15 @@
               { label: 'Clasificación', model: 'clasificacionDespues' },
               { label: 'Carga vertical', model: 'cargaverticalDespues' },
               {
-                label: 'MMr remolque con barra de tracción',
+                label: 'MMR remolque con barra de tracción',
                 model: 'mmrbarradetraccionDespues'
               },
               {
-                label: 'MMr remolque de eje central',
+                label: 'MMR remolque de eje central',
                 model: 'mmrejecentralDespues'
               },
               {
-                label: 'MMr remolque sin frenos',
+                label: 'MMR remolque sin frenos',
                 model: 'mmrsinfrenosDespues'
               },
               { label: 'Velocidad máxima', model: 'velocidadMaxima' }
@@ -430,6 +430,104 @@
             [class.is-invalid]="
               ocupantesAdicionalesField.invalid &&
               ocupantesAdicionalesField.touched
+            "
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero conductor *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgconductor"
+            name="cdgconductor"
+            #cdgconductorField="ngModel"
+            required
+            [class.is-invalid]="
+              cdgconductorField.invalid && cdgconductorField.touched
+            "
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Ocup. Delant *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgocdelant"
+            name="cdgocdelant"
+            #cdgocdelantField="ngModel"
+            required
+            [class.is-invalid]="
+              cdgocdelantField.invalid && cdgocdelantField.touched
+            "
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Ocup. 2a fila *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgocu2"
+            name="cdgocu2"
+            #cdgocu2Field="ngModel"
+            required
+            [class.is-invalid]="cdgocu2Field.invalid && cdgocu2Field.touched"
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Ocup. 3a fila *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgocu3"
+            name="cdgocu3"
+            #cdgocu3Field="ngModel"
+            required
+            [class.is-invalid]="cdgocu3Field.invalid && cdgocu3Field.touched"
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Carga útil *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgcargautil"
+            name="cdgcargautil"
+            #cdgcargautilField="ngModel"
+            required
+            [class.is-invalid]="
+              cdgcargautilField.invalid && cdgcargautilField.touched
+            "
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Carga vert. Acopl *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgcargavert"
+            name="cdgcargavert"
+            #cdgcargavertField="ngModel"
+            required
+            [class.is-invalid]="
+              cdgcargavertField.invalid && cdgcargavertField.touched
             "
           />
         </div>

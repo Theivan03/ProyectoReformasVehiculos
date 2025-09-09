@@ -12,61 +12,45 @@
   <!-- STEP 1 -->
   <ng-container *ngIf="step === 1">
     <label class="form-label">
-      Sube las imágenes <strong>previas</strong> de las reformas realizadas:
+      Sube las imágenes <strong>previas</strong> del vehículo:
     </label>
-    <input
-      type="file"
-      class="form-control mb-3"
-      (change)="onPrevSelected($event)"
-      accept="image/*"
-      multiple
-    />
 
-    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
-      <div class="col" *ngFor="let preview of prevPreviews; let i = index">
-        <div class="ratio ratio-1x1 position-relative">
-          <img
-            [src]="preview"
-            class="img-fluid object-fit-cover rounded shadow-sm"
-            alt="preview {{ i + 1 }}"
-          />
+    <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+      <div
+        class="col"
+        *ngFor="
+          let label of [
+            'Frontal',
+            'Trasera',
+            'Lateral izquierdo',
+            'Lateral derecho'
+          ];
+          let i = index
+        "
+      >
+        <div class="card p-2 text-center">
+          <p class="fw-bold mb-2">{{ label }}</p>
+          <input
+  type="file"
+  class="form-control mb-2"
+  (change)="onPrevSelected($event, i)"
+  accept="image/*"
+/>
           <div
-            class="position-absolute bottom-0 start-50 translate-middle-x mb-1"
+            class="ratio ratio-1x1 border rounded d-flex align-items-center justify-content-center"
           >
-            <button
-              type="button"
-              class="btn btn-sm text-white m-1"
-              [disabled]="i === 0"
-              (click)="movePrev(i)"
-              aria-label="Subir imagen"
-              style="
-                background-color: rgba(0, 123, 255, 0.8);
-                border-color: rgba(0, 123, 255, 0.8);
-              "
+            <img
+              *ngIf="prevPreviews[i]"
+              [src]="prevPreviews[i]"
+              class="img-fluid object-fit-cover rounded shadow-sm"
+              alt="preview {{ label }}"
+            />
+            <span *ngIf="!prevPreviews[i]" class="text-muted small"
+              >Sin imagen</span
             >
-              ↑
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm text-white"
-              [disabled]="i === prevPreviews.length - 1"
-              (click)="moveNext(i)"
-              aria-label="Bajar imagen"
-              style="
-                background-color: rgba(0, 123, 255, 0.8);
-                border-color: rgba(0, 123, 255, 0.8);
-              "
-            >
-              ↓
-            </button>
           </div>
         </div>
       </div>
-    </div>
-
-    <div *ngIf="errorPrevImagesCount" class="alert alert-danger p-2">
-      Debe subir exactamente <strong>4 imágenes</strong> (frontal, trasera,
-      lateral derecho e izquierdo o viceversa).
     </div>
 
     <div class="d-flex justify-content-between">
@@ -75,7 +59,7 @@
       </button>
       <button
         class="btn btn-primary"
-        [disabled]="prevImages.length === 0"
+        [disabled]="isValidPreview(prevPreviews) < 4"
         (click)="next()"
       >
         Siguiente →
@@ -87,14 +71,13 @@
   <ng-container *ngIf="step === 2">
     <label class="form-label">
       Sube las imágenes de las reformas realizadas:
-    </label>
     <input
-      type="file"
-      class="form-control mb-3"
-      (change)="onPostSelected($event)"
-      accept="image/*"
-      multiple
-    />
+  type="file"
+  class="form-control mb-3"
+  (change)="onPostSelected($event)"
+  accept="image/*"
+  multiple
+/>
 
     <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
       <div class="col" *ngFor="let preview of postPreviews; let i = index">
@@ -106,34 +89,7 @@
           />
           <div
             class="position-absolute bottom-0 start-50 translate-middle-x mb-1"
-          >
-            <!-- <button
-              type="button"
-              class="btn btn-sm text-white"
-              [disabled]="i === 0"
-              (click)="movePrevPost(i)"
-              aria-label="Subir imagen"
-              style="
-                background-color: rgba(0, 123, 255, 0.8);
-                border-color: rgba(0, 123, 255, 0.8);
-              "
-            >
-              ↑
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm text-white"
-              [disabled]="i === postPreviews.length - 1"
-              (click)="moveNextPost(i)"
-              aria-label="Bajar imagen"
-              style="
-                background-color: rgba(0, 123, 255, 0.8);
-                border-color: rgba(0, 123, 255, 0.8);
-              "
-            >
-              ↓
-            </button> -->
-          </div>
+          ></div>
         </div>
       </div>
     </div>

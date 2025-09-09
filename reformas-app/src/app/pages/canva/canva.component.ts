@@ -19,6 +19,19 @@ interface Marker {
   etiqueta: string;
 }
 
+interface DetallesMuelles {
+  muelleDelanteroConRef?: boolean;
+  muelleDelanteroSinRef?: boolean;
+  ballestaDelantera?: boolean;
+  amortiguadorDelantero?: boolean;
+  muelleTraseroConRef?: boolean;
+  muelleTraseroSinRef?: boolean;
+  ballestaTrasera?: boolean;
+  amortiguadorTrasero?: boolean;
+  tacosDeGoma?: boolean;
+  kitElevacion?: boolean;
+}
+
 @Component({
   selector: 'app-canva',
   standalone: true,
@@ -49,6 +62,40 @@ export class CanvaComponent implements OnInit {
   private etiquetasAnteriores: string[] = [];
 
   constructor(private http: HttpClient) {}
+
+  // ---------- Helpers para casuística de suspensión ----------
+  private readonly SUSP_LABELS: Record<keyof DetallesMuelles, string> = {
+    muelleDelanteroConRef: 'Muelle delantero (con referencia)',
+    muelleDelanteroSinRef: 'Muelle delantero (sin referencia)',
+    ballestaDelantera: 'Ballesta delantera',
+    amortiguadorDelantero: 'Amortiguador delantero',
+    muelleTraseroConRef: 'Muelle trasero (con referencia)',
+    muelleTraseroSinRef: 'Muelle trasero (sin referencia)',
+    ballestaTrasera: 'Ballesta trasera',
+    amortiguadorTrasero: 'Amortiguador trasero',
+    tacosDeGoma: 'Tacos de goma / suplementos',
+    kitElevacion: 'Kit de elevación',
+  };
+
+  private isCasuisticaSuspension(nombre: string | undefined): boolean {
+    return (
+      (nombre || '').trim().toUpperCase() ===
+      'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
+    );
+  }
+
+  /** Convierte detallesMuelles (true/false) en etiquetas planas para la lista principal */
+  private expandSuspensionToLabels(det: DetallesMuelles | undefined): string[] {
+    if (!det) return [];
+    const out: string[] = [];
+    (Object.keys(this.SUSP_LABELS) as Array<keyof DetallesMuelles>).forEach(
+      (k) => {
+        if (det[k]) out.push(this.SUSP_LABELS[k]); // prefijo para reconocer subapartados
+      }
+    );
+    return out;
+  }
+  // -----------------------------------------------------------
 
   private snapshot(): any {
     return {
@@ -92,9 +139,8 @@ export class CanvaComponent implements OnInit {
       : [];
 
     for (const mod of mods) {
-      if (!mod?.seleccionado) continue;
-
-      if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
+      // 1) MOBILIARIO (como lo tenías)
+      if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
         mod.mueblesBajo?.forEach((m: any) =>
           nuevasLabels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`)
         );
@@ -104,20 +150,35 @@ export class CanvaComponent implements OnInit {
         mod.mueblesAseo?.forEach((m: any) =>
           nuevasLabels.push(`Aseo (${m?.medidas || 'sin medidas'})`)
         );
-      } else {
+        continue;
+      }
+
+      // 2) CASUÍSTICA SUSPENSIÓN → sustituimos el ítem por sus subapartados (solo los true)
+      if (this.isCasuisticaSuspension(mod?.nombre)) {
+        const sublabels = this.expandSuspensionToLabels(mod?.detallesMuelles);
+        if (sublabels.length > 0 /* || mod?.seleccionado */) {
+          nuevasLabels.push(...sublabels);
+        }
+        // No añadimos el nombre "TODA LA CASUÍSTICA..." para que la lista tenga *solo* subapartados.
+        continue;
+      }
+
+      // 3) Resto (solo si están seleccionadas)
+      if (mod?.seleccionado) {
         nuevasLabels.push(mod.nombre);
       }
     }
 
-    // Reasignar números de marcadores segun su etiqueta
+    // Reasignar números de marcadores según su etiqueta
     if (this.markers.length > 0) {
       this.markers = this.markers
         .map((m) => {
+          // Si venimos de una sesión anterior, puede que el marcador apunte al nombre "TODA LA CASUÍSTICA..."
+          // En ese caso, ya no existirá en nuevasLabels y lo descartamos.
           const newIndex = nuevasLabels.indexOf(m.etiqueta);
           if (newIndex !== -1) {
             return { ...m, label: (newIndex + 1).toString() };
           }
-          // si la etiqueta ya no existe, descartamos ese marcador
           return null;
         })
         .filter((m) => m !== null) as Marker[];
@@ -138,7 +199,6 @@ export class CanvaComponent implements OnInit {
       default:
         url = 'http://192.168.1.41:3000/imgs/coche.png';
     }
-
     this.cargarImagenComoBase64(url).then((base64) => (this.imageSrc = base64));
 
     // Primer autosave al entrar (estado restaurado o en blanco)
@@ -188,7 +248,7 @@ export class CanvaComponent implements OnInit {
       x: Math.max(0, Math.min(1, x)),
       y: Math.max(0, Math.min(1, y)),
       label: (this.selectedIndex + 1).toString(),
-      etiqueta: this.labels[this.selectedIndex], // ← aquí lo importante
+      etiqueta: this.labels[this.selectedIndex], // etiqueta visible en la tabla
     });
 
     this.emitAutosave();
@@ -204,7 +264,7 @@ export class CanvaComponent implements OnInit {
     this.datosEntrada.fechaFirma = this.fechaFirma;
     this.datosEntrada.firmaUrl = this.firmaUrl;
     this.emitAutosave();
-    this.volver.emit(this.snapshot()); // devuelve todo por si el padre quiere usarlo
+    this.volver.emit(this.snapshot());
   }
 
   onContinue(): void {
@@ -212,7 +272,6 @@ export class CanvaComponent implements OnInit {
     this.datosEntrada.fechaFirma = this.fechaFirma;
     this.datosEntrada.firmaUrl = this.firmaUrl;
 
-    // Guardamos imágenes (side-effects) y autosave antes de continuar
     this.emitAutosave();
     this.guardarImagen();
     this.guardarFirma();
@@ -237,12 +296,12 @@ export class CanvaComponent implements OnInit {
     });
   }
 
-  guardarFirma() {
+  private guardarFirma() {
     const el = this.firmaRef.nativeElement;
     const dpr = window.devicePixelRatio || 1;
     const scale = dpr * 16;
     html2canvas(el, {
-      scale: scale,
+      scale,
       useCORS: true,
       backgroundColor: null,
     }).then((canvas) => {

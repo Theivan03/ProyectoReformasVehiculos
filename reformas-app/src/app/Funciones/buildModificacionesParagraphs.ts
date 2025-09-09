@@ -15,7 +15,6 @@ export function buildModificacionesParagraphs(
   modificaciones: Modificacion[],
   data: any
 ): Paragraph[] {
-  console.log(data.marca, ' ', data.denominacion, ' ', data.homologacion);
   const out: Paragraph[] = [];
   let mod;
   let raw;
@@ -2200,24 +2199,105 @@ function pushCasuistica(out: Paragraph[], p: Paragraph, raw?: string) {
   out.push(p);
 }
 
-export function generarTablaLeyenda(data: any): Table {
-  const seleccionadas = data.modificaciones
-    .filter((mod: any) => mod.seleccionado)
-    .map((mod: any, i: number) => ({
-      numero: i + 1,
-      nombre: mod.nombre,
-    }));
+type DetallesMuelles = {
+  muelleDelanteroConRef?: boolean;
+  muelleDelanteroSinRef?: boolean;
+  ballestaDelantera?: boolean;
+  amortiguadorDelantero?: boolean;
+  muelleTraseroConRef?: boolean;
+  muelleTraseroSinRef?: boolean;
+  ballestaTrasera?: boolean;
+  amortiguadorTrasero?: boolean;
+  tacosDeGoma?: boolean;
+  kitElevacion?: boolean;
+};
 
+const SUSP_LABELS: Record<keyof DetallesMuelles, string> = {
+  muelleDelanteroConRef: 'Muelle delantero (con referencia)',
+  muelleDelanteroSinRef: 'Muelle delantero (sin referencia)',
+  ballestaDelantera: 'Ballesta delantera',
+  amortiguadorDelantero: 'Amortiguador delantero',
+  muelleTraseroConRef: 'Muelle trasero (con referencia)',
+  muelleTraseroSinRef: 'Muelle trasero (sin referencia)',
+  ballestaTrasera: 'Ballesta trasera',
+  amortiguadorTrasero: 'Amortiguador trasero',
+  tacosDeGoma: 'Tacos de goma / suplementos',
+  kitElevacion: 'Kit de elevación',
+};
+
+function isCasuisticaSuspension(nombre?: string): boolean {
+  return (
+    (nombre || '').trim().toUpperCase() ===
+    'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
+  );
+}
+
+function expandSuspensionToLabels(det?: DetallesMuelles): string[] {
+  if (!det) return [];
+  const out: string[] = [];
+  (Object.keys(SUSP_LABELS) as Array<keyof DetallesMuelles>).forEach((k) => {
+    if (det[k]) out.push(SUSP_LABELS[k]); // mismo formato que en la UI
+  });
+  return out;
+}
+
+/** Reconstruye la lista "labels" como en la UI, en el mismo orden */
+function buildLabelsFromMods(data: any): string[] {
+  const labels: string[] = [];
+  const mods = Array.isArray(data?.modificaciones) ? data.modificaciones : [];
+
+  for (const mod of mods) {
+    // 1) MOBILIARIO (igual que en la UI)
+    if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
+      mod.mueblesBajo?.forEach((m: any) =>
+        labels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`)
+      );
+      mod.mueblesAlto?.forEach((m: any) =>
+        labels.push(`Mueble alto (${m?.medidas || 'sin medidas'})`)
+      );
+      mod.mueblesAseo?.forEach((m: any) =>
+        labels.push(`Aseo (${m?.medidas || 'sin medidas'})`)
+      );
+      continue;
+    }
+
+    // 2) CASUÍSTICA SUSPENSIÓN → sustituir por subapartados (solo true)
+    if (isCasuisticaSuspension(mod?.nombre)) {
+      const sublabels = expandSuspensionToLabels(mod?.detallesMuelles);
+      if (sublabels.length > 0) labels.push(...sublabels);
+      continue; // No añadimos el nombre genérico
+    }
+
+    // 3) Resto (solo seleccionadas)
+    if (mod?.seleccionado) {
+      labels.push(mod.nombre);
+    }
+  }
+
+  return labels;
+}
+
+export function generarTablaLeyenda(data: any): Table {
+  // 1) Reconstruir la lista igual que en la UI
+  const labels = buildLabelsFromMods(data); // ← aquí está la clave
+
+  // 2) Crear pares { numero, nombre } ya numerados
+  const seleccionadas = labels.map((nombre: string, i: number) => ({
+    numero: i + 1,
+    nombre, // en minúsculas/mixto aquí; lo convertimos a MAYÚSCULAS al pintar
+  }));
+
+  // 3) Dividir en dos columnas equilibradas
   const mitad = Math.ceil(seleccionadas.length / 2);
   const col1 = seleccionadas.slice(0, mitad);
   const col2 = seleccionadas.slice(mitad);
 
   while (col2.length < col1.length) {
-    col2.push({ numero: null, nombre: '' });
+    col2.push({ numero: 0, nombre: '' });
   }
 
+  // 4) Construir filas (con cabecera “LEYENDA”)
   const filas = [
-    // Cabecera LEYENDA centrada
     new TableRow({
       cantSplit: true,
       children: [
@@ -2235,9 +2315,8 @@ export function generarTablaLeyenda(data: any): Table {
       ],
     }),
 
-    // Filas numeradas en dos columnas con espaciado
     ...col1.map(
-      (item: { numero: any; nombre: any }, index: string | number) =>
+      (item, index) =>
         new TableRow({
           cantSplit: true,
           children: [
@@ -2249,7 +2328,9 @@ export function generarTablaLeyenda(data: any): Table {
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: item.numero ? `${item.numero}- ${item.nombre}` : '',
+                      text: item.numero
+                        ? `${item.numero}- ${item.nombre.toUpperCase()}`
+                        : '',
                     }),
                   ],
                 }),
@@ -2264,7 +2345,9 @@ export function generarTablaLeyenda(data: any): Table {
                   children: [
                     new TextRun({
                       text: col2[index].numero
-                        ? `${col2[index].numero}- ${col2[index].nombre}`
+                        ? `${col2[index].numero}- ${col2[
+                            index
+                          ].nombre.toUpperCase()}`
                         : '',
                     }),
                   ],

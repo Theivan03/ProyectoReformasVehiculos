@@ -39,6 +39,56 @@ interface ImageInfo {
   mimeType: string;
 }
 
+export function keepTableTogether(table: Table): Table {
+  // Use the public API to access rows; fallback to private if necessary
+  const rows: TableRow[] =
+    (table as any).rows || (table as any).root?.[0]?.children || [];
+
+  const newRows = rows.map((row: TableRow, rowIdx: number) => {
+    const isLastRow = rowIdx === rows.length - 1;
+
+    // Get row options safely
+    const rowOptions = (row as any).options || {};
+    const rowChildren: TableCell[] =
+      rowOptions.children || (row as any).children || [];
+
+    // Asegura cantSplit a nivel de fila
+    const newRow = new TableRow({
+      ...rowOptions,
+      cantSplit: true,
+      children: rowChildren.map((cell: TableCell) => {
+        const cellOptions = (cell as any).options || {};
+        const paragraphs: Paragraph[] =
+          cellOptions.children || (cell as any).children || [];
+
+        const newParagraphs = paragraphs.map((p: Paragraph) => {
+          const opts = (p as any).options || {};
+          return new Paragraph({
+            ...opts,
+            // Mantén unidas las líneas y pega con la siguiente fila
+            keepLines: true,
+            keepNext: !isLastRow, // en la última fila lo dejamos false
+          });
+        });
+
+        return new TableCell({
+          ...cellOptions,
+          children: newParagraphs,
+        });
+      }),
+    });
+
+    return newRow;
+  });
+
+  // Get table options safely
+  const tableOptions = (table as any).options || {};
+  return new Table({
+    ...tableOptions,
+    rows: newRows,
+  });
+}
+
 export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const response = await fetch('assets/logo.png');
   const imageBuffer = await response.arrayBuffer();
@@ -774,14 +824,16 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           bold: true,
           size: 32,
         }),
-        new Paragraph({
-          text: '',
-          spacing: { before: 120, after: 120 },
-        }),
       ],
     }),
+
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      text: '',
+      spacing: { before: 120, after: 120 },
+    }),
+
+    new Paragraph({
+      heading: HeadingLevel.HEADING_3,
       spacing: { before: 120, after: 120 },
       children: [
         new TextRun({
@@ -895,7 +947,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
   const punto1_2Antecedentes = [
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      heading: HeadingLevel.HEADING_3,
       spacing: { before: 120, after: 120 },
       children: [
         new TextRun({
@@ -989,7 +1041,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   // 1.3 - DATOS DEL VEHÍCULO
   const punto1_3DatosVehiculo = [
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      heading: HeadingLevel.HEADING_3,
       spacing: {
         line: 360,
         after: 120,
@@ -1094,7 +1146,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
     // 1.3.1 Características antes de la reforma
     new Paragraph({
-      heading: HeadingLevel.HEADING_3,
+      heading: HeadingLevel.HEADING_4,
       spacing: {
         line: 260,
         after: 120,
@@ -1171,7 +1223,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         line: 260,
         after: 120,
       },
-      heading: HeadingLevel.HEADING_3,
+      heading: HeadingLevel.HEADING_4,
       children: [
         new TextRun({
           text: '1.3.2 - Características del vehículo después de la reforma',
@@ -1235,7 +1287,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
   const punto1_4Normativa = [
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      heading: HeadingLevel.HEADING_3,
       spacing: { before: 260, after: 120 },
       children: [
         new TextRun({
@@ -1270,7 +1322,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         })
     ),
     new Paragraph({
-      heading: HeadingLevel.HEADING_3,
+      heading: HeadingLevel.HEADING_4,
       spacing: { before: 260, after: 120 },
       children: [
         new TextRun({
@@ -1379,7 +1431,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
   const punto1_5Consideraciones = [
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      heading: HeadingLevel.HEADING_3,
       spacing: { before: 260, after: 120 },
       children: [
         new TextRun({
@@ -1403,7 +1455,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     ),
 
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      heading: HeadingLevel.HEADING_3,
       spacing: { before: 260, after: 120 },
       children: [
         new TextRun({
@@ -1445,7 +1497,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 etiqueta: 'Paragolpes delantero',
                 valor: modificaciones.find(
                   (m) => m.nombre === 'PARAGOLPES DELANTERO'
-                )!.curvaturaParagolpesDelantero!,
+                )!.radioCurvaRParagolpesDelantero!,
               },
               {
                 nombreMod: 'PARAGOLPES TRASERO',
@@ -1459,7 +1511,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 etiqueta: 'Aletines',
                 valor: modificaciones.find(
                   (m) => m.nombre === 'ALETINES Y SOBREALETINES'
-                )!.curvaturaAletines!,
+                )!.radioCurvaRAletines!,
               },
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
@@ -1729,7 +1781,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const punto1_7_Conclusion: Paragraph[] = [
     // Título
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      heading: HeadingLevel.HEADING_3,
       spacing: { before: 260, after: 120 },
       children: [
         new TextRun({ text: '1.7- CONCLUSIÓN', bold: true, color: '000000' }),
@@ -1773,15 +1825,16 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           bold: true,
           size: 32,
         }),
-        new Paragraph({
-          text: '',
-          spacing: { before: 120, after: 120 },
-        }),
       ],
     }),
 
     new Paragraph({
-      heading: HeadingLevel.HEADING_2,
+      text: '',
+      spacing: { before: 120, after: 120 },
+    }),
+
+    new Paragraph({
+      heading: HeadingLevel.HEADING_3,
       spacing: { before: 260, after: 120 },
       children: [
         new TextRun({
@@ -1921,7 +1974,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     // Se asume que la diferencia es menor al 3%
     punto2_2 = [
       new Paragraph({
-        heading: HeadingLevel.HEADING_2,
+        heading: HeadingLevel.HEADING_3,
         spacing: { before: 260, after: 120 },
         children: [
           new TextRun({
@@ -1945,7 +1998,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         spacing: { after: 240 },
         children: [
           new TextRun(
-            'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el PMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.'
+            'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el MMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.'
           ),
         ],
       }),
@@ -1956,7 +2009,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     if (variacion > 0.03) {
       punto2_2 = [
         new Paragraph({
-          heading: HeadingLevel.HEADING_2,
+          heading: HeadingLevel.HEADING_3,
           spacing: { before: 260, after: 120 },
           children: [
             new TextRun({
@@ -2602,7 +2655,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '900ej',
+                      text: data.cdgconductor?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2740,7 +2793,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: data.cdgocdelant?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2813,7 +2866,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: data.cdgocu2?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2885,7 +2938,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: data.cdgocu3?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -2957,7 +3010,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: data.cdgcargautil?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -3241,7 +3294,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '900ej',
+                      text: data.cdgconductor?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3343,7 +3396,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '',
+                      text: data.cdgocdelant?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3396,7 +3449,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '',
+                      text: data.cdgocu2?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3449,7 +3502,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '',
+                      text: data.cdgocu3?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3502,7 +3555,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: '',
+                      text: data.cdgcargautil?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3562,7 +3615,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
+                      children: [
+                        new TextRun({
+                          text: data.cdgcargavert?.toString() ?? '-',
+                        }),
+                      ],
                     }),
                   ],
                 }),
@@ -3792,7 +3849,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     } else {
       punto2_2 = [
         new Paragraph({
-          heading: HeadingLevel.HEADING_2,
+          heading: HeadingLevel.HEADING_3,
           spacing: { before: 260, after: 120 },
           children: [
             new TextRun({
@@ -3845,9 +3902,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
     new Paragraph({
       spacing: { before: 240, after: 120 },
+      heading: HeadingLevel.HEADING_4,
       children: [
         new TextRun({
           text: '1. CALIDAD DE LOS MATERIALES EMPLEADOS',
+          color: '000000',
           bold: true,
           size: 25,
         }),
@@ -3874,8 +3933,15 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
     new Paragraph({
       spacing: { before: 240, after: 120 },
+
+      heading: HeadingLevel.HEADING_4,
       children: [
-        new TextRun({ text: '2. NORMAS DE EJECUCIÓN', bold: true, size: 25 }),
+        new TextRun({
+          text: '2. NORMAS DE EJECUCIÓN',
+          bold: true,
+          size: 25,
+          color: '000000',
+        }),
       ],
     }),
 
@@ -3919,9 +3985,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     new Paragraph({ pageBreakBefore: true }),
     new Paragraph({
       spacing: { before: 240, after: 120 },
+
+      heading: HeadingLevel.HEADING_4,
       children: [
         new TextRun({
           text: '3. CERTIFICADOS Y AUTORIZACIONES.REQUSITOS DEL INFORME DE CONFORMIDAD',
+          color: '000000',
           bold: true,
           size: 25,
         }),
@@ -3941,9 +4010,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
     new Paragraph({
       spacing: { before: 240, after: 120 },
+
+      heading: HeadingLevel.HEADING_4,
       children: [
         new TextRun({
           text: '4. TALLER EJECUTOR',
+          color: '000000',
           bold: true,
           size: 25,
         }),
@@ -4189,11 +4261,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           bold: true,
           size: 32,
         }),
-        new Paragraph({
-          text: '',
-          spacing: { before: 120 },
-        }),
       ],
+    }),
+
+    new Paragraph({
+      text: '',
+      spacing: { before: 120 },
     }),
 
     new Paragraph({
@@ -4346,7 +4419,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
   if (tipo === 'camper' || tipo === 'coche') {
     alto = 250;
-    alto2 = 400;
+    alto2 = 350;
   } else {
     alto = 350;
     alto2 = 350;
@@ -4364,10 +4437,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           bold: true,
           size: 32,
         }),
-        new Paragraph({
-          text: '',
-        }),
       ],
+    }),
+
+    new Paragraph({
+      text: '',
     }),
 
     new Paragraph({
@@ -4551,7 +4625,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new ImageRun({
           data: imageBuffer4,
           transformation: {
-            width: 500,
+            width: 400,
             height: alto2,
           },
           type: 'png',

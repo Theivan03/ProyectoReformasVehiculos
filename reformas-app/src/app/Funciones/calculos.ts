@@ -28,7 +28,6 @@ export async function buildCalculos(
   data: any
 ): Promise<(Paragraph | Table)[]> {
   const out: (Paragraph | Table)[] = [];
-  console.log('Modificaciones para cálculos:', modificaciones);
 
   let url = `http://192.168.1.41:3000/imgs/firma-generada.png`;
   const response5 = await fetch(url);
@@ -70,6 +69,23 @@ export async function buildCalculos(
 
     contador++;
 
+    const peso = 9.81 * (aletines.pesoPiezaKgAletines ?? 0);
+    const fuerzafrenado = (aletines.pesoPiezaKgAletines ?? 0) * 10;
+    const resistenciaaerodinamica =
+      0.5 *
+      (aletines.coefAerodinamicoCwAletines ?? 0) *
+      (aletines.superficieFrontalM2Aletines ?? 0) *
+      (aletines.densidadAireKgM3Aletines ?? 0) *
+      (aletines.velocidadAireV2msAletines ?? 0) *
+      (aletines.velocidadAireV2msAletines ?? 0);
+    const fuerzacentrifuga =
+      (aletines.pesoPiezaKgAletines ?? 0) *
+      (((aletines.velocidadAireV2msAletines ?? 0) *
+        (aletines.velocidadAireV2msAletines ?? 0)) /
+        (aletines.radioCurvaRAletines ?? 0));
+    const sumadelasfuerzas =
+      peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
     const tablaCaracteristicas = new Table({
       width: { size: 70, type: WidthType.PERCENTAGE },
       rows: [
@@ -94,12 +110,30 @@ export async function buildCalculos(
           ],
         }),
         ...[
-          ['Cw=Coef. Aerodinámico', '0,82'],
-          ['A =área de la pieza (m²)', '0,16'],
-          ['ρ (densidad del aire (Kg/m³)', '1,29'],
-          ['V² = velocidad del aire 140Km/h (m/s)', '38,89'],
-          ['R (radio de curva) m', '800'],
-          ['K (coeficiente de seguridad)', '3'],
+          [
+            'Cw=Coef. Aerodinámico',
+            aletines.coefAerodinamicoCwAletines?.toString() ?? '---',
+          ],
+          [
+            'A =área de la pieza (m²)',
+            aletines.superficieFrontalM2Aletines?.toString() ?? '---',
+          ],
+          [
+            'ρ (densidad del aire (Kg/m³)',
+            aletines.densidadAireKgM3Aletines?.toString() ?? '---',
+          ],
+          [
+            'V² = velocidad del aire 140Km/h (m/s)',
+            aletines.velocidadAireV2msAletines?.toString() ?? '---',
+          ],
+          [
+            'R (radio de curva) m',
+            aletines.radioCurvaRAletines?.toString() ?? '---',
+          ],
+          [
+            'K (coeficiente de seguridad)',
+            aletines.coefSeguridadKAletines?.toString() ?? '---',
+          ],
         ].map(
           ([desc, val]) =>
             new TableRow({
@@ -169,7 +203,13 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['4,91', '5,00', '127,99', '0,95', '138,84'].map(
+          children: [
+            peso.toString() ?? '---',
+            fuerzafrenado.toString() ?? '---',
+            resistenciaaerodinamica.toString() ?? '---',
+            fuerzacentrifuga.toString() ?? '---',
+            sumadelasfuerzas.toString() ?? '---',
+          ].map(
             (v) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -184,6 +224,24 @@ export async function buildCalculos(
         }),
       ],
     });
+
+    const fuerzadediseno =
+      sumadelasfuerzas * (aletines.coefSeguridadKAletines ?? 0);
+    const fuerzamaximatornillostraccion =
+      ((0.9 *
+        (aletines.resTraccionMinTornillo88Kgmm2Aletines ?? 0) *
+        (aletines.seccionResistenteAsAletines ?? 0)) /
+        1.25) *
+      (aletines.numTornillosAletines ?? 0);
+    const fuerzamaximatornilloscortante =
+      ((0.5 *
+        (aletines.resTraccionMinTornillo88Kgmm2Aletines ?? 0) *
+        (aletines.seccionResistenteAsAletines ?? 0)) /
+        1.25) *
+      (aletines.numTornillosAletines ?? 0);
+    const comprobacion =
+      fuerzadediseno / fuerzamaximatornilloscortante +
+      fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
 
     const tablaComprobacion = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -214,7 +272,12 @@ export async function buildCalculos(
         // Data row: solo índices > 0 pintan verde, todos centrados
         new TableRow({
           cantSplit: true,
-          children: ['416,51', '11746,944', '6526,08', '0,089'].map(
+          children: [
+            fuerzadediseno.toString() ?? '---',
+            fuerzamaximatornillostraccion.toString() ?? '---',
+            fuerzamaximatornilloscortante.toString() ?? '---',
+            comprobacion.toString() ?? '---',
+          ].map(
             (v, i) =>
               new TableCell({
                 verticalAlign: VerticalAlign.CENTER,
@@ -267,6 +330,9 @@ export async function buildCalculos(
 
     contador++;
 
+    const superficiefrontal =
+      data.anchuraPiezaMSnorkel * data.alturaPiezaMSnorkel;
+
     // 2) Tabla de propiedades de la pieza y de sujeción
     const tablaSnorkel = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -309,15 +375,35 @@ export async function buildCalculos(
         }),
         // Filas de datos
         ...[
-          ['Peso de la pieza en Kg', '12', 'nº tornillos', '6'],
-          ['Anchura de la pieza en m', '1,13', 'Métrica', 'S'],
-          ['Altura de la pieza en m', '1,17', 'Calidad', '8,8'],
-          ['Superficie frontal m²', '1,32', 'As (Sección resistente)', '36,64'],
+          [
+            'Peso de la pieza en Kg',
+            snorkel.pesoPiezaKgSnorkel?.toString() ?? '---',
+            'nº tornillos',
+            snorkel.nTornillosSnorkel?.toString() ?? '---',
+          ],
+          [
+            'Anchura de la pieza en m',
+            snorkel.anchuraPiezaMSnorkel?.toString() ?? '---',
+            'Métrica',
+            snorkel.metricaSnorkel?.toString() ?? '---',
+          ],
+          [
+            'Altura de la pieza en m',
+            snorkel.alturaPiezaMSnorkel?.toString() ?? '---',
+            'Calidad',
+            snorkel.calidadTornilloSnorkel?.toString() ?? '---',
+          ],
+          [
+            'Superficie frontal m²',
+            superficiefrontal.toString() ?? '---',
+            'As (Sección resistente)',
+            snorkel.seccionResistenteAsSnorkel?.toString() ?? '---',
+          ],
           [
             'Coef. aerodinámico',
-            '0,82',
+            snorkel.cwCoefAerodinamicoSnorkel?.toString() ?? '---',
             'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-            '80',
+            snorkel.resTraccionMinTornillo88Kgmm2Snorkel?.toString() ?? '---',
           ],
         ].map(
           ([d1, v1, d2, v2]) =>
@@ -394,12 +480,27 @@ export async function buildCalculos(
           ],
         }),
         ...[
-          ['Cw=Coef. Aerodinámico', '0,82'],
-          ['A =área de la pieza (m²)', '1,32'],
-          ['ρ (densidad del aire (Kg/m³))', '1,29'],
-          ['V² = velocidad del aire 140Km/h (m/s)', '38,89'],
-          ['R (radio de curva) m', '800'],
-          ['K (coeficiente de seguridad)', '3'],
+          [
+            'Cw=Coef. Aerodinámico',
+            snorkel.cwCoefAerodinamicoSnorkel?.toString() ?? '---',
+          ],
+          ['A =área de la pieza (m²)', superficiefrontal.toString() ?? '---'],
+          [
+            'ρ (densidad del aire (Kg/m³))',
+            snorkel.densidadAireKgM3Snorkel?.toString() ?? '---',
+          ],
+          [
+            'V² = velocidad del aire 140Km/h (m/s)',
+            snorkel.velocidadAireV2msSnorkel?.toString() ?? '---',
+          ],
+          [
+            'R (radio de curva) m',
+            snorkel.curvaturaSnorkel?.toString() ?? '---',
+          ],
+          [
+            'K (coeficiente de seguridad)',
+            snorkel.coefSeguridadKSnorkel?.toString() ?? '---',
+          ],
         ].map(
           ([desc, val]) =>
             new TableRow({
@@ -432,6 +533,23 @@ export async function buildCalculos(
     out.push(tablaAire);
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
+
+    let peso = 9.81 * (snorkel.pesoPiezaKgSnorkel ?? 0);
+    let fuerzafrenado = (snorkel.pesoPiezaKgSnorkel ?? 0) * 10;
+    let resistenciaaerodinamica =
+      0.5 *
+      (snorkel.cwCoefAerodinamicoSnorkel ?? 0) *
+      superficiefrontal *
+      (snorkel.densidadAireKgM3Snorkel ?? 0) *
+      (snorkel.velocidadAireV2msSnorkel ?? 0) *
+      (snorkel.velocidadAireV2msSnorkel ?? 0);
+    let fuerzacentrifuga =
+      (snorkel.pesoPiezaKgSnorkel ?? 0) *
+      (((snorkel.velocidadAireV2msSnorkel ?? 0) *
+        (snorkel.velocidadAireV2msSnorkel ?? 0)) /
+        (Number(snorkel.curvaturaSnorkel) || 1));
+    let sumadelasfuerzas =
+      peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
     // 4) Tabla de fuerzas que actúan sobre la pieza
     const tablaFuerzas = new Table({
@@ -479,7 +597,13 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['117,72', '120,00', '1057,58', '22,69', '1317,99'].map(
+          children: [
+            peso.toString() ?? '---',
+            fuerzafrenado.toString() ?? '---',
+            resistenciaaerodinamica.toString() ?? '---',
+            fuerzacentrifuga.toString() ?? '---',
+            sumadelasfuerzas.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -498,6 +622,24 @@ export async function buildCalculos(
     out.push(tablaFuerzas);
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
+
+    let fuerzadediseno =
+      sumadelasfuerzas * (snorkel.coefSeguridadKSnorkel ?? 0);
+    let fuerzamaximatornillostraccion =
+      ((0.9 *
+        (snorkel.resTraccionMinTornillo88Kgmm2Snorkel ?? 0) *
+        (snorkel.seccionResistenteAsSnorkel ?? 0)) /
+        1.25) *
+      (snorkel.nTornillosSnorkel ?? 0);
+    let fuerzamaximatornilloscortante =
+      ((0.5 *
+        (snorkel.resTraccionMinTornillo88Kgmm2Snorkel ?? 0) *
+        (snorkel.seccionResistenteAsSnorkel ?? 0)) /
+        1.25) *
+      (snorkel.nTornillosSnorkel ?? 0);
+    let comprobacion =
+      fuerzadediseno / fuerzamaximatornilloscortante +
+      fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
 
     // 5) Tabla de comprobación
     const tablaComprobacion = new Table({
@@ -528,7 +670,12 @@ export async function buildCalculos(
 
         new TableRow({
           cantSplit: true,
-          children: ['3953,96', '12662,784', '7034,88', '0,785'].map(
+          children: [
+            fuerzadediseno.toString() ?? '---',
+            fuerzamaximatornillostraccion.toString() ?? '---',
+            fuerzamaximatornilloscortante.toString() ?? '---',
+            comprobacion.toString() ?? '---',
+          ].map(
             (val, i) =>
               new TableCell({
                 verticalAlign: VerticalAlign.CENTER,
@@ -603,10 +750,19 @@ export async function buildCalculos(
         }),
         // Filas de datos
         ...[
-          ['Tiro máx. del cabrestante (Kg)', '6120'],
-          ['Diámetro de cada perno (cm)', '1'],
-          ['Material del perno', 'Acero 8.8'],
-          ['Tensión mín., rotura cortante acero (Kg/cm²)', '3.100'],
+          [
+            'Tiro máx. del cabrestante (Kg)',
+            cabrestante.capacidadCabrestanteKg?.toString() ?? '---',
+          ],
+          [
+            'Diámetro de cada perno (cm)',
+            cabrestante.diametroPernoCmCabrestante?.toString() ?? '---',
+          ],
+          ['Material del perno', cabrestante.materialPernoCabrestante ?? '---'],
+          [
+            'Tensión mín., rotura cortante acero (Kg/cm²)',
+            cabrestante.tensionMinCortanteKgCm2Cabrestante?.toString() ?? '---',
+          ],
         ].map(
           ([desc, val]) =>
             new TableRow({
@@ -638,6 +794,14 @@ export async function buildCalculos(
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
 
+    let tensioncortante =
+      (cabrestante.capacidadCabrestanteKg ?? 0) /
+      (Math.PI *
+        ((cabrestante.diametroPernoCmCabrestante ?? 0) / 2) *
+        (cabrestante.nPernosChasisCabrestante ?? 0));
+    let coeficienteseguridad =
+      (cabrestante.tensionMinCortanteKgCm2Cabrestante ?? 0) / tensioncortante;
+
     // 3) Tabla de tensión cortante soportada por los pernos
     const tablaTensionPernos = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -665,13 +829,26 @@ export async function buildCalculos(
         }),
         // Filas de datos
         ...[
-          ['Número de pernos', '4'],
-          ['Diámetro de cada perno', '10 mm'],
-          ['Material del perno', 'Acero 8.8'],
-          ['Tensión mín., rotura cortante acero', '3.100 Kg/cm2'],
+          [
+            'Número de pernos',
+            cabrestante.nPernosChasisCabrestante?.toString() ?? '---',
+          ],
+          [
+            'Diámetro de cada perno',
+            cabrestante.diametroPernoChasisMmCabrestante?.toString() ?? '---',
+          ],
+          [
+            'Material del perno',
+            cabrestante.materialPernoChasisCabrestante ?? '---',
+          ],
+          [
+            'Tensión mín., rotura cortante acero',
+            cabrestante.tensionMinCortanteChasisKgCm2Cabrestante?.toString() ??
+              '---',
+          ],
           [
             'Tensión cortante ejercida por el tiro del cabrestante sobre los pernos de unión a la estructura de soporte de éste (Kg/cm2)',
-            '1 948,06',
+            tensioncortante.toFixed(2).toString() ?? '---',
           ],
         ].map(
           ([desc, val]) =>
@@ -726,7 +903,7 @@ export async function buildCalculos(
               children: [
                 new Paragraph({
                   alignment: AlignmentType.CENTER,
-                  text: '1,59',
+                  text: coeficienteseguridad.toFixed(2).toString() ?? '---',
                 }),
               ],
             }),
@@ -773,6 +950,9 @@ export async function buildCalculos(
     out.push(new Paragraph({ text: '' }));
     contador++;
 
+    let superficiefrontal =
+      data.anchuraPiezaMLucesEspecificas * data.alturaPiezaMLucesEspecificas;
+
     // 2) Tabla de características de la pieza y sujeción
     const tablaSoporteFaros = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -811,15 +991,44 @@ export async function buildCalculos(
         }),
         // Filas de datos
         ...[
-          ['Peso de la pieza en Kg', '0,5', 'nº tornillos', '4'],
-          ['Anchura de la pieza en m', '0,125', 'Métrica', '4'],
-          ['Altura de la pieza en m', '0,065', 'Calidad', '8,8'],
-          ['Superficie frontal m²', '0,01', 'As (Sección resistente)', '8,78'],
+          [
+            'Peso de la pieza en Kg',
+            soporteslucesespecificas.pesoPiezaKgLucesEspecificas?.toString() ??
+              '---',
+            'nº tornillos',
+            soporteslucesespecificas.nTornillosLucesEspecificas?.toString() ??
+              '---',
+          ],
+          [
+            'Anchura de la pieza en m',
+            soporteslucesespecificas.anchuraPiezaMLucesEspecificas?.toString() ??
+              '---',
+            'Métrica',
+            soporteslucesespecificas.metricaLucesEspecificas?.toString() ??
+              '---',
+          ],
+          [
+            'Altura de la pieza en m',
+            soporteslucesespecificas.alturaPiezaMLucesEspecificas?.toString() ??
+              '---',
+            'Calidad',
+            soporteslucesespecificas.calidadTornilloLucesEspecificas?.toString() ??
+              '---',
+          ],
+          [
+            'Superficie frontal m²',
+            superficiefrontal.toString() ?? '---',
+            'As (Sección resistente)',
+            soporteslucesespecificas.seccionResistenteAsLucesEspecificas?.toString() ??
+              '---',
+          ],
           [
             'Coef. aerodinámico',
-            '0,82',
+            soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas?.toString() ??
+              '---',
             'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-            '80',
+            soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas?.toString() ??
+              '---',
           ],
         ].map(
           ([d1, v1, d2, v2]) =>
@@ -896,12 +1105,32 @@ export async function buildCalculos(
           ],
         }),
         ...[
-          ['Cw=Coef. Aerodinámico', '0,82'],
-          ['A =área de la pieza (m²)', '0,01'],
-          ['ρ (densidad del aire (Kg/m³))', '1,29'],
-          ['V² = velocidad del aire 140Km/h (m/s)', '38,89'],
-          ['R (radio de curva) m', '800'],
-          ['K (coeficiente de seguridad)', '3'],
+          [
+            'Cw=Coef. Aerodinámico',
+            soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas?.toString() ??
+              '---',
+          ],
+          ['A =área de la pieza (m²)', superficiefrontal.toString() ?? '---'],
+          [
+            'ρ (densidad del aire (Kg/m³))',
+            soporteslucesespecificas.densidadAireKgM3LucesEspecificas?.toString() ??
+              '---',
+          ],
+          [
+            'V² = velocidad del aire 140Km/h (m/s)',
+            soporteslucesespecificas.velocidadAireV2msLucesEspecificas?.toString() ??
+              '---',
+          ],
+          [
+            'R (radio de curva) m',
+            soporteslucesespecificas.radioCurvaRLucesEspecificas?.toString() ??
+              '---',
+          ],
+          [
+            'K (coeficiente de seguridad)',
+            soporteslucesespecificas.coefSeguridadKLucesEspecificas?.toString() ??
+              '---',
+          ],
         ].map(
           ([desc, val]) =>
             new TableRow({
@@ -934,6 +1163,25 @@ export async function buildCalculos(
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
 
+    let peso =
+      9.81 * (soporteslucesespecificas.pesoPiezaKgLucesEspecificas ?? 0);
+    let fuerzafrenado =
+      (soporteslucesespecificas.pesoPiezaKgLucesEspecificas ?? 0) * 10;
+    let resistenciaaerodinamica =
+      0.5 *
+      (soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas ?? 0) *
+      superficiefrontal *
+      (soporteslucesespecificas.densidadAireKgM3LucesEspecificas ?? 0) *
+      (soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0) *
+      (soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0);
+    let fuerzacentrifuga =
+      (soporteslucesespecificas.pesoPiezaKgLucesEspecificas ?? 0) *
+      (((soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0) *
+        (soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0)) /
+        (soporteslucesespecificas.radioCurvaRLucesEspecificas ?? 0));
+    let sumadelasfuerzas =
+      peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
     // 4) Tabla de fuerzas que actúan sobre la pieza
     const tablaFuerzas = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -962,7 +1210,13 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['4,91', '5,00', '6,50', '0,95', '17,35'].map(
+          children: [
+            peso.toString() ?? '---',
+            fuerzafrenado.toString() ?? '---',
+            resistenciaaerodinamica.toString() ?? '---',
+            fuerzacentrifuga.toString() ?? '---',
+            sumadelasfuerzas.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -977,6 +1231,27 @@ export async function buildCalculos(
     out.push(tablaFuerzas);
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
+
+    let fuerzadediseno =
+      sumadelasfuerzas *
+      (soporteslucesespecificas.coefSeguridadKLucesEspecificas ?? 0);
+    let fuerzamaximatornillostraccion =
+      ((0.9 *
+        (soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas ??
+          0) *
+        (soporteslucesespecificas.seccionResistenteAsLucesEspecificas ?? 0)) /
+        1.25) *
+      (soporteslucesespecificas.nTornillosLucesEspecificas ?? 0);
+    let fuerzamaximatornilloscortante =
+      ((0.5 *
+        (soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas ??
+          0) *
+        (soporteslucesespecificas.seccionResistenteAsLucesEspecificas ?? 0)) /
+        1.25) *
+      (soporteslucesespecificas.nTornillosLucesEspecificas ?? 0);
+    let comprobacion =
+      fuerzadediseno / fuerzamaximatornilloscortante +
+      fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
 
     // 5) Tabla de comprobación
     const tablaComprobacion = new Table({
@@ -1005,7 +1280,12 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['52,05', '2022,912', '1123,84', '0,065'].map(
+          children: [
+            fuerzadediseno.toString() ?? '---',
+            fuerzamaximatornillostraccion.toString() ?? '---',
+            fuerzamaximatornilloscortante.toString() ?? '---',
+            comprobacion.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -1066,12 +1346,34 @@ export async function buildCalculos(
           ],
         }),
         ...[
-          ['Cw=Coef. Aerodinámico', '0,82'],
-          ['A =área de la pieza (m²)', '0,44'],
-          ['ρ (densidad del aire (Kg/m³))', '1,29'],
-          ['V² = velocidad del aire 140Km/h (m/s)', '38,89'],
-          ['R (radio de curva) m', '800'],
-          ['K (coeficiente de seguridad)', '3'],
+          [
+            'Cw=Coef. Aerodinámico',
+            paradelante.cwCoefAerodinamicoParagolpesDelantero?.toString() ??
+              '---',
+          ],
+          [
+            'A =área de la pieza (m²)',
+            paradelante.superficieFrontalM2ParagolpesDelantero?.toString() ??
+              '---',
+          ],
+          [
+            'ρ (densidad del aire (Kg/m³))',
+            paradelante.densidadAireKgM3ParagolpesDelantero?.toString() ??
+              '---',
+          ],
+          [
+            'V² = velocidad del aire 140Km/h (m/s)',
+            paradelante.velocidadAireV2msParagolpesDelantero?.toString() ??
+              '---',
+          ],
+          [
+            'R (radio de curva) m',
+            paradelante.radioCurvaRParagolpesDelantero?.toString() ?? '---',
+          ],
+          [
+            'K (coeficiente de seguridad)',
+            paradelante.coefSeguridadKParagolpesDelantero?.toString() ?? '---',
+          ],
         ].map(
           ([desc, val]) =>
             new TableRow({
@@ -1104,6 +1406,22 @@ export async function buildCalculos(
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
 
+    let peso = 9.81 * (paradelante.pesoPiezaKgParagolpesDelantero ?? 0);
+    let fuerzafrenado = (paradelante.pesoPiezaKgParagolpesDelantero ?? 0) * 10;
+    let resistenciaaerodinamica =
+      (paradelante.cwCoefAerodinamicoParagolpesDelantero ?? 0) *
+      (paradelante.superficieFrontalM2ParagolpesDelantero ?? 0) *
+      (paradelante.densidadAireKgM3ParagolpesDelantero ?? 0) *
+      (paradelante.velocidadAireV2msParagolpesDelantero ?? 0) *
+      (paradelante.velocidadAireV2msParagolpesDelantero ?? 0);
+    let fuerzacentrifuga =
+      (paradelante.pesoPiezaKgParagolpesDelantero ?? 0) *
+      (((paradelante.velocidadAireV2msParagolpesDelantero ?? 0) *
+        (paradelante.velocidadAireV2msParagolpesDelantero ?? 0)) /
+        (paradelante.radioCurvaRParagolpesDelantero ?? 0));
+    let sumadelasfuerzas =
+      peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
     // 3) Tabla de fuerzas que actúan sobre la pieza
     const tablaFuerzasParagolpes = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -1131,7 +1449,13 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['19,62', '20,00', '351,89', '3,78', '395,29'].map(
+          children: [
+            peso.toString() ?? '---',
+            fuerzafrenado.toString() ?? '---',
+            resistenciaaerodinamica.toString() ?? '---',
+            fuerzacentrifuga.toString() ?? '---',
+            sumadelasfuerzas.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -1144,6 +1468,24 @@ export async function buildCalculos(
     out.push(tablaFuerzasParagolpes);
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
+
+    let fuerzadediseno =
+      sumadelasfuerzas * (paradelante.coefSeguridadKParagolpesDelantero ?? 0);
+    let fuerzamaximatornillostraccion =
+      ((0.9 *
+        (paradelante.resTraccionMinTornillo88Kgmm2ParagolpesDelantero ?? 0) *
+        (paradelante.seccionResistenteAsParagolpesDelantero ?? 0)) /
+        1.25) *
+      (paradelante.ntornillosParaDelantero ?? 0);
+    let fuerzamaximatornilloscortante =
+      ((0.5 *
+        (paradelante.resTraccionMinTornillo88Kgmm2ParagolpesDelantero ?? 0) *
+        (paradelante.seccionResistenteAsParagolpesDelantero ?? 0)) /
+        1.25) *
+      (paradelante.ntornillosParaDelantero ?? 0);
+    let comprobacion =
+      fuerzadediseno / fuerzamaximatornilloscortante +
+      fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
 
     // 4) Tabla de comprobación
     const tablaComprobacionParagolpes = new Table({
@@ -1171,7 +1513,12 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['1185,86', '16879,104', '9377,28', '0,177'].map(
+          children: [
+            fuerzadediseno.toString() ?? '---',
+            fuerzamaximatornillostraccion.toString() ?? '---',
+            fuerzamaximatornilloscortante.toString() ?? '---',
+            comprobacion.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -1204,6 +1551,9 @@ export async function buildCalculos(
     );
     out.push(new Paragraph({ text: '' }));
     contador++;
+
+    let superficiefrontal =
+      data.anchuraMParagolpesTrasero * data.alturaMParagolpesTrasero;
 
     // 2) Tabla de características de la pieza y sujeción
     const tablaParagolpesTrasero = new Table({
@@ -1241,15 +1591,36 @@ export async function buildCalculos(
         }),
         // Filas de datos
         ...[
-          ['Peso de la pieza en Kg', '1,5', 'nº tornillos', '6'],
-          ['Anchura de la pieza en m', '0,43', 'Métrica', '8'],
-          ['Altura de la pieza en m', '0,33', 'Calidad', '8,8'],
-          ['Superficie frontal m²', '0,14', 'As (Sección resistente)', '36,63'],
+          [
+            'Peso de la pieza en Kg',
+            paratras.pesoPiezaKgParagolpesTrasero?.toString() ?? '---',
+            'nº tornillos',
+            paratras.nTornillosParagolpesTrasero?.toString() ?? '---',
+          ],
+          [
+            'Anchura de la pieza en m',
+            paratras.anchuraMParagolpesTrasero?.toString() ?? '---',
+            'Métrica',
+            paratras.metricaParaTrasero?.toString() ?? '---',
+          ],
+          [
+            'Altura de la pieza en m',
+            paratras.alturaMParagolpesTrasero?.toString() ?? '---',
+            'Calidad',
+            paratras.calidadTornilloParagolpesTrasero?.toString() ?? '---',
+          ],
+          [
+            'Superficie frontal m²',
+            superficiefrontal.toString() ?? '---',
+            'As (Sección resistente)',
+            paratras.seccionResistenteAsParagolpesTrasero?.toString() ?? '---',
+          ],
           [
             'Coef. aerodinámico',
-            '0,82',
+            paratras.coefAerodinamicoParagolpesTrasero?.toString() ?? '---',
             'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-            '80',
+            paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero?.toString() ??
+              '---',
           ],
         ].map(
           ([d1, v1, d2, v2]) =>
@@ -1305,12 +1676,27 @@ export async function buildCalculos(
           ],
         }),
         ...[
-          ['Cw=Coef. Aerodinámico', '0,82'],
-          ['A =área de la pieza (m²)', '0,14'],
-          ['ρ (densidad del aire (Kg/m³))', '1,29'],
-          ['V² = velocidad del aire 140Km/h (m/s)', '38,89'],
-          ['R (radio de curva) m', '800'],
-          ['K (coeficiente de seguridad)', '3'],
+          [
+            'Cw=Coef. Aerodinámico',
+            paratras.coefAerodinamicoParagolpesTrasero?.toString() ?? '---',
+          ],
+          ['A =área de la pieza (m²)', superficiefrontal.toString() ?? '---'],
+          [
+            'ρ (densidad del aire (Kg/m³))',
+            paratras.densidadAireKgM3ParagolpesTrasero?.toString() ?? '---',
+          ],
+          [
+            'V² = velocidad del aire 140Km/h (m/s)',
+            paratras.velocidadAireV2msParagolpesTrasero?.toString() ?? '---',
+          ],
+          [
+            'R (radio de curva) m',
+            paratras.radioCurvaRParagolpesTrasero?.toString() ?? '---',
+          ],
+          [
+            'K (coeficiente de seguridad)',
+            paratras.coefSeguridadKParagolpesTrasero?.toString() ?? '---',
+          ],
         ].map(
           ([desc, val]) =>
             new TableRow({
@@ -1332,6 +1718,23 @@ export async function buildCalculos(
     out.push(tablaAireParagolpesTrasero);
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
+
+    let peso = 9.81 * (paratras.pesoPiezaKgParagolpesTrasero ?? 0);
+    let fuerzafrenado = (paratras.pesoPiezaKgParagolpesTrasero ?? 0) * 10;
+    let resistenciaaerodinamica =
+      0.5 *
+      (paratras.coefAerodinamicoParagolpesTrasero ?? 0) *
+      superficiefrontal *
+      (paratras.densidadAireKgM3ParagolpesTrasero ?? 0) *
+      (paratras.velocidadAireV2msParagolpesTrasero ?? 0) *
+      (paratras.velocidadAireV2msParagolpesTrasero ?? 0);
+    let fuerzacentrifuga =
+      (paratras.pesoPiezaKgParagolpesTrasero ?? 0) *
+      (((paratras.velocidadAireV2msParagolpesTrasero ?? 0) *
+        (paratras.velocidadAireV2msParagolpesTrasero ?? 0)) /
+        (paratras.radioCurvaRParagolpesTrasero ?? 0));
+    let sumadelasfuerzas =
+      peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
     // 4) Tabla de fuerzas que actúan sobre la pieza
     const tablaFuerzasParagolpesTrasero = new Table({
@@ -1360,7 +1763,13 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['14,72', '15,00', '113,51', '2,84', '146,06'].map(
+          children: [
+            peso.toString() ?? '---',
+            fuerzafrenado.toString() ?? '---',
+            resistenciaaerodinamica.toString() ?? '---',
+            fuerzacentrifuga.toString() ?? '---',
+            sumadelasfuerzas.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -1373,6 +1782,24 @@ export async function buildCalculos(
     out.push(tablaFuerzasParagolpesTrasero);
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
+
+    let fuerzadediseno =
+      sumadelasfuerzas * (paratras.coefSeguridadKParagolpesTrasero ?? 0);
+    let fuerzamaximatornillostraccion =
+      ((0.9 *
+        (paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero ?? 0) *
+        (paratras.seccionResistenteAsParagolpesTrasero ?? 0)) /
+        1.25) *
+      (paratras.nTornillosParagolpesTrasero ?? 0);
+    let fuerzamaximatornilloscortante =
+      ((0.5 *
+        (paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero ?? 0) *
+        (paratras.seccionResistenteAsParagolpesTrasero ?? 0)) /
+        1.25) *
+      (paratras.nTornillosParagolpesTrasero ?? 0);
+    let comprobacion =
+      fuerzadediseno / fuerzamaximatornilloscortante +
+      fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
 
     // 5) Tabla de comprobación
     const tablaComprobacionParagolpesTrasero = new Table({
@@ -1400,7 +1827,12 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['438,18', '12659,328', '7032,96', '0,087'].map(
+          children: [
+            fuerzadediseno.toString() ?? '---',
+            fuerzamaximatornillostraccion.toString() ?? '---',
+            fuerzamaximatornilloscortante.toString() ?? '---',
+            comprobacion.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -1433,6 +1865,8 @@ export async function buildCalculos(
     );
     out.push(new Paragraph({ text: '' }));
     contador++;
+
+    let superficiefrontal = data.anchuraMEstribos * data.alturaMEstribos;
 
     // 2) Tabla de características de la pieza y sujeción
     const tablaEstribos = new Table({
@@ -1470,15 +1904,36 @@ export async function buildCalculos(
         }),
         // Filas de datos
         ...[
-          ['Peso de la pieza en Kg', '90', 'nº tornillos', '6'],
-          ['Anchura de la pieza en m', '0,85', 'Métrica', '10'],
-          ['Altura de la pieza en m', '0,15', 'Calidad', '8,8'],
-          ['Superficie frontal m²', '0,13', 'As (Sección resistente)', '58,03'],
+          [
+            'Peso de la pieza en Kg',
+            estribostaloneras.pesoPiezaKgEstribos?.toString() ?? '---',
+            'nº tornillos',
+            estribostaloneras.nTornillosEstribos?.toString() ?? '---',
+          ],
+          [
+            'Anchura de la pieza en m',
+            estribostaloneras.anchuraMEstribos?.toString() ?? '---',
+            'Métrica',
+            estribostaloneras.metricaTalonera?.toString() ?? '---',
+          ],
+          [
+            'Altura de la pieza en m',
+            estribostaloneras.alturaMEstribos?.toString() ?? '---',
+            'Calidad',
+            estribostaloneras.calidadTornilloEstribos?.toString() ?? '---',
+          ],
+          [
+            'Superficie frontal m²',
+            superficiefrontal.toString() ?? '---',
+            'As (Sección resistente)',
+            estribostaloneras.seccionResistenteAsEstribos?.toString() ?? '---',
+          ],
           [
             'Coef. aerodinámico',
-            '0,82',
+            estribostaloneras.coefAerodinamicoEstribos?.toString() ?? '---',
             'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-            '80',
+            estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos?.toString() ??
+              '---',
           ],
         ].map(
           ([d1, v1, d2, v2]) =>
@@ -1534,12 +1989,27 @@ export async function buildCalculos(
           ],
         }),
         ...[
-          ['Cw=Coef. Aerodinámico', '0,82'],
-          ['A =área de la pieza (m²)', '0,13'],
-          ['ρ (densidad del aire (Kg/m³))', '1,29'],
-          ['V² = velocidad del aire 140Km/h (m/s)', '38,89'],
-          ['R (radio de curva) m', '800'],
-          ['K (coeficiente de seguridad)', '3'],
+          [
+            'Cw=Coef. Aerodinámico',
+            estribostaloneras.coefAerodinamicoEstribos?.toString() ?? '---',
+          ],
+          ['A =área de la pieza (m²)', superficiefrontal.toString() ?? '---'],
+          [
+            'ρ (densidad del aire (Kg/m³))',
+            estribostaloneras.densidadAireKgM3Estribos?.toString() ?? '---',
+          ],
+          [
+            'V² = velocidad del aire 140Km/h (m/s)',
+            estribostaloneras.velocidadAireV2msEstribos?.toString() ?? '---',
+          ],
+          [
+            'R (radio de curva) m',
+            estribostaloneras.radioCurvaREstribos?.toString() ?? '---',
+          ],
+          [
+            'K (coeficiente de seguridad)',
+            estribostaloneras.coefSeguridadKEstribos?.toString() ?? '---',
+          ],
         ].map(
           ([desc, val]) =>
             new TableRow({
@@ -1560,6 +2030,22 @@ export async function buildCalculos(
     });
     out.push(tablaAireEstribos);
     out.push(new Paragraph({ text: '' }));
+
+    let peso = 9.81 * (estribostaloneras.pesoPiezaKgEstribos ?? 0);
+    let fuerzafrenado = (estribostaloneras.pesoPiezaKgEstribos ?? 0) * 10;
+    let resistenciaaerodinamica =
+      (estribostaloneras.coefAerodinamicoEstribos ?? 0) *
+      superficiefrontal *
+      (estribostaloneras.densidadAireKgM3Estribos ?? 0) *
+      (estribostaloneras.velocidadAireV2msEstribos ?? 0) *
+      (estribostaloneras.velocidadAireV2msEstribos ?? 0);
+    let fuerzacentrifuga =
+      (estribostaloneras.pesoPiezaKgEstribos ?? 0) *
+      (((estribostaloneras.velocidadAireV2msEstribos ?? 0) *
+        (estribostaloneras.velocidadAireV2msEstribos ?? 0)) /
+        (estribostaloneras.radioCurvaREstribos ?? 0));
+    let sumadelasfuerzas =
+      peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
     // 4) Tabla de fuerzas que actúan sobre la pieza
     const tablaFuerzasEstribos = new Table({
@@ -1588,7 +2074,13 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['882,90', '900,00', '101,99', '170,15', '2055,04'].map(
+          children: [
+            peso.toString() ?? '---',
+            fuerzafrenado.toString() ?? '---',
+            resistenciaaerodinamica.toString() ?? '---',
+            fuerzacentrifuga.toString() ?? '---',
+            sumadelasfuerzas.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -1601,6 +2093,24 @@ export async function buildCalculos(
     out.push(tablaFuerzasEstribos);
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
+
+    let fuerzadediseno =
+      sumadelasfuerzas * (estribostaloneras.coefSeguridadKEstribos ?? 0);
+    let fuerzamaximatornillostraccion =
+      ((0.9 *
+        (estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos ?? 0) *
+        (estribostaloneras.seccionResistenteAsEstribos ?? 0)) /
+        1.25) *
+      (estribostaloneras.nTornillosEstribos ?? 0);
+    let fuerzamaximatornilloscortante =
+      ((0.5 *
+        (estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos ?? 0) *
+        (estribostaloneras.seccionResistenteAsEstribos ?? 0)) /
+        1.25) *
+      (estribostaloneras.nTornillosEstribos ?? 0);
+    let comprobacion =
+      fuerzadediseno / fuerzamaximatornilloscortante +
+      fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
 
     // 5) Tabla de comprobación
     const tablaComprobacionEstribos = new Table({
@@ -1628,7 +2138,12 @@ export async function buildCalculos(
         }),
         new TableRow({
           cantSplit: true,
-          children: ['6165,12', '20055,168', '11141,76', '0,773'].map(
+          children: [
+            fuerzadediseno.toString() ?? '---',
+            fuerzamaximatornillostraccion.toString() ?? '---',
+            fuerzamaximatornilloscortante.toString() ?? '---',
+            comprobacion.toString() ?? '---',
+          ].map(
             (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
@@ -1668,6 +2183,10 @@ export async function buildCalculos(
     );
     contador++;
 
+    console.log(data);
+
+    let Tr = 0.6 * data.mmaAntes;
+
     // 2) Tabla: DATOS DE PARTIDA
     const tablaDatosPartida = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -1692,12 +2211,12 @@ export async function buildCalculos(
         }),
         // Filas de datos
         ...[
-          ['M.T.M.A. (Kg)', '2000'],
+          ['M.T.M.A. (Kg)', data.mmaAntes.toString() ?? '---'],
           ['Velocidad máxima (Km/h)', '148'],
-          ['Coeficiente de rozamiento', '0,6'],
-          ['Aceleración de la gravedad (m/s²)', '9,8'],
-          ['Deceleración ar = μ * g (m/s²)', '5,88'],
-          ['Tr = μ * Mt (Kg)', '1200'],
+          ['Coeficiente de rozamiento', '0.6'],
+          ['Aceleración de la gravedad (m/s²)', '9.8'],
+          ['Deceleración ar = μ * g (m/s²)', '5.88'],
+          ['Tr = μ * Mt (Kg)', Tr.toString() ?? '---'],
         ].map(
           ([desc, val]) =>
             new TableRow({
@@ -1733,64 +2252,109 @@ export async function buildCalculos(
     out.push(new Paragraph({ text: '' }));
 
     // 3) Tabla: ESFUERZOS LONGITUDINALES vs ELEMENTOS INSTALADOS
-    const tablaLongitudinales = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        // Encabezado de columnas
-        new TableRow({
-          cantSplit: true,
-          children: [
-            'Nº',
-            'Esfuerzos longitudinales',
-            'Elemento instalado',
-            'Peso (kg)',
-          ].map(
-            (h) =>
-              new TableCell({
-                margins: CELL_MARGINS,
-                verticalAlign: VerticalAlign.CENTER,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+    function generarTablaLongitudinales(data: any): Table {
+      const muebles: {
+        desc: string;
+        peso: string;
+        medidas: number;
+        tornillos: number;
+      }[] = [];
+
+      const modMobiliario = data.modificaciones.find(
+        (m: any) =>
+          m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+      );
+
+      if (modMobiliario) {
+        // Muebles bajos
+        (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+          muebles.push({
+            desc: `Mueble bajo ${m.medidas}`,
+            peso: m.pesoMuebleBajo || '---',
+            medidas: m.medidas || 0,
+            tornillos: m.tornillos || 0,
+          });
+        });
+
+        // Muebles altos
+        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+          muebles.push({
+            desc: `Mueble alto ${m.medidas}`,
+            peso: m.pesoMuebleAlto || '---',
+            medidas: m.medidas || 0,
+            tornillos: m.tornillos || 0,
+          });
+        });
+
+        // Aseos
+        (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+          muebles.push({
+            desc: `Aseo ${m.medidas}`,
+            peso: m.pesoMuebleAseo || '---',
+            medidas: m.medidas || 0,
+            tornillos: m.tornillos || 0,
+          });
+        });
+      }
+
+      // Construcción de la tabla
+      return new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Encabezado dinámico
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Nº',
+              'Esfuerzos longitudinales',
+              'Elemento instalado',
+              'Peso (kg)',
+            ].map(
+              (h) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: h, bold: true })],
+                    }),
+                  ],
+                })
+            ),
+          }),
+
+          // Filas de muebles
+          ...muebles.map(
+            (mueble, idx) =>
+              new TableRow({
+                cantSplit: true,
                 children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: h })],
-                  }),
-                ],
+                  (idx + 1).toString(),
+                  mueble.desc,
+                  `Q${idx + 1}`,
+                  mueble.peso,
+                ].map(
+                  (val) =>
+                    new TableCell({
+                      margins: CELL_MARGINS,
+                      verticalAlign: VerticalAlign.CENTER,
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun({ text: val })],
+                        }),
+                      ],
+                    })
+                ),
               })
           ),
-        }),
-        // Filas 1–8
-        ...[
-          ['1', 'Mueble alto 1250x405x325mm', 'Q1', '12'],
-          ['2', 'Mueble alto 1120x390x320mm', 'Q2', '12'],
-          ['3', 'Mueble bajo 1350x1800x900mm', 'Q3', '50'],
-          ['4', 'Mueble bajo 600x1420x900mm', 'Q4', '50'],
-          ['5', 'Mueble bajo 1200x610x580mm', 'Q5', '50'],
-          ['6', 'Armario 1180x320x625mm', 'Q6', '15'],
-          ['7', 'Mueble bajo 1080x610x580mm', 'Q7', '50'],
-          ['8', 'Aseo 1030x2100x590mm', 'Q8', '13'],
-        ].map(
-          ([i, desc, q, peso]) =>
-            new TableRow({
-              cantSplit: true,
-              children: [i, desc, q, peso].map(
-                (val) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: val })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaLongitudinales);
+        ],
+      });
+    }
+
+    out.push(generarTablaLongitudinales(data));
     out.push(new Paragraph({ text: '' }));
 
     // 4) Tabla: CARACTERÍSTICAS DE LOS TORNILLOS
@@ -1852,301 +2416,423 @@ export async function buildCalculos(
     out.push(new Paragraph({ text: '' }));
 
     // 5) Tabla: NÚMERO DE TORNILLOS UTILIZADOS Y MÉTRICA
-    const tablaNumTornillos = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        // Encabezado
-        new TableRow({
+    function generarTablaNumTornillos(data: any): Table {
+      const modMobiliario = data.modificaciones.find(
+        (m: any) =>
+          m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+      );
+
+      if (!modMobiliario) {
+        return new Table({
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph('Sin mobiliario seleccionado')],
+                }),
+              ],
+            }),
+          ],
+        });
+      }
+
+      const diametroSel = modMobiliario.diametroTornilloSeleccionado;
+
+      const muebles: { desc: string; cantidad: string }[] = [];
+
+      // Muebles bajos
+      (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+        muebles.push({
+          desc: `Mueble bajo ${m.medidas}`,
+          cantidad: m.tornillosMuebleBajo || '0',
+        });
+      });
+
+      // Muebles altos
+      (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        muebles.push({
+          desc: `Mueble alto ${m.medidas}`,
+          cantidad: m.tornillosMuebleAlto || '0',
+        });
+      });
+
+      // Aseos
+      (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+        muebles.push({
+          desc: `Aseo ${m.medidas}`,
+          cantidad: m.tornillosMuebleAseo || '0',
+        });
+      });
+
+      // Encabezado
+      const header = new TableRow({
+        cantSplit: true,
+        children: [
+          'Componente / Diámetro tornillo (mm)',
+          '4',
+          '5',
+          '6',
+          '8',
+          'Total',
+        ].map(
+          (h) =>
+            new TableCell({
+              margins: CELL_MARGINS,
+              verticalAlign: VerticalAlign.CENTER,
+              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: h, bold: true })],
+                }),
+              ],
+            })
+        ),
+      });
+
+      // Filas dinámicas
+      const filas = muebles.map((mueble) => {
+        const cols = ['', '', '', '', ''];
+        const idx = ['4', '5', '6', '8'].indexOf(String(diametroSel));
+        if (idx !== -1) {
+          cols[idx] = mueble.cantidad;
+        }
+        cols[4] = mueble.cantidad; // total siempre igual
+
+        return new TableRow({
           cantSplit: true,
-          children: [
-            'Componente / Diámetro tornillo (mm)',
-            '4',
-            '5',
-            '6',
-            '8',
-            'total',
-          ].map(
-            (h) =>
+          children: [mueble.desc, ...cols].map(
+            (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
                 verticalAlign: VerticalAlign.CENTER,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
                 children: [
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: h })],
+                    children: [new TextRun({ text: val })],
                   }),
                 ],
               })
           ),
-        }),
-        // Filas de componentes
-        ...[
-          ['Mueble alto 1250x405x325mm', '15', '', '', '', '15'],
-          ['Mueble alto 1120x390x320mm', '15', '', '', '', '15'],
-          ['Mueble bajo 1350x1800x900mm', '20', '', '', '', '20'],
-          ['Mueble bajo 600x1420x900mm', '20', '', '', '', '20'],
-          ['Mueble bajo 1200x610x580mm', '20', '', '', '', '20'],
-          ['Armario 1180x320x625mm', '15', '', '', '', '15'],
-          ['Mueble bajo 1080x610x580mm', '20', '', '', '', '20'],
-          ['Aseo 1030x2100x590mm', '12', '', '', '', '12'],
-        ].map(
-          (row) =>
-            new TableRow({
-              cantSplit: true,
-              children: row.map(
-                (val) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: val })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaNumTornillos);
+        });
+      });
+
+      return new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [header, ...filas],
+      });
+    }
+
+    out.push(generarTablaNumTornillos(data));
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
 
-    // 6) Tabla: PROPIEDADES DEL TORNILLO SELECCIONADO
-    const tablaPropsTornillo = new Table({
-      width: { size: 50, type: WidthType.PERCENTAGE },
-      rows: [
-        ...[
-          ['Calidad', 'M8.8'],
-          ['Resistencia a cortadura (Kg)', '227,8'],
-          ['Tensión de rotura σr ≥ (Kg/mm²)', '80'],
-          ['Tensión límite de elasticidad σe ≥ (Kg/mm²)', '65'],
-          ['Diámetro del tornillo (mm)', '5'],
-        ].map(
-          ([desc, val]) =>
-            new TableRow({
-              cantSplit: true,
-              children: [desc, val].map(
-                (text) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaPropsTornillo);
-    out.push(new Paragraph({ text: '' }));
-    out.push(new Paragraph({ text: '' }));
+    function generarTablaPropsTornillo(data: any): Table {
+      const modMobiliario = data.modificaciones.find(
+        (m: any) =>
+          m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+      );
 
-    // 7) Tabla: ÁREA RESISTENTE y K y γMb
-    const tablaAreaResistente = new Table({
-      width: { size: 50, type: WidthType.PERCENTAGE },
-      rows: [
-        ...[
-          ['Área resistente Ar (mm²)', '14,2'],
-          ['K', '0,6'],
-          ['γMb = Coeficiente de seguridad', '1,25'],
-        ].map(
-          ([desc, val]) =>
+      if (!modMobiliario || !modMobiliario.diametroTornilloSeleccionado) {
+        return new Table({
+          rows: [
             new TableRow({
-              cantSplit: true,
-              children: [desc, val].map(
-                (text) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaAreaResistente);
+              children: [
+                new TableCell({
+                  children: [new Paragraph('Sin tornillo seleccionado')],
+                }),
+              ],
+            }),
+          ],
+        });
+      }
+
+      const diametroSel = modMobiliario.diametroTornilloSeleccionado;
+      const areaSel = modMobiliario.areaResistenteTornilloSeleccionado;
+
+      // Aquí defines las propiedades de la tabla
+      const propiedades: [string, string][] = [
+        ['Calidad', 'M8.8'],
+        ['Resistencia a cortadura (Kg)', '227,8'],
+        ['Tensión de rotura σr ≥ (Kg/mm²)', '80'],
+        ['Tensión límite de elasticidad σe ≥ (Kg/mm²)', '65'],
+        ['Diámetro del tornillo (mm)', String(diametroSel)],
+        ['Área resistente Ar (mm²)', String(areaSel)],
+        ['K', '0,6'],
+        ['γMb = Coeficiente de seguridad', '1,25'],
+      ];
+
+      const filas = propiedades.map(
+        ([desc, val]) =>
+          new TableRow({
+            cantSplit: true,
+            children: [desc, val].map(
+              (text) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text })],
+                    }),
+                  ],
+                })
+            ),
+          })
+      );
+
+      return new Table({
+        width: { size: 50, type: WidthType.PERCENTAGE },
+        rows: filas,
+      });
+    }
+
+    // y luego en tu out:
+    out.push(generarTablaPropsTornillo(data));
+
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
 
     // 8) Tabla: FUERZAS DE INERCIA y COEF. SEGURIDAD por componente
-    const tablaFuerzaInercia = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        // Encabezado
-        new TableRow({
+    function generarTablaFuerzaInercia(data: any): Table {
+      const modMobiliario = data.modificaciones.find(
+        (m: any) =>
+          m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+      );
+
+      if (!modMobiliario) {
+        return new Table({
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph('Sin mobiliario seleccionado')],
+                }),
+              ],
+            }),
+          ],
+        });
+      }
+
+      const areaResistente =
+        modMobiliario.areaResistenteTornilloSeleccionado || 0;
+
+      const muebles: {
+        desc: string;
+        peso: number;
+        tornillos: number;
+      }[] = [];
+
+      // Muebles bajos
+      (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+        muebles.push({
+          desc: `Mueble bajo ${m.medidas}`,
+          peso: parseFloat(m.pesoMuebleBajo) || 0,
+          tornillos: parseInt(m.tornillosMuebleBajo) || 0,
+        });
+      });
+
+      // Muebles altos
+      (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        muebles.push({
+          desc: `Mueble alto ${m.medidas}`,
+          peso: parseFloat(m.pesoMuebleAlto) || 0,
+          tornillos: parseInt(m.tornillosMuebleAlto) || 0,
+        });
+      });
+
+      // Aseos
+      (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+        muebles.push({
+          desc: `Aseo ${m.medidas}`,
+          peso: parseFloat(m.pesoMuebleAseo) || 0,
+          tornillos: parseInt(m.tornillosMuebleAseo) || 0,
+        });
+      });
+
+      // Encabezado
+      const header = new TableRow({
+        cantSplit: true,
+        children: [
+          ' ',
+          ' ',
+          ' ',
+          'Fuerza de Inercia I (Kg)',
+          'Resistencia a cortante máx. Rm (Kg)',
+          'Coef. seguridad λ > 1,25',
+        ].map(
+          (h) =>
+            new TableCell({
+              margins: CELL_MARGINS,
+              verticalAlign: VerticalAlign.CENTER,
+              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: h, bold: true })],
+                }),
+              ],
+            })
+        ),
+      });
+
+      // Filas dinámicas
+      const filas = muebles.map((mueble, idx) => {
+        const fuerzaInercia = mueble.peso * (9.8 / 5.88);
+        const resistenciaCortante =
+          (0.6 * 80 * areaResistente * mueble.tornillos) / 1.25;
+        const coefSeguridad = resistenciaCortante / fuerzaInercia;
+
+        const valores = [
+          (idx + 1).toString(),
+          mueble.desc,
+          mueble.peso.toFixed(2),
+          fuerzaInercia.toFixed(2),
+          resistenciaCortante.toFixed(2),
+          coefSeguridad.toFixed(2),
+        ];
+
+        return new TableRow({
           cantSplit: true,
-          children: [
-            'Nº',
-            'Componente',
-            'Diámetro tornillo',
-            'Fuerza de Inercia I (Kg)',
-            'Resistencia a cortante máx. Rm (Kg)',
-            'Coef. seguridad λ > 1,25',
-          ].map(
-            (h) =>
+          children: valores.map(
+            (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
                 verticalAlign: VerticalAlign.CENTER,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
                 children: [
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: h })],
+                    children: [new TextRun({ text: val })],
                   }),
                 ],
               })
           ),
-        }),
-        // Filas 1–8
-        ...[
-          ['1', 'Mueble alto 1250x405x325mm', 'Q1', '7,20', '8179,20', '1136'],
-          ['2', 'Mueble alto 1120x390x320mm', 'Q2', '7,20', '8179,20', '1136'],
-          [
-            '3',
-            'Mueble bajo 1350x1800x900mm',
-            'Q3',
-            '30,00',
-            '10905,60',
-            '363,52',
-          ],
-          [
-            '4',
-            'Mueble bajo 600x1420x900mm',
-            'Q4',
-            '30,00',
-            '10905,60',
-            '363,52',
-          ],
-          [
-            '5',
-            'Mueble bajo 1200x610x580mm',
-            'Q5',
-            '30,00',
-            '10905,60',
-            '363,52',
-          ],
-          ['6', 'Armario 1180x320x625mm', 'Q6', '9,00', '8179,20', '908,8'],
-          [
-            '7',
-            'Mueble bajo 1080x610x580mm',
-            'Q7',
-            '30,00',
-            '10905,60',
-            '363,52',
-          ],
-          ['8', 'Aseo 1030x2100x590mm', 'Q8', '7,80', '6543,36', '838,892308'],
-        ].map(
-          (row) =>
-            new TableRow({
-              cantSplit: true,
-              children: row.map(
-                (val) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: val })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaFuerzaInercia);
+        });
+      });
+
+      return new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [header, ...filas],
+      });
+    }
+
+    // Y lo añades al out:
+    out.push(generarTablaFuerzaInercia(data));
+
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
 
     // 9) Tabla: ESFUERZOS VERTICALES
-    const tablaVerticales = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        // Encabezado
-        new TableRow({
+    function generarTablaVerticales(data: any): Table {
+      const modMobiliario = data.modificaciones.find(
+        (m: any) =>
+          m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+      );
+
+      if (!modMobiliario) {
+        return new Table({
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph('Sin mobiliario seleccionado')],
+                }),
+              ],
+            }),
+          ],
+        });
+      }
+
+      const resistenciaCortadura = 227.8;
+
+      // 🔹 Solo muebles altos
+      const muebles: {
+        desc: string;
+        peso: number;
+        tornillos: number;
+      }[] = [];
+
+      (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        muebles.push({
+          desc: `Mueble alto ${m.medidas}`,
+          peso: parseFloat(m.pesoMuebleAlto) || 0,
+          tornillos: parseInt(m.tornillosMuebleAlto) || 0,
+        });
+      });
+
+      // Encabezado
+      const header = new TableRow({
+        cantSplit: true,
+        children: [
+          'Nº',
+          'Elemento instalado',
+          'Código',
+          'Peso (kg)',
+          'Número de tornillos',
+          'Peso soportado por tornillo',
+          'Resistencia a la cortadura (Kg)',
+          'Resultado (Kg)',
+        ].map(
+          (h) =>
+            new TableCell({
+              margins: CELL_MARGINS,
+              verticalAlign: VerticalAlign.CENTER,
+              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: h, bold: true })],
+                }),
+              ],
+            })
+        ),
+      });
+
+      // Filas dinámicas solo de muebles altos
+      const filas = muebles.map((mueble, idx) => {
+        const pesoPorTornillo =
+          mueble.tornillos > 0 ? mueble.peso / mueble.tornillos : 0;
+        const resultado =
+          resistenciaCortadura > 0 ? pesoPorTornillo / resistenciaCortadura : 0;
+
+        const valores = [
+          (idx + 1).toString(), // Nº
+          mueble.desc, // Descripción
+          `Q${idx + 1}`, // Código
+          mueble.peso.toFixed(2), // Peso (kg)
+          mueble.tornillos.toString(), // Nº tornillos
+          pesoPorTornillo.toFixed(2), // Peso por tornillo
+          resistenciaCortadura.toString(), // Resistencia cortadura
+          resultado.toFixed(4), // Resultado
+        ];
+
+        return new TableRow({
           cantSplit: true,
-          children: [
-            'Nº',
-            'Componente',
-            'Diámetro tornillo',
-            'Peso (kg)',
-            'Pasador (??)', // ajusta el texto si hace falta
-            'λ',
-            'Resultado (Kg)',
-          ].map(
-            (h) =>
+          children: valores.map(
+            (val) =>
               new TableCell({
                 margins: CELL_MARGINS,
                 verticalAlign: VerticalAlign.CENTER,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
                 children: [
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: h })],
+                    children: [new TextRun({ text: val })],
                   }),
                 ],
               })
           ),
-        }),
-        // Filas de datos
-        ...[
-          [
-            '1',
-            'Mueble alto 1250x405x325mm',
-            'Q1',
-            '12',
-            '15',
-            '0,80',
-            '227,8',
-          ],
-          [
-            '2',
-            'Mueble alto 1120x390x320mm',
-            'Q2',
-            '12',
-            '15',
-            '0,80',
-            '227,8',
-          ],
-        ].map(
-          (row) =>
-            new TableRow({
-              cantSplit: true,
-              children: row.map(
-                (val: any) =>
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    verticalAlign: VerticalAlign.CENTER,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: val })],
-                      }),
-                    ],
-                  })
-              ),
-            })
-        ),
-      ],
-    });
-    out.push(tablaVerticales);
+        });
+      });
+
+      return new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [header, ...filas],
+      });
+    }
+
+    // Y en el out:
+    out.push(generarTablaVerticales(data));
     out.push(new Paragraph({ text: '' }));
     out.push(new Paragraph({ text: '' }));
   }
@@ -2214,7 +2900,9 @@ export async function buildCalculos(
 
     if (
       mod?.detallesMuelles?.['muelleDelanteroConRef'] ||
-      mod?.detallesMuelles?.['muelleDelanteroSinRef']
+      mod?.detallesMuelles?.['muelleDelanteroSinRef'] ||
+      mod?.detallesMuelles?.['muelleTraseroConRef'] ||
+      mod?.detallesMuelles?.['muelleTraseroSinRef']
     ) {
       out.push(
         new Paragraph({
@@ -2255,9 +2943,9 @@ export async function buildCalculos(
           }),
           // Filas de datos
           ...[
-            ['MTMA/MMA (Kg)', '2000'],
-            ['MTMA/MMA eje 1', '1500'],
-            ['MTMA/MMA eje 2', '1000'],
+            ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
+            ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
+            ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
           ].map(
             ([desc, val]) =>
               new TableRow({
@@ -2353,7 +3041,47 @@ export async function buildCalculos(
       out.push(tablaCaracteristicasMuelle);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+    }
 
+    let diametrointerior = 0;
+    let diametromedio = 0;
+    let curvatura = 0;
+    let K = 0;
+
+    if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
+      diametrointerior =
+        (mod.diametroExteriorDelanteroRef ?? 0) -
+        2 * (mod.diametroEspiraDelanteroRef ?? 0);
+      diametromedio =
+        ((mod.diametroExteriorDelanteroRef ?? 0) + diametrointerior) / 2;
+      curvatura = diametromedio / (mod.diametroEspiraDelanteroRef ?? 0);
+      K =
+        (Math.pow(mod.diametroEspiraDelanteroRef ?? 0, 4) * 8104 * 1000) /
+        (8 *
+          Math.pow(diametromedio, 3) *
+          (mod.numeroEspirasDelanteroRef ?? 0)) /
+        1000;
+    }
+
+    if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
+      diametrointerior =
+        (mod.diametroExteriorDelanteroSinRef ?? 0) -
+        2 * (mod.diametroEspiraDelanteroSinRef ?? 0);
+      diametromedio =
+        ((mod.diametroExteriorDelanteroSinRef ?? 0) + diametrointerior) / 2;
+      curvatura = diametromedio / (mod.diametroEspiraDelanteroSinRef ?? 0);
+      K =
+        (((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000) ** 4 * 79500, 24) /
+        (8 *
+          (diametromedio / 1000) ** 3 *
+          (mod.numeroEspirasDelanteroSinRef ?? 0)) /
+        1000;
+    }
+
+    if (
+      mod?.detallesMuelles?.['muelleDelanteroConRef'] ||
+      mod?.detallesMuelles?.['muelleDelanteroSinRef']
+    ) {
       // 4) Características geométricas muelles delanteros
       const tablaGeomDelanteros = new Table({
         width: { size: 50, type: WidthType.PERCENTAGE },
@@ -2381,14 +3109,26 @@ export async function buildCalculos(
           }),
           // Filas
           ...[
-            ['Diámetro exterior (Dext)', '105,00'],
-            ['Diámetro interior (Dint)', '75,00'],
-            ['Diámetro medio (Dm)', '90,00'],
-            ['Diámetro de espira (De)', '15,00'],
-            ['Longitud libre (L0)', '470,00'],
-            ['Número de espiras (n)', '7,00'],
-            ['Curvatura (C)', '6,00'],
-            ['Rigidez (K) N/mm', '98,59'],
+            [
+              'Diámetro exterior (Dext)',
+              mod.diametroExteriorDelanteroRef?.toString() ?? '---',
+            ],
+            ['Diámetro interior (Dint)', diametrointerior.toString() ?? '---'],
+            ['Diámetro medio (Dm)', diametromedio.toString() ?? '---'],
+            [
+              'Diámetro de espira (De)',
+              mod.diametroEspiraDelanteroRef?.toString() ?? '---',
+            ],
+            [
+              'Longitud libre (L0)',
+              mod.longitudLibreDelanteroRef?.toString() ?? '---',
+            ],
+            [
+              'Número de espiras (n)',
+              mod.numeroEspirasDelanteroRef?.toString() ?? '---',
+            ],
+            ['Curvatura (C)', curvatura.toFixed(2).toString() ?? '---'],
+            ['Rigidez (K) N/mm', K.toFixed(2).toString() ?? '---'],
           ].map(
             ([d, v]) =>
               new TableRow({
@@ -2413,6 +3153,32 @@ export async function buildCalculos(
       out.push(tablaGeomDelanteros);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+
+      let maxCortante = 0;
+      let maxCortanteDelantero = 0;
+      let coefSeguridad = 0;
+
+      if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
+        maxCortante =
+          (Math.PI *
+            (((mod.diametroEspiraDelanteroRef ?? 0) / 1000) ** 3 *
+              1118.34 *
+              1000000)) /
+          (8 * (diametromedio / 1000));
+        maxCortanteDelantero = maxCortante * 2;
+        coefSeguridad = maxCortanteDelantero / (data.mmaEje1Despues * 9.81);
+      }
+
+      if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
+        maxCortante =
+          (Math.PI *
+            (((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000) ** 3 *
+              1118.34 *
+              1000000)) /
+          (8 * (diametromedio / 1000));
+        maxCortanteDelantero = maxCortante * 2;
+        coefSeguridad = maxCortanteDelantero / (data.mmaEje1Despues * 9.81);
+      }
 
       // 5) Cálculo del esfuerzo máximo cortante (EMC) delanteros
       const tablaEMCDelanteros = new Table({
@@ -2465,7 +3231,11 @@ export async function buildCalculos(
           // Valores
           new TableRow({
             cantSplit: true,
-            children: ['16468,92', '32937,83', '2,24'].map(
+            children: [
+              maxCortante.toString() ?? '---',
+              maxCortanteDelantero.toString() ?? '---',
+              coefSeguridad.toString() ?? '---',
+            ].map(
               (v, i) =>
                 new TableCell({
                   margins: CELL_MARGINS,
@@ -2488,6 +3258,46 @@ export async function buildCalculos(
       out.push(tablaEMCDelanteros);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+
+      let longMinMuelle = 0;
+      let flechaResorte = 0;
+      let cargaMaxQ = 0;
+      let cargaMaxEje1Q = 0;
+      let coefSeguridadK = 0;
+
+      if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
+        longMinMuelle =
+          (mod.numeroEspirasDelanteroRef ?? 0) *
+          (mod.diametroEspiraDelanteroRef ?? 0);
+        flechaResorte = (mod.longitudLibreDelanteroRef ?? 0) - longMinMuelle;
+        cargaMaxQ =
+          ((longMinMuelle / 1000) *
+            79500.24 *
+            1000000 *
+            ((mod.diametroEspiraDelanteroRef ?? 0) / 1000) ** 4) /
+          (64 *
+            (mod.numeroEspirasDelanteroRef ?? 0) *
+            (diametromedio / 1000 / 2) ** 3);
+        cargaMaxEje1Q = cargaMaxQ * 2;
+        coefSeguridadK = cargaMaxEje1Q / (data.mmaEje1Despues * 9.81);
+      }
+
+      if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
+        longMinMuelle =
+          (mod.numeroEspirasDelanteroSinRef ?? 0) *
+          (mod.diametroEspiraDelanteroSinRef ?? 0);
+        flechaResorte = (mod.longitudLibreDelanteroSinRef ?? 0) - longMinMuelle;
+        cargaMaxQ =
+          ((longMinMuelle / 1000) *
+            79500.24 *
+            1000000 *
+            ((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000) ** 4) /
+          (64 *
+            (mod.numeroEspirasDelanteroSinRef ?? 0) *
+            (diametromedio / 1000 / 2) ** 3);
+        cargaMaxEje1Q = cargaMaxQ * 2;
+        coefSeguridadK = cargaMaxEje1Q / (data.mmaEje1Despues * 9.81);
+      }
 
       // 6) Cálculo carga máx (Q) flecha delanteros
       const tablaQDelanteros = new Table({
@@ -2542,7 +3352,13 @@ export async function buildCalculos(
           // Valores
           new TableRow({
             cantSplit: true,
-            children: ['105,00', '365,00', '35984,11', '71968,22', '4,89'].map(
+            children: [
+              longMinMuelle.toFixed(2).toString() ?? '---',
+              flechaResorte.toFixed(2).toString() ?? '---',
+              cargaMaxQ.toFixed(2).toString() ?? '---',
+              cargaMaxEje1Q.toFixed(2).toString() ?? '---',
+              coefSeguridadK.toFixed(2).toString() ?? '---',
+            ].map(
               (v, i) =>
                 new TableCell({
                   margins: CELL_MARGINS,
@@ -2565,6 +3381,29 @@ export async function buildCalculos(
       out.push(tablaQDelanteros);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+
+      let fuerzaMaxEjeDelantero = 0;
+      let factorBergstrasserKb = 0;
+      let esfuerzoMuelleT = 0;
+      let coefSeguridadFinalK = 0;
+
+      if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
+        fuerzaMaxEjeDelantero = (data.mmaEje1Despues * 9.81) / 2;
+        factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
+        esfuerzoMuelleT =
+          (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
+          (Math.PI * Math.pow(mod.diametroEspiraDelanteroRef ?? 0, 3) ** 3);
+        coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
+      }
+
+      if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
+        fuerzaMaxEjeDelantero = (data.mmaEje1Despues * 9.81) / 2;
+        factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
+        esfuerzoMuelleT =
+          (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
+          (Math.PI * Math.pow(mod.diametroEspiraDelanteroSinRef ?? 0, 3) ** 3);
+        coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
+      }
 
       // 7) Esfuerzo del muelle delanteros
       const tablaEsfuerzoDelanteros = new Table({
@@ -2596,7 +3435,12 @@ export async function buildCalculos(
           // Valores
           new TableRow({
             cantSplit: true,
-            children: ['7357,50', '1,24', '618,58', '1,81'].map(
+            children: [
+              fuerzaMaxEjeDelantero.toFixed(2).toString() ?? '---',
+              factorBergstrasserKb.toFixed(2).toString() ?? '---',
+              esfuerzoMuelleT.toFixed(2).toString() ?? '---',
+              coefSeguridadFinalK.toFixed(2).toString() ?? '---',
+            ].map(
               (v, i) =>
                 new TableCell({
                   margins: CELL_MARGINS,
@@ -2620,6 +3464,35 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
     }
+
+    if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
+      diametrointerior =
+        (mod.diametroExteriorTraseroRef ?? 0) -
+        2 * (mod.diametroEspiraTraseroRef ?? 0);
+      diametromedio =
+        ((mod.diametroExteriorTraseroRef ?? 0) + diametrointerior) / 2;
+      curvatura = diametromedio / (mod.diametroEspiraTraseroRef ?? 0);
+      K =
+        (Math.pow(mod.diametroEspiraTraseroRef ?? 0, 4) * 8104 * 1000) /
+        (8 * Math.pow(diametromedio, 3) * (mod.numeroEspirasTraseroRef ?? 0)) /
+        1000;
+    }
+
+    if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
+      diametrointerior =
+        (mod.diametroExteriorTraseroSinRef ?? 0) -
+        2 * (mod.diametroEspiraTraseroSinRef ?? 0);
+      diametromedio =
+        ((mod.diametroExteriorTraseroSinRef ?? 0) + diametrointerior) / 2;
+      curvatura = diametromedio / (mod.diametroEspiraTraseroSinRef ?? 0);
+      K =
+        (((mod.diametroEspiraTraseroSinRef ?? 0) / 1000) ** 4 * 79500, 24) /
+        (8 *
+          (diametromedio / 1000) ** 3 *
+          (mod.numeroEspirasTraseroSinRef ?? 0)) /
+        1000;
+    }
+
     if (
       mod?.detallesMuelles?.['muelleTraseroConRef'] ||
       mod?.detallesMuelles?.['muelleTraseroSinRef']
@@ -2684,6 +3557,32 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
 
+      let maxCortante = 0;
+      let maxCortanteDelantero = 0;
+      let coefSeguridad = 0;
+
+      if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
+        maxCortante =
+          (Math.PI *
+            (((mod.diametroEspiraTraseroRef ?? 0) / 1000) ** 3 *
+              1118.34 *
+              1000000)) /
+          (8 * (diametromedio / 1000));
+        maxCortanteDelantero = maxCortante * 2;
+        coefSeguridad = maxCortanteDelantero / (data.mmaEje2Despues * 9.81);
+      }
+
+      if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
+        maxCortante =
+          (Math.PI *
+            (((mod.diametroEspiraTraseroSinRef ?? 0) / 1000) ** 3 *
+              1118.34 *
+              1000000)) /
+          (8 * (diametromedio / 1000));
+        maxCortanteDelantero = maxCortante * 2;
+        coefSeguridad = maxCortanteDelantero / (data.mmaEje2Despues * 9.81);
+      }
+
       // 9) EMC traseros
       const tablaEMCTraseros = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
@@ -2735,7 +3634,11 @@ export async function buildCalculos(
           // Valores
           new TableRow({
             cantSplit: true,
-            children: ['34623,84', '69247,69', '7,06'].map(
+            children: [
+              maxCortante.toFixed(2).toString() ?? '---',
+              maxCortanteDelantero.toFixed(2).toString() ?? '---',
+              coefSeguridad.toFixed(2).toString() ?? '---',
+            ].map(
               (v, i) =>
                 new TableCell({
                   margins: CELL_MARGINS,
@@ -2758,6 +3661,46 @@ export async function buildCalculos(
       out.push(tablaEMCTraseros);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+
+      let longMinMuelle = 0;
+      let flechaResorte = 0;
+      let cargaMaxQ = 0;
+      let cargaMaxEje1Q = 0;
+      let coefSeguridadK = 0;
+
+      if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
+        longMinMuelle =
+          (mod.numeroEspirasTraseroRef ?? 0) *
+          (mod.diametroEspiraTraseroRef ?? 0);
+        flechaResorte = (mod.longitudLibreTraseroRef ?? 0) - longMinMuelle;
+        cargaMaxQ =
+          ((longMinMuelle / 1000) *
+            79500.24 *
+            1000000 *
+            ((mod.diametroEspiraTraseroRef ?? 0) / 1000) ** 4) /
+          (64 *
+            (mod.numeroEspirasTraseroRef ?? 0) *
+            (diametromedio / 1000 / 2) ** 3);
+        cargaMaxEje1Q = cargaMaxQ * 2;
+        coefSeguridadK = cargaMaxEje1Q / (data.mmaEje2Despues * 9.81);
+      }
+
+      if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
+        longMinMuelle =
+          (mod.numeroEspirasDelanteroSinRef ?? 0) *
+          (mod.diametroEspiraDelanteroSinRef ?? 0);
+        flechaResorte = (mod.longitudLibreDelanteroSinRef ?? 0) - longMinMuelle;
+        cargaMaxQ =
+          ((longMinMuelle / 1000) *
+            79500.24 *
+            1000000 *
+            ((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000) ** 4) /
+          (64 *
+            (mod.numeroEspirasDelanteroSinRef ?? 0) *
+            (diametromedio / 1000 / 2) ** 3);
+        cargaMaxEje1Q = cargaMaxQ * 2;
+        coefSeguridadK = cargaMaxEje1Q / (data.mmaEje2Despues * 9.81);
+      }
 
       // 10) Q traseros
       const tablaQTraseros = new Table({
@@ -2813,11 +3756,11 @@ export async function buildCalculos(
           new TableRow({
             cantSplit: true,
             children: [
-              '152,00',
-              '313,00',
-              '76946,60',
-              '153893,21',
-              '15,69',
+              longMinMuelle.toFixed(2).toString() ?? '---',
+              flechaResorte.toFixed(2).toString() ?? '---',
+              cargaMaxQ.toFixed(2).toString() ?? '---',
+              cargaMaxEje1Q.toFixed(2).toString() ?? '---',
+              coefSeguridadK.toFixed(2).toString() ?? '---',
             ].map(
               (v, i) =>
                 new TableCell({
@@ -2841,6 +3784,29 @@ export async function buildCalculos(
       out.push(tablaQTraseros);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+
+      let fuerzaMaxEjeDelantero = 0;
+      let factorBergstrasserKb = 0;
+      let esfuerzoMuelleT = 0;
+      let coefSeguridadFinalK = 0;
+
+      if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
+        fuerzaMaxEjeDelantero = (data.mmaEje1Despues * 9.81) / 2;
+        factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
+        esfuerzoMuelleT =
+          (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
+          (Math.PI * Math.pow(mod.diametroEspiraTraseroRef ?? 0, 3) ** 3);
+        coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
+      }
+
+      if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
+        fuerzaMaxEjeDelantero = (data.mmaEje1Despues * 9.81) / 2;
+        factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
+        esfuerzoMuelleT =
+          (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
+          (Math.PI * Math.pow(mod.diametroEspiraTraseroSinRef ?? 0, 3) ** 3);
+        coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
+      }
 
       // 11) Esfuerzo traseros
       const tablaEsfuerzoTraseros = new Table({
@@ -2872,7 +3838,12 @@ export async function buildCalculos(
           // Valores
           new TableRow({
             cantSplit: true,
-            children: ['4905,00', '1,33', '210,15', '5,32'].map(
+            children: [
+              fuerzaMaxEjeDelantero.toFixed(2).toString() ?? '---',
+              factorBergstrasserKb.toFixed(2).toString() ?? '---',
+              esfuerzoMuelleT.toFixed(2).toString() ?? '---',
+              coefSeguridadFinalK.toFixed(2).toString() ?? '---',
+            ].map(
               (v, i) =>
                 new TableCell({
                   margins: CELL_MARGINS,
@@ -2955,9 +3926,9 @@ export async function buildCalculos(
             ],
           }),
           ...[
-            ['MTMA/MMA (Kg)', '2000'],
-            ['MTMA/MMA eje 1', '1500'],
-            ['MTMA/MMA eje 2', '1000'],
+            ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
+            ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
+            ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
           ].map(
             ([d, v]) =>
               new TableRow({
@@ -3027,10 +3998,22 @@ export async function buildCalculos(
             ...[
               ['CÁLCULO DE LA BALLESTA EN EL EJE 1:', ' '],
               [' ', ' '],
-              ['Número de hojas N=', '7'],
-              ['Ancho de la hoja b=', '50 mm'],
-              ['Espesor de la hoja e=', '8 mm'],
-              ['Longitud total ballesta 2L=', '800 mm'],
+              [
+                'Número de hojas N=',
+                mod.numHojasBallestaDelantera?.toString() ?? '---',
+              ],
+              [
+                'Ancho de la hoja b=',
+                mod.anchoHojaBallestaDelantera?.toString() ?? '---',
+              ],
+              [
+                'Espesor de la hoja e=',
+                mod.espesorHojaBallestaDelantera?.toString() ?? '---',
+              ],
+              [
+                'Longitud total ballesta 2L=',
+                mod.longitudBallestaDelantera?.toString() ?? '---',
+              ],
               ['Esfuerzo de la flexión σ=', '60 Kg/mm²'],
             ].map(
               ([d, v]) =>
@@ -3057,13 +4040,20 @@ export async function buildCalculos(
         out.push(new Paragraph({ text: '' }));
         out.push(new Paragraph({ text: '' }));
 
+        let f =
+          ((mod.numHojasBallestaDelantera ?? 0) *
+            (mod.anchoHojaBallestaDelantera ?? 0) *
+            (mod.espesorHojaBallestaDelantera ?? 0) ** 2 *
+            60) /
+          ((6 * (mod.longitudBallestaDelantera ?? 0)) / 2);
+
         // 4) Tabla: RESULTADO F = … Kg
         const tablaF = new Table({
           width: { size: 50, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({
               cantSplit: true,
-              children: ['F=', '560', 'Kg'].map(
+              children: ['F=', f.toString() ?? '---', 'Kg'].map(
                 (txt, i) =>
                   new TableCell({
                     margins: CELL_MARGINS,
@@ -3090,13 +4080,15 @@ export async function buildCalculos(
         out.push(tablaF);
         out.push(new Paragraph({ text: '' }));
 
+        let f2 = f * 2;
+
         // 5) Tabla: RESULTADO 2F = … Kg (celdas rellenadas en rojo/verdes según valor)
         const tabla2F = new Table({
           width: { size: 50, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({
               cantSplit: true,
-              children: ['2F=', '1120', 'Kg'].map(
+              children: ['2F=', f2.toString() ?? '---', 'Kg'].map(
                 (txt, i) =>
                   new TableCell({
                     margins: CELL_MARGINS,
@@ -3133,10 +4125,22 @@ export async function buildCalculos(
             ...[
               ['CÁLCULO DE LA BALLESTA EN EL EJE 2:', ' '],
               [' ', ' '],
-              ['Número de hojas N=', '9'],
-              ['Ancho de la hoja b=', '60 mm'],
-              ['Espesor de la hoja e=', '12 mm'],
-              ['Longitud total ballesta 2L=', '750 mm'],
+              [
+                'Número de hojas N=',
+                mod.numHojasBallestaTrasera?.toString() ?? '---',
+              ],
+              [
+                'Ancho de la hoja b=',
+                mod.anchoHojaBallestaTrasera?.toString() ?? '---',
+              ],
+              [
+                'Espesor de la hoja e=',
+                mod.espesorHojaBallestaTrasera?.toString() ?? '---',
+              ],
+              [
+                'Longitud total ballesta 2L=',
+                mod.longitudBallestaTrasera?.toString() ?? '---',
+              ],
               ['Esfuerzo de la flexión σ=', '60 Kg/mm²'],
             ].map(
               ([d, v]) =>
@@ -3163,13 +4167,22 @@ export async function buildCalculos(
         out.push(new Paragraph({ text: '' }));
         out.push(new Paragraph({ text: '' }));
 
+        let f =
+          ((mod.numHojasBallestaTrasera ?? 0) *
+            (mod.anchoHojaBallestaTrasera ?? 0) *
+            (mod.espesorHojaBallestaTrasera ?? 0) ** 2 *
+            60) /
+          ((6 * (mod.longitudBallestaTrasera ?? 0)) / 2);
+
+        let f2 = f * 2;
+
         // 7) Tabla: 2F eje 2
         const tabla2FEje2 = new Table({
           width: { size: 50, type: WidthType.PERCENTAGE },
           rows: [
             new TableRow({
               cantSplit: true,
-              children: ['2F=', '4147,2', 'Kg'].map(
+              children: ['2F=', f.toString() ?? '---', 'Kg'].map(
                 (txt, i) =>
                   new TableCell({
                     margins: CELL_MARGINS,
@@ -3205,7 +4218,7 @@ export async function buildCalculos(
           rows: [
             new TableRow({
               cantSplit: true,
-              children: ['F=', '2073,6', 'Kg'].map(
+              children: ['F=', f2.toString() ?? '---', 'Kg'].map(
                 (txt, i) =>
                   new TableCell({
                     margins: CELL_MARGINS,
@@ -3268,9 +4281,9 @@ export async function buildCalculos(
             ],
           }),
           ...[
-            ['MTMA/MMA (Kg)', '2000'],
-            ['MTMA/MMA eje 1', '1500'],
-            ['MTMA/MMA eje 2', '1000'],
+            ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
+            ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
+            ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
             ['PUNTOS DE APOYO', '2'],
             ['Resistencia a compresión del nylon (Kg/cm²)', '917'],
           ].map(
@@ -3326,6 +4339,8 @@ export async function buildCalculos(
           })
         );
         // 4) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 1
+
+        let resultadoEje1 = data.mmaEje1Despues / 2;
 
         const tablaPesoPorTaco = new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
@@ -3386,7 +4401,9 @@ export async function buildCalculos(
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '= 700' })],
+                      children: [
+                        new TextRun({ text: '= ' + resultadoEje1.toFixed(2) }),
+                      ],
                     }),
                   ],
                 }),
@@ -3397,6 +4414,10 @@ export async function buildCalculos(
 
         out.push(tablaPesoPorTaco);
         out.push(new Paragraph({ text: '' }));
+
+        let radio = (mod.diametroTacoDelantero ?? 0) / 2;
+        let superficie = Math.PI * radio * radio;
+        let resistenciaMaxCompresion = superficie * 917;
 
         // 5) Tabla: DIMENSIONES DEL TACO
         const tablaDimensionesTaco = new Table({
@@ -3420,11 +4441,23 @@ export async function buildCalculos(
               ],
             }),
             ...[
-              ['Diámetro (cm)', '9'],
-              ['Radio (cm)', '4,5'],
-              ['Espesor (cm)', '4,5'],
-              ['Superficie (cm²)', '63,585'],
-              ['Res. Máxima a compresión (Kg)', '58307,445'],
+              [
+                'Diámetro (cm)',
+                (mod.diametroTacoDelantero ?? 0).toString() ?? '---',
+              ],
+              ['Radio (cm)', radio.toString() ?? '---'],
+              [
+                'Espesor (cm)',
+                (mod.espesorTacoDelantero ?? 0).toString() ?? '---',
+              ],
+              [
+                'Superficie (cm²)',
+                (superficie ?? 0).toFixed(2).toString() ?? '---',
+              ],
+              [
+                'Res. Máxima a compresión (Kg)',
+                resistenciaMaxCompresion.toFixed(2).toString() ?? '---',
+              ],
             ].map(
               ([desc, val]) =>
                 new TableRow({
@@ -3463,6 +4496,8 @@ export async function buildCalculos(
         );
 
         out.push(new Paragraph({ text: '' }));
+
+        let resultadoEje2 = data.mmaEje2Despues / 2;
 
         // 6) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 2
         const tablaPesoEje2 = new Table({
@@ -3524,7 +4559,9 @@ export async function buildCalculos(
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '= 500' })],
+                      children: [
+                        new TextRun({ text: '= ' + resultadoEje2.toFixed(2) }),
+                      ],
                     }),
                   ],
                 }),
@@ -3535,6 +4572,10 @@ export async function buildCalculos(
         out.push(tablaPesoEje2);
         out.push(new Paragraph({ text: '' }));
         out.push(new Paragraph({ text: '' }));
+
+        let radio = (mod.diametroTacoTrasero ?? 0) / 2;
+        let superficie = Math.PI * radio * radio;
+        let resistenciaMaxCompresion = superficie * 917;
 
         const tablaDimensionesTacoTrasero = new Table({
           width: { size: 50, type: WidthType.PERCENTAGE },
@@ -3557,11 +4598,20 @@ export async function buildCalculos(
               ],
             }),
             ...[
-              ['Diámetro (cm)', '9'],
-              ['Radio (cm)', '4,5'],
-              ['Espesor (cm)', '4,5'],
-              ['Superficie (cm²)', '63,585'],
-              ['Res. Máxima a compresión (Kg)', '58307,445'],
+              [
+                'Diámetro (cm)',
+                (mod.diametroTacoTrasero ?? 0).toString() ?? '---',
+              ],
+              ['Radio (cm)', radio.toString() ?? '---'],
+              [
+                'Espesor (cm)',
+                (mod.espesorTacoTrasero ?? 0).toString() ?? '---',
+              ],
+              ['Superficie (cm²)', superficie.toString() ?? '---'],
+              [
+                'Res. Máxima a compresión (Kg)',
+                resistenciaMaxCompresion.toString() ?? '---',
+              ],
             ].map(
               ([desc, val]) =>
                 new TableRow({

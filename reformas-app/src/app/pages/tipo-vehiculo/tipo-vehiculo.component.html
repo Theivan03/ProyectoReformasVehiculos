@@ -41,17 +41,17 @@
         @if (mod.nombre.includes('MUELLES') && mod.seleccionado) {
         <div class="mt-2 ms-4">
           <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detallesMuellesOpciones; track item; let idx = $index) {
+          @for (item of detallesMuellesOpciones; track item; let i = $index) {
           <div class="form-check">
             <input
               type="checkbox"
               class="form-check-input"
               [(ngModel)]="mod.detallesMuelles![item.key]"
-              (ngModelChange)="actualizarError(idx, mod)"
-              id="detalle-muelle-{{ idx }}"
-              name="detalle-muelle-{{ idx }}"
+              (ngModelChange)="actualizarError(i, mod)"
+              id="detalle-muelle-{{ i }}"
+              name="detalle-muelle-{{ i }}"
             />
-            <label class="form-check-label" for="detalle-muelle-{{ idx }}">
+            <label class="form-check-label" for="detalle-muelle-{{ i }}">
               {{ item.label }}
             </label>
           </div>
@@ -393,6 +393,7 @@
               type="checkbox"
               class="form-check-input"
               [(ngModel)]="mod.opcionesMueble.muebleBajo"
+              (ngModelChange)="actualizarError(i, mod)"
               id="muebleBajo{{ i }}"
             />
             <label class="form-check-label" for="muebleBajo{{ i }}"
@@ -404,6 +405,7 @@
               type="checkbox"
               class="form-check-input"
               [(ngModel)]="mod.opcionesMueble.muebleAlto"
+              (ngModelChange)="actualizarError(i, mod)"
               id="muebleAlto{{ i }}"
             />
             <label class="form-check-label" for="muebleAlto{{ i }}"
@@ -415,6 +417,7 @@
               type="checkbox"
               class="form-check-input"
               [(ngModel)]="mod.opcionesMueble.aseo"
+              (ngModelChange)="actualizarError(i, mod)"
               id="aseo{{ i }}"
             />
             <label class="form-check-label" for="aseo{{ i }}">Aseo</label>

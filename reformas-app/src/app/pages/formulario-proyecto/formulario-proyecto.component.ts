@@ -107,6 +107,12 @@ export class FormularioProyectoComponent implements OnChanges {
     distanciaEntreEjes: 10,
     ocupantesAdicionales: 11,
     modificaciones: [],
+    cdgconductor: 0,
+    cdgocdelant: 0,
+    cdgocu2: 0,
+    cdgocu3: 0,
+    cdgcargautil: 0,
+    cdgcargavert: 0,
   };
 
   año: string = '';
@@ -183,7 +189,6 @@ export class FormularioProyectoComponent implements OnChanges {
       )
       .subscribe({
         next: (data) => {
-          console.log(data);
           this.año = data.año;
           this.datos.numeroProyecto = data.siguiente;
           this.generarReferencia(data.año);
@@ -270,7 +275,6 @@ export class FormularioProyectoComponent implements OnChanges {
   }
 
   generarReferencia(año: any): void {
-    console.log('🧠 generando referencia con año:', año);
     const añoCorto = año.toString().slice(-2);
     this.datos.referenciaProyecto = `PTRV ${this.datos.numeroProyecto}/${añoCorto}`;
     this.datos.referenciaCFO = `CFO ${this.datos.numeroProyecto}/${añoCorto}`;

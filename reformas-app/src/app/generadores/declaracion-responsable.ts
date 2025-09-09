@@ -4,8 +4,6 @@ import { saveAs } from 'file-saver';
 import ingenieroJson from '../../assets/ingeniero.json';
 
 export async function generarDocumentoResponsable(data: any): Promise<void> {
-  console.log('🏗️  Llamando a generarDocumentoResponsable con:', data);
-
   // 1) Carga la plantilla .docx como ArrayBuffer
   const arrayBuffer = await fetch('/assets/template_fixed.docx').then((r) =>
     r.arrayBuffer()
@@ -86,7 +84,6 @@ export async function generarDocumentoResponsable(data: any): Promise<void> {
     console.error('Error al renderizar plantilla:', error);
     throw error;
   }
-  console.log('DATOS INYECTADOS EN LA PLANTILLA:', templateData);
 
   // 9) Genera el blob y fuerza descarga
   const outBlob = doc.getZip().generate({

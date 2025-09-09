@@ -48,7 +48,6 @@ export class GestionarTallerComponent {
     const taller = this.talleres.find(
       (t) => t.nombre === this.tallerSeleccionadoNombre
     );
-    console.log('Taller cargado:', taller); // ✅ Verifica que sea el taller completo
 
     if (taller) {
       this.formularioTaller = { ...taller };
