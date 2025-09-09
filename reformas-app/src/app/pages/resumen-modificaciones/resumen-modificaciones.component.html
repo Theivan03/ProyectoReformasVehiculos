@@ -372,6 +372,76 @@
               </div>
             </div>
 
+            <div class="col-12 col-md-6">
+              <label class="form-label d-block mb-1">Tipo de acción</label>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-instalacion-{{ i }}"
+                  value="Instalacion"
+                  [(ngModel)]="mod.acciones"
+                  name="accionInstalacion{{ i }}"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="
+                    toggleAccion(mod, 'Instalacion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-instalacion-{{ i }}"
+                >
+                  Instalación
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-sustitucion-{{ i }}"
+                  value="Sustitucion"
+                  [(ngModel)]="mod.acciones"
+                  name="accionSustitucion{{ i }}"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="
+                    toggleAccion(mod, 'Sustitucion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-sustitucion-{{ i }}"
+                >
+                  Sustitución
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-desmontaje-{{ i }}"
+                  value="Desmontaje"
+                  [(ngModel)]="mod.acciones"
+                  name="accionDesmontaje{{ i }}"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="
+                    toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                  "
+                />
+                <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+                  Desmontaje
+                </label>
+              </div>
+
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="
+                  formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+                "
+              >
+                Debe seleccionar al menos una acción.
+              </div>
+            </div>
+
             <!-- Marca -->
             <div class="col-12 col-md-6">
               <div class="form-floating">

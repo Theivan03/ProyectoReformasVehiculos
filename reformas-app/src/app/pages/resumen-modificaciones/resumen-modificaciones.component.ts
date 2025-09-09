@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -12,10 +13,10 @@ import { FormsModule, NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-resumen-modificaciones',
-  imports: [FormsModule],
   standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './resumen-modificaciones.component.html',
-  styleUrl: './resumen-modificaciones.component.css',
+  styleUrls: ['./resumen-modificaciones.component.css'],
 })
 export class ResumenModificacionesComponent implements OnInit, OnChanges {
   @Input() datosEntrada: any = {};
@@ -156,6 +157,19 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   getTornilloSeleccionado(diametro: number | null) {
     if (!diametro) return null;
     return this.tornillosDB.find((t) => t.diametro === diametro) || null;
+  }
+
+  toggleAccion(mod: any, accion: string, checked: boolean) {
+    if (!Array.isArray(mod.acciones)) {
+      mod.acciones = [];
+    }
+    if (checked) {
+      if (!mod.acciones.includes(accion)) {
+        mod.acciones.push(accion);
+      }
+    } else {
+      mod.acciones = mod.acciones.filter((a: string) => a !== accion);
+    }
   }
 
   ngOnInit(): void {
