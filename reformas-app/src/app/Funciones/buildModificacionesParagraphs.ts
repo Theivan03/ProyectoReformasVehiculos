@@ -16,7 +16,7 @@ export function buildModificacionesParagraphs(
   data: any
 ): Paragraph[] {
   const out: Paragraph[] = [];
-  let mod;
+  let mod: Modificacion;
   let raw;
 
   //
@@ -28,20 +28,24 @@ export function buildModificacionesParagraphs(
       m.seleccionado
   );
   if (remolquenohomologado) {
-    raw = `- ${remolquenohomologado.accion} de enganche de remolque homologado en emplazamiento no homologado, consistente en: soporte marca ${remolquenohomologado.marca}, tipo ${remolquenohomologado.tipo}, clase ${remolquenohomologado.clase}, contraseña de homologación ${remolquenohomologado.homologacion}, para una MMR en remolques de eje central ${remolquenohomologado.mmrEjeCentral} kg y de barra de tracción ${remolquenohomologado.mmrBarraTraccion} kg.`;
+    (remolquenohomologado.acciones || []).forEach((accion: string) => {
+      const raw = `- ${accion} de enganche de remolque homologado en emplazamiento no homologado, consistente en: soporte marca ${remolquenohomologado.marca}, tipo ${remolquenohomologado.tipo}, clase ${remolquenohomologado.clase}, contraseña de homologación ${remolquenohomologado.homologacion}, para una MMR en remolques de eje central ${remolquenohomologado.mmrEjeCentral} kg y de barra de tracción ${remolquenohomologado.mmrBarraTraccion} kg.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      // Guardar también el texto plano para futuras referencias
+      (p as any)._rawText = raw;
+
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
   // 2) REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO
-  //REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO
   //
   const remolquehomologado = modificaciones.find(
     (m) =>
@@ -49,15 +53,18 @@ export function buildModificacionesParagraphs(
       m.seleccionado
   );
   if (remolquehomologado) {
-    raw = `- ${remolquehomologado.accion} de enganche de remolque homologado en emplazamiento no homologado, consistente en: soporte marca ${remolquehomologado.marcaBarra}, tipo ${remolquehomologado.tipoBarra}, clase ${remolquehomologado.tipoBarra}, contraseña de homologación ${remolquehomologado.tipoBarra}, para una MMR en remolques de eje central ${remolquehomologado.mmrEjeCentral}kg y de barra de tracción ${remolquehomologado.mmrBarraTraccion}kg.`;
+    (remolquehomologado.acciones || []).forEach((accion: string) => {
+      const raw = `- ${accion} de enganche de remolque homologado en emplazamiento también homologado, consistente en: soporte marca ${remolquehomologado.marcaBarra}, tipo ${remolquehomologado.tipoBarra}, clase ${remolquehomologado.tipoBarra}, contraseña de homologación ${remolquehomologado.tipoBarra}, para una MMR en remolques de eje central ${remolquehomologado.mmrEjeCentral} kg y de barra de tracción ${remolquehomologado.mmrBarraTraccion} kg.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -67,15 +74,18 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'REDUCCIÓN DE PLAZAS' && m.seleccionado
   );
   if (reduccionplazas) {
-    raw = `- Reducción de plazas de asiento pasando de ${reduccionplazas.plazasAntes} a ${reduccionplazas.plazasDespues} mediante la desinstalación del cinturón de seguridad y el anclaje de la plaza ${reduccionplazas.enclaje}.`;
+    (reduccionplazas.acciones || []).forEach((accion: string) => {
+      const raw = `- ${accion} de plazas de asiento pasando de ${reduccionplazas.plazasAntes} a ${reduccionplazas.plazasDespues} mediante la desinstalación del cinturón de seguridad y el anclaje de la plaza ${reduccionplazas.enclaje}.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
 
     out.push(
       new Paragraph({
@@ -97,15 +107,18 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'NEUMÁTICOS' && m.seleccionado
   );
   if (neumaticos) {
-    raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${data.neumaticoDespues}, montados sobre llantas de medidas ${neumaticos.medidas}”, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
+    neumaticos.acciones?.forEach((accion: string) => {
+      const raw = `- ${accion} de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${data.neumaticoDespues}, montados sobre llantas de medidas ${neumaticos.medidas}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
 
     if (neumaticos.anotacion1) {
       out.push(
@@ -149,15 +162,18 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'SEPARADORES DE RUEDA' && m.seleccionado
   );
   if (separadoresruedas) {
-    raw = `- ${separadoresruedas.accion} de separadores de rueda en eje trasero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores} de espesor fabricados en duraluminio, asegurando la no interferencia entre la rueda y ningún punto de la carrocería.`;
+    separadoresruedas.acciones?.forEach((accion: string) => {
+      const raw = `- ${accion} de separadores de rueda en eje trasero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores} de espesor fabricados en duraluminio, asegurando la no interferencia entre la rueda y ningún punto de la carrocería.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -170,47 +186,51 @@ export function buildModificacionesParagraphs(
       m.detalle?.aletines
   );
   if (aletines) {
-    raw = `- ${aletines.accion} de los aletines originales por otros, marca ${
-      modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
-        .marcaAletines
-    }, referencia ${
-      modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
-        .referenciaAletines
-    }, de material plástico ABS y ancho de ${
-      modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
-        .anchoAletines
-    } mm. Se asegura la no interferencia entre el neumático y ningún punto de la carrocería.`;
+    (aletines.acciones || []).forEach((accion: string) => {
+      const raw = `- ${accion} de los aletines originales por otros, marca ${
+        modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
+          .marcaAletines
+      }, referencia ${
+        modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
+          .referenciaAletines
+      }, de material plástico ABS y ancho de ${
+        modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
+          .anchoAletines
+      } mm. Se asegura la no interferencia entre el neumático y ningún punto de la carrocería.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   const sobrealetines = modificaciones.find(
     (m) =>
       m.nombre === 'ALETINES Y SOBREALETINES' &&
       m.seleccionado &&
-      m.detalle?.aletines
+      m.detalle?.sobrealetines
   );
   if (sobrealetines) {
-    raw = `- ${
-      sobrealetines.accion
-    } de sobrealetines en los cuatro pasos de rueda fabricados en goma de forma artesanal de ${
-      modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
-        .anchoSobrealetines
-    } mm de ancho, asegurando la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+    (sobrealetines.acciones || []).forEach((accion: string) => {
+      const raw = `- ${accion} de sobrealetines en los cuatro pasos de rueda fabricados en goma de forma artesanal de ${
+        modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
+          .anchoSobrealetines
+      } mm de ancho, asegurando la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -220,15 +240,18 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'SNORKEL' && m.seleccionado && m.detalle?.aletines
   );
   if (snorkel) {
-    raw = `- ${snorkel.accion} de Snorkel fabricado en material ${snorkel.materialSnorkel}, de marca ${snorkel.marcaSnorkel}, con medidas ${snorkel.medidasSnorkel}, garantizando que se respeta la admisión original del vehículo y que los nuevos conductos tienen una sección superior a la del filtro de admisión original.`;
+    snorkel.acciones?.forEach((accion: string) => {
+      const raw = `- ${accion} de Snorkel fabricado en material ${snorkel.materialSnorkel}, de marca ${snorkel.marcaSnorkel}, con medidas ${snorkel.medidasSnorkel}, garantizando que se respeta la admisión original del vehículo y que los nuevos conductos tienen una sección superior a la del filtro de admisión original.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -241,20 +264,23 @@ export function buildModificacionesParagraphs(
       m.detalle?.aletines
   );
   if (paradelante) {
-    const fraseParagolpesDelantero =
-      paradelante.tipoFabricacionParagolpesDelantero === 'comercial'
-        ? `${paradelante.accion} de paragolpes delantero marca ${paradelante.marcaParagolpes}, referencia ${paradelante.referenciaParagolpes} de medidas ${paradelante.medidasParagolpesDelantero} mm.`
-        : `${paradelante.accion} de paragolpes delantero fabricado en acero de forma artesanal de medidas ${paradelante.medidasParagolpesDelantero} mm.`;
+    paradelante.acciones?.forEach((accion: string) => {
+      const fraseParagolpesDelantero =
+        paradelante.tipoFabricacionParagolpesDelantero === 'comercial'
+          ? `${accion} de paragolpes delantero marca ${paradelante.marcaParagolpes}, referencia ${paradelante.referenciaParagolpes} de medidas ${paradelante.medidasParagolpesDelantero} mm.`
+          : `${accion} de paragolpes delantero fabricado en acero de forma artesanal de medidas ${paradelante.medidasParagolpesDelantero} mm.`;
 
-    raw = `- ${fraseParagolpesDelantero}`;
+      const raw = `- ${fraseParagolpesDelantero}`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -265,20 +291,23 @@ export function buildModificacionesParagraphs(
       m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado && m.detalle?.aletines
   );
   if (paratras) {
-    const fraseParagolpesTrasero =
-      paratras.tipoFabricacionParagolpesTrasero === 'comercial'
-        ? `${paratras.accion} de paragolpes trasero marca ${paratras.marcaParagolpesTrasero}, referencia ${paratras.referenciaParagolpesTrasero} de medidas ${paratras.medidasParagolpesTrasero} mm.`
-        : `${paratras.accion} de paragolpes trasero fabricado en acero de forma artesanal de medidas ${paratras.medidasParagolpesTrasero} mm.`;
+    paratras.acciones?.forEach((accion: string) => {
+      const fraseParagolpesTrasero =
+        paratras.tipoFabricacionParagolpesTrasero === 'comercial'
+          ? `${accion} de paragolpes trasero marca ${paratras.marcaParagolpesTrasero}, referencia ${paratras.referenciaParagolpesTrasero} de medidas ${paratras.medidasParagolpesTrasero} mm.`
+          : `${accion} de paragolpes trasero fabricado en acero de forma artesanal de medidas ${paratras.medidasParagolpesTrasero} mm.`;
 
-    raw = `- ${fraseParagolpesTrasero}`;
+      const raw = `- ${fraseParagolpesTrasero}`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -288,15 +317,18 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'CABRESTANTE' && m.seleccionado && m.detalle?.aletines
   );
   if (cabrestante) {
-    raw = `- ${cabrestante.accion} de cabrestante en la parte delantera del vehículo con marca ${cabrestante.marcaCabrestante}, con carga vertical de ${cabrestante.capacidadCabrestanteLb} LB (${cabrestante.capacidadCabrestanteKg} Kg). Este dispositivo solamente puede funcionar en estacionario mediante relé.`;
+    cabrestante.acciones?.forEach((accion: string) => {
+      const raw = `- ${accion} de cabrestante en la parte delantera del vehículo con marca ${cabrestante.marcaCabrestante}, con carga vertical de ${cabrestante.capacidadCabrestanteLb} LB (${cabrestante.capacidadCabrestanteKg} Kg). Este dispositivo solamente puede funcionar en estacionario mediante relé.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -307,15 +339,18 @@ export function buildModificacionesParagraphs(
       m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado && m.detalle?.aletines
   );
   if (antiempotramiento) {
-    raw = `- ${antiempotramiento.accion} de barra trasera de antiempotramiento, fabricada en acero de forma artesanal de medidas ${antiempotramiento.medidasAntiempotramiento} mm, ubicada bajo paragolpes posterior.`;
+    antiempotramiento.acciones?.forEach((accion: string) => {
+      const raw = `- ${accion} de barra trasera de antiempotramiento, fabricada en acero de forma artesanal de medidas ${antiempotramiento.medidasAntiempotramiento} mm, ubicada bajo paragolpes posterior.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -328,15 +363,18 @@ export function buildModificacionesParagraphs(
       m.detalle?.aletines
   );
   if (soporteslucesespecificas) {
-    raw = `- ${soporteslucesespecificas.accion} de soporte para luces de uso específico en condiciones reglamentarias ${soporteslucesespecificas.ubicacionLucesEspecificas}, fabricado en acero de medidas ${soporteslucesespecificas.medidasLucesEspecificas} mm.`;
+    soporteslucesespecificas.acciones?.forEach((accion: string) => {
+      const raw = `- ${accion} de soporte para luces de uso específico en condiciones reglamentarias ${soporteslucesespecificas.ubicacionLucesEspecificas}, fabricado en acero de medidas ${soporteslucesespecificas.medidasLucesEspecificas} mm.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -349,20 +387,23 @@ export function buildModificacionesParagraphs(
       m.detalle?.aletines
   );
   if (soportesruedarepuesto) {
-    const textoRueda =
-      soportesruedarepuesto.tipoFabricacionRuedaRepuesto === 'comercial'
-        ? `${soportesruedarepuesto.accion} de soporte para rueda de repuesto marca ${soportesruedarepuesto.marcaRuedaRepuesto}, referencia ${soportesruedarepuesto.referenciaRuedaRepuesto} de medidas ${soportesruedarepuesto.medidasRuedaRepuesto} mm.`
-        : `${soportesruedarepuesto.accion} de soporte para rueda de repuesto fabricado en acero de forma artesanal de medidas ${soportesruedarepuesto.medidasRuedaRepuesto} mm.`;
+    soportesruedarepuesto.acciones?.forEach((accion: string) => {
+      const textoRueda =
+        soportesruedarepuesto.tipoFabricacionRuedaRepuesto === 'comercial'
+          ? `${accion} de soporte para rueda de repuesto marca ${soportesruedarepuesto.marcaRuedaRepuesto}, referencia ${soportesruedarepuesto.referenciaRuedaRepuesto} de medidas ${soportesruedarepuesto.medidasRuedaRepuesto} mm.`
+          : `${accion} de soporte para rueda de repuesto fabricado en acero de forma artesanal de medidas ${soportesruedarepuesto.medidasRuedaRepuesto} mm.`;
 
-    raw = `- ${textoRueda}`;
+      const raw = `- ${textoRueda}`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -372,15 +413,18 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'SUSPENSIÓN' && m.seleccionado && m.detalle?.aletines
   );
   if (suspension) {
-    raw = `- Modificación del sistema de suspensión del vehículo instalando: ${suspension.descripcionSuspensionDelantera}.`;
+    suspension.acciones?.forEach((accion: string) => {
+      const raw = `- ${accion} del sistema de suspensión del vehículo instalando: ${suspension.descripcionSuspensionDelantera}.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   //
@@ -655,14 +699,6 @@ export function buildModificacionesParagraphs(
         marcas.join(' y ') +
         `, compuestos por:`;
 
-      // const p = new Paragraph({
-      //   spacing: { line: 260, after: 120 },
-      //   indent: { left: 400 },
-      //   children: [new TextRun({ text: raw })],
-      // });
-      // (p as any)._rawText = raw;
-      // out.push(p);
-
       pushCasuistica(
         out,
         new Paragraph({
@@ -680,14 +716,6 @@ export function buildModificacionesParagraphs(
           `${mod.diametroTacoDelantero} mm Ø y ` +
           `${mod.espesorTacoDelantero} mm de espesor ` +
           `instalado en cada muelle delantero, marca ${mod.marcaKitElevacionDelantera}.`;
-
-        // const p = new Paragraph({
-        //   spacing: { line: 260, after: 120 },
-        //   indent: { left: 400 },
-        //   children: [new TextRun({ text: raw })],
-        // });
-        // (p as any)._rawText = raw;
-        // out.push(p);
 
         pushCasuistica(
           out,
@@ -712,14 +740,6 @@ export function buildModificacionesParagraphs(
           `${mod.diametroTacoTrasero} x ${mod.espesorTacoTrasero} mm de espesor ` +
           `sobre ballesta trasera, marca ${mod.marcaKitElevacionTrasera}.`;
 
-        // const p = new Paragraph({
-        //   spacing: { line: 260, after: 120 },
-        //   indent: { left: 400 },
-        //   children: [new TextRun({ text: raw })],
-        // });
-        // (p as any)._rawText = raw;
-        // out.push(p);
-
         pushCasuistica(
           out,
           new Paragraph({
@@ -735,13 +755,6 @@ export function buildModificacionesParagraphs(
     // 8) Nota final
     if (mod.anotacion) {
       raw = `Estos dispositivos no modifican las condiciones técnicas de dirección. Se asegura la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
-
-      // const p = new Paragraph({
-      //   spacing: { line: 260, after: 120 },
-      //   children: [new TextRun({ text: raw })],
-      // });
-      // (p as any)._rawText = raw;
-      // out.push(p);
 
       pushCasuistica(
         out,
@@ -764,30 +777,27 @@ export function buildModificacionesParagraphs(
 
   // 1) Instalación
   if (mod) {
-    if (
-      mod.detalle?.instalacionPorta &&
-      mod.fabricacionPorta1 === 'artesanal'
-    ) {
-      raw = `- ${mod.accion} de portamatrículas ${mod.ubicacionPorta1} en el lado ${mod.ladoPorta1} fabricado en ${mod.materialPorta1} de forma artesanal.`;
+    mod.acciones?.forEach((accion: string) => {
+      let raw: string;
+
+      if (
+        mod.detalle?.instalacionPorta &&
+        mod.fabricacionPorta1 === 'artesanal'
+      ) {
+        raw = `- ${accion} de portamatrículas ${mod.ubicacionPorta1} en el lado ${mod.ladoPorta1} fabricado en ${mod.materialPorta1} de forma artesanal.`;
+      } else {
+        raw = `- ${accion} de portamatrículas ${mod.ubicacionPorta1} en el lado ${mod.ladoPorta1} fabricado en ${mod.materialPorta1} de la marca ${mod.marcaPorta1} y referencia ${mod.referenciaPorta1}.`;
+      }
 
       const p = new Paragraph({
         spacing: { line: 260, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
-      (p as any)._rawText = raw;
-      out.push(p);
-    } else {
-      raw = `- ${mod.accion} de portamatrículas ${mod.ubicacionPorta1} en el lado ${mod.ladoPorta1} fabricado en ${mod.materialPorta1} de la marca ${mod.marcaPorta1} y referencia ${mod.referenciaPorta1}.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
       (p as any)._rawText = raw;
       out.push(p);
-    }
+    });
 
     // 2) Reubicación
     if (mod.detalle?.reubicacionTrasera) {
@@ -825,20 +835,25 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'DEFENSA DELANTERA' && m.seleccionado
   );
   if (defensadelantera) {
-    raw =
-      `- ${defensadelantera.accion} de defensa integral delantera ${defensadelantera.marcaDefensa}` +
-      (defensadelantera.modeloDefensa
-        ? ` modelo ${defensadelantera.modeloDefensa}`
-        : '') +
-      `, fabricada con tubo de ${defensadelantera.grosorTuboDefensa} mm de acero inoxidable de dimensiones ${defensadelantera.medidasDefensa} mm.`;
+    if (Array.isArray(defensadelantera.acciones)) {
+      defensadelantera.acciones.forEach((accion: string) => {
+        const raw =
+          `- ${accion} de defensa integral delantera ${defensadelantera.marcaDefensa}` +
+          (defensadelantera.modeloDefensa
+            ? ` modelo ${defensadelantera.modeloDefensa}`
+            : '') +
+          `, fabricada con tubo de ${defensadelantera.grosorTuboDefensa} mm de acero inoxidable de dimensiones ${defensadelantera.medidasDefensa} mm.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -871,18 +886,23 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'BARRA DE DIRECCIÓN' && m.seleccionado
   );
   if (barradireeccion) {
-    raw =
-      `- ${barradireeccion.accion} de barra de dirección reforzada, marca ${barradireeccion.marcaBarraDireccion}. ` +
-      `Esta barra es una sustitución de la original, está anclada sobre anclajes originales, ` +
-      `tiene un diámetro superior al de origen y es de material más resistente.`;
+    if (Array.isArray(barradireeccion.acciones)) {
+      barradireeccion.acciones.forEach((accion: string) => {
+        const raw =
+          `- ${accion} de barra de dirección reforzada, marca ${barradireeccion.marcaBarraDireccion}. ` +
+          `Esta barra es una sustitución de la original, está anclada sobre anclajes originales, ` +
+          `tiene un diámetro superior al de origen y es de material más resistente.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -895,15 +915,20 @@ export function buildModificacionesParagraphs(
       m.seleccionado
   );
   if (barraalineamiento) {
-    raw = `- ${barraalineamiento.accion} de barra para regular la convergencia de ambas ruedas delanteras al mismo valor regulable y reforzada, marca ${barraalineamiento.marcaConvergencia}. Esta barra es una sustitución de la original, está anclada sobre anclajes originales, tiene un diámetro superior a la de origen, es de material más resistente.`;
+    if (Array.isArray(barraalineamiento.acciones)) {
+      barraalineamiento.acciones.forEach((accion: string) => {
+        const raw = `- ${accion} de barra para regular la convergencia de ambas ruedas delanteras al mismo valor regulable y reforzada, marca ${barraalineamiento.marcaConvergencia}. Esta barra es una sustitución de la original, está anclada sobre anclajes originales, tiene un diámetro superior a la de origen, es de material más resistente.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -916,16 +941,25 @@ export function buildModificacionesParagraphs(
       m.seleccionado
   );
   if (barramovimientolateral) {
-    const regulable = mod.regulable === true ? 'regulable' : 'no regulable';
-    raw = `- ${barramovimientolateral.accion} de barra de Panhard ${regulable} marca ${barramovimientolateral.marcaConvergenciaReg} referencia ${barramovimientolateral.referenciaConvergenciaReg}. Esta barra es una sustitución de la original, está anclada sobre anclajes originales, tiene un diámetro superior a la de origen, es de material más resistente.`;
+    if (Array.isArray(barramovimientolateral.acciones)) {
+      const regulable =
+        barramovimientolateral.regulable === true
+          ? 'regulable'
+          : 'no regulable';
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+      barramovimientolateral.acciones.forEach((accion: string) => {
+        const raw = `- ${accion} de barra de Panhard ${regulable} marca ${barramovimientolateral.marcaConvergenciaReg} referencia ${barramovimientolateral.referenciaConvergenciaReg}. Esta barra es una sustitución de la original, está anclada sobre anclajes originales, tiene un diámetro superior a la de origen, es de material más resistente.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -979,16 +1013,20 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'LUCES DE LARGO ALCANCE' && m.seleccionado
   );
   if (luzdelargo) {
-    raw = `- ${luzdelargo.accion} de luces de largo alcance marca ${luzdelargo.marca} ref. ${luzdelargo.referencia} con marcaje ${luzdelargo.marcaje} y contraseña de homologación ${luzdelargo.homologacion}, índice de referencia ${luzdelargo.indiceReferencia} pdl/ud sin superar los 100 puntos de luz ni 430000 candelas, conectados al mando original.`;
+    if (Array.isArray(luzdelargo.acciones)) {
+      luzdelargo.acciones.forEach((accion: string) => {
+        const raw = `- ${accion} de luces de largo alcance marca ${luzdelargo.marca} ref. ${luzdelargo.referencia} con marcaje ${luzdelargo.marcaje} y contraseña de homologación ${luzdelargo.homologacion}, índice de referencia ${luzdelargo.indiceReferencia} pdl/ud sin superar los 100 puntos de luz ni 430000 candelas, conectados al mando original.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
 
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -998,17 +1036,22 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'LUZ DE POSICIÓN' && m.seleccionado
   );
   if (luzdeposicion) {
-    const esLed = luzdeposicion?.esLedPosicion ? 'LED' : 'tradicional';
-    raw = `- ${luzdeposicion.accion} de luz de posición con sistema ${esLed} marca ${luzdeposicion.marcaPosicion} con marcaje ${luzdeposicion.marcajePosicion} y contraseña de homologación ${luzdeposicion.homologacionPosicion}, accionada desde los mandos originales.`;
+    if (Array.isArray(luzdeposicion?.acciones)) {
+      const esLed = luzdeposicion?.esLedPosicion ? 'LED' : 'tradicional';
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
+      luzdeposicion.acciones.forEach((accion: string) => {
+        const raw = `- ${accion} de luz de posición con sistema ${esLed} marca ${luzdeposicion.marcaPosicion} con marcaje ${luzdeposicion.marcajePosicion} y contraseña de homologación ${luzdeposicion.homologacionPosicion}, accionada desde los mandos originales.`;
 
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -1041,16 +1084,20 @@ export function buildModificacionesParagraphs(
     if (luzdiurna.esLed) {
       led = 'led';
     }
-    raw = `- ${luzdiurna.accion} de luces diurnas ${led} marca ${luzdiurna.marcaDiurnas} con contraseña de homologación ${luzdiurna.homologacionDiurnas}.`;
+    if (Array.isArray(luzdiurna?.acciones)) {
+      luzdiurna.acciones.forEach((accion: string) => {
+        const raw = `- ${accion} de luces diurnas ${led} marca ${luzdiurna.marcaDiurnas} con contraseña de homologación ${luzdiurna.homologacionDiurnas}.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
 
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -1060,16 +1107,20 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'ANTINIEBLA' && m.seleccionado
   );
   if (luzantiniebla) {
-    raw = `- ${luzantiniebla.accion} de luces antiniebla marca ${luzantiniebla.marcaAntiniebla} con contraseña de homologación ${luzantiniebla.homologacionAntiniebla}.`;
+    if (Array.isArray(luzantiniebla?.acciones)) {
+      luzantiniebla.acciones.forEach((accion: string) => {
+        const raw = `- ${accion} de luces antiniebla marca ${luzantiniebla.marcaAntiniebla} con contraseña de homologación ${luzantiniebla.homologacionAntiniebla}.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
 
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -1219,15 +1270,20 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado
   );
   if (estribostaloneras) {
-    raw = `- ${estribostaloneras.accion} de ${estribostaloneras.detalle?.estribosotaloneras} laterales marca ${estribostaloneras.marcataloneras} fabricados en ${estribostaloneras.materialEstribos}, de dimensiones ${estribostaloneras.dimensionesTaloneras}mm.`;
+    if (Array.isArray(estribostaloneras?.acciones)) {
+      estribostaloneras.acciones.forEach((accion: string) => {
+        const raw = `- ${accion} de ${estribostaloneras.detalle?.estribosotaloneras} laterales marca ${estribostaloneras.marcataloneras} fabricados en ${estribostaloneras.materialEstribos}, de dimensiones ${estribostaloneras.dimensionesTaloneras} mm.`;
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -1276,37 +1332,52 @@ export function buildModificacionesParagraphs(
   );
   if (llantas) {
     if (llantas.neumaticosMoto === 'delantero') {
-      raw = `- ${llantas.accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      if (Array.isArray(llantas?.acciones)) {
+        llantas.acciones.forEach((accion: string) => {
+          const raw = `- ${accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+          const p = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            indent: { left: 400 },
+            children: [new TextRun({ text: raw })],
+          });
+
+          (p as any)._rawText = raw;
+          out.push(p);
+        });
+      }
     }
     if (llantas.neumaticosMoto === 'trasero') {
-      raw = `- ${llantas.accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      if (Array.isArray(llantas?.acciones)) {
+        llantas.acciones.forEach((accion: string) => {
+          const raw = `- ${accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+          const p = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            indent: { left: 400 },
+            children: [new TextRun({ text: raw })],
+          });
+
+          (p as any)._rawText = raw;
+          out.push(p);
+        });
+      }
     }
     if (llantas.neumaticosMoto === 'delantero y trasero') {
-      raw = `- ${llantas.accion} de neumáticos ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantas} en la parte de delantera y en la parte trasera ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      if (Array.isArray(llantas?.acciones)) {
+        llantas.acciones.forEach((accion: string) => {
+          const raw = `- ${accion} de neumáticos ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantas} en la parte delantera y en la parte trasera ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+          const p = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            indent: { left: 400 },
+            children: [new TextRun({ text: raw })],
+          });
+
+          (p as any)._rawText = raw;
+          out.push(p);
+        });
+      }
     }
   }
 
@@ -2126,11 +2197,11 @@ export function generarDocumentoProyectoParagraphs(
   // Clasificación base
   let montajesBase = all.filter(
     (p) =>
-      !['Variación', 'Sustitución', 'Desmontaje', '', ' '].includes(first(p))
+      !['Variación', 'Sustitucion', 'Desmontaje', '', ' '].includes(first(p))
   );
   let desmontajesBase = all.filter((p) => first(p) === 'Desmontaje');
   let variacionesBase = all.filter((p) =>
-    ['Variación', 'Sustitución'].includes(first(p))
+    ['Variación', 'Sustitucion'].includes(first(p))
   );
 
   // Párrafos de casuística (solo existen cuando la principal y la subopción están seleccionadas)

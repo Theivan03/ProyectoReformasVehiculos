@@ -47,26 +47,28 @@ export class GeneradorDocumentosComponent implements OnInit {
           // 2) Descargar .docx
           saveAs(blobDocx, `${nombreBase}.docx`);
 
-          // 3) Enviar al servidor para convertir a PDF
-          // const formData = new FormData();
-          // formData.append('doc', blobDocx, `${nombreBase}.docx`);
+          // 3) Enviar al servidor para convertir a PDF (dejado comentado)
+          /*
+          const formData = new FormData();
+          formData.append('doc', blobDocx, `${nombreBase}.docx`);
 
-          // this.http
-          //   .post('http://192.168.1.41:3000/convertir-docx-a-pdf', formData, {
-          //     responseType: 'blob',
-          //   })
-          //   .subscribe({
-          //     next: (blobPdf: Blob) => {
-          //       // 4) Descargar PDF
-          //       saveAs(blobPdf, `${nombreBase}.pdf`);
-          //       this.isLoading = false;
-          //     },
-          //     error: (err) => {
-          //       console.error('Error generando PDF:', err);
-          //       alert('No se pudo generar el PDF en el servidor.');
-          //       this.isLoading = false;
-          //     },
-          //   });
+          this.http
+            .post('http://192.168.1.41:3000/convertir-docx-a-pdf', formData, {
+              responseType: 'blob',
+            })
+            .subscribe({
+              next: (blobPdf: Blob) => {
+                // 4) Descargar PDF
+                saveAs(blobPdf, `${nombreBase}.pdf`);
+                this.isLoading = false;
+              },
+              error: (err) => {
+                console.error('Error generando PDF:', err);
+                alert('No se pudo generar el PDF en el servidor.');
+                this.isLoading = false;
+              },
+            });
+          */
           this.isLoading = false;
         } catch (err) {
           console.error('Error generando DOCX:', err);
@@ -74,16 +76,28 @@ export class GeneradorDocumentosComponent implements OnInit {
           this.isLoading = false;
         }
         break;
+
       case 'certificado-obra':
         generarDocumentoFinalObra(this.reformaData);
         break;
+
       case 'certificado-taller':
         generarDocumentoTaller(this.reformaData);
         break;
-      case 'declaracion-responsable':
-        generarDocumentoResponsable(this.reformaData);
+
+      case 'memoria-tecnica':
+        alert('⚠️ Generador de Memoria Técnica aún no implementado.');
         break;
     }
+  }
+
+  // 🔹 Declaración Responsable con comunidad seleccionada
+  generarDeclaracion(comunidad: 'valenciana' | 'murcia') {
+    console.log('Generando Declaración Responsable para:', comunidad);
+    this.reformaData.comunidad = comunidad;
+
+    // Por ahora llama a la misma función
+    generarDocumentoResponsable(this.reformaData);
   }
 
   guardarDB() {
@@ -91,7 +105,6 @@ export class GeneradorDocumentosComponent implements OnInit {
 
     // 1) Montamos el FormData
     const form = new FormData();
-    // a) metadata
     form.append('metadata', JSON.stringify(this.reformaData));
 
     // b) imágenes previas
@@ -117,7 +130,6 @@ export class GeneradorDocumentosComponent implements OnInit {
       .subscribe(
         (event: HttpEvent<any>) => {
           if (event.type === HttpEventType.UploadProgress && event.total) {
-            // Calculamos el porcentaje de subida
             this.progreso = Math.round((100 * event.loaded) / event.total);
           } else if (event.type === HttpEventType.Response) {
             alert(`Proyecto ${event.body.proyecto} guardado correctamente`);

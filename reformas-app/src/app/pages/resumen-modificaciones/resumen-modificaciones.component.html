@@ -8,19 +8,56 @@
       && mod.seleccionado ) {
       <div class="mb-3">
         <h3>Homologado en Emplazamiento No Homologado</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
@@ -127,19 +164,56 @@
       @if (mod.nombre === REMOLQUE_TAMBIEN_HOMOLOGADO && mod.seleccionado) {
       <div class="mb-3">
         <h3>Homologado en Emplazamiento También Homologado</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marca de la barra:</label>
@@ -353,36 +427,16 @@
           <!-- Bloque inicial (2 por fila) -->
           <div class="row g-3">
             <!-- Tipo de acción -->
-            <div class="col-12 col-md-6">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="accion-{{ i }}"
-                  [(ngModel)]="mod.accion"
-                  name="accion{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && mod.accion === undefined"
-                >
-                  <option [ngValue]="null" disabled>Seleccione...</option>
-                  <option value="Instalacion">Instalación</option>
-                  <option value="Sustitucion">Sustitución</option>
-                  <option value="Desmontaje">Desmontaje</option>
-                </select>
-                <label for="accion-{{ i }}">Tipo de acción</label>
-              </div>
-            </div>
 
             <div class="col-12 col-md-6">
               <label class="form-label d-block mb-1">Tipo de acción</label>
+
               <div class="form-check">
                 <input
                   class="form-check-input"
                   type="checkbox"
                   id="accion-instalacion-{{ i }}"
-                  value="Instalacion"
-                  [(ngModel)]="mod.acciones"
-                  name="accionInstalacion{{ i }}"
-                  [ngModelOptions]="{ standalone: true }"
+                  [checked]="mod.acciones?.includes('Instalacion')"
                   (change)="
                     toggleAccion(mod, 'Instalacion', $event.target.checked)
                   "
@@ -394,15 +448,13 @@
                   Instalación
                 </label>
               </div>
+
               <div class="form-check">
                 <input
                   class="form-check-input"
                   type="checkbox"
                   id="accion-sustitucion-{{ i }}"
-                  value="Sustitucion"
-                  [(ngModel)]="mod.acciones"
-                  name="accionSustitucion{{ i }}"
-                  [ngModelOptions]="{ standalone: true }"
+                  [checked]="mod.acciones?.includes('Sustitucion')"
                   (change)="
                     toggleAccion(mod, 'Sustitucion', $event.target.checked)
                   "
@@ -414,15 +466,13 @@
                   Sustitución
                 </label>
               </div>
+
               <div class="form-check">
                 <input
                   class="form-check-input"
                   type="checkbox"
                   id="accion-desmontaje-{{ i }}"
-                  value="Desmontaje"
-                  [(ngModel)]="mod.acciones"
-                  name="accionDesmontaje{{ i }}"
-                  [ngModelOptions]="{ standalone: true }"
+                  [checked]="mod.acciones?.includes('Desmontaje')"
                   (change)="
                     toggleAccion(mod, 'Desmontaje', $event.target.checked)
                   "
@@ -771,23 +821,66 @@
           <div class="row g-3">
             <!-- Tipo de acción -->
             <div class="col-12 col-md-6">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="accion-sobrealetines-{{ i }}"
-                  [(ngModel)]="mod.accionSobrealetines"
-                  name="accionSobrealetines{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && mod.accionSobrealetines == null
+              <label class="form-label d-block mb-1">Tipo de acción</label>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-instalacion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Instalacion')"
+                  (change)="
+                    toggleAccion(mod, 'Instalacion', $event.target.checked)
                   "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-instalacion-{{ i }}"
                 >
-                  <option [ngValue]="null" disabled>Seleccione...</option>
-                  <option value="Instalacion">Instalación</option>
-                  <option value="Sustitucion">Sustitución</option>
-                  <option value="Desmontaje">Desmontaje</option>
-                </select>
-                <label for="accion-sobrealetines-{{ i }}">Tipo de acción</label>
+                  Instalación
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-sustitucion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Sustitucion')"
+                  (change)="
+                    toggleAccion(mod, 'Sustitucion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-sustitucion-{{ i }}"
+                >
+                  Sustitución
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-desmontaje-{{ i }}"
+                  [checked]="mod.acciones?.includes('Desmontaje')"
+                  (change)="
+                    toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                  "
+                />
+                <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+                  Desmontaje
+                </label>
+              </div>
+
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="
+                  formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+                "
+              >
+                Debe seleccionar al menos una acción.
               </div>
             </div>
 
@@ -927,19 +1020,56 @@
       @if (mod.nombre === 'SEPARADORES DE RUEDA' && mod.seleccionado) {
       <div class="mb-3">
         <h3>Separadores de Rueda</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
@@ -990,24 +1120,66 @@
           <div class="row g-3">
             <!-- Tipo de acción -->
             <div class="col-12 col-md-6">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="snk-accion-{{ i }}"
-                  [(ngModel)]="mod.accion"
-                  name="accion{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted &&
-                    (mod.accion === undefined || mod.accion === null)
+              <label class="form-label d-block mb-1">Tipo de acción</label>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-instalacion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Instalacion')"
+                  (change)="
+                    toggleAccion(mod, 'Instalacion', $event.target.checked)
                   "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-instalacion-{{ i }}"
                 >
-                  <option [ngValue]="null" disabled>Seleccione...</option>
-                  <option value="Instalacion">Instalación</option>
-                  <option value="Sustitucion">Sustitución</option>
-                  <option value="Desmontaje">Desmontaje</option>
-                </select>
-                <label for="snk-accion-{{ i }}">Tipo de acción</label>
+                  Instalación
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-sustitucion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Sustitucion')"
+                  (change)="
+                    toggleAccion(mod, 'Sustitucion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-sustitucion-{{ i }}"
+                >
+                  Sustitución
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-desmontaje-{{ i }}"
+                  [checked]="mod.acciones?.includes('Desmontaje')"
+                  (change)="
+                    toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                  "
+                />
+                <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+                  Desmontaje
+                </label>
+              </div>
+
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="
+                  formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+                "
+              >
+                Debe seleccionar al menos una acción.
               </div>
             </div>
 
@@ -1388,24 +1560,66 @@
           <div class="row g-3">
             <!-- Tipo de acción -->
             <div class="col-12 col-md-6">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="pgd-accion-{{ i }}"
-                  [(ngModel)]="mod.accion"
-                  name="accion{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted &&
-                    (mod.accion === undefined || mod.accion === null)
+              <label class="form-label d-block mb-1">Tipo de acción</label>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-instalacion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Instalacion')"
+                  (change)="
+                    toggleAccion(mod, 'Instalacion', $event.target.checked)
                   "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-instalacion-{{ i }}"
                 >
-                  <option [ngValue]="null" disabled>Seleccione...</option>
-                  <option value="Instalacion">Instalación</option>
-                  <option value="Sustitucion">Sustitución</option>
-                  <option value="Desmontaje">Desmontaje</option>
-                </select>
-                <label for="pgd-accion-{{ i }}">Tipo de acción</label>
+                  Instalación
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-sustitucion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Sustitucion')"
+                  (change)="
+                    toggleAccion(mod, 'Sustitucion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-sustitucion-{{ i }}"
+                >
+                  Sustitución
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-desmontaje-{{ i }}"
+                  [checked]="mod.acciones?.includes('Desmontaje')"
+                  (change)="
+                    toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                  "
+                />
+                <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+                  Desmontaje
+                </label>
+              </div>
+
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="
+                  formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+                "
+              >
+                Debe seleccionar al menos una acción.
               </div>
             </div>
 
@@ -1780,20 +1994,66 @@
           <div class="row g-3">
             <!-- Tipo de acción -->
             <div class="col-12 col-md-6">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="pgt-accion-{{ i }}"
-                  [(ngModel)]="mod.accion"
-                  name="accion{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && mod.accion === undefined"
+              <label class="form-label d-block mb-1">Tipo de acción</label>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-instalacion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Instalacion')"
+                  (change)="
+                    toggleAccion(mod, 'Instalacion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-instalacion-{{ i }}"
                 >
-                  <option value="Instalacion">Instalación</option>
-                  <option value="Sustitucion">Sustitución</option>
-                  <option value="Desmontaje">Desmontaje</option>
-                </select>
-                <label for="pgt-accion-{{ i }}">Tipo de acción</label>
+                  Instalación
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-sustitucion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Sustitucion')"
+                  (change)="
+                    toggleAccion(mod, 'Sustitucion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-sustitucion-{{ i }}"
+                >
+                  Sustitución
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-desmontaje-{{ i }}"
+                  [checked]="mod.acciones?.includes('Desmontaje')"
+                  (change)="
+                    toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                  "
+                />
+                <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+                  Desmontaje
+                </label>
+              </div>
+
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="
+                  formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+                "
+              >
+                Debe seleccionar al menos una acción.
               </div>
             </div>
 
@@ -2203,24 +2463,66 @@
           <div class="row g-3">
             <!-- Tipo de acción -->
             <div class="col-12 col-md-6">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="cbr-accion-{{ i }}"
-                  [(ngModel)]="mod.accion"
-                  name="accion{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted &&
-                    (mod.accion === undefined || mod.accion === null)
+              <label class="form-label d-block mb-1">Tipo de acción</label>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-instalacion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Instalacion')"
+                  (change)="
+                    toggleAccion(mod, 'Instalacion', $event.target.checked)
                   "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-instalacion-{{ i }}"
                 >
-                  <option [ngValue]="null" disabled>Seleccione...</option>
-                  <option value="Instalacion">Instalación</option>
-                  <option value="Sustitucion">Sustitución</option>
-                  <option value="Desmontaje">Desmontaje</option>
-                </select>
-                <label for="cbr-accion-{{ i }}">Tipo de acción</label>
+                  Instalación
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-sustitucion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Sustitucion')"
+                  (change)="
+                    toggleAccion(mod, 'Sustitucion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-sustitucion-{{ i }}"
+                >
+                  Sustitución
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-desmontaje-{{ i }}"
+                  [checked]="mod.acciones?.includes('Desmontaje')"
+                  (change)="
+                    toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                  "
+                />
+                <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+                  Desmontaje
+                </label>
+              </div>
+
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="
+                  formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+                "
+              >
+                Debe seleccionar al menos una acción.
               </div>
             </div>
 
@@ -2493,19 +2795,56 @@
       @if (mod.nombre === 'ANTIEMPOTRAMIENTO' && mod.seleccionado) {
       <div class="mb-3">
         <h3>Antiempotramiento</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Medidas (mm):</label>
@@ -2547,25 +2886,67 @@
           <!-- Datos generales -->
           <div class="row g-3">
             <!-- Tipo de acción -->
-            <div class="col-12 col-md-3">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="luces-accion-{{ i }}"
-                  [(ngModel)]="mod.accion"
-                  name="accion{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted &&
-                    (mod.accion === undefined || mod.accion === null)
+            <div class="col-12 col-md-6">
+              <label class="form-label d-block mb-1">Tipo de acción</label>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-instalacion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Instalacion')"
+                  (change)="
+                    toggleAccion(mod, 'Instalacion', $event.target.checked)
                   "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-instalacion-{{ i }}"
                 >
-                  <option [ngValue]="null" disabled>Seleccione...</option>
-                  <option value="Instalacion">Instalación</option>
-                  <option value="Sustitucion">Sustitución</option>
-                  <option value="Desmontaje">Desmontaje</option>
-                </select>
-                <label for="luces-accion-{{ i }}">Tipo de acción</label>
+                  Instalación
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-sustitucion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Sustitucion')"
+                  (change)="
+                    toggleAccion(mod, 'Sustitucion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-sustitucion-{{ i }}"
+                >
+                  Sustitución
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-desmontaje-{{ i }}"
+                  [checked]="mod.acciones?.includes('Desmontaje')"
+                  (change)="
+                    toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                  "
+                />
+                <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+                  Desmontaje
+                </label>
+              </div>
+
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="
+                  formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+                "
+              >
+                Debe seleccionar al menos una acción.
               </div>
             </div>
 
@@ -2935,19 +3316,56 @@
       ) {
       <div class="mb-3">
         <h3>Soporte para rueda de repuesto</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Tipo de fabricación:</label>
@@ -3052,7 +3470,6 @@
       'AMORTIGUADORES QUE SE PUEDEN DAR' && mod.seleccionado ) {
       <div class="mb-3">
         <h3>Casuística de Muelles, Ballestas y Amortiguadores</h3>
-        <!-- Muelle delantero con referencia -->
         <!-- Muelle delantero con referencia -->
         @if (mod.detallesMuelles?.muelleDelanteroConRef) {
         <section class="mod-card muelle-delantero-ref">
@@ -4183,19 +4600,56 @@
       @if (mod.nombre === 'MATRÍCULA Y PORTAMATRÍCULA' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Matrícula y Portamatrícula</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <!-- OPCIÓN 1 -->
         @if (mod.detalle.instalacionPorta) {
@@ -4532,19 +4986,56 @@
       @if (mod.nombre === 'BARRA DE DIRECCIÓN' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Barra de Dirección</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
@@ -4564,19 +5055,56 @@
       !mod.regulable ) {
       <div class="mb-4">
         <h3>Barra para Regular la Convergencia</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
@@ -4595,19 +5123,56 @@
       @if ( mod.nombre === BARRA_MOV_LATERAL && mod.seleccionado ) {
       <div class="mb-4">
         <h3>Barra para Regular la Convergencia (Regulable o No)</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
@@ -4784,19 +5349,56 @@
       @if (mod.nombre === 'LUCES DE LARGO ALCANCE' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Luces de Largo Alcance</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
@@ -4859,19 +5461,56 @@
       @if (mod.nombre === 'LUZ DE POSICIÓN' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Luz de Posición</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">¿Es LED?</label>
@@ -4978,19 +5617,56 @@
       @if (mod.nombre === 'DIURNAS' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Luces Diurnas</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">¿Es LED?</label>
@@ -5034,19 +5710,56 @@
       @if (mod.nombre === 'ANTINIEBLA' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Luces Antiniebla</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
@@ -5173,19 +5886,56 @@
       @if (mod.nombre === 'INTERMITENTES' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Intermitentes</h3>
-        <div class="mb-2">
-          <label>Tipo de acción:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.accion"
-            name="accion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.accion === undefined"
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block mb-1">Tipo de acción</label>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-instalacion-{{ i }}"
+              [checked]="mod.acciones?.includes('Instalacion')"
+              (change)="toggleAccion(mod, 'Instalacion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-instalacion-{{ i }}">
+              Instalación
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-sustitucion-{{ i }}"
+              [checked]="mod.acciones?.includes('Sustitucion')"
+              (change)="toggleAccion(mod, 'Sustitucion', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-sustitucion-{{ i }}">
+              Sustitución
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="accion-desmontaje-{{ i }}"
+              [checked]="mod.acciones?.includes('Desmontaje')"
+              (change)="toggleAccion(mod, 'Desmontaje', $event.target.checked)"
+            />
+            <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+              Desmontaje
+            </label>
+          </div>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+            "
           >
-            <option value="Instalacion">Instalación</option>
-            <option value="Sustitucion">Sustitución</option>
-            <option value="Desmontaje">Desmontaje</option>
-          </select>
+            Debe seleccionar al menos una acción.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Marcaje:</label>
@@ -5265,21 +6015,66 @@
           <div class="row g-3">
             <!-- Tipo de acción -->
             <div class="col-12 col-md-6">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="estr-accion-{{ i }}"
-                  [(ngModel)]="mod.accion"
-                  name="accion{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && mod.accion === undefined"
+              <label class="form-label d-block mb-1">Tipo de acción</label>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-instalacion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Instalacion')"
+                  (change)="
+                    toggleAccion(mod, 'Instalacion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-instalacion-{{ i }}"
                 >
-                  <option [ngValue]="null" disabled>Seleccione...</option>
-                  <option value="Instalacion">Instalación</option>
-                  <option value="Sustitucion">Sustitución</option>
-                  <option value="Desmontaje">Desmontaje</option>
-                </select>
-                <label for="estr-accion-{{ i }}">Tipo de acción</label>
+                  Instalación
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-sustitucion-{{ i }}"
+                  [checked]="mod.acciones?.includes('Sustitucion')"
+                  (change)="
+                    toggleAccion(mod, 'Sustitucion', $event.target.checked)
+                  "
+                />
+                <label
+                  class="form-check-label"
+                  for="accion-sustitucion-{{ i }}"
+                >
+                  Sustitución
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="accion-desmontaje-{{ i }}"
+                  [checked]="mod.acciones?.includes('Desmontaje')"
+                  (change)="
+                    toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                  "
+                />
+                <label class="form-check-label" for="accion-desmontaje-{{ i }}">
+                  Desmontaje
+                </label>
+              </div>
+
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="
+                  formSubmitted && (!mod.acciones || mod.acciones.length === 0)
+                "
+              >
+                Debe seleccionar al menos una acción.
               </div>
             </div>
 
@@ -6583,8 +7378,7 @@
       </div>
       }
       <!-- SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL -->
-      @if ( mod.nombre === 'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO
-      INDIVIDUAL' && mod.seleccionado ) {
+      @if ( mod.nombre === BANQUETA_INDIVIDUAL && mod.seleccionado ) {
       <div class="mb-4">
         <h3>Sustitución de Banqueta por Asiento Individual</h3>
         <div class="mb-2">

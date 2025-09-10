@@ -30,6 +30,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)';
   readonly BARRA_MOV_LATERAL =
     'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)';
+  readonly BANQUETA_INDIVIDUAL =
+    'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL';
 
   metricasTornillos: number[] = [
     4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 20, 22, 24, 27, 30, 33, 36,
@@ -163,6 +165,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (!Array.isArray(mod.acciones)) {
       mod.acciones = [];
     }
+
     if (checked) {
       if (!mod.acciones.includes(accion)) {
         mod.acciones.push(accion);

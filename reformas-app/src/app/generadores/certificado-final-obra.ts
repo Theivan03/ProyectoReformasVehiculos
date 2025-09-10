@@ -283,7 +283,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           'TIPO/VARIANTE/VERSIÓN',
           `${data.tipo} / ${data.variante} / ${data.version}`,
         ],
-        ['DENOMINACIÓN COMERCIAL', data.denominacion],
+        ['DENOMINACIÓN COMERCIAL', data.modelo],
         ['Nº DE BASTIDOR', data.bastidor],
         ['MATRÍCULA', data.matricula],
         ['CLASIFICACIÓN', data.clasificacion],

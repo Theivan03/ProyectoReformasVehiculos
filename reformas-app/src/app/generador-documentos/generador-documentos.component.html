@@ -93,7 +93,8 @@
           </p>
           <button
             class="btn btn-primary mt-auto w-100"
-            (click)="generar('declaracion-responsable')"
+            data-bs-toggle="modal"
+            data-bs-target="#modalDeclaracion"
           >
             Generar Declaración Responsable
           </button>
@@ -128,5 +129,49 @@
     <button class="btn btn-outline-secondary" (click)="volver()">
       ← Volver al formulario
     </button>
+  </div>
+</div>
+
+<!-- 🔹 Modal Declaración Responsable -->
+<div
+  class="modal fade"
+  id="modalDeclaracion"
+  tabindex="-1"
+  aria-labelledby="modalDeclaracionLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDeclaracionLabel">
+          Selecciona la Comunidad Autónoma
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Elige para qué comunidad quieres generar la declaración:</p>
+        <div class="d-flex flex-column gap-3">
+          <button
+            class="btn btn-outline-primary"
+            (click)="generarDeclaracion('valenciana')"
+            data-bs-dismiss="modal"
+          >
+            Comunidad Valenciana
+          </button>
+          <button
+            class="btn btn-outline-primary"
+            (click)="generarDeclaracion('murcia')"
+            data-bs-dismiss="modal"
+          >
+            Región de Murcia
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

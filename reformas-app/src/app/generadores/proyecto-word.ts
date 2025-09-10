@@ -1480,124 +1480,118 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     ...(data.tipoVehiculo === 'coche'
       ? [
           (() => {
-            // 1) Define un array con las claves de modificación, su etiqueta y la propiedad donde guardas el valor
+            // 1) Definimos los elementos con la clave exacta del campo que queremos mostrar
             const elementos: Array<{
               nombreMod: string;
               etiqueta: string;
-              valor: string | number;
+              key: keyof Modificacion;
             }> = [
               {
                 nombreMod: 'SNORKEL',
                 etiqueta: 'Snorkel',
-                valor: modificaciones.find((m) => m.nombre === 'SNORKEL')!
-                  .curvaturaSnorkel!,
+                key: 'curvaturaSnorkel',
               },
               {
                 nombreMod: 'PARAGOLPES DELANTERO',
                 etiqueta: 'Paragolpes delantero',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'PARAGOLPES DELANTERO'
-                )!.radioCurvaRParagolpesDelantero!,
+                key: 'radioCurvaRParagolpesDelantero',
               },
               {
                 nombreMod: 'PARAGOLPES TRASERO',
                 etiqueta: 'Paragolpes trasero',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'PARAGOLPES TRASERO'
-                )!.curvaturaParagolpesTrasero!,
+                key: 'curvaturaParagolpesTrasero',
               },
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
                 etiqueta: 'Aletines',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
-                )!.radioCurvaRAletines!,
+                key: 'radioCurvaRAletines',
               },
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
                 etiqueta: 'Sobrealetines',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
-                )!.curvaturaSobrealetines!,
+                key: 'curvaturaSobrealetines',
               },
               {
                 nombreMod: 'ESTRIBOS LATERALES',
                 etiqueta: 'Estribos laterales',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'SEPARADORES DE RUEDA'
-                )!.curvaturaEstribosLaterales!,
+                key: 'curvaturaEstribosLaterales',
               },
               {
                 nombreMod: 'PROTECTORES LATERALES',
                 etiqueta: 'Protectores laterales',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
-                )!.curvaturaProtectoresLaterales!,
+                key: 'curvaturaProtectoresLaterales',
               },
               {
                 nombreMod: 'DEFENSA DELANTERA',
                 etiqueta: 'Defensa delantera',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'DEFENSA DELANTERA'
-                )!.curvaturaDefensaDelantera!,
+                key: 'curvaturaDefensaDelantera',
               },
               {
                 nombreMod: 'SOPORTE PARA RUEDA DE REPUESTO',
                 etiqueta: 'Soporte rueda de repuesto',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO'
-                )!.curvaturaSoporteRuedaRepuesto!,
+                key: 'curvaturaSoporteRuedaRepuesto',
               },
             ];
 
+            // 2) Construcción dinámica de filas solo si la mod está seleccionada y el valor existe
             const dataRows = elementos
-              .filter(({ nombreMod }) =>
-                modificaciones.some(
+              .map(({ nombreMod, etiqueta, key }) => {
+                const mod = modificaciones.find(
                   (m) => m.nombre === nombreMod && m.seleccionado
-                )
-              )
-              .map(
-                ({ etiqueta, valor }) =>
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        verticalAlign: VerticalAlign.CENTER,
-                        margins: {
-                          top: 200,
-                          bottom: 200,
-                          left: 200,
-                          right: 200,
-                        },
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.CENTER,
-                            children: [new TextRun(etiqueta)],
-                          }),
-                        ],
-                      }),
-                      new TableCell({
-                        verticalAlign: VerticalAlign.CENTER,
-                        margins: {
-                          top: 200,
-                          bottom: 200,
-                          left: 200,
-                          right: 200,
-                        },
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.CENTER,
-                            children: [new TextRun(String(valor))],
-                          }),
-                        ],
-                      }),
-                    ],
-                  })
-              );
+                );
+                const valor = mod ? mod[key] : null;
+
+                if (
+                  !mod ||
+                  valor === undefined ||
+                  valor === null ||
+                  valor === ''
+                ) {
+                  return null;
+                }
+
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: {
+                        top: 200,
+                        bottom: 200,
+                        left: 200,
+                        right: 200,
+                      },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: {
+                        top: 200,
+                        bottom: 200,
+                        left: 200,
+                        right: 200,
+                      },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(valor))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null);
 
             if (dataRows.length === 0) {
               return [];
             }
 
+            // 3) Cabecera
             const headerRow = new TableRow({
               children: [
                 new TableCell({

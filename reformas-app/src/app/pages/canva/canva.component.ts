@@ -111,7 +111,7 @@ export class CanvaComponent implements OnInit {
 
   ngOnInit(): void {
     // ====== FECHA / FIRMA inicial ======
-    this.fechaFirma = this.datosEntrada?.fechaFirma || this.calcularFechaHoy();
+    this.fechaFirma = this.calcularFechaHoy();
     this.firmaUrl =
       this.datosEntrada?.firmaUrl ||
       'http://192.168.1.41:3000/imgs/firma-generada.png';
@@ -205,9 +205,21 @@ export class CanvaComponent implements OnInit {
     this.emitAutosave();
   }
 
-  calcularFechaHoy() {
-    const hoy = new Date();
-    return `Teulada, ${hoy.toLocaleDateString('es-ES', {
+  calcularFechaHoy(): string {
+    if (!this.datosEntrada?.fechaProyecto) {
+      return '';
+    }
+
+    // Descomponemos el string "YYYY-MM-DD"
+    const [year, month, day] = this.datosEntrada.fechaProyecto
+      .split('-')
+      .map(Number);
+
+    // Creamos un objeto Date en la zona local (mes empieza en 0)
+    const fecha = new Date(year, month - 1, day);
+
+    // Formateamos en español
+    return `Teulada, ${fecha.toLocaleDateString('es-ES', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',

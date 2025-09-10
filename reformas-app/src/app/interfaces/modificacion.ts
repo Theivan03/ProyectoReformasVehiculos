@@ -6,6 +6,7 @@ export interface Mueble {
 }
 
 export interface Modificacion {
+  acciones?: string[];
   anotacion?: string | boolean;
   nTornillos?: number;
   anotacion1?: boolean | string;
