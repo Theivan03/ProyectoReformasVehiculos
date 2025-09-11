@@ -1,0 +1,46 @@
+[
+  {
+    "codigo": "1",
+    "descripcion": "IDENTIFICACIÓN"
+  },
+  {
+    "codigo": "2",
+    "descripcion": "UNIDAD MOTRIZ"
+  },
+  {
+    "codigo": "3",
+    "descripcion": "TRANSMISIÓN"
+  },
+  {
+    "codigo": "4",
+    "descripcion": "EJES Y RUEDAS"
+  },
+  {
+    "codigo": "5",
+    "descripcion": "SUSPENSIÓN"
+  },
+  {
+    "codigo": "6",
+    "descripcion": "DIRECCIÓN"
+  },
+  {
+    "codigo": "7",
+    "descripcion": "FRENOS"
+  },
+  {
+    "codigo": "8",
+    "descripcion": "CARROCERÍA"
+  },
+  {
+    "codigo": "9",
+    "descripcion": "ALUMBRADO"
+  },
+  {
+    "codigo": "10",
+    "descripcion": "UNIONES ENTRE VEHÍCULOS TRACTORES Y SUS REMOLQUES O SEMIRREMOLQUES"
+  },
+  {
+    "codigo": "11",
+    "descripcion": "MODIFICACIONES DE LOS DATOS QUE AFECTEN EN LA TARJETA ITV"
+  }
+]

@@ -12,7 +12,13 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fieldSize: 50 * 1024 * 1024,  // 50 MB por campo de texto (metadata)
+    fileSize: 50 * 1024 * 1024    // 50 MB por archivo
+  }
+});
 const ULTIMO_PROYECTO_PATH = path.join(__dirname, 'ultimoProyecto.json');
 
 const PORT = process.env.PORT || 3000;
@@ -24,6 +30,7 @@ app.get('/talleres', (req, res) => {
   const data = fs.readFileSync('./talleres.json', 'utf-8');
   res.json(JSON.parse(data));
 });
+
 
 app.post('/talleres', (req, res) => {
   fs.writeFileSync('./talleres.json', JSON.stringify(req.body, null, 2));
@@ -139,7 +146,7 @@ app.post(
       fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8');
 
       // 4) Subcarpetas de imágenes (prev y post)
-      const prevDir = path.join(projectDir, 'prev');
+      const prevDir = path.join(projectDir, 'lados');
       const postDir = path.join(projectDir, 'post');
       fs.mkdirSync(prevDir, { recursive: true });
       fs.mkdirSync(postDir, { recursive: true });

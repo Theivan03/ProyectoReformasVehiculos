@@ -49,7 +49,7 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
       children: [
         new TextRun({
           size: 22,
-          text: `Que la mencionada empresa ha realizado la/s reformas, y asume la responsabilidad de la ejecución, sobre el vehículo marca ${data.marca} tipo ${data.tipo}, variante ${data.variante}, versión ${data.version} y denominación comercial ${data.denominacion}, contraseña de homologación ${data.homologacion}, matrícula ${data.matricula}, y con n.º de bastidor ${data.bastidor}, de acuerdo con:\n`,
+          text: `Que la mencionada empresa ha realizado la/s reformas, y asume la responsabilidad de la ejecución, sobre el vehículo marca ${data.marca} tipo ${data.tipo}, variante ${data.variante}, versión ${data.version} y denominación comercial ${data.modelo}, contraseña de homologación ${data.homologacion}, matrícula ${data.matricula}, y con n.º de bastidor ${data.bastidor}, de acuerdo con:\n`,
         }),
       ],
     }),

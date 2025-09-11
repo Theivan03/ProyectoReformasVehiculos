@@ -1,0 +1,111 @@
+<!-- imagenes.component.html -->
+<div class="card p-4 shadow-sm mx-auto" style="max-width: 1500px">
+  <h5 class="mb-4 text-center">
+    Paso {{ step }} de 2:
+    {{
+      step === 1
+        ? "Imágenes exteriores del vehículo (frontal, trasera, lateral derecho e izquierdo)"
+        : "Imágenes de los elementos reformados"
+    }}
+  </h5>
+
+  <!-- STEP 1 -->
+  <ng-container *ngIf="step === 1">
+    <label class="form-label">
+      Sube las imágenes <strong>previas</strong> del vehículo:
+    </label>
+
+    <!-- sigue siendo 2 columnas (arriba y abajo) -->
+    <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+      <div
+        class="col"
+        *ngFor="
+          let label of [
+            'Frontal',
+            'Trasera',
+            'Lateral izquierdo',
+            'Lateral derecho'
+          ];
+          let i = index
+        "
+      >
+        <div class="card p-2 text-center">
+          <p class="fw-bold mb-2">{{ label }}</p>
+          <input
+            type="file"
+            class="form-control mb-2"
+            (change)="onPrevSelected($event, i)"
+            accept="image/*"
+          />
+          <div
+            class="ratio ratio-1x1 border rounded d-flex align-items-center justify-content-center"
+          >
+            <img
+              *ngIf="prevPreviews[i]"
+              [src]="prevPreviews[i]"
+              class="w-100 h-100 rounded shadow-sm"
+              style="object-fit: cover"
+              alt="preview {{ label }}"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <button class="btn btn-outline-secondary me-2" (click)="back()">
+        ← Anterior
+      </button>
+      <button
+        class="btn btn-primary"
+        [disabled]="isValidPreview(prevPreviews) < 4"
+        (click)="next()"
+      >
+        Siguiente →
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- STEP 2 (igual que antes) -->
+  <ng-container *ngIf="step === 2">
+    <label class="form-label"
+      >Sube las imágenes de las reformas realizadas:</label
+    >
+    <input
+      type="file"
+      class="form-control mb-3"
+      (change)="onPostSelected($event)"
+      accept="image/*"
+      multiple
+    />
+
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
+      <div class="col" *ngFor="let preview of postPreviews; let i = index">
+        <div class="ratio ratio-1x1 position-relative">
+          <img
+            [src]="preview"
+            class="img-fluid object-fit-cover rounded shadow-sm"
+            alt="preview {{ i + 1 }}"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorPostImagesCount" class="alert alert-danger p-2">
+      Debe subir un máximo de <strong>30 imágenes</strong>.
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <button class="btn btn-outline-secondary" (click)="back()">
+        ← Anterior
+      </button>
+      <button
+        class="btn btn-success"
+        [disabled]="postImages.length === 0"
+        (click)="onSave()"
+      >
+        Guardar imágenes
+      </button>
+    </div>
+  </ng-container>
+</div>

@@ -1,5 +1,16 @@
 [
   {
+    "nombre": "Vacio",
+    "direccion": "Vacio",
+    "poblacion": "Vacio",
+    "provincia": "Vacio",
+    "registroIndustrial": "Vacio",
+    "registroEspecial": "Vacio",
+    "responsable": "Vacio",
+    "telefono": "Vacio",
+    "especialidad": "Vacio"
+  },
+  {
     "nombre": "GREMIS AUTOMOCIÓN, S.L.",
     "direccion": "Pol. Ind. C/ Gremis, 21-23",
     "poblacion": "Teulada",

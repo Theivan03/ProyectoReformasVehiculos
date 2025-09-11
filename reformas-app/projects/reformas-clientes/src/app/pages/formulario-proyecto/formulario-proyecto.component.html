@@ -1,0 +1,58 @@
+<form #formulario="ngForm" (ngSubmit)="enviarFormulario()" novalidate>
+  <div class="container mt-3">
+    <h4 class="mb-3">Formulario de nueva reforma</h4>
+
+    <h5 class="mb-2 text-primary">***Después de la reforma***</h5>
+    <div class="row">
+      <div
+        class="col-md-4 mb-2"
+        *ngFor="
+          let campo of [
+            { label: 'Longitud', model: 'longitudDespues' },
+            { label: 'Anchura', model: 'anchuraDespues' },
+            { label: 'Altura', model: 'alturaDespues' },
+            { label: 'Voladizo', model: 'voladizoDespues' },
+            { label: 'Vía delantera', model: 'viaDelanteraDespues' },
+            { label: 'Vía trasera', model: 'viaTraseraDespues' }
+          ]
+        "
+      >
+        <label class="form-label">{{ campo.label }} *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="datos[campo.model]"
+          [name]="campo.model"
+          #ctrl="ngModel"
+          required
+          [class.is-invalid]="ctrl.invalid && ctrl.touched"
+        />
+        <div class="invalid-feedback">Este campo es obligatorio.</div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <img
+        src="../../../assets/coche.png"
+        alt="Plano vehículo"
+        class="img-fluid border rounded shadow-sm"
+        style="max-height: 350px"
+      />
+      <p class="text-muted mt-2">
+        Vista esquemática del vehículo para saber como medirlo de la forma
+        correcta
+      </p>
+    </div>
+
+    <div class="d-flex justify-content-between mt-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="volver()"
+      >
+        Volver
+      </button>
+      <button type="submit" class="btn btn-success">Siguiente</button>
+    </div>
+  </div>
+</form>
