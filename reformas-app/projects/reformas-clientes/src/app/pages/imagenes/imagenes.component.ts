@@ -21,24 +21,36 @@ export class ImagenesComponent implements OnInit {
 
   step = 1;
 
-  // En memoria (runtime)
+  // ========= En memoria (runtime) =========
   prevImages: Blob[] = [];
-  postImages: Blob[] = [];
   prevPreviews: string[] = []; // dataURL
-  postPreviews: string[] = []; // dataURL
 
-  // Persistibles (para localStorage via el padre)
-  private prevImagesB64: string[] = [];
-  private postImagesB64: string[] = [];
+  postImages: Blob[] = [];
+  postPreviews: string[] = [];
 
+  // ========= Arrays planos persistibles =========
+  prevImagesB64: string[] = [];
+  postImagesB64: string[] = [];
+
+  // ========= Errores =========
   errorPrevImagesCount = false;
   errorPostImagesCount = false;
+
+  // ========= Vista por modificación (step 2) =========
+  modsSeleccionadas: any[] = [];
+  perModPreviews: { [modNombre: string]: string[] } = {};
+  perModBlobs: { [modNombre: string]: Blob[] } = {};
+
+  // ========= NUEVO: Documentación (step 3) =========
+  docsPreviews: { [tipo: string]: string[] } = {};
+  docsBlobs: { [tipo: string]: Blob[] } = {};
+  docsImagesB64: { [tipo: string]: string[] } = {};
 
   async ngOnInit(): Promise<void> {
     // Paso guardado
     if (this.datosEntrada?.step) this.step = this.datosEntrada.step;
 
-    // Restaurar desde base64 si existen (preferente, porque persiste)
+    // Restaurar previas desde base64
     if (Array.isArray(this.datosEntrada?.prevImagesB64)) {
       this.prevImagesB64 = [...this.datosEntrada.prevImagesB64];
       this.prevPreviews = [...this.prevImagesB64];
@@ -46,7 +58,6 @@ export class ImagenesComponent implements OnInit {
         this.prevImagesB64.map((b64) => this.dataUrlToBlob(b64))
       );
     } else if (Array.isArray(this.datosEntrada?.prevImages)) {
-      // (compatibilidad) si te llegan Blobs desde el padre
       this.prevImages = this.datosEntrada.prevImages;
       this.prevPreviews = await Promise.all(
         this.prevImages.map((b) => this.blobToDataUrl(b))
@@ -54,6 +65,7 @@ export class ImagenesComponent implements OnInit {
       this.prevImagesB64 = [...this.prevPreviews];
     }
 
+    // Restaurar post desde base64
     if (Array.isArray(this.datosEntrada?.postImagesB64)) {
       this.postImagesB64 = [...this.datosEntrada.postImagesB64];
       this.postPreviews = [...this.postImagesB64];
@@ -66,6 +78,26 @@ export class ImagenesComponent implements OnInit {
         this.postImages.map((b) => this.blobToDataUrl(b))
       );
       this.postImagesB64 = [...this.postPreviews];
+    }
+
+    // Construir mods seleccionadas (para STEP 2)
+    const allMods = Array.isArray(this.datosEntrada?.modificaciones)
+      ? this.datosEntrada.modificaciones
+      : [];
+    this.modsSeleccionadas = allMods.filter((m: any) => m?.seleccionado);
+
+    // Repartir imágenes planas en perMod (máx. 1 por mod en step 2)
+    await this.hydratePerModFromFlat();
+
+    // 🔹 Restaurar documentación (step 3)
+    if (this.datosEntrada?.docsImagesB64) {
+      this.docsImagesB64 = { ...this.datosEntrada.docsImagesB64 };
+      for (const [tipo, arrB64] of Object.entries(this.docsImagesB64)) {
+        this.docsPreviews[tipo] = [...(arrB64 || [])];
+        this.docsBlobs[tipo] = await Promise.all(
+          (arrB64 as string[]).map((b64) => this.dataUrlToBlob(b64))
+        );
+      }
     }
 
     this.emitAutosave(); // snapshot inicial
@@ -90,9 +122,15 @@ export class ImagenesComponent implements OnInit {
     return {
       ...(this.datosEntrada || {}),
       step: this.step,
-      prevImagesB64: this.prevImagesB64,
-      postImagesB64: this.postImagesB64,
-      // opcional: mantén también en RAM por si el padre quiere pasarlas de vuelta
+      ...(this.prevImagesB64.length
+        ? { prevImagesB64: this.prevImagesB64 }
+        : {}),
+      ...(this.postImagesB64.length
+        ? { postImagesB64: this.postImagesB64 }
+        : {}),
+      ...(Object.keys(this.docsImagesB64).length
+        ? { docsImagesB64: this.docsImagesB64 }
+        : {}),
       prevImages: this.prevImages,
       postImages: this.postImages,
     };
@@ -102,7 +140,7 @@ export class ImagenesComponent implements OnInit {
     this.autosave.emit(this.snapshot());
   }
 
-  // ========= Carga y normalización =========
+  // ========= Normalización orientación =========
   private normalizeOrientation(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
       loadImage(
@@ -121,6 +159,7 @@ export class ImagenesComponent implements OnInit {
     });
   }
 
+  // ========= Previas (step 1) =========
   async onPrevSelected(ev: Event, index: number) {
     const input = ev.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -136,12 +175,44 @@ export class ImagenesComponent implements OnInit {
     this.emitAutosave();
   }
 
-  async onPostSelected(ev: Event) {
+  isValidPreview(previews: string[]): number {
+    return previews.filter((p) => !!p).length;
+  }
+
+  // ========= Distribuir imágenes planas en perMod =========
+  private async hydratePerModFromFlat(): Promise<void> {
+    this.perModPreviews = {};
+    this.perModBlobs = {};
+
+    if (!this.postImagesB64?.length || !this.modsSeleccionadas?.length) return;
+
+    let idx = 0;
+    for (const mod of this.modsSeleccionadas) {
+      const nombre = mod.nombre;
+      this.perModPreviews[nombre] = [];
+      this.perModBlobs[nombre] = [];
+
+      for (let k = 0; k < 1 && idx < this.postImagesB64.length; k++, idx++) {
+        const b64 = this.postImagesB64[idx];
+        this.perModPreviews[nombre].push(b64);
+        const blob = await this.dataUrlToBlob(b64);
+        this.perModBlobs[nombre].push(blob);
+      }
+    }
+
+    this.recomputeFlatFromPerMod();
+  }
+
+  // ========= Selección por mod (step 2) =========
+  async onPostSelectedForMod(ev: Event, modNombre: string) {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
-    const files = Array.from(input.files);
 
-    if (files.length > 30) {
+    const files = Array.from(input.files).slice(0, 1); // máx. 1 por mod
+
+    // Validar límite global (30)
+    const projected = this.totalWithoutMod(modNombre) + files.length;
+    if (projected > 30) {
       this.errorPostImagesCount = true;
       input.value = '';
       return;
@@ -151,103 +222,124 @@ export class ImagenesComponent implements OnInit {
     const blobs = await Promise.all(
       files.map((f) => this.normalizeOrientation(f))
     );
-    this.postImages = blobs;
-    this.postPreviews = await Promise.all(
-      blobs.map((b) => this.blobToDataUrl(b))
+    const previews = await Promise.all(blobs.map((b) => this.blobToDataUrl(b)));
+
+    this.perModBlobs[modNombre] = blobs;
+    this.perModPreviews[modNombre] = previews;
+
+    this.recomputeFlatFromPerMod();
+    this.emitAutosave();
+
+    input.value = '';
+  }
+
+  removePerModImage(modNombre: string, index: number) {
+    const arrPrev = this.perModPreviews[modNombre] || [];
+    const arrBlob = this.perModBlobs[modNombre] || [];
+    if (index < 0 || index >= arrPrev.length) return;
+
+    arrPrev.splice(index, 1);
+    arrBlob.splice(index, 1);
+
+    this.perModPreviews[modNombre] = arrPrev;
+    this.perModBlobs[modNombre] = arrBlob;
+
+    this.recomputeFlatFromPerMod();
+    this.emitAutosave();
+  }
+
+  private recomputeFlatFromPerMod() {
+    const orderedMods = this.modsSeleccionadas.map((m) => m.nombre);
+
+    const newB64: string[] = [];
+    const newPrev: string[] = [];
+    const newBlobs: Blob[] = [];
+
+    for (const nombre of orderedMods) {
+      const previews = this.perModPreviews[nombre] || [];
+      const blobs = this.perModBlobs[nombre] || [];
+
+      const slicePrev = previews.slice(0, 1);
+      const sliceBlob = blobs.slice(0, 1);
+
+      newB64.push(...slicePrev);
+      newPrev.push(...slicePrev);
+      newBlobs.push(...sliceBlob);
+    }
+
+    if (newB64.length > 30) {
+      this.errorPostImagesCount = true;
+      newB64.length = 30;
+      newPrev.length = 30;
+      newBlobs.length = 30;
+    } else {
+      this.errorPostImagesCount = false;
+    }
+
+    this.postImagesB64 = newB64;
+    this.postPreviews = newPrev;
+    this.postImages = newBlobs;
+  }
+
+  private totalWithoutMod(modNombre: string): number {
+    let total = 0;
+    for (const [k, arr] of Object.entries(this.perModPreviews)) {
+      if (k === modNombre) continue;
+      total += arr?.length || 0;
+    }
+    return total;
+  }
+
+  // ========= Selección de imágenes de documentación (step 3) =========
+  async onDocSelected(ev: Event, tipo: string) {
+    const input = ev.target as HTMLInputElement;
+    if (!input.files) return;
+
+    const files = Array.from(input.files).slice(0, 4); // máx. 4 imágenes
+    const blobs = await Promise.all(
+      files.map((f) => this.normalizeOrientation(f))
     );
-    this.postImagesB64 = [...this.postPreviews];
+    const previews = await Promise.all(blobs.map((b) => this.blobToDataUrl(b)));
+
+    this.docsBlobs[tipo] = blobs;
+    this.docsPreviews[tipo] = previews;
+    this.docsImagesB64[tipo] = previews;
 
     this.emitAutosave();
+    input.value = '';
   }
 
-  isValidPreview(previews: string[]): number {
-    return previews.filter((p) => !!p).length;
-  }
+  removeDocImage(tipo: string, index: number) {
+    const arrPrev = this.docsPreviews[tipo] || [];
+    const arrBlob = this.docsBlobs[tipo] || [];
+    const arrB64 = this.docsImagesB64[tipo] || [];
 
-  // ========= Reordenar (prev) =========
-  movePrev(i: number) {
-    if (i === 0) return;
-    [this.prevPreviews[i - 1], this.prevPreviews[i]] = [
-      this.prevPreviews[i],
-      this.prevPreviews[i - 1],
-    ];
-    [this.prevImagesB64[i - 1], this.prevImagesB64[i]] = [
-      this.prevImagesB64[i],
-      this.prevImagesB64[i - 1],
-    ];
-    [this.prevImages[i - 1], this.prevImages[i]] = [
-      this.prevImages[i],
-      this.prevImages[i - 1],
-    ];
-    this.emitAutosave();
-  }
+    if (index < 0 || index >= arrPrev.length) return;
 
-  moveNext(i: number) {
-    if (i === this.prevPreviews.length - 1) return;
-    [this.prevPreviews[i + 1], this.prevPreviews[i]] = [
-      this.prevPreviews[i],
-      this.prevPreviews[i + 1],
-    ];
-    [this.prevImagesB64[i + 1], this.prevImagesB64[i]] = [
-      this.prevImagesB64[i],
-      this.prevImagesB64[i + 1],
-    ];
-    [this.prevImages[i + 1], this.prevImages[i]] = [
-      this.prevImages[i],
-      this.prevImages[i + 1],
-    ];
-    this.emitAutosave();
-  }
+    arrPrev.splice(index, 1);
+    arrBlob.splice(index, 1);
+    arrB64.splice(index, 1);
 
-  // ========= Reordenar (post) =========
-  movePrevPost(i: number) {
-    if (i === 0) return;
-    [this.postPreviews[i - 1], this.postPreviews[i]] = [
-      this.postPreviews[i],
-      this.postPreviews[i - 1],
-    ];
-    [this.postImagesB64[i - 1], this.postImagesB64[i]] = [
-      this.postImagesB64[i],
-      this.postImagesB64[i - 1],
-    ];
-    [this.postImages[i - 1], this.postImages[i]] = [
-      this.postImages[i],
-      this.postImages[i - 1],
-    ];
-    this.emitAutosave();
-  }
+    this.docsPreviews[tipo] = arrPrev;
+    this.docsBlobs[tipo] = arrBlob;
+    this.docsImagesB64[tipo] = arrB64;
 
-  moveNextPost(i: number) {
-    if (i === this.postPreviews.length - 1) return;
-    [this.postPreviews[i + 1], this.postPreviews[i]] = [
-      this.postPreviews[i],
-      this.postPreviews[i + 1],
-    ];
-    [this.postImagesB64[i + 1], this.postImagesB64[i]] = [
-      this.postImagesB64[i],
-      this.postImagesB64[i + 1],
-    ];
-    [this.postImages[i + 1], this.postImages[i]] = [
-      this.postImages[i],
-      this.postImages[i + 1],
-    ];
     this.emitAutosave();
   }
 
   // ========= Navegación =========
   next() {
-    if (this.step === 1) {
-      this.step = 2;
+    if (this.step < 3) {
+      this.step++;
       this.emitAutosave();
     }
   }
 
   back() {
-    if (this.step === 2) {
-      this.step = 1;
+    if (this.step > 1) {
+      this.step--;
       this.emitAutosave();
     } else {
-      // paso 1 → volver al padre
       const snap = this.snapshot();
       this.volver.emit(snap);
     }
@@ -257,5 +349,13 @@ export class ImagenesComponent implements OnInit {
     this.emitAutosave();
     const snap = this.snapshot();
     this.continuar.emit(snap);
+  }
+
+  // ========= Imagen ejemplo por mod =========
+  getImagenEjemplo(modNombre: string): string {
+    const mapa: { [k: string]: string } = {
+      // Ej: 'NEUMÁTICOS': 'assets/ejemplos/neumaticos.png'
+    };
+    return mapa[modNombre] || 'assets/cochee.png';
   }
 }

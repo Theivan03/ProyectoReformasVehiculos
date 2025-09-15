@@ -176,6 +176,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    console.log(this.datosEntrada);
     this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
       (mod: any) => mod.seleccionado
     );
@@ -410,6 +411,17 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         m.coefSeguridadKAletines === null
       ) {
         m.coefSeguridadKAletines = 3;
+      }
+
+      if (m.curvaturaSnorkel === undefined || m.curvaturaSnorkel === null) {
+        m.curvaturaSnorkel = 800;
+      }
+
+      if (
+        m.seccionResistenteAsSnorkel === undefined ||
+        m.seccionResistenteAsSnorkel === null
+      ) {
+        m.seccionResistenteAsSnorkel = 36.64;
       }
     });
   }

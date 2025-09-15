@@ -1,37 +1,31 @@
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h2 class="mb-1">Nueva Reforma</h2>
-    <p class="mb-0">
-      Rellene toda la información para poder proceder a realizar el proyecto
-      para su vehículo.
-    </p>
-  </div>
+<div class="container mt-3">
+  <div class="row align-items-center mb-3">
+    <!-- Texto -->
+    <div class="col-md-9">
+      <h2 class="mb-1">Nueva Reforma</h2>
+      <p class="mb-0">
+        Rellene toda la información para poder proceder a realizar el proyecto
+        para su vehículo.
+      </p>
+    </div>
 
-  <!-- Botón reset -->
-  <button class="btn btn-danger btn-lg fw-bold" (click)="resetReforma()">
-    🗑️ Reiniciar
-  </button>
+    <!-- Botón reset -->
+    <div class="col-md-3 text-md-end mt-3 mt-md-0">
+      <button
+        class="btn btn-danger btn-lg fw-bold w-100 w-md-auto"
+        (click)="resetReforma()"
+      >
+        🗑️ Reiniciar
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="container mt-4">
-  @if (mostrarSeleccion) {
-  <app-seleccion-secciones
-    [seccionesPreseleccionadas]="codigosPreseleccionados || []"
-    (continuar)="onContinuar($event)"
-  >
-  </app-seleccion-secciones>
-  } @if (mostrarSubSelecciones) {
-  <app-mostrar-secciones
-    [secciones]="seccionesSeleccionadas || []"
-    [respuestas]="respuestasGuardadas || {}"
-    (volverASeleccion)="volverASeleccionDesdeSubseleccion()"
-    (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
-  >
-  </app-mostrar-secciones>
-  } @if (mostrarFormularioProyecto) {
+  @if (mostrarFormularioProyecto) {
   <app-formulario-proyecto
-    [respuestas]="respuestasGuardadas || {}"
-    [datosIniciales]="datosFormularioGuardados || null"
+    [respuestas]="datosGenerales || {}"
+    [datosIniciales]="datosParaResumen || null"
     (volverAReforma)="onVolverDesdeFormulario($event)"
     (finalizarFormulario)="onFinalizarFormulario($event)"
   >
@@ -59,21 +53,6 @@
     (continuar)="onContinuarDesdeResumenModificaciones($event)"
   >
   </app-resumen-modificaciones>
-  } @if (mostrarCocheOno) {
-  <app-cocheono
-    [datosEntrada]="datosParaResumen"
-    (volver)="onVolverDesdeCocheONo($event)"
-    (continuar)="onContinuarDesdeCocheONo($event)"
-  >
-  </app-cocheono>
-  } @if (mostrarCanva) {
-  <app-canva
-    [datosEntrada]="datosParaResumen"
-    (autosave)="onAutosaveCanva($event)"
-    (volver)="onVolverDesdeCanva()"
-    (continuar)="onContinuarDesdeCanva($event)"
-  >
-  </app-canva>
   } @if (mostrarImagenes) {
   <app-imagenes
     [datosEntrada]="datosParaResumen"

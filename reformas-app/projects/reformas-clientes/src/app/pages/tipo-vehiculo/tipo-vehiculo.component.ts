@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Modificacion } from '../../interfaces/modificacion';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tipo-vehiculo',
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   standalone: true,
   templateUrl: './tipo-vehiculo.component.html',
   styleUrl: './tipo-vehiculo.component.css',
@@ -22,6 +23,19 @@ export class TipoVehiculoComponent implements OnInit {
   modificaciones: Modificacion[] = [];
   tipoVehiculoInvalido: boolean = false;
   erroresSubopciones: boolean[] = [];
+
+  // Añade estas propiedades
+  mostrarPreseleccion: boolean = true; // Pantalla previa visible al inicio
+  opcionesVehiculo = [
+    { value: 'coche', label: 'Coche', img: 'assets/cocheportada.jpg' },
+    { value: 'moto', label: 'Moto', img: 'assets/moto.jpg' },
+    { value: 'camper', label: 'Camper', img: 'assets/camper.jpg' },
+    {
+      value: 'industrial',
+      label: 'Industrial',
+      img: 'assets/industrial.jpg',
+    },
+  ];
 
   detallesMuellesOpciones = [
     { key: 'muelleDelanteroConRef', label: 'Muelle delantero con referencia' },
@@ -51,28 +65,33 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    // Si hay datos previos, inicializamos a partir de ellos
     if (this.datosPrevios) {
-      this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
-      this.modificaciones = this.datosPrevios.modificaciones.map(
-        (mod: Modificacion) => {
-          if (mod.nombre === 'LUCES' && !mod.descripcionLuces) {
-            mod.descripcionLuces = {
-              luzGrupoOptico: false,
-              intermitenteDelantero: false,
-              intermitenteTrasero: false,
-              catadioptrico: false,
-              luzMatricula: false,
-            };
-          }
-          return mod;
+      this.tipoVehiculo = this.datosPrevios.tipoVehiculo ?? '';
+
+      const prevMods = this.datosPrevios.modificaciones ?? [];
+      this.modificaciones = prevMods.map((mod: Modificacion) => {
+        if (mod.nombre === 'LUCES' && !mod.descripcionLuces) {
+          mod.descripcionLuces = {
+            luzGrupoOptico: false,
+            intermitenteDelantero: false,
+            intermitenteTrasero: false,
+            catadioptrico: false,
+            luzMatricula: false,
+          };
         }
-      );
+        return mod;
+      });
     }
+
+    // Asegurar que siempre hay un array válido en modificaciones
     this.modificaciones = (this.modificaciones || []).map((mod: any) => {
       if (mod.detalle) return mod;
+
       if (mod.nombre === 'ALETINES Y SOBREALETINES') {
         return { ...mod, detalle: { aletines: false, sobrealetines: false } };
       }
+
       return {
         ...mod,
         detalle: {
@@ -85,7 +104,12 @@ export class TipoVehiculoComponent implements OnInit {
       };
     });
 
-    // Primer autosave al cargar con datos previos
+    // Si ya venía un tipo de vehículo guardado, saltamos la preselección
+    if (this.datosPrevios?.tipoVehiculo) {
+      this.mostrarPreseleccion = false;
+    }
+
+    // Primer autosave
     this.emitAutosave();
   }
 
@@ -96,10 +120,42 @@ export class TipoVehiculoComponent implements OnInit {
     });
   }
 
+  resetComponent(): void {
+    this.tipoVehiculo = '';
+    this.modificaciones = [];
+    this.tipoVehiculoInvalido = false;
+    this.erroresSubopciones = [];
+    this.mostrarPreseleccion = true; // vuelve a mostrar la pantalla con 4 fotos
+
+    this.emitAutosave(); // opcional: emite estado vacío al padre
+  }
+
   onTipoCambio(): void {
     this.modificaciones = this.obtenerModificacionesPorTipo(this.tipoVehiculo);
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
     this.emitAutosave();
+  }
+
+  seleccionarTipoPrevia(tipo: string): void {
+    this.tipoVehiculo = tipo; // Pre-rellena el select de la pantalla principal
+    this.onTipoCambio(); // Pre-carga las modificaciones para ese tipo
+    this.tipoVehiculoInvalido = false;
+    this.emitAutosave(); // Mantén tu autosave
+  }
+
+  // Pasa de la pantalla previa a tu pantalla actual
+  irASiguientePaso(): void {
+    if (!this.tipoVehiculo?.trim()) {
+      this.tipoVehiculoInvalido = true;
+      return;
+    }
+    this.mostrarPreseleccion = false;
+  }
+
+  seleccionarTipo(tipo: string): void {
+    this.tipoVehiculo = tipo;
+    this.onTipoCambio(); // carga las modificaciones
+    this.tipoVehiculoInvalido = false;
   }
 
   onCambioSubopcion(): void {
@@ -306,6 +362,124 @@ export class TipoVehiculoComponent implements OnInit {
           { nombre: 'TOLDO', seleccionado: false },
         ];
       case 'industrial':
+        return [
+          {
+            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
+            seleccionado: false,
+          },
+          {
+            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
+            seleccionado: false,
+          },
+          { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
+          {
+            nombre: 'NEUMÁTICOS',
+            seleccionado: false,
+            anotacion1: '',
+            anotacion2: '',
+          },
+          { nombre: 'SEPARADORES DE RUEDA', seleccionado: false },
+          {
+            nombre: 'ALETINES Y SOBREALETINES',
+            seleccionado: false,
+            detalle: {
+              aletines: false,
+              sobrealetines: false,
+            },
+          },
+          { nombre: 'SNORKEL', seleccionado: false },
+          { nombre: 'PARAGOLPES DELANTERO', seleccionado: false },
+          { nombre: 'PARAGOLPES TRASERO', seleccionado: false },
+          { nombre: 'CABRESTANTE', seleccionado: false },
+          { nombre: 'ANTIEMPOTRAMIENTO', seleccionado: false },
+          {
+            nombre: 'SOPORTES PARA LUCES DE USO ESPECÍFICO',
+            seleccionado: false,
+          },
+          { nombre: 'SOPORTE PARA RUEDA DE REPUESTO', seleccionado: false },
+          {
+            nombre:
+              'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR',
+            seleccionado: false,
+            anotacion: '',
+            detallesMuelles: {
+              muelleDelanteroConRef: false,
+              muelleDelanteroSinRef: false,
+              ballestaDelantera: false,
+              ballestaTrasera: false,
+              amortiguadorDelantero: false,
+              muelleTraseroConRef: false,
+              muelleTraseroSinRef: false,
+              amortiguadorTrasero: false,
+              tacosDeGoma: false,
+              kitElevacion: false,
+            },
+          },
+          {
+            nombre: 'MATRÍCULA Y PORTAMATRÍCULA',
+            seleccionado: false,
+            detalle: {
+              instalacionPorta: false,
+              reubicacionTrasera: false,
+              cambioUbicacionDelantera: false,
+            },
+          },
+          { nombre: 'DEFENSA DELANTERA', seleccionado: false },
+          { nombre: 'AMORTIGUADOR DE DIRECCIÓN', seleccionado: false },
+          { nombre: 'BARRA DE DIRECCIÓN', seleccionado: false },
+          {
+            nombre:
+              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)',
+            seleccionado: false,
+          },
+          {
+            nombre:
+              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)',
+            seleccionado: false,
+          },
+          { nombre: 'FAROS DELANTEROS PRINCIPALES', seleccionado: false },
+          { nombre: 'LUZ DE CRUCE', seleccionado: false },
+          { nombre: 'LUCES DE LARGO ALCANCE', seleccionado: false },
+          { nombre: 'LUZ DE POSICIÓN', seleccionado: false },
+          { nombre: '3ª LUZ DE FRENO', seleccionado: false },
+          { nombre: 'DIURNAS', seleccionado: false },
+          { nombre: 'ANTINIEBLA', seleccionado: false },
+          {
+            nombre: 'PILOTO TRASERO',
+            seleccionado: false,
+            detalle: {
+              luzPosicionFreno: false,
+              intermitente: false,
+              marchaAtras: false,
+              catadioptrico: false,
+            },
+          },
+          {
+            nombre: 'INTERMITENTES',
+            seleccionado: false,
+            detalle: {
+              interDelantero: false,
+              interTrasero: false,
+              interLateral: false,
+            },
+          },
+          {
+            nombre: 'SUSTITUCIÓN DE EJES',
+            seleccionado: false,
+            detalle: {
+              sustitucionEjeTrasero: false,
+              sustitucionEjeDelantero: false,
+            },
+          },
+          {
+            nombre: 'ESTRIBOS LATERALES O TALONERAS',
+            seleccionado: false,
+            detalle: {
+              estribosotaloneras: false,
+              anotacionAntideslizante: false,
+            },
+          },
+        ];
       default:
         return [];
     }
@@ -332,10 +506,28 @@ export class TipoVehiculoComponent implements OnInit {
 
   volverFormulario(): void {
     this.emitAutosave();
+
+    // Notifico al padre si quieres mantenerlo
     this.volver.emit({
       tipoVehiculo: this.tipoVehiculo,
       modificaciones: this.modificaciones,
     });
+
+    // Y vuelvo a la preselección
+    this.mostrarPreseleccion = true;
+  }
+
+  borrarTodo(): void {
+    this.emitAutosave(); // opcional si quieres guardar antes de borrar
+
+    // borro todo lo interno
+    this.tipoVehiculo = '';
+    this.modificaciones = [];
+    this.erroresSubopciones = [];
+    this.tipoVehiculoInvalido = false;
+
+    // muestro otra vez la pantalla inicial con fotos
+    this.mostrarPreseleccion = true;
   }
 
   validarSubopciones(): boolean {

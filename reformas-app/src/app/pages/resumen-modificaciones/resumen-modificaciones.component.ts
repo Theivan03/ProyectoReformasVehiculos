@@ -411,6 +411,17 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       ) {
         m.coefSeguridadKAletines = 3;
       }
+
+      if (m.curvaturaSnorkel === undefined || m.curvaturaSnorkel === null) {
+        m.curvaturaSnorkel = 800;
+      }
+
+      if (
+        m.seccionResistenteAsSnorkel === undefined ||
+        m.seccionResistenteAsSnorkel === null
+      ) {
+        m.seccionResistenteAsSnorkel = 36.64;
+      }
     });
   }
 

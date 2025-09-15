@@ -3,11 +3,11 @@
     <h3 class="mb-3 text-success">✅ Reforma completada</h3>
     <p class="mb-4">
       Ha finalizado todos los pasos del formulario.<br />
-      Puede regresar para revisar los datos o guardar el proyecto en el
-      servidor.
+      Puede regresar para revisar los datos o enviarnos el proyecto para su
+      revisión.
     </p>
 
-    <!-- Barra de progreso opcional -->
+    <!-- Barra de progreso -->
     <div *ngIf="guardando" class="progress mb-3" style="height: 20px">
       <div
         class="progress-bar progress-bar-striped progress-bar-animated"
@@ -29,6 +29,82 @@
       >
         Finalizar y Guardar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ÉXITO -->
+<div
+  class="modal fade"
+  id="modalExito"
+  tabindex="-1"
+  aria-labelledby="modalExitoLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-success" id="modalExitoLabel">
+          ✅ Proyecto guardado
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>El proyecto se ha enviado correctamente.</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button
+          type="button"
+          class="btn btn-success w-100"
+          data-bs-dismiss="modal"
+          (click)="cerrarModal()"
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ERROR -->
+<div
+  class="modal fade"
+  id="modalError"
+  tabindex="-1"
+  aria-labelledby="modalErrorLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger" id="modalErrorLabel">
+          ❌ Error al guardar
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Ha ocurrido un error al guardar el proyecto. Inténtelo de nuevo.</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button
+          type="button"
+          class="btn btn-outline-danger w-100"
+          data-bs-dismiss="modal"
+          (click)="cerrarModal()"
+        >
+          Cerrar
+        </button>
+      </div>
     </div>
   </div>
 </div>

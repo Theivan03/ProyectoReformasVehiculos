@@ -1,21 +1,21 @@
-<!-- imagenes.component.html -->
 <div class="card p-4 shadow-sm mx-auto" style="max-width: 1500px">
   <h5 class="mb-4 text-center">
-    Paso {{ step }} de 2:
+    Paso {{ step }} de 3:
     {{
       step === 1
         ? "Imágenes exteriores del vehículo (frontal, trasera, lateral derecho e izquierdo)"
-        : "Imágenes de los elementos reformados"
+        : step === 2
+        ? "Imágenes de los elementos reformados"
+        : "Imágenes de la documentación"
     }}
   </h5>
 
   <!-- STEP 1 -->
   <ng-container *ngIf="step === 1">
-    <label class="form-label">
-      Sube las imágenes <strong>previas</strong> del vehículo:
-    </label>
+    <label class="form-label"
+      >Sube las imágenes <strong>previas</strong> del vehículo:</label
+    >
 
-    <!-- sigue siendo 2 columnas (arriba y abajo) -->
     <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
       <div
         class="col"
@@ -36,7 +36,9 @@
             class="form-control mb-2"
             (change)="onPrevSelected($event, i)"
             accept="image/*"
+            capture="environment"
           />
+
           <div
             class="ratio ratio-1x1 border rounded d-flex align-items-center justify-content-center"
           >
@@ -66,44 +68,135 @@
     </div>
   </ng-container>
 
-  <!-- STEP 2 (igual que antes) -->
+  <!-- STEP 2 -->
   <ng-container *ngIf="step === 2">
-    <label class="form-label"
-      >Sube las imágenes de las reformas realizadas:</label
-    >
-    <input
-      type="file"
-      class="form-control mb-3"
-      (change)="onPostSelected($event)"
-      accept="image/*"
-      multiple
-    />
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <label class="form-label fw-bold mb-0"
+        >Sube las imágenes de las reformas realizadas:</label
+      >
+      <small class="text-muted"
+        >Total: {{ postImagesB64.length }}/{{ modsSeleccionadas.length }}</small
+      >
+    </div>
 
-    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
-      <div class="col" *ngFor="let preview of postPreviews; let i = index">
-        <div class="ratio ratio-1x1 position-relative">
+    <div class="row g-4">
+      <div class="col-md-6" *ngFor="let mod of modsSeleccionadas">
+        <div class="card p-3 shadow-sm h-100 text-center">
+          <h5 class="fw-bold text-dark mb-3">{{ mod.nombre }}</h5>
           <img
-            [src]="preview"
-            class="img-fluid object-fit-cover rounded shadow-sm"
-            alt="preview {{ i + 1 }}"
+            [src]="getImagenEjemplo(mod.nombre)"
+            class="img-fluid rounded border mb-3 d-block mx-auto"
           />
+
+          <div
+            class="border border-2 border-dashed rounded p-3 bg-light d-flex justify-content-center align-items-center"
+            style="min-height: 280px"
+          >
+            <ng-container *ngIf="!perModPreviews[mod.nombre]?.length">
+              <div class="text-center">
+                <p class="text-muted mb-2">Selecciona o haz una foto</p>
+                <input
+                  type="file"
+                  class="form-control"
+                  accept="image/*"
+                  capture="environment"
+                  (change)="onPostSelectedForMod($event, mod.nombre)"
+                />
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="perModPreviews[mod.nombre]?.length">
+              <div class="position-relative" style="max-width: 300px">
+                <img
+                  [src]="perModPreviews[mod.nombre][0]"
+                  class="img-fluid rounded border shadow-sm"
+                  style="max-height: 250px; object-fit: contain; width: 100%"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                  (click)="removePerModImage(mod.nombre, 0)"
+                >
+                  ×
+                </button>
+              </div>
+            </ng-container>
+          </div>
         </div>
       </div>
     </div>
 
-    <div *ngIf="errorPostImagesCount" class="alert alert-danger p-2">
-      Debe subir un máximo de <strong>30 imágenes</strong>.
-    </div>
-
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between mt-4">
       <button class="btn btn-outline-secondary" (click)="back()">
         ← Anterior
       </button>
-      <button
-        class="btn btn-success"
-        [disabled]="postImages.length === 0"
-        (click)="onSave()"
+      <button class="btn btn-primary" (click)="next()">Siguiente →</button>
+    </div>
+  </ng-container>
+
+  <!-- STEP 3 -->
+  <ng-container *ngIf="step === 3">
+    <label class="form-label fw-bold"
+      >Sube las imágenes de la documentación: <br />
+      <b
+        >No es obligatorio adjuntar ningúna imagen para poder continuar</b
+      ></label
+    >
+
+    <div class="row g-4">
+      <div
+        class="col-md-4"
+        *ngFor="
+          let doc of [
+            'Ficha técnica',
+            'Permiso de circulación',
+            'Documentación adicional'
+          ];
+          let i = index
+        "
       >
+        <div class="card p-3 shadow-sm text-center h-100">
+          <h6 class="fw-bold text-dark mb-3">{{ doc }}</h6>
+
+          <input
+            type="file"
+            class="form-control mb-2"
+            accept="image/*"
+            capture="environment"
+            multiple
+            (change)="onDocSelected($event, doc)"
+          />
+          <small class="text-muted">Máx. 4</small>
+
+          <div class="d-flex flex-wrap gap-2 mt-2 justify-content-center">
+            <div
+              class="position-relative"
+              style="width: 100px"
+              *ngFor="let preview of docsPreviews[doc] || []; let j = index"
+            >
+              <img
+                [src]="preview"
+                class="img-fluid rounded border shadow-sm"
+                style="max-height: 90px; object-fit: cover"
+              />
+              <button
+                type="button"
+                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                (click)="removeDocImage(doc, j)"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+      <button class="btn btn-outline-secondary" (click)="back()">
+        ← Anterior
+      </button>
+      <button class="btn btn-success" (click)="onSave()">
         Guardar imágenes
       </button>
     </div>

@@ -1,17 +1,24 @@
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h2 class="mb-1">Nueva Reforma</h2>
-    <p class="mb-0">
-      Inicie un nuevo proyecto de reforma. A lo largo del proceso podrá definir
-      los detalles técnicos, administrativos y generar la documentación
-      necesaria para su tramitación.
-    </p>
-  </div>
+<div class="container mt-3">
+  <div class="row align-items-center mb-3">
+    <!-- Texto -->
+    <div class="col-md-9">
+      <h2 class="mb-1">Nueva Reforma</h2>
+      <p class="mb-0">
+        Rellene toda la información para poder proceder a realizar el proyecto
+        para su vehículo.
+      </p>
+    </div>
 
-  <!-- Botón reset -->
-  <button class="btn btn-danger btn-lg fw-bold" (click)="resetReforma()">
-    🗑️ Reiniciar
-  </button>
+    <!-- Botón reset -->
+    <div class="col-md-3 text-md-end mt-3 mt-md-0">
+      <button
+        class="btn btn-danger btn-lg fw-bold w-100 w-md-auto"
+        (click)="resetReforma()"
+      >
+        🗑️ Reiniciar
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="container mt-4">

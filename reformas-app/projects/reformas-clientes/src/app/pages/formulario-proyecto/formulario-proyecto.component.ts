@@ -22,6 +22,8 @@ export class FormularioProyectoComponent implements OnChanges {
   talleres: any[] = [];
 
   datos: any = {
+    nombre: '---',
+    apellidos: '---',
     numeroProyecto: '',
     tallerSeleccionado: null,
     referenciaProyecto: '',
@@ -92,22 +94,34 @@ export class FormularioProyectoComponent implements OnChanges {
     cargaUtilTotal: 0,
     distanciaEntreEjes: 0,
     ocupantesAdicionales: 0,
-    modificaciones: [],
+    modificaciones: [], // aquí llegan tus modificaciones dinámicas
     cdgconductor: 0,
     cdgocdelant: 0,
     cdgocu2: 0,
     cdgocu3: 0,
     cdgcargautil: 0,
     cdgcargavert: 0,
+    opcionesCoche: [false, false, false, false, false],
+    prevImages: [],
+    postImages: [],
+    prevPreviews: [],
+    postPreviews: [],
+    prevImagesB64: [],
+    postImagesB64: [],
   };
 
   año: string = '';
+  mostrarLongitud = false;
+  mostrarAnchura = false;
+  mostrarAltura = false;
+  mostrarVoladizo = false;
+  mostrarViaDelantera = false;
+  mostrarViaTrasera = false;
 
   @Input() respuestas: any;
   @Input() datosIniciales: any;
   @Output() finalizarFormulario = new EventEmitter<any>();
   @Output() volverAReforma = new EventEmitter<any>();
-
   @ViewChild('formulario') formulario!: NgForm;
 
   constructor(private http: HttpClient) {}
@@ -118,12 +132,23 @@ export class FormularioProyectoComponent implements OnChanges {
     }
 
     if (this.respuestas) {
-      const codigos = (Object.values(this.respuestas) as { codigo: string }[][])
-        .flat()
-        .map((op) => op.codigo)
-        .join(' - ');
-      this.datos.codigosReforma = codigos;
+      try {
+        const codigos = (Object.values(this.respuestas) as any[])
+          .flat()
+          .filter((op: any) => op && typeof op === 'object' && 'codigo' in op)
+          .map((op: any) => op.codigo)
+          .join(' - ');
+        this.datos.codigosReforma = codigos;
+      } catch (e) {
+        console.warn(
+          'Estructura inesperada en respuestas:',
+          this.respuestas,
+          e
+        );
+      }
     }
+
+    this.calcularCamposVisibles();
   }
 
   ngOnInit(): void {
@@ -139,6 +164,44 @@ export class FormularioProyectoComponent implements OnChanges {
         },
         error: (err) => console.error('Error al cargar último proyecto:', err),
       });
+
+    console.log(this.datosIniciales);
+  }
+
+  private calcularCamposVisibles(): void {
+    const mods = Array.isArray(this.datos?.modificaciones)
+      ? this.datos.modificaciones.filter((m: any) => m?.seleccionado)
+      : [];
+    const nombres = mods.map((m: any) => m.nombre);
+
+    this.mostrarLongitud = nombres.some((n: string) =>
+      [
+        'CABRESTANTE',
+        'PARAGOLPES DELANTERO',
+        'PARAGOLPES TRASERO',
+        'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
+        'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
+        'DEFENSA DELANTERA',
+      ].includes(n)
+    );
+
+    this.mostrarAnchura = nombres.some((n: string) =>
+      ['ALETINES Y SOBREALETINES', 'SEPARADORES', 'TOLDO'].includes(n)
+    );
+
+    this.mostrarAltura = nombres.some((n: string) =>
+      ['SOPORTES PARA LUCES DE USO ESPECÍFICO', 'CLARABOYA'].includes(n)
+    );
+
+    this.mostrarVoladizo = nombres.includes('PARAGOLPES TRASERO');
+
+    this.mostrarViaDelantera = nombres.some((n: string) =>
+      ['ALETINES Y SOBREALETINES', 'SEPARADORES'].includes(n)
+    );
+
+    this.mostrarViaTrasera = nombres.some((n: string) =>
+      ['ALETINES Y SOBREALETINES', 'SEPARADORES'].includes(n)
+    );
   }
 
   enviarFormulario(): void {
@@ -152,6 +215,9 @@ export class FormularioProyectoComponent implements OnChanges {
     const finalData = {
       ...this.datos,
       codigosDetallados: this.respuestas,
+      opcionesCoche: this.datos.opcionesCoche.map((v: boolean, i: number) =>
+        i === 0 ? v : false
+      ),
     };
 
     this.finalizarFormulario.emit(finalData);
@@ -167,16 +233,18 @@ export class FormularioProyectoComponent implements OnChanges {
     this.datos.referenciaCFO = `CFO ${this.datos.numeroProyecto}/${añoCorto}`;
   }
 
-  actualizarTotal(): void {
-    const mu = Number(this.datos.materialesUsados) || 0;
-    const mo = Number(this.datos.manoDeObra) || 0;
-    this.datos.totalPresupuesto = mu + mo;
-  }
-
-  limitarDecimales(campo: keyof typeof this.datos, valor: any) {
-    if (valor !== null && valor !== undefined && valor !== '') {
-      this.datos[campo] = parseFloat(parseFloat(valor).toFixed(2));
+  // 👉 Aquí está el método que faltaba
+  toggleAccion(mod: any, accion: string, checked: boolean): void {
+    if (!mod.acciones) {
+      mod.acciones = [];
     }
-    this.actualizarTotal();
+
+    if (checked) {
+      if (!mod.acciones.includes(accion)) {
+        mod.acciones.push(accion);
+      }
+    } else {
+      mod.acciones = mod.acciones.filter((a: string) => a !== accion);
+    }
   }
 }

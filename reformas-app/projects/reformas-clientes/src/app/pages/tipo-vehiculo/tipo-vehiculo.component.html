@@ -1,3 +1,51 @@
+@if (mostrarPreseleccion) {
+<div class="container mt-4">
+  <div class="card p-4 shadow-sm">
+    <h4 class="mb-3">Tipo de Vehículo</h4>
+    <p class="text-muted mb-3">Elige una opción y pulsa “Siguiente”.</p>
+
+    <div class="row g-3">
+      <div class="col-6 col-md-3" *ngFor="let o of opcionesVehiculo">
+        <div
+          class="card h-100 text-center border-2"
+          [ngClass]="{
+            'border-primary shadow': tipoVehiculo === o.value,
+            'border-light': tipoVehiculo !== o.value
+          }"
+          role="button"
+          (click)="seleccionarTipoPrevia(o.value)"
+        >
+          <img
+            [src]="o.img"
+            class="card-img-top p-3 img-fluid"
+            alt="{{ o.label }}"
+          />
+          <div class="card-body py-2">
+            <div class="fw-semibold">{{ o.label }}</div>
+          </div>
+          <!-- Amplía el click -->
+          <a class="stretched-link" tabindex="-1"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-danger mt-3" *ngIf="tipoVehiculoInvalido && !tipoVehiculo">
+      Debe seleccionar un tipo de vehículo.
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+      <button
+        class="btn btn-primary"
+        (click)="irASiguientePaso()"
+        [disabled]="!tipoVehiculo"
+      >
+        Siguiente →
+      </button>
+    </div>
+  </div>
+</div>
+} @else {
+
 <div class="container mt-4">
   <div class="card p-4 shadow-sm">
     <h4 class="mb-3">Tipo de Vehículo</h4>
@@ -604,3 +652,4 @@
     </div>
   </div>
 </div>
+}

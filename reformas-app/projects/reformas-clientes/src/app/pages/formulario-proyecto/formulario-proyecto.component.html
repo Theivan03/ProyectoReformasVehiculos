@@ -1,49 +1,138 @@
 <form #formulario="ngForm" (ngSubmit)="enviarFormulario()" novalidate>
   <div class="container mt-3">
-    <h4 class="mb-3">Formulario de nueva reforma</h4>
-
-    <h5 class="mb-2 text-primary">***Después de la reforma***</h5>
+    <!-- Datos básicos -->
     <div class="row">
-      <div
-        class="col-md-4 mb-2"
-        *ngFor="
-          let campo of [
-            { label: 'Longitud', model: 'longitudDespues' },
-            { label: 'Anchura', model: 'anchuraDespues' },
-            { label: 'Altura', model: 'alturaDespues' },
-            { label: 'Voladizo', model: 'voladizoDespues' },
-            { label: 'Vía delantera', model: 'viaDelanteraDespues' },
-            { label: 'Vía trasera', model: 'viaTraseraDespues' }
-          ]
-        "
-      >
-        <label class="form-label">{{ campo.label }} *</label>
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Nombre *</label>
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="datos[campo.model]"
-          [name]="campo.model"
-          #ctrl="ngModel"
+          [(ngModel)]="datos.nombre"
+          name="nombre"
+          #ctrlNombre="ngModel"
           required
-          [class.is-invalid]="ctrl.invalid && ctrl.touched"
+          [class.is-invalid]="ctrlNombre.invalid && ctrlNombre.touched"
+        />
+        <div class="invalid-feedback">Este campo es obligatorio.</div>
+      </div>
+
+      <div class="col-md-8 mb-2">
+        <label class="form-label">Apellidos *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="datos.apellidos"
+          name="apellidos"
+          #ctrlApellidos="ngModel"
+          required
+          [class.is-invalid]="ctrlApellidos.invalid && ctrlApellidos.touched"
         />
         <div class="invalid-feedback">Este campo es obligatorio.</div>
       </div>
     </div>
 
+    <!-- Campos condicionales (longitud, anchura, etc.) -->
+    <div class="row">
+      @if (mostrarLongitud) {
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Longitud (A) *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="datos.longitudDespues"
+          name="longitudDespues"
+          required
+        />
+      </div>
+      } @if (mostrarAnchura) {
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Anchura (E) *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="datos.anchuraDespues"
+          name="anchuraDespues"
+          required
+        />
+      </div>
+      } @if (mostrarAltura) {
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Altura (D) *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="datos.alturaDespues"
+          name="alturaDespues"
+          required
+        />
+      </div>
+      } @if (mostrarVoladizo) {
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Voladizo (C) *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="datos.voladizoDespues"
+          name="voladizoDespues"
+          required
+        />
+      </div>
+      } @if (mostrarViaDelantera) {
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Vía delantera (F) *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="datos.viaDelanteraDespues"
+          name="viaDelanteraDespues"
+          required
+        />
+      </div>
+      } @if (mostrarViaTrasera) {
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Vía trasera (G) *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="datos.viaTraseraDespues"
+          name="viaTraseraDespues"
+          required
+        />
+      </div>
+      }
+    </div>
+
+    <!-- ABS -->
+    <div class="mt-4">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="datos.opcionesCoche[0]"
+          name="optABS"
+          id="optABS"
+        />
+        <label class="form-check-label" for="optABS">
+          El vehículo dispone de sistema de frenado ABS.
+        </label>
+      </div>
+    </div>
+
+    <!-- Imagen -->
     <div class="text-center mt-4">
       <img
         src="../../../assets/coche.png"
         alt="Plano vehículo"
         class="img-fluid border rounded shadow-sm"
-        style="max-height: 350px"
+        style="max-height: 500px"
       />
       <p class="text-muted mt-2">
-        Vista esquemática del vehículo para saber como medirlo de la forma
+        Vista esquemática del vehículo para saber cómo medirlo de la forma
         correcta
       </p>
     </div>
 
+    <!-- Botones -->
     <div class="d-flex justify-content-between mt-3">
       <button
         type="button"

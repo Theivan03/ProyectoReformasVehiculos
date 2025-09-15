@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {
   ActivatedRoute,
   ParamMap,
@@ -9,26 +9,18 @@ import {
 import { Subscription } from 'rxjs';
 
 // Hijos standalone (ajusta paths si difieren)
-import { SeleccionSeccionesComponent } from '../seleccion-secciones/seleccion-secciones.component';
-import { MostrarSeccionesComponent } from '../mostrar-secciones/mostrar-secciones.component';
 import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-proyecto.component';
 import { ReformasPreviasComponent } from '../reformas-previas/reformas-previas.component';
 import { ResumenModificacionesComponent } from '../resumen-modificaciones/resumen-modificaciones.component';
 import { TipoVehiculoComponent } from '../tipo-vehiculo/tipo-vehiculo.component';
-import { CocheonoComponent } from '../cocheono/cocheono.component';
-import { CanvaComponent } from '../canva/canva.component';
 import { ImagenesComponent } from '../imagenes/imagenes.component';
 import { FinalizarReformaComponent } from '../finalizar-reforma/finalizar-reforma.component';
 
 type Step =
-  | 'seleccion'
-  | 'subseleccion'
   | 'formulario'
   | 'reformas-previas'
   | 'tipo-vehiculo'
   | 'resumen'
-  | 'coche-o-no'
-  | 'canva'
   | 'imagenes'
   | 'finalizar';
 
@@ -43,6 +35,8 @@ interface SavedState {
   datosGenerales?: any;
   datosGuardadosTipoVehiculo?: any;
   datosResumenModificaciones?: any;
+  prevImagesB64?: string[];
+  postImagesB64?: string[];
 }
 
 @Component({
@@ -50,21 +44,17 @@ interface SavedState {
   standalone: true,
   imports: [
     CommonModule,
-    SeleccionSeccionesComponent,
-    MostrarSeccionesComponent,
     FormularioProyectoComponent,
     ReformasPreviasComponent,
     TipoVehiculoComponent,
     ResumenModificacionesComponent,
-    CocheonoComponent,
-    CanvaComponent,
     ImagenesComponent,
     FinalizarReformaComponent,
   ],
   templateUrl: './crear-reforma.component.html',
 })
 export class CrearReformaComponent implements OnInit, OnDestroy {
-  step: Step = 'seleccion';
+  step: Step = 'tipo-vehiculo';
 
   // Estado compartido con hijos
   codigosPreseleccionados: any = undefined;
@@ -74,6 +64,8 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   datosGenerales: any = undefined;
   datosGuardadosTipoVehiculo: any = undefined;
   datosResumenModificaciones: any = undefined;
+
+  @ViewChild(TipoVehiculoComponent) tipoVehiculoComp!: TipoVehiculoComponent;
 
   private routeSub?: Subscription;
   private routerSub?: Subscription;
@@ -89,12 +81,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
   resetReforma() {
     try {
-      // Borra todos los datos guardados en navegador
       localStorage.clear();
       sessionStorage.clear();
 
-      // Reinicia el estado interno de la app
-      this.step = 'seleccion';
+      this.step = 'tipo-vehiculo';
       this.codigosPreseleccionados = undefined;
       this.seccionesSeleccionadas = undefined;
       this.respuestasGuardadas = undefined;
@@ -103,20 +93,19 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGuardadosTipoVehiculo = undefined;
       this.datosResumenModificaciones = undefined;
 
-      // Navega a la primera pantalla
-      this.router.navigate(['/reforma', 'seleccion']);
+      // Navega
+      this.router.navigate(['/reforma', 'tipo-vehiculo']).then(() => {
+        // Reinicia el estado interno del componente
+        if (this.tipoVehiculoComp) {
+          this.tipoVehiculoComp.resetComponent();
+        }
+      });
     } catch (e) {
       console.error('Error al reiniciar la reforma:', e);
     }
   }
 
   // Getters para el template
-  get mostrarSeleccion() {
-    return this.step === 'seleccion';
-  }
-  get mostrarSubSelecciones() {
-    return this.step === 'subseleccion';
-  }
   get mostrarFormularioProyecto() {
     return this.step === 'formulario';
   }
@@ -129,12 +118,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   get mostrarResumenModificaciones() {
     return this.step === 'resumen';
   }
-  get mostrarCocheOno() {
-    return this.step === 'coche-o-no';
-  }
-  get mostrarCanva() {
-    return this.step === 'canva';
-  }
   get mostrarImagenes() {
     return this.step === 'imagenes';
   }
@@ -144,21 +127,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
   // -------- resolución de paso (evita bucles) --------
   private resolveStep(desired: Step): Step {
-    switch (desired) {
-      case 'subseleccion':
-        return this.seccionesSeleccionadas?.length
-          ? 'subseleccion'
-          : 'seleccion';
-
-      case 'formulario':
-        return this.respuestasGuardadas &&
-          Object.keys(this.respuestasGuardadas).length
-          ? 'formulario'
-          : this.resolveStep('subseleccion');
-
-      default:
-        return desired; // 'seleccion' y los demás por defecto
-    }
+    return desired; // 'seleccion' y los demás por defecto
   }
 
   // -------- ciclo de vida --------
@@ -173,16 +142,16 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.restore();
 
     this.routeSub = this.route.paramMap.subscribe((p: ParamMap) => {
-      const requested = (p.get('step') as Step | null) ?? 'seleccion';
+      const requested = (p.get('step') as Step | null) ?? 'tipo-vehiculo';
       const saved = this.readStorage();
       const fresh = this.route.snapshot.queryParamMap.get('fresh');
 
       // Auto-resume SOLO si no venimos de popstate (para no romper el botón Atrás)
       if (
         !this.isPopstate &&
-        requested === 'seleccion' &&
+        requested === 'tipo-vehiculo' &&
         saved?.step &&
-        saved.step !== 'seleccion' &&
+        saved.step !== 'tipo-vehiculo' &&
         !fresh
       ) {
         const target = this.resolveStep(saved.step);
@@ -229,10 +198,14 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       datosGenerales: this.datosGenerales,
       datosGuardadosTipoVehiculo: this.datosGuardadosTipoVehiculo,
       datosResumenModificaciones: this.datosResumenModificaciones,
+      prevImagesB64: this.datosGenerales?.prevImagesB64 || [],
+      postImagesB64: this.datosGenerales?.postImagesB64 || [],
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-    } catch {}
+    } catch (err) {
+      console.error('Error al persistir:', err);
+    }
   }
 
   private readStorage(): SavedState | null {
@@ -246,27 +219,23 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   private restore() {
     const saved = this.readStorage();
     if (!saved) return;
-    this.step = saved.step ?? 'seleccion';
+
+    this.step = saved.step ?? 'tipo-vehiculo';
     this.codigosPreseleccionados = saved.codigosPreseleccionados;
     this.seccionesSeleccionadas = saved.seccionesSeleccionadas;
     this.respuestasGuardadas = saved.respuestasGuardadas;
     this.datosFormularioGuardados = saved.datosFormularioGuardados;
-    this.datosGenerales = saved.datosGenerales;
+    this.datosGenerales = saved.datosGenerales || {};
     this.datosGuardadosTipoVehiculo = saved.datosGuardadosTipoVehiculo;
     this.datosResumenModificaciones = saved.datosResumenModificaciones;
-  }
 
-  // -------- handlers de hijos --------
-  onContinuar(secciones: { codigo: string; descripcion: string }[]) {
-    this.seccionesSeleccionadas = Array.isArray(secciones) ? secciones : [];
-    this.codigosPreseleccionados = this.seccionesSeleccionadas.map(
-      (s: { codigo: any }) => s.codigo
-    );
-    this.navigate('subseleccion');
-  }
-
-  volverASeleccionDesdeSubseleccion() {
-    this.navigate('seleccion');
+    // 🔹 Asegurar que si existen arrays se restauran como mínimo vacíos
+    if (!Array.isArray(this.datosGenerales.prevImagesB64)) {
+      this.datosGenerales.prevImagesB64 = [];
+    }
+    if (!Array.isArray(this.datosGenerales.postImagesB64)) {
+      this.datosGenerales.postImagesB64 = [];
+    }
   }
 
   onFinalizarRecoleccion(event: any) {
@@ -287,10 +256,14 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     const datos = event?.datosFormulario ?? event?.datos ?? event ?? null;
     const pagina =
       event?.pagina ?? event?.paginaActual ?? datos?.paginaActual ?? 1;
-    if (datos)
+    if (datos) {
       this.datosFormularioGuardados = { ...datos, paginaActual: pagina };
+    }
+
+    // 🔹 Forzar step correcto al volver
+    this.step = 'tipo-vehiculo';
     this.persist();
-    this.navigate('subseleccion');
+    this.router.navigate(['/reforma', 'tipo-vehiculo']);
   }
 
   onFinalizarFormulario(event: any) {
@@ -305,7 +278,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       false;
 
     this.persist();
-    this.navigate(reformas ? 'reformas-previas' : 'tipo-vehiculo');
+    this.navigate(reformas ? 'resumen' : 'resumen');
   }
 
   onAutosaveReformasPrevias(data: any) {
@@ -354,17 +327,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     else if (event) this.datosGuardadosTipoVehiculo = event;
 
     this.persist();
-
-    if (this.datosGenerales?.reformasPrevias === true) {
-      this.navigate('reformas-previas');
-      return;
-    }
-    this.datosFormularioGuardados = {
-      ...(this.datosFormularioGuardados || {}),
-      paginaActual: 999,
-    };
-    this.persist();
-    this.navigate('formulario');
+    this.navigate('tipo-vehiculo');
   }
 
   onContinuarTipoVehiculo(event: any) {
@@ -373,7 +336,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
     }
     this.persist();
-    this.navigate('resumen');
+    this.navigate('formulario');
   }
 
   get datosParaResumen(): any {
@@ -402,7 +365,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
 
     this.persist();
-    this.navigate('tipo-vehiculo');
+    this.navigate('formulario');
   }
 
   onContinuarDesdeResumenModificaciones(event: any) {
@@ -414,136 +377,31 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
     }
 
-    const tipo = (
-      event?.tipoVehiculo ??
-      this.datosGuardadosTipoVehiculo?.tipoVehiculo ??
-      this.datosGenerales?.tipoVehiculo ??
-      ''
-    )
-      .toString()
-      .trim()
-      .toLowerCase();
-
-    this.persist();
-    this.navigate(tipo === 'coche' ? 'coche-o-no' : 'canva');
-  }
-
-  onAutosaveCocheONo(event: any) {
-    if (!event) return;
-    this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-    this.datosGuardadosTipoVehiculo = {
-      ...(this.datosGuardadosTipoVehiculo || {}),
-      tipoVehiculo:
-        event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
-      modificaciones:
-        event.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
-      opcionesCoche:
-        event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
-    };
-    this.persist();
-  }
-
-  onVolverDesdeCocheONo(event?: any) {
-    if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-      this.datosGuardadosTipoVehiculo = {
-        ...(this.datosGuardadosTipoVehiculo || {}),
-        tipoVehiculo:
-          event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
-        modificaciones:
-          event.modificaciones ??
-          this.datosGuardadosTipoVehiculo?.modificaciones,
-        opcionesCoche:
-          event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
-      };
-    }
-    this.persist();
-    this.navigate('resumen');
-  }
-
-  onContinuarDesdeCocheONo(event: any) {
-    if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-      this.datosGuardadosTipoVehiculo = {
-        ...(this.datosGuardadosTipoVehiculo || {}),
-        tipoVehiculo:
-          event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
-        modificaciones:
-          event.modificaciones ??
-          this.datosGuardadosTipoVehiculo?.modificaciones,
-        opcionesCoche:
-          event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
-      };
-    }
-    this.persist();
-    this.navigate('canva');
-  }
-
-  onAutosaveCanva(event: any) {
-    if (!event) return;
-    this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-    this.datosGuardadosTipoVehiculo = {
-      ...(this.datosGuardadosTipoVehiculo || {}),
-      tipoVehiculo:
-        event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
-      modificaciones:
-        event.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
-      opcionesCoche:
-        event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
-      marcadores:
-        event.marcadores ?? this.datosGuardadosTipoVehiculo?.marcadores,
-    };
-    this.persist();
-  }
-
-  onVolverDesdeCanva(event?: any) {
-    // 1) mergea lo que venga del Canva
-    if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-      this.datosResumenModificaciones = {
-        ...(this.datosResumenModificaciones || {}),
-        ...event,
-      };
-    }
-
-    // 2) detecta el tipo desde cualquier fuente fiable
-    const tipo = (
-      this.datosGuardadosTipoVehiculo?.tipoVehiculo ??
-      this.datosGenerales?.tipoVehiculo ??
-      ''
-    )
-      .toString()
-      .trim()
-      .toLowerCase();
-
-    // 3) persiste y navega al paso correcto
-    this.persist();
-    if (tipo === 'coche') {
-      this.navigate('coche-o-no'); // si es coche, vuelve al paso “coche-o-no”
-    } else {
-      this.navigate('resumen'); // si NO es coche, vuelve a “resumen-modificaciones”
-    }
-  }
-
-  onContinuarDesdeCanva(event: any) {
-    if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-      this.datosResumenModificaciones = {
-        ...(this.datosResumenModificaciones || {}),
-        ...event,
-      };
-    }
     this.persist();
     this.navigate('imagenes');
   }
 
   onAutosaveImagenes(event: any) {
     if (!event) return;
-    this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+
+    this.datosGenerales = {
+      ...(this.datosGenerales || {}),
+      ...event,
+      prevImagesB64:
+        Array.isArray(event.prevImagesB64) && event.prevImagesB64.length > 0
+          ? event.prevImagesB64
+          : this.datosGenerales?.prevImagesB64 || [],
+      postImagesB64:
+        Array.isArray(event.postImagesB64) && event.postImagesB64.length > 0
+          ? event.postImagesB64
+          : this.datosGenerales?.postImagesB64 || [],
+    };
+
     this.datosResumenModificaciones = {
       ...(this.datosResumenModificaciones || {}),
       ...event,
     };
+
     this.persist();
   }
 
@@ -556,7 +414,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       };
     }
     this.persist();
-    this.navigate('canva');
+    this.navigate('resumen');
   }
 
   onContinuarDesdeImagenes(event: any) {
