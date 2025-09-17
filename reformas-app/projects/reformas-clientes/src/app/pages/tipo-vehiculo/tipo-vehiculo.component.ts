@@ -37,31 +37,287 @@ export class TipoVehiculoComponent implements OnInit {
     },
   ];
 
+  detalleRuedas = [
+    { key: 'neumaticos', label: 'Neumaticos' },
+    { key: 'llantas', label: 'Llantas' },
+    { key: 'separadoresDeRueda', label: 'Separadores de rueda' },
+  ];
+
   detallesMuellesOpciones = [
-    { key: 'muelleDelanteroConRef', label: 'Muelle delantero con referencia' },
-    { key: 'muelleDelanteroSinRef', label: 'Muelle delantero sin referencia' },
-    { key: 'muelleTraseroConRef', label: 'Muelle trasero con referencia' },
-    { key: 'muelleTraseroSinRef', label: 'Muelle trasero sin referencia' },
+    { key: 'muelleDelantero', label: 'Muelle delantero' },
+    { key: 'muelleTrasero', label: 'Muelle trasero' },
     { key: 'ballestaDelantera', label: 'Ballesta delantera' },
     { key: 'ballestaTrasera', label: 'Ballesta trasera' },
     { key: 'amortiguadorDelantero', label: 'Amortiguador delantero' },
     { key: 'amortiguadorTrasero', label: 'Amortiguador trasero' },
-    { key: 'tacosDeGoma', label: 'Instalación de tacos de goma' },
-    { key: 'kitElevacion', label: 'Instalación de kit de elevación' },
+    { key: 'suplementoSusDelantero', label: 'Suplemento suspensión delantero' },
+    { key: 'suplementoSusTrasero', label: 'Suplemento suspensión trasero' },
+  ];
+
+  detalleCarroceria = [
+    { key: 'paragolpesDelantero', label: 'Paragolpes delantero' },
+    { key: 'paragolpesTrasero', label: 'Paragolpes trasero' },
+    { key: 'aleron', label: 'Alerón' },
+    { key: 'aletines', label: 'Aletines' },
+    { key: 'sobrealetines', label: 'Sobrealetines' },
+    { key: 'snorkel', label: 'Snorkel' },
+    { key: 'peldaños', label: 'Peldaños' },
+    { key: 'talonerasEstribos', label: 'Taloneras / Estribos' },
+    { key: 'matriculaDelanteraPequeña', label: 'Matrícula delantera pequeña' },
+    { key: 'cabrestante', label: 'Cabrestante' },
+    { key: 'barraAntiempotramiento', label: 'Barra Antiempotramiento' },
+    { key: 'defensaDelantera', label: 'Defensa delantera' },
+    { key: 'soporteRuedaRepuesto', label: 'Soporte de rueda de repuesto' },
+    { key: 'bodyLift', label: 'Body lift' },
   ];
 
   opcionesDescripcionLuces = [
-    { key: 'luzGrupoOptico', label: 'Grupo óptico delantero' },
+    { key: 'faroDelantero', label: 'Faro delantero' },
     {
-      key: 'intermitenteDelantero',
-      label: 'Intermitentes delanteros en horquilla',
+      key: 'PilotoTrasero',
+      label: 'Piloto trasero',
     },
     {
-      key: 'intermitenteTrasero',
-      label: 'Intermitentes traseros en portamatrícula',
+      key: 'intermitentesLaterales',
+      label: 'Intermitentes laterales',
     },
-    { key: 'catadioptrico', label: 'Catadióptrico posterior' },
-    { key: 'luzMatricula', label: 'Luz de matrícula' },
+    { key: 'focosDeTrabajo', label: 'Focos de trabajo' },
+  ];
+
+  opcionesDescripcionFocosDeTrabajo = [
+    { key: 'focoParaDelantero', label: 'Foco en paragolpes delantero' },
+    {
+      key: 'focoParaTrasero',
+      label: 'Foco en paragolpes trasero',
+    },
+    {
+      key: 'focoParteTrasera',
+      label: 'Foco en parte trasera',
+    },
+    { key: 'focoEnTecho', label: 'Foco en el techo' },
+  ];
+
+  detalleDireccion = [
+    { key: 'volanteYPiña', label: 'Volante y piña' },
+    {
+      key: 'barraDeDireccion',
+      label: 'Barra de dirección',
+    },
+    {
+      key: 'amortiguadorDeDireccion',
+      label: 'Amortiguación de dirección',
+    },
+    { key: 'sustitucionDeEjes', label: 'Sustitución de ejes' },
+  ];
+
+  detalleFrenos = [
+    { key: 'tamborPorDisco', label: 'Tambor por disco' },
+    {
+      key: 'discosPerforadosRayados',
+      label: 'Discos perforados/rayados',
+    },
+    {
+      key: 'latiguillos',
+      label: 'Latiguillos',
+    },
+    { key: 'bomba', label: 'Bomba' },
+  ];
+
+  detalleUnidadMotriz = [
+    { key: 'cambioDeMotor', label: 'Tambor por disco' },
+    {
+      key: 'CambioCajaCambios',
+      label: 'Discos perforados/rayados',
+    },
+    {
+      key: 'cambioEscape',
+      label: 'Latiguillos',
+    },
+    { key: 'ampliacionNDepositosCombustible', label: 'Bomba' },
+  ];
+
+  detalleRuedasMotos = [
+    { key: 'neumaticosMoto', label: 'Nuematicos' },
+    { key: 'llantasMoto', label: 'Llantas' },
+    { key: 'separadoresDeRuedaMoto', label: 'Separadores de rueda(Quads)' },
+  ];
+
+  detallesSuspensionesMotos = [
+    { key: 'horquillaDelanteraMoto', label: 'Muelle delantero' },
+    { key: 'muelleDelanteroMoto', label: 'Muelle delantero' },
+    { key: 'muelleTraseroMoto', label: 'Muelle trasero' },
+    { key: 'amortiguadorDelanteroMoto', label: 'Amortiguador delantero' },
+    { key: 'amortiguadorTraseroMoto', label: 'Amortiguador trasero' },
+  ];
+
+  detallesCarroceriaMoto = [
+    { key: 'guardabarrosDelanteroMoto', label: 'Guardabarros delantero' },
+    { key: 'guardabarrosTraseroMoto', label: 'Guardabarros trasero' },
+    { key: 'estribosMoto', label: 'Estribos' },
+    { key: 'cabrestanteMoto', label: 'Cabrestante (quads)' },
+    {
+      key: 'cambioPlacaDeMatriculaMoto',
+      label: 'Cambio de placa de matricula',
+    },
+    { key: 'retrovisoresMoto', label: 'Retrovisores' },
+    { key: 'carenadoMoto', label: 'Carenado' },
+    { key: 'depositoDeCombustibleMoto', label: 'Depósito de combustible' },
+    { key: 'velocimetroMoto', label: 'Velocimetro' },
+    { key: 'manillarMoto', label: 'Manillar' },
+    { key: 'sillinMoto', label: 'Sillin' },
+    { key: 'mandosAdelantadosMoto', label: 'Mandos adelantados' },
+    { key: 'asiderosParaPasajeroMoto', label: 'Asideros para el pasajero' },
+  ];
+
+  detalleChasisSubchasisMotos = [
+    { key: 'recorteSubchasisMoto', label: 'Recorte de subchasis' },
+    { key: 'modificacionDeChasisMoto', label: 'Modificación del chasis' },
+  ];
+
+  opcionesDescripcionLucesMoto = [
+    { key: 'faroDelanteroMoto', label: 'Faro delantero' },
+    {
+      key: 'PilotoTraseroMoto',
+      label: 'Piloto trasero',
+    },
+    {
+      key: 'luzDeMatriculaMoto',
+      label: 'Luz de matrícula',
+    },
+    { key: 'catadriopticoTraseroMoto', label: 'Catadióptrico trasero' },
+    {
+      key: 'intermitentesMoto',
+      label: 'Intermitentes',
+    },
+  ];
+
+  detalleFrenosMoto = [
+    { key: 'tamborPorDiscoMoto', label: 'Tambor por disco' },
+    {
+      key: 'discosPerforadosRayadosMoto',
+      label: 'Discos perforados/rayados',
+    },
+    {
+      key: 'latiguillosMoto',
+      label: 'Latiguillos',
+    },
+    { key: 'bombaMoto', label: 'Bomba' },
+  ];
+
+  detalleUnidadMotrizMoto = [
+    { key: 'cambioDeMotorMoto', label: 'Tambor por disco' },
+    {
+      key: 'CambioCajaCambiosMoto',
+      label: 'Discos perforados/rayados',
+    },
+    {
+      key: 'cambioEscapeMoto',
+      label: 'Latiguillos',
+    },
+    { key: 'ampliacionNDepositosCombustibleMoto', label: 'Bomba' },
+  ];
+
+  detalleRuedasCamper = [
+    { key: 'neumaticosCamper', label: 'Nuematicos' },
+    { key: 'llantasCamper', label: 'Llantas' },
+    { key: 'separadoresDeRuedaCamper', label: 'Separadores de rueda(Quads)' },
+  ];
+
+  detallesSuspensionesCamper = [
+    { key: 'muelleDelanteroCamper', label: 'Muelle delantero' },
+    { key: 'muelleTraseroCamper', label: 'Muelle trasero' },
+    { key: 'ballestasDelanterasCamper', label: 'Ballesta delantera' },
+    { key: 'ballestasTraserasCamper', label: 'Ballesta trasera' },
+    { key: 'amortiguadorDelanteroCamper', label: 'Amortiguador delantero' },
+    { key: 'amortiguadorTraseroCamper', label: 'Amortiguador trasero' },
+    {
+      key: 'suplementoSuspensionDelanteroCamper',
+      label: 'Amortiguador delantero',
+    },
+    { key: 'suplementoSuspensionTraseroCamper', label: 'Amortiguador trasero' },
+  ];
+
+  opcionesDescripcionMobiliarioInterior = [
+    { key: 'muebleBajo', label: 'Mueble bajo' },
+    {
+      key: 'muebleAlto',
+      label: ' Mueble alto',
+    },
+    {
+      key: 'aseo',
+      label: 'Aseo',
+    },
+    { key: 'estanteria', label: 'Estantería' },
+    {
+      key: 'cama',
+      label: 'Cama',
+    },
+    { key: 'baseGiratoria', label: 'Bases giratorias' },
+    {
+      key: 'banquetaParaAumentarPlazas',
+      label: 'Banqueta para aumentar plazas',
+    },
+    {
+      key: 'ventanas',
+      label: 'Ventanas',
+    },
+    { key: 'claraboyas', label: 'Claraboyas' },
+  ];
+
+  opcionesDescripcionFontaneria = [
+    { key: 'termo', label: 'Foco en paragolpes delantero' },
+    {
+      key: 'bombaDeAgua',
+      label: 'Foco en paragolpes trasero',
+    },
+    {
+      key: 'vasoDeExpansion',
+      label: 'Foco en parte trasera',
+    },
+    { key: 'depositoAguaLimpia', label: 'Foco en el techo' },
+    { key: 'depositoAguaSucia', label: 'Foco en paragolpes delantero' },
+    {
+      key: 'duchaInterior',
+      label: 'Foco en paragolpes trasero',
+    },
+    {
+      key: 'duchaExterior',
+      label: 'Foco en parte trasera',
+    },
+    { key: 'tomaDeAguaExterior', label: 'Foco en el techo' },
+    { key: 'calefaccionDiesel', label: 'Foco en el techo' },
+  ];
+
+  detallesInteriorVehiculo = [
+    { key: 'mobiliarioInterior', label: 'Mobiliario interior' },
+    { key: 'fontaneria', label: 'Fontanería' },
+  ];
+
+  detallesInstalacionElectricaCamper = [
+    { key: 'placaSolar', label: 'Muelle delantero' },
+    { key: 'inversor', label: 'Muelle delantero' },
+    { key: 'reguladorSolar', label: 'Muelle trasero' },
+    { key: 'cargadorDeBateria', label: 'Amortiguador delantero' },
+    { key: 'bateriaAuxiliar', label: 'Amortiguador trasero' },
+    { key: 'iluminacionExterior', label: 'Muelle delantero' },
+    { key: 'tomaCorrienteexterior', label: 'Muelle trasero' },
+    { key: 'tomaCorrienteInterior', label: 'Amortiguador delantero' },
+  ];
+
+  detalleCarroceriaCamper = [
+    { key: 'paragolpesDelanteroCamper', label: 'Paragolpes delantero' },
+    { key: 'paragolpesTraseroCamper', label: 'Paragolpes trasero' },
+    { key: 'aleronCamper', label: 'Alerón' },
+    { key: 'aletinesYSobrealetinesCamper', label: 'Aletines y sobrealetines' },
+    { key: 'snorkelCamper', label: 'Snorkel' },
+    { key: 'peldañosCamper', label: 'Peldaños' },
+    { key: 'talonerasEstribosCamper', label: 'Taloneras / Estribos' },
+    { key: 'cabrestanteCamper', label: 'Cabrestante' },
+    { key: 'defensaDelanteraCamper', label: 'Defensa delantera' },
+    {
+      key: 'soporteRuedaRepuestoCamper',
+      label: 'Soporte de rueda de repuesto',
+    },
   ];
 
   ngOnInit(): void {
@@ -165,321 +421,320 @@ export class TipoVehiculoComponent implements OnInit {
   obtenerModificacionesPorTipo(tipo: string): Modificacion[] {
     switch (tipo) {
       case 'coche':
+      case 'industrial':
         return [
           {
-            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
-            seleccionado: false,
-          },
-          {
-            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
-            seleccionado: false,
-          },
-          { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
-          {
-            nombre: 'NEUMÁTICOS',
-            seleccionado: false,
-            anotacion1: '',
-            anotacion2: '',
-          },
-          { nombre: 'SEPARADORES DE RUEDA', seleccionado: false },
-          {
-            nombre: 'ALETINES Y SOBREALETINES',
+            nombre: 'Ruedas',
             seleccionado: false,
             detalle: {
-              aletines: false,
-              sobrealetines: false,
+              neumaticos: false,
+              llantas: false,
+              separadoresDeRueda: false,
             },
           },
-          { nombre: 'SNORKEL', seleccionado: false },
-          { nombre: 'PARAGOLPES DELANTERO', seleccionado: false },
-          { nombre: 'PARAGOLPES TRASERO', seleccionado: false },
-          { nombre: 'CABRESTANTE', seleccionado: false },
-          { nombre: 'ANTIEMPOTRAMIENTO', seleccionado: false },
           {
-            nombre: 'SOPORTES PARA LUCES DE USO ESPECÍFICO',
+            nombre: 'Suspensión',
             seleccionado: false,
-          },
-          { nombre: 'SOPORTE PARA RUEDA DE REPUESTO', seleccionado: false },
-          {
-            nombre:
-              'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR',
-            seleccionado: false,
-            anotacion: '',
-            detallesMuelles: {
-              muelleDelanteroConRef: false,
-              muelleDelanteroSinRef: false,
+            detalle: {
+              muelleDelantero: false,
+              muelleTrasero: false,
               ballestaDelantera: false,
               ballestaTrasera: false,
               amortiguadorDelantero: false,
-              muelleTraseroConRef: false,
-              muelleTraseroSinRef: false,
               amortiguadorTrasero: false,
-              tacosDeGoma: false,
-              kitElevacion: false,
+              suplementoSusDelantero: false,
+              suplementoSusTrasero: false,
             },
           },
           {
-            nombre: 'MATRÍCULA Y PORTAMATRÍCULA',
+            nombre: 'Carrocería',
             seleccionado: false,
             detalle: {
-              instalacionPorta: false,
-              reubicacionTrasera: false,
-              cambioUbicacionDelantera: false,
+              paragolpesDelantero: false,
+              paragolpesTrasero: false,
+              aleron: false,
+              aletinesYSobrealetines: false,
+              snorkel: false,
+              peldaños: false,
+              talonerasEstribos: false,
+              matriculaDelanteraPequeña: false,
+              cabrestante: false,
+              barraAntiempotramiento: false,
+              defensaDelantera: false,
+              soporteRuedaRepuesto: false,
+              bodyLift: false,
             },
           },
-          { nombre: 'DEFENSA DELANTERA', seleccionado: false },
-          { nombre: 'AMORTIGUADOR DE DIRECCIÓN', seleccionado: false },
-          { nombre: 'BARRA DE DIRECCIÓN', seleccionado: false },
           {
-            nombre:
-              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)',
-            seleccionado: false,
-          },
-          {
-            nombre:
-              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)',
-            seleccionado: false,
-          },
-          { nombre: 'FAROS DELANTEROS PRINCIPALES', seleccionado: false },
-          { nombre: 'LUZ DE CRUCE', seleccionado: false },
-          { nombre: 'LUCES DE LARGO ALCANCE', seleccionado: false },
-          { nombre: 'LUZ DE POSICIÓN', seleccionado: false },
-          { nombre: '3ª LUZ DE FRENO', seleccionado: false },
-          { nombre: 'DIURNAS', seleccionado: false },
-          { nombre: 'ANTINIEBLA', seleccionado: false },
-          {
-            nombre: 'PILOTO TRASERO',
+            nombre: 'Luces',
             seleccionado: false,
             detalle: {
-              luzPosicionFreno: false,
-              intermitente: false,
-              marchaAtras: false,
-              catadioptrico: false,
+              faroDelantero: false,
+              PilotoTrasero: false,
+              intermitentesLaterales: false,
+              focosDeTrabajo: false,
+            },
+            focosTrabajo: {
+              paragolpesDelantero: false,
+              paragolpesTrasero: false,
+              parteTrasera: false,
+              techo: false,
             },
           },
           {
-            nombre: 'INTERMITENTES',
+            nombre: 'Dirección',
             seleccionado: false,
             detalle: {
-              interDelantero: false,
-              interTrasero: false,
-              interLateral: false,
+              volanteYPiña: false,
+              barraDeDireccion: false,
+              amortiguadorDeDireccion: false,
+              sustitucionDeEjes: false,
             },
           },
           {
-            nombre: 'SUSTITUCIÓN DE EJES',
+            nombre: 'Freno',
             seleccionado: false,
             detalle: {
-              sustitucionEjeTrasero: false,
-              sustitucionEjeDelantero: false,
+              tamborPorDisco: false,
+              discosPerforadosRayados: false,
+              latiguillos: false,
+              bomba: false,
             },
           },
           {
-            nombre: 'ESTRIBOS LATERALES O TALONERAS',
+            nombre: 'Unidad motriz',
             seleccionado: false,
             detalle: {
-              estribosotaloneras: false,
-              anotacionAntideslizante: false,
+              cambioDeMotor: false,
+              CambioCajaCambios: false,
+              cambioEscape: false,
+              ampliacionNDepositosCombustible: false,
             },
           },
+          { nombre: 'Enganche de remolque', seleccionado: false },
+          { nombre: 'Portabicicletas', seleccionado: false },
+          { nombre: 'Reducción de plazas de asiento', seleccionado: false },
         ];
       case 'moto':
         return [
           {
-            nombre: 'REDUCCIÓN MMA Y MMTA',
+            nombre: 'Ruedas',
             seleccionado: false,
-            ejeDelantero: false,
-            ejeTotal: false,
-          },
-          { nombre: 'LLANTAS Y NEUMÁTICOS', seleccionado: false },
-          { nombre: 'SUSPENSIÓN', seleccionado: false },
-          {
-            nombre: 'SUSTITUCIÓN GUARDABARROS',
-            seleccionado: false,
-            guardabarrosDelantero: false,
-            guardabarrosTrasero: false,
-          },
-          { nombre: 'MANILLAR', seleccionado: false },
-          { nombre: 'VELOCÍMETRO', seleccionado: false },
-          { nombre: 'LATIGUILLOS', seleccionado: false },
-          { nombre: 'RETROVISORES', seleccionado: false },
-          { nombre: 'HORQUILLA DELANTERA', seleccionado: false },
-          {
-            nombre: 'DISCO DE FRENO Y PINZA DE FRENO',
-            seleccionado: false,
-            discoFreno: false,
-            pastillaFreno: false,
-          },
-          {
-            nombre: 'LUCES',
-            seleccionado: false,
-            descripcionLuces: {
-              luzGrupoOptico: false,
-              intermitenteDelantero: false,
-              intermitenteTrasero: false,
-              catadioptrico: false,
-              luzMatricula: false,
+            detalle: {
+              neumaticosMoto: false,
+              llantasMoto: false,
+              separadoresDeRuedaMoto: false,
             },
           },
+          {
+            nombre: 'Suspensión',
+            seleccionado: false,
+            detalle: {
+              horquillaDelanteraMoto: false,
+              muelleDelanteroMoto: false,
+              muelleTraseroMoto: false,
+              amortiguadorDelanteroMoto: false,
+              amortiguadorTraseroMoto: false,
+            },
+          },
+          {
+            nombre: 'Carrocería',
+            seleccionado: false,
+            detalle: {
+              guardabarrosDelanteroMoto: false,
+              guardabarrosTraseroMoto: false,
+              estribosMoto: false,
+              cabrestanteMoto: false,
+              cambioPlacaDeMatriculaMoto: false,
+              retrovisoresMoto: false,
+              carenadoMoto: false,
+              depositoDeCombustibleMoto: false,
+              velocimetroMoto: false,
+              manillarMoto: false,
+              sillinMoto: false,
+              mandosAdelantadosMoto: false,
+              asiderosParaPasajeroMoto: false,
+            },
+          },
+          {
+            nombre: 'Chasis y Subchasis',
+            seleccionado: false,
+            detalle: {
+              recorteSubchasisMoto: false,
+              modificacionDeChasisMoto: false,
+            },
+          },
+          {
+            nombre: 'Luces',
+            seleccionado: false,
+            detalle: {
+              faroDelanteroMoto: false,
+              PilotoTraseroMoto: false,
+              luzDeMatriculaMoto: false,
+              catadriopticoTraseroMoto: false,
+              intermitentesMoto: false,
+            },
+          },
+
+          {
+            nombre: 'Freno',
+            seleccionado: false,
+            detalle: {
+              tamborPorDiscoMoto: false,
+              discosPerforadosRayadosMoto: false,
+              latiguillosMoto: false,
+              bombaMoto: false,
+            },
+          },
+          {
+            nombre: 'Unidad motriz',
+            seleccionado: false,
+            detalle: {
+              cambioDeMotorMoto: false,
+              CambioCajaCambiosMoto: false,
+              cambioEscapeMoto: false,
+              ampliacionNDepositosCombustibleMoto: false,
+            },
+          },
+          { nombre: 'Enganche de remolque (quads)', seleccionado: false },
+          { nombre: 'Reducción de plazas de asiento', seleccionado: false },
         ];
       case 'camper':
         return [
-          { nombre: 'CAMBIO DE CLASIFICACIÓN', seleccionado: false },
           {
-            nombre: 'AUMENTO O DISMINUCIÓN DE PLAZAS',
+            nombre: 'Ruedas',
             seleccionado: false,
-            tipoCambio: null,
+            detalle: {
+              neumaticosCamper: false,
+              llantasCamper: false,
+              separadoresDeRuedaCamper: false,
+            },
           },
           {
-            nombre:
-              'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL',
+            nombre: 'Suspensión',
             seleccionado: false,
+            detalle: {
+              muelleDelanteroCamper: false,
+              muelleTraseroCamper: false,
+              ballestasDelanterasCamper: false,
+              ballestasTraserasCamper: false,
+              amortiguadorDelanteroCamper: false,
+              amortiguadorTraseroCamper: false,
+              suplementoSuspensionDelanteroCamper: false,
+              suplementoSuspensionTraseroCamper: false,
+            },
           },
-          { nombre: 'INSTALACIÓN DE BASES GIRATORIAS', seleccionado: false },
-          { nombre: 'CALEFACCIÓN ESTACIONARIA', seleccionado: false },
           {
-            nombre: 'MOBILIARIO INTERIOR VEHÍCULO',
+            nombre: 'Modificaciones en el interior del vehículo',
             seleccionado: false,
-            opcionesMueble: {
+            detalle: {
+              mobiliarioInterior: false,
+              fontaneria: false,
+            },
+            mobiliarioInterior: {
               muebleBajo: false,
               muebleAlto: false,
               aseo: false,
+              cama: false,
+              estanteria: false,
+              baseGiratoria: false,
+              banquetaParaAumentarPlazas: false,
+              ventanas: false,
+              claraboyas: false,
+            },
+            fontaneria: {
+              termo: false,
+              bombaDeAgua: false,
+              vasoDeExpansion: false,
+              depositoAguaLimpia: false,
+              depositoAguaSucia: false,
+              duchaInterior: false,
+              duchaExterior: false,
+              tomaDeAguaExterior: false,
+              calefaccionDiesel: false,
             },
           },
-          { nombre: 'CLARABOYA', seleccionado: false },
-          { nombre: 'VENTANA', seleccionado: false },
-          { nombre: 'DEPÓSITO DE AGUA SUCIA', seleccionado: false },
-          { nombre: 'DEPÓSITO DE AGUA LIMPIA', seleccionado: false },
-          { nombre: 'BOMBA DE AGUA', seleccionado: false },
-          { nombre: 'REGISTRO DE LLENADO DE AGUA', seleccionado: false },
-          { nombre: 'TOMA EXTERIOR 230V', seleccionado: false },
-          { nombre: 'DUCHA EXTERIOR', seleccionado: false, anotacion: false },
           {
-            nombre: 'INSTALACIÓN ELÉCTRICA',
+            nombre: 'Instalación eléctrica',
             seleccionado: false,
-            anotacion: false,
+            detalle: {
+              placaSolar: false,
+              inversor: false,
+              reguladorSolar: false,
+              cargadorDeBateria: false,
+              bateriaAuxiliar: false,
+              iluminacionExterior: false,
+              tomaCorrienteexterior: false,
+              tomaCorrienteInterior: false,
+            },
           },
-          { nombre: 'TOLDO', seleccionado: false },
+          {
+            nombre: 'Carrocería',
+            seleccionado: false,
+            detalle: {
+              paragolpesDelanteroCamper: false,
+              paragolpesTraseroCamper: false,
+              aleronCamper: false,
+              aletinesYSobrealetinesCamper: false,
+              snorkelCamper: false,
+              peldañosCamper: false,
+              talonerasEstribosCamper: false,
+              cabrestanteCamper: false,
+              defensaDelanteraCamper: false,
+              soporteRuedaRepuestoCamper: false,
+            },
+          },
+          {
+            nombre: 'Luces',
+            seleccionado: false,
+            detalle: {
+              faroDelantero: false,
+              PilotoTrasero: false,
+              intermitentesLaterales: false,
+              focosDeTrabajo: false,
+            },
+            focosTrabajo: {
+              paragolpesDelantero: false,
+              paragolpesTrasero: false,
+              parteTrasera: false,
+              techo: false,
+            },
+          },
+          {
+            nombre: 'Dirección',
+            seleccionado: false,
+            detalle: {
+              volanteYPiña: false,
+              barraDeDireccion: false,
+              amortiguadorDeDireccion: false,
+            },
+          },
+          {
+            nombre: 'Freno',
+            seleccionado: false,
+            detalle: {
+              tamborPorDisco: false,
+              discosPerforadosRayados: false,
+              latiguillos: false,
+              bomba: false,
+            },
+          },
+          {
+            nombre: 'Unidad motriz',
+            seleccionado: false,
+            detalle: {
+              cambioDeMotor: false,
+              CambioCajaCambios: false,
+              cambioEscape: false,
+              ampliacionNDepositosCombustible: false,
+            },
+          },
+          { nombre: 'Enganche de remolque', seleccionado: false },
+          { nombre: 'Portabicicletas', seleccionado: false },
+
+          { nombre: 'Toldo', seleccionado: false },
         ];
-      case 'industrial':
-        return [
-          {
-            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
-            seleccionado: false,
-          },
-          {
-            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
-            seleccionado: false,
-          },
-          { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
-          {
-            nombre: 'NEUMÁTICOS',
-            seleccionado: false,
-            anotacion1: '',
-            anotacion2: '',
-          },
-          { nombre: 'SEPARADORES DE RUEDA', seleccionado: false },
-          {
-            nombre: 'ALETINES Y SOBREALETINES',
-            seleccionado: false,
-            detalle: {
-              aletines: false,
-              sobrealetines: false,
-            },
-          },
-          { nombre: 'SNORKEL', seleccionado: false },
-          { nombre: 'PARAGOLPES DELANTERO', seleccionado: false },
-          { nombre: 'PARAGOLPES TRASERO', seleccionado: false },
-          { nombre: 'CABRESTANTE', seleccionado: false },
-          { nombre: 'ANTIEMPOTRAMIENTO', seleccionado: false },
-          {
-            nombre: 'SOPORTES PARA LUCES DE USO ESPECÍFICO',
-            seleccionado: false,
-          },
-          { nombre: 'SOPORTE PARA RUEDA DE REPUESTO', seleccionado: false },
-          {
-            nombre:
-              'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR',
-            seleccionado: false,
-            anotacion: '',
-            detallesMuelles: {
-              muelleDelanteroConRef: false,
-              muelleDelanteroSinRef: false,
-              ballestaDelantera: false,
-              ballestaTrasera: false,
-              amortiguadorDelantero: false,
-              muelleTraseroConRef: false,
-              muelleTraseroSinRef: false,
-              amortiguadorTrasero: false,
-              tacosDeGoma: false,
-              kitElevacion: false,
-            },
-          },
-          {
-            nombre: 'MATRÍCULA Y PORTAMATRÍCULA',
-            seleccionado: false,
-            detalle: {
-              instalacionPorta: false,
-              reubicacionTrasera: false,
-              cambioUbicacionDelantera: false,
-            },
-          },
-          { nombre: 'DEFENSA DELANTERA', seleccionado: false },
-          { nombre: 'AMORTIGUADOR DE DIRECCIÓN', seleccionado: false },
-          { nombre: 'BARRA DE DIRECCIÓN', seleccionado: false },
-          {
-            nombre:
-              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)',
-            seleccionado: false,
-          },
-          {
-            nombre:
-              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)',
-            seleccionado: false,
-          },
-          { nombre: 'FAROS DELANTEROS PRINCIPALES', seleccionado: false },
-          { nombre: 'LUZ DE CRUCE', seleccionado: false },
-          { nombre: 'LUCES DE LARGO ALCANCE', seleccionado: false },
-          { nombre: 'LUZ DE POSICIÓN', seleccionado: false },
-          { nombre: '3ª LUZ DE FRENO', seleccionado: false },
-          { nombre: 'DIURNAS', seleccionado: false },
-          { nombre: 'ANTINIEBLA', seleccionado: false },
-          {
-            nombre: 'PILOTO TRASERO',
-            seleccionado: false,
-            detalle: {
-              luzPosicionFreno: false,
-              intermitente: false,
-              marchaAtras: false,
-              catadioptrico: false,
-            },
-          },
-          {
-            nombre: 'INTERMITENTES',
-            seleccionado: false,
-            detalle: {
-              interDelantero: false,
-              interTrasero: false,
-              interLateral: false,
-            },
-          },
-          {
-            nombre: 'SUSTITUCIÓN DE EJES',
-            seleccionado: false,
-            detalle: {
-              sustitucionEjeTrasero: false,
-              sustitucionEjeDelantero: false,
-            },
-          },
-          {
-            nombre: 'ESTRIBOS LATERALES O TALONERAS',
-            seleccionado: false,
-            detalle: {
-              estribosotaloneras: false,
-              anotacionAntideslizante: false,
-            },
-          },
-        ];
+
       default:
         return [];
     }
@@ -540,101 +795,290 @@ export class TipoVehiculoComponent implements OnInit {
 
       let invalido = false;
 
-      if (mod.nombre.includes('MUELLES') && mod.detallesMuelles) {
-        invalido = !Object.values(mod.detallesMuelles).some((v) => v);
+      if (mod.tipo === 'Coche') {
+        if (mod.nombre === 'Ruedas' && mod.detalle) {
+          const opts = [
+            mod.detalle.neumaticos,
+            mod.detalle.llantas,
+            mod.detalle.separadoresDeRueda,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Suspensión' && mod.detalle) {
+          const opts = [
+            mod.detalle.muelleDelantero,
+            mod.detalle.muelleTrasero,
+            mod.detalle.ballestaDelantera,
+            mod.detalle.ballestaTrasera,
+            mod.detalle.amortiguadorDelantero,
+            mod.detalle.amortiguadorTrasero,
+            mod.detalle.suplementoSusDelantero,
+            mod.detalle.suplementoSusTrasero,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Carrocería' && mod.detalle) {
+          const opts = [
+            mod.detalle.paragolpesDelantero,
+            mod.detalle.paragolpesTrasero,
+            mod.detalle.aleron,
+            mod.detalle.aletinesYSobrealetines,
+            mod.detalle.snorkel,
+            mod.detalle.peldaños,
+            mod.detalle.talonerasEstribos,
+            mod.detalle.matriculaDelanteraPequeña,
+            mod.detalle.cabrestante,
+            mod.detalle.barraAntiempotramiento,
+            mod.detalle.defensaDelantera,
+            mod.detalle.soporteRuedaRepuesto,
+            mod.detalle.bodyLift,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Luces' && mod.detalle) {
+          const opts = [
+            mod.detalle.faroDelantero,
+            mod.detalle.PilotoTrasero,
+            mod.detalle.intermitentesLaterales,
+            mod.detalle.focosDeTrabajo,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Dirección' && mod.detalle) {
+          const opts = [
+            mod.detalle.volanteYPiña,
+            mod.detalle.barraDeDireccion,
+            mod.detalle.amortiguadorDeDireccion,
+            mod.detalle.sustitucionDeEjes,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Freno' && mod.detalle) {
+          const opts = [
+            mod.detalle.tamborPorDisco,
+            mod.detalle.discosPerforadosRayados,
+            mod.detalle.latiguillos,
+            mod.detalle.bomba,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Unidad motriz' && mod.detalle) {
+          const opts = [
+            mod.detalle.cambioDeMotor,
+            mod.detalle.CambioCajaCambios,
+            mod.detalle.cambioEscape,
+            mod.detalle.ampliacionNDepositosCombustible,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        this.erroresSubopciones[index] = invalido;
+
+        if (invalido) {
+          esValido = false;
+        }
       }
 
-      if (
-        (mod.nombre.includes('MATRÍCULA') || mod.nombre.includes('ALETINES')) &&
-        mod.detalle
-      ) {
-        invalido = !Object.values(mod.detalle).some((v) => v);
+      if (mod.tipo === 'Moto') {
+        let invalido = false;
+
+        if (mod.nombre === 'Ruedas' && mod.detalle) {
+          const opts = [
+            mod.detalle.neumaticosMoto,
+            mod.detalle.llantasMoto,
+            mod.detalle.separadoresDeRuedaMoto,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Suspensión' && mod.detalle) {
+          const opts = [
+            mod.detalle.horquillaDelanteraMoto,
+            mod.detalle.muelleDelanteroMoto,
+            mod.detalle.muelleTraseroMoto,
+            mod.detalle.amortiguadorDelanteroMoto,
+            mod.detalle.amortiguadorTraseroMoto,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Carrocería' && mod.detalle) {
+          const opts = [
+            mod.detalle.guardabarrosDelanteroMoto,
+            mod.detalle.guardabarrosTraseroMoto,
+            mod.detalle.estribosMoto,
+            mod.detalle.cabrestanteMoto,
+            mod.detalle.cambioPlacaDeMatriculaMoto,
+            mod.detalle.retrovisoresMoto,
+            mod.detalle.carenadoMoto,
+            mod.detalle.depositoDeCombustibleMoto,
+            mod.detalle.velocimetroMoto,
+            mod.detalle.manillarMoto,
+            mod.detalle.sillinMoto,
+            mod.detalle.mandosAdelantadosMoto,
+            mod.detalle.asiderosParaPasajeroMoto,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Chasis y Subchasis' && mod.detalle) {
+          const opts = [
+            mod.detalle.recorteSubchasisMoto,
+            mod.detalle.modificacionDeChasisMoto,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Luces' && mod.detalle) {
+          const opts = [
+            mod.detalle.faroDelanteroMoto,
+            mod.detalle.PilotoTraseroMoto,
+            mod.detalle.luzDeMatriculaMoto,
+            mod.detalle.catadriopticoTraseroMoto,
+            mod.detalle.intermitentesMoto,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Freno' && mod.detalle) {
+          const opts = [
+            mod.detalle.tamborPorDiscoMoto,
+            mod.detalle.discosPerforadosRayadosMoto,
+            mod.detalle.latiguillosMoto,
+            mod.detalle.bombaMoto,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        if (mod.nombre === 'Unidad motriz' && mod.detalle) {
+          const opts = [
+            mod.detalle.cambioDeMotorMoto,
+            mod.detalle.CambioCajaCambiosMoto,
+            mod.detalle.cambioEscapeMoto,
+            mod.detalle.ampliacionNDepositosCombustibleMoto,
+          ];
+          invalido = !opts.some((v) => v);
+        }
+
+        this.erroresSubopciones[index] = invalido;
+
+        if (invalido) {
+          esValido = false;
+        }
       }
 
-      if (mod.nombre === 'LUCES' && mod.descripcionLuces) {
-        invalido = !Object.values(mod.descripcionLuces).some((v) => v);
-      }
+      if (mod.tipo === 'camper') {
+        if (mod.nombre === 'Ruedas' && mod.detalle) {
+          const opts = [
+            mod.detalle.neumaticosCamper,
+            mod.detalle.llantasCamper,
+            mod.detalle.separadoresDeRuedaCamper,
+          ];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (mod.nombre === 'PILOTO TRASERO' && mod.detalle) {
-        const opts = [
-          mod.detalle.luzPosicionFreno,
-          mod.detalle.intermitente,
-          mod.detalle.marchaAtras,
-          mod.detalle.catadioptrico,
-        ];
-        invalido = !opts.some((v) => v);
-      }
+        if (mod.nombre === 'Suspensión' && mod.detalle) {
+          const opts = [
+            mod.detalle.muelleDelanteroCamper,
+            mod.detalle.muelleTraseroCamper,
+            mod.detalle.ballestasDelanterasCamper,
+            mod.detalle.ballestasTraserasCamper,
+            mod.detalle.amortiguadorDelanteroCamper,
+            mod.detalle.amortiguadorTraseroCamper,
+            mod.detalle.suplementoSuspensionDelanteroCamper,
+            mod.detalle.suplementoSuspensionTraseroCamper,
+          ];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO') {
-        invalido = !(mod.tieneDisco || mod.tienePastilla);
-      }
+        if (
+          mod.nombre === 'Modificaciones en el interior del vehículo' &&
+          mod.detalle
+        ) {
+          const opts = [mod.detalle.mobiliarioInterior, mod.detalle.fontaneria];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS') {
-        invalido = !(mod.guardabarrosDelantero || mod.guardabarrosTrasero);
-      }
+        if (mod.nombre === 'Instalación eléctrica' && mod.detalle) {
+          const opts = [
+            mod.detalle.placaSolar,
+            mod.detalle.inversor,
+            mod.detalle.reguladorSolar,
+            mod.detalle.cargadorDeBateria,
+            mod.detalle.bateriaAuxiliar,
+            mod.detalle.iluminacionExterior,
+            mod.detalle.tomaCorrienteexterior,
+            mod.detalle.tomaCorrienteInterior,
+          ];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (mod.nombre === 'REDUCCIÓN MMA Y MMTA') {
-        invalido = !(mod.ejeDelantero || mod.ejeTotal);
-      }
+        if (mod.nombre === 'Carrocería' && mod.detalle) {
+          const opts = [
+            mod.detalle.paragolpesDelanteroCamper,
+            mod.detalle.paragolpesTraseroCamper,
+            mod.detalle.aleronCamper,
+            mod.detalle.aletinesYSobrealetinesCamper,
+            mod.detalle.snorkelCamper,
+            mod.detalle.peldañosCamper,
+            mod.detalle.talonerasEstribosCamper,
+            mod.detalle.cabrestanteCamper,
+            mod.detalle.defensaDelanteraCamper,
+            mod.detalle.soporteRuedaRepuestoCamper,
+          ];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (mod.nombre === 'AUMENTO O DISMINUCIÓN DE PLAZAS') {
-        invalido = mod.tipoCambio == null;
-      }
+        if (mod.nombre === 'Luces' && mod.detalle) {
+          const opts = [
+            mod.detalle.faroDelantero,
+            mod.detalle.PilotoTrasero,
+            mod.detalle.intermitentesLaterales,
+            mod.detalle.focosDeTrabajo,
+          ];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (mod.nombre === 'INSTALACIÓN ELÉCTRICA') {
-        invalido = mod.anotacion === undefined;
-      }
+        if (mod.nombre === 'Dirección' && mod.detalle) {
+          const opts = [
+            mod.detalle.volanteYPiña,
+            mod.detalle.barraDeDireccion,
+            mod.detalle.amortiguadorDeDireccion,
+          ];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (invalido) {
-        this.erroresSubopciones[index] = true;
-        esValido = false;
-      }
+        if (mod.nombre === 'Freno' && mod.detalle) {
+          const opts = [
+            mod.detalle.tamborPorDisco,
+            mod.detalle.discosPerforadosRayados,
+            mod.detalle.latiguillos,
+            mod.detalle.bomba,
+          ];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
-        // invalido = true si no tiene ambas selecciones
-        invalido =
-          mod.detalle?.estribosotaloneras == null ||
-          mod.detalle?.anotacionAntideslizante == null;
-      }
+        if (mod.nombre === 'Unidad motriz' && mod.detalle) {
+          const opts = [
+            mod.detalle.cambioDeMotor,
+            mod.detalle.CambioCajaCambios,
+            mod.detalle.cambioEscape,
+            mod.detalle.ampliacionNDepositosCombustible,
+          ];
+          invalido = !opts.some((v) => v);
+        }
 
-      if (mod.nombre === 'INTERMITENTES') {
-        const valido =
-          mod.detalle?.interDelantero ||
-          mod.detalle?.interTrasero ||
-          mod.detalle?.interLateral;
-        invalido = !valido;
-        if (!valido) esValido = false;
-      }
+        this.erroresSubopciones[index] = invalido;
 
-      if (mod.nombre === 'SUSTITUCIÓN DE EJES') {
-        const valido =
-          mod.detalle?.sustitucionEjeDelantero ||
-          mod.detalle?.sustitucionEjeTrasero;
-        invalido = !valido;
-        if (!valido) esValido = false;
-      }
-
-      if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
-        const valido =
-          mod.detalle?.estribosotaloneras ||
-          mod.detalle?.anotacionAntideslizante;
-        invalido = !valido;
-        if (!valido) esValido = false;
-      }
-
-      if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
-        const valido =
-          mod.opcionesMueble?.muebleBajo ||
-          mod.opcionesMueble?.muebleAlto ||
-          mod.opcionesMueble?.aseo;
-        invalido = !valido;
-        if (!valido) esValido = false;
-      }
-
-      this.erroresSubopciones[index] = invalido;
-
-      if (invalido) {
-        esValido = false;
+        if (invalido) {
+          esValido = false;
+        }
       }
     });
 
@@ -644,78 +1088,272 @@ export class TipoVehiculoComponent implements OnInit {
   actualizarError(index: number, mod: Modificacion): void {
     let invalido = false;
 
-    if (mod.nombre.includes('MUELLES') && mod.detallesMuelles) {
-      invalido = !Object.values(mod.detallesMuelles).some((v) => v);
+    if (mod.tipo == 'coche') {
+      if (mod.nombre === 'Ruedas' && mod.detalle) {
+        const opts = [
+          mod.detalle.neumaticos,
+          mod.detalle.llantas,
+          mod.detalle.separadoresDeRueda,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Suspensión' && mod.detalle) {
+        const opts = [
+          mod.detalle.muelleDelantero,
+          mod.detalle.muelleTrasero,
+          mod.detalle.ballestaDelantera,
+          mod.detalle.ballestaTrasera,
+          mod.detalle.amortiguadorDelantero,
+          mod.detalle.amortiguadorTrasero,
+          mod.detalle.suplementoSusDelantero,
+          mod.detalle.suplementoSusTrasero,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Carrocería' && mod.detalle) {
+        const opts = [
+          mod.detalle.paragolpesDelantero,
+          mod.detalle.paragolpesTrasero,
+          mod.detalle.aleron,
+          mod.detalle.aletinesYSobrealetines,
+          mod.detalle.snorkel,
+          mod.detalle.peldaños,
+          mod.detalle.talonerasEstribos,
+          mod.detalle.matriculaDelanteraPequeña,
+          mod.detalle.cabrestante,
+          mod.detalle.barraAntiempotramiento,
+          mod.detalle.defensaDelantera,
+          mod.detalle.soporteRuedaRepuesto,
+          mod.detalle.bodyLift,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Luces' && mod.detalle) {
+        const opts = [
+          mod.detalle.faroDelantero,
+          mod.detalle.PilotoTrasero,
+          mod.detalle.intermitentesLaterales,
+          mod.detalle.focosDeTrabajo,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Dirección' && mod.detalle) {
+        const opts = [
+          mod.detalle.volanteYPiña,
+          mod.detalle.barraDeDireccion,
+          mod.detalle.amortiguadorDeDireccion,
+          mod.detalle.sustitucionDeEjes,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Freno' && mod.detalle) {
+        const opts = [
+          mod.detalle.tamborPorDisco,
+          mod.detalle.discosPerforadosRayados,
+          mod.detalle.latiguillos,
+          mod.detalle.bomba,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Unidad motriz' && mod.detalle) {
+        const opts = [
+          mod.detalle.cambioDeMotor,
+          mod.detalle.CambioCajaCambios,
+          mod.detalle.cambioEscape,
+          mod.detalle.ampliacionNDepositosCombustible,
+        ];
+        invalido = !opts.some((v) => v);
+      }
     }
 
-    if (
-      (mod.nombre.includes('MATRÍCULA') || mod.nombre.includes('ALETINES')) &&
-      mod.detalle
-    ) {
-      invalido = !Object.values(mod.detalle).some((v) => v);
-    }
+    if (mod.tipo == 'moto') {
+      if (mod.nombre === 'Ruedas' && mod.detalle) {
+        const opts = [
+          mod.detalle.neumaticosMoto,
+          mod.detalle.llantasMoto,
+          mod.detalle.separadoresDeRuedaMoto,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'LUCES' && mod.descripcionLuces) {
-      invalido = !Object.values(mod.descripcionLuces).some((v) => v);
-    }
+      if (mod.nombre === 'Suspensión' && mod.detalle) {
+        const opts = [
+          mod.detalle.horquillaDelanteraMoto,
+          mod.detalle.muelleDelanteroMoto,
+          mod.detalle.muelleTraseroMoto,
+          mod.detalle.amortiguadorDelanteroMoto,
+          mod.detalle.amortiguadorTraseroMoto,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'PILOTO TRASERO' && mod.detalle) {
-      const opts = [
-        mod.detalle.luzPosicionFreno,
-        mod.detalle.intermitente,
-        mod.detalle.marchaAtras,
-        mod.detalle.catadioptrico,
-      ];
-      invalido = !opts.some((v) => v);
-    }
+      if (mod.nombre === 'Carrocería' && mod.detalle) {
+        const opts = [
+          mod.detalle.guardabarrosDelanteroMoto,
+          mod.detalle.guardabarrosTraseroMoto,
+          mod.detalle.estribosMoto,
+          mod.detalle.cabrestanteMoto,
+          mod.detalle.cambioPlacaDeMatriculaMoto,
+          mod.detalle.retrovisoresMoto,
+          mod.detalle.carenadoMoto,
+          mod.detalle.depositoDeCombustibleMoto,
+          mod.detalle.velocimetroMoto,
+          mod.detalle.manillarMoto,
+          mod.detalle.sillinMoto,
+          mod.detalle.mandosAdelantadosMoto,
+          mod.detalle.asiderosParaPasajeroMoto,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO') {
-      invalido = !(mod.discoFreno || mod.pastillaFreno);
-    }
+      if (mod.nombre === 'Chasis y Subchasis' && mod.detalle) {
+        const opts = [
+          mod.detalle.recorteSubchasisMoto,
+          mod.detalle.modificacionDeChasisMoto,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS') {
-      invalido = !(mod.guardabarrosDelantero || mod.guardabarrosTrasero);
-    }
+      if (mod.nombre === 'Luces' && mod.detalle) {
+        const opts = [
+          mod.detalle.faroDelanteroMoto,
+          mod.detalle.PilotoTraseroMoto,
+          mod.detalle.luzDeMatriculaMoto,
+          mod.detalle.catadriopticoTraseroMoto,
+          mod.detalle.intermitentesMoto,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'REDUCCIÓN MMA Y MMTA') {
-      invalido = !(mod.ejeDelantero || mod.ejeTotal);
-    }
+      if (mod.nombre === 'Freno' && mod.detalle) {
+        const opts = [
+          mod.detalle.tamborPorDiscoMoto,
+          mod.detalle.discosPerforadosRayadosMoto,
+          mod.detalle.latiguillosMoto,
+          mod.detalle.bombaMoto,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'AUMENTO O DISMINUCIÓN DE PLAZAS') {
-      invalido = mod.tipoCambio == null;
+      if (mod.nombre === 'Unidad motriz' && mod.detalle) {
+        const opts = [
+          mod.detalle.cambioDeMotorMoto,
+          mod.detalle.CambioCajaCambiosMoto,
+          mod.detalle.cambioEscapeMoto,
+          mod.detalle.ampliacionNDepositosCombustibleMoto,
+        ];
+        invalido = !opts.some((v) => v);
+      }
     }
+    if (mod.tipo == 'camper') {
+      if (mod.nombre === 'Ruedas' && mod.detalle) {
+        const opts = [
+          mod.detalle.neumaticosCamper,
+          mod.detalle.llantasCamper,
+          mod.detalle.separadoresDeRuedaCamper,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'INSTALACIÓN ELÉCTRICA') {
-      invalido = mod.anotacion === undefined;
-    }
+      if (mod.nombre === 'Suspensión' && mod.detalle) {
+        const opts = [
+          mod.detalle.muelleDelanteroCamper,
+          mod.detalle.muelleTraseroCamper,
+          mod.detalle.ballestasDelanterasCamper,
+          mod.detalle.ballestasTraserasCamper,
+          mod.detalle.amortiguadorDelanteroCamper,
+          mod.detalle.amortiguadorTraseroCamper,
+          mod.detalle.suplementoSuspensionDelanteroCamper,
+          mod.detalle.suplementoSuspensionTraseroCamper,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
-      invalido = !(
-        mod.detalle?.estribosotaloneras || mod.detalle?.anotacionAntideslizante
-      );
-    }
+      if (
+        mod.nombre === 'Modificaciones en el interior del vehículo' &&
+        mod.detalle
+      ) {
+        const opts = [
+          mod.detalle.mobiliarioInterior,
+          mod.detalle.mobiliarioInterior,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'INTERMITENTES') {
-      invalido = !(
-        mod.detalle?.interDelantero ||
-        mod.detalle?.interTrasero ||
-        mod.detalle?.interLateral
-      );
-    }
+      if (mod.nombre === 'Instalación eléctrica' && mod.detalle) {
+        const opts = [
+          mod.detalle.placaSolar,
+          mod.detalle.inversor,
+          mod.detalle.reguladorSolar,
+          mod.detalle.cargadorDeBateria,
+          mod.detalle.bateriaAuxiliar,
+          mod.detalle.iluminacionExterior,
+          mod.detalle.tomaCorrienteexterior,
+          mod.detalle.tomaCorrienteInterior,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'SUSTITUCIÓN DE EJES') {
-      invalido = !(
-        mod.detalle?.sustitucionEjeTrasero ||
-        mod.detalle?.sustitucionEjeDelantero
-      );
-    }
+      if (mod.nombre === 'Carrocería' && mod.detalle) {
+        const opts = [
+          mod.detalle.paragolpesDelanteroCamper,
+          mod.detalle.paragolpesTraseroCamper,
+          mod.detalle.aleronCamper,
+          mod.detalle.aletinesYSobrealetinesCamper,
+          mod.detalle.snorkelCamper,
+          mod.detalle.peldañosCamper,
+          mod.detalle.talonerasEstribosCamper,
+          mod.detalle.cabrestanteCamper,
+          mod.detalle.defensaDelanteraCamper,
+          mod.detalle.soporteRuedaRepuestoCamper,
+        ];
+        invalido = !opts.some((v) => v);
+      }
 
-    if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
-      invalido = !(
-        mod.opcionesMueble?.muebleAlto ||
-        mod.opcionesMueble?.muebleBajo ||
-        mod.opcionesMueble?.aseo
-      );
+      if (mod.nombre === 'Luces' && mod.detalle) {
+        const opts = [
+          mod.detalle.faroDelantero,
+          mod.detalle.PilotoTrasero,
+          mod.detalle.intermitentesLaterales,
+          mod.detalle.focosDeTrabajo,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Dirección' && mod.detalle) {
+        const opts = [
+          mod.detalle.volanteYPiña,
+          mod.detalle.barraDeDireccion,
+          mod.detalle.amortiguadorDeDireccion,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Freno' && mod.detalle) {
+        const opts = [
+          mod.detalle.tamborPorDisco,
+          mod.detalle.discosPerforadosRayados,
+          mod.detalle.latiguillos,
+          mod.detalle.bomba,
+        ];
+        invalido = !opts.some((v) => v);
+      }
+
+      if (mod.nombre === 'Unidad motriz' && mod.detalle) {
+        const opts = [
+          mod.detalle.cambioDeMotor,
+          mod.detalle.CambioCajaCambios,
+          mod.detalle.cambioEscape,
+          mod.detalle.ampliacionNDepositosCombustible,
+        ];
+        invalido = !opts.some((v) => v);
+      }
     }
 
     this.erroresSubopciones[index] = invalido;

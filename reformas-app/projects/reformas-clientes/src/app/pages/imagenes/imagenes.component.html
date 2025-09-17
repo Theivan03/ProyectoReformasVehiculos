@@ -31,13 +31,40 @@
       >
         <div class="card p-2 text-center">
           <p class="fw-bold mb-2">{{ label }}</p>
-          <input
-            type="file"
-            class="form-control mb-2"
-            (change)="onPrevSelected($event, i)"
-            accept="image/*"
-            capture="environment"
-          />
+
+          <!-- Opciones Galería o Cámara -->
+          <div class="d-flex gap-2 justify-content-center mb-2">
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-sm"
+              (click)="openInput('gallery', 1, i)"
+            >
+              📂 Galería
+            </button>
+            <input
+              #galleryInputs
+              type="file"
+              accept="image/*"
+              class="d-none"
+              (change)="onPrevSelected($event, i)"
+            />
+
+            <button
+              type="button"
+              class="btn btn-outline-success btn-sm"
+              (click)="openInput('camera', 1, i)"
+            >
+              📷 Cámara
+            </button>
+            <input
+              #cameraInputs
+              type="file"
+              accept="image/*"
+              capture="environment"
+              class="d-none"
+              (change)="onPrevSelected($event, i)"
+            />
+          </div>
 
           <div
             class="ratio ratio-1x1 border rounded d-flex align-items-center justify-content-center"
@@ -80,7 +107,10 @@
     </div>
 
     <div class="row g-4">
-      <div class="col-md-6" *ngFor="let mod of modsSeleccionadas">
+      <div
+        class="col-md-6"
+        *ngFor="let mod of modsSeleccionadas; let i = index"
+      >
         <div class="card p-3 shadow-sm h-100 text-center">
           <h5 class="fw-bold text-dark mb-3">{{ mod.nombre }}</h5>
           <img
@@ -95,13 +125,40 @@
             <ng-container *ngIf="!perModPreviews[mod.nombre]?.length">
               <div class="text-center">
                 <p class="text-muted mb-2">Selecciona o haz una foto</p>
-                <input
-                  type="file"
-                  class="form-control"
-                  accept="image/*"
-                  capture="environment"
-                  (change)="onPostSelectedForMod($event, mod.nombre)"
-                />
+
+                <!-- Opciones Galería o Cámara -->
+                <div class="d-flex gap-2 justify-content-center">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm"
+                    (click)="openInput('gallery', 2, i)"
+                  >
+                    📂 Galería
+                  </button>
+                  <input
+                    #galleryInputsMods
+                    type="file"
+                    accept="image/*"
+                    class="d-none"
+                    (change)="onPostSelectedForMod($event, mod.nombre)"
+                  />
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-success btn-sm"
+                    (click)="openInput('camera', 2, i)"
+                  >
+                    📷 Cámara
+                  </button>
+                  <input
+                    #cameraInputsMods
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    class="d-none"
+                    (change)="onPostSelectedForMod($event, mod.nombre)"
+                  />
+                </div>
               </div>
             </ng-container>
 
@@ -158,16 +215,52 @@
         <div class="card p-3 shadow-sm text-center h-100">
           <h6 class="fw-bold text-dark mb-3">{{ doc }}</h6>
 
-          <input
-            type="file"
-            class="form-control mb-2"
-            accept="image/*"
-            capture="environment"
-            multiple
-            (change)="onDocSelected($event, doc)"
-          />
+          <!-- Botones Galería / Cámara -->
+          <div class="d-flex gap-2 justify-content-center mb-2">
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-sm"
+              (click)="openInput('gallery', 3, i)"
+            >
+              📂 Galería
+            </button>
+            <input
+              #galleryInputsDocs
+              type="file"
+              accept="image/*"
+              multiple
+              class="d-none"
+              (change)="onDocSelected($event, doc, 'gallery')"
+            />
+
+            <button
+              type="button"
+              class="btn btn-outline-success btn-sm"
+              (click)="openInput('camera', 3, i)"
+            >
+              📷 Cámara
+            </button>
+            <input
+              #cameraInputsDocs
+              type="file"
+              accept="image/*"
+              capture="environment"
+              multiple
+              class="d-none"
+              (change)="onDocSelected($event, doc, 'camera')"
+            />
+          </div>
           <small class="text-muted">Máx. 4</small>
 
+          <!-- Error amigable con Bootstrap -->
+          <div
+            *ngIf="docError[doc]"
+            class="alert alert-danger py-1 px-2 mt-2 fade show"
+          >
+            {{ docError[doc] }}
+          </div>
+
+          <!-- Previews -->
           <div class="d-flex flex-wrap gap-2 mt-2 justify-content-center">
             <div
               class="position-relative"

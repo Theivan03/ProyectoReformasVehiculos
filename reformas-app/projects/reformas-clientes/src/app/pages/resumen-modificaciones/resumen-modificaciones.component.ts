@@ -33,6 +33,23 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   readonly BANQUETA_INDIVIDUAL =
     'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL';
 
+  private readonly AUTO_SKIP_RULES: {
+    nombre: string;
+    detalles?: string[]; // opcional, si hay que mirar subcampos
+  }[] = [
+    { nombre: 'Luces' },
+    { nombre: 'Portabicicletas' },
+    { nombre: 'Freno' },
+    { nombre: 'Unidad motriz' },
+    // ejemplo: si en Carrocería sólo se marca 'soporteRuedaRepuesto'
+    { nombre: 'Carrocería', detalles: ['aleron'] },
+    // otro ejemplo: permitir snorkel sin más
+    { nombre: 'Carrocería', detalles: ['bodyLift'] },
+    { nombre: 'Carrocería', detalles: ['peldaños'] },
+    { nombre: 'Carrocería', detalles: ['matriculaDelanteraPequeña'] },
+    { nombre: 'Dirección', detalles: ['volanteYPiña'] },
+  ];
+
   metricasTornillos: number[] = [
     4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 20, 22, 24, 27, 30, 33, 36,
     39, 42, 45, 48, 52, 56, 60, 64, 68,
@@ -518,6 +535,12 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       (m: { seleccionado: any }) => m?.seleccionado
     );
 
+    if (this.debeAutoContinuar()) {
+      // Lanzamos continuar automáticamente
+      this.continuar.emit(this.datosEntrada);
+      return; // ya no seguimos inicializando
+    }
+
     this.modificacionesSeleccionadas.forEach((m) => {
       if (m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
         if (m.diametroTornilloSeleccionado === undefined) {
@@ -539,6 +562,36 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           }
         }
       }
+    });
+  }
+
+  private debeAutoContinuar(): boolean {
+    if (this.modificacionesSeleccionadas.length === 0) return false;
+
+    return this.modificacionesSeleccionadas.every((mod) => {
+      // buscamos si hay una regla para este nombre
+      const reglas = this.AUTO_SKIP_RULES.filter(
+        (r) => r.nombre === mod.nombre
+      );
+
+      if (reglas.length === 0) return false; // si no hay regla, no auto-skip
+
+      // Si hay reglas sin detalles → válido directamente
+      if (reglas.some((r) => !r.detalles)) return true;
+
+      // Si todas las reglas llevan detalles → comprobamos que SOLO esos detalles estén activos
+      if (mod.detalle) {
+        return reglas.some(
+          (r) =>
+            r.detalles!.every((d) => mod.detalle[d]) &&
+            // y asegurarnos de que no hay más subopciones activas fuera de los permitidos
+            Object.keys(mod.detalle).every(
+              (key) => !mod.detalle[key] || r.detalles!.includes(key)
+            )
+        );
+      }
+
+      return false;
     });
   }
 }

@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import loadImage from 'blueimp-load-image';
 import { CommonModule } from '@angular/common';
 
@@ -11,6 +20,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ImagenesComponent implements OnInit {
   @Input() datosEntrada: any;
+  docError: { [tipo: string]: string } = {};
 
   /** ← atrás */
   @Output() volver = new EventEmitter<any>();
@@ -19,9 +29,27 @@ export class ImagenesComponent implements OnInit {
   /** autosave continuo al padre */
   @Output() autosave = new EventEmitter<any>();
 
+  @ViewChildren('galleryInputs') galleryInputs!: QueryList<
+    ElementRef<HTMLInputElement>
+  >;
+  @ViewChildren('cameraInputs') cameraInputs!: QueryList<
+    ElementRef<HTMLInputElement>
+  >;
+  @ViewChildren('galleryInputsMods') galleryInputsMods!: QueryList<
+    ElementRef<HTMLInputElement>
+  >;
+  @ViewChildren('cameraInputsMods') cameraInputsMods!: QueryList<
+    ElementRef<HTMLInputElement>
+  >;
+  @ViewChildren('galleryInputsDocs') galleryInputsDocs!: QueryList<
+    ElementRef<HTMLInputElement>
+  >;
+  @ViewChildren('cameraInputsDocs') cameraInputsDocs!: QueryList<
+    ElementRef<HTMLInputElement>
+  >;
+
   step = 1;
 
-  // ========= En memoria (runtime) =========
   prevImages: Blob[] = [];
   prevPreviews: string[] = []; // dataURL
 
@@ -159,6 +187,39 @@ export class ImagenesComponent implements OnInit {
     });
   }
 
+  openInput(type: 'gallery' | 'camera', step: number, i: number) {
+    let input: ElementRef<HTMLInputElement> | undefined;
+
+    if (step === 1) {
+      input =
+        type === 'gallery'
+          ? this.galleryInputs.get(i)
+          : this.cameraInputs.get(i);
+    } else if (step === 2) {
+      input =
+        type === 'gallery'
+          ? this.galleryInputsMods.get(i)
+          : this.cameraInputsMods.get(i);
+    } else if (step === 3) {
+      input =
+        type === 'gallery'
+          ? this.galleryInputsDocs.get(i)
+          : this.cameraInputsDocs.get(i);
+    }
+
+    input?.nativeElement.click();
+  }
+
+  openCameraDoc(i: number) {
+    const input = this.cameraInputsDocs.get(i);
+    input?.nativeElement.click();
+  }
+
+  openGalleryDoc(i: number) {
+    const input = this.galleryInputsDocs.get(i);
+    input?.nativeElement.click();
+  }
+
   // ========= Previas (step 1) =========
   async onPrevSelected(ev: Event, index: number) {
     const input = ev.target as HTMLInputElement;
@@ -291,20 +352,48 @@ export class ImagenesComponent implements OnInit {
   }
 
   // ========= Selección de imágenes de documentación (step 3) =========
-  async onDocSelected(ev: Event, tipo: string) {
+  async onDocSelected(
+    ev: Event,
+    tipo: string,
+    source: 'camera' | 'gallery' = 'camera'
+  ) {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
 
-    const files = Array.from(input.files).slice(0, 4); // máx. 4 imágenes
+    const currentCount = this.docsPreviews[tipo]?.length || 0;
+    const files = Array.from(input.files);
+
+    // Limitar a 4
+    if (currentCount >= 4) {
+      // Ya hay 4 → rechazar todo
+      this.docError[tipo] = 'Solo puedes subir un máximo de 4 imágenes.';
+      input.value = '';
+      return;
+    }
+
+    // Si es galería y va a sobrepasar el límite → rechazar todo
+    if (source === 'gallery' && currentCount + files.length > 4) {
+      this.docError[tipo] = 'No puedes seleccionar más de 4 imágenes.';
+      input.value = '';
+      return;
+    }
+
+    // Si es cámara y se pasa del límite → cortar las extras
+    const allowedFiles = files.slice(0, 4 - currentCount);
+
     const blobs = await Promise.all(
-      files.map((f) => this.normalizeOrientation(f))
+      allowedFiles.map((f) => this.normalizeOrientation(f))
     );
     const previews = await Promise.all(blobs.map((b) => this.blobToDataUrl(b)));
 
-    this.docsBlobs[tipo] = blobs;
-    this.docsPreviews[tipo] = previews;
-    this.docsImagesB64[tipo] = previews;
+    this.docsBlobs[tipo] = [...(this.docsBlobs[tipo] || []), ...blobs];
+    this.docsPreviews[tipo] = [...(this.docsPreviews[tipo] || []), ...previews];
+    this.docsImagesB64[tipo] = [
+      ...(this.docsImagesB64[tipo] || []),
+      ...previews,
+    ];
 
+    this.docError[tipo] = ''; // limpiar error si todo salió bien
     this.emitAutosave();
     input.value = '';
   }

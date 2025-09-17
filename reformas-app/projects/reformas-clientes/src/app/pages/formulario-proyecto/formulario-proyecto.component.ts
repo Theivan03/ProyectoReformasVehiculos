@@ -164,44 +164,75 @@ export class FormularioProyectoComponent implements OnChanges {
         },
         error: (err) => console.error('Error al cargar último proyecto:', err),
       });
-
-    console.log(this.datosIniciales);
   }
 
   private calcularCamposVisibles(): void {
     const mods = Array.isArray(this.datos?.modificaciones)
       ? this.datos.modificaciones.filter((m: any) => m?.seleccionado)
       : [];
-    const nombres = mods.map((m: any) => m.nombre);
 
-    this.mostrarLongitud = nombres.some((n: string) =>
-      [
-        'CABRESTANTE',
-        'PARAGOLPES DELANTERO',
-        'PARAGOLPES TRASERO',
-        'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
-        'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
-        'DEFENSA DELANTERA',
-      ].includes(n)
+    // Longitud → elementos que sobresalen por delante o detrás
+    this.mostrarLongitud = mods.some(
+      (m: any) =>
+        m.detalle?.cabrestante ||
+        m.detalle?.paragolpesDelantero ||
+        m.detalle?.paragolpesTrasero ||
+        m.detalle?.defensaDelantera ||
+        m.detalle?.soporteRuedaRepuesto ||
+        m.detalle?.barraAntiempotramiento ||
+        m.detalle?.cabrestanteCamper ||
+        m.detalle?.paragolpesDelanteroCamper ||
+        m.detalle?.paragolpesTraseroCamper ||
+        m.detalle?.defensaDelanteraCamper ||
+        m.detalle?.soporteRuedaRepuestoCamper
     );
 
-    this.mostrarAnchura = nombres.some((n: string) =>
-      ['ALETINES Y SOBREALETINES', 'SEPARADORES', 'TOLDO'].includes(n)
+    // Anchura → elementos que sobresalen lateralmente
+    this.mostrarAnchura = mods.some(
+      (m: any) =>
+        m.detalle?.aletinesYSobrealetines ||
+        m.detalle?.separadoresDeRueda ||
+        m.detalle?.peldaños ||
+        m.detalle?.talonerasEstribos ||
+        m.detalle?.aletinesYSobrealetinesCamper ||
+        m.detalle?.separadoresDeRuedaCamper ||
+        m.detalle?.peldañosCamper ||
+        m.detalle?.talonerasEstribosCamper ||
+        m.detalle?.snorkel ||
+        m.detalle?.snorkelCamper
     );
 
-    this.mostrarAltura = nombres.some((n: string) =>
-      ['SOPORTES PARA LUCES DE USO ESPECÍFICO', 'CLARABOYA'].includes(n)
+    // Altura → elementos que aumentan altura total del vehículo
+    this.mostrarAltura = mods.some(
+      (m: any) =>
+        m.mobiliarioInterior?.claraboyas ||
+        m.detalle?.bodyLift ||
+        m.detalle?.claraboyaCamper ||
+        m.detalle?.aleron ||
+        m.detalle?.aleronCamper ||
+        m.detalle?.focosDeTrabajo ||
+        m.detalle?.focoEnTecho ||
+        m.detalle?.placaSolar ||
+        m.detalle?.placaSolarCamper
     );
 
-    this.mostrarVoladizo = nombres.includes('PARAGOLPES TRASERO');
-
-    this.mostrarViaDelantera = nombres.some((n: string) =>
-      ['ALETINES Y SOBREALETINES', 'SEPARADORES'].includes(n)
+    // Voladizo → básicamente paragolpes trasero (mide longitud parcial trasera)
+    this.mostrarVoladizo = mods.some(
+      (m: any) =>
+        m.detalle?.paragolpesTrasero || m.detalle?.paragolpesTraseroCamper
     );
 
-    this.mostrarViaTrasera = nombres.some((n: string) =>
-      ['ALETINES Y SOBREALETINES', 'SEPARADORES'].includes(n)
+    // Vía delantera → piezas que afectan al ancho de los ejes delanteros
+    this.mostrarViaDelantera = mods.some(
+      (m: any) =>
+        m.detalle?.aletinesYSobrealetines ||
+        m.detalle?.separadoresDeRueda ||
+        m.detalle?.aletinesYSobrealetinesCamper ||
+        m.detalle?.separadoresDeRuedaCamper
     );
+
+    // Vía trasera → igual que delantera pero para el eje trasero
+    this.mostrarViaTrasera = this.mostrarViaDelantera;
   }
 
   enviarFormulario(): void {
