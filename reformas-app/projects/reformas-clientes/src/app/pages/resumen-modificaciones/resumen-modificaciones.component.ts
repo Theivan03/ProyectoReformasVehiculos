@@ -36,10 +36,13 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   private readonly AUTO_SKIP_RULES: {
     nombre: string;
     detalles?: string[]; // opcional, si hay que mirar subcampos
+    tipoVehiculo?: string;
   }[] = [
     { nombre: 'Luces' },
     { nombre: 'Portabicicletas' },
-    { nombre: 'Freno' },
+    { nombre: 'Freno', tipoVehiculo: 'coche' },
+    { nombre: 'Freno', tipoVehiculo: 'industrial' },
+    { nombre: 'Freno', tipoVehiculo: 'camper' },
     { nombre: 'Unidad motriz' },
     // ejemplo: si en Carrocería sólo se marca 'soporteRuedaRepuesto'
     { nombre: 'Carrocería', detalles: ['aleron'] },
@@ -48,6 +51,105 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     { nombre: 'Carrocería', detalles: ['peldaños'] },
     { nombre: 'Carrocería', detalles: ['matriculaDelanteraPequeña'] },
     { nombre: 'Dirección', detalles: ['volanteYPiña'] },
+
+    { nombre: 'Enganche de remolque (quads)', tipoVehiculo: 'moto' },
+    {
+      nombre: 'Ruedas',
+      detalles: ['separadoresDeRuedaMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Chasis y Subchasis',
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Suspensión',
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Carrocería',
+      detalles: ['estribosMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Carrocería',
+      detalles: ['cambioPlacaDeMatriculaMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Carrocería',
+      detalles: ['depositoDeCombustibleMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Carrocería',
+      detalles: ['cabrestanteMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Carrocería',
+      detalles: ['sillinMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Carrocería',
+      detalles: ['mandosAdelantadosMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Carrocería',
+      detalles: ['asiderosParaPasajeroMoto'],
+      tipoVehiculo: 'moto',
+    },
+
+    {
+      nombre: 'Freno',
+      detalles: ['tamborPorDiscoMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Freno',
+      detalles: ['discosPerforadosRayadosMoto'],
+      tipoVehiculo: 'moto',
+    },
+    {
+      nombre: 'Freno',
+      detalles: ['bombaMoto'],
+      tipoVehiculo: 'moto',
+    },
+
+    {
+      nombre: 'Suspensión',
+      tipoVehiculo: 'camper',
+    },
+    {
+      nombre: 'Carrocería',
+      tipoVehiculo: 'camper',
+    },
+    {
+      nombre: 'Luces',
+      tipoVehiculo: 'camper',
+    },
+    {
+      nombre: 'Dirección',
+      tipoVehiculo: 'camper',
+    },
+    {
+      nombre: 'Freno',
+      tipoVehiculo: 'camper',
+    },
+    {
+      nombre: 'Unidad motriz',
+      tipoVehiculo: 'camper',
+    },
+    {
+      nombre: 'Enganche de remolque',
+      tipoVehiculo: 'camper',
+    },
+    {
+      nombre: 'Portabicicletas',
+      tipoVehiculo: 'camper',
+    },
   ];
 
   metricasTornillos: number[] = [
@@ -568,23 +670,25 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   private debeAutoContinuar(): boolean {
     if (this.modificacionesSeleccionadas.length === 0) return false;
 
+    const tipo = this.datosEntrada.tipoVehiculo; // se asume que viene del input
+
     return this.modificacionesSeleccionadas.every((mod) => {
-      // buscamos si hay una regla para este nombre
-      const reglas = this.AUTO_SKIP_RULES.filter(
-        (r) => r.nombre === mod.nombre
-      );
+      // filtra solo las reglas que coinciden con el nombre
+      let reglas = this.AUTO_SKIP_RULES.filter((r) => r.nombre === mod.nombre);
 
-      if (reglas.length === 0) return false; // si no hay regla, no auto-skip
+      // además filtra por tipoVehiculo (si la regla lo tiene definido)
+      reglas = reglas.filter((r) => !r.tipoVehiculo || r.tipoVehiculo === tipo);
 
-      // Si hay reglas sin detalles → válido directamente
+      if (reglas.length === 0) return false;
+
+      // Si alguna regla no requiere detalles → es válido directamente
       if (reglas.some((r) => !r.detalles)) return true;
 
-      // Si todas las reglas llevan detalles → comprobamos que SOLO esos detalles estén activos
+      // Si la regla requiere detalles → comprobamos subopciones
       if (mod.detalle) {
         return reglas.some(
           (r) =>
             r.detalles!.every((d) => mod.detalle[d]) &&
-            // y asegurarnos de que no hay más subopciones activas fuera de los permitidos
             Object.keys(mod.detalle).every(
               (key) => !mod.detalle[key] || r.detalles!.includes(key)
             )

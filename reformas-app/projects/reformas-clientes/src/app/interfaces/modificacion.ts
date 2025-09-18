@@ -17,6 +17,16 @@ export interface Modificacion {
   cargaVertical?: number;
   capacidadKg?: number;
   capacidadLb?: number;
+  marcaCargadorDeBateria?: string;
+  modeloCarcadorDeBaretia?: string;
+  potenciaCargadorDeBateria?: string;
+  dimensionesCargadorDeBateria?: string;
+  ubicacionCargadorDeBateria?: string;
+  modeloIlumincionExterior?: string;
+  potenciaIlumincionExterior?: string;
+  dimensionesIlumincionExterior?: string;
+  ubicacionIlumincionExterior?: string;
+  marcaIlumincionExterior?: string;
   carreteraDesactivada?: boolean;
   clase?: string;
   claseBarra?: string;

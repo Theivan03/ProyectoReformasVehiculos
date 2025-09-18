@@ -3704,245 +3704,10 @@
       </div>
       }
       <!-- CAMPERS -->
-      <!-- CAMBIO DE CLASIFICACIÓN -->
-      @if (mod.nombre === 'CAMBIO DE CLASIFICACIÓN' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Cambio de Clasificación</h3>
-        <p>La clasificación antes y después ya ha sido recogida.</p>
-      </div>
-      }
-      <!-- AUMENTO O DISMINUCIÓN DE PLAZAS -->
-      @if ( mod.nombre === 'AUMENTO O DISMINUCIÓN DE PLAZAS' && mod.seleccionado
-      ) {
-      <div class="mb-4">
-        <h3>Aumento o Disminución de Plazas</h3>
-        <div class="mb-2">
-          <label class="form-label">Tipo de cambio:</label>
-          <select
-            class="form-select"
-            [(ngModel)]="mod.tipoCambio"
-            name="tipoCambio{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.tipoCambio"
-          >
-            <option value="" disabled selected>Seleccione una opción</option>
-            <option value="aumento">Aumento</option>
-            <option value="disminucion">Disminución</option>
-          </select>
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Plazas antes de la reforma:</label>
-          <input
-            type="number"
-            min="0"
-            min="0"
-            class="form-control"
-            [(ngModel)]="mod.plazasAntes"
-            name="plazasAntes{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.plazasAntes"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Plazas después de la reforma:</label>
-          <input
-            type="number"
-            min="0"
-            min="0"
-            class="form-control"
-            [(ngModel)]="mod.plazasDespues"
-            name="plazasDespues{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.plazasDespues"
-          />
-        </div>
-      </div>
-      }
-      <!-- SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL -->
-      @if ( mod.nombre === BANQUETA_INDIVIDUAL && mod.seleccionado ) {
-      <div class="mb-4">
-        <h3>Sustitución de Banqueta por Asiento Individual</h3>
-        <div class="mb-2">
-          <label class="form-label">Marca del asiento:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marcaAsiento"
-            name="marcaAsiento{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaAsiento"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Contraseña de homologación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.contrasenaAsiento"
-            name="contrasenaAsiento{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.contrasenaAsiento"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Plazas de la variante:</label>
-          <input
-            type="number"
-            min="0"
-            min="0"
-            class="form-control"
-            [(ngModel)]="mod.plazasAsiento"
-            name="plazasAsiento{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.plazasAsiento"
-          />
-        </div>
-        <select
-          class="form-select"
-          [(ngModel)]="mod.posicionAsiento"
-          name="posicionAsiento{{ i }}"
-          required
-          [class.is-invalid]="formSubmitted && !mod.posicionAsiento"
-        >
-          <option value="" disabled selected>Seleccione una opción</option>
-          <option value="delanteras">Delanteras</option>
-          <option value="traseras">Traseras</option>
-        </select>
-      </div>
-      }
-      <!-- INSTALACIÓN DE BASES GIRATORIAS -->
-      @if ( mod.nombre === 'INSTALACIÓN DE BASES GIRATORIAS' && mod.seleccionado
-      ) {
-      <div class="mb-4">
-        <h3>Instalación de Bases Giratorias</h3>
-        <div class="mb-2">
-          <label class="form-label">Marca:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marcaBaseGiratoria"
-            name="marcaBaseGiratoria{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaBaseGiratoria"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Referencia (conductor):</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.referenciaConductor"
-            name="referenciaConductor{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.referenciaConductor"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Referencia (acompañante):</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.referenciaAcompanante"
-            name="referenciaAcompanante{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.referenciaAcompanante"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Contraseña de homologación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.homologacionBase"
-            name="homologacionBase{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.homologacionBase"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label"
-            >Selecciona valor díametro de los tornillos:</label
-          >
-          <select
-            class="form-select"
-            [(ngModel)]="mod.metrica"
-            name="metrica{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.metrica == null"
-          >
-            <option [value]="null" disabled selected>Seleccione...</option>
-            @for (num of metricasTornillos; track num) {
-            <option [value]="num">
-              {{ num }}
-            </option>
-            }
-          </select>
-        </div>
-        <label class="form-label">Nº de tornillos:</label>
-        <input
-          type="number"
-          min="0"
-          class="form-control"
-          [(ngModel)]="mod.nTornillos"
-          name="nTornillos"
-          required
-          [class.is-invalid]="formSubmitted && !mod.nTornillos"
-        />
-      </div>
-      }
-      <!-- CALEFACCIÓN ESTACIONARIA -->
-      @if (mod.nombre === 'CALEFACCIÓN ESTACIONARIA' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Calefacción Estacionaria</h3>
-        <div class="mb-2">
-          <label class="form-label">Marca:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marcaCalefaccion"
-            name="marcaCalefaccion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaCalefaccion"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Modelo:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.modeloCalefaccion"
-            name="modeloCalefaccion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.modeloCalefaccion"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Contraseña de homologación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.homologacionCalefaccion"
-            name="homologacionCalefaccion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.homologacionCalefaccion"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Descripción:</label>
-          <textarea
-            class="form-control"
-            rows="3"
-            [(ngModel)]="mod.descripcionCalefaccion"
-            name="descripcionCalefaccion{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.descripcionCalefaccion"
-            placeholder="Ej: El calentador se sitúa en la parte delantera izquierda, a los pies de la banqueta doble de asientos, bajo el forrado, en el interior del vehículo y el escape se instala en los bajos del vehículo en la parte delantera del lado izquierdo. El mando de la calefacción se ha ubicado detrás de la banqueta de asientos dobles"
-          ></textarea>
-        </div>
-      </div>
-      }
+      @if(mod.nombre === 'Modificaciones en el interior del vehículo' &&
+      mod.seleccionado) { @if(mod.detalle.mobiliarioInterior){
       <!-- MOBILIARIO INTERIOR VEHÍCULO -->
-      @if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && mod.seleccionado) {
+      @if (mod.detalle.mobiliarioInterior) {
       <div class="mb-4">
         <section class="mod-card mobiliario">
           <!-- Cabecera -->
@@ -3972,32 +3737,12 @@
                 >
               </div>
             </div>
-
-            <!-- Info del tornillo seleccionado -->
-            @if (mod.diametroTornilloSeleccionado) {
-            <div class="col-12 col-md-6">
-              <div class="border rounded p-2 bg-light small">
-                <p class="mb-1">
-                  <strong>Tensión:</strong>
-                  {{ getTornilloActivo(mod)?.seccionTension }} mm²
-                </p>
-                <p class="mb-1">
-                  <strong>Par de apriete:</strong>
-                  {{ getTornilloActivo(mod)?.parAprete }} N·mm
-                </p>
-                <p class="mb-0">
-                  <strong>Carga máxima:</strong>
-                  {{ getTornilloActivo(mod)?.cargaMax }} Kg
-                </p>
-              </div>
-            </div>
-            }
           </div>
 
           <hr class="mod-sep" />
 
           <!-- Mueble Bajo -->
-          @if (mod.opcionesMueble?.muebleBajo) {
+          @if (mod.mobiliarioInterior?.muebleBajo) {
           <div>
             <h4>
               Mueble Bajo
@@ -4120,7 +3865,7 @@
           }
 
           <!-- Mueble Alto -->
-          @if (mod.opcionesMueble?.muebleAlto) {
+          @if (mod.mobiliarioInterior?.muebleAlto) {
           <div>
             <h4>
               Mueble Alto
@@ -4243,7 +3988,7 @@
           }
 
           <!-- Aseo -->
-          @if (mod.opcionesMueble?.aseo) {
+          @if (mod.mobiliarioInterior?.aseo) {
           <div>
             <h4>
               Aseo
@@ -4333,9 +4078,8 @@
         </section>
       </div>
       }
-
       <!-- CLARABOYA -->
-      @if (mod.nombre === 'CLARABOYA' && mod.seleccionado) {
+      @if (mod.mobiliarioInterior?.claraboyas) {
       <div class="mb-4">
         <h3>Claraboya</h3>
         <div class="mb-2">
@@ -4345,8 +4089,6 @@
             class="form-control"
             [(ngModel)]="mod.cantidadClaraboya"
             name="cantidadClaraboya"
-            required
-            [class.is-invalid]="formSubmitted && !mod.cantidadClaraboya"
           />
         </div>
         <div class="mb-2">
@@ -4356,8 +4098,6 @@
             class="form-control"
             [(ngModel)]="mod.marcaClaraboya"
             name="marcaClaraboya"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaClaraboya"
           />
         </div>
         <div class="mb-2">
@@ -4367,8 +4107,6 @@
             class="form-control"
             [(ngModel)]="mod.modeloClaraboya"
             name="modeloClaraboya"
-            required
-            [class.is-invalid]="formSubmitted && !mod.modeloClaraboya"
           />
         </div>
         <div class="mb-2">
@@ -4378,8 +4116,6 @@
             rows="2"
             [(ngModel)]="mod.descripcionClaraboya"
             name="descripcionClaraboya"
-            required
-            [class.is-invalid]="formSubmitted && !mod.descripcionClaraboya"
           ></textarea>
         </div>
         <div class="mb-2">
@@ -4389,14 +4125,12 @@
             class="form-control"
             [(ngModel)]="mod.homologacionClaraboya"
             name="homologacionClaraboya"
-            required
-            [class.is-invalid]="formSubmitted && !mod.homologacionClaraboya"
           />
         </div>
       </div>
       }
       <!-- VENTANA -->
-      @if (mod.nombre === 'VENTANA' && mod.seleccionado) {
+      @if (mod.mobiliarioInterior?.ventanas) {
       <div class="mb-4">
         <h3>Ventana</h3>
         <div class="mb-2">
@@ -4406,8 +4140,6 @@
             class="form-control"
             [(ngModel)]="mod.cantidadVentanas"
             name="cantidadVentanas"
-            required
-            [class.is-invalid]="formSubmitted && !mod.cantidadVentanas"
           />
         </div>
         <div class="mb-2">
@@ -4417,8 +4149,6 @@
             rows="2"
             [(ngModel)]="mod.descripcionVentana"
             name="descripcionVentana"
-            required
-            [class.is-invalid]="formSubmitted && !mod.descripcionVentana"
           ></textarea>
         </div>
         <div class="mb-2">
@@ -4428,8 +4158,6 @@
             class="form-control"
             [(ngModel)]="mod.marcaVentana"
             name="marcaVentana"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaVentana"
           />
         </div>
         <div class="mb-2">
@@ -4439,8 +4167,6 @@
             class="form-control"
             [(ngModel)]="mod.modeloVentana"
             name="modeloVentana"
-            required
-            [class.is-invalid]="formSubmitted && !mod.modeloVentana"
           />
         </div>
         <div class="mb-2">
@@ -4450,8 +4176,6 @@
             class="form-control"
             [(ngModel)]="mod.dimensionesVentana"
             name="dimensionesVentana"
-            required
-            [class.is-invalid]="formSubmitted && !mod.dimensionesVentana"
           />
         </div>
         <div class="mb-2">
@@ -4461,14 +4185,12 @@
             class="form-control"
             [(ngModel)]="mod.homologacionVentana"
             name="homologacionVentana"
-            required
-            [class.is-invalid]="formSubmitted && !mod.homologacionVentana"
           />
         </div>
       </div>
-      }
+      } } @if(mod.detalle.fontaneria){
       <!-- DEPÓSITO DE AGUA SUCIA -->
-      @if (mod.nombre === 'DEPÓSITO DE AGUA SUCIA' && mod.seleccionado) {
+      @if (mod.fontaneria?.depositoAguaSucia) {
       <div class="mb-4">
         <h3>Depósito de Agua Sucia</h3>
         <div class="mb-2">
@@ -4480,8 +4202,6 @@
             class="form-control"
             [(ngModel)]="mod.litrosAguaSucia"
             name="litrosAguaSucia"
-            required
-            [class.is-invalid]="formSubmitted && !mod.litrosAguaSucia"
           />
         </div>
         <div class="mb-2">
@@ -4510,13 +4230,11 @@
           class="form-control"
           [(ngModel)]="mod.nTornillos"
           name="nTornillos"
-          required
-          [class.is-invalid]="formSubmitted && !mod.nTornillos"
         />
       </div>
       }
       <!-- DEPÓSITO DE AGUA LIMPIA -->
-      @if (mod.nombre === 'DEPÓSITO DE AGUA LIMPIA' && mod.seleccionado) {
+      @if (mod.fontaneria?.depositoAguaLimpia) {
       <div class="mb-4">
         <h3>Depósito de Agua Limpia</h3>
         <div class="mb-2">
@@ -4528,8 +4246,6 @@
             class="form-control"
             [(ngModel)]="mod.litrosAguaLimpia"
             name="litrosAguaLimpia"
-            required
-            [class.is-invalid]="formSubmitted && !mod.litrosAguaLimpia"
           />
         </div>
         <div class="mb-2">
@@ -4539,8 +4255,6 @@
             class="form-control"
             [(ngModel)]="mod.medidasAguaLimpia"
             name="medidasAguaLimpia"
-            required
-            [class.is-invalid]="formSubmitted && !mod.medidasAguaLimpia"
           />
         </div>
         <div class="mb-2">
@@ -4569,13 +4283,11 @@
           class="form-control"
           [(ngModel)]="mod.nTornillos"
           name="nTornillos"
-          required
-          [class.is-invalid]="formSubmitted && !mod.nTornillos"
         />
       </div>
       }
       <!-- BOMBA DE AGUA -->
-      @if (mod.nombre === 'BOMBA DE AGUA' && mod.seleccionado) {
+      @if (mod.fontaneria?.bombaDeAgua) {
       <div class="mb-4">
         <h3>Bomba de Agua</h3>
         <div class="mb-2">
@@ -4585,8 +4297,6 @@
             class="form-control"
             [(ngModel)]="mod.marcaBombaAgua"
             name="marcaBombaAgua"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaBombaAgua"
           />
         </div>
         <div class="mb-2">
@@ -4596,8 +4306,6 @@
             class="form-control"
             [(ngModel)]="mod.modeloBombaAgua"
             name="modeloBombaAgua"
-            required
-            [class.is-invalid]="formSubmitted && !mod.modeloBombaAgua"
           />
         </div>
         <div class="mb-2">
@@ -4607,8 +4315,6 @@
             class="form-control"
             [(ngModel)]="mod.ubicacionBombaAgua"
             name="ubicacionBombaAgua"
-            required
-            [class.is-invalid]="formSubmitted && !mod.ubicacionBombaAgua"
           />
         </div>
         <div class="mb-2">
@@ -4637,80 +4343,11 @@
           class="form-control"
           [(ngModel)]="mod.nTornillos"
           name="nTornillos"
-          required
-          [class.is-invalid]="formSubmitted && !mod.nTornillos"
         />
       </div>
       }
-      <!-- REGISTRO DE LLENADO DE AGUA -->
-      @if (mod.nombre === 'REGISTRO DE LLENADO DE AGUA' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Registro de llenado de agua</h3>
-        <div class="mb-2">
-          <label class="form-label">Ubicación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.ubicacionRegistroAgua"
-            name="ubicacionRegistroAgua{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.ubicacionRegistroAgua"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Tamaño:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.tamanoRegistroAgua"
-            name="tamanoRegistroAgua{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.tamanoRegistroAgua"
-          />
-        </div>
-      </div>
-      }
-      <!-- TOMA EXTERIOR 230V -->
-      @if (mod.nombre === 'TOMA EXTERIOR 230V' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Toma exterior 230V</h3>
-        <div class="mb-2">
-          <label class="form-label">Voltaje:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.voltajeTomaExterior"
-            name="voltajeTomaExterior{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.voltajeTomaExterior"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Ubicación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.ubicacionTomaExterior"
-            name="ubicacionTomaExterior{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.ubicacionTomaExterior"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Medidas:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.medidasTomaExterior"
-            name="medidasTomaExterior{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.medidasTomaExterior"
-          />
-        </div>
-      </div>
-      }
       <!-- DUCHA EXTERIOR -->
-      @if (mod.nombre === 'DUCHA EXTERIOR' && mod.seleccionado) {
+      @if (mod.fontaneria?.duchaExterior) {
       <div class="mb-4">
         <h3>Ducha exterior</h3>
         <div class="mb-2">
@@ -4720,8 +4357,6 @@
             class="form-control"
             [(ngModel)]="mod.ubicacionDuchaExterior"
             name="ubicacionDuchaExterior{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.ubicacionDuchaExterior"
           />
         </div>
         <div class="mb-2">
@@ -4750,15 +4385,209 @@
           class="form-control"
           [(ngModel)]="mod.nTornillos"
           name="nTornillos"
-          required
-          [class.is-invalid]="formSubmitted && !mod.nTornillos"
         />
       </div>
-      }
+      } } } @if (mod.nombre === 'Instalación eléctrica' && mod.seleccionado) {
+      <!-- TOMA EXTERIOR 230V -->
+      @if (mod.detalle.tomaCorrienteInterior) {
+      <div class="mb-4">
+        <h3>Toma exterior 230V</h3>
+        <div class="mb-2">
+          <label class="form-label">Voltaje:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.voltajeTomaExterior"
+            name="voltajeTomaExterior{{ i }}"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Ubicación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.ubicacionTomaExterior"
+            name="ubicacionTomaExterior{{ i }}"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Medidas:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.medidasTomaExterior"
+            name="medidasTomaExterior{{ i }}"
+          />
+        </div>
+      </div>
+      } }
+
       <!-- INSTALACIÓN ELÉCTRICA -->
-      @if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && mod.seleccionado) {
+      @if (mod.nombre === 'Instalación eléctrica' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Instalación Eléctrica</h3>
+        @if(mod.detalle.bateriaAuxiliar) {
+        <!-- Baterías auxiliares -->
+        <h4>Baterías Auxiliares</h4>
+        <div class="mb-2">
+          <label class="form-label">Cantidad:</label>
+          <input
+            type="number"
+            min="0"
+            class="form-control"
+            [(ngModel)]="mod.cantidadBaterias"
+            name="cantidadBaterias"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Potencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.potenciaBaterias"
+            name="potenciaBaterias"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Ubicación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.ubicacionBaterias"
+            name="ubicacionBaterias"
+          />
+        </div>
+        } @if(mod.detalle.cargadorDeBateria) {
+        <h4>Placa Solar</h4>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcaCargadorDeBateria"
+            name="marcaCargadorDeBateria"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Modelo:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.modeloCarcadorDeBaretia"
+            name="modeloCarcadorDeBaretia"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Potencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.potenciaCargadorDeBateria"
+            name="potenciaCargadorDeBateria"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Dimensiones (mm):</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.dimensionesCargadorDeBateria"
+            name="dimensionesCargadorDeBateria"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Ubicación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.ubicacionCargadorDeBateria"
+            name="ubicacionCargadorDeBateria"
+          />
+        </div>
+        } @if(mod.detalle.iluminacionExterior) {
+        <h4>Placa Solar</h4>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcaIlumincionExterior"
+            name="marcaIluminacionExterior"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Modelo:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.modeloIlumincionExterior"
+            name="modeloIlumincionExterior"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Potencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.potenciaIlumincionExterior"
+            name="potenciaIlumincionExterior"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Dimensiones (mm):</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.dimensionesIlumincionExterior"
+            name="dimensionesIlumincionExterior"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Ubicación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.ubicacionIlumincionExterior"
+            name="ubicacionIlumincionExterior"
+          />
+        </div>
+        } @if(mod.detalle.inversor) {
+        <!-- Inversor -->
+        <h4>Inversor</h4>
+        <div class="mb-2">
+          <label class="form-label">Potencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.potenciaInversor"
+            name="potenciaInversor"
+            required
+            [class.is-invalid]="formSubmitted && !mod.potenciaInversor"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcaInversor"
+            name="marcaInversor"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcaInversor"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Ubicación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.ubicacionInversor"
+            name="ubicacionInversor"
+            required
+            [class.is-invalid]="formSubmitted && !mod.ubicacionInversor"
+          />
+        </div>
+        } @if(mod.detalle.placaSolar) {
         <!-- Placa solar -->
         <h4>Placa Solar</h4>
         <div class="mb-2">
@@ -4816,77 +4645,7 @@
             [class.is-invalid]="formSubmitted && !mod.ubicacionPlacaSolar"
           />
         </div>
-        <!-- Baterías auxiliares -->
-        <h4>Baterías Auxiliares</h4>
-        <div class="mb-2">
-          <label class="form-label">Cantidad:</label>
-          <input
-            type="number"
-            min="0"
-            class="form-control"
-            [(ngModel)]="mod.cantidadBaterias"
-            name="cantidadBaterias"
-            required
-            [class.is-invalid]="formSubmitted && !mod.cantidadBaterias"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Potencia:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.potenciaBaterias"
-            name="potenciaBaterias"
-            required
-            [class.is-invalid]="formSubmitted && !mod.potenciaBaterias"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Ubicación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.ubicacionBaterias"
-            name="ubicacionBaterias"
-            required
-            [class.is-invalid]="formSubmitted && !mod.ubicacionBaterias"
-          />
-        </div>
-        <!-- Inversor -->
-        <h4>Inversor</h4>
-        <div class="mb-2">
-          <label class="form-label">Potencia:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.potenciaInversor"
-            name="potenciaInversor"
-            required
-            [class.is-invalid]="formSubmitted && !mod.potenciaInversor"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Marca:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marcaInversor"
-            name="marcaInversor"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaInversor"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Ubicación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.ubicacionInversor"
-            name="ubicacionInversor"
-            required
-            [class.is-invalid]="formSubmitted && !mod.ubicacionInversor"
-          />
-        </div>
+        } @if(mod.detalle.reguladorSolar) {
         <!-- Controlador de carga -->
         <h4>Controlador de Carga</h4>
         <div class="mb-2">
@@ -4922,22 +4681,13 @@
             [class.is-invalid]="formSubmitted && !mod.ubicacionControlador"
           />
         </div>
-        <h4>Instalaciones Secundarias</h4>
-        <div class="mb-2">
-          <label class="form-label"
-            >Describa otras instalaciones (una por línea):</label
-          >
-          <textarea
-            class="form-control"
-            rows="5"
-            [(ngModel)]="mod.instalacionesSecundarias"
-            name="instalacionesSecundarias{{ i }}"
-          ></textarea>
-        </div>
+
+        } @if(mod.detalle.tomaCorrienteInterior) { }
+        @if(mod.detalle.tomaCorrienteexterior) { }
       </div>
       }
       <!-- TOLDO -->
-      @if (mod.nombre === 'TOLDO' && mod.seleccionado) {
+      @if (mod.nombre === 'Toldo' && mod.seleccionado) {
       <div class="mb-4">
         <h3>Toldo</h3>
         <div class="mb-2">

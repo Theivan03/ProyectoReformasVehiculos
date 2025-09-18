@@ -540,7 +540,7 @@
       @if (mod.nombre.includes('Ruedas') && mod.seleccionado) {
       <div class="mt-2 ms-4">
         <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of detalleRuedasCamper; track item; let i = $index) {
+        @for (item of detalleRuedas; track item; let i = $index) {
         <div class="form-check">
           <input
             type="checkbox"

@@ -137,7 +137,7 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleRuedasMotos = [
-    { key: 'neumaticosMoto', label: 'Nuematicos' },
+    { key: 'neumaticosMoto', label: 'Neumaticos' },
     { key: 'llantasMoto', label: 'Llantas' },
     { key: 'separadoresDeRuedaMoto', label: 'Separadores de rueda(Quads)' },
   ];
@@ -218,7 +218,7 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleRuedasCamper = [
-    { key: 'neumaticosCamper', label: 'Nuematicos' },
+    { key: 'neumaticosCamper', label: 'Neumaticos' },
     { key: 'llantasCamper', label: 'Llantas' },
     { key: 'separadoresDeRuedaCamper', label: 'Separadores de rueda(Quads)' },
   ];
@@ -265,27 +265,27 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   opcionesDescripcionFontaneria = [
-    { key: 'termo', label: 'Foco en paragolpes delantero' },
+    { key: 'termo', label: 'Termo' },
     {
       key: 'bombaDeAgua',
-      label: 'Foco en paragolpes trasero',
+      label: 'Bomba de agua',
     },
     {
       key: 'vasoDeExpansion',
-      label: 'Foco en parte trasera',
+      label: 'Vaso de expansión',
     },
-    { key: 'depositoAguaLimpia', label: 'Foco en el techo' },
-    { key: 'depositoAguaSucia', label: 'Foco en paragolpes delantero' },
+    { key: 'depositoAguaLimpia', label: 'Deposito de agua limpia' },
+    { key: 'depositoAguaSucia', label: 'Deposito de agua sucia' },
     {
       key: 'duchaInterior',
-      label: 'Foco en paragolpes trasero',
+      label: 'Ducha interior',
     },
     {
       key: 'duchaExterior',
-      label: 'Foco en parte trasera',
+      label: 'Ducha exterior',
     },
-    { key: 'tomaDeAguaExterior', label: 'Foco en el techo' },
-    { key: 'calefaccionDiesel', label: 'Foco en el techo' },
+    { key: 'tomaDeAguaExterior', label: 'Toma de agua exterior' },
+    { key: 'calefaccionDiesel', label: 'Calefacción diesel' },
   ];
 
   detallesInteriorVehiculo = [
@@ -294,14 +294,14 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detallesInstalacionElectricaCamper = [
-    { key: 'placaSolar', label: 'Muelle delantero' },
-    { key: 'inversor', label: 'Muelle delantero' },
-    { key: 'reguladorSolar', label: 'Muelle trasero' },
-    { key: 'cargadorDeBateria', label: 'Amortiguador delantero' },
-    { key: 'bateriaAuxiliar', label: 'Amortiguador trasero' },
-    { key: 'iluminacionExterior', label: 'Muelle delantero' },
-    { key: 'tomaCorrienteexterior', label: 'Muelle trasero' },
-    { key: 'tomaCorrienteInterior', label: 'Amortiguador delantero' },
+    { key: 'placaSolar', label: 'Placa solar' },
+    { key: 'inversor', label: 'Inversor' },
+    { key: 'reguladorSolar', label: 'Regulador solar' },
+    { key: 'cargadorDeBateria', label: 'Cargador de batería' },
+    { key: 'bateriaAuxiliar', label: 'Bataría auxiliar' },
+    { key: 'iluminacionExterior', label: 'Iluminación exterior' },
+    { key: 'tomaCorrienteexterior', label: 'Toma de corriente exterior' },
+    { key: 'tomaCorrienteInterior', label: 'Toma de corriente interior' },
   ];
 
   detalleCarroceriaCamper = [
