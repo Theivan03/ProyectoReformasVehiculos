@@ -1,4 +1,12 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Modificacion } from '../../interfaces/modificacion';
 
@@ -9,7 +17,7 @@ import { Modificacion } from '../../interfaces/modificacion';
   templateUrl: './tipo-vehiculo.component.html',
   styleUrl: './tipo-vehiculo.component.css',
 })
-export class TipoVehiculoComponent implements OnInit {
+export class TipoVehiculoComponent implements OnInit, OnChanges {
   @Input() datosPrevios: any;
   @Output() continuar = new EventEmitter<any>();
   @Output() volver = new EventEmitter<any>();
@@ -51,42 +59,128 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    if (this.datosPrevios) {
+    if (this.datosPrevios && this.datosPrevios.tipoVehiculo) {
+      // Caso edición → restaurar
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
-      this.modificaciones = this.datosPrevios.modificaciones.map(
-        (mod: Modificacion) => {
-          if (mod.nombre === 'LUCES' && !mod.descripcionLuces) {
-            mod.descripcionLuces = {
-              luzGrupoOptico: false,
-              intermitenteDelantero: false,
-              intermitenteTrasero: false,
-              catadioptrico: false,
-              luzMatricula: false,
-            };
-          }
-          return mod;
-        }
-      );
-    }
-    this.modificaciones = (this.modificaciones || []).map((mod: any) => {
-      if (mod.detalle) return mod;
-      if (mod.nombre === 'ALETINES Y SOBREALETINES') {
-        return { ...mod, detalle: { aletines: false, sobrealetines: false } };
-      }
-      return {
-        ...mod,
-        detalle: {
-          interDelantero: false,
-          interTrasero: false,
-          interLateral: false,
-          sustitucionEjeDelantero: false,
-          sustitucionEjeTrasero: false,
-        },
-      };
-    });
 
-    // Primer autosave al cargar con datos previos
+      this.modificaciones = (this.datosPrevios.modificaciones || []).map(
+        (mod: any) => this.normalizarModificacion(mod)
+      );
+    } else {
+      // Caso creación nueva → empieza vacío hasta elegir tipo
+      this.tipoVehiculo = '';
+      this.modificaciones = [];
+    }
+
+    // Primer autosave al cargar
     this.emitAutosave();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['datosPrevios'] && changes['datosPrevios'].currentValue) {
+      const nuevos = changes['datosPrevios'].currentValue;
+
+      // Actualizar tipoVehiculo solo si llega algo nuevo
+      if (nuevos.tipoVehiculo) {
+        this.tipoVehiculo = nuevos.tipoVehiculo;
+      }
+
+      // Actualizar modificaciones
+      if (Array.isArray(nuevos.modificaciones)) {
+        this.modificaciones = nuevos.modificaciones.map((mod: any) =>
+          this.normalizarModificacion(mod)
+        );
+      }
+    }
+  }
+
+  private normalizarModificacion(mod: any): any {
+    // Luces
+    if (mod.nombre === 'LUCES' && !mod.descripcionLuces) {
+      mod.descripcionLuces = {
+        luzGrupoOptico: false,
+        intermitenteDelantero: false,
+        intermitenteTrasero: false,
+        catadioptrico: false,
+        luzMatricula: false,
+      };
+    }
+
+    // Aletines
+    if (mod.nombre === 'ALETINES Y SOBREALETINES' && !mod.detalle) {
+      mod.detalle = { aletines: false, sobrealetines: false };
+    }
+
+    // Intermitentes
+    if (mod.nombre === 'INTERMITENTES' && !mod.detalle) {
+      mod.detalle = {
+        interDelantero: false,
+        interTrasero: false,
+        interLateral: false,
+      };
+    }
+
+    // Sustitución de ejes
+    if (mod.nombre === 'SUSTITUCIÓN DE EJES' && !mod.detalle) {
+      mod.detalle = {
+        sustitucionEjeDelantero: false,
+        sustitucionEjeTrasero: false,
+      };
+    }
+
+    // Estribos
+    if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS' && !mod.detalle) {
+      mod.detalle = {
+        estribosotaloneras: null,
+        anotacionAntideslizante: null,
+      };
+    }
+
+    // Muelles
+    if (mod.nombre.includes('MUELLES') && !mod.detallesMuelles) {
+      mod.detallesMuelles = {
+        muelleDelanteroConRef: false,
+        muelleDelanteroSinRef: false,
+        muelleTraseroConRef: false,
+        muelleTraseroSinRef: false,
+        ballestaDelantera: false,
+        ballestaTrasera: false,
+        amortiguadorDelantero: false,
+        amortiguadorTrasero: false,
+        tacosDeGoma: false,
+        kitElevacion: false,
+      };
+    }
+
+    // Piloto trasero
+    if (mod.nombre === 'PILOTO TRASERO' && !mod.detalle) {
+      mod.detalle = {
+        luzPosicionFreno: false,
+        intermitente: false,
+        marchaAtras: false,
+        catadioptrico: false,
+      };
+    }
+
+    // Matrícula
+    if (mod.nombre.includes('MATRÍCULA') && !mod.detalle) {
+      mod.detalle = {
+        instalacionPorta: false,
+        reubicacionTrasera: false,
+        cambioUbicacionDelantera: false,
+      };
+    }
+
+    // Mobiliario
+    if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && !mod.opcionesMueble) {
+      mod.opcionesMueble = {
+        muebleBajo: false,
+        muebleAlto: false,
+        aseo: false,
+      };
+    }
+
+    return mod;
   }
 
   private emitAutosave() {

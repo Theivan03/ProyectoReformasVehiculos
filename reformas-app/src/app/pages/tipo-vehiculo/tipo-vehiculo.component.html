@@ -61,7 +61,8 @@
           </div>
           }
           <label class="form-label mt-3"
-            >¿Desea añadir la anotación de no modificación de dirección?</label
+            >¿Desea añadir la anotación de la no modifican las condiciones
+            técnicas de dirección?</label
           >
           <select
             class="form-select"
@@ -432,7 +433,10 @@
         <!-- Instalación eléctrica camper -->
         @if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && mod.seleccionado) {
         <div class="ms-4">
-          <label class="form-label">¿Desea añadir anotación?</label>
+          <label class="form-label"
+            >¿Desea añadir anotación para avisar que solamente puede funcionar
+            con el vehículo parado?</label
+          >
           <select class="form-select" [(ngModel)]="mod.anotacion">
             <option [ngValue]="null" disabled selected>
               -- Seleccionar --

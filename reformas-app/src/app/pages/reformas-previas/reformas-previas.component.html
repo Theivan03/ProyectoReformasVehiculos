@@ -12,6 +12,7 @@
     <textarea
       class="form-control"
       [(ngModel)]="datos.descripcionReformas"
+      (ngModelChange)="onChange()"
       name="descripcionReformas"
       rows="8"
       placeholder="Escriba aquí los detalles de las reformas previas..."

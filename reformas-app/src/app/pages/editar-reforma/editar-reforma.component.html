@@ -1,1 +1,69 @@
-<p>editar-reforma works!</p>
+<div class="container mt-4">
+  <h2 class="mb-3">Editar Reforma</h2>
+  <p class="text-muted">Seleccione un proyecto existente para editarlo.</p>
+
+  <!-- Filtros -->
+  <div class="card p-3 mb-3">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Filtrar por marca"
+          [(ngModel)]="filtroMarca"
+        />
+      </div>
+      <div class="col-md-3">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Filtrar por matrícula"
+          [(ngModel)]="filtroMatricula"
+        />
+      </div>
+      <div class="col-md-3">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Filtrar por propietario"
+          [(ngModel)]="filtroPropietario"
+        />
+      </div>
+      <div class="col-md-3 d-grid">
+        <button class="btn btn-primary" (click)="buscar()">Buscar</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="cargando" class="alert alert-info">Cargando proyectos...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- Listado de proyectos -->
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+    <div
+      class="col"
+      *ngFor="let p of proyectos"
+      (click)="seleccionarProyecto(p.id)"
+    >
+      <div
+        class="card h-100 text-center border border-2 border-secondary shadow-sm bg-white"
+        role="button"
+        style="transition: all 0.2s ease-in-out"
+        onmouseover="this.classList.add('shadow-lg','border-primary','bg-light')"
+        onmouseout="this.classList.remove('shadow-lg','border-primary','bg-light')"
+      >
+        <div class="card-body">
+          <div class="mb-2">
+            <i class="bi bi-folder2-open fs-1 text-primary"></i>
+          </div>
+          <h5 class="card-title mb-1">{{ p.nombre }}</h5>
+          <small class="text-muted d-block">Marca: {{ p.marca }}</small>
+          <small class="text-muted d-block">Matrícula: {{ p.matricula }}</small>
+          <small class="text-muted d-block"
+            >Propietario: {{ p.propietario }}</small
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

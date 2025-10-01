@@ -240,3 +240,70 @@ app.post('/convertir-docx-a-pdf', uploadDocx.single('doc'), (req, res) => {
     });
   });
 });
+
+app.get('/proyectos', (req, res) => {
+  const proyectosDir = path.join(__dirname, 'proyectos');
+  const carpetas = fs.readdirSync(proyectosDir);
+
+  let proyectos = carpetas.map(carpeta => {
+    const pjPath = path.join(proyectosDir, carpeta, 'proyecto.json');
+    if (fs.existsSync(pjPath)) {
+      const json = JSON.parse(fs.readFileSync(pjPath, 'utf-8'));
+      return {
+        id: carpeta,
+        nombre: json.referenciaProyecto,
+        marca: json.marca || '---',
+        matricula: json.matricula || '---',
+        propietario: json.propietario || '---',
+        numeroProyecto: json.numeroProyecto || 0,
+      };
+    } else {
+      return { id: carpeta, nombre: carpeta };
+    }
+  });
+
+  // Ordenar descendente por númeroProyecto
+  proyectos.sort((a, b) => Number(b.numeroProyecto) - Number(a.numeroProyecto));
+
+  // Filtros
+  const { marca, matricula, propietario } = req.query;
+  if (marca) {
+    proyectos = proyectos.filter(p =>
+      p.marca?.toLowerCase().includes(marca.toLowerCase())
+    );
+  }
+  if (matricula) {
+    proyectos = proyectos.filter(p =>
+      p.matricula?.toLowerCase().includes(matricula.toLowerCase())
+    );
+  }
+  if (propietario) {
+    proyectos = proyectos.filter(p =>
+      p.propietario?.toLowerCase().includes(propietario.toLowerCase())
+    );
+  }
+
+  // Limitar a 25 si no hay filtros
+  if (!marca && !matricula && !propietario) {
+    proyectos = proyectos.slice(0, 25);
+  }
+
+  res.json(proyectos);
+});
+
+app.get('/proyectos/:id/proyecto.json', (req, res) => {
+  const id = req.params.id; // ej: "15_2025"
+  const pjPath = path.join(__dirname, 'proyectos', id, 'proyecto.json');
+
+  if (!fs.existsSync(pjPath)) {
+    return res.status(404).json({ error: 'Proyecto no encontrado' });
+  }
+
+  try {
+    const data = JSON.parse(fs.readFileSync(pjPath, 'utf-8'));
+    res.json(data);
+  } catch (err) {
+    console.error('Error leyendo proyecto:', err);
+    res.status(500).json({ error: 'No se pudo leer el proyecto' });
+  }
+});

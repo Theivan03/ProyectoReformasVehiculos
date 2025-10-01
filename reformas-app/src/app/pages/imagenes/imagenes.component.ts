@@ -18,6 +18,7 @@ export class ImagenesComponent implements OnInit {
   @Output() continuar = new EventEmitter<any>();
   /** autosave continuo al padre */
   @Output() autosave = new EventEmitter<any>();
+  @Input() origen: 'anterior' | 'siguiente' = 'anterior';
 
   step = 1;
 
@@ -35,10 +36,14 @@ export class ImagenesComponent implements OnInit {
   errorPostImagesCount = false;
 
   async ngOnInit(): Promise<void> {
-    // Paso guardado
-    if (this.datosEntrada?.step) this.step = this.datosEntrada.step;
+    // Determinar en qué paso arrancar
+    if (this.origen === 'anterior') {
+      this.step = 1;
+    } else if (this.origen === 'siguiente') {
+      this.step = 2;
+    }
 
-    // Restaurar desde base64 si existen (preferente, porque persiste)
+    // Restaurar previas
     if (Array.isArray(this.datosEntrada?.prevImagesB64)) {
       this.prevImagesB64 = [...this.datosEntrada.prevImagesB64];
       this.prevPreviews = [...this.prevImagesB64];
@@ -46,7 +51,6 @@ export class ImagenesComponent implements OnInit {
         this.prevImagesB64.map((b64) => this.dataUrlToBlob(b64))
       );
     } else if (Array.isArray(this.datosEntrada?.prevImages)) {
-      // (compatibilidad) si te llegan Blobs desde el padre
       this.prevImages = this.datosEntrada.prevImages;
       this.prevPreviews = await Promise.all(
         this.prevImages.map((b) => this.blobToDataUrl(b))
@@ -139,9 +143,11 @@ export class ImagenesComponent implements OnInit {
   async onPostSelected(ev: Event) {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
+
     const files = Array.from(input.files);
 
-    if (files.length > 30) {
+    // 🔹 límite global de 30 imágenes (las que ya hay + las nuevas)
+    if (this.postImages.length + files.length > 30) {
       this.errorPostImagesCount = true;
       input.value = '';
       return;
@@ -151,13 +157,17 @@ export class ImagenesComponent implements OnInit {
     const blobs = await Promise.all(
       files.map((f) => this.normalizeOrientation(f))
     );
-    this.postImages = blobs;
-    this.postPreviews = await Promise.all(
-      blobs.map((b) => this.blobToDataUrl(b))
-    );
-    this.postImagesB64 = [...this.postPreviews];
+    const previews = await Promise.all(blobs.map((b) => this.blobToDataUrl(b)));
+
+    // 🔹 en vez de reemplazar, concatenamos
+    this.postImages = [...this.postImages, ...blobs];
+    this.postPreviews = [...this.postPreviews, ...previews];
+    this.postImagesB64 = [...this.postImagesB64, ...previews];
 
     this.emitAutosave();
+
+    // limpiar input para permitir volver a elegir mismas imágenes si se quiere
+    input.value = '';
   }
 
   isValidPreview(previews: string[]): number {

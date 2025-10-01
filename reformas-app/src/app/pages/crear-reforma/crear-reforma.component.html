@@ -32,19 +32,21 @@
   <app-mostrar-secciones
     [secciones]="seccionesSeleccionadas || []"
     [respuestas]="respuestasGuardadas || {}"
+    [desdePosterior]="vieneDePosterior"
     (volverASeleccion)="volverASeleccionDesdeSubseleccion()"
     (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
   >
   </app-mostrar-secciones>
   } @if (mostrarFormularioProyecto) {
   <app-formulario-proyecto
-    [respuestas]="respuestasGuardadas || {}"
-    [datosIniciales]="datosFormularioGuardados || null"
+    [datosIniciales]="datosFormularioGuardados"
+    [respuestas]="respuestasGuardadas"
+    [esEdicion]="editMode"
     (autosave)="onAutosaveFormulario($event)"
     (volverAReforma)="onVolverDesdeFormulario($event)"
     (finalizarFormulario)="onFinalizarFormulario($event)"
-  >
-  </app-formulario-proyecto>
+  ></app-formulario-proyecto>
+
   } @if (mostrarReformasPrevias) {
   <app-reformas-previas
     [datos]="datosGenerales || {}"
@@ -55,7 +57,7 @@
   </app-reformas-previas>
   } @if (mostrarTipoVehiculo) {
   <app-tipo-vehiculo
-    [datosPrevios]="datosGuardadosTipoVehiculo || {}"
+    [datosPrevios]="datosParaTipoVehiculo"
     (autosave)="onAutosaveTipoVehiculo($event)"
     (continuar)="onContinuarTipoVehiculo($event)"
     (volver)="onVolverDesdeTipoVehiculo($event)"
@@ -86,6 +88,7 @@
   } @if (mostrarImagenes) {
   <app-imagenes
     [datosEntrada]="datosParaResumen"
+    [origen]="origenImagenes"
     (autosave)="onAutosaveImagenes($event)"
     (volver)="onVolverDesdeImagenes($event)"
     (continuar)="onContinuarDesdeImagenes($event)"

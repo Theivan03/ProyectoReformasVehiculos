@@ -1,43 +1,40 @@
 @if (seccionActual) {
-  <div class="card p-4">
-    <div class="d-flex justify-content-between align-items-start">
-      <h4 class="mb-3">Opciones para: {{ seccionActual.descripcion }}</h4>
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary" (click)="volver()">
-          ⬅ Volver
-        </button>
-        <button class="btn btn-outline-secondary" (click)="siguiente()">
-          Siguiente ➡
-        </button>
-      </div>
+<div class="card p-4">
+  <div class="d-flex justify-content-between align-items-start">
+    <h4 class="mb-3">Opciones para: {{ seccionActual.descripcion }}</h4>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" (click)="volver()">
+        ⬅ Volver
+      </button>
+      <button class="btn btn-outline-secondary" (click)="siguiente()">
+        Siguiente ➡
+      </button>
     </div>
-    @for (opcion of seccionActual.opciones; track opcion) {
-      <div class="form-check mb-2">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [id]="opcion.codigo"
-          [checked]="isOpcionSeleccionada(seccionActual.codigo, opcion.codigo)"
-          (change)="onToggleOpcion(seccionActual.codigo, opcion)"
-          />
-          <label class="form-check-label" [for]="opcion.codigo">
-            {{ opcion.codigo + " - " + opcion.descripcion }}
-          </label>
-        </div>
-      }
-      @if (seccionActual.codigo == '8') {
-        <div
-          class="d-flex justify-content-end mt-4"
-          >
-          <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary" (click)="volver()">
-              ⬅ Volver
-            </button>
-            <button class="btn btn-outline-secondary" (click)="siguiente()">
-              Siguiente ➡
-            </button>
-          </div>
-        </div>
-      }
+  </div>
+  @for (opcion of seccionActual.opciones; track opcion) {
+  <div class="form-check mb-2">
+    <input
+      class="form-check-input"
+      type="checkbox"
+      [id]="opcion.codigo"
+      [checked]="isOpcionSeleccionada(seccionActual.codigo, opcion.codigo)"
+      (change)="onToggleOpcion(seccionActual.codigo, opcion)"
+    />
+    <label class="form-check-label" [for]="opcion.codigo">
+      {{ opcion.codigo + " - " + opcion.descripcion }}
+    </label>
+  </div>
+  } @if (seccionActual.codigo == '8') {
+  <div class="d-flex justify-content-end mt-4">
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" (click)="volver()">
+        ⬅ Volver
+      </button>
+      <button class="btn btn-outline-secondary" (click)="siguiente()">
+        Siguiente ➡
+      </button>
     </div>
+  </div>
   }
+</div>
+}

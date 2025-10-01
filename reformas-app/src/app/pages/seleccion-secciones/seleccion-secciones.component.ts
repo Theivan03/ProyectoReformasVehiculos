@@ -13,6 +13,7 @@ export class SeleccionSeccionesComponent implements OnInit {
 
   @Input() set seccionesPreseleccionadas(v: string[] | null | undefined) {
     this._pre = Array.isArray(v) ? v : [];
+    console.log('Input recibido en seleccion-secciones:', this._pre);
     this.syncFromPre();
   }
   get seccionesPreseleccionadas() {
@@ -28,12 +29,16 @@ export class SeleccionSeccionesComponent implements OnInit {
 
   ngOnInit(): void {
     this.syncFromPre();
+    console.log('Preseleccionadas:', this.seccionesPreseleccionadas);
   }
 
   private syncFromPre() {
-    if (!Array.isArray(this.opcionesReforma)) return;
-    this.seccionesSeleccionadas = this.opcionesReforma.filter((op) =>
-      this._pre.includes(op.codigo)
+    const pre = new Set((this._pre || []).map(String));
+    const opciones = Array.isArray(this.opcionesReforma)
+      ? this.opcionesReforma
+      : [];
+    this.seccionesSeleccionadas = opciones.filter((op) =>
+      pre.has(String(op.codigo))
     );
   }
 

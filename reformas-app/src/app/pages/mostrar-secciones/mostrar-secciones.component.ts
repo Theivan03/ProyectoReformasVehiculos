@@ -11,19 +11,23 @@ import codigosReforma from '../../../assets/codigos_reforma_vehiculo.json';
 })
 export class MostrarSeccionesComponent implements OnInit {
   private _secciones: { codigo: string; descripcion: string }[] = [];
+  get secciones() {
+    return this._secciones;
+  }
   @Input() set secciones(
     v: { codigo: string; descripcion: string }[] | null | undefined
   ) {
     this._secciones = Array.isArray(v) ? v : [];
-    this.rebuild();
-  }
-  get secciones() {
-    return this._secciones;
+    this.rebuild(); // recalcula opciones y checked
+    this.aplicarIndice(); // posiciona según desdePosterior
   }
 
   private _respuestas: {
     [codigo: string]: { codigo: string; descripcion: string }[];
   } = {};
+  get respuestas() {
+    return this._respuestas;
+  }
   @Input() set respuestas(
     v:
       | { [codigo: string]: { codigo: string; descripcion: string }[] }
@@ -31,10 +35,16 @@ export class MostrarSeccionesComponent implements OnInit {
       | undefined
   ) {
     this._respuestas = v ?? {};
-    this.rebuildIndice();
+    // No cambiamos el índice aquí; solo re-marcamos checks al rebuild
+    // Si quieres re-posicionar al entrar con respuestas, lo harías con aplicarIndice()
   }
-  get respuestas() {
-    return this._respuestas;
+
+  // ⚠️ NUEVO: flag que viene del padre para saber si llegamos desde el paso posterior
+  private _desdePosterior = false;
+  @Input() set desdePosterior(v: boolean | null | undefined) {
+    this._desdePosterior = !!v;
+    // Cada vez que cambia este flag, re-posicionamos
+    this.aplicarIndice();
   }
 
   @Output() volverASeleccion = new EventEmitter<void>();
@@ -49,6 +59,7 @@ export class MostrarSeccionesComponent implements OnInit {
 
   ngOnInit(): void {
     this.rebuild();
+    this.aplicarIndice();
   }
 
   private rebuild() {
@@ -57,20 +68,28 @@ export class MostrarSeccionesComponent implements OnInit {
       const opciones = all.filter((op) =>
         String(op?.codigo ?? '').startsWith(s.codigo + '.')
       );
-      return { ...s, opciones };
+
+      // marca checked según respuestas actuales
+      const opcionesMarcadas = opciones.map((op) => ({
+        ...op,
+        checked: this.isOpcionSeleccionada(s.codigo, op.codigo),
+      }));
+
+      return { ...s, opciones: opcionesMarcadas };
     });
-    this.rebuildIndice();
   }
 
-  private rebuildIndice() {
-    for (let i = this.seccionesFiltradas.length - 1; i >= 0; i--) {
-      const codigo = this.seccionesFiltradas[i].codigo;
-      if (this._respuestas[codigo]?.length) {
-        this.indiceActual = i;
-        return;
-      }
+  // 🔑 Posiciona el índice según el flag que viene del padre
+  private aplicarIndice() {
+    if (!this.seccionesFiltradas.length) return;
+
+    if (this._desdePosterior) {
+      // Al volver desde el paso posterior → ir al ÚLTIMO
+      this.indiceActual = this.seccionesFiltradas.length - 1;
+    } else {
+      // Al entrar “normal” desde selección → ir al PRIMERO
+      this.indiceActual = 0;
     }
-    this.indiceActual = 0;
   }
 
   isOpcionSeleccionada(seccionCodigo: string, opcionCodigo: string): boolean {
@@ -89,23 +108,30 @@ export class MostrarSeccionesComponent implements OnInit {
     const idx = this._respuestas[seccionCodigo].findIndex(
       (it) => it.codigo === opcion.codigo
     );
-    if (idx === -1)
+    if (idx === -1) {
       this._respuestas[seccionCodigo].push({
         codigo: opcion.codigo,
         descripcion: opcion.descripcion,
       });
-    else this._respuestas[seccionCodigo].splice(idx, 1);
+    } else {
+      this._respuestas[seccionCodigo].splice(idx, 1);
+    }
   }
 
   siguiente(): void {
-    if (this.indiceActual < this.seccionesFiltradas.length - 1)
+    if (this.indiceActual < this.seccionesFiltradas.length - 1) {
       this.indiceActual++;
-    else this.finalizarRecoleccion.emit(this._respuestas);
+    } else {
+      this.finalizarRecoleccion.emit(this._respuestas);
+    }
   }
 
   volver(): void {
-    if (this.indiceActual > 0) this.indiceActual--;
-    else this.volverASeleccion.emit();
+    if (this.indiceActual > 0) {
+      this.indiceActual--;
+    } else {
+      this.volverASeleccion.emit();
+    }
   }
 
   get seccionActual() {
