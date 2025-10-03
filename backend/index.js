@@ -256,9 +256,10 @@ app.get('/proyectos', (req, res) => {
         matricula: json.matricula || '---',
         propietario: json.propietario || '---',
         numeroProyecto: json.numeroProyecto || 0,
+        enviadoPorCliente: json.enviadoPorCliente || false,
       };
     } else {
-      return { id: carpeta, nombre: carpeta };
+      return { id: carpeta, nombre: carpeta, enviadoPorCliente: false };
     }
   });
 

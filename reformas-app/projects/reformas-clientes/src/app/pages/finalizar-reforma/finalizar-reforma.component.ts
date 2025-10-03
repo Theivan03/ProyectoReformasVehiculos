@@ -34,14 +34,25 @@ export class FinalizarReformaComponent {
     const url = 'http://192.168.1.41:3000/guardar-proyecto';
     const form = new FormData();
 
+    // Excluimos imágenes para tratarlas aparte
     const { prevImages, postImages, ...soloDatos } = this.reformaData;
-    form.append('metadata', JSON.stringify(soloDatos));
 
+    // ✅ Añadimos flag de envío por cliente
+    const datosConEstado = {
+      ...soloDatos,
+      enviadoPorCliente: true,
+    };
+
+    form.append('metadata', JSON.stringify(datosConEstado));
+
+    // Subir imágenes previas
     if (Array.isArray(prevImages)) {
       prevImages.forEach((file: File, idx: number) => {
         form.append('prevImage', file, file.name || `prev-${idx}.png`);
       });
     }
+
+    // Subir imágenes posteriores
     if (Array.isArray(postImages)) {
       postImages.forEach((file: File, idx: number) => {
         form.append('postImage', file, file.name || `post-${idx}.png`);
@@ -58,14 +69,11 @@ export class FinalizarReformaComponent {
       .subscribe({
         next: (event: HttpEvent<any>) => {
           if (event.type === HttpEventType.UploadProgress && event.total) {
-            // Calcula porcentaje real
             const porcentaje = Math.round((100 * event.loaded) / event.total);
             this.animateProgress(porcentaje);
           } else if (event.type === HttpEventType.Response) {
-            // Fuerza que llegue a 100% suavemente
             this.animateProgress(100);
 
-            // Espera mínimo 1 segundo antes de cerrar
             const elapsed = Date.now() - startTime;
             const remaining = Math.max(1000 - elapsed, 0);
 

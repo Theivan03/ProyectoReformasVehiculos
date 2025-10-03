@@ -8379,62 +8379,79 @@
       <div class="mb-4">
         <h3>Instalación Eléctrica</h3>
         <!-- Placa solar -->
-        <h4>Placa Solar</h4>
-        <div class="mb-2">
-          <label class="form-label">Marca:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marcaPlacaSolar"
-            name="marcaPlacaSolar"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaPlacaSolar"
-          />
+        <h4>Placas Solares</h4>
+        <div
+          *ngFor="let placa of mod.placasSolares; let j = index"
+          class="border p-2 mb-2"
+        >
+          <div class="mb-2">
+            <label class="form-label">Marca:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="placa.marca"
+              name="placaMarca{{ i }}-{{ j }}"
+              required
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Modelo:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="placa.modelo"
+              name="placaModelo{{ i }}-{{ j }}"
+              required
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Potencia:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="placa.potencia"
+              name="placaPotencia{{ i }}-{{ j }}"
+              required
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Dimensiones (mm):</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="placa.dimensiones"
+              name="placaDimensiones{{ i }}-{{ j }}"
+              required
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Ubicación:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="placa.ubicacion"
+              name="placaUbicacion{{ i }}-{{ j }}"
+              required
+            />
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            (click)="mod.placasSolares.splice(j, 1)"
+          >
+            Eliminar placa
+          </button>
         </div>
-        <div class="mb-2">
-          <label class="form-label">Modelo:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.modeloPlacaSolar"
-            name="modeloPlacaSolar"
-            required
-            [class.is-invalid]="formSubmitted && !mod.modeloPlacaSolar"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Potencia:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.potenciaPlacaSolar"
-            name="potenciaPlacaSolar"
-            required
-            [class.is-invalid]="formSubmitted && !mod.potenciaPlacaSolar"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Dimensiones (mm):</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.dimensionesPlacaSolar"
-            name="dimensionesPlacaSolar"
-            required
-            [class.is-invalid]="formSubmitted && !mod.dimensionesPlacaSolar"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Ubicación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.ubicacionPlacaSolar"
-            name="ubicacionPlacaSolar"
-            required
-            [class.is-invalid]="formSubmitted && !mod.ubicacionPlacaSolar"
-          />
-        </div>
+
+        <button
+          type="button"
+          class="btn btn-success btn-sm"
+          (click)="mod.placasSolares.push({})"
+        >
+          + Añadir placa solar
+        </button>
+
         <!-- Baterías auxiliares -->
         <h4>Baterías Auxiliares</h4>
         <div class="mb-2">

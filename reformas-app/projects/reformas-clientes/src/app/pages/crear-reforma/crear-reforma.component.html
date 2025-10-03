@@ -22,6 +22,18 @@
 </div>
 
 <div class="container mt-4">
+  <!-- 1) Tipo de vehículo -->
+  @if (mostrarTipoVehiculo) {
+  <app-tipo-vehiculo
+    [datosPrevios]="datosGuardadosTipoVehiculo || {}"
+    (autosave)="onAutosaveTipoVehiculo($event)"
+    (continuar)="onContinuarTipoVehiculo($event)"
+    (volver)="onVolverDesdeTipoVehiculo($event)"
+  >
+  </app-tipo-vehiculo>
+  }
+
+  <!-- 2) Formulario del proyecto -->
   @if (mostrarFormularioProyecto) {
   <app-formulario-proyecto
     [respuestas]="datosGenerales || {}"
@@ -30,7 +42,10 @@
     (finalizarFormulario)="onFinalizarFormulario($event)"
   >
   </app-formulario-proyecto>
-  } @if (mostrarReformasPrevias) {
+  }
+
+  <!-- 3) Reformas previas -->
+  @if (mostrarReformasPrevias) {
   <app-reformas-previas
     [datos]="datosGenerales || {}"
     (autosave)="onAutosaveReformasPrevias($event)"
@@ -38,22 +53,20 @@
     (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
   >
   </app-reformas-previas>
-  } @if (mostrarTipoVehiculo) {
-  <app-tipo-vehiculo
-    [datosPrevios]="datosGuardadosTipoVehiculo || {}"
-    (autosave)="onAutosaveTipoVehiculo($event)"
-    (continuar)="onContinuarTipoVehiculo($event)"
-    (volver)="onVolverDesdeTipoVehiculo($event)"
-  >
-  </app-tipo-vehiculo>
-  } @if (mostrarResumenModificaciones) {
+  }
+
+  <!-- 4) Resumen de modificaciones -->
+  @if (mostrarResumenModificaciones) {
   <app-resumen-modificaciones
     [datosEntrada]="datosParaResumen"
     (volver)="onVolverDesdeResumenModificaciones($event)"
     (continuar)="onContinuarDesdeResumenModificaciones($event)"
   >
   </app-resumen-modificaciones>
-  } @if (mostrarImagenes) {
+  }
+
+  <!-- 5) Imágenes -->
+  @if (mostrarImagenes) {
   <app-imagenes
     [datosEntrada]="datosParaResumen"
     (autosave)="onAutosaveImagenes($event)"
@@ -61,7 +74,10 @@
     (continuar)="onContinuarDesdeImagenes($event)"
   >
   </app-imagenes>
-  } @if (mostrarFinalizar) {
+  }
+
+  <!-- 6) Finalizar -->
+  @if (mostrarFinalizar) {
   <app-finalizar-reforma
     [reformaData]="datosGenerales || {}"
     (volverAlFormulario)="onVolverDesdeFinalizar($event)"

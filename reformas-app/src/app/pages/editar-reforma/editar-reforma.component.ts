@@ -34,6 +34,8 @@ export class EditarReformaComponent implements OnInit {
     if (filtros.marca) params.marca = filtros.marca;
     if (filtros.matricula) params.matricula = filtros.matricula;
     if (filtros.propietario) params.propietario = filtros.propietario;
+    if (filtros.enviadoPorCliente)
+      params.enviadoPorCliente = filtros.enviadoPorCliente;
 
     this.http
       .get<any[]>('http://localhost:3000/proyectos', { params })

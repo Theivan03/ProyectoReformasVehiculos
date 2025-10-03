@@ -422,6 +422,12 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       ) {
         m.seccionResistenteAsSnorkel = 36.64;
       }
+
+      if (m.nombre === 'INSTALACIÓN ELÉCTRICA') {
+        if (!m.placasSolares) {
+          m.placasSolares = [{}]; // empieza con 1 vacío por defecto
+        }
+      }
     });
   }
 

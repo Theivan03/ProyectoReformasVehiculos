@@ -129,6 +129,7 @@ export class FormularioProyectoComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['datosIniciales'] && this.datosIniciales) {
       this.datos = { ...this.datos, ...this.datosIniciales };
+      this.actualizarPropietario();
     }
 
     if (this.respuestas) {
@@ -262,6 +263,12 @@ export class FormularioProyectoComponent implements OnChanges {
     const añoCorto = año.toString().slice(-2);
     this.datos.referenciaProyecto = `PTRV ${this.datos.numeroProyecto}/${añoCorto}`;
     this.datos.referenciaCFO = `CFO ${this.datos.numeroProyecto}/${añoCorto}`;
+  }
+
+  private actualizarPropietario(): void {
+    const nombre = this.datos.nombre?.trim() || '';
+    const apellidos = this.datos.apellidos?.trim() || '';
+    this.datos.propietario = `${nombre} ${apellidos}`.trim();
   }
 
   // 👉 Aquí está el método que faltaba

@@ -19,6 +19,7 @@ import { Modificacion } from '../../interfaces/modificacion';
 })
 export class TipoVehiculoComponent implements OnInit, OnChanges {
   @Input() datosPrevios: any;
+  @Input() enviadoPorCliente: boolean | null = null;
   @Output() continuar = new EventEmitter<any>();
   @Output() volver = new EventEmitter<any>();
   @Output() autosave = new EventEmitter<{
@@ -58,39 +59,70 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
     { key: 'luzMatricula', label: 'Luz de matrícula' },
   ];
 
-  ngOnInit(): void {
-    if (this.datosPrevios && this.datosPrevios.tipoVehiculo) {
-      // Caso edición → restaurar
-      this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
+  private get esCliente(): boolean {
+    return !!this.datosPrevios?.enviadoPorCliente;
+  }
 
-      this.modificaciones = (this.datosPrevios.modificaciones || []).map(
-        (mod: any) => this.normalizarModificacion(mod)
+  private resetPorCliente(): void {
+    // Si el cliente ya eligió un tipo, mantenlo y carga las opciones del ingeniero
+    if (this.datosPrevios?.tipoVehiculo) {
+      this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
+      this.modificaciones = this.obtenerModificacionesPorTipo(
+        this.tipoVehiculo
       );
     } else {
-      // Caso creación nueva → empieza vacío hasta elegir tipo
+      // Si no hay tipo, empezamos vacío
       this.tipoVehiculo = '';
       this.modificaciones = [];
     }
 
-    // Primer autosave al cargar
+    this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
     this.emitAutosave();
   }
 
+  ngOnInit(): void {
+    if (this.esCliente) {
+      // JSON enviado por cliente → ignorar lo que venga y empezar en blanco
+      this.resetPorCliente();
+    } else if (this.datosPrevios && this.datosPrevios.tipoVehiculo) {
+      // Edición creada por el ingeniero → restaurar normalmente
+      this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
+      this.modificaciones = (this.datosPrevios.modificaciones || []).map(
+        (mod: any) => this.normalizarModificacion(mod)
+      );
+      this.emitAutosave();
+    } else {
+      // Proyecto nuevo del ingeniero
+      this.tipoVehiculo = '';
+      this.modificaciones = [];
+      this.emitAutosave();
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
+    // Si en cualquier momento detectamos que es de cliente, forzamos reset y
+    // NO procesamos los datosPrevios que vengan detrás.
+    if (
+      (changes['enviadoPorCliente'] || changes['datosPrevios']) &&
+      this.esCliente
+    ) {
+      this.resetPorCliente();
+      return;
+    }
+
+    // Solo si NO es de cliente aplicamos los datos entrantes
     if (changes['datosPrevios'] && changes['datosPrevios'].currentValue) {
       const nuevos = changes['datosPrevios'].currentValue;
 
-      // Actualizar tipoVehiculo solo si llega algo nuevo
       if (nuevos.tipoVehiculo) {
         this.tipoVehiculo = nuevos.tipoVehiculo;
       }
-
-      // Actualizar modificaciones
       if (Array.isArray(nuevos.modificaciones)) {
         this.modificaciones = nuevos.modificaciones.map((mod: any) =>
           this.normalizarModificacion(mod)
         );
       }
+      this.emitAutosave();
     }
   }
 
@@ -191,7 +223,9 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
   }
 
   onTipoCambio(): void {
-    this.modificaciones = this.obtenerModificacionesPorTipo(this.tipoVehiculo);
+    this.modificaciones = this.obtenerModificacionesPorTipo(
+      this.tipoVehiculo
+    ).map((mod) => this.normalizarModificacion(mod));
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
     this.emitAutosave();
   }
@@ -418,6 +452,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
     this.tipoVehiculoInvalido = false;
     this.emitAutosave();
 
+    console.log('Datos a enviar:', {
+      tipoVehiculo: this.tipoVehiculo,
+      modificaciones: this.modificaciones,
+    });
     this.continuar.emit({
       tipoVehiculo: this.tipoVehiculo,
       modificaciones: this.modificaciones,

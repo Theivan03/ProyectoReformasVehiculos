@@ -256,11 +256,13 @@ export interface Modificacion {
   ubicacionTomaExterior?: string;
   medidasTomaExterior?: string;
   ubicacionDuchaExterior?: string;
-  marcaPlacaSolar?: string;
-  modeloPlacaSolar?: string;
-  potenciaPlacaSolar?: string;
-  dimensionesPlacaSolar?: string;
-  ubicacionPlacaSolar?: string;
+  placasSolares?: {
+    marca?: string;
+    modelo?: string;
+    potencia?: string;
+    dimensiones?: string;
+    ubicacion?: string;
+  }[];
   cantidadBaterias?: number;
   potenciaBaterias?: string;
   ubicacionBaterias?: string;

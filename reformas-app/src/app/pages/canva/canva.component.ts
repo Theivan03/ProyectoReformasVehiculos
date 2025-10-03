@@ -163,7 +163,14 @@ export class CanvaComponent implements OnInit {
         continue;
       }
 
-      // 3) Resto (solo si están seleccionadas)
+      // 3) INSTALACIÓN ELÉCTRICA
+      if (mod?.seleccionado && mod?.nombre === 'INSTALACIÓN ELÉCTRICA') {
+        const sublabels = this.expandInstalacionElectrica(mod);
+        if (sublabels.length > 0) nuevasLabels.push(...sublabels);
+        continue;
+      }
+
+      // 4) Resto (solo si están seleccionadas)
       if (mod?.seleccionado) {
         nuevasLabels.push(mod.nombre);
       }
@@ -203,6 +210,44 @@ export class CanvaComponent implements OnInit {
 
     // Primer autosave al entrar (estado restaurado o en blanco)
     this.emitAutosave();
+  }
+
+  // ---------- Helpers para instalación eléctrica ----------
+  private expandInstalacionElectrica(mod: any): string[] {
+    const out: string[] = [];
+
+    // Placas solares
+    if (Array.isArray(mod.placasSolares)) {
+      mod.placasSolares.forEach((placa: any, i: number) => {
+        out.push(
+          `Placa solar ${i + 1} (${placa.marcaPlacaSolar || ''} ${
+            placa.modeloPlacaSolar || ''
+          })`
+        );
+      });
+    }
+
+    // Baterías
+    if (mod.cantidadBaterias && mod.potenciaBaterias) {
+      out.push(`Batería ${mod.potenciaBaterias}V`);
+    }
+
+    // Inversor
+    if (mod.marcaInversor || mod.potenciaInversor) {
+      out.push(`Inversor ${mod.marcaInversor || ''}`);
+    }
+
+    // Controlador
+    if (mod.marcaControlador || mod.modeloControlador) {
+      out.push(`Controlador ${mod.modeloControlador || ''}`);
+    }
+
+    // Instalaciones secundarias (si vienen en texto)
+    if (mod.instalacionesSecundarias) {
+      out.push(`Instalaciones secundarias`);
+    }
+
+    return out;
   }
 
   calcularFechaHoy(): string {
@@ -310,10 +355,9 @@ export class CanvaComponent implements OnInit {
 
   private guardarFirma() {
     const el = this.firmaRef.nativeElement;
-    const dpr = window.devicePixelRatio || 1;
-    const scale = dpr * 16;
+
     html2canvas(el, {
-      scale,
+      scale: 2, // 👈 ajusta aquí el zoom (2 suele bastar)
       useCORS: true,
       backgroundColor: null,
     }).then((canvas) => {

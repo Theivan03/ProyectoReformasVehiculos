@@ -108,6 +108,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         this.datosGenerales?.modificaciones ||
         this.datosProyecto?.modificaciones ||
         [],
+      enviadoPorCliente: this.datosProyecto?.enviadoPorCliente ?? false,
     };
   }
 
@@ -431,38 +432,60 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
     this.step = 'seleccion';
 
-    // --- CODIGOS DETALLADOS ---
+    // ---- 1) Intentar leer "códigos detallados" de donde estén
     const codigosDetalladosRoot =
       (base as any)?.codigosDetallados || (saved as any)?.codigosDetallados;
     const codigosDetalladosDG =
       (base as any)?.datosGenerales?.codigosDetallados ||
       (saved as any)?.datosGenerales?.codigosDetallados;
 
+    const esBloqueTipoVehiculo = (obj: any) =>
+      obj &&
+      typeof obj === 'object' &&
+      (typeof obj.tipoVehiculo === 'string' ||
+        Array.isArray(obj.modificaciones));
+
+    const normalizarRespuestas = (src: any) =>
+      Object.fromEntries(
+        Object.entries(src)
+          // solo entradas cuyo valor sea array
+          .filter(([, v]) => Array.isArray(v))
+          .map(([codigo, lista]) => [
+            String(codigo),
+            (lista as any[]).map((item: any) => ({
+              codigo: String(item.codigo),
+              descripcion: item.descripcion,
+            })),
+          ])
+      );
+
     if (codigosDetalladosRoot && typeof codigosDetalladosRoot === 'object') {
-      this.codigosPreseleccionados = Object.keys(codigosDetalladosRoot).map(
-        String
-      );
-      this.respuestasGuardadas = Object.fromEntries(
-        Object.entries(codigosDetalladosRoot).map(([codigo, lista]) => [
-          codigo,
-          (lista as any[]).map((item) => ({
-            codigo: String(item.codigo),
-            descripcion: item.descripcion,
-          })),
-        ])
-      );
+      if (esBloqueTipoVehiculo(codigosDetalladosRoot)) {
+        // Caso "proyecto enviado por cliente": esto en realidad es tipo-vehículo
+        this.datosGuardadosTipoVehiculo = {
+          ...(this.datosGuardadosTipoVehiculo || {}),
+          tipoVehiculo: codigosDetalladosRoot.tipoVehiculo ?? '',
+          modificaciones: Array.isArray(codigosDetalladosRoot.modificaciones)
+            ? codigosDetalladosRoot.modificaciones
+            : this.datosGuardadosTipoVehiculo?.modificaciones || [],
+        };
+        // No hay códigos detallados que preseleccionar en este caso
+        this.codigosPreseleccionados = saved?.codigosPreseleccionados
+          ? saved.codigosPreseleccionados.map(String)
+          : [];
+        this.respuestasGuardadas = {};
+      } else {
+        // Caso clásico (proyecto 20): mapas de arrays {codigo, descripcion}
+        this.codigosPreseleccionados = Object.keys(codigosDetalladosRoot)
+          .filter((k) => Array.isArray((codigosDetalladosRoot as any)[k]))
+          .map(String);
+        this.respuestasGuardadas = normalizarRespuestas(codigosDetalladosRoot);
+      }
     } else if (codigosDetalladosDG && typeof codigosDetalladosDG === 'object') {
-      this.codigosPreseleccionados =
-        Object.keys(codigosDetalladosDG).map(String);
-      this.respuestasGuardadas = Object.fromEntries(
-        Object.entries(codigosDetalladosDG).map(([codigo, lista]) => [
-          codigo,
-          (lista as any[]).map((item) => ({
-            codigo: String(item.codigo),
-            descripcion: item.descripcion,
-          })),
-        ])
-      );
+      this.codigosPreseleccionados = Object.keys(codigosDetalladosDG)
+        .filter((k) => Array.isArray((codigosDetalladosDG as any)[k]))
+        .map(String);
+      this.respuestasGuardadas = normalizarRespuestas(codigosDetalladosDG);
     } else if (Array.isArray(saved?.codigosPreseleccionados)) {
       this.codigosPreseleccionados = saved.codigosPreseleccionados.map(String);
     } else if (Array.isArray(saved?.seccionesSeleccionadas)) {
@@ -471,23 +494,30 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       );
     } else {
       this.codigosPreseleccionados = [];
+      this.respuestasGuardadas = {};
     }
 
-    // --- RESTO DE ESTADO ---
+    // ---- 2) Resto de estado (con fallback al top-level del proyecto)
     this.seccionesSeleccionadas =
       base.seccionesSeleccionadas || saved?.seccionesSeleccionadas || [];
+
     this.respuestasGuardadas =
       base.respuestasGuardadas ||
       this.respuestasGuardadas ||
       saved?.respuestasGuardadas ||
       {};
+
     this.datosFormularioGuardados =
       base.datosFormularioGuardados || saved?.datosFormularioGuardados || base;
+
     this.datosGenerales = base.datosGenerales || saved?.datosGenerales || base;
+
     this.datosGuardadosTipoVehiculo =
       base.datosGuardadosTipoVehiculo ||
+      this.datosGuardadosTipoVehiculo ||
       saved?.datosGuardadosTipoVehiculo ||
       {};
+
     this.datosResumenModificaciones =
       base.datosResumenModificaciones ||
       saved?.datosResumenModificaciones ||

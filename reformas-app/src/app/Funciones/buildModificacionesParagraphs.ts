@@ -1810,7 +1810,7 @@ export function buildModificacionesParagraphs(
       data.tipoVehiculo === 'camper'
   );
   if (calefac) {
-    raw = `- Instalación de sistema de calefacción marca ${calefac.marcaCalefaccion} modelo ${calefac.modeloCalefaccion} contraseña de homologación ${calefac.homologacionCalefaccion}, con salidas al espacio de carga del vehículo. El combustible utilizado es Diésel que se toma del depósito mediante espadín. ${calefac.descripcionCalefaccion} Se realiza instalación del sistema de alimentación según indicaciones de fabricante y se garantiza la estanqueidad del sistema.`;
+    raw = `- Instalación de sistema de calefacción marca ${calefac.marcaCalefaccion} modelo ${calefac.modeloCalefaccion} contraseña de homologación ${calefac.homologacionCalefaccion}, con salidas al espacio de carga del vehículo. El combustible utilizado es Diésel que se toma del depósito mediante espadín. ${calefac.descripcionCalefaccion}. Se realiza instalación del sistema de alimentación según indicaciones de fabricante y se garantiza la estanqueidad del sistema.`;
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
       indent: { left: 400 },
@@ -1877,11 +1877,8 @@ export function buildModificacionesParagraphs(
     }
 
     // Aseos
-    if (
-      mobil.opcionesMueble?.aseo &&
-      Array.isArray((mobil as any).mueblesBajo)
-    ) {
-      (mobil as any).mueblesAseo.forEach((aseo: any) => {
+    if (mobil.opcionesMueble?.aseo && Array.isArray((mobil as any).aseo)) {
+      (mobil as any).aseo.forEach((aseo: any) => {
         const raw = `o Instalación de aseo con persiana de medidas ${aseo.medidas} en su interior se ubica un ${aseo.descripcion}.`;
 
         const p = new Paragraph({
@@ -1893,285 +1890,293 @@ export function buildModificacionesParagraphs(
         out.push(p);
       });
     }
+  }
 
-    //
-    // 7) CLARABOYA
-    //
-    const claraboya = modificaciones.find(
-      (m) =>
-        m.nombre === 'CLARABOYA' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (claraboya) {
-      raw = `- Instalación en el techo del vehículo ${claraboya.cantidadClaraboya} claraboyas, marca ${claraboya.marcaClaraboya} modelo ${claraboya.modeloClaraboya} ${claraboya.descripcionClaraboya}, con contraseña de homologación ${claraboya.homologacionClaraboya}, sin afectar a la estructura principal del vehículo.`;
+  //
+  // 7) CLARABOYA
+  //
+  const claraboya = modificaciones.find(
+    (m) =>
+      m.nombre === 'CLARABOYA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (claraboya) {
+    raw = `- Instalación en el techo del vehículo ${claraboya.cantidadClaraboya} claraboyas, marca ${claraboya.marcaClaraboya} modelo ${claraboya.modeloClaraboya} ${claraboya.descripcionClaraboya}, con contraseña de homologación ${claraboya.homologacionClaraboya}, sin afectar a la estructura principal del vehículo.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
 
-    //
-    // 8) VENTANA
-    //
-    const ventana = modificaciones.find(
-      (m) =>
-        m.nombre === 'VENTANA' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (ventana) {
-      raw = `- Instalación de ${ventana.cantidadVentanas} ventanas abatibles/correderas ${ventana.descripcionVentana} marca ${ventana.marcaVentana} modelo ${ventana.modeloVentana} de dimensiones ${ventana.dimensionesVentana}mm y contraseña de homologación ${ventana.homologacionVentana}, sin afectar a la estructura principal del vehículo.`;
+  //
+  // 8) VENTANA
+  //
+  const ventana = modificaciones.find(
+    (m) =>
+      m.nombre === 'VENTANA' && m.seleccionado && data.tipoVehiculo === 'camper'
+  );
+  if (ventana) {
+    raw = `- Instalación de ${ventana.cantidadVentanas} ventanas abatibles/correderas ${ventana.descripcionVentana} marca ${ventana.marcaVentana} modelo ${ventana.modeloVentana} de dimensiones ${ventana.dimensionesVentana}mm y contraseña de homologación ${ventana.homologacionVentana}, sin afectar a la estructura principal del vehículo.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
 
-    //
-    // 9) DEPÓSITO DE AGUA SUCIA
-    //
-    const aguasucia = modificaciones.find(
-      (m) =>
-        m.nombre === 'DEPÓSITO DE AGUA SUCIA' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (aguasucia) {
-      raw = `- Instalación de depósito para agua sucia de ${aguasucia.litrosAguaSucia} litros en la parte trasera en los bajos del vehículo. Este depósito se vacía mediante un grifo.`;
+  //
+  // 9) DEPÓSITO DE AGUA SUCIA
+  //
+  const aguasucia = modificaciones.find(
+    (m) =>
+      m.nombre === 'DEPÓSITO DE AGUA SUCIA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (aguasucia) {
+    raw = `- Instalación de depósito para agua sucia de ${aguasucia.litrosAguaSucia} litros en la parte trasera en los bajos del vehículo. Este depósito se vacía mediante un grifo.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
 
-    //
-    // 10) DEPÓSITO DE AGUA LIMPIA
-    //
-    const agualimpia = modificaciones.find(
-      (m) =>
-        m.nombre === 'DEPÓSITO DE AGUA LIMPIA' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (agualimpia) {
-      raw = `- Instalación de depósito para agua limpia de ${agualimpia.litrosAguaLimpia} litros y medidas ${agualimpia.medidasAguaLimpia}mm en la parte trasera del lateral izquierdo.`;
+  //
+  // 10) DEPÓSITO DE AGUA LIMPIA
+  //
+  const agualimpia = modificaciones.find(
+    (m) =>
+      m.nombre === 'DEPÓSITO DE AGUA LIMPIA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (agualimpia) {
+    raw = `- Instalación de depósito para agua limpia de ${agualimpia.litrosAguaLimpia} litros y medidas ${agualimpia.medidasAguaLimpia}mm en la parte trasera del lateral izquierdo.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
 
-    //
-    // 12) BOMBA DE AGUA
-    //
-    const bombaagua = modificaciones.find(
-      (m) =>
-        m.nombre === 'BOMBA DE AGUA' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (bombaagua) {
-      raw = `- Instalación de bomba de agua de 12V marca ${bombaagua.marcaBombaAgua} modelo ${bombaagua.modeloBombaAgua} ubicada en la parte trasera izquierda del vehículo.`;
+  //
+  // 12) BOMBA DE AGUA
+  //
+  const bombaagua = modificaciones.find(
+    (m) =>
+      m.nombre === 'BOMBA DE AGUA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (bombaagua) {
+    raw = `- Instalación de bomba de agua de 12V marca ${bombaagua.marcaBombaAgua} modelo ${bombaagua.modeloBombaAgua} ubicada en la parte trasera izquierda del vehículo.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
 
-    //
-    // 13) REGISTRO DE LLENADO DE AGUA
-    //
-    const llenadoagua = modificaciones.find(
-      (m) =>
-        m.nombre === 'REGISTRO DE LLENADO DE AGUA' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (llenadoagua) {
-      raw = `- Instalación de registro ${llenadoagua.ubicacionRegistroAgua} para llenado de agua, fabricado en plástico de Ø ${llenadoagua.tamanoRegistroAgua}mm, sin afectar a la estructura del vehículo.`;
+  //
+  // 13) REGISTRO DE LLENADO DE AGUA
+  //
+  const llenadoagua = modificaciones.find(
+    (m) =>
+      m.nombre === 'REGISTRO DE LLENADO DE AGUA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (llenadoagua) {
+    raw = `- Instalación de registro ${llenadoagua.ubicacionRegistroAgua} para llenado de agua, fabricado en plástico de Ø ${llenadoagua.tamanoRegistroAgua}mm, sin afectar a la estructura del vehículo.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
 
-    //
-    // 14) TOMA EXTERIOR 230V
-    //
-    const toma230v = modificaciones.find(
-      (m) =>
-        m.nombre === 'TOMA EXTERIOR 230V' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (toma230v) {
-      raw = `- Instalación de una toma de corriente exterior de ${toma230v.voltajeTomaExterior}V en la ${toma230v.ubicacionTomaExterior} fabricado en plástico de medidas ${toma230v.medidasTomaExterior}mm, sin afectar a la estructura del vehículo.`;
+  //
+  // 14) TOMA EXTERIOR 230V
+  //
+  const toma230v = modificaciones.find(
+    (m) =>
+      m.nombre === 'TOMA EXTERIOR 230V' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (toma230v) {
+    raw = `- Instalación de una toma de corriente exterior de ${toma230v.voltajeTomaExterior}V en la ${toma230v.ubicacionTomaExterior} fabricado en plástico de medidas ${toma230v.medidasTomaExterior}mm, sin afectar a la estructura del vehículo.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
 
-    //
-    // 15) DUCHA EXTERIOR
-    //
-    const duchaexterior = modificaciones.find(
-      (m) =>
-        m.nombre === 'DUCHA EXTERIOR' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (duchaexterior) {
-      raw = `- Instalación de registro con ducha exterior en la ${duchaexterior.ubicacionDuchaExterior} para llenado de agua, fabricado en plástico, sin afectar a la estructura del vehículo.`;
+  //
+  // 15) DUCHA EXTERIOR
+  //
+  const duchaexterior = modificaciones.find(
+    (m) =>
+      m.nombre === 'DUCHA EXTERIOR' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (duchaexterior) {
+    raw = `- Instalación de registro con ducha exterior en la ${duchaexterior.ubicacionDuchaExterior} para llenado de agua, fabricado en plástico, sin afectar a la estructura del vehículo.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
 
-    //
-    // 16) INSTALACIÓN ELÉCTRICA
-    //
-    const instalacionelectrica = modificaciones.find(
-      (m) =>
-        m.nombre === 'INSTALACIÓN ELÉCTRICA' &&
-        m.seleccionado &&
-        data.tipoVehiculo === 'camper'
-    );
-    if (instalacionelectrica) {
-      raw = `- Instalación de sistema solar fotovoltaico compuesto por:`;
+  //
+  // 16) INSTALACIÓN ELÉCTRICA
+  //
+  const instalacionelectrica = modificaciones.find(
+    (m) =>
+      m.nombre === 'INSTALACIÓN ELÉCTRICA' &&
+      m.seleccionado &&
+      data.tipoVehiculo === 'camper'
+  );
+  if (instalacionelectrica) {
+    raw = `- Instalación de sistema solar fotovoltaico compuesto por:`;
 
-      let p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
+    let p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
 
-      raw = `o Placa solar monocristalina marca ${instalacionelectrica.marcaPlacaSolar} modelo ${instalacionelectrica.modeloPlacaSolar} de ${instalacionelectrica.potenciaPlacaSolar}W de dimensiones ${instalacionelectrica.dimensionesPlacaSolar}mm situada en ${instalacionelectrica.ubicacionPlacaSolar} del vehículo. `;
+    if (Array.isArray(instalacionelectrica.placasSolares)) {
+      instalacionelectrica.placasSolares.forEach(
+        (placa: any, index: number) => {
+          raw = `o Placa solar monocristalina marca ${
+            placa.marca || ''
+          } modelo ${placa.modelo || ''} de ${
+            placa.potencia || ''
+          }W de dimensiones ${placa.dimensiones || ''}mm situada en ${
+            placa.ubicacion || ''
+          } del vehículo.`;
 
-      p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 600 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-
-      raw = `o ${instalacionelectrica.cantidadBaterias} batería auxiliar de ${instalacionelectrica.potenciaBaterias}V situada en ${instalacionelectrica.ubicacionBaterias}.`;
-
-      p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 600 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-
-      raw = `o Inversor ${instalacionelectrica.potenciaInversor} marca ${instalacionelectrica.marcaInversor} situado en ${instalacionelectrica.ubicacionInversor}. `;
-
-      p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 600 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-
-      raw = `o Controlador de carga solar ${instalacionelectrica.modeloControlador} marca ${instalacionelectrica.marcaControlador} situado en ${instalacionelectrica.ubicacionControlador}.`;
-
-      p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 600 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-
-      out.push(
-        new Paragraph({
-          spacing: { line: 260, after: 120 },
-          children: [
-            new TextRun({ text: 'NOTA: ', bold: true }),
-            new TextRun({
-              text: 'Estos componentes únicamente podrán funcionar en estacionario, con el vehículo parado, mediante relé. Esta instalación es independiente de la principal y se desconecta automáticamente al arrancar el vehículo mediante relé.',
-            }),
-          ],
-        })
-      );
-
-      if (instalacionelectrica.instalacionesSecundarias) {
-        const lines = instalacionelectrica.instalacionesSecundarias
-          .split(/\r?\n/)
-          .map((l) => l.trim())
-          .filter((l) => l.length);
-        lines.forEach((line) => {
-          raw = `- ${line}`;
-          const sec = new Paragraph({
-            spacing: { line: 260, after: 60 },
-            indent: { left: 400 },
+          const pPlaca = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            indent: { left: 600 },
             children: [new TextRun({ text: raw })],
           });
-          (sec as any)._rawText = raw;
-          out.push(sec);
-        });
-      }
+          (pPlaca as any)._rawText = raw;
+          out.push(pPlaca);
+        }
+      );
     }
 
-    //
-    // 17) TOLDO
-    //
-    const toldo = modificaciones.find(
-      (m) =>
-        m.nombre === 'TOLDO' && m.seleccionado && data.tipoVehiculo === 'camper'
-    );
-    if (toldo) {
-      raw = `- Instalación de toldo marca ${toldo.marcaToldo} de medidas ${toldo.medidasToldo}mm en ${toldo.ubicacionToldo} del vehículo sin afectar a la estructura.`;
+    raw = `o ${instalacionelectrica.cantidadBaterias} batería auxiliar de ${instalacionelectrica.potenciaBaterias}V situada en ${instalacionelectrica.ubicacionBaterias}.`;
 
-      const p = new Paragraph({
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `o Inversor ${instalacionelectrica.potenciaInversor} marca ${instalacionelectrica.marcaInversor} situado en ${instalacionelectrica.ubicacionInversor}. `;
+
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    raw = `o Controlador de carga solar ${instalacionelectrica.modeloControlador} marca ${instalacionelectrica.marcaControlador} situado en ${instalacionelectrica.ubicacionControlador}.`;
+
+    p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 600 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
+
+    out.push(
+      new Paragraph({
         spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
+        children: [
+          new TextRun({ text: 'NOTA: ', bold: true }),
+          new TextRun({
+            text: 'Estos componentes únicamente podrán funcionar en estacionario, con el vehículo parado, mediante relé. Esta instalación es independiente de la principal y se desconecta automáticamente al arrancar el vehículo mediante relé.',
+          }),
+        ],
+      })
+    );
 
-    return out;
+    if (instalacionelectrica.instalacionesSecundarias) {
+      const lines = instalacionelectrica.instalacionesSecundarias
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter((l) => l.length);
+      lines.forEach((line) => {
+        raw = `- ${line}`;
+        const sec = new Paragraph({
+          spacing: { line: 260, after: 60 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (sec as any)._rawText = raw;
+        out.push(sec);
+      });
+    }
+  }
+
+  //
+  // 17) TOLDO
+  //
+  const toldo = modificaciones.find(
+    (m) =>
+      m.nombre === 'TOLDO' && m.seleccionado && data.tipoVehiculo === 'camper'
+  );
+  if (toldo) {
+    raw = `- Instalación de toldo marca ${toldo.marcaToldo} de medidas ${toldo.medidasToldo}mm en ${toldo.ubicacionToldo} del vehículo sin afectar a la estructura.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
   }
 
   return out;

@@ -1769,8 +1769,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     }),
   ];
 
-  const response2 = await fetch('assets/firmaLuis.png');
-
   // 1.7 – CONCLUSIÓN
   const punto1_7_Conclusion: Paragraph[] = [
     // Título
@@ -4678,6 +4676,25 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   }
 
   async function generarPosteriores(data: any): Promise<(Paragraph | Table)[]> {
+    const titulo = [
+      new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            text: '6. IMAGENES POSTERIORES A LA REFORMA',
+            color: '000000',
+            bold: true,
+            size: 32,
+          }),
+        ],
+      }),
+
+      new Paragraph({
+        text: '',
+      }),
+    ];
+
     // Normalizas los File a Blob rotados
     const rawFiles = data.postImages as File[];
     const orientedBlobs = await Promise.all(
@@ -4808,7 +4825,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     }
 
     const prevTable = buildPreviosTable(infos);
-    return [prevTable];
+    return [...titulo, prevTable];
   }
 
   const anexosPorsteriores = await generarPosteriores(data);
