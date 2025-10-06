@@ -295,7 +295,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log(this.datosEntrada);
     this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
       (mod: any) => mod.seleccionado
     );

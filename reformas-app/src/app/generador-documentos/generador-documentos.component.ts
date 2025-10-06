@@ -7,10 +7,13 @@ import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import saveAs from 'file-saver';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
+import { generarDocumentoMemoria } from '../generadores/memoria-tecnica';
 
 @Component({
   selector: 'app-generador-documentos',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   standalone: true,
   templateUrl: './generador-documentos.component.html',
   styleUrl: './generador-documentos.component.css',
@@ -25,7 +28,10 @@ export class GeneradorDocumentosComponent implements OnInit {
   @Output() volverAlFormulario = new EventEmitter<void>();
 
   ngOnInit(): void {
-    console.log('Datos recibidos en GeneradorDocumentos:', this.reformaData);
+    buildModificacionesParagraphs(
+      this.reformaData.modificaciones,
+      this.reformaData
+    );
   }
 
   async generar(tipo: string): Promise<void> {
@@ -86,18 +92,57 @@ export class GeneradorDocumentosComponent implements OnInit {
         break;
 
       case 'memoria-tecnica':
-        alert('⚠️ Generador de Memoria Técnica aún no implementado.');
+        this.generarMemoria();
         break;
     }
   }
 
   // 🔹 Declaración Responsable con comunidad seleccionada
-  generarDeclaracion(comunidad: 'valenciana' | 'murcia') {
-    console.log('Generando Declaración Responsable para:', comunidad);
-    this.reformaData.comunidad = comunidad;
+  generarDeclaracion(comunidad: 'valenciana' | 'murcia' | 'andalucia') {
+    const dataCompleta = {
+      ...this.reformaData,
+      comunidad: comunidad,
+    };
 
-    // Por ahora llama a la misma función
-    generarDocumentoResponsable(this.reformaData);
+    generarDocumentoResponsable(dataCompleta);
+  }
+
+  comunidadSeleccionada: string | null = null;
+  provinciaSeleccionada: string | null = null;
+
+  provinciasAndalucia = [
+    'Almería',
+    'Cádiz',
+    'Córdoba',
+    'Granada',
+    'Huelva',
+    'Jaén',
+    'Málaga',
+    'Sevilla',
+  ];
+
+  // Cuando pulsas en alguna comunidad
+  seleccionarComunidad(comunidad: string) {
+    this.comunidadSeleccionada = comunidad;
+    this.provinciaSeleccionada = null; // reinicia
+  }
+
+  generarMemoria() {
+    generarDocumentoMemoria(this.reformaData);
+  }
+
+  // Generar DR teniendo en cuenta si es Andalucía
+  confirmarDeclaracion() {
+    const dataCompleta = {
+      ...this.reformaData,
+      comunidad: this.comunidadSeleccionada,
+      provincia:
+        this.comunidadSeleccionada === 'andalucia'
+          ? this.provinciaSeleccionada
+          : null,
+    };
+
+    generarDocumentoResponsable(dataCompleta);
   }
 
   guardarDB() {

@@ -6,6 +6,7 @@ import {
   OnInit,
   OnChanges,
   SimpleChanges,
+  DoCheck,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Modificacion } from '../../interfaces/modificacion';
@@ -17,7 +18,7 @@ import { Modificacion } from '../../interfaces/modificacion';
   templateUrl: './tipo-vehiculo.component.html',
   styleUrl: './tipo-vehiculo.component.css',
 })
-export class TipoVehiculoComponent implements OnInit, OnChanges {
+export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
   @Input() datosPrevios: any;
   @Input() enviadoPorCliente: boolean | null = null;
   @Output() continuar = new EventEmitter<any>();
@@ -31,6 +32,12 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
   modificaciones: Modificacion[] = [];
   tipoVehiculoInvalido: boolean = false;
   erroresSubopciones: boolean[] = [];
+
+  // Evita reseteos repetidos cuando los @Input cambian varias veces
+  private haAplicadoResetPorCliente = false;
+
+  // Snapshot para detectar cambios sin tocar el HTML
+  private snapshotMods = '';
 
   detallesMuellesOpciones = [
     { key: 'muelleDelanteroConRef', label: 'Muelle delantero con referencia' },
@@ -59,17 +66,18 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
     { key: 'luzMatricula', label: 'Luz de matrícula' },
   ];
 
+  // === Detecta "cliente" tanto por datosPrevios como por el @Input dedicado ===
   private get esCliente(): boolean {
-    return !!this.datosPrevios?.enviadoPorCliente;
+    return !!this.enviadoPorCliente || !!this.datosPrevios?.enviadoPorCliente;
   }
 
   private resetPorCliente(): void {
-    // Si el cliente ya eligió un tipo, mantenlo y carga las opciones del ingeniero
+    // Si el cliente ya eligió un tipo, usamos ese tipo pero con VUESTRA lista (como admin)
     if (this.datosPrevios?.tipoVehiculo) {
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
       this.modificaciones = this.obtenerModificacionesPorTipo(
         this.tipoVehiculo
-      );
+      ).map((m) => this.normalizarModificacion(m));
     } else {
       // Si no hay tipo, empezamos vacío
       this.tipoVehiculo = '';
@@ -77,41 +85,50 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
     }
 
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
+    this.haAplicadoResetPorCliente = true; // <- ya no volveremos a pisar la selección del usuario
+    this.refreshSnapshot();
     this.emitAutosave();
   }
 
   ngOnInit(): void {
-    if (this.esCliente) {
-      // JSON enviado por cliente → ignorar lo que venga y empezar en blanco
+    if (this.esCliente && !this.haAplicadoResetPorCliente) {
       this.resetPorCliente();
-    } else if (this.datosPrevios && this.datosPrevios.tipoVehiculo) {
-      // Edición creada por el ingeniero → restaurar normalmente
+      return;
+    }
+
+    if (
+      this.datosPrevios &&
+      this.datosPrevios.tipoVehiculo &&
+      !this.esCliente
+    ) {
+      // Edición creada por admin → restaurar normalmente
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
       this.modificaciones = (this.datosPrevios.modificaciones || []).map(
         (mod: any) => this.normalizarModificacion(mod)
       );
-      this.emitAutosave();
-    } else {
-      // Proyecto nuevo del ingeniero
+    } else if (!this.esCliente) {
+      // Proyecto nuevo del admin
       this.tipoVehiculo = '';
       this.modificaciones = [];
-      this.emitAutosave();
     }
+
+    this.refreshSnapshot();
+    this.emitAutosave();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Si en cualquier momento detectamos que es de cliente, forzamos reset y
-    // NO procesamos los datosPrevios que vengan detrás.
+    // Si detectamos que viene del cliente y AÚN no reseteamos → reseteamos UNA sola vez
     if (
       (changes['enviadoPorCliente'] || changes['datosPrevios']) &&
-      this.esCliente
+      this.esCliente &&
+      !this.haAplicadoResetPorCliente
     ) {
       this.resetPorCliente();
       return;
     }
 
-    // Solo si NO es de cliente aplicamos los datos entrantes
-    if (changes['datosPrevios'] && changes['datosPrevios'].currentValue) {
+    // Si NO es de cliente, aplicamos datos que lleguen
+    if (!this.esCliente && changes['datosPrevios']?.currentValue) {
       const nuevos = changes['datosPrevios'].currentValue;
 
       if (nuevos.tipoVehiculo) {
@@ -122,11 +139,27 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
           this.normalizarModificacion(mod)
         );
       }
+      this.refreshSnapshot();
       this.emitAutosave();
     }
   }
 
+  // Detecta cualquier cambio en 'modificaciones' (marca, subopción, etc.) y emite autosave sin tocar el HTML
+  ngDoCheck(): void {
+    const s = JSON.stringify(this.modificaciones);
+    if (s !== this.snapshotMods) {
+      this.snapshotMods = s;
+      this.emitAutosave();
+    }
+  }
+
+  private refreshSnapshot(): void {
+    this.snapshotMods = JSON.stringify(this.modificaciones);
+  }
+
   private normalizarModificacion(mod: any): any {
+    mod.seleccionado = !!mod.seleccionado;
+
     // Luces
     if (mod.nombre === 'LUCES' && !mod.descripcionLuces) {
       mod.descripcionLuces = {
@@ -203,6 +236,40 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
       };
     }
 
+    // Neumáticos (asegurar booleanos)
+    if (mod.nombre === 'NEUMÁTICOS') {
+      if (typeof mod.anotacion1 !== 'boolean') mod.anotacion1 = false;
+      if (typeof mod.anotacion2 !== 'boolean') mod.anotacion2 = false;
+    }
+
+    // Disco y pastilla (unificar nombres con el HTML)
+    if (mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO') {
+      // Si vienen como discoFreno/pastillaFreno (del server), mapea
+      if (typeof mod.tieneDisco !== 'boolean') {
+        mod.tieneDisco = !!mod.discoFreno;
+      }
+      if (typeof mod.tienePastilla !== 'boolean') {
+        mod.tienePastilla = !!mod.pastillaFreno;
+      }
+      // Y deja también las claves del server sincronizadas por si el padre guarda tal cual
+      mod.discoFreno = !!mod.tieneDisco;
+      mod.pastillaFreno = !!mod.tienePastilla;
+    }
+
+    // Guardabarros moto
+    if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS') {
+      if (typeof mod.guardabarrosDelantero !== 'boolean')
+        mod.guardabarrosDelantero = false;
+      if (typeof mod.guardabarrosTrasero !== 'boolean')
+        mod.guardabarrosTrasero = false;
+    }
+
+    // MMA/MMTA moto
+    if (mod.nombre === 'REDUCCIÓN MMA Y MMTA') {
+      if (typeof mod.ejeDelantero !== 'boolean') mod.ejeDelantero = false;
+      if (typeof mod.ejeTotal !== 'boolean') mod.ejeTotal = false;
+    }
+
     // Mobiliario
     if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && !mod.opcionesMueble) {
       mod.opcionesMueble = {
@@ -227,11 +294,13 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
       this.tipoVehiculo
     ).map((mod) => this.normalizarModificacion(mod));
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
+    this.refreshSnapshot();
     this.emitAutosave();
   }
 
   onCambioSubopcion(): void {
-    this.emitAutosave(); // guarda cada interacción relevante
+    // Se sigue usando donde ya lo llamas desde el HTML
+    this.emitAutosave();
   }
 
   obtenerModificacionesPorTipo(tipo: string): Modificacion[] {
@@ -250,17 +319,14 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
           {
             nombre: 'NEUMÁTICOS',
             seleccionado: false,
-            anotacion1: '',
-            anotacion2: '',
+            anotacion1: false,
+            anotacion2: false,
           },
           { nombre: 'SEPARADORES DE RUEDA', seleccionado: false },
           {
             nombre: 'ALETINES Y SOBREALETINES',
             seleccionado: false,
-            detalle: {
-              aletines: false,
-              sobrealetines: false,
-            },
+            detalle: { aletines: false, sobrealetines: false },
           },
           { nombre: 'SNORKEL', seleccionado: false },
           { nombre: 'PARAGOLPES DELANTERO', seleccionado: false },
@@ -379,8 +445,9 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
           {
             nombre: 'DISCO DE FRENO Y PINZA DE FRENO',
             seleccionado: false,
-            discoFreno: false,
-            pastillaFreno: false,
+            // usamos claves que el HTML espera
+            tieneDisco: false,
+            tienePastilla: false,
           },
           {
             nombre: 'LUCES',
@@ -450,12 +517,19 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
     }
 
     this.tipoVehiculoInvalido = false;
+
+    // 🔑 Normalizar el proyecto si venía de cliente
+    if (this.enviadoPorCliente || this.datosPrevios?.enviadoPorCliente) {
+      if (this.datosPrevios) {
+        this.datosPrevios.tipoVehiculo = this.tipoVehiculo;
+        this.datosPrevios.modificaciones = this.modificaciones;
+        this.datosPrevios.enviadoPorCliente = false; // ya no lo tratamos como cliente
+      }
+      this.enviadoPorCliente = false; // desactivamos también el flag del @Input
+    }
+
     this.emitAutosave();
 
-    console.log('Datos a enviar:', {
-      tipoVehiculo: this.tipoVehiculo,
-      modificaciones: this.modificaciones,
-    });
     this.continuar.emit({
       tipoVehiculo: this.tipoVehiculo,
       modificaciones: this.modificaciones,
@@ -505,6 +579,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
         invalido = !opts.some((v) => v);
       }
 
+      // ✅ Unificado con lo que usa el HTML
       if (mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO') {
         invalido = !(mod.tieneDisco || mod.tienePastilla);
       }
@@ -525,13 +600,8 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
         invalido = mod.anotacion === undefined;
       }
 
-      if (invalido) {
-        this.erroresSubopciones[index] = true;
-        esValido = false;
-      }
-
       if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
-        // invalido = true si no tiene ambas selecciones
+        // invalido = true si faltan selecciones
         invalido =
           mod.detalle?.estribosotaloneras == null ||
           mod.detalle?.anotacionAntideslizante == null;
@@ -543,7 +613,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
           mod.detalle?.interTrasero ||
           mod.detalle?.interLateral;
         invalido = !valido;
-        if (!valido) esValido = false;
       }
 
       if (mod.nombre === 'SUSTITUCIÓN DE EJES') {
@@ -551,15 +620,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
           mod.detalle?.sustitucionEjeDelantero ||
           mod.detalle?.sustitucionEjeTrasero;
         invalido = !valido;
-        if (!valido) esValido = false;
-      }
-
-      if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
-        const valido =
-          mod.detalle?.estribosotaloneras ||
-          mod.detalle?.anotacionAntideslizante;
-        invalido = !valido;
-        if (!valido) esValido = false;
       }
 
       if (mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
@@ -568,14 +628,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
           mod.opcionesMueble?.muebleAlto ||
           mod.opcionesMueble?.aseo;
         invalido = !valido;
-        if (!valido) esValido = false;
       }
 
       this.erroresSubopciones[index] = invalido;
-
-      if (invalido) {
-        esValido = false;
-      }
+      if (invalido) esValido = false;
     });
 
     return esValido;
@@ -609,8 +665,9 @@ export class TipoVehiculoComponent implements OnInit, OnChanges {
       invalido = !opts.some((v) => v);
     }
 
+    // ✅ Unificado con el HTML
     if (mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO') {
-      invalido = !(mod.discoFreno || mod.pastillaFreno);
+      invalido = !(mod.tieneDisco || mod.tienePastilla);
     }
 
     if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS') {

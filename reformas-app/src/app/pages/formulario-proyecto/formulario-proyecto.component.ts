@@ -196,9 +196,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   ngOnInit(): void {
-    console.log('Datos iniciales recibidos:', this.datosIniciales);
-    console.log('Respuestas recibidas:', this.respuestas);
-
     // 1) cargar talleres
     this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
       next: (data) => {
@@ -223,7 +220,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         )
         .subscribe({
           next: (data) => {
-            console.log('Último proyecto recibido:', data);
             this.año = data.año;
             if (!this.datos.numeroProyecto) {
               this.datos.numeroProyecto = data.siguiente;

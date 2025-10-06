@@ -107,18 +107,18 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'NEUMÁTICOS' && m.seleccionado
   );
   if (neumaticos) {
-    neumaticos.acciones?.forEach((accion: string) => {
-      const raw = `- ${accion} de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${data.neumaticoDespues}, montados sobre llantas de medidas ${neumaticos.medidas}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
+    const medidaNeumatico = data.neumaticoDespues || '---';
+    const medidaLlantas = neumaticos.medidas || '---';
+    const raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${medidaNeumatico}, montados sobre llantas de medidas ${medidaLlantas}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-
-      (p as any)._rawText = raw;
-      out.push(p);
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
     });
+
+    (p as any)._rawText = raw;
+    out.push(p);
 
     if (neumaticos.anotacion1) {
       out.push(
@@ -237,7 +237,7 @@ export function buildModificacionesParagraphs(
   // 7) SNORKEL
   //
   const snorkel = modificaciones.find(
-    (m) => m.nombre === 'SNORKEL' && m.seleccionado && m.detalle?.aletines
+    (m) => m.nombre === 'SNORKEL' && m.seleccionado
   );
   if (snorkel) {
     snorkel.acciones?.forEach((accion: string) => {
@@ -258,10 +258,7 @@ export function buildModificacionesParagraphs(
   // 8) PARAGOLPES DELANTERO
   //
   const paradelante = modificaciones.find(
-    (m) =>
-      m.nombre === 'PARAGOLPES DELANTERO' &&
-      m.seleccionado &&
-      m.detalle?.aletines
+    (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado
   );
   if (paradelante) {
     paradelante.acciones?.forEach((accion: string) => {
@@ -287,8 +284,7 @@ export function buildModificacionesParagraphs(
   // 9) PARAGOLPES TRASERO
   //
   const paratras = modificaciones.find(
-    (m) =>
-      m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado && m.detalle?.aletines
+    (m) => m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado
   );
   if (paratras) {
     paratras.acciones?.forEach((accion: string) => {
@@ -314,7 +310,7 @@ export function buildModificacionesParagraphs(
   // 10) CABRESTANTE
   //
   const cabrestante = modificaciones.find(
-    (m) => m.nombre === 'CABRESTANTE' && m.seleccionado && m.detalle?.aletines
+    (m) => m.nombre === 'CABRESTANTE' && m.seleccionado
   );
   if (cabrestante) {
     cabrestante.acciones?.forEach((accion: string) => {
@@ -335,8 +331,7 @@ export function buildModificacionesParagraphs(
   // 11) ANTIEMPOTRAMIENTO
   //
   const antiempotramiento = modificaciones.find(
-    (m) =>
-      m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado && m.detalle?.aletines
+    (m) => m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado
   );
   if (antiempotramiento) {
     antiempotramiento.acciones?.forEach((accion: string) => {
@@ -358,9 +353,7 @@ export function buildModificacionesParagraphs(
   //
   const soporteslucesespecificas = modificaciones.find(
     (m) =>
-      m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' &&
-      m.seleccionado &&
-      m.detalle?.aletines
+      m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado
   );
   if (soporteslucesespecificas) {
     soporteslucesespecificas.acciones?.forEach((accion: string) => {
@@ -381,10 +374,7 @@ export function buildModificacionesParagraphs(
   // 13) SOPORTE PARA RUEDA DE REPUESTO
   //
   const soportesruedarepuesto = modificaciones.find(
-    (m) =>
-      m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO' &&
-      m.seleccionado &&
-      m.detalle?.aletines
+    (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO' && m.seleccionado
   );
   if (soportesruedarepuesto) {
     soportesruedarepuesto.acciones?.forEach((accion: string) => {
@@ -410,7 +400,7 @@ export function buildModificacionesParagraphs(
   // 14) SUSPENSIÓN
   //
   const suspension = modificaciones.find(
-    (m) => m.nombre === 'SUSPENSIÓN' && m.seleccionado && m.detalle?.aletines
+    (m) => m.nombre === 'SUSPENSIÓN' && m.seleccionado
   );
   if (suspension) {
     suspension.acciones?.forEach((accion: string) => {

@@ -91,9 +91,9 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
         }),
       ],
     }),
+  ];
 
-    ...buildModificacionesParagraphs(modificaciones, data),
-
+  const seccion2 = [
     new Paragraph({
       spacing: { after: 200 },
       children: [
@@ -177,9 +177,14 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
     }),
   ];
 
+  const modificacionesParagraphs = buildModificacionesParagraphs(
+    modificaciones,
+    data
+  );
+
   const section1 = {
     properties: { type: SectionType.NEXT_PAGE, pageNumberStart: 1 },
-    children: [...seccion],
+    children: [...seccion, ...modificacionesParagraphs, ...seccion2],
   };
 
   // 5) Monta y descarga el documento

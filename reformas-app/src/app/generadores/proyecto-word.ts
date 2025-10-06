@@ -4677,6 +4677,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
   async function generarPosteriores(data: any): Promise<(Paragraph | Table)[]> {
     const titulo = [
+      new Paragraph({ pageBreakBefore: true }),
       new Paragraph({
         heading: HeadingLevel.HEADING_2,
         alignment: AlignmentType.CENTER,

@@ -85,7 +85,6 @@ export class FinalizarReformaComponent {
           }
         },
         error: (err) => {
-          console.error('Error guardando proyecto:', err);
           this.abrirModalError();
           this.guardando = false;
           this.progreso = -1;

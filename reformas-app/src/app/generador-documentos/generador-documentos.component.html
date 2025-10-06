@@ -153,24 +153,78 @@
           aria-label="Cerrar"
         ></button>
       </div>
+
       <div class="modal-body text-center">
         <p>Elige para qué comunidad quieres generar la declaración:</p>
-        <div class="d-flex flex-column gap-3">
+
+        <!-- Botones de comunidad -->
+        <div class="d-flex flex-column gap-3 mb-3">
           <button
-            class="btn btn-outline-primary"
-            (click)="generarDeclaracion('valenciana')"
-            data-bs-dismiss="modal"
+            class="btn"
+            [ngClass]="{
+              'btn-primary': comunidadSeleccionada === 'valenciana',
+              'btn-outline-primary': comunidadSeleccionada !== 'valenciana'
+            }"
+            (click)="seleccionarComunidad('valenciana')"
           >
             Comunidad Valenciana
           </button>
+
           <button
-            class="btn btn-outline-primary"
-            (click)="generarDeclaracion('murcia')"
-            data-bs-dismiss="modal"
+            class="btn"
+            [ngClass]="{
+              'btn-primary': comunidadSeleccionada === 'murcia',
+              'btn-outline-primary': comunidadSeleccionada !== 'murcia'
+            }"
+            (click)="seleccionarComunidad('murcia')"
           >
             Región de Murcia
           </button>
+
+          <button
+            class="btn"
+            [ngClass]="{
+              'btn-primary': comunidadSeleccionada === 'andalucia',
+              'btn-outline-primary': comunidadSeleccionada !== 'andalucia'
+            }"
+            (click)="seleccionarComunidad('andalucia')"
+          >
+            Andalucía
+          </button>
         </div>
+
+        <!-- Subselector solo si es Andalucía -->
+        <div
+          *ngIf="comunidadSeleccionada === 'andalucia'"
+          class="animate__animated animate__fadeIn"
+        >
+          <label class="form-label fw-bold">Selecciona la provincia</label>
+          <select
+            class="form-select shadow-sm"
+            [(ngModel)]="provinciaSeleccionada"
+            name="provincia"
+          >
+            <option [ngValue]="null" disabled>Elige una provincia...</option>
+            <option *ngFor="let prov of provinciasAndalucia" [ngValue]="prov">
+              {{ prov }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-primary w-100"
+          [disabled]="
+            !comunidadSeleccionada ||
+            (comunidadSeleccionada === 'andalucia' && !provinciaSeleccionada)
+          "
+          data-bs-dismiss="modal"
+          (click)="confirmarDeclaracion()"
+        >
+          Generar Declaración
+        </button>
       </div>
     </div>
   </div>

@@ -199,8 +199,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       ? `${STORAGE_PREFIX}-${this.editId}`
       : `${STORAGE_PREFIX}-nueva`;
 
-    console.log('Storage key usada:', this.storageKey);
-
     // 2) migrar sesiones antiguas (solo afecta a “nueva”)
     if (!this.editId) this.migrateLegacyKey();
 
@@ -337,8 +335,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       .get(`http://localhost:3000/proyectos/${id}/proyecto.json`)
       .subscribe({
         next: (data: any) => {
-          console.log('Datos del proyecto cargados desde servidor:', data);
-
           // Guardamos el proyecto completo en memoria
           this.datosProyecto = { ...data };
 
@@ -638,7 +634,11 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       ...event,
     };
     this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-    this.datosProyecto = { ...(this.datosProyecto || {}), ...event };
+    this.datosProyecto = {
+      ...(this.datosProyecto || {}),
+      ...event,
+      enviadoPorCliente: false,
+    };
     this.persist();
   }
 
@@ -662,8 +662,20 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
   onContinuarTipoVehiculo(event: any) {
     if (event) {
-      this.datosGuardadosTipoVehiculo = event;
+      this.datosGuardadosTipoVehiculo = {
+        ...(this.datosGuardadosTipoVehiculo || {}),
+        ...event,
+      };
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+
+      // 🚨 Forzar a que ya no sea tratado como cliente
+      if (this.datosProyecto) {
+        this.datosProyecto = {
+          ...(this.datosProyecto || {}),
+          ...event,
+          enviadoPorCliente: false,
+        };
+      }
     }
     this.persist();
     this.navigate('resumen');

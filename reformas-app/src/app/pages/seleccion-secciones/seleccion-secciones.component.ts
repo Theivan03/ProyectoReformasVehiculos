@@ -13,7 +13,6 @@ export class SeleccionSeccionesComponent implements OnInit {
 
   @Input() set seccionesPreseleccionadas(v: string[] | null | undefined) {
     this._pre = Array.isArray(v) ? v : [];
-    console.log('Input recibido en seleccion-secciones:', this._pre);
     this.syncFromPre();
   }
   get seccionesPreseleccionadas() {
@@ -29,7 +28,6 @@ export class SeleccionSeccionesComponent implements OnInit {
 
   ngOnInit(): void {
     this.syncFromPre();
-    console.log('Preseleccionadas:', this.seccionesPreseleccionadas);
   }
 
   private syncFromPre() {
