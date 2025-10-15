@@ -1,0 +1,57 @@
+<style>
+  header h1 {
+    font-weight: 600;
+    color: #333;
+  }
+
+  body {
+    font-family: "Segoe UI", Roboto, sans-serif;
+    background-color: #f8f9fa;
+  }
+
+  .nav-link:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<main class="main">
+  <!-- Cabecera -->
+  <header class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm px-4">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="assets/logo.png" alt="Logo" height="40" class="me-2" />
+      <span class="fw-semibold fs-5">Proyecto Reformas Vehículos</span>
+    </a>
+  </header>
+
+  <!-- Layout general con sidebar y contenido -->
+  <div class="d-flex" style="min-height: calc(100vh - 56px)">
+    <!-- Menú lateral -->
+    <nav class="bg-light border-end p-3" style="width: 240px">
+      <ul class="nav flex-column">
+        <h5 class="text-uppercase text-dark mb-3">Reformas de vehículos</h5>
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-semibold" routerLink="/crear-reforma"
+            >📝 Empezar reforma</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-semibold" routerLink="/editar-reforma"
+            >🛠️ Editar reforma guardada</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark fw-semibold" routerLink="/taller"
+            >⚙️ Talleres</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="flex-fill p-4 bg-white">
+      <!-- Aquí irá el contenido futuro -->
+
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</main>

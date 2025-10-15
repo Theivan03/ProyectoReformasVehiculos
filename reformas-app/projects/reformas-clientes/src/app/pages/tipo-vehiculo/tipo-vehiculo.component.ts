@@ -38,8 +38,7 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleRuedas = [
-    { key: 'neumaticos', label: 'Neumaticos' },
-    { key: 'llantas', label: 'Llantas' },
+    { key: 'neumaticos', label: 'Neumaticos y llantas' },
     { key: 'separadoresDeRueda', label: 'Separadores de rueda' },
   ];
 
@@ -137,8 +136,7 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleRuedasMotos = [
-    { key: 'neumaticosMoto', label: 'Neumaticos' },
-    { key: 'llantasMoto', label: 'Llantas' },
+    { key: 'neumaticosMoto', label: 'Neumaticos y llantas' },
     { key: 'separadoresDeRuedaMoto', label: 'Separadores de rueda(Quads)' },
   ];
 
@@ -321,7 +319,6 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // Si hay datos previos, inicializamos a partir de ellos
     if (this.datosPrevios) {
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo ?? '';
 
@@ -428,7 +425,6 @@ export class TipoVehiculoComponent implements OnInit {
             seleccionado: false,
             detalle: {
               neumaticos: false,
-              llantas: false,
               separadoresDeRueda: false,
             },
           },
@@ -522,7 +518,6 @@ export class TipoVehiculoComponent implements OnInit {
             seleccionado: false,
             detalle: {
               neumaticosMoto: false,
-              llantasMoto: false,
               separadoresDeRuedaMoto: false,
             },
           },
@@ -797,11 +792,7 @@ export class TipoVehiculoComponent implements OnInit {
 
       if (mod.tipo === 'Coche') {
         if (mod.nombre === 'Ruedas' && mod.detalle) {
-          const opts = [
-            mod.detalle.neumaticos,
-            mod.detalle.llantas,
-            mod.detalle.separadoresDeRueda,
-          ];
+          const opts = [mod.detalle.neumaticos, mod.detalle.separadoresDeRueda];
           invalido = !opts.some((v) => v);
         }
 
@@ -891,7 +882,6 @@ export class TipoVehiculoComponent implements OnInit {
         if (mod.nombre === 'Ruedas' && mod.detalle) {
           const opts = [
             mod.detalle.neumaticosMoto,
-            mod.detalle.llantasMoto,
             mod.detalle.separadoresDeRuedaMoto,
           ];
           invalido = !opts.some((v) => v);
@@ -1090,11 +1080,7 @@ export class TipoVehiculoComponent implements OnInit {
 
     if (mod.tipo == 'coche') {
       if (mod.nombre === 'Ruedas' && mod.detalle) {
-        const opts = [
-          mod.detalle.neumaticos,
-          mod.detalle.llantas,
-          mod.detalle.separadoresDeRueda,
-        ];
+        const opts = [mod.detalle.neumaticos, mod.detalle.separadoresDeRueda];
         invalido = !opts.some((v) => v);
       }
 
@@ -1176,7 +1162,6 @@ export class TipoVehiculoComponent implements OnInit {
       if (mod.nombre === 'Ruedas' && mod.detalle) {
         const opts = [
           mod.detalle.neumaticosMoto,
-          mod.detalle.llantasMoto,
           mod.detalle.separadoresDeRuedaMoto,
         ];
         invalido = !opts.some((v) => v);

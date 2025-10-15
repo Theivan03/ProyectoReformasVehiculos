@@ -96,7 +96,6 @@ export class FormularioProyectoComponent implements OnChanges {
     ocupantesAdicionales: 0,
     modificaciones: [], // aquí llegan tus modificaciones dinámicas
     cdgconductor: 0,
-    cdgocdelant: 0,
     cdgocu2: 0,
     cdgocu3: 0,
     cdgcargautil: 0,
@@ -153,6 +152,7 @@ export class FormularioProyectoComponent implements OnChanges {
   }
 
   ngOnInit(): void {
+    console.log('datosIniciales en formulario:', this.datosIniciales);
     this.http
       .get<{ siguiente: number; año: string }>(
         'http://192.168.1.41:3000/ultimo-proyecto'

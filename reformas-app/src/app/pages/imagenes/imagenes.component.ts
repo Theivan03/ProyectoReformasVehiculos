@@ -11,24 +11,19 @@ import { CommonModule } from '@angular/common';
 })
 export class ImagenesComponent implements OnInit {
   @Input() datosEntrada: any;
-
-  /** ← atrás */
   @Output() volver = new EventEmitter<any>();
-  /** → continuar */
   @Output() continuar = new EventEmitter<any>();
-  /** autosave continuo al padre */
   @Output() autosave = new EventEmitter<any>();
   @Input() origen: 'anterior' | 'siguiente' = 'anterior';
 
   step = 1;
+  procesando = false; // 👈 indicador visual
 
-  // En memoria (runtime)
   prevImages: Blob[] = [];
   postImages: Blob[] = [];
-  prevPreviews: string[] = []; // dataURL
-  postPreviews: string[] = []; // dataURL
+  prevPreviews: string[] = [];
+  postPreviews: string[] = [];
 
-  // Persistibles (para localStorage via el padre)
   private prevImagesB64: string[] = [];
   private postImagesB64: string[] = [];
 
@@ -36,14 +31,8 @@ export class ImagenesComponent implements OnInit {
   errorPostImagesCount = false;
 
   async ngOnInit(): Promise<void> {
-    // Determinar en qué paso arrancar
-    if (this.origen === 'anterior') {
-      this.step = 1;
-    } else if (this.origen === 'siguiente') {
-      this.step = 2;
-    }
+    this.step = this.origen === 'siguiente' ? 2 : 1;
 
-    // Restaurar previas
     if (Array.isArray(this.datosEntrada?.prevImagesB64)) {
       this.prevImagesB64 = [...this.datosEntrada.prevImagesB64];
       this.prevPreviews = [...this.prevImagesB64];
@@ -72,10 +61,9 @@ export class ImagenesComponent implements OnInit {
       this.postImagesB64 = [...this.postPreviews];
     }
 
-    this.emitAutosave(); // snapshot inicial
+    this.emitAutosave();
   }
 
-  // ========= Helpers (Blob <-> dataURL) =========
   private blobToDataUrl(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const fr = new FileReader();
@@ -96,7 +84,6 @@ export class ImagenesComponent implements OnInit {
       step: this.step,
       prevImagesB64: this.prevImagesB64,
       postImagesB64: this.postImagesB64,
-      // opcional: mantén también en RAM por si el padre quiere pasarlas de vuelta
       prevImages: this.prevImages,
       postImages: this.postImages,
     };
@@ -106,47 +93,70 @@ export class ImagenesComponent implements OnInit {
     this.autosave.emit(this.snapshot());
   }
 
-  // ========= Carga y normalización =========
-  private normalizeOrientation(file: File): Promise<Blob> {
+  // ========= PROCESAR Y COMPRIMIR =========
+  private normalizeAndCompress(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
+      this.procesando = true;
+
       loadImage(
         file,
         (canvasElement) => {
           if (!(canvasElement instanceof HTMLCanvasElement)) {
+            this.procesando = false;
             return reject('No se pudo procesar la imagen');
           }
-          canvasElement.toBlob((blob) => {
-            if (blob) resolve(blob);
-            else reject('Error creando Blob desde canvas');
-          }, file.type);
+
+          // 🔹 Redimensionar a máximo 1600 px y comprimir
+          const mimeType = 'image/jpeg'; // forzamos JPEG por compatibilidad DOCX
+          canvasElement.toBlob(
+            (blob) => {
+              this.procesando = false;
+              if (blob) resolve(blob);
+              else reject('Error creando Blob comprimido');
+            },
+            mimeType,
+            0.7 // calidad (0.6–0.8 → excelente equilibrio)
+          );
         },
-        { canvas: true, orientation: true }
+        {
+          canvas: true,
+          orientation: true,
+          maxWidth: 1600,
+          maxHeight: 1600,
+          downsamplingRatio: 0.7, // mejora velocidad de reducción
+        }
       );
     });
   }
 
+  // ========= Carga previa =========
   async onPrevSelected(ev: Event, index: number) {
     const input = ev.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
+    if (!input.files?.length) return;
 
     const file = input.files[0];
-    const blob = await this.normalizeOrientation(file);
-    const preview = await this.blobToDataUrl(blob);
+    try {
+      const blob = await this.normalizeAndCompress(file);
+      const preview = await this.blobToDataUrl(blob);
 
-    this.prevImages[index] = blob;
-    this.prevPreviews[index] = preview;
-    this.prevImagesB64[index] = preview;
+      this.prevImages[index] = blob;
+      this.prevPreviews[index] = preview;
+      this.prevImagesB64[index] = preview;
 
-    this.emitAutosave();
+      this.emitAutosave();
+    } catch (err) {
+      console.error('Error procesando imagen previa:', err);
+    } finally {
+      input.value = '';
+    }
   }
 
+  // ========= Carga posteriores =========
   async onPostSelected(ev: Event) {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
 
     const files = Array.from(input.files);
-
-    // 🔹 límite global de 30 imágenes (las que ya hay + las nuevas)
     if (this.postImages.length + files.length > 30) {
       this.errorPostImagesCount = true;
       input.value = '';
@@ -154,27 +164,29 @@ export class ImagenesComponent implements OnInit {
     }
     this.errorPostImagesCount = false;
 
-    const blobs = await Promise.all(
-      files.map((f) => this.normalizeOrientation(f))
-    );
-    const previews = await Promise.all(blobs.map((b) => this.blobToDataUrl(b)));
+    try {
+      this.procesando = true;
+      const blobs = await Promise.all(
+        files.map((f) => this.normalizeAndCompress(f))
+      );
+      const previews = await Promise.all(
+        blobs.map((b) => this.blobToDataUrl(b))
+      );
 
-    // 🔹 en vez de reemplazar, concatenamos
-    this.postImages = [...this.postImages, ...blobs];
-    this.postPreviews = [...this.postPreviews, ...previews];
-    this.postImagesB64 = [...this.postImagesB64, ...previews];
+      this.postImages.push(...blobs);
+      this.postPreviews.push(...previews);
+      this.postImagesB64.push(...previews);
 
-    this.emitAutosave();
-
-    // limpiar input para permitir volver a elegir mismas imágenes si se quiere
-    input.value = '';
+      this.emitAutosave();
+    } catch (err) {
+      console.error('Error procesando imágenes posteriores:', err);
+    } finally {
+      this.procesando = false;
+      input.value = '';
+    }
   }
 
-  isValidPreview(previews: string[]): number {
-    return previews.filter((p) => !!p).length;
-  }
-
-  // ========= Reordenar (prev) =========
+  // ========= Reordenar =========
   movePrev(i: number) {
     if (i === 0) return;
     [this.prevPreviews[i - 1], this.prevPreviews[i]] = [
@@ -209,7 +221,6 @@ export class ImagenesComponent implements OnInit {
     this.emitAutosave();
   }
 
-  // ========= Reordenar (post) =========
   movePrevPost(i: number) {
     if (i === 0) return;
     [this.postPreviews[i - 1], this.postPreviews[i]] = [
@@ -257,14 +268,15 @@ export class ImagenesComponent implements OnInit {
       this.step = 1;
       this.emitAutosave();
     } else {
-      // paso 1 → volver al padre
-      const snap = this.snapshot();
-      this.volver.emit(snap);
+      this.volver.emit(this.snapshot());
     }
   }
 
   onSave() {
-    const snap = this.snapshot();
-    this.continuar.emit(snap);
+    this.continuar.emit(this.snapshot());
+  }
+
+  isValidPreview(previews: string[]): number {
+    return previews.filter((p) => !!p).length;
   }
 }

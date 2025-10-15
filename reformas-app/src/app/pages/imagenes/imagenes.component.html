@@ -9,13 +9,30 @@
     }}
   </h5>
 
+  <!-- Indicador de procesamiento/compresión -->
+  <div
+    *ngIf="procesando"
+    class="alert alert-info text-center p-2 mb-3 d-flex align-items-center justify-content-center gap-2"
+  >
+    <div
+      class="spinner-border spinner-border-sm"
+      role="status"
+      aria-hidden="true"
+    ></div>
+    <span>🔄 Optimizando imágenes (redimensionando y comprimiendo)…</span>
+  </div>
+
   <!-- STEP 1 -->
   <ng-container *ngIf="step === 1">
-    <label class="form-label">
-      Sube las imágenes <strong>previas</strong> del vehículo:
-    </label>
+    <div
+      class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-2 mb-2"
+    >
+      <label class="form-label m-0">
+        Sube las imágenes <strong>previas</strong> del vehículo:
+      </label>
+    </div>
 
-    <!-- sigue siendo 2 columnas (arriba y abajo) -->
+    <!-- 2 columnas (arriba y abajo) -->
     <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
       <div
         class="col"
@@ -29,16 +46,17 @@
           let i = index
         "
       >
-        <div class="card p-2 text-center">
-          <p class="fw-bold mb-2">{{ label }}</p>
+        <div class="card p-2 h-100">
+          <p class="fw-bold mb-2 text-center">{{ label }}</p>
           <input
             type="file"
             class="form-control mb-2"
             (change)="onPrevSelected($event, i)"
             accept="image/*"
+            [disabled]="procesando"
           />
           <div
-            class="ratio ratio-1x1 border rounded d-flex align-items-center justify-content-center"
+            class="ratio ratio-1x1 border rounded d-flex align-items-center justify-content-center bg-light"
           >
             <img
               *ngIf="prevPreviews[i]"
@@ -47,18 +65,23 @@
               style="object-fit: cover"
               alt="preview {{ label }}"
             />
+            <span *ngIf="!prevPreviews[i]" class="text-muted">Sin imagen</span>
           </div>
         </div>
       </div>
     </div>
 
     <div class="d-flex justify-content-between">
-      <button class="btn btn-outline-secondary me-2" (click)="back()">
+      <button
+        class="btn btn-outline-secondary me-2"
+        (click)="back()"
+        [disabled]="procesando"
+      >
         ← Anterior
       </button>
       <button
         class="btn btn-primary"
-        [disabled]="isValidPreview(prevPreviews) < 4"
+        [disabled]="isValidPreview(prevPreviews) < 4 || procesando"
         (click)="next()"
       >
         Siguiente →
@@ -66,26 +89,34 @@
     </div>
   </ng-container>
 
-  <!-- STEP 2 (igual que antes) -->
+  <!-- STEP 2 -->
   <ng-container *ngIf="step === 2">
-    <label class="form-label"
-      >Sube las imágenes de las reformas realizadas:</label
+    <div
+      class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-2 mb-2"
     >
+      <label class="form-label m-0">
+        Sube las imágenes de las <strong>reformas realizadas</strong>:
+      </label>
+      <small class="text-muted"> Máx. 30 imágenes. </small>
+    </div>
+
     <input
       type="file"
       class="form-control mb-3"
       (change)="onPostSelected($event)"
       accept="image/*"
       multiple
+      [disabled]="procesando"
     />
 
     <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
       <div class="col" *ngFor="let preview of postPreviews; let i = index">
-        <div class="ratio ratio-1x1 position-relative">
+        <div class="ratio ratio-1x1 position-relative border rounded bg-light">
           <img
             [src]="preview"
-            class="img-fluid object-fit-cover rounded shadow-sm"
+            class="img-fluid object-fit-cover rounded"
             alt="preview {{ i + 1 }}"
+            style="width: 100%; height: 100%; object-fit: cover"
           />
         </div>
       </div>
@@ -96,12 +127,17 @@
     </div>
 
     <div class="d-flex justify-content-between">
-      <button class="btn btn-outline-secondary" (click)="back()">
+      <button
+        class="btn btn-outline-secondary"
+        (click)="back()"
+        [disabled]="procesando"
+      >
         ← Anterior
       </button>
       <button
         class="btn btn-success"
-        [disabled]="postImages.length === 0"
+        [disabled]="postImages.length === 0 || procesando"
+        (click)="(onSave)"
         (click)="onSave()"
       >
         Guardar imágenes

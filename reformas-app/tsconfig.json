@@ -30,6 +30,12 @@
     },
     {
       "path": "./projects/reformas-clientes/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/reformas-test/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/reformas-test/tsconfig.spec.json"
     }
   ]
 }

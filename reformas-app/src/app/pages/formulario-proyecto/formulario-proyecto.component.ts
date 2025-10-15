@@ -22,8 +22,8 @@ import { CommonModule } from '@angular/common';
 export class FormularioProyectoComponent implements OnChanges, OnInit {
   paginaActual = 1;
   talleres: any[] = [];
+  ingenieros: any[] = []; // 👈 NUEVO: lista de ingenieros disponibles
 
-  // 👇 Bandera que indica si debemos empezar siempre por la primera pantalla
   @Input() forzarPrimera = false;
   @Input() esEdicion = false;
 
@@ -33,7 +33,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     return !!mma && !!masa && Math.abs(mma - masa) / mma > 0.03;
   }
 
-  /** Total de páginas dinámico: 5 o 6 */
   get totalPaginas(): number {
     return this.necesitaPasoExtra ? 6 : 5;
   }
@@ -41,6 +40,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   datos: any = {
     numeroProyecto: '',
     tallerSeleccionado: null,
+    ingenieroSeleccionado: null, // 👈 NUEVO
     referenciaProyecto: '',
     referenciaCFO: '',
     reformasPrevias: false,
@@ -111,7 +111,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     ocupantesAdicionales: 0,
     modificaciones: [],
     cdgconductor: 0,
-    cdgocdelant: 0,
     cdgocu2: 0,
     cdgocu3: 0,
     cdgcargautil: 0,
@@ -119,9 +118,10 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   };
 
   año: string = '';
-
   compararTalleres = (a: any, b: any) =>
     a && b ? a.nombre === b.nombre : a === b;
+  compararIngenieros = (a: any, b: any) =>
+    a && b ? a.nombre === b.nombre : a === b; // 👈 NUEVO
 
   @Input() respuestas: any;
   @Output() volverAReforma = new EventEmitter<any>();
@@ -136,7 +136,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       const anteriorNumero = this.datos?.numeroProyecto;
       this.datos = { ...this.datos, ...this.datosIniciales };
 
-      // normalizar fechas para inputs
       if (this.datos.fechaProyecto) {
         this.datos.fechaProyecto = this.datos.fechaProyecto
           .toString()
@@ -148,41 +147,26 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
           .slice(0, 10);
       }
 
-      // si cambia el número de proyecto → regenerar referencia
       if (this.datos.numeroProyecto !== anteriorNumero) {
-        const anyo = this.esEdicion
-          ? new Date().getFullYear() // año actual (ej: 2025)
-          : this.año;
+        const anyo = this.esEdicion ? new Date().getFullYear() : this.año;
         this.generarReferencia(anyo);
       }
 
-      // 👉 Lógica de navegación
-      if (this.forzarPrimera) {
-        // siempre empezar por la primera si venimos del componente anterior
-        this.paginaActual = 1;
-      } else if (this.datos.paginaActual) {
-        // si volvemos desde el siguiente, usamos la última visitada
-        this.paginaActual = this.datos.paginaActual;
-      } else {
-        this.paginaActual = 1;
+      // Reenlazar taller y ahora también ingeniero
+      if (this.talleres?.length && this.datos.tallerSeleccionado) {
+        const tallerReal = this.talleres.find(
+          (t) => t.nombre === this.datos.tallerSeleccionado?.nombre
+        );
+        this.datos.tallerSeleccionado =
+          tallerReal || this.datos.tallerSeleccionado;
       }
 
-      this.paginaActual = Math.min(this.paginaActual, this.totalPaginas);
-
-      // enlazar el taller con la lista cargada
-      if (this.talleres?.length) {
-        if (this.datos.tallerSeleccionado) {
-          const tallerReal = this.talleres.find(
-            (t) => t.nombre === this.datos.tallerSeleccionado?.nombre
-          );
-          this.datos.tallerSeleccionado =
-            tallerReal || this.datos.tallerSeleccionado;
-        } else if (this.datos.taller) {
-          const tallerReal = this.talleres.find(
-            (t) => t.nombre === this.datos.taller?.nombre
-          );
-          this.datos.tallerSeleccionado = tallerReal || null;
-        }
+      if (this.ingenieros?.length && this.datos.ingenieroSeleccionado) {
+        const ingReal = this.ingenieros.find(
+          (i) => i.nombre === this.datos.ingenieroSeleccionado?.nombre
+        );
+        this.datos.ingenieroSeleccionado =
+          ingReal || this.datos.ingenieroSeleccionado;
       }
     }
 
@@ -196,23 +180,27 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   ngOnInit(): void {
-    // 1) cargar talleres
+    // Cargar talleres
     this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
-      next: (data) => {
-        this.talleres = data;
-        const sel = this.datos.tallerSeleccionado || this.datos.taller;
-        if (sel && this.talleres.length) {
-          const id = this.datos.taller?.nombre || sel?.nombre;
-          const tallerReal = this.talleres.find((t) => t.nombre === id);
-          this.datos.tallerSeleccionado = tallerReal || null;
-        }
-      },
-      error: (err) => {
-        console.error('Error al cargar talleres del servidor:', err);
-      },
+      next: (data) => (this.talleres = data),
+      error: (err) => console.error('Error al cargar talleres:', err),
     });
 
-    // 2) solo generar nuevo número de proyecto si NO es edición
+    // 👇 NUEVO: cargar ingenieros
+    this.http.get<any[]>('http://192.168.1.41:3000/ingenieros').subscribe({
+      next: (data) => {
+        this.ingenieros = Array.isArray(data) ? data : [data];
+        if (this.datos.ingenieroSeleccionado) {
+          const ing = this.ingenieros.find(
+            (i) => i.nombre === this.datos.ingenieroSeleccionado?.nombre
+          );
+          this.datos.ingenieroSeleccionado = ing || null;
+        }
+      },
+      error: (err) => console.error('Error al cargar ingenieros:', err),
+    });
+
+    // Generar referencia si no es edición
     if (!this.esEdicion) {
       this.http
         .get<{ siguiente: number; año: string }>(
@@ -226,8 +214,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
               this.generarReferencia(data.año);
             }
           },
-          error: (err) =>
-            console.error('Error al cargar último proyecto:', err),
         });
     }
   }

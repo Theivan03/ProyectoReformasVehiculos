@@ -10,7 +10,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-
+import { NgZone, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-resumen-modificaciones',
   standalone: true,
@@ -23,6 +24,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   @Output() volver = new EventEmitter<any>();
   @Output() continuar = new EventEmitter<any>();
   formSubmitted = false;
+
+  private autoSkipHandled = false;
 
   public readonly REMOLQUE_TAMBIEN_HOMOLOGADO =
     'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO';
@@ -243,8 +246,64 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
   modificacionesSeleccionadas: any[] = [];
 
+  constructor(
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) {}
+
+  private emitirAsync(tipo: 'volver' | 'continuar') {
+    // Saca el emit del ciclo de change detection actual
+    this.zone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.zone.run(() => {
+          if (tipo === 'volver') {
+            this.volver.emit(this.datosEntrada);
+          } else {
+            this.continuar.emit(this.datosEntrada);
+          }
+          this.cdr.markForCheck(); // refresco no intrusivo
+        });
+      }, 0);
+    });
+  }
+
+  private getOrigen(): 'formulario' | 'imagenes' {
+    // 1) Router state de la navegación actual
+    const nav = this.router.getCurrentNavigation();
+    const fromNav = nav?.extras?.state?.['from'] as
+      | 'formulario'
+      | 'imagenes'
+      | undefined;
+    if (fromNav) {
+      sessionStorage.setItem('resumen.lastFrom', fromNav);
+      return fromNav;
+    }
+
+    // 2) History state (cuando ya no hay CurrentNavigation)
+    const fromHist = (history.state && (history.state as any).from) as
+      | 'formulario'
+      | 'imagenes'
+      | undefined;
+    if (fromHist) {
+      sessionStorage.setItem('resumen.lastFrom', fromHist);
+      return fromHist;
+    }
+
+    // 3) Heurística por presencia de fotos (respaldo)
+    const d = this.datosEntrada || {};
+    const tienePrev =
+      Array.isArray(d.prevImagesB64) && d.prevImagesB64.length > 0;
+    const tienePost =
+      Array.isArray(d.postImagesB64) && d.postImagesB64.length > 0;
+    const heur = tienePrev || tienePost ? 'imagenes' : 'formulario';
+    sessionStorage.setItem('resumen.lastFrom', heur);
+    return heur;
+  }
+
   ngOnChanges(_: SimpleChanges): void {
-    this.rebuild(); // se recalcula cada vez que llega el input
+    this.autoSkipHandled = false;
+    this.rebuild();
   }
 
   getTornilloActivo(mod: any) {
@@ -628,42 +687,93 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   private rebuild() {
+    // 1) Seleccionadas desde el input
     const mods = Array.isArray(this.datosEntrada?.modificaciones)
       ? this.datosEntrada.modificaciones
       : [];
+    this.modificacionesSeleccionadas = mods.filter((m: any) => m?.seleccionado);
 
-    this.modificacionesSeleccionadas = mods.filter(
-      (m: { seleccionado: any }) => m?.seleccionado
+    // 2) Auto-salto inteligente (hacia delante o hacia atrás) si no hay nada que mostrar
+    if (this.maybeAutoSkip()) return;
+
+    // 3) Evitar auto-continúe cuando hay mobiliario interior activo (ya que hay UI que mostrar)
+    const tieneMobiliarioInterior = this.modificacionesSeleccionadas.some(
+      (m) =>
+        m?.nombre === 'Modificaciones en el interior del vehículo' &&
+        m?.seleccionado
     );
 
-    if (this.debeAutoContinuar()) {
-      // Lanzamos continuar automáticamente
-      this.continuar.emit(this.datosEntrada);
-      return; // ya no seguimos inicializando
+    // Solo auto-continúa hacia delante si NO hay mobiliario interior y todo es auto-skip
+    if (!tieneMobiliarioInterior && this.debeAutoContinuar()) {
+      this.emitirAsync('continuar');
+      return;
     }
 
+    // 4) Inicializaciones de "MOBILIARIO INTERIOR VEHÍCULO"
     this.modificacionesSeleccionadas.forEach((m) => {
       if (m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
-        if (m.diametroTornilloSeleccionado === undefined) {
+        if (m.diametroTornilloSeleccionado === undefined)
           m.diametroTornilloSeleccionado = null;
-        }
-
-        // inicializar área si no existe
-        if (m.areaResistenteTornilloSeleccionado === undefined) {
+        if (m.areaResistenteTornilloSeleccionado === undefined)
           m.areaResistenteTornilloSeleccionado = null;
-        }
 
-        // si ya hay un diámetro, sincronizar el área
         if (m.diametroTornilloSeleccionado !== null) {
           const tornillo = this.tornillosDB.find(
             (t) => t.diametro === m.diametroTornilloSeleccionado
           );
-          if (tornillo) {
+          if (tornillo)
             m.areaResistenteTornilloSeleccionado = tornillo.areaResistente;
-          }
         }
+
+        if (!Array.isArray(m.mueblesBajo)) m.mueblesBajo = [];
+        if (!Array.isArray(m.mueblesAlto)) m.mueblesAlto = [];
+        if (!Array.isArray(m.mueblesAseo)) m.mueblesAseo = [];
       }
     });
+  }
+
+  // ¿Este paso está "vacío" para el usuario?
+  private esResumenVacio(): boolean {
+    if (
+      !Array.isArray(this.modificacionesSeleccionadas) ||
+      this.modificacionesSeleccionadas.length === 0
+    ) {
+      return true;
+    }
+    // Si hay mobiliario interior, siempre hay algo que mostrar
+    const hayMobiliario = this.modificacionesSeleccionadas.some(
+      (m) =>
+        m?.nombre === 'Modificaciones en el interior del vehículo' &&
+        m?.seleccionado
+    );
+    if (hayMobiliario) return false;
+
+    // Reutilizamos la lógica de auto-skip: si TODAS son auto-skip, lo consideramos "vacío"
+    return this.debeAutoContinuar();
+  }
+
+  // Inferimos de dónde venimos: si hay fotos en datosEntrada, lo normal es venir de "imágenes"
+  private inferirOrigen(): 'formulario' | 'imagenes' {
+    const d = this.datosEntrada || {};
+    const tienePrev =
+      Array.isArray(d.prevImagesB64) && d.prevImagesB64.length > 0;
+    const tienePost =
+      Array.isArray(d.postImagesB64) && d.postImagesB64.length > 0;
+    return tienePrev || tienePost ? 'imagenes' : 'formulario';
+  }
+
+  // Ejecuta el auto-salto (hacia delante o hacia atrás) solo una vez por entrada al componente
+  private maybeAutoSkip(): boolean {
+    if (this.autoSkipHandled) return false;
+
+    if (this.esResumenVacio()) {
+      this.autoSkipHandled = true;
+
+      const origen = this.getOrigen(); // ← robusto
+      this.emitirAsync(origen === 'imagenes' ? 'volver' : 'continuar');
+      return true;
+    }
+    return false;
   }
 
   private debeAutoContinuar(): boolean {
@@ -672,6 +782,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     const tipo = this.datosEntrada.tipoVehiculo; // se asume que viene del input
 
     return this.modificacionesSeleccionadas.every((mod) => {
+      // 🚫 Nunca auto-continuar si hay mobiliario interior
+      if (mod.nombre === 'Modificaciones en el interior del vehículo') {
+        return false;
+      }
+
       // filtra solo las reglas que coinciden con el nombre
       let reglas = this.AUTO_SKIP_RULES.filter((r) => r.nombre === mod.nombre);
 

@@ -15,9 +15,7 @@ import {
   TableCell,
   VerticalAlign,
   ImageRun,
-  HeadingLevel,
 } from 'docx';
-import ingeniero from '../../assets/ingeniero.json';
 import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
 import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
@@ -31,6 +29,7 @@ interface ImageInfo {
 }
 
 export async function generarDocumentoFinalObra(data: any): Promise<void> {
+  const ingeniero = data.ingenieroSeleccionado;
   const modificaciones: Modificacion[] = data.modificaciones;
 
   // 1) Header

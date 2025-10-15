@@ -74,6 +74,27 @@
         </div>
 
         <div class="col-md-4 mb-2">
+          <label class="form-label">Ingeniero *</label>
+          <select
+            class="form-select"
+            [(ngModel)]="datos.ingenieroSeleccionado"
+            [compareWith]="compararIngenieros"
+            name="ingenieroSeleccionado"
+            #ingenieroField="ngModel"
+            required
+            [class.is-invalid]="
+              ingenieroField.invalid && ingenieroField.touched
+            "
+          >
+            <option [ngValue]="null" disabled>Seleccione un ingeniero</option>
+            <option *ngFor="let i of ingenieros" [ngValue]="i">
+              {{ i.nombre }}
+            </option>
+          </select>
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
           <label class="form-label">Fecha del proyecto *</label>
           <input
             type="date"
@@ -137,8 +158,11 @@
                 model: 'fechaMatriculacion',
                 type: 'date'
               },
-              { label: 'Homologación', model: 'homologacion' },
-              { label: 'Propietario', model: 'propietario' },
+              { label: 'Contraseña de homologación', model: 'homologacion' },
+              {
+                label: 'Nombre y apellidos del propietario',
+                model: 'propietario'
+              },
               { label: 'Categoría', model: 'categoria' },
               { label: 'Clasificación', model: 'clasificacion' }
             ]
@@ -308,12 +332,12 @@
           <input
             type="number"
             class="form-control"
-            [(ngModel)]="datos.taraTotal"
-            name="taraTotal"
-            #taraTotalField="ngModel"
+            [(ngModel)]="datos.masaRealDespues"
+            name="masaRealDespues"
+            #masaRealDespuesField="ngModel"
             required
             [class.is-invalid]="
-              taraTotalField.invalid && taraTotalField.touched
+              masaRealDespuesField.invalid && masaRealDespuesField.touched
             "
           />
         </div>
@@ -322,12 +346,12 @@
           <input
             type="number"
             class="form-control"
-            [(ngModel)]="datos.taraDelante"
-            name="taraDelante"
-            #taraDelanteField="ngModel"
+            [(ngModel)]="datos.mmaEje1Despues"
+            name="mmaEje1Despues"
+            #mmaEje1DespuesField="ngModel"
             required
             [class.is-invalid]="
-              taraDelanteField.invalid && taraDelanteField.touched
+              mmaEje1DespuesField.invalid && mmaEje1DespuesField.touched
             "
           />
         </div>
@@ -336,12 +360,12 @@
           <input
             type="number"
             class="form-control"
-            [(ngModel)]="datos.taraDetras"
-            name="taraDetras"
-            #taraDetrasField="ngModel"
+            [(ngModel)]="datos.mmaEje2Despues"
+            name="mmaEje2Despues"
+            #mmaEje2DespuesField="ngModel"
             required
             [class.is-invalid]="
-              taraDetrasField.invalid && taraDetrasField.touched
+              mmaEje2DespuesField.invalid && mmaEje2DespuesField.touched
             "
           />
         </div>
@@ -447,23 +471,6 @@
             required
             [class.is-invalid]="
               cdgconductorField.invalid && cdgconductorField.touched
-            "
-          />
-        </div>
-
-        <div class="col-md-4 mb-2">
-          <label class="form-label"
-            >Distancia CDG eje delantero Ocup. Delant *</label
-          >
-          <input
-            type="number"
-            class="form-control"
-            [(ngModel)]="datos.cdgocdelant"
-            name="cdgocdelant"
-            #cdgocdelantField="ngModel"
-            required
-            [class.is-invalid]="
-              cdgocdelantField.invalid && cdgocdelantField.touched
             "
           />
         </div>

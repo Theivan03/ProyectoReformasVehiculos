@@ -1,0 +1,596 @@
+<form #formulario="ngForm" (ngSubmit)="enviarFormulario()" novalidate>
+  <div class="container mt-3">
+    <h4 class="mb-3">Formulario de nueva reforma</h4>
+
+    <!-- PÁGINA 1 -->
+    <ng-container *ngIf="paginaActual === 1">
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Número del proyecto *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="datos.numeroProyecto"
+            (ngModelChange)="onNumeroProyectoChange($event)"
+            name="numeroProyecto"
+            #numeroProyectoField="ngModel"
+            required
+            [class.is-invalid]="
+              numeroProyectoField.invalid && numeroProyectoField.touched
+            "
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Referencia del proyecto *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="datos.referenciaProyecto"
+            name="referenciaProyecto"
+            #referenciaField="ngModel"
+            readonly
+            required
+            [class.is-invalid]="
+              referenciaField.invalid && referenciaField.touched
+            "
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Revisión *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="datos.revision"
+            name="revision"
+            #revisionField="ngModel"
+            required
+            [class.is-invalid]="revisionField.invalid && revisionField.touched"
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Taller *</label>
+          <select
+            class="form-select"
+            [(ngModel)]="datos.tallerSeleccionado"
+            [compareWith]="compararTalleres"
+            name="tallerSeleccionado"
+            #tallerField="ngModel"
+            required
+            [class.is-invalid]="tallerField.invalid && tallerField.touched"
+          >
+            <option [ngValue]="null" disabled>Seleccione un taller</option>
+            <option *ngFor="let t of talleres" [ngValue]="t">
+              {{ t.nombre }}
+            </option>
+          </select>
+
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Fecha del proyecto *</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="datos.fechaProyecto"
+            name="fechaProyecto"
+            #fechaProyectoField="ngModel"
+            required
+            [class.is-invalid]="
+              fechaProyectoField.invalid && fechaProyectoField.touched
+            "
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">¿Hay reformas previas? *</label>
+          <select
+            class="form-select"
+            [(ngModel)]="datos.reformasPrevias"
+            name="reformasPrevias"
+            #reformasPreviasField="ngModel"
+            required
+            [class.is-invalid]="
+              reformasPreviasField.invalid && reformasPreviasField.touched
+            "
+          >
+            <option [ngValue]="null" disabled>Seleccione una opción</option>
+            <option [ngValue]="false">No</option>
+            <option [ngValue]="true">Sí</option>
+          </select>
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <button type="button" class="btn btn-secondary" (click)="anterior()">
+          ← Anterior
+        </button>
+        <button type="button" class="btn btn-primary" (click)="siguiente()">
+          Siguiente →
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- PÁGINA 2: Datos del vehículo -->
+    <ng-container *ngIf="paginaActual === 2">
+      <div class="row">
+        <div
+          class="col-md-4 mb-2"
+          *ngFor="
+            let campo of [
+              { label: 'Marca', model: 'marca' },
+              { label: 'Denominación', model: 'modelo' },
+              { label: 'Tipo', model: 'tipo' },
+              { label: 'Variante', model: 'variante' },
+              { label: 'Versión', model: 'version' },
+              { label: 'Matrícula', model: 'matricula' },
+              { label: 'Bastidor', model: 'bastidor' },
+              {
+                label: 'Fecha matriculación',
+                model: 'fechaMatriculacion',
+                type: 'date'
+              },
+              { label: 'Contraseña de homologación', model: 'homologacion' },
+              {
+                label: 'Nombre y apellidos del propietario',
+                model: 'propietario'
+              },
+              { label: 'Categoría', model: 'categoria' },
+              { label: 'Clasificación', model: 'clasificacion' }
+            ]
+          "
+        >
+          <label class="form-label">{{ campo.label }} *</label>
+          <input
+            [type]="campo.type || 'text'"
+            class="form-control"
+            [(ngModel)]="datos[campo.model]"
+            [name]="campo.model"
+            #ctrl="ngModel"
+            required
+            [class.is-invalid]="ctrl.invalid && ctrl.touched"
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-12 mb-2">
+          <label class="form-label">Códigos de reforma *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="datos.codigosReforma"
+            name="codigosReforma"
+            #codigosReformaField="ngModel"
+            readonly
+            required
+            [class.is-invalid]="
+              codigosReformaField.invalid && codigosReformaField.touched
+            "
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <button type="button" class="btn btn-secondary" (click)="anterior()">
+          ← Anterior
+        </button>
+        <button type="button" class="btn btn-primary" (click)="siguiente()">
+          Siguiente →
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- PÁGINA 3: Antes de la reforma -->
+    <ng-container *ngIf="paginaActual === 3">
+      <h5 class="mb-2 text-primary">***Antes de la reforma***</h5>
+      <div class="row">
+        <div
+          class="col-md-4 mb-2"
+          *ngFor="
+            let campo of [
+              { label: 'Longitud', model: 'longitudAntes' },
+              { label: 'Anchura', model: 'anchuraAntes' },
+              { label: 'Altura', model: 'alturaAntes' },
+              { label: 'Voladizo', model: 'voladizoAntes' },
+              { label: 'Vía delantera', model: 'viaDelanteraAntes' },
+              { label: 'Vía trasera', model: 'viaTraseraAntes' },
+              { label: 'Neumáticos', model: 'neumaticoAntes' },
+              { label: 'MOM', model: 'momAntes' },
+              { label: 'MMA', model: 'mmaAntes' },
+              { label: 'MMA eje 1', model: 'mmaEje1Antes' },
+              { label: 'MMA eje 2', model: 'mmaEje2Antes' },
+              { label: 'MMA conjunto', model: 'mmaConjuntoAntes' },
+              { label: 'Clasificación', model: 'clasificacionAntes' },
+              { label: 'Carga vertical', model: 'cargavertical' },
+              {
+                label: 'MMR remolque con barra de tracción',
+                model: 'mmrbarradetraccion'
+              },
+              { label: 'MMR remolque de eje central', model: 'mmrejecentral' },
+              { label: 'MMR remolque sin frenos', model: 'mmrsinfrenos' }
+            ]
+          "
+        >
+          <label class="form-label">{{ campo.label }} *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="datos[campo.model]"
+            [name]="campo.model"
+            #ctrl="ngModel"
+            required
+            [class.is-invalid]="ctrl.invalid && ctrl.touched"
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <button type="button" class="btn btn-secondary" (click)="anterior()">
+          ← Anterior
+        </button>
+        <button type="button" class="btn btn-primary" (click)="siguiente()">
+          Siguiente →
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- PÁGINA 4: Después de la reforma -->
+    <ng-container *ngIf="paginaActual === 4">
+      <h5 class="mb-2 text-primary">***Después de la reforma***</h5>
+      <div class="row">
+        <div
+          class="col-md-4 mb-2"
+          *ngFor="
+            let campo of [
+              { label: 'Longitud', model: 'longitudDespues' },
+              { label: 'Anchura', model: 'anchuraDespues' },
+              { label: 'Altura', model: 'alturaDespues' },
+              { label: 'Voladizo', model: 'voladizoDespues' },
+              { label: 'Vía delantera', model: 'viaDelanteraDespues' },
+              { label: 'Vía trasera', model: 'viaTraseraDespues' },
+              { label: 'Neumáticos', model: 'neumaticoDespues' },
+              { label: 'Masa real', model: 'masaRealDespues' },
+              { label: 'MMA', model: 'mmaDespues' },
+              { label: 'MMA eje 1', model: 'mmaEje1Despues' },
+              { label: 'MMA eje 2', model: 'mmaEje2Despues' },
+              { label: 'MMA conjunto', model: 'mmaConjuntoDespues' },
+              { label: 'Clasificación', model: 'clasificacionDespues' },
+              { label: 'Carga vertical', model: 'cargaverticalDespues' },
+              {
+                label: 'MMR remolque con barra de tracción',
+                model: 'mmrbarradetraccionDespues'
+              },
+              {
+                label: 'MMR remolque de eje central',
+                model: 'mmrejecentralDespues'
+              },
+              {
+                label: 'MMR remolque sin frenos',
+                model: 'mmrsinfrenosDespues'
+              },
+              { label: 'Velocidad máxima', model: 'velocidadMaxima' }
+            ]
+          "
+        >
+          <label class="form-label">{{ campo.label }} *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="datos[campo.model]"
+            [name]="campo.model"
+            #ctrl="ngModel"
+            required
+            [class.is-invalid]="ctrl.invalid && ctrl.touched"
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <button type="button" class="btn btn-secondary" (click)="anterior()">
+          ← Anterior
+        </button>
+        <button type="button" class="btn btn-primary" (click)="siguiente()">
+          Siguiente →
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- PÁGINA 5 EXTRA: Control de masas -->
+    <ng-container *ngIf="paginaActual === 5 && necesitaPasoExtra">
+      <h5 class="mb-2 text-primary">Datos de control de masas</h5>
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Tara total *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.masaRealDespues"
+            name="masaRealDespues"
+            #masaRealDespuesField="ngModel"
+            required
+            [class.is-invalid]="
+              masaRealDespuesField.invalid && masaRealDespuesField.touched
+            "
+          />
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Tara delante *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.mmaEje1Despues"
+            name="mmaEje1Despues"
+            #mmaEje1DespuesField="ngModel"
+            required
+            [class.is-invalid]="
+              mmaEje1DespuesField.invalid && mmaEje1DespuesField.touched
+            "
+          />
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Tara detrás *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.mmaEje2Despues"
+            name="mmaEje2Despues"
+            #mmaEje2DespuesField="ngModel"
+            required
+            [class.is-invalid]="
+              mmaEje2DespuesField.invalid && mmaEje2DespuesField.touched
+            "
+          />
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Asientos delanteros (sin incluir al conductor) *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.asientosDelanteros"
+            name="asientosDelanteros"
+            #asientosDelanterosField="ngModel"
+            required
+            [class.is-invalid]="
+              asientosDelanterosField.invalid && asientosDelanterosField.touched
+            "
+          />
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Asientos 2ª fila *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.asientos2Fila"
+            name="asientos2Fila"
+            #asientos2FilaField="ngModel"
+            required
+            [class.is-invalid]="
+              asientos2FilaField.invalid && asientos2FilaField.touched
+            "
+          />
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Asientos 3ª fila *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.asientos3Fila"
+            name="asientos3Fila"
+            #asientos3FilaField="ngModel"
+            required
+            [class.is-invalid]="
+              asientos3FilaField.invalid && asientos3FilaField.touched
+            "
+          />
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Carga útil total *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cargaUtilTotal"
+            name="cargaUtilTotal"
+            #cargaUtilTotalField="ngModel"
+            required
+            [class.is-invalid]="
+              cargaUtilTotalField.invalid && cargaUtilTotalField.touched
+            "
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Distancia entre ejes *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.distanciaEntreEjes"
+            name="distanciaEntreEjes"
+            #distanciaEntreEjesField="ngModel"
+            required
+            [class.is-invalid]="
+              distanciaEntreEjesField.invalid && distanciaEntreEjesField.touched
+            "
+          />
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Ocupantes adicionales *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.ocupantesAdicionales"
+            name="ocupantesAdicionales"
+            #ocupantesAdicionalesField="ngModel"
+            required
+            [class.is-invalid]="
+              ocupantesAdicionalesField.invalid &&
+              ocupantesAdicionalesField.touched
+            "
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero conductor *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgconductor"
+            name="cdgconductor"
+            #cdgconductorField="ngModel"
+            required
+            [class.is-invalid]="
+              cdgconductorField.invalid && cdgconductorField.touched
+            "
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Ocup. 2a fila *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgocu2"
+            name="cdgocu2"
+            #cdgocu2Field="ngModel"
+            required
+            [class.is-invalid]="cdgocu2Field.invalid && cdgocu2Field.touched"
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Ocup. 3a fila *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgocu3"
+            name="cdgocu3"
+            #cdgocu3Field="ngModel"
+            required
+            [class.is-invalid]="cdgocu3Field.invalid && cdgocu3Field.touched"
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Carga útil *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgcargautil"
+            name="cdgcargautil"
+            #cdgcargautilField="ngModel"
+            required
+            [class.is-invalid]="
+              cdgcargautilField.invalid && cdgcargautilField.touched
+            "
+          />
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label"
+            >Distancia CDG eje delantero Carga vert. Acopl *</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos.cdgcargavert"
+            name="cdgcargavert"
+            #cdgcargavertField="ngModel"
+            required
+            [class.is-invalid]="
+              cdgcargavertField.invalid && cdgcargavertField.touched
+            "
+          />
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <button type="button" class="btn btn-secondary" (click)="anterior()">
+          ← Anterior
+        </button>
+        <button type="button" class="btn btn-primary" (click)="siguiente()">
+          Siguiente →
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- PÁGINA 6: Presupuesto -->
+    <ng-container *ngIf="paginaActual === totalPaginas">
+      <h5 class="mb-2 text-primary">***Presupuesto para la reforma***</h5>
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Precio por materiales *</label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            class="form-control"
+            [(ngModel)]="datos.materialesUsados"
+            (ngModelChange)="limitarDecimales('materialesUsados', $event)"
+            name="materialesUsados"
+            #matField="ngModel"
+            required
+            [class.is-invalid]="matField.invalid && matField.touched"
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Precio por mano de obra *</label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            class="form-control"
+            [(ngModel)]="datos.manoDeObra"
+            (ngModelChange)="limitarDecimales('manoDeObra', $event)"
+            name="manoDeObra"
+            #moField="ngModel"
+            required
+            [class.is-invalid]="moField.invalid && moField.touched"
+          />
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Total presupuesto *</label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            class="form-control"
+            [value]="datos.totalPresupuesto?.toFixed(2)"
+            name="totalPresupuesto"
+            readonly
+          />
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <button type="button" class="btn btn-secondary" (click)="anterior()">
+          ← Anterior
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="enviarFormulario()"
+        >
+          Siguiente →
+        </button>
+      </div>
+    </ng-container>
+  </div>
+</form>

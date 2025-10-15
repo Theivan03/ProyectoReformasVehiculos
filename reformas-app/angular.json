@@ -169,6 +169,94 @@
           }
         }
       }
+    },
+    "reformas-test": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/reformas-test",
+      "sourceRoot": "projects/reformas-test/src",
+      "prefix": "adm",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/reformas-test/src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "projects/reformas-test/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/reformas-test/src/favicon.ico",
+              "projects/reformas-test/src/assets",
+              { "glob": "**/*", "input": "projects/reformas-test/public" }
+            ],
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "projects/reformas-test/src/styles.scss"
+            ],
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "host": "0.0.0.0",
+            "port": 4400
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "reformas-test:build:production"
+            },
+            "development": {
+              "buildTarget": "reformas-test:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "projects/reformas-test/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              { "glob": "**/*", "input": "projects/reformas-test/public" }
+            ],
+            "styles": ["projects/reformas-test/src/styles.scss"]
+          }
+        }
+      }
     }
   },
   "cli": {

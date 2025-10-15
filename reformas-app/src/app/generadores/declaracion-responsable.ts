@@ -2,9 +2,9 @@ import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import { saveAs } from 'file-saver';
 import { PDFDocument, PDFDropdown, PDFTextField } from 'pdf-lib';
-import ingenieroJson from '../../assets/ingeniero.json';
 
 export async function generarDocumentoResponsable(data: any): Promise<void> {
+  const ingeniero = data.ingenieroSeleccionado;
   if (data.comunidad === 'andalucia') {
     // === Caso PDF editable Andalucía ===
     const existingPdfBytes = await fetch('/assets/DRAndalucia.pdf').then((r) =>
@@ -100,17 +100,17 @@ export async function generarDocumentoResponsable(data: any): Promise<void> {
 
     // 6) Construye el objeto final (fusión de defaults + data)
     const templateData = {
-      nombre: ingenieroJson.nombre,
-      dni: ingenieroJson.dni,
-      direccion: ingenieroJson.direccionFiscal,
-      codigo: ingenieroJson.codigoPostal,
-      localidad: ingenieroJson.localidad,
-      provincia: ingenieroJson.provincia,
-      titulacion: ingenieroJson.titulacion,
-      especialidad: ingenieroJson.especialidad,
-      colegio: ingenieroJson.colegio,
-      colegiado: ingenieroJson.numero,
-      correo: ingenieroJson.correo,
+      nombre: ingeniero.nombre,
+      dni: ingeniero.dni,
+      direccion: ingeniero.direccionFiscal,
+      codigo: ingeniero.codigoPostal,
+      localidad: ingeniero.localidad,
+      provincia: ingeniero.provincia,
+      titulacion: ingeniero.titulacion,
+      especialidad: ingeniero.especialidad,
+      colegio: ingeniero.colegio,
+      colegiado: ingeniero.numero,
+      correo: ingeniero.correo,
       marca: data.marca,
       modelo: data.modelo,
       vin: data.bastidor,
@@ -184,7 +184,7 @@ export async function generarDocumentoResponsable(data: any): Promise<void> {
 
     // 6) Construye el objeto final (fusión de defaults + data)
     const templateData = {
-      direccion: ingenieroJson.direccionFiscal,
+      direccion: ingeniero.direccionFiscal,
       marca: data.marca,
       modelo: data.modelo,
       vin: data.bastidor,

@@ -21,8 +21,6 @@ import {
   ShadingType,
   UnderlineType,
 } from 'docx';
-import saveAs from 'file-saver';
-import ingeniero from '../../assets/ingeniero.json';
 import { Modificacion } from '../interfaces/modificacion';
 import {
   buildModificacionesParagraphs,
@@ -41,6 +39,7 @@ interface ImageInfo {
 
 export function keepTableTogether(table: Table): Table {
   // Use the public API to access rows; fallback to private if necessary
+
   const rows: TableRow[] =
     (table as any).rows || (table as any).root?.[0]?.children || [];
 
@@ -90,6 +89,7 @@ export function keepTableTogether(table: Table): Table {
 }
 
 export async function generarDocumentoProyecto(data: any): Promise<Blob> {
+  const ingeniero = data.ingenieroSeleccionado;
   const response = await fetch('assets/logo.png');
   const imageBuffer = await response.arrayBuffer();
 
@@ -2785,7 +2785,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.cdgocdelant?.toString() ?? '-',
+                          text: data.cdgconductor?.toString() ?? '-',
                         }),
                       ],
                     }),
@@ -3388,7 +3388,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.cdgocdelant?.toString() ?? '-',
+                      text: data.cdgconductor?.toString() ?? '-',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],

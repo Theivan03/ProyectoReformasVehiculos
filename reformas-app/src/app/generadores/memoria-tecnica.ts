@@ -5,7 +5,6 @@ import {
   TextRun,
   Header,
   Footer,
-  TableOfContents,
   SectionType,
   PageNumber,
   HeadingLevel,
@@ -17,18 +16,10 @@ import {
   TableCell,
   VerticalAlign,
   ImageRun,
-  ExternalHyperlink,
-  ShadingType,
-  UnderlineType,
 } from 'docx';
 import saveAs from 'file-saver';
-import ingeniero from '../../assets/ingeniero.json';
 import { Modificacion } from '../interfaces/modificacion';
-import {
-  buildModificacionesParagraphs,
-  generarDocumentoProyectoParagraphs,
-  generarTablaLeyenda,
-} from '../Funciones/buildModificacionesParagraphs';
+import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
 import loadImage from 'blueimp-load-image';
 import { buildCalculos } from '../Funciones/calculos';
 
@@ -90,6 +81,7 @@ export function keepTableTogether(table: Table): Table {
 }
 
 export async function generarDocumentoMemoria(data: any): Promise<void> {
+  const ingeniero = data.ingenieroSeleccionado;
   const response = await fetch('assets/logo.png');
   const imageBuffer = await response.arrayBuffer();
 
@@ -1944,7 +1936,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                     alignment: AlignmentType.CENTER,
                     children: [
                       new TextRun({
-                        text: data.cdgocdelant?.toString() ?? '-',
+                        text: data.cdgconductor?.toString() ?? '-',
                       }),
                     ],
                   }),
@@ -2546,7 +2538,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                 margins: { top: 40, bottom: 40, left: 40, right: 40 },
                 children: [
                   new Paragraph({
-                    text: data.cdgocdelant?.toString() ?? '-',
+                    text: data.cdgconductor?.toString() ?? '-',
                     alignment: AlignmentType.CENTER,
                   }),
                 ],

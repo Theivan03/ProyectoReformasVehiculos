@@ -31,7 +31,6 @@ export interface Modificacion {
   clase?: string;
   claseBarra?: string;
   cdgconductor?: number;
-  cdgocdelant?: number;
   cdgocu2?: number;
   cdgocu3?: number;
   cdgcargautil?: number;

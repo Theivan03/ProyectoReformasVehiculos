@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Modal } from 'bootstrap';
+import { generarInformeProyecto } from '../../funciones/generarInformeProyecto';
 
 @Component({
   selector: 'app-finalizar-reforma',
@@ -34,10 +35,12 @@ export class FinalizarReformaComponent {
     const url = 'http://192.168.1.41:3000/guardar-proyecto';
     const form = new FormData();
 
+    console.log('📤 Enviando datos al servidor...', this.reformaData);
+
     // Excluimos imágenes para tratarlas aparte
     const { prevImages, postImages, ...soloDatos } = this.reformaData;
 
-    // ✅ Añadimos flag de envío por cliente
+    // Añadimos flag de envío por cliente
     const datosConEstado = {
       ...soloDatos,
       enviadoPorCliente: true,
@@ -67,7 +70,7 @@ export class FinalizarReformaComponent {
         observe: 'events',
       })
       .subscribe({
-        next: (event: HttpEvent<any>) => {
+        next: async (event: HttpEvent<any>) => {
           if (event.type === HttpEventType.UploadProgress && event.total) {
             const porcentaje = Math.round((100 * event.loaded) / event.total);
             this.animateProgress(porcentaje);
@@ -77,7 +80,43 @@ export class FinalizarReformaComponent {
             const elapsed = Date.now() - startTime;
             const remaining = Math.max(1000 - elapsed, 0);
 
-            setTimeout(() => {
+            setTimeout(async () => {
+              try {
+                console.log('🟢 Generando documento DOCX en cliente...');
+
+                // 1️⃣ Generar DOCX en cliente (devuelve Blob)
+                const blob = await generarInformeProyecto(this.reformaData);
+
+                console.log(
+                  `📄 Documento generado (${blob.size} bytes). Enviando al servidor...`
+                );
+
+                // 2️⃣ Enviar DOCX al servidor
+                const formDocx = new FormData();
+                formDocx.append(
+                  'docx',
+                  blob,
+                  `${this.reformaData.referenciaProyecto}.docx`
+                );
+                formDocx.append(
+                  'referenciaProyecto',
+                  this.reformaData.referenciaProyecto
+                );
+
+                const docxUrl = 'http://192.168.1.41:3000/guardar-docx';
+                await this.http.post(docxUrl, formDocx).toPromise();
+
+                console.log(
+                  `✅ Documento DOCX guardado correctamente en el servidor: ${this.reformaData.referenciaProyecto}.docx`
+                );
+              } catch (docxErr) {
+                console.error(
+                  '❌ Error generando o enviando el DOCX:',
+                  docxErr
+                );
+              }
+
+              // 3️⃣ Mostrar modal de éxito
               this.abrirModalExito();
               this.guardando = false;
               this.progreso = -1;
@@ -85,6 +124,7 @@ export class FinalizarReformaComponent {
           }
         },
         error: (err) => {
+          console.error('❌ Error al guardar el proyecto:', err);
           this.abrirModalError();
           this.guardando = false;
           this.progreso = -1;
@@ -103,6 +143,25 @@ export class FinalizarReformaComponent {
       }
     };
     step();
+  }
+
+  async enviarDocxAlServidor(data: any) {
+    try {
+      // 1️⃣ Generamos el DOCX en cliente
+      const blob = await generarInformeProyecto(data); // función modificada para devolver Blob
+
+      // 2️⃣ Lo enviamos al servidor
+      const formData = new FormData();
+      formData.append('docx', blob, `${data.referenciaProyecto}.docx`);
+      formData.append('referenciaProyecto', data.referenciaProyecto);
+
+      const url = 'http://192.168.1.41:3000/guardar-docx';
+      const respuesta = await this.http.post(url, formData).toPromise();
+
+      console.log('✅ Documento subido:', respuesta);
+    } catch (err) {
+      console.error('Error enviando DOCX:', err);
+    }
   }
 
   // -------- Botón volver --------

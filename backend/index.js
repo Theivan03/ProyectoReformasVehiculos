@@ -7,6 +7,7 @@ const { imageSize } = require('image-size');
 const multer = require('multer');
 const { exec } = require('child_process');
 const uploadDocx = multer({ dest: 'uploads_docx/' });
+const multerDocx = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
@@ -306,5 +307,95 @@ app.get('/proyectos/:id/proyecto.json', (req, res) => {
   } catch (err) {
     console.error('Error leyendo proyecto:', err);
     res.status(500).json({ error: 'No se pudo leer el proyecto' });
+  }
+});
+
+app.post('/guardar-docx', multerDocx.single('docx'), (req, res) => {
+  try {
+    const referenciaOriginal = req.body.referenciaProyecto || 'documento_sin_nombre';
+    const docBuffer = req.file?.buffer;
+
+    if (!docBuffer) {
+      return res.status(400).json({ error: 'No se ha recibido ningún archivo DOCX' });
+    }
+
+    // 🔧 Sanitizar nombre: eliminar caracteres no válidos para nombres de archivo
+    const referencia = referenciaOriginal.replace(/[\/\\:*?"<>|]/g, '-').trim();
+
+    // Carpeta de destino
+    const outputDir = path.join(__dirname, 'documentos_generados');
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+    // Ruta final
+    const filename = `${referencia}.docx`;
+    const fullPath = path.join(outputDir, filename);
+
+    fs.writeFileSync(fullPath, docBuffer);
+    console.log(`📄 Documento guardado correctamente: ${fullPath}`);
+
+    res.json({
+      message: 'Documento DOCX recibido y guardado correctamente',
+      ruta: `/documentos_generados/${filename}`,
+    });
+  } catch (err) {
+    console.error('Error en /guardar-docx:', err);
+    res.status(500).json({ error: 'No se pudo guardar el DOCX en el servidor' });
+  }
+});
+
+// ✅ Servir documentos generados (.docx)
+app.use(
+  '/documentos_generados',
+  express.static(path.join(__dirname, 'documentos_generados'), {
+    setHeaders: (res) => {
+      res.set('Access-Control-Allow-Origin', '*'); // permite descarga desde el cliente
+    },
+  })
+);
+
+// === INGENIEROS ===
+app.get('/ingenieros', (req, res) => {
+  try {
+    const raw = fs.readFileSync('./ingenieros.json', 'utf-8');
+    const data = JSON.parse(raw);
+
+    // Si es un objeto, lo convertimos a array
+    const lista = Array.isArray(data) ? data : [data];
+    res.json(lista);
+  } catch (err) {
+    console.error('Error al leer ingenieros.json:', err);
+    res.status(500).json([]);
+  }
+});
+
+app.post('/ingenieros', (req, res) => {
+  try {
+    fs.writeFileSync('./ingenieros.json', JSON.stringify(req.body, null, 2));
+    res.status(200).send({ message: 'Ingenieros actualizados' });
+  } catch (err) {
+    console.error('Error guardando ingenieros:', err);
+    res.status(500).send({ message: 'Error al guardar ingenieros' });
+  }
+});
+
+app.delete('/ingenieros/:nombre', (req, res) => {
+  try {
+    const nombreAEliminar = decodeURIComponent(req.params.nombre)
+      .trim()
+      .toLowerCase();
+
+    const raw = fs.readFileSync('./ingenieros.json', 'utf-8');
+    let ingenieros = JSON.parse(raw);
+    if (!Array.isArray(ingenieros)) ingenieros = [ingenieros];
+
+    const filtrados = ingenieros.filter(
+      (i) => i.nombre.trim().toLowerCase() !== nombreAEliminar
+    );
+
+    fs.writeFileSync('./ingenieros.json', JSON.stringify(filtrados, null, 2));
+    res.status(200).send({ message: 'Ingeniero eliminado correctamente' });
+  } catch (err) {
+    console.error('Error al eliminar ingeniero:', err);
+    res.status(500).send({ message: 'Error al eliminar ingeniero' });
   }
 });

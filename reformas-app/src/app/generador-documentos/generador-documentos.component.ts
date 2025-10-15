@@ -38,11 +38,9 @@ export class GeneradorDocumentosComponent implements OnInit {
     switch (tipo) {
       case 'proyecto':
         this.isLoading = true;
-        // Permitimos que Angular pinte el overlay antes del trabajo pesado
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         try {
-          // 1) Generar .docx
           const blobDocx: Blob = await generarDocumentoProyecto(
             this.reformaData
           );
@@ -50,31 +48,7 @@ export class GeneradorDocumentosComponent implements OnInit {
             `${this.reformaData.referenciaProyecto} PROYECTO ` +
             `${this.reformaData.marca} ${this.reformaData.modelo} ${this.reformaData.matricula}`;
 
-          // 2) Descargar .docx
           saveAs(blobDocx, `${nombreBase}.docx`);
-
-          // 3) Enviar al servidor para convertir a PDF (dejado comentado)
-          /*
-          const formData = new FormData();
-          formData.append('doc', blobDocx, `${nombreBase}.docx`);
-
-          this.http
-            .post('http://192.168.1.41:3000/convertir-docx-a-pdf', formData, {
-              responseType: 'blob',
-            })
-            .subscribe({
-              next: (blobPdf: Blob) => {
-                // 4) Descargar PDF
-                saveAs(blobPdf, `${nombreBase}.pdf`);
-                this.isLoading = false;
-              },
-              error: (err) => {
-                console.error('Error generando PDF:', err);
-                alert('No se pudo generar el PDF en el servidor.');
-                this.isLoading = false;
-              },
-            });
-          */
           this.isLoading = false;
         } catch (err) {
           console.error('Error generando DOCX:', err);
@@ -121,17 +95,15 @@ export class GeneradorDocumentosComponent implements OnInit {
     'Sevilla',
   ];
 
-  // Cuando pulsas en alguna comunidad
   seleccionarComunidad(comunidad: string) {
     this.comunidadSeleccionada = comunidad;
-    this.provinciaSeleccionada = null; // reinicia
+    this.provinciaSeleccionada = null;
   }
 
   generarMemoria() {
     generarDocumentoMemoria(this.reformaData);
   }
 
-  // Generar DR teniendo en cuenta si es Andalucía
   confirmarDeclaracion() {
     const dataCompleta = {
       ...this.reformaData,
@@ -148,25 +120,21 @@ export class GeneradorDocumentosComponent implements OnInit {
   guardarDB() {
     const url = 'http://192.168.1.41:3000/guardar-proyecto';
 
-    // 1) Montamos el FormData
     const form = new FormData();
     form.append('metadata', JSON.stringify(this.reformaData));
 
-    // b) imágenes previas
     if (Array.isArray(this.reformaData.prevImages)) {
       this.reformaData.prevImages.forEach((file: File, idx: number) => {
         form.append('prevImage', file, file.name || `prev-${idx}.png`);
       });
     }
 
-    // c) imágenes posteriores
     if (Array.isArray(this.reformaData.postImages)) {
       this.reformaData.postImages.forEach((file: File, idx: number) => {
         form.append('postImage', file, file.name || `post-${idx}.png`);
       });
     }
 
-    // 2) Envío con progreso opcional
     this.http
       .post<{ message: string; proyecto: string }>(url, form, {
         reportProgress: true,

@@ -5,7 +5,7 @@
       step === 1
         ? "Imágenes exteriores del vehículo (frontal, trasera, lateral derecho e izquierdo)"
         : step === 2
-        ? "Imágenes de los elementos reformados"
+        ? "Imágenes de las reformas (incluye subselecciones si las hay)"
         : "Imágenes de la documentación"
     }}
   </h5>
@@ -32,7 +32,6 @@
         <div class="card p-2 text-center">
           <p class="fw-bold mb-2">{{ label }}</p>
 
-          <!-- Opciones Galería o Cámara -->
           <div class="d-flex gap-2 justify-content-center mb-2">
             <button
               type="button"
@@ -74,7 +73,7 @@
               [src]="prevPreviews[i]"
               class="w-100 h-100 rounded shadow-sm"
               style="object-fit: cover"
-              alt="preview {{ label }}"
+              [alt]="'preview ' + label"
             />
           </div>
         </div>
@@ -95,90 +94,153 @@
     </div>
   </ng-container>
 
-  <!-- STEP 2 -->
+  <!-- STEP 2 (sin “foto general”) -->
   <ng-container *ngIf="step === 2">
     <div class="d-flex align-items-center justify-content-between mb-3">
       <label class="form-label fw-bold mb-0"
         >Sube las imágenes de las reformas realizadas:</label
       >
       <small class="text-muted"
-        >Total: {{ postImagesB64.length }}/{{ modsSeleccionadas.length }}</small
+        >Total: {{ postImagesB64.length }}/{{ totalSlots }}</small
       >
     </div>
 
     <div class="row g-4">
-      <div
-        class="col-md-6"
-        *ngFor="let mod of modsSeleccionadas; let i = index"
-      >
-        <div class="card p-3 shadow-sm h-100 text-center">
-          <h5 class="fw-bold text-dark mb-3">{{ mod.nombre }}</h5>
-          <img
-            [src]="getImagenEjemplo(mod.nombre)"
-            class="img-fluid rounded border mb-3 d-block mx-auto"
-          />
+      <div class="col-12" *ngFor="let mod of modsSeleccionadas; let i = index">
+        <div class="card p-3 shadow-sm">
+          <!-- Cabecera mod -->
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <h5 class="fw-bold text-dark mb-0 me-auto">
+              {{ tituloMod(mod.nombre) }}
+            </h5>
 
-          <div
-            class="border border-2 border-dashed rounded p-3 bg-light d-flex justify-content-center align-items-center"
-            style="min-height: 280px"
-          >
-            <ng-container *ngIf="!perModPreviews[mod.nombre]?.length">
-              <div class="text-center">
-                <p class="text-muted mb-2">Selecciona o haz una foto</p>
+            <!-- Botón quitar reforma -->
+            <button
+              class="btn btn-outline-danger btn-sm"
+              (click)="openConfirmRemove(mod)"
+            >
+              Quitar reforma
+            </button>
 
-                <!-- Opciones Galería o Cámara -->
-                <div class="d-flex gap-2 justify-content-center">
-                  <button
-                    type="button"
-                    class="btn btn-outline-primary btn-sm"
-                    (click)="openInput('gallery', 2, i)"
-                  >
-                    📂 Galería
-                  </button>
-                  <input
-                    #galleryInputsMods
-                    type="file"
-                    accept="image/*"
-                    class="d-none"
-                    (change)="onPostSelectedForMod($event, mod.nombre)"
-                  />
-
-                  <button
-                    type="button"
-                    class="btn btn-outline-success btn-sm"
-                    (click)="openInput('camera', 2, i)"
-                  >
-                    📷 Cámara
-                  </button>
-                  <input
-                    #cameraInputsMods
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    class="d-none"
-                    (change)="onPostSelectedForMod($event, mod.nombre)"
-                  />
-                </div>
-              </div>
-            </ng-container>
-
-            <ng-container *ngIf="perModPreviews[mod.nombre]?.length">
-              <div class="position-relative" style="max-width: 300px">
-                <img
-                  [src]="perModPreviews[mod.nombre][0]"
-                  class="img-fluid rounded border shadow-sm"
-                  style="max-height: 250px; object-fit: contain; width: 100%"
-                />
+            <!-- Selector de subopciones (si hay) -->
+            <ng-container *ngIf="subopcionesPosibles(mod).length > 0">
+              <div class="dropdown">
                 <button
+                  class="btn btn-outline-secondary btn-sm dropdown-toggle"
                   type="button"
-                  class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
-                  (click)="removePerModImage(mod.nombre, 0)"
+                  data-bs-toggle="dropdown"
                 >
-                  ×
+                  Especificar subselecciones
                 </button>
+                <ul class="dropdown-menu p-2" style="min-width: 280px">
+                  <li *ngFor="let so of subopcionesPosibles(mod)">
+                    <label class="d-flex align-items-center gap-2 px-2 py-1">
+                      <input
+                        #cb
+                        type="checkbox"
+                        class="form-check-input"
+                        [checked]="isSubopcionActiva(mod, so.key)"
+                        (change)="toggleSubopcion(mod, so.key, cb.checked)"
+                      />
+                      <span>{{ tituloSub(mod.nombre, so.key) }}</span>
+                    </label>
+                  </li>
+                </ul>
               </div>
             </ng-container>
           </div>
+
+          <!-- SOLO slots de subselecciones activas -->
+          <div class="row g-3">
+            <div class="col-md-6" *ngFor="let soKey of subopcionesActivas(mod)">
+              <div class="card p-3 h-100 text-center">
+                <h6 class="fw-bold mb-2">{{ tituloSub(mod.nombre, soKey) }}</h6>
+                <img
+                  [src]="getImagenEjemplo(mod.nombre)"
+                  class="img-fluid rounded border mb-3 d-block mx-auto"
+                />
+
+                <div
+                  class="border border-2 border-dashed rounded p-3 bg-light d-flex justify-content-center align-items-center"
+                  style="min-height: 240px"
+                >
+                  <ng-container
+                    *ngIf="!perSlotPreviews[slotKey(mod, soKey)]?.length"
+                  >
+                    <div class="text-center">
+                      <p class="text-muted mb-2">Selecciona o haz una foto</p>
+                      <div class="d-flex gap-2 justify-content-center">
+                        <button
+                          type="button"
+                          class="btn btn-outline-primary btn-sm"
+                          (click)="openInputForSlot('gallery', mod, soKey)"
+                        >
+                          📂 Galería
+                        </button>
+                        <input
+                          #galleryInputsMods
+                          type="file"
+                          accept="image/*"
+                          class="d-none"
+                          (change)="onSelectedForSlot($event, mod, soKey)"
+                        />
+
+                        <button
+                          type="button"
+                          class="btn btn-outline-success btn-sm"
+                          (click)="openInputForSlot('camera', mod, soKey)"
+                        >
+                          📷 Cámara
+                        </button>
+                        <input
+                          #cameraInputsMods
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          class="d-none"
+                          (change)="onSelectedForSlot($event, mod, soKey)"
+                        />
+                      </div>
+                    </div>
+                  </ng-container>
+
+                  <ng-container
+                    *ngIf="perSlotPreviews[slotKey(mod, soKey)]?.length"
+                  >
+                    <div class="position-relative" style="max-width: 300px">
+                      <img
+                        [src]="perSlotPreviews[slotKey(mod, soKey)][0]"
+                        class="img-fluid rounded border shadow-sm"
+                        style="
+                          max-height: 220px;
+                          object-fit: contain;
+                          width: 100%;
+                        "
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                        (click)="removeSlotImage(mod, soKey, 0)"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </ng-container>
+                </div>
+
+                <!-- Quitar slot de la lista (con modal) -->
+                <div class="text-center mt-2">
+                  <button
+                    class="btn btn-link text-danger p-0"
+                    (click)="openConfirmRemoveSub(mod, soKey)"
+                  >
+                    Quitar esta subselección
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /row -->
         </div>
       </div>
     </div>
@@ -193,21 +255,19 @@
 
   <!-- STEP 3 -->
   <ng-container *ngIf="step === 3">
-    <label class="form-label fw-bold"
-      >Sube las imágenes de la documentación: <br />
-      <b
-        >No es obligatorio adjuntar ningúna imagen para poder continuar</b
-      ></label
-    >
+    <label class="form-label fw-bold">
+      Sube las imágenes de la documentación: <br />
+      <b>No es obligatorio adjuntar ningúna imagen para poder continuar</b>
+    </label>
 
     <div class="row g-4">
       <div
         class="col-md-4"
         *ngFor="
           let doc of [
-            'Ficha técnica',
-            'Permiso de circulación',
-            'Documentación adicional'
+            'FichaTecnica',
+            'PermisoDeCirculacion',
+            'DocumentacionAdicional'
           ];
           let i = index
         "
@@ -215,7 +275,6 @@
         <div class="card p-3 shadow-sm text-center h-100">
           <h6 class="fw-bold text-dark mb-3">{{ doc }}</h6>
 
-          <!-- Botones Galería / Cámara -->
           <div class="d-flex gap-2 justify-content-center mb-2">
             <button
               type="button"
@@ -252,7 +311,6 @@
           </div>
           <small class="text-muted">Máx. 4</small>
 
-          <!-- Error amigable con Bootstrap -->
           <div
             *ngIf="docError[doc]"
             class="alert alert-danger py-1 px-2 mt-2 fade show"
@@ -260,7 +318,6 @@
             {{ docError[doc] }}
           </div>
 
-          <!-- Previews -->
           <div class="d-flex flex-wrap gap-2 mt-2 justify-content-center">
             <div
               class="position-relative"
@@ -294,4 +351,75 @@
       </button>
     </div>
   </ng-container>
+</div>
+
+<!-- 🔶 Modal confirmar quitar reforma/subselección -->
+<div
+  class="modal fade"
+  id="modalQuitarReforma"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0 rounded-3">
+      <div
+        class="modal-header"
+        [ngClass]="modalAction === 'mod' ? 'bg-danger' : 'bg-warning'"
+      >
+        <h5 class="modal-title text-white">
+          {{ modalAction === "mod" ? "Quitar reforma" : "Quitar subselección" }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body text-center">
+        <ng-container *ngIf="modalAction === 'mod'; else subMsg">
+          <p class="mb-2">Vas a quitar esta reforma de la lista:</p>
+          <p class="fw-bold text-secondary">{{ modParaQuitar?.nombre }}</p>
+          <small class="text-muted"
+            >Se eliminarán también las imágenes asociadas.</small
+          >
+        </ng-container>
+
+        <ng-template #subMsg>
+          <p class="mb-2">Vas a quitar esta subselección:</p>
+          <p class="fw-bold text-secondary mb-1">{{ modParaQuitar?.nombre }}</p>
+          <p class="text-muted">
+            {{
+              subParaQuitarKey
+                ? tituloSub(modParaQuitar?.nombre, subParaQuitarKey)
+                : ""
+            }}
+          </p>
+          <small class="text-muted"
+            >Se eliminará la imagen asociada a esta subselección.</small
+          >
+        </ng-template>
+      </div>
+
+      <div class="modal-footer justify-content-center">
+        <button
+          type="button"
+          class="btn btn-secondary px-4"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn px-4"
+          [ngClass]="modalAction === 'mod' ? 'btn-danger' : 'btn-warning'"
+          (click)="confirmRemove()"
+          data-bs-dismiss="modal"
+        >
+          {{ modalAction === "mod" ? "Quitar reforma" : "Quitar subselección" }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

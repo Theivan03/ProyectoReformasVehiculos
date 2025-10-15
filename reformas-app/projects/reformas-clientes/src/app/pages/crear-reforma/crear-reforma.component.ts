@@ -154,12 +154,17 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         saved.step !== 'tipo-vehiculo' &&
         !fresh
       ) {
-        const target = this.resolveStep(saved.step);
-        // Recoloca a último paso, pero reemplazando URL solo esta vez
-        this.step = target;
-        this.persist();
-        this.router.navigate(['/reforma', target], { replaceUrl: true });
-        return;
+        // ⚠️ No redirigir si venimos de un "Volver" manual desde el formulario
+        const cameFromForm = sessionStorage.getItem('cameFromForm') === 'true';
+        if (cameFromForm) {
+          sessionStorage.removeItem('cameFromForm');
+        } else {
+          const target = this.resolveStep(saved.step);
+          this.step = target;
+          this.persist();
+          this.router.navigate(['/reforma', target], { replaceUrl: true });
+          return;
+        }
       }
 
       // En el resto de casos, respeta lo que hay en la URL (con saneo)
@@ -260,10 +265,12 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosFormularioGuardados = { ...datos, paginaActual: pagina };
     }
 
+    sessionStorage.setItem('cameFromForm', 'true');
+
     // 🔹 Forzar step correcto al volver
     this.step = 'tipo-vehiculo';
     this.persist();
-    this.router.navigate(['/reforma', 'tipo-vehiculo']);
+    this.navigate('tipo-vehiculo');
   }
 
   onFinalizarFormulario(event: any) {
@@ -278,7 +285,9 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       false;
 
     this.persist();
-    this.navigate(reformas ? 'resumen' : 'resumen');
+    this.router.navigate(['/reforma', 'resumen'], {
+      state: { from: 'formulario' },
+    });
   }
 
   onAutosaveReformasPrevias(data: any) {
@@ -414,7 +423,9 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       };
     }
     this.persist();
-    this.navigate('resumen');
+    this.router.navigate(['/reforma', 'resumen'], {
+      state: { from: 'imagenes' },
+    });
   }
 
   onContinuarDesdeImagenes(event: any) {

@@ -139,20 +139,78 @@
       }
       <!-- Ruedas -->
       @if (mod.nombre === 'Ruedas' && mod.seleccionado) {
-      @if(mod.detalle.llantas || mod.detalle.neumaticos) {
+      @if(mod.detalle.neumaticos) {
       <div class="mb-3">
-        <h3>Neumáticos</h3>
+        <h3>Llantas y Neumáticos</h3>
         <div class="mb-2">
-          <label class="form-label">Medida del neumático y de la llanta:</label>
+          <label>Cual de los dos neumaticos?:</label>
+          <select
+            class="form-select"
+            [(ngModel)]="mod.neumaticosCoche"
+            name="neumaticosCoche{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.neumaticosCoche"
+          >
+            <option value="delantero">Delantero</option>
+            <option value="trasero">Trasero</option>
+            <option value="delantero y trasero">Delantero y trasero</option>
+          </select>
+        </div>
+        @if ( mod.neumaticosCoche === 'delantero' || mod.neumaticosCoche ===
+        'delantero y trasero' ) {
+        <div class="mb-2">
+          <label class="form-label">Neumático delantero:</label>
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.medidas"
-            name="medidasNeumaticos{{ i }}"
+            [(ngModel)]="mod.neumaticoDelantero"
+            name="neumaticoDelantero{{ i }}"
             required
-            [class.is-invalid]="formSubmitted && !mod.medidas"
+            [class.is-invalid]="formSubmitted && !mod.neumaticoDelantero"
           />
         </div>
+        } @if ( mod.neumaticosCoche === 'delantero' || mod.neumaticosCoche ===
+        'delantero y trasero' ) {
+        <div class="mb-2">
+          <label class="form-label"
+            >Medidas de llanta neumático delantero:</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.medidasLlantaDelantero"
+            name="medidasLlantaDelantero{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.medidasLlantaDelantero"
+          />
+        </div>
+        } @if ( mod.neumaticosCoche === 'trasero' || mod.neumaticosCoche ===
+        'delantero y trasero' ) {
+        <div class="mb-2">
+          <label class="form-label">Neumático trasero:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.neumaticoTrasero"
+            name="neumaticoTrasero{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.neumaticoTrasero"
+          />
+        </div>
+        } @if ( mod.neumaticosCoche === 'trasero' || mod.neumaticosCoche ===
+        'delantero y trasero' ) {
+        <div class="mb-2">
+          <label class="form-label">Medidas de llanta neumático trasero:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.medidasLlantaTrasero"
+            name="medidasLlantaTrasero{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.medidasLlantaTrasero"
+          />
+        </div>
+        }
       </div>
       } @if(mod.detalle.separadoresDeRueda) {
       <div class="mb-3">
@@ -2789,45 +2847,9 @@
       } }
 
       <!-- MOTOS -->
-      <!-- REDUCCIÓN MMA Y MMTA -->
-      @if (mod.nombre === 'REDUCCIÓN MMA Y MMTA' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Reducción MMA y MMTA</h3>
-        @if (mod.ejeDelantero) {
-        <div>
-          <h4>Reducción en eje delantero</h4>
-          <label class="form-label">Kg totales:</label>
-          <input
-            type="number"
-            min="0"
-            min="0"
-            class="form-control"
-            [(ngModel)]="mod.kgReduccionEjeDelantero"
-            name="kgReduccionEjeDelantero{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.kgReduccionEjeDelantero"
-          />
-        </div>
-        } @if (mod.ejeTotal) {
-        <div>
-          <h4>Reducción total</h4>
-          <label class="form-label">Kg totales:</label>
-          <input
-            type="number"
-            min="0"
-            min="0"
-            class="form-control"
-            [(ngModel)]="mod.kgReduccionTotal"
-            name="kgReduccionTotal{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.kgReduccionTotal"
-          />
-        </div>
-        }
-      </div>
-      }
-      <!-- LLANTAS Y NEUMÁTICOS -->
-      @if (mod.nombre === 'LLANTAS Y NEUMÁTICOS' && mod.seleccionado) {
+      <!-- Ruedas -->
+      @if (mod.nombre === 'Ruedas' && mod.seleccionado &&
+      mod.detalle?.neumaticosMoto) {
       <div class="mb-4">
         <h3>Llantas y Neumáticos</h3>
         <div class="mb-2">
@@ -2901,11 +2923,12 @@
         }
       </div>
       }
-      <!-- SUSPENSIÓN -->
-      @if ( mod.nombre === 'SUSPENSIÓN' && mod.seleccionado &&
-      datosEntrada.tipoVehiculo === 'moto' ) {
+      <!-- Suspensión -->
+      @if ( mod.nombre === 'Suspensión' && mod.seleccionado &&
+      datosEntrada.tipoVehiculo === 'moto' ) { @if
+      (mod.detalle?.horquillaDelanteraMoto) {
       <div class="mb-4">
-        <h3>Suspensión</h3>
+        <h3>Horquilla delantera</h3>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -2929,12 +2952,115 @@
           />
         </div>
       </div>
-      }
-      <!-- SUSTITUCIÓN GUARDABARROS -->
-      @if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS' && mod.seleccionado) {
+      } @if (mod.detalle?.muelleDelanteroMoto) {
       <div class="mb-4">
-        <h3>Sustitución de Guardabarros</h3>
-        @if (mod.guardabarrosDelantero) {
+        <h3>Muelle delantero</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marcaSuspension{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referenciaSuspension{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.referencia"
+          />
+        </div>
+      </div>
+      } @if (mod.detalle?.muelleTraseroMoto) {
+      <div class="mb-4">
+        <h3>Muelle trasero</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marcaSuspension{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referenciaSuspension{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.referencia"
+          />
+        </div>
+      </div>
+      } @if (mod.detalle?.amortiguadorDelanteroMoto) {
+      <div class="mb-4">
+        <h3>Amortiguador delantero</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marcaSuspension{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referenciaSuspension{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.referencia"
+          />
+        </div>
+      </div>
+      } @if (mod.detalle?.amortiguadorTraseroMoto) {
+      <div class="mb-4">
+        <h3>Amotriguador trasero</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marcaSuspension{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referenciaSuspension{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.referencia"
+          />
+        </div>
+      </div>
+      } }
+      <!-- Carrocería -->
+      @if (mod.nombre === 'Carrocería' && mod.seleccionado) {
+      <div class="mb-4">
+        @if (mod.detalle?.guardabarrosDelanteroMoto) {
         <div>
           <h4>Guardabarros delantero</h4>
           <div class="mb-2">
@@ -3010,7 +3136,7 @@
             </select>
           </div>
         </div>
-        } @if (mod.guardabarrosTrasero) {
+        } @if (mod.detalle?.guardabarrosTraseroMoto) {
         <div>
           <h4>Guardabarros trasero</h4>
           <div class="mb-2">
@@ -3087,127 +3213,125 @@
           </div>
         </div>
         }
-      </div>
-      }
-      <!-- MANILLAR -->
-      @if (mod.nombre === 'MANILLAR' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Manillar</h3>
-        <div class="mb-2">
+        <!-- VELOCÍMETRO -->
+        @if (mod.detalle?.velocimetroMoto) {
+        <div class="mb-4">
+          <h3>Velocímetro</h3>
           <label class="form-label">Marca:</label>
           <input
             type="text"
             class="form-control"
             [(ngModel)]="mod.marca"
-            name="marcaManillar{{ i }}"
+            name="marcaVelocimetro{{ i }}"
             required
             [class.is-invalid]="formSubmitted && !mod.marca"
           />
-          <label class="form-label mt-2">Modelo:</label>
+          <label class="form-label mt-2">Referencia:</label>
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.modelo"
-            name="modeloManillar{{ i }}"
+            [(ngModel)]="mod.referencia"
+            name="referenciaVelocimetro{{ i }}"
             required
-            [class.is-invalid]="formSubmitted && !mod.modelo"
+            [class.is-invalid]="formSubmitted && !mod.referencia"
+          />
+          <label class="form-label mt-2">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacion"
+            name="homologacionVelocimetro{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.homologacion"
+          />
+          <div class="mb-2">
+            <label class="form-label"
+              >Selecciona valor díametro de los tornillos:</label
+            >
+            <select
+              class="form-select"
+              [(ngModel)]="mod.metrica"
+              name="metrica{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && mod.metrica == null"
+            >
+              <option [value]="null" disabled selected>Seleccione...</option>
+              @for (num of metricasTornillos; track num) {
+              <option [value]="num">
+                {{ num }}
+              </option>
+              }
+            </select>
+          </div>
+          <label class="form-label">Nº de tornillos:</label>
+          <input
+            type="number"
+            min="0"
+            class="form-control"
+            [(ngModel)]="mod.nTornillos"
+            name="nTornillos"
+            required
+            [class.is-invalid]="formSubmitted && !mod.nTornillos"
           />
         </div>
-        <div class="mb-2">
-          <label class="form-label"
-            >Selecciona valor díametro de los tornillos:</label
-          >
-          <select
-            class="form-select"
-            [(ngModel)]="mod.metrica"
-            name="metrica{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.metrica == null"
-          >
-            <option [value]="null" disabled selected>Seleccione...</option>
-            @for (num of metricasTornillos; track num) {
-            <option [value]="num">
-              {{ num }}
-            </option>
-            }
-          </select>
+        }
+
+        <!-- RETROVISORES -->
+        @if (mod.detalle?.retrovisoresMoto) {
+        <div class="mb-4">
+          <h3>Retrovisores</h3>
+          <div class="mb-2">
+            <label class="form-label">Marca:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.marca"
+              name="marcaRetrovisores{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.marca"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Modelo:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.modelo"
+              name="modeloRetrovisores{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.modelo"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Marcaje:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.marcaje"
+              name="marcajeRetrovisores{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.marcaje"
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Contraseña de homologación:</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="mod.homologacion"
+              name="homologacionRetrovisores{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.homologacion"
+            />
+          </div>
         </div>
-        <label class="form-label">Nº de tornillos:</label>
-        <input
-          type="number"
-          min="0"
-          class="form-control"
-          [(ngModel)]="mod.nTornillos"
-          name="nTornillos"
-          required
-          [class.is-invalid]="formSubmitted && !mod.nTornillos"
-        />
+        }
       </div>
       }
-      <!-- VELOCÍMETRO -->
-      @if (mod.nombre === 'VELOCÍMETRO' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Velocímetro</h3>
-        <label class="form-label">Marca:</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="mod.marca"
-          name="marcaVelocimetro{{ i }}"
-          required
-          [class.is-invalid]="formSubmitted && !mod.marca"
-        />
-        <label class="form-label mt-2">Referencia:</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="mod.referencia"
-          name="referenciaVelocimetro{{ i }}"
-          required
-          [class.is-invalid]="formSubmitted && !mod.referencia"
-        />
-        <label class="form-label mt-2">Contraseña de homologación:</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="mod.homologacion"
-          name="homologacionVelocimetro{{ i }}"
-          required
-          [class.is-invalid]="formSubmitted && !mod.homologacion"
-        />
-        <div class="mb-2">
-          <label class="form-label"
-            >Selecciona valor díametro de los tornillos:</label
-          >
-          <select
-            class="form-select"
-            [(ngModel)]="mod.metrica"
-            name="metrica{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && mod.metrica == null"
-          >
-            <option [value]="null" disabled selected>Seleccione...</option>
-            @for (num of metricasTornillos; track num) {
-            <option [value]="num">
-              {{ num }}
-            </option>
-            }
-          </select>
-        </div>
-        <label class="form-label">Nº de tornillos:</label>
-        <input
-          type="number"
-          min="0"
-          class="form-control"
-          [(ngModel)]="mod.nTornillos"
-          name="nTornillos"
-          required
-          [class.is-invalid]="formSubmitted && !mod.nTornillos"
-        />
-      </div>
-      }
-      <!-- LATIGUILLOS -->
-      @if (mod.nombre === 'LATIGUILLOS' && mod.seleccionado) {
+
+      <!-- Freno -->
+      @if (mod.nombre === 'Freno' && mod.seleccionado) {
+      @if(mod.detalle?.latiguillosMoto) {
       <div class="mb-4">
         <h3>Latiguillos</h3>
         <div class="mb-2">
@@ -3255,110 +3379,7 @@
           />
         </div>
       </div>
-      }
-      <!-- RETROVISORES -->
-      @if (mod.nombre === 'RETROVISORES' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Retrovisores</h3>
-        <div class="mb-2">
-          <label class="form-label">Marca:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marca"
-            name="marcaRetrovisores{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marca"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Modelo:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.modelo"
-            name="modeloRetrovisores{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.modelo"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Marcaje:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marcaje"
-            name="marcajeRetrovisores{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marcaje"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Contraseña de homologación:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.homologacion"
-            name="homologacionRetrovisores{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.homologacion"
-          />
-        </div>
-      </div>
-      }
-      <!-- HORQUILLA DELANTERA -->
-      @if (mod.nombre === 'HORQUILLA DELANTERA' && mod.seleccionado) {
-      <div class="mb-4">
-        <h3>Horquilla Delantera</h3>
-        <div class="mb-2">
-          <label class="form-label">Marca:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.marca"
-            name="marcaHorquilla{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.marca"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Tipo:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.tipo"
-            name="tipoHorquilla{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.tipo"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Variante:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.variante"
-            name="varianteHorquilla{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.variante"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Denominación comercial:</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="mod.denominacion"
-            name="denominacionHorquilla{{ i }}"
-            required
-            [class.is-invalid]="formSubmitted && !mod.denominacion"
-          />
-        </div>
-      </div>
-      }
-      <!-- DISCO DE FRENO Y PINZA DE FRENO -->
-      @if ( mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' && mod.seleccionado
-      ) {
+      } @if ( mod.detalle?.discosPerforadosRayadosMoto) {
       <div class="mb-4">
         <h3>Disco de Freno y Pinza de Freno</h3>
         <!-- Disco de freno -->
@@ -3641,11 +3662,14 @@
         </div>
         }
       </div>
-      }
-      <!-- LUCES -->
-      @if (mod.nombre === 'LUCES' && mod.seleccionado) {
+      } }
+
+      <!-- Luces -->
+      @if (mod.nombre === 'Luces' && mod.seleccionado) {
+      @if(mod.detalle.faroDelanteroMoto) {
+
       <div class="mb-4">
-        <h3>Luces</h3>
+        <h3>Faro delantero</h3>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -3702,7 +3726,248 @@
           />
         </div>
       </div>
-      }
+      } @if(mod.detalle.PilotoTraseroMoto) {
+
+      <div class="mb-4">
+        <h3>Piloto trasero</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marca{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Modelo:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.modelo"
+            name="modelo{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.modelo"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referencia{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marcajes:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcajes"
+            name="marcajes{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcajes"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacion"
+            name="homologacion{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.homologacion"
+          />
+        </div>
+      </div>
+      } @if(mod.detalle.luzDeMatriculaMoto) {
+
+      <div class="mb-4">
+        <h3>Luz de matrícula</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marca{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Modelo:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.modelo"
+            name="modelo{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.modelo"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referencia{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marcajes:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcajes"
+            name="marcajes{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcajes"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacion"
+            name="homologacion{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.homologacion"
+          />
+        </div>
+      </div>
+      } @if(mod.detalle.catadriopticoTraseroMoto) {
+
+      <div class="mb-4">
+        <h3>Catadióptrico trasero</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marca{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Modelo:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.modelo"
+            name="modelo{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.modelo"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referencia{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marcajes:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcajes"
+            name="marcajes{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcajes"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacion"
+            name="homologacion{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.homologacion"
+          />
+        </div>
+      </div>
+      } @if(mod.detalle.intermitentesMoto) {
+
+      <div class="mb-4">
+        <h3>Intermitentes</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marca"
+            name="marca{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Modelo:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.modelo"
+            name="modelo{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.modelo"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencia"
+            name="referencia{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marca"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marcajes:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcajes"
+            name="marcajes{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcajes"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacion"
+            name="homologacion{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.homologacion"
+          />
+        </div>
+      </div>
+      } }
+
       <!-- CAMPERS -->
       @if(mod.nombre === 'Modificaciones en el interior del vehículo' &&
       mod.seleccionado) { @if(mod.detalle.mobiliarioInterior){
@@ -4682,8 +4947,7 @@
           />
         </div>
 
-        } @if(mod.detalle.tomaCorrienteInterior) { }
-        @if(mod.detalle.tomaCorrienteexterior) { }
+        }
       </div>
       }
       <!-- TOLDO -->

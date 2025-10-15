@@ -1,0 +1,165 @@
+<div class="container mt-4">
+  @if (!accion && !guardado) {
+  <div class="text-center">
+    <h4 class="mb-4">¿Qué desea hacer?</h4>
+    <button
+      class="btn btn-outline-primary me-3"
+      (click)="seleccionarAccion('crear')"
+    >
+      Añadir nuevo ingeniero
+    </button>
+    <button
+      class="btn btn-outline-secondary"
+      (click)="seleccionarAccion('editar')"
+    >
+      Modificar ingeniero existente
+    </button>
+  </div>
+  } @if (procesando) {
+  <div class="progress my-3" style="height: 20px">
+    <div
+      class="progress-bar progress-bar-striped progress-bar-animated"
+      role="progressbar"
+      [style.width.%]="progreso"
+    >
+      {{ progreso }}%
+    </div>
+  </div>
+  } @if (accion && !guardado) {
+  <div class="mb-3">
+    <button class="btn btn-outline-secondary" (click)="volverAlInicio()">
+      ← Volver
+    </button>
+  </div>
+  } @if (accion === 'editar' && !guardado && ingenieros.length) {
+  <div class="mb-3">
+    <label class="form-label">Seleccione el ingeniero a modificar:</label>
+    <select
+      class="form-select"
+      [(ngModel)]="ingenieroSeleccionadoNombre"
+      (change)="cargarIngeniero()"
+    >
+      <option [ngValue]="null" disabled selected>-- Seleccionar --</option>
+      @for (i of ingenieros; track i) {
+      <option [ngValue]="i.nombre">{{ i.nombre }}</option>
+      }
+    </select>
+  </div>
+  } @if (accion && !guardado) {
+  <form
+    #form="ngForm"
+    (ngSubmit)="form.valid && guardarIngeniero()"
+    class="card p-4 shadow-sm mt-3"
+    novalidate
+  >
+    <h5 class="mb-3">
+      {{ accion === "crear" ? "Nuevo Ingeniero" : "Editar Ingeniero" }}
+    </h5>
+
+    @for ( campo of [
+    'nombre','dni','direccionFiscal','oficina','codigoPostal','localidad','provincia',
+    'titulacion','especialidad','colegio','numero','correo','tlf','web','url','correoEmpresa'
+    ]; track campo ) {
+    <div class="mb-3">
+      <label class="form-label">{{ formatLabel(campo) }}</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="formularioIngeniero[campo]"
+        [name]="campo"
+        required
+        #ctrl="ngModel"
+      />
+      @if (ctrl.invalid && ctrl.touched) {
+      <div class="text-danger small">Este campo es obligatorio.</div>
+      }
+    </div>
+    } @if (accion === 'editar') {
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-success flex-grow-1">
+        Guardar cambios
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger"
+        (click)="confirmarEliminacion(formularioIngeniero.nombre)"
+      >
+        🗑️ Borrar
+      </button>
+    </div>
+    } @if (accion === 'crear') {
+    <div class="mt-4">
+      <button type="submit" class="btn btn-success w-100">
+        Guardar ingeniero
+      </button>
+    </div>
+    }
+  </form>
+  }
+</div>
+
+<!-- MODAL ÉXITO -->
+<div class="modal fade" id="modalExito" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-success">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-success">✅ Éxito</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body"><p>Operación completada correctamente.</p></div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-success w-100" data-bs-dismiss="modal">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ERROR -->
+<div class="modal fade" id="modalError" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger">❌ Error</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body"><p>Ha ocurrido un error.</p></div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-outline-danger w-100" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMACIÓN DE BORRADO -->
+<div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-warning">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-warning">⚠️ Confirmar eliminación</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          ¿Está seguro de que desea eliminar este ingeniero? Esta acción no se
+          puede deshacer.
+        </p>
+      </div>
+      <div class="modal-footer border-0 d-flex gap-2">
+        <button class="btn btn-secondary flex-grow-1" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button
+          class="btn btn-danger flex-grow-1"
+          data-bs-dismiss="modal"
+          (click)="eliminarIngenieroConfirmado()"
+        >
+          Sí, eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
