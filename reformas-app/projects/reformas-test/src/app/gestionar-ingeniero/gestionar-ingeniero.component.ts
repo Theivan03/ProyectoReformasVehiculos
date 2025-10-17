@@ -4,100 +4,116 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Modal } from 'bootstrap';
 
 @Component({
-  selector: 'app-gestionar-taller',
+  selector: 'app-gestionar-ingeniero',
   standalone: true,
   imports: [FormsModule, HttpClientModule],
-  templateUrl: './gestionar-taller.component.html',
-  styleUrl: './gestionar-taller.component.css',
+  templateUrl: './gestionar-ingeniero.component.html',
+  styleUrl: './gestionar-ingeniero.component.css',
 })
-export class GestionarTallerComponent {
+export class GestionarIngenieroComponent {
   guardado = false;
   accion: 'crear' | 'editar' | null = null;
-  talleres: any[] = [];
-  tallerSeleccionadoNombre: string | null = null;
+  ingenieros: any[] = [];
+  ingenieroSeleccionadoNombre: string | null = null;
   progreso = -1;
   procesando = false;
   nombrePendienteBorrar: string | null = null;
 
-  formularioTaller: any = {
+  formularioIngeniero: any = {
     nombre: '',
-    direccion: '',
-    poblacion: '',
+    dni: '',
+    direccionFiscal: '',
+    oficina: '',
+    codigoPostal: '',
+    localidad: '',
     provincia: '',
-    registroIndustrial: '',
-    registroEspecial: '',
-    responsable: '',
-    telefono: '',
+    titulacion: '',
     especialidad: '',
+    universidad: '',
+    colegio: '',
+    numero: '',
+    correo: '',
+    tlf: '',
+    web: '',
+    url: '',
+    correoEmpresa: '',
+    colegiado: '',
+    textoLegal: '',
   };
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.cargarTalleres();
+    this.cargarIngenieros();
   }
 
-  cargarTalleres(): void {
-    this.http.get<any>('http://192.168.1.41:3000/talleres').subscribe({
+  cargarIngenieros(): void {
+    this.http.get<any>('http://192.168.1.41:3000/ingenieros').subscribe({
       next: (data) => {
-        this.talleres = Array.isArray(data) ? data : [data];
+        this.ingenieros = Array.isArray(data) ? data : [data];
       },
       error: (err) => {
-        console.error('Error al cargar talleres:', err);
-        this.talleres = [];
+        console.error('Error al cargar ingenieros:', err);
+        this.ingenieros = [];
       },
     });
   }
 
   seleccionarAccion(tipo: 'crear' | 'editar'): void {
     this.accion = tipo;
-    this.tallerSeleccionadoNombre = null;
+    this.ingenieroSeleccionadoNombre = null;
     this.resetFormulario();
   }
 
-  cargarTaller(): void {
-    const taller = this.talleres.find(
-      (t) => t.nombre === this.tallerSeleccionadoNombre
+  cargarIngeniero(): void {
+    const ing = this.ingenieros.find(
+      (i) => i.nombre === this.ingenieroSeleccionadoNombre
     );
 
-    if (taller) {
-      this.formularioTaller = { ...taller };
+    if (ing) {
+      this.formularioIngeniero = { ...ing };
     } else {
-      this.abrirModalError('Taller no encontrado.');
+      this.abrirModalError('Ingeniero no encontrado.');
     }
   }
 
-  guardarTaller(): void {
+  guardarIngeniero(): void {
     this.procesando = true;
     this.progreso = 0;
     this.animateProgress(60);
 
-    this.http.get<any>('http://192.168.1.41:3000/talleres').subscribe({
+    this.http.get<any>('http://192.168.1.41:3000/ingenieros').subscribe({
       next: (data) => {
-        const talleres = Array.isArray(data) ? data : [data];
-        const nombre = this.formularioTaller.nombre;
+        const ingenieros = Array.isArray(data) ? data : [data];
+        const nombre = this.formularioIngeniero.nombre;
+
+        this.formularioIngeniero.colegiado = `Colegiado ${this.formularioIngeniero.numero} - ${this.formularioIngeniero.colegio}`;
+        this.formularioIngeniero.textoLegal =
+          `EL PRESENTE DOCUMENTO ES COPIA DE SU ORIGINAL DEL QUE ES AUTOR EL INGENIERO ${this.formularioIngeniero.nombre}. ` +
+          `SU UTILIZACIÓN TOTAL O PARCIAL, ASÍ COMO CUALQUIER CESIÓN A TERCEROS O REPRODUCCIÓN, ` +
+          `REQUIERE LA PREVIA AUTORIZACIÓN EXPRESA DE SU AUTOR QUEDANDO EN TODO CASO PROHIBIDA CUALQUIER MODIFICACIÓN UNILATERAL DEL MISMO.`;
 
         if (this.accion === 'crear') {
-          const yaExiste = talleres.some((t) => t.nombre === nombre);
+          const yaExiste = ingenieros.some((i) => i.nombre === nombre);
           if (yaExiste) {
-            this.abrirModalError('Ya existe un taller con ese nombre.');
+            this.abrirModalError('Ya existe un ingeniero con ese nombre.');
             this.procesando = false;
             return;
           }
-          talleres.push({ ...this.formularioTaller });
+          ingenieros.push({ ...this.formularioIngeniero });
         }
 
         if (this.accion === 'editar') {
-          const index = talleres.findIndex(
-            (t) => t.nombre === this.tallerSeleccionadoNombre
+          const index = ingenieros.findIndex(
+            (i) => i.nombre === this.ingenieroSeleccionadoNombre
           );
           if (index !== -1) {
-            talleres[index] = { ...this.formularioTaller };
+            ingenieros[index] = { ...this.formularioIngeniero };
           }
         }
 
         this.http
-          .post('http://192.168.1.41:3000/talleres', talleres)
+          .post('http://192.168.1.41:3000/ingenieros', ingenieros)
           .subscribe({
             next: () => {
               this.animateProgress(100);
@@ -109,14 +125,14 @@ export class GestionarTallerComponent {
               }, 500);
             },
             error: () => {
-              this.abrirModalError('Hubo un error al guardar en el servidor.');
+              this.abrirModalError('Error al guardar en el servidor.');
               this.procesando = false;
               this.progreso = -1;
             },
           });
       },
       error: () => {
-        this.abrirModalError('No se pudo conectar con el servidor.');
+        this.abrirModalError('Error al acceder al servidor.');
         this.procesando = false;
         this.progreso = -1;
       },
@@ -129,7 +145,7 @@ export class GestionarTallerComponent {
     modal.show();
   }
 
-  eliminarTallerConfirmado(): void {
+  eliminarIngenieroConfirmado(): void {
     if (!this.nombrePendienteBorrar) return;
 
     const nombreCodificado = encodeURIComponent(
@@ -140,19 +156,19 @@ export class GestionarTallerComponent {
     this.animateProgress(70);
 
     this.http
-      .delete(`http://192.168.1.41:3000/talleres/${nombreCodificado}`)
+      .delete(`http://192.168.1.41:3000/ingenieros/${nombreCodificado}`)
       .subscribe({
         next: () => {
           this.animateProgress(100);
           setTimeout(() => {
             this.procesando = false;
             this.progreso = -1;
-            this.abrirModalExito('Taller eliminado correctamente.');
+            this.abrirModalExito('Ingeniero eliminado correctamente.');
             this.volverAlInicio();
           }, 600);
         },
         error: () => {
-          this.abrirModalError('No se pudo eliminar el taller.');
+          this.abrirModalError('Error al eliminar el ingeniero.');
           this.procesando = false;
           this.progreso = -1;
         },
@@ -172,25 +188,35 @@ export class GestionarTallerComponent {
   }
 
   resetFormulario(): void {
-    this.formularioTaller = {
+    this.formularioIngeniero = {
       nombre: '',
-      direccion: '',
-      poblacion: '',
+      dni: '',
+      direccionFiscal: '',
+      oficina: '',
+      codigoPostal: '',
+      localidad: '',
       provincia: '',
-      registroIndustrial: '',
-      registroEspecial: '',
-      responsable: '',
-      telefono: '',
+      titulacion: '',
+      universidad: '',
       especialidad: '',
+      colegio: '',
+      numero: '',
+      correo: '',
+      tlf: '',
+      web: '',
+      url: '',
+      correoEmpresa: '',
+      colegiado: '',
+      textoLegal: '',
     };
   }
 
   volverAlInicio(): void {
     this.guardado = false;
     this.accion = null;
-    this.tallerSeleccionadoNombre = null;
+    this.ingenieroSeleccionadoNombre = null;
     this.resetFormulario();
-    this.cargarTalleres();
+    this.cargarIngenieros();
   }
 
   formatLabel(campo: string): string {

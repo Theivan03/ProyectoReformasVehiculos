@@ -22,8 +22,10 @@ import { CommonModule } from '@angular/common';
 export class FormularioProyectoComponent implements OnChanges, OnInit {
   paginaActual = 1;
   talleres: any[] = [];
+  ingenieros: any[] = [];
 
-  // 👇 Bandera que indica si debemos empezar siempre por la primera pantalla
+  avisoCargaInvalida: string | null = null; // ⚠️ Nuevo
+
   @Input() forzarPrimera = false;
   @Input() esEdicion = false;
 
@@ -33,7 +35,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     return !!mma && !!masa && Math.abs(mma - masa) / mma > 0.03;
   }
 
-  /** Total de páginas dinámico: 5 o 6 */
   get totalPaginas(): number {
     return this.necesitaPasoExtra ? 6 : 5;
   }
@@ -41,6 +42,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   datos: any = {
     numeroProyecto: '',
     tallerSeleccionado: null,
+    ingenieroSeleccionado: null,
     referenciaProyecto: '',
     referenciaCFO: '',
     reformasPrevias: false,
@@ -84,10 +86,10 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     viaDelanteraDespues: '---',
     viaTraseraDespues: '---',
     neumaticoDespues: '---',
-    masaRealDespues: '---',
-    mmaDespues: '---',
-    mmaEje1Despues: '---',
-    mmaEje2Despues: '---',
+    masaRealDespues: 0,
+    mmaDespues: 0,
+    mmaEje1Despues: 0,
+    mmaEje2Despues: 0,
     mmaConjuntoDespues: '---',
     clasificacionDespues: '---',
     mmrbarradetraccionDespues: '---',
@@ -118,8 +120,9 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   };
 
   año: string = '';
-
   compararTalleres = (a: any, b: any) =>
+    a && b ? a.nombre === b.nombre : a === b;
+  compararIngenieros = (a: any, b: any) =>
     a && b ? a.nombre === b.nombre : a === b;
 
   @Input() respuestas: any;
@@ -135,7 +138,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       const anteriorNumero = this.datos?.numeroProyecto;
       this.datos = { ...this.datos, ...this.datosIniciales };
 
-      // normalizar fechas para inputs
       if (this.datos.fechaProyecto) {
         this.datos.fechaProyecto = this.datos.fechaProyecto
           .toString()
@@ -147,41 +149,25 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
           .slice(0, 10);
       }
 
-      // si cambia el número de proyecto → regenerar referencia
       if (this.datos.numeroProyecto !== anteriorNumero) {
-        const anyo = this.esEdicion
-          ? new Date().getFullYear() // año actual (ej: 2025)
-          : this.año;
+        const anyo = this.esEdicion ? new Date().getFullYear() : this.año;
         this.generarReferencia(anyo);
       }
 
-      // 👉 Lógica de navegación
-      if (this.forzarPrimera) {
-        // siempre empezar por la primera si venimos del componente anterior
-        this.paginaActual = 1;
-      } else if (this.datos.paginaActual) {
-        // si volvemos desde el siguiente, usamos la última visitada
-        this.paginaActual = this.datos.paginaActual;
-      } else {
-        this.paginaActual = 1;
+      if (this.talleres?.length && this.datos.tallerSeleccionado) {
+        const tallerReal = this.talleres.find(
+          (t) => t.nombre === this.datos.tallerSeleccionado?.nombre
+        );
+        this.datos.tallerSeleccionado =
+          tallerReal || this.datos.tallerSeleccionado;
       }
 
-      this.paginaActual = Math.min(this.paginaActual, this.totalPaginas);
-
-      // enlazar el taller con la lista cargada
-      if (this.talleres?.length) {
-        if (this.datos.tallerSeleccionado) {
-          const tallerReal = this.talleres.find(
-            (t) => t.nombre === this.datos.tallerSeleccionado?.nombre
-          );
-          this.datos.tallerSeleccionado =
-            tallerReal || this.datos.tallerSeleccionado;
-        } else if (this.datos.taller) {
-          const tallerReal = this.talleres.find(
-            (t) => t.nombre === this.datos.taller?.nombre
-          );
-          this.datos.tallerSeleccionado = tallerReal || null;
-        }
+      if (this.ingenieros?.length && this.datos.ingenieroSeleccionado) {
+        const ingReal = this.ingenieros.find(
+          (i) => i.nombre === this.datos.ingenieroSeleccionado?.nombre
+        );
+        this.datos.ingenieroSeleccionado =
+          ingReal || this.datos.ingenieroSeleccionado;
       }
     }
 
@@ -195,24 +181,24 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   ngOnInit(): void {
-    // 1) cargar talleres
-    console.log('Datos iniciales', this.datosIniciales);
     this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
-      next: (data) => {
-        this.talleres = data;
-        const sel = this.datos.tallerSeleccionado || this.datos.taller;
-        if (sel && this.talleres.length) {
-          const id = this.datos.taller?.nombre || sel?.nombre;
-          const tallerReal = this.talleres.find((t) => t.nombre === id);
-          this.datos.tallerSeleccionado = tallerReal || null;
-        }
-      },
-      error: (err) => {
-        console.error('Error al cargar talleres del servidor:', err);
-      },
+      next: (data) => (this.talleres = data),
+      error: (err) => console.error('Error al cargar talleres:', err),
     });
 
-    // 2) solo generar nuevo número de proyecto si NO es edición
+    this.http.get<any[]>('http://192.168.1.41:3000/ingenieros').subscribe({
+      next: (data) => {
+        this.ingenieros = Array.isArray(data) ? data : [data];
+        if (this.datos.ingenieroSeleccionado) {
+          const ing = this.ingenieros.find(
+            (i) => i.nombre === this.datos.ingenieroSeleccionado?.nombre
+          );
+          this.datos.ingenieroSeleccionado = ing || null;
+        }
+      },
+      error: (err) => console.error('Error al cargar ingenieros:', err),
+    });
+
     if (!this.esEdicion) {
       this.http
         .get<{ siguiente: number; año: string }>(
@@ -226,15 +212,12 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
               this.generarReferencia(data.año);
             }
           },
-          error: (err) =>
-            console.error('Error al cargar último proyecto:', err),
         });
     }
   }
 
   onNumeroProyectoChange(valor: any): void {
     this.datos.numeroProyecto = valor;
-    // usa el año del servidor si ya lo tienes, si no el actual
     this.generarReferencia(this.año || new Date().getFullYear());
   }
 
@@ -251,7 +234,114 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     });
   }
 
+  // ⚙️ Nuevo método
+  comprobarCondicionesCarga() {
+    const n = (v: any) => Number(v) || 0;
+
+    const mma = n(this.datos.mmaDespues);
+    const mmaEje2 = n(this.datos.mmaEje2Despues);
+    const masaReal = n(this.datos.masaRealDespues);
+
+    const reparto = {
+      masaReal: { del: 0.536, tras: 0.464 },
+      ocupDel: { del: 0.78, tras: 0.22 },
+      ocup2: { del: 0.96, tras: 0.04 },
+      ocup3: { del: 0.0, tras: 0.0 },
+      cargaUtil: { del: 0.105, tras: 0.895 },
+    };
+
+    const masaRealDel = Math.round(
+      this.datos.masaRealTotal * reparto.masaReal.del
+    );
+    const masaRealTras = this.datos.masaRealTotal - masaRealDel;
+
+    const ocupDelDel = Math.round(
+      this.datos.ocupDelTotal * reparto.ocupDel.del
+    );
+    const ocupDelTras = this.datos.ocupDelTotal - ocupDelDel;
+
+    const ocup2Del = Math.round(this.datos.ocup2Total * reparto.ocup2.del);
+    const ocup2Tras = this.datos.ocup2Total - ocup2Del;
+
+    const ocup3Del = Math.round(this.datos.ocup3Total * reparto.ocup3.del);
+    const ocup3Tras = this.datos.ocup3Total - ocup3Del;
+
+    const cargaUtilDel = Math.round(
+      this.datos.cargaUtilTotal * reparto.cargaUtil.del
+    );
+    const cargaUtilTras = this.datos.cargaUtilTotal - cargaUtilDel;
+
+    const sumaTras =
+      masaRealTras + cargaUtilTras + ocup2Tras + ocup3Tras + ocupDelTras;
+
+    // Cálculo de masa total con ocupantes (75 kg por persona + conductor)
+    const ocupantes =
+      n(this.datos.asientosDelanteros) +
+      n(this.datos.asientos2Fila) +
+      n(this.datos.asientos3Fila) +
+      1; // conductor incluido
+
+    const masaTotal = masaReal + ocupantes * 75;
+
+    // Comprobaciones reglamentarias
+    const superaEje2 = sumaTras > mmaEje2 * 1.15;
+    const superaTotal10 = masaTotal > mma * 1.1;
+    const superaTotal100 = masaTotal > mma + 100;
+
+    // Generar mensajes personalizados
+    const problemas: string[] = [];
+    if (superaEje2)
+      problemas.push(
+        `La carga sobre el eje trasero (${sumaTras.toFixed(
+          0
+        )} kg) supera en más del 15 % la MMA del eje (${mmaEje2.toFixed(
+          0
+        )} kg).`
+      );
+    if (superaTotal10)
+      problemas.push(
+        `La masa total (${masaTotal.toFixed(
+          0
+        )} kg) supera el 110 % de la MMA del vehículo (${mma.toFixed(0)} kg).`
+      );
+    if (superaTotal100)
+      problemas.push(
+        `La masa total excede la MMA en más de 100 kg (diferencia de ${(
+          masaTotal - mma
+        ).toFixed(0)} kg).`
+      );
+
+    if (problemas.length > 0) {
+      this.avisoCargaInvalida =
+        '⚠️ Proyecto no válido: se superan los límites reglamentarios.\n\n' +
+        problemas.join('\n');
+      console.warn('Proyecto inválido:', {
+        masaTotal,
+        mma,
+        mmaEje2,
+        sumaTras,
+        problemas,
+      });
+    } else {
+      this.avisoCargaInvalida = null;
+      console.log('Proyecto válido:', { masaTotal, mma, mmaEje2 });
+    }
+  }
+
   siguiente(): void {
+    const n = (v: any) => Number(v) || 0;
+    const ocupantes =
+      n(this.datos.asientosDelanteros) +
+      n(this.datos.asientos2Fila) +
+      n(this.datos.asientos3Fila) +
+      1;
+    const mma = n(this.datos.mmaDespues);
+    const masaReal = n(this.datos.masaRealDespues);
+    this.datos.cargaUtilTotal = mma - (ocupantes * 75 + masaReal);
+
+    // 🧠 comprobamos validez antes de continuar
+    this.comprobarCondicionesCarga();
+
     if (!this.validarPaginaActual()) return;
 
     if (this.paginaActual === 4 && this.necesitaPasoExtra) {
@@ -308,9 +398,8 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   generarReferencia(anyo?: any): void {
-    const anio = anyo || new Date().getFullYear(); // si no pasas año → actual
+    const anio = anyo || new Date().getFullYear();
     const añoCorto = anio.toString().slice(-2);
-
     this.datos.referenciaProyecto = `PTRV ${this.datos.numeroProyecto}/${añoCorto}`;
     this.datos.referenciaCFO = `CFO ${this.datos.numeroProyecto}/${añoCorto}`;
   }

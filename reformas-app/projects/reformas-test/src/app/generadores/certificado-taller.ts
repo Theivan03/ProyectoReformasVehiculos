@@ -11,6 +11,7 @@ import { Modificacion } from '../interfaces/modificacion';
 import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
 
 export async function generarDocumentoTaller(data: any): Promise<void> {
+  const ingeniero = data.ingenieroSeleccionado;
   const modificaciones: Modificacion[] = data.modificaciones;
 
   const seccion = [
@@ -75,7 +76,7 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
     new Paragraph({
       children: [
         new TextRun({
-          text: `- El proyecto técnico REF.: ${data.referenciaProyecto}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. Luis Serrano Artesero, Colegiado nº 11.380 del COITIG Valencia.`,
+          text: `- El proyecto técnico REF.: ${data.referenciaProyecto}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. ${ingeniero.nombre}, Colegiado nº ${ingeniero.numero} del ${ingeniero.colegio}.`,
           size: 22,
         }),
       ],

@@ -6,13 +6,13 @@
       class="btn btn-outline-primary me-3"
       (click)="seleccionarAccion('crear')"
     >
-      Añadir nuevo taller
+      Añadir nuevo ingeniero
     </button>
     <button
       class="btn btn-outline-secondary"
       (click)="seleccionarAccion('editar')"
     >
-      Modificar taller existente
+      Modificar ingeniero existente
     </button>
   </div>
   } @if (procesando) {
@@ -31,41 +31,42 @@
       ← Volver
     </button>
   </div>
-  } @if (accion === 'editar' && !guardado && talleres.length) {
+  } @if (accion === 'editar' && !guardado && ingenieros.length) {
   <div class="mb-3">
-    <label class="form-label">Seleccione el taller a modificar:</label>
+    <label class="form-label">Seleccione el ingeniero a modificar:</label>
     <select
       class="form-select"
-      [(ngModel)]="tallerSeleccionadoNombre"
-      (change)="cargarTaller()"
+      [(ngModel)]="ingenieroSeleccionadoNombre"
+      (change)="cargarIngeniero()"
     >
       <option [ngValue]="null" disabled selected>-- Seleccionar --</option>
-      @for (t of talleres; track t) {
-      <option [ngValue]="t.nombre">{{ t.nombre }}</option>
+      @for (i of ingenieros; track i) {
+      <option [ngValue]="i.nombre">{{ i.nombre }}</option>
       }
     </select>
   </div>
   } @if (accion && !guardado) {
   <form
     #form="ngForm"
-    (ngSubmit)="form.valid && guardarTaller()"
+    (ngSubmit)="form.valid && guardarIngeniero()"
     class="card p-4 shadow-sm mt-3"
     novalidate
   >
     <h5 class="mb-3">
-      {{ accion === "crear" ? "Nuevo Taller" : "Editar Taller" }}
+      {{ accion === "crear" ? "Nuevo Ingeniero" : "Editar Ingeniero" }}
     </h5>
 
     @for ( campo of [
-    'nombre','direccion','poblacion','provincia','registroIndustrial',
-    'registroEspecial','responsable','telefono','especialidad' ]; track campo )
-    {
+    'nombre','dni','direccionFiscal','oficina','codigoPostal','localidad','provincia',
+    'titulacion','especialidad','colegio',
+    'universidad','numero','correo','tlf','web','url','correoEmpresa' ]; track
+    campo ) {
     <div class="mb-3">
       <label class="form-label">{{ formatLabel(campo) }}</label>
       <input
         type="text"
         class="form-control"
-        [(ngModel)]="formularioTaller[campo]"
+        [(ngModel)]="formularioIngeniero[campo]"
         [name]="campo"
         required
         #ctrl="ngModel"
@@ -82,7 +83,7 @@
       <button
         type="button"
         class="btn btn-danger"
-        (click)="confirmarEliminacion(formularioTaller.nombre)"
+        (click)="confirmarEliminacion(formularioIngeniero.nombre)"
       >
         🗑️ Borrar
       </button>
@@ -90,7 +91,7 @@
     } @if (accion === 'crear') {
     <div class="mt-4">
       <button type="submit" class="btn btn-success w-100">
-        Guardar taller
+        Guardar ingeniero
       </button>
     </div>
     }
@@ -144,7 +145,7 @@
       </div>
       <div class="modal-body">
         <p>
-          ¿Está seguro de que desea eliminar este taller? Esta acción no se
+          ¿Está seguro de que desea eliminar este ingeniero? Esta acción no se
           puede deshacer.
         </p>
       </div>
@@ -155,7 +156,7 @@
         <button
           class="btn btn-danger flex-grow-1"
           data-bs-dismiss="modal"
-          (click)="eliminarTallerConfirmado()"
+          (click)="eliminarIngenieroConfirmado()"
         >
           Sí, eliminar
         </button>

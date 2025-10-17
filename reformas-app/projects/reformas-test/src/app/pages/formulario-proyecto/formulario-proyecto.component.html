@@ -2,6 +2,14 @@
   <div class="container mt-3">
     <h4 class="mb-3">Formulario de nueva reforma</h4>
 
+    <div
+      *ngIf="avisoCargaInvalida"
+      class="alert alert-danger text-center fw-bold"
+      style="font-size: 1.1em"
+    >
+      {{ avisoCargaInvalida }}
+    </div>
+
     <!-- PÁGINA 1 -->
     <ng-container *ngIf="paginaActual === 1">
       <div class="row">
@@ -70,6 +78,27 @@
             </option>
           </select>
 
+          <div class="invalid-feedback">Este campo es obligatorio.</div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Ingeniero *</label>
+          <select
+            class="form-select"
+            [(ngModel)]="datos.ingenieroSeleccionado"
+            [compareWith]="compararIngenieros"
+            name="ingenieroSeleccionado"
+            #ingenieroField="ngModel"
+            required
+            [class.is-invalid]="
+              ingenieroField.invalid && ingenieroField.touched
+            "
+          >
+            <option [ngValue]="null" disabled>Seleccione un ingeniero</option>
+            <option *ngFor="let i of ingenieros" [ngValue]="i">
+              {{ i.nombre }}
+            </option>
+          </select>
           <div class="invalid-feedback">Este campo es obligatorio.</div>
         </div>
 
@@ -244,7 +273,9 @@
     <!-- PÁGINA 4: Después de la reforma -->
     <ng-container *ngIf="paginaActual === 4">
       <h5 class="mb-2 text-primary">***Después de la reforma***</h5>
+
       <div class="row">
+        <!-- Campos generales -->
         <div
           class="col-md-4 mb-2"
           *ngFor="
@@ -275,11 +306,18 @@
                 label: 'MMR remolque sin frenos',
                 model: 'mmrsinfrenosDespues'
               },
-              { label: 'Velocidad máxima', model: 'velocidadMaxima' }
+              { label: 'Velocidad máxima', model: 'velocidadMaxima' },
+              {
+                label: 'Asientos delanteros (sin incluir al conductor)',
+                model: 'asientosDelanteros'
+              },
+              { label: 'Asientos 2ª fila', model: 'asientos2Fila' },
+              { label: 'Asientos 3ª fila', model: 'asientos3Fila' }
             ]
           "
         >
           <label class="form-label">{{ campo.label }} *</label>
+
           <input
             type="text"
             class="form-control"
@@ -288,10 +326,24 @@
             #ctrl="ngModel"
             required
             [class.is-invalid]="ctrl.invalid && ctrl.touched"
+            (ngModelChange)="
+              [
+                'masaRealDespues',
+                'mmaDespues',
+                'mmaEje2Despues',
+                'asientosDelanteros',
+                'asientos2Fila',
+                'asientos3Fila'
+              ].includes(campo.model)
+                ? comprobarCondicionesCarga()
+                : null
+            "
           />
+
           <div class="invalid-feedback">Este campo es obligatorio.</div>
         </div>
       </div>
+
       <div class="d-flex justify-content-between mt-3">
         <button type="button" class="btn btn-secondary" (click)="anterior()">
           ← Anterior
@@ -345,64 +397,6 @@
             required
             [class.is-invalid]="
               mmaEje2DespuesField.invalid && mmaEje2DespuesField.touched
-            "
-          />
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="form-label"
-            >Asientos delanteros (sin incluir al conductor) *</label
-          >
-          <input
-            type="number"
-            class="form-control"
-            [(ngModel)]="datos.asientosDelanteros"
-            name="asientosDelanteros"
-            #asientosDelanterosField="ngModel"
-            required
-            [class.is-invalid]="
-              asientosDelanterosField.invalid && asientosDelanterosField.touched
-            "
-          />
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="form-label">Asientos 2ª fila *</label>
-          <input
-            type="number"
-            class="form-control"
-            [(ngModel)]="datos.asientos2Fila"
-            name="asientos2Fila"
-            #asientos2FilaField="ngModel"
-            required
-            [class.is-invalid]="
-              asientos2FilaField.invalid && asientos2FilaField.touched
-            "
-          />
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="form-label">Asientos 3ª fila *</label>
-          <input
-            type="number"
-            class="form-control"
-            [(ngModel)]="datos.asientos3Fila"
-            name="asientos3Fila"
-            #asientos3FilaField="ngModel"
-            required
-            [class.is-invalid]="
-              asientos3FilaField.invalid && asientos3FilaField.touched
-            "
-          />
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="form-label">Carga útil total *</label>
-          <input
-            type="number"
-            class="form-control"
-            [(ngModel)]="datos.cargaUtilTotal"
-            name="cargaUtilTotal"
-            #cargaUtilTotalField="ngModel"
-            required
-            [class.is-invalid]="
-              cargaUtilTotalField.invalid && cargaUtilTotalField.touched
             "
           />
         </div>
