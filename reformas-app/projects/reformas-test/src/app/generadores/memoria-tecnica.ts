@@ -1420,7 +1420,13 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                 margins: { top: 40, bottom: 40, left: 40, right: 40 },
                 children: [
                   new Paragraph({
-                    text: (75 * plazasDespues!).toString(),
+                    text: (
+                      75 *
+                      (data.asientosDelanteros +
+                        data.asientos2Fila +
+                        data.asientos3Fila +
+                        1)!
+                    ).toString(),
                     alignment: AlignmentType.CENTER,
                   }),
                 ],
@@ -2393,7 +2399,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                 margins: { top: 40, bottom: 40, left: 40, right: 40 },
                 children: [
                   new Paragraph({
-                    text: 'Distancia CDG a eje delantero (mm)',
+                    text: 'Distancia CDG a eje delantero (mm) hola',
                     alignment: AlignmentType.CENTER,
                   }),
                 ],

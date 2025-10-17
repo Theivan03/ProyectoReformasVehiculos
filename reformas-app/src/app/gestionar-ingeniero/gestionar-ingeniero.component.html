@@ -58,8 +58,9 @@
 
     @for ( campo of [
     'nombre','dni','direccionFiscal','oficina','codigoPostal','localidad','provincia',
-    'titulacion','especialidad','colegio','numero','correo','tlf','web','url','correoEmpresa'
-    ]; track campo ) {
+    'titulacion','especialidad','colegio',
+    'universidad','numero','correo','tlf','web','url','correoEmpresa' ]; track
+    campo ) {
     <div class="mb-3">
       <label class="form-label">{{ formatLabel(campo) }}</label>
       <input

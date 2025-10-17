@@ -21,8 +21,6 @@ import {
   ShadingType,
   UnderlineType,
 } from 'docx';
-import saveAs from 'file-saver';
-import ingeniero from '../../assets/ingeniero.json';
 import { Modificacion } from '../interfaces/modificacion';
 import {
   buildModificacionesParagraphs,
@@ -92,6 +90,8 @@ export function keepTableTogether(table: Table): Table {
 export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const response = await fetch('assets/logo.png');
   const imageBuffer = await response.arrayBuffer();
+
+  const ingeniero = data.ingeniero;
 
   const modificaciones: Modificacion[] = data.modificaciones;
 
@@ -2261,7 +2261,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: (75 * plazasDespues!).toString(),
+                      text: (
+                        75 *
+                        (data.asientosDelanteros +
+                          data.asientos2Fila +
+                          data.asientos3Fila +
+                          1)!
+                      ).toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3226,64 +3232,101 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
         new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
+          borders: {
+            top: { style: 'single', size: 1, color: '999999' },
+            bottom: { style: 'single', size: 1, color: '999999' },
+            left: { style: 'single', size: 1, color: '999999' },
+            right: { style: 'single', size: 1, color: '999999' },
+            insideHorizontal: { style: 'single', size: 1, color: 'CCCCCC' },
+            insideVertical: { style: 'single', size: 1, color: 'CCCCCC' },
+          },
           rows: [
             // Fila 1
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  shading: { fill: 'E6E6E6' },
+                  margins: { top: 60, bottom: 60, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: 'Distancia CDG a eje delantero (mm)',
                       alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Conductor', bold: true }),
+                      ],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  shading: { fill: 'E6E6E6' },
+                  margins: { top: 60, bottom: 60, left: 80, right: 80 },
                   children: [
                     new Paragraph({
-                      text: 'Tara del vehículo tras la reforma',
                       alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Tara del vehículo tras la reforma',
+                          bold: true,
+                        }),
+                      ],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  shading: { fill: 'E6E6E6' },
+                  margins: { top: 60, bottom: 60, left: 80, right: 80 },
                   children: [
                     new Paragraph({
-                      text: data.mmaDespues.toString(),
                       alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: data.mmaDespues.toString(),
+                          bold: true,
+                        }),
+                      ],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  shading: { fill: 'E6E6E6' },
+                  margins: { top: 60, bottom: 60, left: 80, right: 80 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje1Despues.toString(),
                       alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: data.mmaEje1Despues.toString(),
+                          bold: true,
+                        }),
+                      ],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  shading: { fill: 'E6E6E6' },
+                  margins: { top: 60, bottom: 60, left: 80, right: 80 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje2Despues.toString(),
                       alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: data.mmaEje2Despues.toString(),
+                          bold: true,
+                        }),
+                      ],
                     }),
                   ],
                 }),
               ],
             }),
+
             // Fila 2
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: data.cdgconductor?.toString() ?? '-',
@@ -3292,16 +3335,18 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
-                      text: 'Conductor',
+                      children: [
+                        new TextRun({ text: 'Conductor', bold: true }),
+                      ],
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: '75',
@@ -3310,7 +3355,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: '58',
@@ -3319,7 +3364,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: '17',
@@ -3329,25 +3374,33 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
               ],
             }),
+
             // Fila 3
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
-                  children: [new Paragraph('')],
-                }),
-                new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
-                      text: 'Masa Real',
+                      text: '',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Masa Real', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text:
@@ -3361,7 +3414,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: masaRealDel.toString(),
@@ -3370,7 +3423,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: masaRealTras.toString(),
@@ -3380,12 +3433,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
               ],
             }),
+
             // Fila 4 (Ocup. Delant)
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: data.cdgconductor?.toString() ?? '-',
@@ -3394,7 +3448,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3405,7 +3459,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: (data.asientosDelanteros * 75).toString(),
@@ -3414,7 +3468,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: ocupDelDel.toString(),
@@ -3423,7 +3477,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: ocupDelTras.toString(),
@@ -3433,12 +3487,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
               ],
             }),
+
             // Fila 5 (Ocup. 2ª fila)
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: data.cdgocu2?.toString() ?? '-',
@@ -3447,7 +3502,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3458,7 +3513,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: (data.asientos2Fila * 75).toString(),
@@ -3467,7 +3522,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: ocup2Del.toString(),
@@ -3476,7 +3531,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: ocup2Tras.toString(),
@@ -3486,12 +3541,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
               ],
             }),
+
             // Fila 6 (Ocup. 3ª fila)
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: data.cdgocu3?.toString() ?? '-',
@@ -3500,7 +3556,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3511,7 +3567,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: (data.asientos3Fila * 75).toString(),
@@ -3520,7 +3576,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: ocup3Del.toString(),
@@ -3529,7 +3585,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: ocup3Tras.toString(),
@@ -3539,12 +3595,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
               ],
             }),
+
             // Fila 7 (Carga útil)
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       text: data.cdgcargautil?.toString() ?? '-',
@@ -3553,7 +3610,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3564,46 +3621,41 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: data.cargaUtilTotal.toString(),
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: data.cargaUtilTotal.toString() }),
-                      ],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: cargaUtilDel.toString(),
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: cargaUtilDel.toString() }),
-                      ],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: cargaUtilTras.toString(),
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: cargaUtilTras.toString() }),
-                      ],
                     }),
                   ],
                 }),
               ],
             }),
-            // Fila 8
+
+            // Fila 8 (Carga vertical)
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3616,7 +3668,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3625,7 +3677,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3636,7 +3688,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3653,7 +3705,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3671,30 +3723,33 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
               ],
             }),
-            // Fila 9
+
+            // Fila 9 (Suma)
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: '',
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: 'Suma de cargas' })],
+                      children: [
+                        new TextRun({ text: 'Suma de cargas', bold: true }),
+                      ],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -3715,71 +3770,72 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: sumaDel.toString(),
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: sumaDel.toString() })],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: sumaTras.toString(),
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: sumaTras.toString() })],
                     }),
                   ],
                 }),
               ],
             }),
-            // Fila 10
+
+            // Fila 10 (MMA)
             new TableRow({
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: '',
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '' })],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: 'MMA' })],
+                      children: [new TextRun({ text: 'MMA', bold: true })],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: data.mmaDespues,
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: data.mmaDespues })],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: data.mmaEje1Despues,
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: data.mmaEje1Despues })],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 80, right: 80 },
                   children: [
                     new Paragraph({
+                      text: data.mmaEje2Despues,
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: data.mmaEje2Despues })],
                     }),
                   ],
                 }),
