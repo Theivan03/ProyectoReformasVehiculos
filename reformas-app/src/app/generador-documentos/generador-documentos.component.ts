@@ -28,6 +28,7 @@ export class GeneradorDocumentosComponent implements OnInit {
   @Output() volverAlFormulario = new EventEmitter<void>();
 
   ngOnInit(): void {
+    console.log('Modificaciones:', this.reformaData);
     buildModificacionesParagraphs(
       this.reformaData.modificaciones,
       this.reformaData

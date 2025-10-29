@@ -24,10 +24,16 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   talleres: any[] = [];
   ingenieros: any[] = [];
 
-  avisoCargaInvalida: string | null = null; // ⚠️ Nuevo
+  avisoCargaInvalida: string | null = null; // ⚠️ Mensaje si hay límites reglamentarios superados
 
   @Input() forzarPrimera = false;
   @Input() esEdicion = false;
+
+  /**
+   * Señal numérica que incrementa el padre para forzar ir a la última página.
+   * Cada incremento dispara un salto a la última página (se calcula con totalPaginas).
+   */
+  @Input() goToLastSignal = 0;
 
   get necesitaPasoExtra(): boolean {
     const mma = parseFloat(this.datos.momAntes as any) || 0;
@@ -134,6 +140,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnChanges(changes: SimpleChanges): void {
+    // Merge de datos iniciales
     if (changes['datosIniciales'] && this.datosIniciales) {
       const anteriorNumero = this.datos?.numeroProyecto;
       this.datos = { ...this.datos, ...this.datosIniciales };
@@ -154,6 +161,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         this.generarReferencia(anyo);
       }
 
+      // Normalizamos referencias a taller/ingeniero si ya han cargado
       if (this.talleres?.length && this.datos.tallerSeleccionado) {
         const tallerReal = this.talleres.find(
           (t) => t.nombre === this.datos.tallerSeleccionado?.nombre
@@ -169,8 +177,15 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         this.datos.ingenieroSeleccionado =
           ingReal || this.datos.ingenieroSeleccionado;
       }
+
+      // Ajuste de página si viene seteada en datosIniciales (incluye sentinel 999)
+      const p = Number(this.datosIniciales?.paginaActual);
+      if (Number.isFinite(p) && p > 0) {
+        this.paginaActual = this.clampToTotal(p);
+      }
     }
 
+    // Rellena codigosReforma desde respuestas
     if (this.respuestas) {
       const codigos = (Object.values(this.respuestas) as { codigo: string }[][])
         .flat()
@@ -178,14 +193,25 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         .join(' - ');
       this.datos.codigosReforma = codigos;
     }
+
+    // Señal para forzar última página
+    if (changes['goToLastSignal'] && !changes['goToLastSignal'].firstChange) {
+      // Defer para asegurar que totalPaginas ya está consistente
+      setTimeout(() => {
+        this.paginaActual = this.totalPaginas || 1;
+        this.emitAutosave();
+      }, 0);
+    }
   }
 
   ngOnInit(): void {
+    // Carga catálogo talleres
     this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
       next: (data) => (this.talleres = data),
       error: (err) => console.error('Error al cargar talleres:', err),
     });
 
+    // Carga catálogo ingenieros
     this.http.get<any[]>('http://192.168.1.41:3000/ingenieros').subscribe({
       next: (data) => {
         this.ingenieros = Array.isArray(data) ? data : [data];
@@ -199,6 +225,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       error: (err) => console.error('Error al cargar ingenieros:', err),
     });
 
+    // Carga número de proyecto / referencias si no es edición
     if (!this.esEdicion) {
       this.http
         .get<{ siguiente: number; año: string }>(
@@ -213,6 +240,16 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
             }
           },
         });
+    }
+
+    // Decidir página inicial
+    if (this.forzarPrimera) {
+      this.paginaActual = 1;
+    } else {
+      const p = Number(this.datosIniciales?.paginaActual);
+      if (Number.isFinite(p) && p > 0) {
+        this.paginaActual = this.clampToTotal(p);
+      }
     }
   }
 
@@ -234,7 +271,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     });
   }
 
-  // ⚙️ Nuevo método
+  // Verificación de condiciones de carga (reglamentarias)
   comprobarCondicionesCarga() {
     const n = (v: any) => Number(v) || 0;
 
@@ -279,7 +316,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       n(this.datos.asientosDelanteros) +
       n(this.datos.asientos2Fila) +
       n(this.datos.asientos3Fila) +
-      1; // conductor incluido
+      1; // conductor
 
     const masaTotal = masaReal + ocupantes * 75;
 
@@ -288,7 +325,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     const superaTotal10 = masaTotal > mma * 1.1;
     const superaTotal100 = masaTotal > mma + 100;
 
-    // Generar mensajes personalizados
     const problemas: string[] = [];
     if (superaEje2)
       problemas.push(
@@ -324,7 +360,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       });
     } else {
       this.avisoCargaInvalida = null;
-      console.log('Proyecto válido:', { masaTotal, mma, mmaEje2 });
     }
   }
 
@@ -339,7 +374,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     const masaReal = n(this.datos.masaRealDespues);
     this.datos.cargaUtilTotal = mma - (ocupantes * 75 + masaReal);
 
-    // 🧠 comprobamos validez antes de continuar
+    // Validaciones reglamentarias informativas
     this.comprobarCondicionesCarga();
 
     if (!this.validarPaginaActual()) return;
@@ -369,6 +404,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   anterior(): void {
+    this.comprobarCondicionesCarga();
     if (this.paginaActual === this.totalPaginas && this.necesitaPasoExtra) {
       this.paginaActual = 5;
       this.emitAutosave();
@@ -409,5 +445,15 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       this.datos[campo] = parseFloat(parseFloat(valor).toFixed(2));
     }
     this.actualizarTotal();
+  }
+
+  // --- Utilidades internas ---
+
+  /** Ajusta p a [1, totalPaginas], interpretando valores grandes (p.ej., 999) como "última". */
+  private clampToTotal(p: number): number {
+    const max = this.totalPaginas || 1;
+    if (!Number.isFinite(p) || p <= 0) return 1;
+    if (p >= 999 || p >= max) return max;
+    return Math.min(max, Math.max(1, p));
   }
 }

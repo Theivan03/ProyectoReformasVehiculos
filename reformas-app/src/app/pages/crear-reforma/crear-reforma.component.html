@@ -22,13 +22,39 @@
 </div>
 
 <div class="container mt-4">
+  <!-- 1) TIPO DE VEHÍCULO (primer paso) -->
+  @if (mostrarTipoVehiculo) {
+  <app-tipo-vehiculo
+    [datosPrevios]="datosParaTipoVehiculo"
+    (autosave)="onAutosaveTipoVehiculo($event)"
+    (continuar)="onContinuarTipoVehiculo($event)"
+    (volver)="onVolverDesdeTipoVehiculo($event)"
+  >
+  </app-tipo-vehiculo>
+  }
+
+  <!-- 2) RESUMEN DE MODIFICACIONES -->
+  @if (mostrarResumenModificaciones) {
+  <app-resumen-modificaciones
+    [datosEntrada]="datosParaResumen"
+    (volver)="onVolverDesdeResumenModificaciones($event)"
+    (continuar)="onContinuarDesdeResumenModificaciones($event)"
+  >
+  </app-resumen-modificaciones>
+  }
+
+  <!-- 3) SELECCIÓN DE SECCIONES -->
   @if (mostrarSeleccion) {
   <app-seleccion-secciones
     [seccionesPreseleccionadas]="codigosPreseleccionados || []"
     (continuar)="onContinuar($event)"
+    (volver)="onVolverDesdeSeleccion($event)"
   >
   </app-seleccion-secciones>
-  } @if (mostrarSubSelecciones) {
+  }
+
+  <!-- 4) SUBSELECCIÓN DE OPCIONES -->
+  @if (mostrarSubSelecciones) {
   <app-mostrar-secciones
     [secciones]="seccionesSeleccionadas || []"
     [respuestas]="respuestasGuardadas || {}"
@@ -37,7 +63,10 @@
     (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
   >
   </app-mostrar-secciones>
-  } @if (mostrarFormularioProyecto) {
+  }
+
+  <!-- 5) FORMULARIO DEL PROYECTO -->
+  @if (mostrarFormularioProyecto) {
   <app-formulario-proyecto
     [datosIniciales]="datosFormularioGuardados"
     [respuestas]="respuestasGuardadas"
@@ -45,9 +74,12 @@
     (autosave)="onAutosaveFormulario($event)"
     (volverAReforma)="onVolverDesdeFormulario($event)"
     (finalizarFormulario)="onFinalizarFormulario($event)"
-  ></app-formulario-proyecto>
+  >
+  </app-formulario-proyecto>
+  }
 
-  } @if (mostrarReformasPrevias) {
+  <!-- 6) REFORMAS PREVIAS (opcional / compatibilidad) -->
+  @if (mostrarReformasPrevias) {
   <app-reformas-previas
     [datos]="datosGenerales || {}"
     (autosave)="onAutosaveReformasPrevias($event)"
@@ -55,37 +87,31 @@
     (volverAlFormulario)="onVolverDesdeReformasPrevias($event)"
   >
   </app-reformas-previas>
-  } @if (mostrarTipoVehiculo) {
-  <app-tipo-vehiculo
-    [datosPrevios]="datosParaTipoVehiculo"
-    (autosave)="onAutosaveTipoVehiculo($event)"
-    (continuar)="onContinuarTipoVehiculo($event)"
-    (volver)="onVolverDesdeTipoVehiculo($event)"
-  >
-  </app-tipo-vehiculo>
-  } @if (mostrarResumenModificaciones) {
-  <app-resumen-modificaciones
-    [datosEntrada]="datosParaResumen"
-    (volver)="onVolverDesdeResumenModificaciones($event)"
-    (continuar)="onContinuarDesdeResumenModificaciones($event)"
-  >
-  </app-resumen-modificaciones>
-  } @if (mostrarCocheOno) {
+  }
+
+  <!-- 7) ¿COCHE O NO? -->
+  @if (mostrarCocheOno) {
   <app-cocheono
     [datosEntrada]="datosParaResumen"
     (volver)="onVolverDesdeCocheONo($event)"
     (continuar)="onContinuarDesdeCocheONo($event)"
   >
   </app-cocheono>
-  } @if (mostrarCanva) {
+  }
+
+  <!-- 8) CANVA -->
+  @if (mostrarCanva) {
   <app-canva
     [datosEntrada]="datosParaResumen"
     (autosave)="onAutosaveCanva($event)"
-    (volver)="onVolverDesdeCanva()"
+    (volver)="onVolverDesdeCanva($event)"
     (continuar)="onContinuarDesdeCanva($event)"
   >
   </app-canva>
-  } @if (mostrarImagenes) {
+  }
+
+  <!-- 9) IMÁGENES -->
+  @if (mostrarImagenes) {
   <app-imagenes
     [datosEntrada]="datosParaResumen"
     [origen]="origenImagenes"
@@ -94,7 +120,10 @@
     (continuar)="onContinuarDesdeImagenes($event)"
   >
   </app-imagenes>
-  } @if (mostrarGenerador) {
+  }
+
+  <!-- 10) GENERADOR DE DOCUMENTOS -->
+  @if (mostrarGenerador) {
   <app-generador-documentos
     [reformaData]="datosGenerales || {}"
     (volverAlFormulario)="onVolverDesdeGenerador($event)"

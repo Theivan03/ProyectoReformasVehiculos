@@ -979,6 +979,16 @@ export async function generarInformeProyecto(data: any): Promise<Blob> {
   }
 
   if (
+    Array.isArray(data.docsImagesB64?.TicketDePeso) &&
+    data.docsImagesB64.TicketDePeso.length > 0
+  ) {
+    await agregarBloqueImagenes(
+      'Imágenes del ticket de peso',
+      data.docsImagesB64.TicketDePeso
+    );
+  }
+
+  if (
     Array.isArray(data.docsImagesB64?.PermisoDeCirculacion) &&
     data.docsImagesB64.PermisoDeCirculacion.length > 0
   ) {

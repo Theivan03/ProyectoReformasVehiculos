@@ -536,14 +536,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     });
   }
 
-  volverFormulario(): void {
-    this.emitAutosave();
-    this.volver.emit({
-      tipoVehiculo: this.tipoVehiculo,
-      modificaciones: this.modificaciones,
-    });
-  }
-
   validarSubopciones(): boolean {
     this.erroresSubopciones = []; // Resetear errores
 

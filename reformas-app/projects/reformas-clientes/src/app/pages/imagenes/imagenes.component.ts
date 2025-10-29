@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { Modal } from 'bootstrap';
 
 type SlotKey = string; // `${mod.nombre}::${subKey}`
+type ExampleMeta = { src: string; id: string; label?: string };
 
 @Component({
   selector: 'app-imagenes',
@@ -77,7 +78,7 @@ export class ImagenesComponent implements OnInit {
   modalAction: 'mod' | 'sub' = 'mod';
   subParaQuitarKey: string | null = null;
 
-  // ---- Títulos personalizables ----
+  // ---- Títulos ----
   titulos: {
     mod?: { [modNombre: string]: string };
     sub?: { [modNombre: string]: { [subKey: string]: string } };
@@ -156,7 +157,6 @@ export class ImagenesComponent implements OnInit {
         cabrestanteCamper: 'Cabrestante (camper)',
         defensaDelanteraCamper: 'Defensa delantera (camper)',
         soporteRuedaRepuestoCamper: 'Soporte rueda repuesto (camper)',
-        // Moto
         guardabarrosDelanteroMoto: 'Guardabarros delantero (moto)',
         guardabarrosTraseroMoto: 'Guardabarros trasero (moto)',
         estribosMoto: 'Estribos (moto)',
@@ -247,15 +247,1089 @@ export class ImagenesComponent implements OnInit {
     },
   };
 
+  // ===========================
+  //   MÚLTIPLES EJEMPLOS (TS)
+  // ===========================
+
+  private readonly GENERIC_EXAMPLE = 'assets/ejemplos/generico.jpg';
+
+  private ejemploPorModList: Record<string, ExampleMeta[]> = {
+    Ruedas: [{ src: 'assets/llanta.png', id: 'ruedas-default' }],
+    Suspensión: [
+      {
+        src: 'assets/suspdelantera1.png',
+        id: 'suspension-default',
+      },
+    ],
+    Carrocería: [
+      {
+        src: 'assets/ejemplos/mods/carroceria/default.jpg',
+        id: 'carroceria-default',
+      },
+    ],
+    Luces: [{ src: 'assets/farodelantero.png', id: 'luces-default' }],
+    Dirección: [
+      {
+        src: 'assets/volante1.png',
+        id: 'direccion-default',
+      },
+    ],
+    Freno: [{ src: 'assets/frenos.png', id: 'freno-default' }],
+    'Unidad motriz': [
+      {
+        src: 'assets/ejemplos/mods/unidad-motriz/default.jpg',
+        id: 'unidad-motriz-default',
+      },
+    ],
+    'Enganche de remolque': [
+      {
+        src: 'assets/remolque1.png',
+        id: 'enganche-default',
+      },
+    ],
+    'Enganche de remolque (quads)': [
+      {
+        src: 'assets/ejemplos/mods/enganche-quads/default.jpg',
+        id: 'enganche-quads-default',
+      },
+    ],
+    Portabicicletas: [
+      {
+        src: 'assets/ejemplos/mods/portabicis/default.jpg',
+        id: 'portabicis-default',
+      },
+    ],
+    'Reducción de plazas de asiento': [
+      {
+        src: 'assets/ejemplos/mods/reduccion-plazas/default.jpg',
+        id: 'reduccion-plazas-default',
+      },
+    ],
+    'Modificaciones en el interior del vehículo': [
+      {
+        src: 'assets/ejemplos/mods/interior/default.jpg',
+        id: 'interior-default',
+      },
+    ],
+    'Instalación eléctrica': [
+      { src: 'assets/ejemplos/mods/inst-elec/default.jpg', id: 'ie-default' },
+    ],
+    Toldo: [
+      { src: 'assets/ejemplos/mods/toldo/default.jpg', id: 'toldo-default' },
+    ],
+    'Chasis y Subchasis': [
+      { src: 'assets/ejemplos/mods/chasis/default.jpg', id: 'chasis-default' },
+    ],
+  };
+
+  private ejemploPorSubList: Record<string, Record<string, ExampleMeta[]>> = {
+    // ------------------- RUEDAS -------------------
+    Ruedas: {
+      neumaticos: [
+        { src: 'assets/llanta.png', id: 'neum-02' },
+        { src: 'assets/neumatico1.png', id: 'neum-01' },
+        { src: 'assets/neumatico2.png', id: 'neum-03' },
+        { src: 'assets/neumatico3.png', id: 'neum-04' },
+        { src: 'assets/neumatico4.png', id: 'neumaticos-a' },
+        { src: 'assets/neumatico5.png', id: 'neumaticos-b' },
+        { src: 'assets/neumatico6.png', id: 'neumaticos-c' },
+        { src: 'assets/neumatico7.png', id: 'neumaticos-d' },
+      ],
+      llantasCamper: [{ src: 'assets/llanta.png', id: 'll-01' }],
+      separadoresDeRueda: [
+        { src: 'assets/separadores1.jpg', id: 'sep-01' },
+        { src: 'assets/separadores2.jpg', id: 'sep-02' },
+      ],
+      separadoresDeRuedaCamper: [
+        { src: 'assets/separadores1.png', id: 'sep-01' },
+        { src: 'assets/separadores2.jpg', id: 'sep-02' },
+      ],
+      neumaticosMoto: [
+        { src: 'assets/neumatico1.png', id: 'neum-01' },
+        { src: 'assets/neumatico2.png', id: 'neum-03' },
+        { src: 'assets/neumatico3.png', id: 'neum-04' },
+      ],
+      separadoresDeRuedaMoto: [
+        { src: 'assets/ejemplos/mods/chasis/default.jpg', id: 'sep-01' },
+      ],
+      neumaticosCamper: [
+        { src: 'assets/neumatico1.png', id: 'neum-01' },
+        { src: 'assets/neumatico2.png', id: 'neum-03' },
+        { src: 'assets/neumatico3.png', id: 'neum-04' },
+      ],
+    },
+
+    // ------------------- SUSPENSIÓN -------------------
+    Suspensión: {
+      muelleDelantero: [
+        {
+          src: 'assets/suspelantera1.png',
+          id: 'muelle-del-01',
+        },
+        {
+          src: 'assets/suspelantera2.png',
+          id: 'muelle-del-02',
+        },
+        {
+          src: 'assets/suspelantera3.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+        },
+      ],
+      muelleTrasero: [
+        {
+          src: 'assets/susptrasra1.png',
+          id: 'muelle-tras-01',
+        },
+        {
+          src: 'assets/susptrasra2.png',
+          id: 'muelle-tras-02',
+        },
+        {
+          src: 'assets/susptrasra3.png',
+          id: 'muelle-tras-03',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+        },
+      ],
+      ballestaDelantera: [
+        {
+          src: 'assets/ballesta1.png',
+          id: 'ballesta-del-01',
+        },
+        {
+          src: 'assets/ballesta2.png',
+          id: 'ballesta-del-02',
+        },
+        {
+          src: 'assets/ballesta3.png',
+          id: 'ballesta-del-03',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+        },
+      ],
+      ballestaTrasera: [
+        {
+          src: 'assets/ballesta1.png',
+          id: 'ballesta-tras-01',
+        },
+        {
+          src: 'assets/ballesta2.png',
+          id: 'ballesta-tras-02',
+        },
+        {
+          src: 'assets/ballesta3.png',
+          id: 'ballesta-tras-03',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+        },
+      ],
+      amortiguadorDelantero: [
+        {
+          src: 'assets/ejemplos/mods/suspension/amort-del-01.jpg',
+          id: 'amort-del-01',
+        },
+      ],
+      amortiguadorTrasero: [
+        {
+          src: 'assets/ejemplos/mods/suspension/amort-tras-01.jpg',
+          id: 'amort-tras-01',
+        },
+      ],
+      suplementoSusDelantero: [
+        {
+          src: 'assets/ejemplos/mods/suspension/sup-del-01.jpg',
+          id: 'sup-del-01',
+        },
+      ],
+      suplementoSusTrasero: [
+        {
+          src: 'assets/ejemplos/mods/suspension/sup-tras-01.jpg',
+          id: 'sup-tras-01',
+        },
+      ],
+      horquillaDelanteraMoto: [
+        {
+          src: 'assets/ejemplos/mods/suspension/horq-moto-del-01.jpg',
+          id: 'horq-moto-del-01',
+        },
+      ],
+      muelleDelanteroMoto: [
+        {
+          src: 'assets/ejemplos/mods/suspension/muelle-moto-del-01.jpg',
+          id: 'muelle-moto-del-01',
+        },
+      ],
+      muelleTraseroMoto: [
+        {
+          src: 'assets/ejemplos/mods/suspension/muelle-moto-tras-01.jpg',
+          id: 'muelle-moto-tras-01',
+        },
+      ],
+      amortiguadorDelanteroMoto: [
+        {
+          src: 'assets/ejemplos/mods/suspension/amort-moto-del-01.jpg',
+          id: 'amort-moto-del-01',
+        },
+      ],
+      amortiguadorTraseroMoto: [
+        {
+          src: 'assets/ejemplos/mods/suspension/amort-moto-tras-01.jpg',
+          id: 'amort-moto-tras-01',
+        },
+      ],
+      muelleDelanteroCamper: [
+        {
+          src: 'assets/suspelantera1.png',
+          id: 'muelle-del-01',
+        },
+        {
+          src: 'assets/suspelantera2.png',
+          id: 'muelle-del-02',
+        },
+        {
+          src: 'assets/suspelantera3.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+        },
+      ],
+      muelleTraseroCamper: [
+        {
+          src: 'assets/susptrasra1.png',
+          id: 'muelle-tras-01',
+        },
+        {
+          src: 'assets/susptrasra2.png',
+          id: 'muelle-tras-02',
+        },
+        {
+          src: 'assets/susptrasra3.png',
+          id: 'muelle-tras-03',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+        },
+      ],
+      ballestasDelanterasCamper: [
+        {
+          src: 'assets/ballesta1.png',
+          id: 'ballesta-del-01',
+        },
+        {
+          src: 'assets/ballesta2.png',
+          id: 'ballesta-del-02',
+        },
+        {
+          src: 'assets/ballesta3.png',
+          id: 'ballesta-del-03',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+        },
+      ],
+      ballestasTraserasCamper: [
+        {
+          src: 'assets/ballesta1.png',
+          id: 'ballesta-tras-01',
+        },
+        {
+          src: 'assets/ballesta2.png',
+          id: 'ballesta-tras-02',
+        },
+        {
+          src: 'assets/ballesta3.png',
+          id: 'ballesta-tras-03',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+        },
+      ],
+      amortiguadorDelanteroCamper: [
+        {
+          src: 'assets/ejemplos/mods/suspension/amort-camper-del-01.jpg',
+          id: 'amort-camper-del-01',
+        },
+      ],
+      amortiguadorTraseroCamper: [
+        {
+          src: 'assets/ejemplos/mods/suspension/amort-camper-tras-01.jpg',
+          id: 'amort-camper-tras-01',
+        },
+      ],
+      suplementoSuspensionDelanteroCamper: [
+        {
+          src: 'assets/ejemplos/mods/suspension/sup-camper-del-01.jpg',
+          id: 'sup-camper-del-01',
+        },
+      ],
+      suplementoSuspensionTraseroCamper: [
+        {
+          src: 'assets/ejemplos/mods/suspension/sup-camper-tras-01.jpg',
+          id: 'sup-camper-tras-01',
+        },
+      ],
+    },
+
+    // ------------------- CARROCERÍA -------------------
+    Carrocería: {
+      paragolpesDelantero: [
+        { src: 'assets/paradelantero1.png', id: 'p-del-01' },
+        { src: 'assets/paradelantero2.png', id: 'p-del-02' },
+        { src: 'assets/paradelantero3.png', id: 'p-del-03' },
+      ],
+      paragolpesTrasero: [
+        {
+          src: 'assets/paratrasero1.png',
+          id: 'p-tras-01',
+        },
+        {
+          src: 'assets/paratrasero2.png',
+          id: 'p-tras-02',
+        },
+        {
+          src: 'assets/paratrasero3.png',
+          id: 'p-tras-03',
+        },
+      ],
+      aleron: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/aleron-01.jpg',
+          id: 'aleron-01',
+        },
+      ],
+      aletinesYSobrealetines: [
+        {
+          src: 'assets/aletines1.png',
+          id: 'aletines-a',
+        },
+        {
+          src: 'assets/aletinesdelantero.png',
+          id: 'aletines-b',
+        },
+        {
+          src: 'assets/neumaticos4.png',
+          id: 'neumaticos-a',
+        },
+        {
+          src: 'assets/neumaticos5.png',
+          id: 'neumaticos-b',
+        },
+        {
+          src: 'assets/neumaticos6.png',
+          id: 'neumaticos-c',
+        },
+        {
+          src: 'assets/neumaticos7.png',
+          id: 'neumaticos-d',
+        },
+      ],
+      snorkel: [
+        {
+          src: 'assets/snorkel1.jpg',
+          id: 'snorkel-01',
+        },
+        {
+          src: 'assets/snorkel2.jpg',
+          id: 'snorkel-02',
+        },
+      ],
+      peldaños: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/peldanos-01.jpg',
+          id: 'peldanos-01',
+        },
+      ],
+      talonerasEstribos: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/taloneras-01.jpg',
+          id: 'taloneras-01',
+        },
+      ],
+      matriculaDelanteraPequeña: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/mat-del-peq-01.jpg',
+          id: 'mat-del-peq-01',
+        },
+      ],
+      cabrestante: [
+        {
+          src: 'assets/cabrestante1.png',
+          id: 'cabrestante-01',
+        },
+        {
+          src: 'assets/cabrestante2.png',
+          id: 'cabrestante-02',
+        },
+      ],
+      barraAntiempotramiento: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/barra-anti-01.jpg',
+          id: 'barra-anti-01',
+        },
+      ],
+      defensaDelantera: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/defensa-del-01.jpg',
+          id: 'defensa-del-01',
+        },
+      ],
+      soporteRuedaRepuesto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/soporte-repuesto-01.jpg',
+          id: 'soporte-repuesto-01',
+        },
+      ],
+      bodyLift: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/body-lift-01.jpg',
+          id: 'body-lift-01',
+        },
+      ],
+
+      paragolpesDelanteroCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/p-del-camper-01.jpg',
+          id: 'p-del-camper-01',
+        },
+      ],
+      paragolpesTraseroCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/p-tras-camper-01.jpg',
+          id: 'p-tras-camper-01',
+        },
+      ],
+      aleronCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/aleron-camper-01.jpg',
+          id: 'aleron-camper-01',
+        },
+      ],
+      aletinesYSobrealetinesCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/aletines-1.jpg',
+          id: 'aletines-a',
+        },
+        {
+          src: 'assets/ejemplos/mods/carroceria/aletines-2.jpg',
+          id: 'aletines-b',
+        },
+      ],
+      snorkelCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/snorkel-camper-01.jpg',
+          id: 'snorkel-camper-01',
+        },
+      ],
+      peldañosCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/peldanos-camper-01.jpg',
+          id: 'peldanos-camper-01',
+        },
+      ],
+      talonerasEstribosCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/taloneras-camper-01.jpg',
+          id: 'taloneras-camper-01',
+        },
+      ],
+      cabrestanteCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/cabrestante-camper-01.jpg',
+          id: 'cabrestante-camper-01',
+        },
+      ],
+      defensaDelanteraCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/defensa-del-camper-01.jpg',
+          id: 'defensa-del-camper-01',
+        },
+      ],
+      soporteRuedaRepuestoCamper: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/soporte-repuesto-camper-01.jpg',
+          id: 'soporte-repuesto-camper-01',
+        },
+      ],
+
+      guardabarrosDelanteroMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/guardabarros-moto-del-01.jpg',
+          id: 'guard-moto-del-01',
+        },
+      ],
+      guardabarrosTraseroMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/guardabarros-moto-tras-01.jpg',
+          id: 'guard-moto-tras-01',
+        },
+      ],
+      estribosMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/estribos-moto-01.jpg',
+          id: 'estribos-moto-01',
+        },
+      ],
+      cabrestanteMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/cabrestante-quads-01.jpg',
+          id: 'cabrestante-quads-01',
+        },
+      ],
+      cambioPlacaDeMatriculaMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/cambio-placa-moto-01.jpg',
+          id: 'cambio-placa-moto-01',
+        },
+      ],
+      retrovisoresMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/retrovisores-moto-01.jpg',
+          id: 'retrovisores-moto-01',
+        },
+      ],
+      carenadoMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/carenado-moto-01.jpg',
+          id: 'carenado-moto-01',
+        },
+      ],
+      depositoDeCombustibleMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/deposito-moto-01.jpg',
+          id: 'deposito-moto-01',
+        },
+      ],
+      velocimetroMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/velocimetro-moto-01.jpg',
+          id: 'velocimetro-moto-01',
+        },
+      ],
+      manillarMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/manillar-moto-01.jpg',
+          id: 'manillar-moto-01',
+        },
+      ],
+      sillinMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/sillin-moto-01.jpg',
+          id: 'sillin-moto-01',
+        },
+      ],
+      mandosAdelantadosMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/mandos-adelantados-moto-01.jpg',
+          id: 'mandos-adelantados-moto-01',
+        },
+      ],
+      asiderosParaPasajeroMoto: [
+        {
+          src: 'assets/ejemplos/mods/carroceria/asideros-moto-01.jpg',
+          id: 'asideros-moto-01',
+        },
+      ],
+    },
+
+    // ------------------- LUCES -------------------
+    Luces: {
+      faroDelantero: [
+        {
+          src: 'assets/farodelantero.png',
+          id: 'faro-del-01',
+        },
+      ],
+      PilotoTrasero: [
+        {
+          src: 'assets/pilototrasero.png',
+          id: 'piloto-tras-01',
+        },
+      ],
+      intermitentesLaterales: [
+        {
+          src: 'assets/intermitenteslateral.png',
+          id: 'inter-lat-01',
+        },
+      ],
+      focosDeTrabajo: [
+        {
+          src: 'assets/ejemplos/mods/luces/focos-trabajo-01.jpg',
+          id: 'focos-trabajo-01',
+        },
+      ],
+      faroDelanteroMoto: [
+        {
+          src: 'assets/farodelantero.png',
+          id: 'faro-moto-del-01',
+        },
+      ],
+      PilotoTraseroMoto: [
+        {
+          src: 'assets/ejemplos/mods/luces/luz-matricula-moto-01.jpg',
+          id: 'piloto-moto-tras-01',
+        },
+      ],
+      luzDeMatriculaMoto: [
+        {
+          src: 'assets/ejemplos/mods/luces/luz-matricula-moto-01.jpg',
+          id: 'luz-matricula-moto-01',
+        },
+      ],
+      catadriopticoTraseroMoto: [
+        {
+          src: 'assets/pilototraseromoto.png',
+          id: 'catadioptrico-moto-01',
+        },
+      ],
+      intermitentesMoto: [
+        {
+          src: 'assets/ejemplos/mods/luces/intermitentes-moto-01.jpg',
+          id: 'intermitentes-moto-01',
+        },
+      ],
+    },
+
+    // ------------------- DIRECCIÓN -------------------
+    Dirección: {
+      volanteYPiña: [
+        {
+          src: 'assets/volante1.png',
+          id: 'volante-pina-01',
+        },
+        {
+          src: 'assets/volante2.png',
+          id: 'volante-pina-01',
+        },
+      ],
+      barraDeDireccion: [
+        {
+          src: 'assets/ejemplos/mods/direccion/barra-01.jpg',
+          id: 'barra-dir-01',
+        },
+      ],
+      amortiguadorDeDireccion: [
+        {
+          src: 'assets/ejemplos/mods/direccion/amortiguador-dir-01.jpg',
+          id: 'amort-dir-01',
+        },
+      ],
+      sustitucionDeEjes: [
+        {
+          src: 'assets/ejemplos/mods/direccion/sustitucion-ejes-01.jpg',
+          id: 'sust-ejes-01',
+        },
+      ],
+    },
+
+    // ------------------- FRENO -------------------
+    Freno: {
+      tamborPorDisco: [
+        {
+          src: 'assets/ejemplos/mods/freno/tambor-por-disco-01.jpg',
+          id: 'tpd-01',
+        },
+      ],
+      discosPerforadosRayados: [
+        {
+          src: 'assets/fronos.png',
+          id: 'discos-perf-01',
+        },
+      ],
+      latiguillos: [
+        { src: 'assets/ejemplos/mods/freno/latiguillos-01.jpg', id: 'lat-01' },
+      ],
+      bomba: [
+        { src: 'assets/ejemplos/mods/freno/bomba-01.jpg', id: 'bomba-01' },
+      ],
+      tamborPorDiscoMoto: [
+        {
+          src: 'assets/ejemplos/mods/freno/tambor-por-disco-moto-01.jpg',
+          id: 'tpd-moto-01',
+        },
+      ],
+      discosPerforadosRayadosMoto: [
+        {
+          src: 'assets/ejemplos/mods/freno/discos-perf-moto-01.jpg',
+          id: 'discos-perf-moto-01',
+        },
+      ],
+      latiguillosMoto: [
+        {
+          src: 'assets/ejemplos/mods/freno/latiguillos-moto-01.jpg',
+          id: 'lat-moto-01',
+        },
+      ],
+      bombaMoto: [
+        {
+          src: 'assets/ejemplos/mods/freno/bomba-moto-01.jpg',
+          id: 'bomba-moto-01',
+        },
+      ],
+    },
+
+    // ------------------- UNIDAD MOTRIZ -------------------
+    'Unidad motriz': {
+      cambioDeMotor: [
+        {
+          src: 'assets/ejemplos/mods/unidad-motriz/cambio-motor-01.jpg',
+          id: 'cambio-motor-01',
+        },
+      ],
+      CambioCajaCambios: [
+        {
+          src: 'assets/ejemplos/mods/unidad-motriz/caja-cambios-01.jpg',
+          id: 'caja-cambios-01',
+        },
+      ],
+      cambioEscape: [
+        {
+          src: 'assets/escape1.png',
+          id: 'escape-01',
+        },
+        {
+          src: 'assets/escape2.png',
+          id: 'escape-02',
+        },
+      ],
+      ampliacionNDepositosCombustible: [
+        {
+          src: 'assets/ejemplos/mods/unidad-motriz/depositos-extra-01.jpg',
+          id: 'dep-extra-01',
+        },
+      ],
+      cambioDeMotorMoto: [
+        {
+          src: 'assets/ejemplos/mods/unidad-motriz/cambio-motor-moto-01.jpg',
+          id: 'cambio-motor-moto-01',
+        },
+      ],
+      CambioCajaCambiosMoto: [
+        {
+          src: 'assets/ejemplos/mods/unidad-motriz/caja-cambios-moto-01.jpg',
+          id: 'caja-cambios-moto-01',
+        },
+      ],
+      cambioEscapeMoto: [
+        {
+          src: 'assets/ejemplos/mods/unidad-motriz/escape-moto-01.jpg',
+          id: 'escape-moto-01',
+        },
+      ],
+      ampliacionNDepositosCombustibleMoto: [
+        {
+          src: 'assets/ejemplos/mods/unidad-motriz/depositos-moto-01.jpg',
+          id: 'dep-moto-01',
+        },
+      ],
+    },
+
+    // ------------------- CHASIS Y SUBCHASIS -------------------
+    'Chasis y Subchasis': {
+      recorteSubchasisMoto: [
+        {
+          src: 'assets/ejemplos/mods/chasis/recorte-subchasis-moto-01.jpg',
+          id: 'recorte-subchasis-moto-01',
+        },
+      ],
+      modificacionDeChasisMoto: [
+        {
+          src: 'assets/ejemplos/mods/chasis/mod-chasis-moto-01.jpg',
+          id: 'mod-chasis-moto-01',
+        },
+      ],
+    },
+
+    // ------------------- INTERIOR (CAMPER) -------------------
+    'Modificaciones en el interior del vehículo': {
+      mobiliarioInterior: [
+        {
+          src: 'assets/ejemplos/mods/interior/mobiliario-01.jpg',
+          id: 'mobiliario-01',
+        },
+      ],
+      fontaneria: [
+        {
+          src: 'assets/ejemplos/mods/interior/fontaneria-01.jpg',
+          id: 'fontaneria-01',
+        },
+      ],
+      muebleBajo: [
+        {
+          src: 'assets/ejemplos/mods/interior/mueble-bajo-01.jpg',
+          id: 'mueble-bajo-01',
+        },
+      ],
+      muebleAlto: [
+        {
+          src: 'assets/ejemplos/mods/interior/mueble-alto-01.jpg',
+          id: 'mueble-alto-01',
+        },
+      ],
+      aseo: [
+        { src: 'assets/ejemplos/mods/interior/aseo-01.jpg', id: 'aseo-01' },
+      ],
+      cama: [
+        { src: 'assets/ejemplos/mods/interior/cama-01.jpg', id: 'cama-01' },
+      ],
+      estanteria: [
+        {
+          src: 'assets/ejemplos/mods/interior/estanteria-01.jpg',
+          id: 'estanteria-01',
+        },
+      ],
+      baseGiratoria: [
+        {
+          src: 'assets/ejemplos/mods/interior/base-giratoria-01.jpg',
+          id: 'base-giratoria-01',
+        },
+      ],
+      banquetaParaAumentarPlazas: [
+        {
+          src: 'assets/ejemplos/mods/interior/banqueta-01.jpg',
+          id: 'banqueta-01',
+        },
+      ],
+      ventanas: [
+        {
+          src: 'assets/ejemplos/mods/interior/ventanas-01.jpg',
+          id: 'ventanas-01',
+        },
+      ],
+      claraboyas: [
+        {
+          src: 'assets/ejemplos/mods/interior/claraboya-01.jpg',
+          id: 'claraboya-01',
+        },
+      ],
+      termo: [
+        { src: 'assets/ejemplos/mods/interior/termo-01.jpg', id: 'termo-01' },
+      ],
+      bombaDeAgua: [
+        {
+          src: 'assets/ejemplos/mods/interior/bomba-agua-01.jpg',
+          id: 'bomba-agua-01',
+        },
+      ],
+      vasoDeExpansion: [
+        {
+          src: 'assets/ejemplos/mods/interior/vaso-expansion-01.jpg',
+          id: 'vaso-exp-01',
+        },
+      ],
+      depositoAguaLimpia: [
+        {
+          src: 'assets/ejemplos/mods/interior/deposito-limpia-01.jpg',
+          id: 'dep-limpia-01',
+        },
+      ],
+      depositoAguaSucia: [
+        {
+          src: 'assets/ejemplos/mods/interior/deposito-sucia-01.jpg',
+          id: 'dep-sucia-01',
+        },
+      ],
+      duchaInterior: [
+        {
+          src: 'assets/ejemplos/mods/interior/ducha-int-01.jpg',
+          id: 'ducha-int-01',
+        },
+      ],
+      duchaExterior: [
+        {
+          src: 'assets/ejemplos/mods/interior/ducha-ext-01.jpg',
+          id: 'ducha-ext-01',
+        },
+      ],
+      tomaDeAguaExterior: [
+        {
+          src: 'assets/ejemplos/mods/interior/toma-agua-ext-01.jpg',
+          id: 'toma-agua-ext-01',
+        },
+      ],
+      calefaccionDiesel: [
+        {
+          src: 'assets/ejemplos/mods/interior/calefaccion-diesel-01.jpg',
+          id: 'calef-diesel-01',
+        },
+      ],
+    },
+
+    // ------------------- INSTALACIÓN ELÉCTRICA -------------------
+    'Instalación eléctrica': {
+      placaSolar: [
+        {
+          src: 'assets/ejemplos/mods/inst-elec/placa-solar-01.jpg',
+          id: 'placa-solar-01',
+        },
+      ],
+      inversor: [
+        {
+          src: 'assets/ejemplos/mods/inst-elec/inversor-01.jpg',
+          id: 'inversor-01',
+        },
+      ],
+      reguladorSolar: [
+        {
+          src: 'assets/ejemplos/mods/inst-elec/regulador-01.jpg',
+          id: 'regulador-01',
+        },
+      ],
+      cargadorDeBateria: [
+        {
+          src: 'assets/ejemplos/mods/inst-elec/cargador-01.jpg',
+          id: 'cargador-01',
+        },
+      ],
+      bateriaAuxiliar: [
+        {
+          src: 'assets/ejemplos/mods/inst-elec/bateria-aux-01.jpg',
+          id: 'bat-aux-01',
+        },
+      ],
+      iluminacionExterior: [
+        {
+          src: 'assets/ejemplos/mods/inst-elec/ilum-ext-01.jpg',
+          id: 'ilum-ext-01',
+        },
+      ],
+      tomaCorrienteexterior: [
+        {
+          src: 'assets/ejemplos/mods/inst-elec/toma-corr-ext-01.jpg',
+          id: 'toma-corr-ext-01',
+        },
+      ],
+      tomaCorrienteInterior: [
+        {
+          src: 'assets/ejemplos/mods/inst-elec/toma-corr-int-01.jpg',
+          id: 'toma-corr-int-01',
+        },
+      ],
+    },
+  };
+
+  // ====== NUEVO: máx. imágenes por subselección según nº de ejemplos ======
   get totalSlots(): number {
-    // Sólo subselecciones activas
     let total = 0;
     for (const mod of this.modsSeleccionadas) {
-      total += this.subopcionesActivas(mod).length;
+      for (const so of this.subopcionesActivas(mod)) {
+        total += this.maxImagesForSlot(mod, so);
+      }
     }
     return total;
   }
 
+  /** Nº de ejemplos DEFINIDOS para esa subselección (sin deduplicación visual). */
+  private examplesCount(mod: any, subKey: string): number {
+    const list = this.getExampleList(mod?.nombre ?? '', subKey);
+    return Math.max(1, list?.length || 1);
+  }
+
+  /** Límite de imágenes que puede subir el usuario en esa subselección. */
+  public maxImagesForSlot(mod: any, subKey: string): number {
+    return this.examplesCount(mod, subKey);
+  }
+
+  /** Para el HTML: true si queremos poner la tarjeta a ancho completo (más de 3 ejemplos). */
+  public shouldFullWidth(mod: any, subKey: string): boolean {
+    return this.examplesCount(mod, subKey) > 3;
+  }
+
+  /** Garantiza que el array por-slot no excede el máximo permitido. */
+  private clipSlotToMax(mod: any, subKey: string) {
+    const k = this.slotKey(mod, subKey);
+    const max = this.maxImagesForSlot(mod, subKey);
+    const prev = this.perSlotPreviews[k] || [];
+    const blobs = this.perSlotBlobs[k] || [];
+    if (prev.length > max) {
+      prev.length = max;
+      blobs.length = max;
+    }
+    this.perSlotPreviews[k] = prev;
+    this.perSlotBlobs[k] = blobs;
+  }
+
+  // =======================================================================
+  //   CICLO VIDA
+  // =======================================================================
   async ngOnInit(): Promise<void> {
     if (this.datosEntrada?.step) this.step = this.datosEntrada.step;
 
@@ -268,7 +1342,7 @@ export class ImagenesComponent implements OnInit {
       );
     }
 
-    // Restaurar post
+    // Restaurar post (se rehidrata a slots más abajo)
     if (Array.isArray(this.datosEntrada?.postImagesB64)) {
       this.postImagesB64 = [...this.datosEntrada.postImagesB64];
       this.postPreviews = [...this.postImagesB64];
@@ -286,7 +1360,7 @@ export class ImagenesComponent implements OnInit {
     // Subopciones activas desde el detalle
     this.initSelectedSuboptsFromDetalle();
 
-    // Hidratar estructura por-slot (solo subopciones)
+    // Hidratar estructura por-slot desde el flat (ahora soporta múltiple)
     await this.hydratePerSlotsFromFlat();
 
     // Docs
@@ -491,21 +1565,36 @@ export class ImagenesComponent implements OnInit {
     input?.nativeElement.click();
   }
 
+  // Ahora soporta múltiples imágenes por subselección (hasta el nº de ejemplos)
   async onSelectedForSlot(ev: Event, mod: any, subKey: string) {
     const input = ev.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
-    const file = input.files[0];
-    const blob = await this.normalizeOrientation(file);
-    const preview = await this.blobToDataUrl(blob);
+    const k = this.slotKey(mod, subKey);
+    const currentPrev = this.perSlotPreviews[k] || [];
+    const currentBlob = this.perSlotBlobs[k] || [];
+    const max = this.maxImagesForSlot(mod, subKey);
+    const remaining = Math.max(0, max - currentPrev.length);
 
-    const key = this.slotKey(mod, subKey);
-    this.perSlotPreviews[key] = [preview];
-    this.perSlotBlobs[key] = [blob];
+    const files = Array.from(input.files).slice(0, remaining);
+    if (files.length === 0) {
+      input.value = '';
+      return;
+    }
+
+    const blobs = await Promise.all(
+      files.map((f) => this.normalizeOrientation(f))
+    );
+    const previews = await Promise.all(blobs.map((b) => this.blobToDataUrl(b)));
+
+    this.perSlotPreviews[k] = [...currentPrev, ...previews];
+    this.perSlotBlobs[k] = [...currentBlob, ...blobs];
 
     // Asegura que la subopción está marcada
     this.toggleSubopcion(mod, subKey, true);
 
+    // Recorta por si acaso y reflatea
+    this.clipSlotToMax(mod, subKey);
     this.recomputeFlatFromSlots();
     this.emitAutosave();
 
@@ -527,12 +1616,14 @@ export class ImagenesComponent implements OnInit {
     } else {
       this.perSlotPreviews[key] = arrPrev;
       this.perSlotBlobs[key] = arrBlob;
+      this.clipSlotToMax(mod, subKey);
     }
 
     this.recomputeFlatFromSlots();
     this.emitAutosave();
   }
 
+  // Rehidratación desde el array plano postImagesB64 al nuevo modelo multi-slot
   public async hydratePerSlotsFromFlat(): Promise<void> {
     this.perSlotPreviews = {};
     this.perSlotBlobs = {};
@@ -543,11 +1634,20 @@ export class ImagenesComponent implements OnInit {
 
     for (const mod of this.modsSeleccionadas) {
       for (const so of this.subopcionesActivas(mod)) {
-        if (idx < images.length) {
-          const b64 = images[idx++];
-          const k = this.slotKey(mod, so);
-          this.perSlotPreviews[k] = [b64];
-          this.perSlotBlobs[k] = [await this.dataUrlToBlob(b64)];
+        const k = this.slotKey(mod, so);
+        const max = this.maxImagesForSlot(mod, so);
+        const previews: string[] = [];
+        const blobs: Blob[] = [];
+
+        for (let j = 0; j < max && idx < images.length; j++, idx++) {
+          const b64 = images[idx];
+          previews.push(b64);
+          blobs.push(await this.dataUrlToBlob(b64));
+        }
+
+        if (previews.length) {
+          this.perSlotPreviews[k] = previews;
+          this.perSlotBlobs[k] = blobs;
         }
       }
     }
@@ -563,19 +1663,33 @@ export class ImagenesComponent implements OnInit {
     for (const mod of this.modsSeleccionadas) {
       for (const so of this.subopcionesActivas(mod)) {
         const k = this.slotKey(mod, so);
-        if (this.perSlotPreviews[k]?.length) {
-          newB64.push(this.perSlotPreviews[k][0]);
-          newPrev.push(this.perSlotPreviews[k][0]);
-          newBlobs.push(this.perSlotBlobs[k][0]);
+        const arrPrev = this.perSlotPreviews[k] || [];
+        const arrBlob = this.perSlotBlobs[k] || [];
+        const max = this.maxImagesForSlot(mod, so);
+
+        // Seguridad: recorta por-slot al máximo permitido
+        if (arrPrev.length > max) {
+          arrPrev.length = max;
+          arrBlob.length = max;
+          this.perSlotPreviews[k] = arrPrev;
+          this.perSlotBlobs[k] = arrBlob;
+        }
+
+        for (let i = 0; i < arrPrev.length; i++) {
+          newB64.push(arrPrev[i]);
+          newPrev.push(arrPrev[i]);
+          newBlobs.push(arrBlob[i]);
         }
       }
     }
 
-    if (newB64.length > 30) {
+    // Límite duro: no superar el total calculado por ejemplos
+    const maxGlobal = this.totalSlots;
+    if (newB64.length > maxGlobal) {
       this.errorPostImagesCount = true;
-      newB64.length = 30;
-      newPrev.length = 30;
-      newBlobs.length = 30;
+      newB64.length = maxGlobal;
+      newPrev.length = maxGlobal;
+      newBlobs.length = maxGlobal;
     } else {
       this.errorPostImagesCount = false;
     }
@@ -667,12 +1781,84 @@ export class ImagenesComponent implements OnInit {
     this.continuar.emit(this.snapshot());
   }
 
-  // ---- Imagen ejemplo por mod ----
+  // ===========================
+  //   Helpers de ejemplos
+  // ===========================
+  private slugify(s: string): string {
+    return (s || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
+
+  private getExampleList(modNombre: string, subKey?: string): ExampleMeta[] {
+    if (subKey && this.ejemploPorSubList[modNombre]?.[subKey]) {
+      return this.ejemploPorSubList[modNombre][subKey];
+    }
+    if (this.ejemploPorModList[modNombre]?.length) {
+      return this.ejemploPorModList[modNombre];
+    }
+    const modSlug = this.slugify(modNombre);
+    const subSlug = subKey ? this.slugify(subKey) : 'default';
+    return [
+      {
+        src: `assets/ejemplos/mods/${modSlug}/${subSlug}.jpg`,
+        id: `${modSlug}-${subSlug}`,
+      },
+    ];
+  }
+
+  private seenExampleIdsBefore(mod: any, subKey: string): Set<string> {
+    const seen = new Set<string>();
+    const modIndex = this.modsSeleccionadas.findIndex((m) => m === mod);
+    if (modIndex === -1) return seen;
+
+    // Mods anteriores
+    for (let i = 0; i < modIndex; i++) {
+      const mPrev = this.modsSeleccionadas[i];
+      const prevSubs = this.subopcionesActivas(mPrev);
+      for (const sk of prevSubs) {
+        const list = this.getExampleList(mPrev.nombre, sk);
+        list.forEach((e) => seen.add(e.id));
+      }
+    }
+
+    // Misma mod, subopciones anteriores
+    const subs = this.subopcionesActivas(mod);
+    for (const sk of subs) {
+      if (sk === subKey) break;
+      const list = this.getExampleList(mod.nombre, sk);
+      list.forEach((e) => seen.add(e.id));
+    }
+
+    return seen;
+  }
+
+  // Úsalo en el HTML: *ngFor="let ej of visibleExamplesFor(mod, soKey)"
+  public visibleExamplesFor(mod: any, subKey: string): ExampleMeta[] {
+    const all = this.getExampleList(mod?.nombre ?? '', subKey);
+    const seen = this.seenExampleIdsBefore(mod, subKey);
+    const filtered = all.filter((e) => !seen.has(e.id));
+
+    if (
+      filtered.length === 0 &&
+      this.ejemploPorSubList[mod?.nombre ?? '']?.[subKey] == null
+    ) {
+      const fallback = this.getExampleList(mod?.nombre ?? '');
+      return fallback.filter((e) => !seen.has(e.id));
+    }
+    return filtered.length
+      ? filtered
+      : [{ src: this.GENERIC_EXAMPLE, id: 'generic' }];
+  }
+
+  // Compat con HTML antiguo que sólo pide una imagen por módulo
   getImagenEjemplo(modNombre: string): string {
-    const mapa: { [k: string]: string } = {
-      // 'Ruedas': 'assets/ejemplos/ruedas.png',
-    };
-    return mapa[modNombre] || 'assets/cochee.png';
+    const lista = this.ejemploPorModList[modNombre];
+    if (lista && lista.length) return lista[0].src;
+    return 'assets/cochee.png';
   }
 
   // ---- Modal: quitar reforma / quitar subselección ----

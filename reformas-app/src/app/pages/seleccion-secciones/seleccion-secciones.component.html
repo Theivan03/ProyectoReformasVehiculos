@@ -2,7 +2,7 @@
   <h3 class="mb-3 text-dark">Selecciona las secciones a modificar</h3>
 
   <ul class="list-group mb-4">
-    @for (opcion of opcionesReforma; track opcion) {
+    @for (opcion of opcionesReforma; track opcion.codigo) {
     <li
       class="list-group-item d-flex justify-content-between align-items-center"
       [class.active]="estaSeleccionada(opcion.codigo)"
@@ -12,14 +12,17 @@
       <span
         ><strong>{{ opcion.codigo }}.</strong> {{ opcion.descripcion }}</span
       >
-      @if (estaSeleccionada(opcion.codigo)) {
-      <span></span>
-      }
+      @if (estaSeleccionada(opcion.codigo)) { <span></span> }
     </li>
     }
   </ul>
 
-  <div class="text-end">
+  <!-- Botonera: Volver (izquierda) / Continuar (derecha) -->
+  <div class="d-flex justify-content-between">
+    <button class="btn btn-outline-secondary" (click)="onVolver()">
+      ⬅ Volver
+    </button>
+
     <button
       class="btn btn-dark"
       [disabled]="seccionesSeleccionadas.length === 0"
