@@ -30,7 +30,10 @@
       <ul class="nav flex-column">
         <h5 class="text-uppercase text-dark mb-3">Reformas de vehículos</h5>
         <li class="nav-item">
-          <a class="nav-link text-dark fw-semibold" routerLink="/crear-reforma"
+          <a
+            class="nav-link text-dark fw-semibold"
+            routerLink="/crear-reforma"
+            (click)="resetAndNavigate('/crear-reforma')"
             >📝 Empezar reforma</a
           >
         </li>

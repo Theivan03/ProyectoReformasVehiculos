@@ -87,7 +87,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
     this.haAplicadoResetPorCliente = true; // <- ya no volveremos a pisar la selección del usuario
     this.refreshSnapshot();
-    this.emitAutosave();
   }
 
   ngOnInit(): void {
@@ -113,7 +112,8 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     }
 
     this.refreshSnapshot();
-    this.emitAutosave();
+
+    // 🔥 YA NO EMITE AUTOSAVE AQUÍ (evita enviar datos vacíos al padre)
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -147,7 +147,17 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
   // Detecta cualquier cambio en 'modificaciones' (marca, subopción, etc.) y emite autosave sin tocar el HTML
   ngDoCheck(): void {
     const s = JSON.stringify(this.modificaciones);
-    if (s !== this.snapshotMods) {
+
+    const hayActivas =
+      Array.isArray(this.modificaciones) &&
+      this.modificaciones.some((m) => m?.seleccionado);
+
+    if (
+      this.tipoVehiculo &&
+      this.tipoVehiculo.trim() !== '' &&
+      hayActivas &&
+      s !== this.snapshotMods
+    ) {
       this.snapshotMods = s;
       this.emitAutosave();
     }
@@ -293,13 +303,21 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     this.modificaciones = this.obtenerModificacionesPorTipo(
       this.tipoVehiculo
     ).map((mod) => this.normalizarModificacion(mod));
+
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
     this.refreshSnapshot();
-    this.emitAutosave();
+
+    if (
+      this.tipoVehiculo &&
+      this.tipoVehiculo.trim() !== '' &&
+      this.modificaciones.length > 0
+    ) {
+      this.emitAutosave();
+    }
   }
 
-  onCambioSubopcion(): void {
-    // Se sigue usando donde ya lo llamas desde el HTML
+  onCambioSubopcion(mod: any): void {
+    if (!mod?.seleccionado) return;
     this.emitAutosave();
   }
 

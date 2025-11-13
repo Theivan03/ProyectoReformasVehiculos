@@ -11,4 +11,4 @@ registerLocaleData(localeEs, 'es');
 
 bootstrapApplication(AppComponent, {
   providers: [provideRouter(routes), { provide: LOCALE_ID, useValue: 'es' }],
-});
+}).catch((err) => console.error('BOOT ERROR:', err));

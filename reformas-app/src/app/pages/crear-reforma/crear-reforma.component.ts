@@ -77,6 +77,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   datosGenerales: any = undefined;
   datosGuardadosTipoVehiculo: any = undefined;
   datosResumenModificaciones: any = undefined;
+  proyectoCargado = false;
 
   // 🔵 NUEVO: payload listo para inyectar en resumen-modificaciones
   payloadResumen: any = null;
@@ -160,7 +161,16 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     private router: Router,
     private http: HttpClient,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    // setInterval(() => {
+    //   console.log(
+    //     'CD - step:',
+    //     this.step,
+    //     ' | datosParaResumen:',
+    //     this.datosParaResumen
+    //   );
+    // }, 2500);
+  }
 
   private clearWizardStorage() {
     try {
@@ -271,6 +281,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
   // -------- ciclo de vida --------
   ngOnInit(): void {
+    this.proyectoCargado = true;
     this.editId = this.route.snapshot.queryParamMap.get('editId');
     this.editMode = !!this.editId;
     this.storageKey = this.editId
@@ -407,22 +418,28 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   }
 
   private cargarProyectoDesdeServidor(id: string) {
+    this.proyectoCargado = false; // BLOQUEA RENDER
+
     this.http
       .get(`http://192.168.1.41:3000/proyectos/${id}/proyecto.json`)
       .subscribe({
         next: (data: any) => {
-          // Guardamos el proyecto completo en memoria
           this.datosProyecto = { ...data };
 
-          // Restauramos estado en base a datosProyecto + localStorage
+          // Restaurar desde storage y mezclar
           this.restore();
 
-          // Forzamos al primer paso
+          // Ir al primer paso
           this.step = 'tipo-vehiculo';
+
+          // 🔥 SOLO AHORA desbloqueamos el render
+          this.proyectoCargado = true;
+
           this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Error al cargar proyecto desde servidor:', err);
+          console.error('Error al cargar proyecto:', err);
+          this.proyectoCargado = true; // evitar bloqueo
         },
       });
   }
@@ -733,16 +750,24 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     modificaciones: any[];
   }) {
     if (!event) return;
+    if (!Array.isArray(event.modificaciones)) return;
+
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       ...event,
     };
-    this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+
+    this.datosGenerales = {
+      ...(this.datosGenerales || {}),
+      ...event,
+    };
+
     this.datosProyecto = {
       ...(this.datosProyecto || {}),
       ...event,
       enviadoPorCliente: false,
     };
+
     this.persist();
   }
 
@@ -759,26 +784,31 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.navigate('tipo-vehiculo');
   }
 
+  cargandoResumen = false;
+
   onContinuarTipoVehiculo(event: any) {
-    if (event) {
+    this.proyectoCargado = true;
+
+    if (event && Array.isArray(event.modificaciones)) {
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
         ...event,
       };
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-      if (this.datosProyecto) {
-        this.datosProyecto = {
-          ...(this.datosProyecto || {}),
-          ...event,
-          enviadoPorCliente: false,
-        };
-      }
+
+      this.datosGenerales = {
+        ...(this.datosGenerales || {}),
+        ...event,
+      };
+
+      this.datosProyecto = {
+        ...(this.datosProyecto || {}),
+        ...event,
+        enviadoPorCliente: false,
+      };
     }
 
-    // 🔵 Preparamos payload completo para Resumen
     this.payloadResumen = this.buildResumenPayload(event);
     this.persist();
-    // tipo-vehículo -> resumen-modificaciones
     this.navigate('resumen');
   }
 
@@ -789,7 +819,12 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGuardadosTipoVehiculo?.modificaciones ??
       this.datosGenerales?.modificaciones ??
       [];
-    return { ...base, modificaciones: mods };
+
+    // 🔥 DEVOLVER SIEMPRE OBJETO NUEVO
+    return {
+      ...base,
+      modificaciones: [...mods],
+    };
   }
 
   onVolverDesdeResumenModificaciones(event?: any) {

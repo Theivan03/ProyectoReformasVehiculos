@@ -124,8 +124,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
   modificacionesSeleccionadas: any[] = [];
 
-  ngOnChanges(_: SimpleChanges): void {
-    this.rebuild(); // se recalcula cada vez que llega el input
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['datosEntrada']?.currentValue) {
+      this.rebuild();
+    }
   }
 
   getTornilloActivo(mod: any) {
@@ -177,259 +179,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     console.log(this.datosEntrada);
-    this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
-      (mod: any) => mod.seleccionado
-    );
-
-    this.modificacionesSeleccionadas.forEach((m: any) => {
-      if (
-        m.densidadAireKgM3Estribos === undefined ||
-        m.densidadAireKgM3Estribos === null
-      ) {
-        m.densidadAireKgM3Estribos = 1.29;
-      }
-
-      if (
-        m.coefAerodinamicoEstribos === undefined ||
-        m.coefAerodinamicoEstribos === null
-      ) {
-        m.coefAerodinamicoEstribos = 0.82;
-      }
-
-      if (
-        m.velocidadAireV2msEstribos === undefined ||
-        m.velocidadAireV2msEstribos === null
-      ) {
-        m.velocidadAireV2msEstribos = 38.89;
-      }
-
-      if (
-        m.radioCurvaREstribos === undefined ||
-        m.radioCurvaREstribos === null
-      ) {
-        m.radioCurvaREstribos = 800;
-      }
-
-      if (
-        m.coefSeguridadKEstribos === undefined ||
-        m.coefSeguridadKEstribos === null
-      ) {
-        m.coefSeguridadKEstribos = 3;
-      }
-
-      if (
-        m.calidadTornilloEstribos === undefined ||
-        m.calidadTornilloEstribos === null
-      ) {
-        m.calidadTornilloEstribos = 8.8;
-      }
-
-      if (
-        m.calidadTornilloLucesEspecificas === undefined ||
-        m.calidadTornilloLucesEspecificas === null
-      ) {
-        m.calidadTornilloLucesEspecificas = 8.8;
-      }
-
-      if (
-        m.cwCoefAerodinamicoLucesEspecificas === undefined ||
-        m.cwCoefAerodinamicoLucesEspecificas === null
-      ) {
-        m.cwCoefAerodinamicoLucesEspecificas = 0.82;
-      }
-
-      if (
-        m.densidadAireKgM3LucesEspecificas === undefined ||
-        m.densidadAireKgM3LucesEspecificas === null
-      ) {
-        m.densidadAireKgM3LucesEspecificas = 1.29;
-      }
-
-      if (
-        m.velocidadAireV2msLucesEspecificas === undefined ||
-        m.velocidadAireV2msLucesEspecificas === null
-      ) {
-        m.velocidadAireV2msLucesEspecificas = 38.89;
-      }
-
-      if (
-        m.radioCurvaRLucesEspecificas === undefined ||
-        m.radioCurvaRLucesEspecificas === null
-      ) {
-        m.radioCurvaRLucesEspecificas = 800;
-      }
-
-      if (
-        m.coefSeguridadKLucesEspecificas === undefined ||
-        m.coefSeguridadKLucesEspecificas === null
-      ) {
-        m.coefSeguridadKLucesEspecificas = 3;
-      }
-
-      if (
-        m.calidadTornilloSnorkel === undefined ||
-        m.calidadTornilloSnorkel === null
-      ) {
-        m.calidadTornilloSnorkel = 8.8;
-      }
-
-      if (
-        m.cwCoefAerodinamicoSnorkel === undefined ||
-        m.cwCoefAerodinamicoSnorkel === null
-      ) {
-        m.cwCoefAerodinamicoSnorkel = 0.82;
-      }
-
-      if (
-        m.densidadAireKgM3Snorkel === undefined ||
-        m.densidadAireKgM3Snorkel === null
-      ) {
-        m.densidadAireKgM3Snorkel = 1.29;
-      }
-
-      if (
-        m.velocidadAireV2msSnorkel === undefined ||
-        m.velocidadAireV2msSnorkel === null
-      ) {
-        m.velocidadAireV2msSnorkel = 38.89;
-      }
-
-      if (
-        m.coefSeguridadKSnorkel === undefined ||
-        m.coefSeguridadKSnorkel === null
-      ) {
-        m.coefSeguridadKSnorkel = 3;
-      }
-
-      if (
-        m.coefAerodinamicoParagolpesTrasero === undefined ||
-        m.coefAerodinamicoParagolpesTrasero === null
-      ) {
-        m.coefAerodinamicoParagolpesTrasero = 0.82;
-      }
-
-      if (
-        m.calidadTornilloParagolpesTrasero === undefined ||
-        m.calidadTornilloParagolpesTrasero === null
-      ) {
-        m.calidadTornilloParagolpesTrasero = 8.8;
-      }
-
-      if (
-        m.densidadAireKgM3ParagolpesTrasero === undefined ||
-        m.densidadAireKgM3ParagolpesTrasero === null
-      ) {
-        m.densidadAireKgM3ParagolpesTrasero = 1.29;
-      }
-
-      if (
-        m.velocidadAireV2msParagolpesTrasero === undefined ||
-        m.velocidadAireV2msParagolpesTrasero === null
-      ) {
-        m.velocidadAireV2msParagolpesTrasero = 38.89;
-      }
-
-      if (
-        m.radioCurvaRParagolpesTrasero === undefined ||
-        m.radioCurvaRParagolpesTrasero === null
-      ) {
-        m.radioCurvaRParagolpesTrasero = 800;
-      }
-
-      if (
-        m.coefSeguridadKParagolpesTrasero === undefined ||
-        m.coefSeguridadKParagolpesTrasero === null
-      ) {
-        m.coefSeguridadKParagolpesTrasero = 3;
-      }
-
-      if (
-        m.cwCoefAerodinamicoParagolpesDelantero === undefined ||
-        m.cwCoefAerodinamicoParagolpesDelantero === null
-      ) {
-        m.cwCoefAerodinamicoParagolpesDelantero = 0.82;
-      }
-
-      if (
-        m.densidadAireKgM3ParagolpesDelantero === undefined ||
-        m.densidadAireKgM3ParagolpesDelantero === null
-      ) {
-        m.densidadAireKgM3ParagolpesDelantero = 1.29;
-      }
-
-      if (
-        m.velocidadAireV2msParagolpesDelantero === undefined ||
-        m.velocidadAireV2msParagolpesDelantero === null
-      ) {
-        m.velocidadAireV2msParagolpesDelantero = 38.89;
-      }
-
-      if (
-        m.radioCurvaRParagolpesDelantero === undefined ||
-        m.radioCurvaRParagolpesDelantero === null
-      ) {
-        m.radioCurvaRParagolpesDelantero = 800;
-      }
-
-      if (
-        m.coefSeguridadKParagolpesDelantero === undefined ||
-        m.coefSeguridadKParagolpesDelantero === null
-      ) {
-        m.coefSeguridadKParagolpesDelantero = 3;
-      }
-
-      if (
-        m.coefAerodinamicoCwAletines === undefined ||
-        m.coefAerodinamicoCwAletines === null
-      ) {
-        m.coefAerodinamicoCwAletines = 0.82;
-      }
-
-      if (
-        m.densidadAireKgM3Aletines === undefined ||
-        m.densidadAireKgM3Aletines === null
-      ) {
-        m.densidadAireKgM3Aletines = 1.29;
-      }
-
-      if (
-        m.velocidadAireV2msAletines === undefined ||
-        m.velocidadAireV2msAletines === null
-      ) {
-        m.velocidadAireV2msAletines = 38.89;
-      }
-
-      if (
-        m.radioCurvaRAletines === undefined ||
-        m.radioCurvaRAletines === null
-      ) {
-        m.radioCurvaRAletines = 800;
-      }
-
-      if (
-        m.coefSeguridadKAletines === undefined ||
-        m.coefSeguridadKAletines === null
-      ) {
-        m.coefSeguridadKAletines = 3;
-      }
-
-      if (m.curvaturaSnorkel === undefined || m.curvaturaSnorkel === null) {
-        m.curvaturaSnorkel = 800;
-      }
-
-      if (
-        m.seccionResistenteAsSnorkel === undefined ||
-        m.seccionResistenteAsSnorkel === null
-      ) {
-        m.seccionResistenteAsSnorkel = 36.64;
-      }
-
-      if (m.nombre === 'INSTALACIÓN ELÉCTRICA') {
-        if (!m.placasSolares) {
-          m.placasSolares = [{}]; // empieza con 1 vacío por defecto
-        }
-      }
-    });
   }
 
   onDimensionesChange(
@@ -516,12 +265,16 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   private rebuild() {
-    const mods = Array.isArray(this.datosEntrada?.modificaciones)
-      ? this.datosEntrada.modificaciones
-      : [];
+    if (
+      !this.datosEntrada ||
+      !Array.isArray(this.datosEntrada.modificaciones)
+    ) {
+      this.modificacionesSeleccionadas = [];
+      return;
+    }
 
-    this.modificacionesSeleccionadas = mods.filter(
-      (m: { seleccionado: any }) => m?.seleccionado
+    this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
+      (m: any) => m?.seleccionado
     );
 
     this.modificacionesSeleccionadas.forEach((m) => {
@@ -530,19 +283,15 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.diametroTornilloSeleccionado = null;
         }
 
-        // inicializar área si no existe
         if (m.areaResistenteTornilloSeleccionado === undefined) {
           m.areaResistenteTornilloSeleccionado = null;
         }
 
-        // si ya hay un diámetro, sincronizar el área
         if (m.diametroTornilloSeleccionado !== null) {
-          const tornillo = this.tornillosDB.find(
-            (t) => t.diametro === m.diametroTornilloSeleccionado
+          const t = this.tornillosDB.find(
+            (x) => x.diametro === m.diametroTornilloSeleccionado
           );
-          if (tornillo) {
-            m.areaResistenteTornilloSeleccionado = tornillo.areaResistente;
-          }
+          if (t) m.areaResistenteTornilloSeleccionado = t.areaResistente;
         }
       }
     });
