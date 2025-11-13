@@ -682,9 +682,14 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Después de formulario vamos a coche-o-no (flujo nuevo)
-    this.persist();
-    this.navigate('coche-o-no');
+    if (this.datosFormularioGuardados.reformasPrevias === true) {
+      this.persist();
+      this.navigate('reformas-previas');
+    } else {
+      // Después de formulario vamos a coche-o-no (flujo nuevo)
+      this.persist();
+      this.navigate('coche-o-no');
+    }
   }
 
   // Reformas previas (compatibilidad)
@@ -719,7 +724,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       };
     }
     this.persist();
-    this.navigate('tipo-vehiculo');
+    this.navigate('coche-o-no');
   }
 
   // Tipo-vehículo
@@ -864,9 +869,15 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       paginaActual: Number.MAX_SAFE_INTEGER,
     };
 
-    this.persist();
-    // ORDEN INVERSO: coche-o-no -> formulario
-    this.navigate('formulario');
+    if (this.datosFormularioGuardados.reformasPrevias === true) {
+      this.persist();
+      this.navigate('reformas-previas');
+      return;
+    } else {
+      this.persist();
+      // ORDEN INVERSO: coche-o-no -> formulario
+      this.navigate('formulario');
+    }
   }
 
   onContinuarDesdeCocheONo(event: any) {
