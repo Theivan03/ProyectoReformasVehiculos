@@ -20,5 +20,16 @@
     "responsable": "César Pons Vera",
     "telefono": "965785776",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "Fernando Canet Gonzalez",
+    "direccion": "Carrer Llevant, 5, puerta 3",
+    "poblacion": "Piles",
+    "provincia": "Valencia",
+    "registroIndustrial": "10 - A - 452 - 46097145",
+    "registroEspecial": "V-6257",
+    "responsable": "Fernando Canet Gonzalez",
+    "telefono": "653758408",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
   }
 ]

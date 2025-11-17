@@ -15,6 +15,7 @@ import {
   TableCell,
   VerticalAlign,
   ImageRun,
+  ShadingType,
 } from 'docx';
 import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
@@ -296,22 +297,20 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           new TableRow({
             children: [
               new TableCell({
-                verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 200, right: 200 },
                 children: [
                   new Paragraph({
                     text: String(label),
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                   }),
                 ],
               }),
               new TableCell({
-                verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 200, right: 200 },
                 children: [
                   new Paragraph({
                     text: String(value),
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                   }),
                 ],
               }),
@@ -328,42 +327,74 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
     // TABLA DE DATOS DEL TALLER
     new Table({
-      width: { size: 70, type: WidthType.PERCENTAGE },
-      alignment: AlignmentType.CENTER, // 1) Centra la tabla en la página
+      width: { size: 100, type: WidthType.PERCENTAGE }, // Ligeramente más ancha
+      alignment: AlignmentType.CENTER,
+
+      // 1. BORDES: Bordes visibles como en la imagen (gruesos por fuera, finos por dentro)
       borders: {
-        top: { style: BorderStyle.NONE, size: 0 },
-        bottom: { style: BorderStyle.NONE, size: 0 },
-        left: { style: BorderStyle.NONE, size: 0 },
-        right: { style: BorderStyle.NONE, size: 0 },
-        insideHorizontal: { style: BorderStyle.NONE, size: 0 },
-        insideVertical: { style: BorderStyle.NONE, size: 0 },
+        top: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+        bottom: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+        left: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+        right: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+        insideHorizontal: {
+          style: BorderStyle.SINGLE,
+          size: 6,
+          color: '000000',
+        },
+        insideVertical: { style: BorderStyle.SINGLE, size: 6, color: '000000' },
       },
+
       rows: [
-        ['NOMBRE EMPRESA', data.tallerSeleccionado.nombre],
-        ['DIRECCIÓN TALLER', data.tallerSeleccionado.direccion],
-        ['LOCALIDAD', data.tallerSeleccionado.poblacion],
-        ['PROVINCIA', data.tallerSeleccionado.provincia],
-        ['Nº REGISTRO INDUSTRIAL', data.tallerSeleccionado.registroIndustrial],
-        ['Nº REGISTRO ESPECIAL', data.tallerSeleccionado.registroEspecial],
+        ['NOMBRE EMPRESA', data.tallerSeleccionado?.nombre || ''],
+        ['DIRECCIÓN TALLER', data.tallerSeleccionado?.direccion || ''],
+        ['LOCALIDAD', data.tallerSeleccionado?.poblacion || ''],
+        ['PROVINCIA', data.tallerSeleccionado?.provincia || ''],
+        [
+          'Nº REGISTRO INDUSTRIAL',
+          data.tallerSeleccionado?.registroIndustrial || '',
+        ],
+        [
+          'Nº REGISTRO ESPECIAL',
+          data.tallerSeleccionado?.registroEspecial || '',
+        ],
       ].map(
         ([label, value]) =>
           new TableRow({
             children: [
+              // === CELDA IZQUIERDA (Etiqueta) ===
               new TableCell({
+                // 2. ANCHO: Definir ancho de la columna de etiqueta
+                width: { size: 40, type: WidthType.PERCENTAGE },
+                margins: { top: 100, bottom: 100, left: 150, right: 150 },
+
+                // 3. SOMBREADO: Añadir fondo gris
+                shading: {
+                  type: ShadingType.CLEAR,
+                  fill: 'D3D3D3', // Gris claro
+                },
                 verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 150, bottom: 150, left: 150, right: 150 }, // 2) Aumenta márgenes
                 children: [
                   new Paragraph({
-                    text: String(label),
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      // 4. TEXTO: Poner en negrita
+                      new TextRun({ text: String(label), bold: true }),
+                    ],
                   }),
                 ],
               }),
+
+              // === CELDA DERECHA (Valor) ===
               new TableCell({
+                // 2. ANCHO: Definir ancho de la columna de valor
+                width: { size: 60, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 150, bottom: 150, left: 150, right: 150 },
+                margins: { top: 100, bottom: 100, left: 150, right: 150 },
                 children: [
                   new Paragraph({
-                    text: String(value),
+                    // 5. ALINEACIÓN: Asegurar que el texto esté a la izquierda
+                    alignment: AlignmentType.CENTER,
+                    text: String(value || ''), // Usar || '' por si el valor es null
                   }),
                 ],
               }),
@@ -1091,8 +1122,8 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
     function buildPreviosTable(images: ImageInfo[]): Table {
       const rows: TableRow[] = [];
-      const maxCellWidth = 300;
-      const maxCellHeight = 250;
+      const maxCellWidth = 315;
+      const maxCellHeight = 265;
 
       for (let i = 0; i < images.length; i += 2) {
         const left = images[i];
@@ -1213,6 +1244,20 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
   // 5) Monta y descarga el documento
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            size: 22,
+          },
+          paragraph: {
+            spacing: {
+              line: 360,
+            },
+          },
+        },
+      },
+    },
     sections: [section1],
   });
 

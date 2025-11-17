@@ -1881,7 +1881,9 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
       contador++;
 
-      let superficiefrontal = data.anchuraMEstribos * data.alturaMEstribos;
+      let superficiefrontal =
+        (estribostaloneras.anchuraMEstribos ?? 0) *
+        (estribostaloneras.alturaMEstribos ?? 0);
 
       // 2) Tabla de características de la pieza y sujeción
       const tablaEstribos = new Table({
@@ -2138,7 +2140,7 @@ export async function buildCalculos(
               'La fuerza de diseño soportada por los anclajes (N)',
               'Fuerza máxima que soportan los tornillos a tracción (N)',
               'Fuerza máxima que soportan los tornillos a cortante (N)',
-              '',
+              'Comprobación <= 1',
             ].map(
               (heading) =>
                 new TableCell({
@@ -3413,7 +3415,7 @@ export async function buildCalculos(
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
-            (Math.PI * Math.pow(mod.diametroEspiraDelanteroRef ?? 0, 3) ** 3);
+            (Math.PI * Math.pow(mod.diametroEspiraDelanteroRef ?? 0, 3));
           coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
         }
 
@@ -3422,8 +3424,7 @@ export async function buildCalculos(
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
-            (Math.PI *
-              Math.pow(mod.diametroEspiraDelanteroSinRef ?? 0, 3) ** 3);
+            (Math.PI * Math.pow(mod.diametroEspiraDelanteroSinRef ?? 0, 3));
           coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
         }
 
@@ -3820,7 +3821,7 @@ export async function buildCalculos(
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
-            (Math.PI * Math.pow(mod.diametroEspiraTraseroRef ?? 0, 3) ** 3);
+            (Math.PI * Math.pow(mod.diametroEspiraTraseroRef ?? 0, 3));
           coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
         }
 
@@ -3829,7 +3830,7 @@ export async function buildCalculos(
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
-            (Math.PI * Math.pow(mod.diametroEspiraTraseroSinRef ?? 0, 3) ** 3);
+            (Math.PI * Math.pow(mod.diametroEspiraTraseroSinRef ?? 0, 3));
           coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
         }
 

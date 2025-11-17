@@ -5,6 +5,8 @@ import {
   TextRun,
   SectionType,
   AlignmentType,
+  Footer,
+  PageNumber,
 } from 'docx';
 import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
@@ -186,10 +188,53 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
   const section1 = {
     properties: { type: SectionType.NEXT_PAGE, pageNumberStart: 1 },
     children: [...seccion, ...modificacionesParagraphs, ...seccion2],
+    footers: {
+      default: new Footer({
+        children: [
+          new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            // Anulamos el espaciado 'line: 360' por defecto para el footer
+            spacing: { after: 0, line: 240 },
+            children: [
+              new TextRun({
+                text: 'Página ',
+                size: 22, // Coincide con tu 'default'
+              }),
+              new TextRun({
+                children: [PageNumber.CURRENT], // Campo para la página actual
+                size: 22,
+              }),
+              new TextRun({
+                text: ' de ',
+                size: 22,
+              }),
+              new TextRun({
+                children: [PageNumber.TOTAL_PAGES], // Campo para el total de páginas
+                size: 22,
+              }),
+            ],
+          }),
+        ],
+      }),
+    },
   };
 
   // 5) Monta y descarga el documento
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            size: 22,
+          },
+          paragraph: {
+            spacing: {
+              line: 360,
+            },
+          },
+        },
+      },
+    },
     sections: [section1],
   });
 

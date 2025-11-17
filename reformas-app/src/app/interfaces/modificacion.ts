@@ -54,6 +54,43 @@ export interface Modificacion {
   contrasenaHomologacionEje?: string;
   diametroEspiraDelantero?: number;
   metrica?: number;
+  medidasManillar?: number;
+  marcaluzGrupoOptico?: string;
+  modeloluzGrupoOptico?: string;
+  referencialuzGrupoOptico?: string;
+  curvaturaGuardaDelantMoto?: number;
+  curvaturaluzGrupoOptico?: number;
+  homologacionluzGrupoOptico?: string;
+
+  marcaintermitenteDelantero?: string;
+  referenciaintermitenteDelantero?: string;
+  marcajesintermitenteDelantero?: string;
+  homologacionintermitenteDelantero?: string;
+  curvaturaintermitenteDelantero?: number;
+
+  marcaintermitenteTrasero?: string;
+  referenciaintermitenteTrasero?: string;
+  marcajesintermitenteTrasero?: string;
+  homologacionintermitenteTrasero?: string;
+  curvaturaintermitenteTrasero?: number;
+
+  marcacatadioptrico?: string;
+  referenciacatadioptrico?: string;
+  homologacioncatadioptrico?: string;
+  curvaturacatadioptrico?: number;
+
+  marcaluzMatricula?: string;
+  referencialuzMatricula?: string;
+  homologacionluzMatricula?: string;
+
+  marcaluzAntinieblas?: string;
+  marcajesluzAntinieblas?: string;
+  homologacionluzAntinieblas?: string;
+  curvaturaluzAntinieblas?: number;
+
+  marcajesluzGrupoOptico?: string;
+  curvaturaGuardaTrasMoto?: number;
+  curvaturaManillar?: number;
   diametroExteriorDelantero?: number;
   diametroTacoDelantero?: number;
   diametroTacoTrasero?: number;

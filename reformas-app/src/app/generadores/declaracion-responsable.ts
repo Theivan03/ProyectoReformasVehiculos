@@ -121,10 +121,13 @@ export async function generarDocumentoResponsable(data: any): Promise<void> {
     });
 
     // 5) Formatea la fecha del proyecto en español
-    const fechaFormateada = new Date(data.fechaProyecto).toLocaleDateString(
-      'es-ES',
-      { day: 'numeric', month: 'long', year: 'numeric' }
-    );
+    const fechaFormateada =
+      'Teulada, ' +
+      new Date(data.fechaProyecto).toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
 
     // 6) Construye el objeto final (fusión de defaults + data)
     const templateData = {

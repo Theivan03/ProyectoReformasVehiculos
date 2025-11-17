@@ -39,11 +39,11 @@ export class CocheonoComponent implements OnInit {
     this.emitAutosave();
 
     // Si NO es coche, saltamos este componente automáticamente (guardando antes)
-    if (tipo !== 'coche') {
-      this.datosEntrada.opcionesCoche = this.opcionesCoche;
-      this.emitAutosave();
-      this.continuar.emit(this.datosEntrada);
-    }
+    // if (tipo !== 'coche') {
+    //   this.datosEntrada.opcionesCoche = this.opcionesCoche;
+    //   this.emitAutosave();
+    //   this.continuar.emit(this.datosEntrada);
+    // }
   }
 
   /** Emite snapshot seguro */

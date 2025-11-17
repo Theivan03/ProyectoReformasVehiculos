@@ -20,6 +20,8 @@ import {
   ExternalHyperlink,
   ShadingType,
   UnderlineType,
+  HorizontalPositionRelativeFrom,
+  VerticalPositionRelativeFrom,
 } from 'docx';
 import { Modificacion } from '../interfaces/modificacion';
 import {
@@ -88,7 +90,59 @@ export function keepTableTogether(table: Table): Table {
   });
 }
 
+async function applyTransparency(
+  buffer: ArrayBuffer,
+  opacity: number
+): Promise<ArrayBuffer> {
+  // 1. Crear un Blob y una URL a partir del buffer
+  const blob = new Blob([buffer]);
+  const url = URL.createObjectURL(blob);
+
+  // 2. Cargar la imagen en un objeto Image de HTML
+  const img = new Image();
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = (err) => {
+      URL.revokeObjectURL(url);
+      reject(err);
+    };
+    img.src = url;
+  });
+
+  // 3. Ya no necesitamos la URL, la liberamos
+  URL.revokeObjectURL(url);
+
+  // 4. Crear un canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    throw new Error('No se pudo obtener el contexto 2D del canvas');
+  }
+
+  // 5. APLICAR LA TRANSPARENCIA
+  ctx.globalAlpha = opacity; // <-- ¡Aquí está la magia!
+
+  // 6. Dibujar la imagen en el canvas
+  ctx.drawImage(img, 0, 0);
+
+  // 7. Convertir el canvas de nuevo a un Blob (PNG soporta transparencia)
+  const newBlob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, 'image/png');
+  });
+
+  if (!newBlob) {
+    throw new Error('No se pudo convertir el canvas a Blob');
+  }
+
+  // 8. Convertir el Blob transparente a un ArrayBuffer
+  return newBlob.arrayBuffer();
+}
+
 export async function generarDocumentoProyecto(data: any): Promise<Blob> {
+  console.log('Info para generar el docx:', data);
   const ingeniero = data.ingenieroSeleccionado;
   const response = await fetch('assets/logo.png');
   const imageBuffer = await response.arrayBuffer();
@@ -110,6 +164,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   url = `http://192.168.1.41:3000/imgs/firma-generada.png`;
   const response5 = await fetch(url);
   const imageBuffer5 = await response5.arrayBuffer();
+
+  const responseBg = await fetch('assets/logo.png');
+  const backgroundBuffer = await responseBg.arrayBuffer();
+
+  const transparentImageBuffer = await applyTransparency(imageBuffer, 0.3);
 
   const logoImage = new ImageRun({
     data: imageBuffer,
@@ -261,16 +320,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const innerDataTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
-      // top: { style: BorderStyle.DOTTED, size: 2, color: '000000' },
-      // bottom: { style: BorderStyle.DOTTED, size: 2, color: '000000' },
-      // left: { style: BorderStyle.DOTTED, size: 2, color: '000000' },
-      // right: { style: BorderStyle.DOTTED, size: 2, color: '000000' },
       insideHorizontal: {
-        style: BorderStyle.DOTTED,
+        style: BorderStyle.NONE,
         size: 1,
         color: '000000',
       },
-      insideVertical: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
+      insideVertical: { style: BorderStyle.NONE, size: 1, color: '000000' },
     },
     rows: [
       new TableRow({
@@ -396,10 +451,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const outerDataTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      bottom: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      left: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      right: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+      top: { style: BorderStyle.NONE, size: 20, color: '000000' },
+      bottom: { style: BorderStyle.NONE, size: 12, color: '000000' },
+      left: { style: BorderStyle.NONE, size: 20, color: '000000' },
+      right: { style: BorderStyle.NONE, size: 12, color: '000000' },
       insideVertical: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
       insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
     },
@@ -422,10 +477,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const dataTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      bottom: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
-      left: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      right: { style: BorderStyle.SINGLE, size: 20, color: '000000' },
+      top: { style: BorderStyle.NONE, size: 12, color: '000000' },
+      bottom: { style: BorderStyle.NONE, size: 20, color: '000000' },
+      left: { style: BorderStyle.NONE, size: 12, color: '000000' },
+      right: { style: BorderStyle.NONE, size: 20, color: '000000' },
       insideVertical: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
       insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
     },
@@ -468,10 +523,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               }),
             ],
             borders: {
-              top: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              bottom: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              left: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              right: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
+              top: { style: BorderStyle.NONE, size: 1, color: '000000' },
+              bottom: { style: BorderStyle.NONE, size: 1, color: '000000' },
+              left: { style: BorderStyle.NONE, size: 1, color: '000000' },
+              right: { style: BorderStyle.NONE, size: 1, color: '000000' },
             },
             margins: { top: 50, bottom: 50, left: 50, right: 50 },
           }),
@@ -479,10 +534,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
             children: [],
             width: { size: 35, type: WidthType.PERCENTAGE },
             borders: {
-              top: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              bottom: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              left: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
-              right: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
+              top: { style: BorderStyle.NONE, size: 1, color: '000000' },
+              bottom: { style: BorderStyle.NONE, size: 1, color: '000000' },
+              left: { style: BorderStyle.NONE, size: 1, color: '000000' },
+              right: { style: BorderStyle.NONE, size: 1, color: '000000' },
             },
           }),
         ],
@@ -515,28 +570,44 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     ],
   });
 
-  // const imgBuffer = await generarDocumentoConWordArt({
-  //   web: ingeniero.web,
-  //   url: ingeniero.url,
-  // });
-
-  // const webLink = new Paragraph({
-  //   alignment: AlignmentType.CENTER,
-  //   children: [
-  //     new ImageRun({
-  //       data: imgBuffer,
-  //       transformation: {
-  //         width: 600, // ajusta al tamaño que necesites
-  //         height: 150,
-  //       },
-  //       type: 'png',
-  //     }),
-  //   ],
-  // });
-
   // 1) Header
   const header = new Header({
     children: [
+      // ================================================================
+      //   NUEVO: Párrafo con la imagen de fondo (Marca de Agua)
+      // ================================================================
+      ...(backgroundBuffer
+        ? [
+            // Solo se añade si la imagen se cargó
+            new Paragraph({
+              children: [
+                new ImageRun({
+                  data: transparentImageBuffer, // <-- Usamos el buffer de tu logo
+                  transformation: {
+                    width: 225, // <-- Usamos el TAMAÑO POR DEFECTO que definiste
+                    height: 125,
+                  },
+                  type: 'png',
+                  floating: {
+                    behindDocument: true, // Ponerla detrás del texto
+                    horizontalPosition: {
+                      relative: HorizontalPositionRelativeFrom.PAGE,
+                      align: AlignmentType.CENTER, // <-- ¡CENTRADO horizontalmente!
+                    },
+                    verticalPosition: {
+                      relative: VerticalPositionRelativeFrom.PAGE,
+                      align: AlignmentType.CENTER, // <-- ¡CENTRADO verticalmente!
+                    },
+                  },
+                }),
+              ],
+            }),
+          ]
+        : []), // Si no hay imagen de fondo, no añade nada
+
+      // ===========================
+      //   TABLA SUPERIOR (Tu tabla original, sin cambios)
+      // ===========================
       new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         borders: {
@@ -558,7 +629,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         rows: [
           new TableRow({
             children: [
-              // Columna 1 (25%), texto en 8 pt y negrita
+              // Columna 1
               new TableCell({
                 width: { size: 40, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
@@ -627,7 +698,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 ],
               }),
 
-              // Columna 2 (50%), texto en 8 pt y negrita
+              // Columna 2
               new TableCell({
                 width: { size: 40, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
@@ -680,7 +751,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 ],
               }),
 
-              // Columna 3 (25%), texto en 10 pt y negrita
+              // Columna 3
               new TableCell({
                 width: { size: 20, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
@@ -714,9 +785,187 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           }),
         ],
       }),
-      new Paragraph({
-        spacing: { after: 0 }, // 500 TWIP ≈ 0,35 cm de espacio
-        children: [],
+    ],
+  });
+
+  const header2 = new Header({
+    children: [
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
+          bottom: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
+          left: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
+          right: { style: BorderStyle.SINGLE, size: 1, color: 'BFBFBF' },
+          insideHorizontal: {
+            style: BorderStyle.SINGLE,
+            size: 1,
+            color: 'BFBFBF',
+          },
+          insideVertical: {
+            style: BorderStyle.SINGLE,
+            size: 1,
+            color: 'BFBFBF',
+          },
+        },
+        rows: [
+          new TableRow({
+            children: [
+              // Columna 1
+              new TableCell({
+                width: { size: 40, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.nombre,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.titulacion,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.colegiado,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.tlf,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.correoEmpresa,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.web,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              // Columna 2
+              new TableCell({
+                width: { size: 40, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'PROYECTO TÉCNICO POR REFORMA DE UN VEHÍCULO',
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text:
+                          'Marca ' +
+                          data.marca +
+                          ' Denominación ' +
+                          data.modelo,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'Nº Bastidor ' + data.bastidor,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'SOLICITANTE: ' + data.propietario,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              // Columna 3
+              new TableCell({
+                width: { size: 20, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'REF.: ' + data.referenciaProyecto,
+                        bold: true,
+                        size: 18,
+                        color: 'FF0000',
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'REV ' + data.revision,
+                        bold: true,
+                        size: 18,
+                        color: 'FF0000',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
       }),
     ],
   });
@@ -773,7 +1022,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     },
     headers: {
       first: new Header({ children: [] }), // header invisible y sin espacio
-      default: header,
+      default: header2,
     },
     footers: {
       first: new Footer({ children: [] }), // footer invisible y sin espacio
@@ -1362,6 +1611,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   let alturaAcumulada = 0;
   const alturaMaximaPagina = 700; // Aproximadamente útil en pt (842pt - márgenes)
 
+  codigosImagenes.sort((a, b) => {
+    const numA = parseFloat((a as any).codigo);
+    const numB = parseFloat((b as any).codigo);
+    return numA - numB;
+  });
+
   for (const codigo of codigosImagenes) {
     if (
       typeof codigo !== 'object' ||
@@ -1385,9 +1640,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       const buffer = await response.arrayBuffer();
 
       const escala = 500 / tamaño.width;
-      const alturaEscalada = Math.round(tamaño.height * escala);
+      const alturaEscalada = Math.round(tamaño.height * escala); // 🔁 Verificar si cabe en la página actual
 
-      // 🔁 Verificar si cabe en la página actual
       if (alturaAcumulada + alturaEscalada > alturaMaximaPagina) {
         punto1_4Normativa.push(new Paragraph({ pageBreakBefore: true }));
         alturaAcumulada = 0;
@@ -1530,6 +1784,169 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 nombreMod: 'SOPORTE PARA RUEDA DE REPUESTO',
                 etiqueta: 'Soporte rueda de repuesto',
                 key: 'curvaturaSoporteRuedaRepuesto',
+              },
+            ];
+
+            // 2) Construcción dinámica de filas solo si la mod está seleccionada y el valor existe
+            const dataRows = elementos
+              .map(({ nombreMod, etiqueta, key }) => {
+                const mod = modificaciones.find(
+                  (m) => m.nombre === nombreMod && m.seleccionado
+                );
+                const valor = mod ? mod[key] : null;
+
+                if (
+                  !mod ||
+                  valor === undefined ||
+                  valor === null ||
+                  valor === ''
+                ) {
+                  return null;
+                }
+
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: {
+                        top: 200,
+                        bottom: 200,
+                        left: 200,
+                        right: 200,
+                      },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: {
+                        top: 200,
+                        bottom: 200,
+                        left: 200,
+                        right: 200,
+                      },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(valor))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null);
+
+            if (dataRows.length === 0) {
+              return [];
+            }
+
+            // 3) Cabecera
+            const headerRow = new TableRow({
+              children: [
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  width: { size: 70, type: WidthType.PERCENTAGE },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Elemento instalado', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  width: { size: 30, type: WidthType.PERCENTAGE },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Radio de curvatura más desfavorable en mm',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            });
+
+            const spacer = new Paragraph({ spacing: { before: 400 } });
+
+            // 4) Construye y devuelve la tabla completa
+            const table = new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              borders: {
+                top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                insideHorizontal: {
+                  style: BorderStyle.SINGLE,
+                  size: 1,
+                  color: '000000',
+                },
+                insideVertical: {
+                  style: BorderStyle.SINGLE,
+                  size: 1,
+                  color: '000000',
+                },
+              },
+              rows: [headerRow, ...dataRows],
+            });
+
+            return [spacer, table];
+          })(),
+        ]
+      : []),
+
+    ...(data.tipoVehiculo === 'moto'
+      ? [
+          (() => {
+            // 1) Definimos los elementos con la clave exacta del campo que queremos mostrar
+            const elementos: Array<{
+              nombreMod: string;
+              etiqueta: string;
+              key: keyof Modificacion;
+            }> = [
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Intermitentes delanteros',
+                key: 'curvaturaintermitenteDelantero',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Intermitentes traseros',
+                key: 'curvaturaintermitenteTrasero',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Catadioptrico',
+                key: 'curvaturacatadioptrico',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Luces antiniebla',
+                key: 'curvaturaluzAntinieblas',
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
+                etiqueta: 'Guardabarros trasero',
+                key: 'curvaturaGuardaTrasMoto',
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
+                etiqueta: 'Guardabarros delantero',
+                key: 'curvaturaGuardaDelantMoto',
               },
             ];
 
@@ -1951,10 +2368,16 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const sumaTras =
     masaRealTras + ocupDelTras + ocup2Tras + ocup3Tras + cargaUtilTras;
 
-  function limpiarYParsear(valor: string): number | null {
-    const limpio = valor?.replace(',', '.').trim();
-    if (!limpio || limpio === '---' || isNaN(Number(limpio))) return null;
-    return parseFloat(limpio);
+  function limpiarYParsear(valor: any): number | null {
+    if (valor === null || valor === undefined) return null;
+
+    // Convertimos todo a string para evitar errores en .replace()
+    const texto = String(valor).trim();
+    if (!texto || texto === '---') return null;
+
+    const limpio = texto.replace(',', '.');
+
+    return isNaN(Number(limpio)) ? null : parseFloat(limpio);
   }
 
   const momAntes = limpiarYParsear(data.momAntes);
@@ -1974,6 +2397,38 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
             text: '2.2- REPARTO DE MASAS SOBRE LOS EJES',
             bold: true,
             color: '000000',
+          }),
+        ],
+      }),
+      new Paragraph({
+        spacing: { before: 240, after: 120 },
+        children: [
+          new TextRun({
+            text: 'La distribución de pesos entre ejes no se ve afectadas respecto al vehículo de serie, debido al poco peso de los elementos instalados.',
+          }),
+        ],
+      }),
+      new Paragraph({
+        spacing: { before: 240, after: 120 },
+        children: [
+          new TextRun({
+            text: 'La tara del vehículo después de la reforma se encuentra dentro de tolerancias respecto al vehículo de serie.',
+          }),
+        ],
+      }),
+      new Paragraph({
+        spacing: { before: 240, after: 120 },
+        children: [
+          new TextRun({
+            text: 'Por este motivo, el técnico que suscribe no considera necesario realizar el reparto de masas por ejes.',
+          }),
+        ],
+      }),
+      new Paragraph({
+        spacing: { before: 240, after: 120 },
+        children: [
+          new TextRun({
+            text: '',
           }),
         ],
       }),
@@ -4860,7 +5315,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               new TableCell({
                 verticalAlign: AlignmentType.CENTER,
                 width: { size: 50, type: WidthType.PERCENTAGE },
-                margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                margins: { top: 50, bottom: 0, left: 50, right: 50 },
                 borders: {
                   top: { style: BorderStyle.NONE, size: 0 },
                   bottom: { style: BorderStyle.NONE, size: 0 },
@@ -4883,7 +5338,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               new TableCell({
                 verticalAlign: AlignmentType.CENTER,
                 width: { size: 50, type: WidthType.PERCENTAGE },
-                margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                margins: { top: 50, bottom: 0, left: 50, right: 50 },
                 borders: {
                   top: { style: BorderStyle.NONE, size: 0 },
                   bottom: { style: BorderStyle.NONE, size: 0 },
@@ -4903,7 +5358,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                         ],
                       }),
                     ]
-                  : [new Paragraph('')],
+                  : [],
               }),
             ],
           })
@@ -4931,7 +5386,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const anexosPorsteriores = await generarPosteriores(data);
 
   const section2 = {
-    properties: { type: SectionType.NEXT_PAGE, pageNumberStart: 1 },
+    properties: {
+      type: SectionType.NEXT_PAGE,
+      pageNumberStart: 1,
+    },
     headers: { default: header },
     footers: { default: makeFooter() },
     children: [
@@ -4948,7 +5406,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       ...punto1_7_Conclusion,
       ...punto2,
       ...punto2_2,
-      ...(await buildCalculos(data.modificaciones, data)),
+      ...(await buildCalculos(data.modificaciones, data, true)),
       ...punto3,
       ...punto4,
       ...punto5,

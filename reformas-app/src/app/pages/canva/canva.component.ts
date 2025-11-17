@@ -106,10 +106,13 @@ export class CanvaComponent implements OnInit {
     };
   }
   private emitAutosave() {
-    this.autosave.emit(this.snapshot());
+    const data = this.snapshot();
+    if (!data.tipoVehiculo) data.tipoVehiculo = this.datosEntrada?.tipoVehiculo;
+    this.autosave.emit(data);
   }
 
   ngOnInit(): void {
+    console.log('CanvaComponent ngOnInit - datosEntrada:', this.datosEntrada);
     // ====== FECHA / FIRMA inicial ======
     this.fechaFirma = this.calcularFechaHoy();
     this.firmaUrl =

@@ -6627,6 +6627,22 @@
               </option>
               }
             </select>
+            <input
+              type="number"
+              class="form-control"
+              id="curv-guardaDelanteroMoto-{{ i }}"
+              placeholder="0"
+              step="0.01"
+              [(ngModel)]="mod.curvaturaGuardaDelantMoto"
+              name="curvaturaGuardaDelantMoto{{ i }}"
+              required
+              [class.is-invalid]="
+                formSubmitted && mod.curvaturaGuardaDelantMoto == null
+              "
+            />
+            <label for="curv-guardaDelanteroMoto-{{ i }}"
+              >Ratio curvatura mín.</label
+            >
           </div>
         </div>
         } @if (mod.guardabarrosTrasero) {
@@ -6703,6 +6719,22 @@
               </option>
               }
             </select>
+            <input
+              type="number"
+              class="form-control"
+              id="curv-guardaTraseroMoto-{{ i }}"
+              placeholder="0"
+              step="0.01"
+              [(ngModel)]="mod.curvaturaGuardaTrasMoto"
+              name="curvaturaGuardaTrasMoto{{ i }}"
+              required
+              [class.is-invalid]="
+                formSubmitted && mod.curvaturaGuardaTrasMoto == null
+              "
+            />
+            <label for="curv-guardaTraseroMoto-{{ i }}"
+              >Ratio curvatura mín.</label
+            >
           </div>
         </div>
         }
@@ -6727,40 +6759,32 @@
             type="text"
             class="form-control"
             [(ngModel)]="mod.modelo"
-            name="modeloManillar{{ i }}"
+            name="medidasManillar{{ i }}"
             required
             [class.is-invalid]="formSubmitted && !mod.modelo"
           />
-        </div>
-        <div class="mb-2">
-          <label class="form-label"
-            >Selecciona valor de la metrica de los tornillos:</label
-          >
-          <select
-            class="form-select"
-            [(ngModel)]="mod.metrica"
-            name="metrica{{ i }}"
+          <label class="form-label mt-2">Medidas:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.medidasManillar"
+            name="medidasManillar{{ i }}"
             required
-            [class.is-invalid]="formSubmitted && mod.metrica == null"
-          >
-            <option [value]="null" disabled selected>Seleccione...</option>
-            @for (num of metricasTornillos; track num) {
-            <option [value]="num">
-              {{ num }}
-            </option>
-            }
-          </select>
+            [class.is-invalid]="formSubmitted && !mod.medidasManillar"
+          />
+          <input
+            type="number"
+            class="form-control"
+            id="curv-manillar-{{ i }}"
+            placeholder="0"
+            step="0.01"
+            [(ngModel)]="mod.curvaturaManillar"
+            name="curvaturaManillar{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && mod.curvaturaManillar == null"
+          />
+          <label for="curv-manillar-{{ i }}">Ratio curvatura mín.</label>
         </div>
-        <label class="form-label">Nº de tornillos:</label>
-        <input
-          type="number"
-          min="0"
-          class="form-control"
-          [(ngModel)]="mod.nTornillos"
-          name="nTornillos"
-          required
-          [class.is-invalid]="formSubmitted && !mod.nTornillos"
-        />
       </div>
       }
       <!-- VELOCÍMETRO -->
@@ -7263,6 +7287,8 @@
       }
       <!-- LUCES -->
       @if (mod.nombre === 'LUCES' && mod.seleccionado) {
+      @if(mod.descripcionLuces.luzGrupoOptico){
+      <h4>Grupo óptico delantero</h4>
       <div class="mb-4">
         <h3>Luces</h3>
         <div class="mb-2">
@@ -7270,10 +7296,10 @@
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.marca"
-            name="marca{{ i }}"
+            [(ngModel)]="mod.marcaluzGrupoOptico"
+            name="marcaluzGrupoOptico{{ i }}"
             required
-            [class.is-invalid]="formSubmitted && !mod.marca"
+            [class.is-invalid]="formSubmitted && !mod.marcaluzGrupoOptico"
           />
         </div>
         <div class="mb-2">
@@ -7281,10 +7307,10 @@
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.modelo"
-            name="modelo{{ i }}"
+            [(ngModel)]="mod.modeloluzGrupoOptico"
+            name="modeloluzGrupoOptico{{ i }}"
             required
-            [class.is-invalid]="formSubmitted && !mod.modelo"
+            [class.is-invalid]="formSubmitted && !mod.modeloluzGrupoOptico"
           />
         </div>
         <div class="mb-2">
@@ -7292,10 +7318,10 @@
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.referencia"
-            name="referencia{{ i }}"
+            [(ngModel)]="mod.referencialuzGrupoOptico"
+            name="referencialuzGrupoOptico{{ i }}"
             required
-            [class.is-invalid]="formSubmitted && !mod.marca"
+            [class.is-invalid]="formSubmitted && !mod.referencialuzGrupoOptico"
           />
         </div>
         <div class="mb-2">
@@ -7303,10 +7329,10 @@
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.marcajes"
-            name="marcajes{{ i }}"
+            [(ngModel)]="mod.marcajesluzGrupoOptico"
+            name="marcajesluzGrupoOptico{{ i }}"
             required
-            [class.is-invalid]="formSubmitted && !mod.marcajes"
+            [class.is-invalid]="formSubmitted && !mod.marcajesluzGrupoOptico"
           />
         </div>
         <div class="mb-2">
@@ -7314,14 +7340,319 @@
           <input
             type="text"
             class="form-control"
-            [(ngModel)]="mod.homologacion"
-            name="homologacion{{ i }}"
+            [(ngModel)]="mod.homologacionluzGrupoOptico"
+            name="homologacionluzGrupoOptico{{ i }}"
             required
-            [class.is-invalid]="formSubmitted && !mod.homologacion"
+            [class.is-invalid]="
+              formSubmitted && !mod.homologacionluzGrupoOptico
+            "
+          />
+          <input
+            type="number"
+            class="form-control"
+            id="curv-luzGrupoOptico-{{ i }}"
+            placeholder="0"
+            step="0.01"
+            [(ngModel)]="mod.curvaturaluzGrupoOptico"
+            name="curvaturaluzGrupoOptico{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && mod.curvaturaluzGrupoOptico == null
+            "
+          />
+          <label for="curv-luzGrupoOptico-{{ i }}">Ratio curvatura mín.</label>
+        </div>
+      </div>
+      } @if(mod.descripcionLuces.intermitenteDelantero){
+      <h4>Intermitentes delanteros</h4>
+      <div class="mb-4">
+        <h3>Luces</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcaintermitenteDelantero"
+            name="marcaintermitenteDelantero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && !mod.marcaintermitenteDelantero
+            "
+          />
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referenciaintermitenteDelantero"
+            name="referenciaintermitenteDelantero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && !mod.referenciaintermitenteDelantero
+            "
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marcajes:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcajesintermitenteDelantero"
+            name="marcajesintermitenteDelantero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && !mod.marcajesintermitenteDelantero
+            "
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacionintermitenteDelantero"
+            name="homologacionintermitenteDelantero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && !mod.homologacionintermitenteDelantero
+            "
+          />
+          <input
+            type="number"
+            class="form-control"
+            id="curv-intermitenteDelantero-{{ i }}"
+            placeholder="0"
+            step="0.01"
+            [(ngModel)]="mod.curvaturaintermitenteDelantero"
+            name="curvaturaintermitenteDelantero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && mod.curvaturaintermitenteDelantero == null
+            "
+          />
+          <label for="curv-intermitenteDelantero-{{ i }}"
+            >Ratio curvatura mín.</label
+          >
+        </div>
+      </div>
+      } @if(mod.descripcionLuces.intermitenteTrasero){
+      <h4>Intermitentes traseros</h4>
+      <div class="mb-4">
+        <h3>Luces</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcaintermitenteTrasero"
+            name="marcaintermitenteTrasero{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcaintermitenteTrasero"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referenciaintermitenteTrasero"
+            name="referenciaintermitenteTrasero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && !mod.referenciaintermitenteTrasero
+            "
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marcajes:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcajesintermitenteTrasero"
+            name="marcajesintermitenteTrasero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && !mod.marcajesintermitenteTrasero
+            "
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacionintermitenteTrasero"
+            name="homologacionintermitenteTrasero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && !mod.homologacionintermitenteTrasero
+            "
+          />
+          <input
+            type="number"
+            class="form-control"
+            id="curv-intermitenteTrasero-{{ i }}"
+            placeholder="0"
+            step="0.01"
+            [(ngModel)]="mod.curvaturaintermitenteTrasero"
+            name="curvaturaintermitenteTrasero{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && mod.curvaturaintermitenteTrasero == null
+            "
+          />
+          <label for="curv-intermitenteTrasero-{{ i }}"
+            >Ratio curvatura mín.</label
+          >
+        </div>
+      </div>
+      } @if(mod.descripcionLuces.catadioptrico){
+      <h4>Catadióptricos</h4>
+      <div class="mb-4">
+        <h3>Luces</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcacatadioptrico"
+            name="marcacatadioptrico{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcacatadioptrico"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referenciacatadioptrico"
+            name="referenciacatadioptrico{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.referenciacatadioptrico"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacioncatadioptrico"
+            name="homologacioncatadioptrico{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.homologacioncatadioptrico"
+          />
+          <input
+            type="number"
+            class="form-control"
+            id="curv-catadioptrico-{{ i }}"
+            placeholder="0"
+            step="0.01"
+            [(ngModel)]="mod.curvaturacatadioptrico"
+            name="curvaturacatadioptrico{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && mod.curvaturacatadioptrico == null
+            "
+          />
+          <label for="curv-catadioptrico-{{ i }}">Ratio curvatura mín.</label>
+        </div>
+      </div>
+      } @if(mod.descripcionLuces.luzMatricula){
+      <h4>Lus de matrícula</h4>
+      <div class="mb-4">
+        <h3>Luces</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcaluzMatricula"
+            name="marcaluzMatricula{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcaluzMatricula"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencialuzMatricula"
+            name="referencialuzMatricula{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.referencialuzMatricula"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacionluzMatricula"
+            name="homologacionluzMatricula{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.homologacionluzMatricula"
           />
         </div>
       </div>
-      }
+      } @if(mod.descripcionLuces.luzAntinieblas){
+      <h4>Lus antiniebla delantera</h4>
+      <div class="mb-4">
+        <h3>Luces</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcaluzAntinieblas"
+            name="marcaluzAntinieblas{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcaluzAntinieblas"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marcajes:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcajesluzAntinieblas"
+            name="marcajesluzAntinieblas{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcajesluzAntinieblas"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacionluzAntinieblas"
+            name="homologacionluzAntinieblas{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && !mod.homologacionluzAntinieblas
+            "
+          />
+          <input
+            type="number"
+            class="form-control"
+            id="curv-luzAntinieblas-{{ i }}"
+            placeholder="0"
+            step="0.01"
+            [(ngModel)]="mod.curvaturaluzAntinieblas"
+            name="curvaturaluzAntinieblas{{ i }}"
+            required
+            [class.is-invalid]="
+              formSubmitted && mod.curvaturaluzAntinieblas == null
+            "
+          />
+          <label for="curv-luzAntinieblas-{{ i }}">Ratio curvatura mín.</label>
+        </div>
+      </div>
+      } }
       <!-- CAMPERS -->
       <!-- CAMBIO DE CLASIFICACIÓN -->
       @if (mod.nombre === 'CAMBIO DE CLASIFICACIÓN' && mod.seleccionado) {

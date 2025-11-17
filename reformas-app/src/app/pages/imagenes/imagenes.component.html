@@ -1,4 +1,3 @@
-<!-- imagenes.component.html -->
 <div class="card p-4 shadow-sm mx-auto" style="max-width: 1500px">
   <h5 class="mb-4 text-center">
     Paso {{ step }} de 2:
@@ -9,30 +8,15 @@
     }}
   </h5>
 
-  <!-- Indicador de procesamiento/compresión -->
   <div
     *ngIf="procesando"
     class="alert alert-info text-center p-2 mb-3 d-flex align-items-center justify-content-center gap-2"
   >
-    <div
-      class="spinner-border spinner-border-sm"
-      role="status"
-      aria-hidden="true"
-    ></div>
-    <span>🔄 Optimizando imágenes (redimensionando y comprimiendo)…</span>
+    <div class="spinner-border spinner-border-sm" role="status"></div>
+    <span>🔄 Optimizando imágenes…</span>
   </div>
 
-  <!-- STEP 1 -->
   <ng-container *ngIf="step === 1">
-    <div
-      class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-2 mb-2"
-    >
-      <label class="form-label m-0">
-        Sube las imágenes <strong>previas</strong> del vehículo:
-      </label>
-    </div>
-
-    <!-- 2 columnas (arriba y abajo) -->
     <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
       <div
         class="col"
@@ -46,37 +30,70 @@
           let i = index
         "
       >
-        <div class="card p-2 h-100">
+        <div
+          class="card p-2 h-100"
+          (paste)="onPrevPaste($event, i)"
+          (dragover)="$event.preventDefault()"
+          (drop)="onPrevDrop($event, i)"
+          tabindex="0"
+        >
           <p class="fw-bold mb-2 text-center">{{ label }}</p>
+
           <input
             type="file"
-            class="form-control mb-2"
+            class="d-none"
             (change)="onPrevSelected($event, i)"
             accept="image/*"
             [disabled]="procesando"
+            #fileInput
           />
+
           <div
             class="ratio ratio-1x1 border rounded d-flex align-items-center justify-content-center bg-light"
+            (click)="fileInput.click()"
+            style="cursor: pointer"
           >
             <img
               *ngIf="prevPreviews[i]"
               [src]="prevPreviews[i]"
               class="w-100 h-100 rounded shadow-sm"
               style="object-fit: cover"
-              alt="preview {{ label }}"
             />
-            <span *ngIf="!prevPreviews[i]" class="text-muted"></span>
+            <div
+              *ngIf="!prevPreviews[i]"
+              class="d-flex flex-column align-items-center justify-content-center text-center text-muted p-3"
+              style="pointer-events: none"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                fill="currentColor"
+                class="bi bi-clipboard-plus mb-2"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"
+                />
+                <path
+                  fill-rule="evenodd"
+                  d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V9.5a.5.5 0 0 1-1 0V8H6a.5.5 0 0 1 0-1h1.5V5.5A.5.5 0 0 1 8 5"
+                />
+              </svg>
+              <small>
+                Haz clic para buscar, arrastra
+                <br />
+                o <strong>pega la imagen</strong> (Ctrl+V)
+              </small>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="d-flex justify-content-between">
-      <button
-        class="btn btn-outline-secondary me-2"
-        (click)="back()"
-        [disabled]="procesando"
-      >
+      <button class="btn btn-outline-secondary me-2" (click)="back()">
         ← Anterior
       </button>
       <button
@@ -89,33 +106,91 @@
     </div>
   </ng-container>
 
-  <!-- STEP 2 -->
   <ng-container *ngIf="step === 2">
-    <div
-      class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-2 mb-2"
-    >
-      <label class="form-label m-0">
-        Sube las imágenes de las <strong>reformas realizadas</strong>:
-      </label>
-      <small class="text-muted"> Máx. 30 imágenes. </small>
-    </div>
-
     <input
       type="file"
-      class="form-control mb-3"
+      class="d-none"
       (change)="onPostSelected($event)"
       accept="image/*"
       multiple
       [disabled]="procesando"
+      #postFileInput
     />
 
-    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3">
-      <div class="col" *ngFor="let preview of postPreviews; let i = index">
-        <div class="ratio ratio-1x1 position-relative border rounded bg-light">
+    <div
+      #postDropzone
+      class="card p-4 h-100 mb-3 dropzone-container"
+      (paste)="onPostPaste($event)"
+      (dragover)="$event.preventDefault()"
+      (drop)="onPostDrop($event)"
+      (click)="postFileInput.click()"
+      style="cursor: pointer; border-style: dashed; border-width: 2px"
+      tabindex="0"
+    >
+      <div
+        class="d-flex flex-column align-items-center justify-content-center text-center text-muted p-3"
+        style="pointer-events: none"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          fill="currentColor"
+          class="bi bi-clipboard-plus mb-2"
+          viewBox="0 0 16 16"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"
+          />
+          <path
+            fill-rule="evenodd"
+            d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V9.5a.5.5 0 0 1-1 0V8H6a.5.5 0 0 1 0-1h1.5V5.5A.5.5 0 0 1 8 5"
+          />
+        </svg>
+        <small>
+          Haz clic para buscar, arrastra
+          <br />
+          o <strong>pega las imágenes</strong> (Ctrl+V)
+        </small>
+      </div>
+    </div>
+
+    <p
+      *ngIf="postPreviews.length === 0 && !procesando"
+      class="text-center text-muted mb-3"
+    >
+      Aquí aparecerán las imágenes de los elementos reformados.
+    </p>
+
+    <div
+      *ngIf="postPreviews.length > 0"
+      class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3"
+    >
+      <div
+        class="col position-relative"
+        *ngFor="let preview of postPreviews; let i = index"
+      >
+        <button
+          class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 lh-1"
+          style="
+            z-index: 10;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+          "
+          (click)="deletePostImage(i)"
+          title="Eliminar imagen"
+        >
+          &times;
+        </button>
+
+        <div class="ratio ratio-1x1 border rounded bg-light">
           <img
             [src]="preview"
             class="img-fluid object-fit-cover rounded"
-            alt="preview {{ i + 1 }}"
             style="width: 100%; height: 100%; object-fit: cover"
           />
         </div>
@@ -127,17 +202,12 @@
     </div>
 
     <div class="d-flex justify-content-between">
-      <button
-        class="btn btn-outline-secondary"
-        (click)="back()"
-        [disabled]="procesando"
-      >
+      <button class="btn btn-outline-secondary" (click)="back()">
         ← Anterior
       </button>
       <button
         class="btn btn-success"
         [disabled]="postImages.length === 0 || procesando"
-        (click)="(onSave)"
         (click)="onSave()"
       >
         Guardar imágenes

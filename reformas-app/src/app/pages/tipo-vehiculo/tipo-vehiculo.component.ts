@@ -64,6 +64,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     },
     { key: 'catadioptrico', label: 'Catadióptrico posterior' },
     { key: 'luzMatricula', label: 'Luz de matrícula' },
+    { key: 'luzAntinieblas', label: 'Luz antiniebla delantera' },
   ];
 
   // === Detecta "cliente" tanto por datosPrevios como por el @Input dedicado ===
@@ -178,6 +179,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         intermitenteTrasero: false,
         catadioptrico: false,
         luzMatricula: false,
+        luzAntinieblas: false,
       };
     }
 
@@ -476,6 +478,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
               intermitenteTrasero: false,
               catadioptrico: false,
               luzMatricula: false,
+              luzAntinieblas: false,
             },
           },
         ];

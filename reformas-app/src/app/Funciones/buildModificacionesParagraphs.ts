@@ -118,13 +118,20 @@ export function buildModificacionesParagraphs(
     (p as any)._rawText = raw;
     out.push(p);
 
+    const totalNotas =
+      (neumaticos.anotacion1 ? 1 : 0) + (neumaticos.anotacion2 ? 1 : 0);
+
+    // 2) Si solo hay una anotación → no numeramos
+    //    Si hay dos → empezamos por 1
+    let nota = totalNotas === 2 ? 1 : '';
+
     if (neumaticos.anotacion1) {
       out.push(
         new Paragraph({
           spacing: { line: 260, after: 120 },
           children: [
             new TextRun({
-              text: 'NOTA 1: ',
+              text: `NOTA ${nota}: `,
               bold: true,
             }),
             new TextRun({
@@ -141,7 +148,7 @@ export function buildModificacionesParagraphs(
           spacing: { line: 260, after: 120 },
           children: [
             new TextRun({
-              text: 'NOTA 2: ',
+              text: `NOTA ${nota}: `,
               bold: true,
             }),
             new TextRun({
@@ -395,27 +402,6 @@ export function buildModificacionesParagraphs(
   }
 
   //
-  // 14) SUSPENSIÓN
-  //
-  const suspension = modificaciones.find(
-    (m) => m.nombre === 'SUSPENSIÓN' && m.seleccionado
-  );
-  if (suspension) {
-    suspension.acciones?.forEach((accion: string) => {
-      const raw = `- ${accion} del sistema de suspensión del vehículo instalando: ${suspension.descripcionSuspensionDelantera}.`;
-
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-
-      (p as any)._rawText = raw;
-      out.push(p);
-    });
-  }
-
-  //
   // 15) TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR
   //
   mod = modificaciones.find(
@@ -427,6 +413,34 @@ export function buildModificacionesParagraphs(
 
   // 1) Muelles delanteros con referencia
   if (mod) {
+    const frasesBase = [
+      `Instalación - Se instalan los elementos de la suspensión nombrados de características diferentes a los originales.`,
+      `Sustitución - Se sustituyen los elementos de la suspensión que vienen de serie por los siguientes:`,
+      `Desmontaje - Se desmontan los elementos de la suspensión que vienen de serie por otros de características diferentes a los originales.`,
+    ];
+
+    // Añadir las 3 frases previas siempre que exista cualquier casuística
+    frasesBase.forEach((frase) => {
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 250 },
+        children: [new TextRun({ text: frase })],
+      });
+      (p as any)._rawText = frase;
+      (p as any)._fromCasuistica = true;
+      out.push(p);
+    });
+
+    // Párrafo principal
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 250 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    (p as any)._fromCasuistica = true; // 👈 marca
+    out.push(p);
+
     if (mod.detallesMuelles?.['muelleDelanteroConRef']) {
       raw = `- Muelles delanteros marca ${mod.marcaMuelleDelanteroConRef} referencia ${mod.referenciaMuelleDelanteroConRef}.`;
 
@@ -449,13 +463,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior ${mod.diametroExteriorDelanteroRef} mm`
+            `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`
           ),
         ],
       });
       (
         p1 as any
-      )._rawText = `• Diámetro exterior ${mod.diametroExteriorDelanteroRef} mm`;
+      )._rawText = `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -464,13 +478,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Longitud de muelle ${mod.longitudLibreDelanteroRef} mm`
+            `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`
           ),
         ],
       });
       (
         p2 as any
-      )._rawText = `• Longitud de muelle ${mod.longitudLibreDelanteroRef} mm`;
+      )._rawText = `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -479,13 +493,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira ${mod.diametroEspiraDelanteroRef} mm`
+            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`
           ),
         ],
       });
       (
         p3 as any
-      )._rawText = `• Diámetro de la espira ${mod.diametroEspiraDelanteroRef} mm`;
+      )._rawText = `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -493,12 +507,12 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Número de espiras ${mod.numeroEspirasDelanteroRef}.`),
+          new TextRun(`• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`),
         ],
       });
       (
         p4 as any
-      )._rawText = `• Número de espiras ${mod.numeroEspirasDelanteroRef}.`;
+      )._rawText = `• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -526,13 +540,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior ${mod.diametroExteriorDelanteroSinRef} mm`
+            `• Diámetro exterior: ${mod.diametroExteriorDelanteroSinRef} mm`
           ),
         ],
       });
       (
         p1 as any
-      )._rawText = `• Diámetro exterior ${mod.diametroExteriorDelanteroSinRef} mm`;
+      )._rawText = `• Diámetro exterior: ${mod.diametroExteriorDelanteroSinRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -541,13 +555,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Longitud de muelle ${mod.longitudLibreDelanteroSinRef} mm`
+            `• Longitud de muelle: ${mod.longitudLibreDelanteroSinRef} mm`
           ),
         ],
       });
       (
         p2 as any
-      )._rawText = `• Longitud de muelle ${mod.longitudLibreDelanteroSinRef} mm`;
+      )._rawText = `• Longitud de muelle: ${mod.longitudLibreDelanteroSinRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -556,13 +570,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira ${mod.diametroEspiraDelanteroSinRef} mm`
+            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroSinRef} mm`
           ),
         ],
       });
       (
         p3 as any
-      )._rawText = `• Diámetro de la espira ${mod.diametroEspiraDelanteroSinRef} mm`;
+      )._rawText = `• Diámetro de la espira: ${mod.diametroEspiraDelanteroSinRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -571,13 +585,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Número de espiras ${mod.numeroEspirasDelanteroSinRef}.`
+            `• Número de espiras: ${mod.numeroEspirasDelanteroSinRef}.`
           ),
         ],
       });
       (
         p4 as any
-      )._rawText = `• Número de espiras ${mod.numeroEspirasDelanteroSinRef}.`;
+      )._rawText = `• Número de espiras: ${mod.numeroEspirasDelanteroSinRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -605,13 +619,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior ${mod.diametroExteriorTraseroRef} mm`
+            `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`
           ),
         ],
       });
       (
         p1 as any
-      )._rawText = `• Diámetro exterior ${mod.diametroExteriorTraseroRef} mm`;
+      )._rawText = `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -619,12 +633,14 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Longitud de muelle ${mod.longitudLibreTraseroRef} mm`),
+          new TextRun(
+            `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`
+          ),
         ],
       });
       (
         p2 as any
-      )._rawText = `• Longitud de muelle ${mod.longitudLibreTraseroRef} mm`;
+      )._rawText = `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -633,13 +649,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira ${mod.diametroEspiraTraseroRef} mm`
+            `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`
           ),
         ],
       });
       (
         p3 as any
-      )._rawText = `• Diámetro de la espira ${mod.diametroEspiraTraseroRef} mm`;
+      )._rawText = `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -647,12 +663,12 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Número de espiras ${mod.numeroEspirasTraseroRef}.`),
+          new TextRun(`• Número de espiras: ${mod.numeroEspirasTraseroRef}.`),
         ],
       });
       (
         p4 as any
-      )._rawText = `• Número de espiras ${mod.numeroEspirasTraseroRef}.`;
+      )._rawText = `• Número de espiras: ${mod.numeroEspirasTraseroRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -679,12 +695,12 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Diámetro exterior ${mod.diametroExteriorTrasero} mm`),
+          new TextRun(`• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`),
         ],
       });
       (
         p1 as any
-      )._rawText = `• Diámetro exterior ${mod.diametroExteriorTrasero} mm`;
+      )._rawText = `• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -692,10 +708,10 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Longitud de muelle ${mod.longitudTrasero} mm`),
+          new TextRun(`• Longitud de muelle: ${mod.longitudTrasero} mm`),
         ],
       });
-      (p2 as any)._rawText = `• Longitud de muelle ${mod.longitudTrasero} mm`;
+      (p2 as any)._rawText = `• Longitud de muelle: ${mod.longitudTrasero} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -704,13 +720,13 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira ${mod.diametroEspiraTrasero} mm`
+            `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`
           ),
         ],
       });
       (
         p3 as any
-      )._rawText = `• Diámetro de la espira ${mod.diametroEspiraTrasero} mm`;
+      )._rawText = `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -718,10 +734,12 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Número de espiras ${mod.numeroEspirasTrasero}.`),
+          new TextRun(`• Número de espiras: ${mod.numeroEspirasTrasero}.`),
         ],
       });
-      (p4 as any)._rawText = `• Número de espiras ${mod.numeroEspirasTrasero}.`;
+      (
+        p4 as any
+      )._rawText = `• Número de espiras: ${mod.numeroEspirasTrasero}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -1585,7 +1603,7 @@ export function buildModificacionesParagraphs(
       m.nombre === 'MANILLAR' && m.seleccionado && data.tipoVehiculo === 'moto'
   );
   if (manillar) {
-    raw = `- Sustitución de manillar por otro marca ${manillar.marca} modelo ${manillar.modelo}.`;
+    raw = `- Sustitución de manillar por otro marca ${manillar.marca} modelo ${manillar.modelo} y de medidas ${manillar.medidasManillar}.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -1594,6 +1612,18 @@ export function buildModificacionesParagraphs(
     });
     (p as any)._rawText = raw;
     out.push(p);
+
+    out.push(
+      new Paragraph({
+        spacing: { line: 260, after: 120 },
+        children: [
+          new TextRun({ text: 'NOTA: ', bold: true }),
+          new TextRun({
+            text: 'Se han reubicado los mandos sobre el nuevo manillar en posiciones equivalentes a las originales.',
+          }),
+        ],
+      })
+    );
   }
 
   //
@@ -1742,74 +1772,87 @@ export function buildModificacionesParagraphs(
         }
       }
     }
+  }
 
-    //
-    // 11) LUCES
-    //
-    const luces = modificaciones.find(
-      (m) =>
-        m.nombre === 'LUCES' && m.seleccionado && data.tipoVehiculo === 'moto'
-    );
-    if (luces) {
-      if (data.luzGrupoOptico) {
-        raw = `- Sustitución y reubicación de grupo óptico delantero por otro marca ${frenos.marca} modelo ${frenos.modelo} con luz de posición, cruce y carretera con los marcajes ${frenos.marcajes} y contraseña de homologación ${frenos.homologacion}.`;
+  //
+  // 11) LUCES
+  //
+  const luces = modificaciones.find(
+    (m) =>
+      m.nombre === 'LUCES' && m.seleccionado && data.tipoVehiculo === 'moto'
+  );
+  if (luces) {
+    console.log('LUCES:', luces);
+    if (luces.descripcionLuces?.['luzGrupoOptico']) {
+      raw = `- Sustitución y reubicación de grupo óptico delantero por otro marca ${luces.marcaluzGrupoOptico} modelo ${luces.modeloluzGrupoOptico} con luz de posición, cruce y carretera con los marcajes ${luces.marcajesluzGrupoOptico} y contraseña de homologación ${luces.homologacionluzGrupoOptico}.`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
 
-      if (data.intermitenteDelantero) {
-        raw = `- Sustitución y reubicación de intermitentes anteriores en laterales de la horquilla, por otros marca ${frenos.marca}, referencia ${frenos.referencia} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
+    if (luces.descripcionLuces?.['intermitenteDelantero']) {
+      raw = `- Sustitución y reubicación de intermitentes anteriores en laterales de la horquilla, por otros marca ${luces.marcaintermitenteDelantero}, referencia ${luces.referenciaintermitenteDelantero} con marcaje ${luces.marcajesintermitenteDelantero} y con contraseña de homologación ${luces.homologacionintermitenteDelantero}.`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
 
-      if (data.intermitenteTrasero) {
-        raw = `- Sustitución y reubicación de intermitentes posteriores en laterales del portamatrícula, por otros marca ${frenos.marca}, referencia ${frenos.referencia} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
+    if (luces.descripcionLuces?.['intermitenteTrasero']) {
+      raw = `- Sustitución y reubicación de intermitentes posteriores en laterales del portamatrícula, por otros marca ${luces.marcaintermitenteTrasero}, referencia ${luces.referenciaintermitenteTrasero} con marcaje ${luces.marcajesintermitenteTrasero} y con contraseña de homologación ${luces.homologacionintermitenteTrasero}.`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
 
-      if (data.catadioptrico) {
-        raw = `- Sustitución y reubicación de catadióptrico posterior en parte inferior de emplazamiento de placa de matrícula posterior, por otro marca ${frenos.marca} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
+    if (luces.descripcionLuces?.['catadioptrico']) {
+      raw = `- Sustitución y reubicación de catadióptrico posterior en parte inferior de emplazamiento de placa de matrícula posterior, por otro marca ${luces.marcacatadioptrico} con marcaje ${luces.referenciacatadioptrico} y con contraseña de homologación ${luces.homologacioncatadioptrico}.`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
 
-      if (data.luzMatricula) {
-        raw = `- Sustitución y reubicación de luz de matrícula en parte superior de emplazamiento de placa matrícula, por otra marca ${frenos.marca} referencia ${frenos.marcaPastillaTrasera} con contraseña de homologación ${frenos.homologacion}.`;
+    if (luces.descripcionLuces?.['luzMatricula']) {
+      raw = `- Sustitución y reubicación de luz de matrícula en parte superior de emplazamiento de placa matrícula, por otra marca ${luces.marcaluzMatricula} referencia ${luces.referencialuzMatricula} con contraseña de homologación ${luces.homologacionluzMatricula}.`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (luces.descripcionLuces?.['luzAntinieblas']) {
+      raw = `- Instalación de faros antiniebla en los laterales del piloto delantero, de la marca ${luces.marcaluzAntinieblas}, con marcado ${luces.marcajesluzAntinieblas} y contraseña ${luces.homologacionluzAntinieblas}, con encendido desde nuevo mando normalizado e independiente ubicado en la parte derecha del carenado. Estos dispositivos funcionan independientemente del encendido de las luces de carretera o cruce.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
     }
   }
 
@@ -2300,8 +2343,12 @@ export function buildModificacionesParagraphs(
 
 export function getFirstWord(p: Paragraph): string {
   const raw: string = (p as any)._rawText ?? '';
-  const sliced = raw.length > 2 ? raw.slice(2).trim() : raw.trim();
-  return sliced.split(/\s+/)[0] || '';
+
+  // 1) Quitar guión inicial si existe
+  const clean = raw.trim().replace(/^-+\s*/, '');
+
+  // 2) Primera palabra
+  return clean.split(/\s+/)[0] || '';
 }
 
 export function generarDocumentoProyectoParagraphs(
@@ -2316,21 +2363,42 @@ export function generarDocumentoProyectoParagraphs(
   const first = (p: Paragraph) => getFirstWord(p); // tu helper existente
 
   // Clasificación base
-  let montajesBase = all.filter(
-    (p) =>
-      !['Variación', 'Sustitucion', 'Desmontaje', '', ' '].includes(first(p))
-  );
-  let desmontajesBase = all.filter((p) => first(p) === 'Desmontaje');
-  let variacionesBase = all.filter((p) =>
-    ['Variación', 'Sustitucion'].includes(first(p))
-  );
-
-  // Párrafos de casuística (solo existen cuando la principal y la subopción están seleccionadas)
   const casuisticaParas = all.filter(
     (p: any) => (p as any)._fromCasuistica === true
   );
 
-  // Deduplicación por _rawText (si no existe, usa una firma rápida del contenido)
+  const nonCasuisticaParas = all.filter(
+    (p: any) => (p as any)._fromCasuistica !== true
+  );
+
+  let montajesBase = nonCasuisticaParas.filter(
+    (p) =>
+      !['Variación', 'Sustitución', 'Desmontaje', '', ' '].includes(first(p))
+  );
+  let desmontajesBase = nonCasuisticaParas.filter(
+    (p) => first(p) === 'Desmontaje'
+  );
+  let variacionesBase = nonCasuisticaParas.filter((p) =>
+    ['Variación', 'Sustitución'].includes(first(p))
+  );
+
+  const casuisticaInstHeader = casuisticaParas.filter(
+    (p) => first(p) === 'Instalación'
+  );
+  const casuisticaSustHeader = casuisticaParas.filter(
+    (p) => first(p) === 'Sustitución'
+  );
+  const casuisticaDesmHeader = casuisticaParas.filter(
+    (p) => first(p) === 'Desmontaje'
+  );
+
+  const casuisticaDetails = casuisticaParas.filter(
+    (p) =>
+      first(p) !== 'Instalación' &&
+      first(p) !== 'Sustitución' &&
+      first(p) !== 'Desmontaje'
+  );
+
   const keyOf = (p: any) =>
     (p?._rawText as string) ??
     JSON.stringify(
@@ -2350,10 +2418,14 @@ export function generarDocumentoProyectoParagraphs(
     return out;
   };
 
-  // Añade casuística a los tres grupos
-  const montajes = uniqueMerge(montajesBase, casuisticaParas);
-  const desmontajes = uniqueMerge(desmontajesBase, casuisticaParas);
-  const variacionesYSus = uniqueMerge(variacionesBase, casuisticaParas);
+  const montajes = uniqueMerge(montajesBase, casuisticaInstHeader);
+
+  const desmontajes = uniqueMerge(desmontajesBase, casuisticaDesmHeader);
+
+  const variacionesYSus = uniqueMerge(
+    variacionesBase,
+    uniqueMerge(casuisticaSustHeader, casuisticaDetails)
+  );
 
   // Pintado
   const out: Paragraph[] = [];
