@@ -1,138 +1,344 @@
-<div class="container mt-5">
-  <h2 class="mb-5 text-center" style="margin-top: 160px">
-    Generación de Documentos
-  </h2>
+<style>
+  #ing-docs-wrapper {
+    font-family: "Roboto", sans-serif;
+    background-color: #ffffff;
+    padding: 2rem;
+    border: 1px solid #ced4da;
+    min-height: 80vh;
+  }
 
-  <!-- Para que se muestre el cargador mientras se genera el PDF -->
-  <div
-    *ngIf="isLoading"
-    class="position-fixed top-0 start-0 w-100 vh-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center"
-    style="z-index: 2000"
-  >
-    <div class="bg-light bg-opacity-75 p-4 rounded shadow">
-      <div class="d-flex flex-column align-items-center">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Cargando...</span>
+  #ing-docs-wrapper * {
+    border-radius: 0 !important;
+  }
+
+  .ing-main-title {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 2rem;
+    color: #000;
+    border-bottom: 4px solid #000;
+    padding-bottom: 1rem;
+    margin-bottom: 3rem;
+    margin-top: 4rem;
+    text-align: center;
+    letter-spacing: -1px;
+  }
+
+  /* --- CARDS DE DOCUMENTOS --- */
+  .ing-doc-card {
+    background-color: #fff;
+    border: 1px solid #adb5bd;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+    padding: 0;
+  }
+
+  .ing-doc-card:hover {
+    border-color: #0066ff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .ing-card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1.25rem;
+  }
+
+  .ing-card-title {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    margin: 0;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ing-card-title::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #0066ff;
+  }
+
+  .ing-card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ing-card-text {
+    font-size: 0.9rem;
+    color: #495057;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    flex-grow: 1;
+  }
+
+  /* --- BOTONES --- */
+  .btn-ing-action {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 0.85rem;
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #000;
+    padding: 0.75rem;
+    width: 100%;
+    transition: all 0.2s;
+  }
+
+  .btn-ing-action:hover {
+    background-color: #333;
+    border-color: #333;
+    color: white;
+  }
+
+  /* Botones inferiores */
+  .btn-ing-save {
+    background-color: #198754;
+    border: 1px solid #198754;
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    padding: 0.7rem 2rem;
+    letter-spacing: 1px;
+  }
+
+  .btn-ing-save:hover {
+    background-color: #146c43;
+    color: white;
+  }
+
+  .btn-ing-back {
+    background-color: #fff;
+    border: 1px solid #adb5bd;
+    color: #495057;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.7rem 1.5rem;
+  }
+
+  .btn-ing-back:hover {
+    background-color: #e9ecef;
+    border-color: #000;
+    color: #000;
+  }
+
+  /* --- LOADER --- */
+  .ing-loader-overlay {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: grayscale(100%);
+  }
+
+  .ing-loader-box {
+    border: 2px solid #000;
+    background: #fff;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .ing-loader-text {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-top: 1rem;
+    letter-spacing: 1px;
+  }
+
+  /* --- MODAL --- */
+  .modal-content {
+    border: 2px solid #000;
+    border-radius: 0;
+  }
+
+  .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .modal-title {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* Botones de selección en el modal */
+  .btn-ing-select {
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+    color: #495057;
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+    text-align: left;
+    padding: 1rem;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-ing-select:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+  }
+
+  .btn-ing-select.active {
+    background-color: #f0f7ff;
+    border-color: #0066ff;
+    color: #0066ff;
+    font-weight: 700;
+    border-left-width: 5px;
+  }
+</style>
+
+<div id="ing-docs-wrapper">
+  <div class="container">
+    <h2 class="ing-main-title">Centro de Documentación</h2>
+
+    <div
+      *ngIf="isLoading"
+      class="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center ing-loader-overlay"
+      style="z-index: 2000"
+    >
+      <div class="ing-loader-box d-flex flex-column align-items-center">
+        <div
+          class="spinner-border text-dark"
+          role="status"
+          style="width: 3rem; height: 3rem; border-width: 4px"
+        >
+          <span class="visually-hidden">Procesando...</span>
         </div>
-        <p class="mt-3 fs-5 text-dark">
-          Generando documentos, por favor espera...
+        <p class="ing-loader-text text-dark mb-0">
+          // Generando Documentación...
         </p>
       </div>
     </div>
-  </div>
 
-  <!-- Fila 1: 2 tarjetas -->
-  <div class="row g-4 mb-4">
-    <div class="col-lg-6 col-md-6">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Proyecto Técnico</h5>
-          <p class="card-text flex-grow-1">
-            Documento base que describe la reforma realizada, sus
-            características técnicas y todos los datos del vehículo implicados
-            en el proceso.
-          </p>
-          <button
-            class="btn btn-primary mt-auto w-100"
-            (click)="generar('proyecto')"
-          >
-            Generar Proyecto Técnico
-          </button>
+    <div class="row g-4 mb-4">
+      <div class="col-lg-6 col-md-6">
+        <div class="ing-doc-card">
+          <div class="ing-card-header">
+            <h5 class="ing-card-title">Proyecto Técnico</h5>
+          </div>
+          <div class="ing-card-body">
+            <p class="ing-card-text">
+              Documento base que describe la reforma realizada, especificaciones
+              técnicas y datos del vehículo implicados.
+            </p>
+            <button class="btn btn-ing-action" (click)="generar('proyecto')">
+              <i class="bi bi-file-earmark-text me-2"></i> Generar Documento
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 col-md-6">
+        <div class="ing-doc-card">
+          <div class="ing-card-header">
+            <h5 class="ing-card-title">Certificado Final de Obra</h5>
+          </div>
+          <div class="ing-card-body">
+            <p class="ing-card-text">
+              Certificación del técnico competente garantizando la ejecución
+              según normativa y proyecto técnico.
+            </p>
+            <button
+              class="btn btn-ing-action"
+              (click)="generar('certificado-obra')"
+            >
+              <i class="bi bi-file-earmark-check me-2"></i> Generar Documento
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="col-lg-6 col-md-6">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Certificado Final de Obra</h5>
-          <p class="card-text flex-grow-1">
-            Certificado emitido por el técnico competente, que garantiza que la
-            reforma ha sido ejecutada según el proyecto técnico y cumple con la
-            normativa.
-          </p>
-          <button
-            class="btn btn-primary mt-auto w-100"
-            (click)="generar('certificado-obra')"
-          >
-            Generar Certificado Final de Obra
-          </button>
+    <div class="row g-4 mb-5 justify-content-center">
+      <div class="col-lg-4 col-md-6">
+        <div class="ing-doc-card">
+          <div class="ing-card-header">
+            <h5 class="ing-card-title">Certificado de Taller</h5>
+          </div>
+          <div class="ing-card-body">
+            <p class="ing-card-text">
+              Acreditación del taller instalador sobre la conformidad de la
+              reforma con la reglamentación.
+            </p>
+            <button
+              class="btn btn-ing-action mt-auto"
+              (click)="generar('certificado-taller')"
+            >
+              <i class="bi bi-tools me-2"></i> Generar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="ing-doc-card">
+          <div class="ing-card-header">
+            <h5 class="ing-card-title">Declaración Responsable</h5>
+          </div>
+          <div class="ing-card-body">
+            <p class="ing-card-text">
+              Declaración de veracidad de datos y trabajos firmada por el
+              titular o técnico responsable.
+            </p>
+            <button
+              class="btn btn-ing-action mt-auto"
+              data-bs-toggle="modal"
+              data-bs-target="#modalDeclaracion"
+            >
+              <i class="bi bi-pen me-2"></i> Configurar y Generar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="ing-doc-card">
+          <div class="ing-card-header">
+            <h5 class="ing-card-title">Memoria Técnica</h5>
+          </div>
+          <div class="ing-card-body">
+            <p class="ing-card-text">
+              Documentación detallada con cálculos justificativos y planos del
+              proyecto.
+            </p>
+            <button
+              class="btn btn-ing-action mt-auto"
+              (click)="generar('memoria-tecnica')"
+            >
+              <i class="bi bi-calculator me-2"></i> Generar
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Fila 2: 3 tarjetas centradas -->
-  <div class="row g-4 mb-5 justify-content-center">
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Certificado de Taller</h5>
-          <p class="card-text flex-grow-1">
-            Documento emitido por el taller instalador donde se certifica que la
-            reforma fue efectuada conforme a la reglamentación vigente.
-          </p>
-          <button
-            class="btn btn-primary mt-auto w-100"
-            (click)="generar('certificado-taller')"
-          >
-            Generar Certificado de Taller
-          </button>
-        </div>
-      </div>
+    <div class="d-flex justify-content-end gap-3 border-top pt-4">
+      <button class="btn btn-ing-back" (click)="volver()">
+        <i class="bi bi-arrow-left me-2"></i> Volver
+      </button>
+      <button class="btn btn-ing-save" (click)="guardarDB()">
+        Guardar en Base de Datos <i class="bi bi-database-add ms-2"></i>
+      </button>
     </div>
-
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Declaración Responsable</h5>
-          <p class="card-text flex-grow-1">
-            Declaración firmada por el propietario o técnico responsable,
-            asumiendo que los datos facilitados y los trabajos realizados son
-            veraces.
-          </p>
-          <button
-            class="btn btn-primary mt-auto w-100"
-            data-bs-toggle="modal"
-            data-bs-target="#modalDeclaracion"
-          >
-            Generar Declaración Responsable
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Memoria Técnica</h5>
-          <p class="card-text flex-grow-1">
-            Documento detallado con cálculos, planos y justificación técnica que
-            soporta el proyecto de reforma.
-          </p>
-          <button
-            class="btn btn-primary mt-auto w-100"
-            (click)="generar('memoria-tecnica')"
-          >
-            Generar Memoria Técnica
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Botones de acción -->
-  <div class="d-flex justify-content-end gap-2">
-    <button class="btn btn-success" (click)="guardarDB()">
-      Guardar Proyecto en Base de Datos
-    </button>
-    <button class="btn btn-outline-secondary" (click)="volver()">
-      ← Volver al formulario
-    </button>
   </div>
 </div>
 
-<!-- 🔹 Modal Declaración Responsable -->
 <div
   class="modal fade"
   id="modalDeclaracion"
@@ -144,7 +350,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalDeclaracionLabel">
-          Selecciona la Comunidad Autónoma
+          Configuración Regional
         </h5>
         <button
           type="button"
@@ -154,57 +360,64 @@
         ></button>
       </div>
 
-      <div class="modal-body text-center">
-        <p>Elige para qué comunidad quieres generar la declaración:</p>
+      <div class="modal-body p-4">
+        <p class="text-muted small text-uppercase fw-bold mb-3">
+          Seleccione Comunidad Autónoma
+        </p>
 
-        <!-- Botones de comunidad -->
-        <div class="d-flex flex-column gap-3 mb-3">
+        <div class="d-flex flex-column gap-2 mb-4">
           <button
-            class="btn"
-            [ngClass]="{
-              'btn-primary': comunidadSeleccionada === 'valenciana',
-              'btn-outline-primary': comunidadSeleccionada !== 'valenciana'
-            }"
+            class="btn btn-ing-select"
+            [class.active]="comunidadSeleccionada === 'valenciana'"
             (click)="seleccionarComunidad('valenciana')"
           >
-            Comunidad Valenciana
+            <span>Comunidad Valenciana</span>
+            <i
+              *ngIf="comunidadSeleccionada === 'valenciana'"
+              class="bi bi-check-lg"
+            ></i>
           </button>
 
           <button
-            class="btn"
-            [ngClass]="{
-              'btn-primary': comunidadSeleccionada === 'murcia',
-              'btn-outline-primary': comunidadSeleccionada !== 'murcia'
-            }"
+            class="btn btn-ing-select"
+            [class.active]="comunidadSeleccionada === 'murcia'"
             (click)="seleccionarComunidad('murcia')"
           >
-            Región de Murcia
+            <span>Región de Murcia</span>
+            <i
+              *ngIf="comunidadSeleccionada === 'murcia'"
+              class="bi bi-check-lg"
+            ></i>
           </button>
 
           <button
-            class="btn"
-            [ngClass]="{
-              'btn-primary': comunidadSeleccionada === 'andalucia',
-              'btn-outline-primary': comunidadSeleccionada !== 'andalucia'
-            }"
+            class="btn btn-ing-select"
+            [class.active]="comunidadSeleccionada === 'andalucia'"
             (click)="seleccionarComunidad('andalucia')"
           >
-            Andalucía
+            <span>Andalucía</span>
+            <i
+              *ngIf="comunidadSeleccionada === 'andalucia'"
+              class="bi bi-check-lg"
+            ></i>
           </button>
         </div>
 
-        <!-- Subselector solo si es Andalucía -->
         <div
           *ngIf="comunidadSeleccionada === 'andalucia'"
-          class="animate__animated animate__fadeIn"
+          class="animate__animated animate__fadeIn bg-light p-3 border"
         >
-          <label class="form-label fw-bold">Selecciona la provincia</label>
+          <label
+            class="form-label fw-bold small text-uppercase mb-2"
+            style="font-family: 'JetBrains Mono'"
+            >Provincia</label
+          >
           <select
-            class="form-select shadow-sm"
+            class="form-select rounded-0 border-secondary"
             [(ngModel)]="provinciaSeleccionada"
             name="provincia"
           >
-            <option [ngValue]="null" disabled>Elige una provincia...</option>
+            <option [ngValue]="null" disabled>-- SELECCIONAR --</option>
             <option *ngFor="let prov of provinciasAndalucia" [ngValue]="prov">
               {{ prov }}
             </option>
@@ -212,10 +425,10 @@
         </div>
       </div>
 
-      <div class="modal-footer">
+      <div class="modal-footer bg-light">
         <button
           type="button"
-          class="btn btn-primary w-100"
+          class="btn btn-ing-action w-100"
           [disabled]="
             !comunidadSeleccionada ||
             (comunidadSeleccionada === 'andalucia' && !provinciaSeleccionada)
@@ -223,7 +436,7 @@
           data-bs-dismiss="modal"
           (click)="confirmarDeclaracion()"
         >
-          Generar Declaración
+          GENERAR DOCUMENTO <i class="bi bi-arrow-right ms-2"></i>
         </button>
       </div>
     </div>

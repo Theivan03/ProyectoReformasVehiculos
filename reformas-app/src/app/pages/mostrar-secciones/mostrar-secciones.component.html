@@ -1,37 +1,174 @@
+<style>
+  /* --- CONTENEDOR --- */
+  #ing-options-wrapper {
+    font-family: "Roboto", sans-serif;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  #ing-options-wrapper * {
+    border-radius: 0 !important;
+  }
+
+  /* --- CABECERA --- */
+  .ing-options-header {
+    border-bottom: 2px solid #000;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .ing-title-sm {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #000;
+    margin: 0;
+  }
+
+  .ing-subtitle-ref {
+    font-family: "Roboto", sans-serif;
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 0.25rem;
+  }
+
+  /* --- LISTA DE OPCIONES (Estilo Fila Técnica) --- */
+  .ing-option-row {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem; /* Compacto */
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.15s;
+    cursor: pointer;
+  }
+
+  .ing-option-row:hover {
+    background-color: #f8f9fa;
+  }
+
+  .ing-option-row:last-child {
+    border-bottom: none;
+  }
+
+  /* Checkbox personalizado visualmente (manteniendo el input nativo funcional) */
+  .ing-option-row .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0;
+    margin-right: 1rem;
+    border: 1px solid #adb5bd;
+    cursor: pointer;
+  }
+
+  .ing-option-row .form-check-input:checked {
+    background-color: #0066ff;
+    border-color: #0066ff;
+  }
+
+  .ing-option-label {
+    cursor: pointer;
+    width: 100%;
+    font-size: 0.95rem;
+    color: #495057;
+    display: flex;
+    align-items: baseline;
+  }
+
+  .ing-option-code {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    color: #000;
+    margin-right: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  /* --- BOTONES DE NAVEGACIÓN --- */
+  .btn-ing-nav {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid #adb5bd;
+    background-color: #fff;
+    color: #495057;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-ing-nav:hover {
+    background-color: #e9ecef;
+    color: #000;
+    border-color: #000;
+  }
+
+  .btn-ing-nav.primary {
+    background-color: #0066ff;
+    border-color: #0066ff;
+    color: #fff;
+  }
+
+  .btn-ing-nav.primary:hover {
+    background-color: #0052cc;
+    border-color: #0052cc;
+  }
+</style>
+
 @if (seccionActual) {
-<div class="card p-4">
-  <div class="d-flex justify-content-between align-items-start">
-    <h4 class="mb-3">Opciones para: {{ seccionActual.descripcion }}</h4>
+<div id="ing-options-wrapper">
+  <div
+    class="ing-options-header d-flex justify-content-between align-items-start"
+  >
+    <div>
+      <h4 class="ing-title-sm">Opciones Técnicas</h4>
+      <span class="ing-subtitle-ref"
+        >SECCIÓN: {{ seccionActual.descripcion }}</span
+      >
+    </div>
+
     <div class="d-flex gap-2">
-      <button class="btn btn-outline-secondary" (click)="volver()">
-        ⬅ Volver
+      <button class="btn btn-ing-nav" (click)="volver()">
+        <i class="bi bi-arrow-left"></i> Volver
       </button>
-      <button class="btn btn-outline-secondary" (click)="siguiente()">
-        Siguiente ➡
+      <button class="btn btn-ing-nav primary" (click)="siguiente()">
+        Siguiente <i class="bi bi-arrow-right"></i>
       </button>
     </div>
   </div>
-  @for (opcion of seccionActual.opciones; track opcion) {
-  <div class="form-check mb-2">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      [id]="opcion.codigo"
-      [checked]="isOpcionSeleccionada(seccionActual.codigo, opcion.codigo)"
-      (change)="onToggleOpcion(seccionActual.codigo, opcion)"
-    />
-    <label class="form-check-label" [for]="opcion.codigo">
-      {{ opcion.codigo + " - " + opcion.descripcion }}
-    </label>
+
+  <div class="d-flex flex-column">
+    @for (opcion of seccionActual.opciones; track opcion) {
+    <div class="ing-option-row">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [id]="opcion.codigo"
+        [checked]="isOpcionSeleccionada(seccionActual.codigo, opcion.codigo)"
+        (change)="onToggleOpcion(seccionActual.codigo, opcion)"
+      />
+      <label class="ing-option-label" [for]="opcion.codigo">
+        <span class="ing-option-code">{{ opcion.codigo }}</span>
+        <span class="text-uppercase small">{{ opcion.descripcion }}</span>
+      </label>
+    </div>
+    }
   </div>
-  } @if (seccionActual.codigo == '8') {
-  <div class="d-flex justify-content-end mt-4">
+
+  @if (seccionActual.codigo == '8') {
+  <div class="mt-4 pt-3 border-top d-flex justify-content-end">
     <div class="d-flex gap-2">
-      <button class="btn btn-outline-secondary" (click)="volver()">
-        ⬅ Volver
+      <button class="btn btn-ing-nav" (click)="volver()">
+        <i class="bi bi-arrow-left"></i> Volver
       </button>
-      <button class="btn btn-outline-secondary" (click)="siguiente()">
-        Siguiente ➡
+      <button class="btn btn-ing-nav primary" (click)="siguiente()">
+        Siguiente <i class="bi bi-arrow-right"></i>
       </button>
     </div>
   </div>

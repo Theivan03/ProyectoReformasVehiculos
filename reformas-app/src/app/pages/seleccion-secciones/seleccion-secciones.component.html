@@ -1,34 +1,176 @@
-<div class="container border rounded shadow-sm p-4 bg-light">
-  <h3 class="mb-3 text-dark">Selecciona las secciones a modificar</h3>
+<style>
+  /* CONTENEDOR PRINCIPAL */
+  #ing-selection-wrapper {
+    font-family: "Roboto", sans-serif;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    /* Quitamos un poco de padding general del contenedor también */
+    padding: 1.5rem !important;
+  }
 
-  <ul class="list-group mb-4">
+  #ing-selection-wrapper * {
+    border-radius: 0 !important;
+  }
+
+  /* TÍTULO */
+  .ing-title {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1.1rem; /* Un poco más pequeño */
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    color: #000;
+  }
+
+  /* LISTA DE OPCIONES */
+  .ing-list-group {
+    border: 1px solid #dee2e6;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .ing-list-item {
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+    /* AQUÍ ESTÁ EL CAMBIO CLAVE: Reducimos drásticamente el padding vertical */
+    padding: 0.5rem 1rem;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    background-color: #fff;
+    color: #495057;
+    font-size: 0.9rem; /* Texto un poco más compacto */
+    min-height: 45px; /* Altura mínima controlada */
+  }
+
+  .ing-list-item:last-child {
+    border-bottom: none;
+  }
+
+  .ing-list-item:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* ESTADO SELECCIONADO (ACTIVE) */
+  .ing-list-item.active {
+    background-color: #f0f7ff;
+    color: #000;
+    font-weight: 500;
+    border-left: 4px solid #0066ff; /* Borde lateral un poco más fino */
+    padding-left: calc(1rem - 4px); /* Recálculo para que el texto no salte */
+  }
+
+  .ing-code {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    margin-right: 0.5rem;
+    font-size: 0.85rem;
+    color: #000;
+  }
+
+  /* CHECKBOX VISUAL */
+  .ing-check-icon {
+    font-size: 1rem; /* Icono más pequeño */
+    color: #adb5bd;
+    line-height: 1;
+  }
+
+  .ing-list-item.active .ing-check-icon {
+    color: #0066ff;
+  }
+
+  /* FOOTER DE BOTONES */
+  .ing-form-footer {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-ing-submit {
+    background-color: #0066ff !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-family: "Roboto", sans-serif;
+    font-weight: 900 !important;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    padding: 0.7rem 2rem; /* Botón un pelín más compacto */
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
+    opacity: 1;
+  }
+
+  .btn-ing-submit:disabled {
+    background-color: #e9ecef !important;
+    color: #adb5bd !important;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .btn-ing-back {
+    background-color: transparent !important;
+    border: 1px solid #adb5bd !important;
+    color: #6c757d !important;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 500;
+    text-transform: uppercase;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-ing-back:hover {
+    border-color: #000 !important;
+    color: #000 !important;
+    background-color: #f8f9fa !important;
+  }
+</style>
+
+<div id="ing-selection-wrapper" class="container mt-4">
+  <h3 class="ing-title">Selección de Reformas</h3>
+
+  <ul class="list-group ing-list-group">
     @for (opcion of opcionesReforma; track opcion.codigo) {
     <li
-      class="list-group-item d-flex justify-content-between align-items-center"
+      class="list-group-item ing-list-item d-flex justify-content-between align-items-center"
       [class.active]="estaSeleccionada(opcion.codigo)"
       (click)="toggleSeleccion(opcion)"
-      style="cursor: pointer"
     >
-      <span
-        ><strong>{{ opcion.codigo }}.</strong> {{ opcion.descripcion }}</span
-      >
-      @if (estaSeleccionada(opcion.codigo)) { <span></span> }
+      <div class="d-flex align-items-center">
+        <span class="ing-code">{{ opcion.codigo }}.</span>
+        <span class="text-uppercase small mb-0">{{ opcion.descripcion }}</span>
+      </div>
+
+      <div class="ing-check-icon ms-3">
+        @if (estaSeleccionada(opcion.codigo)) {
+        <i class="bi bi-check-square-fill"></i>
+        } @else {
+        <i class="bi bi-square"></i>
+        }
+      </div>
     </li>
     }
   </ul>
 
-  <!-- Botonera: Volver (izquierda) / Continuar (derecha) -->
-  <div class="d-flex justify-content-between">
-    <button class="btn btn-outline-secondary" (click)="onVolver()">
-      ⬅ Volver
+  <div class="ing-form-footer">
+    <button type="button" class="btn btn-ing-back" (click)="onVolver()">
+      <i class="bi bi-arrow-left"></i> VOLVER
     </button>
 
     <button
-      class="btn btn-dark"
+      class="btn btn-ing-submit"
       [disabled]="seccionesSeleccionadas.length === 0"
       (click)="enviarSeleccion()"
     >
-      Continuar
+      CONTINUAR <i class="bi bi-arrow-right"></i>
     </button>
   </div>
 </div>

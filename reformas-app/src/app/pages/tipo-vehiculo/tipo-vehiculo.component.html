@@ -1,609 +1,724 @@
-<div class="container mt-4">
-  <div class="card p-4 shadow-sm">
-    <h4 class="mb-3">Tipo de Vehículo</h4>
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nueva Reforma</title>
 
-    <!-- Selector tipo vehículo -->
-    <div class="mb-3">
-      <label class="form-label">Seleccione el tipo de vehículo:</label>
-      <select
-        class="form-select"
-        [(ngModel)]="tipoVehiculo"
-        (change)="onTipoCambio()"
-        [class.is-invalid]="tipoVehiculoInvalido"
-      >
-        <option [ngValue]="null" disabled selected>-- Seleccionar --</option>
-        <option value="coche">Coche</option>
-        <option value="moto">Moto</option>
-        <option value="camper">Camper</option>
-        <option value="industrial">Industrial</option>
-      </select>
-      <div class="invalid-feedback">Debe seleccionar un tipo de vehículo.</div>
-    </div>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
 
-    <!-- Lista de modificaciones -->
-    @if (modificaciones.length > 0) {
-    <div class="mt-4">
-      <h5 class="mb-3">Modificaciones aplicables</h5>
-      @for (mod of modificaciones; track mod.nombre; let i = $index) {
-      <div class="mb-3">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            [(ngModel)]="mod.seleccionado"
-            [id]="'mod-' + i"
-          />
-          <label class="form-check-label" [for]="'mod-' + i">
-            {{ mod.nombre }}
-          </label>
-        </div>
-        <!-- Muelles -->
-        @if (mod.nombre.includes('MUELLES') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detallesMuellesOpciones; track item.key; let j = $index)
-          {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detallesMuelles![item.key]"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="detalle-muelle-{{ j }}"
-              name="detalle-muelle-{{ j }}"
-            />
-            <label class="form-check-label" for="detalle-muelle-{{ j }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-          <label class="form-label mt-3"
-            >¿Desea añadir la anotación de la no modifican las condiciones
-            técnicas de dirección?</label
-          >
+    <style>
+      :root {
+        --sys-primary: #000000;
+        --sys-accent: #0d6efd;
+        --sys-bg: #ffffff;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: var(--sys-bg);
+        color: #374151;
+      }
+
+      h4,
+      h5 {
+        font-weight: 300;
+        text-transform: uppercase;
+        color: var(--sys-primary);
+        letter-spacing: 0.5px;
+      }
+
+      /* GLOBAL: Todo cuadrado */
+      .rounded-0,
+      .card,
+      .btn,
+      .form-control,
+      .form-select,
+      .form-check-input {
+        border-radius: 0 !important;
+      }
+
+      /* INPUTS y SELECTS */
+      .form-control,
+      .form-select {
+        border: 1px solid #ced4da;
+        background-color: #fff;
+        font-size: 0.95rem;
+      }
+      .form-select:focus,
+      .form-control:focus {
+        border-color: var(--sys-primary);
+        box-shadow: none;
+        outline: 1px solid var(--sys-primary);
+      }
+
+      /* --- CORRECCIÓN CRÍTICA DE CHECKBOX --- */
+      .form-check-input {
+        border: 1px solid #6c757d;
+        cursor: pointer;
+        width: 1.1em;
+        height: 1.1em;
+        margin-top: 0.25em;
+      }
+
+      .form-check-input:checked {
+        background-color: #e9ecef; /* Fondo gris claro */
+        border-color: #000000; /* Borde negro */
+
+        /* AQUÍ ESTÁ EL TRUCO: Cambiamos el SVG del tick para que sea NEGRO (stroke='%23000') */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+      }
+
+      .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.1); /* Sombra negra suave al enfocar */
+        border-color: #000;
+      }
+
+      .form-check-label {
+        font-size: 0.95rem;
+      }
+
+      /* BOTONES SÓLIDOS */
+      .btn-primary {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #ffffff !important;
+        opacity: 1 !important;
+        text-transform: uppercase;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-primary:hover {
+        background-color: #0b5ed7 !important;
+      }
+
+      /* Estilo de etiquetas para legibilidad */
+      .form-label {
+        font-weight: 500;
+        color: #000;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+      }
+
+      /* Errores en fuente monoespaciada para destacar */
+      .invalid-feedback,
+      .text-danger {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-4">
+      <div class="card p-4 shadow-sm">
+        <h4 class="mb-3">Tipo de Vehículo</h4>
+
+        <div class="mb-3">
+          <label class="form-label">Seleccione el tipo de vehículo:</label>
           <select
             class="form-select"
-            [(ngModel)]="mod.anotacion"
-            (ngModelChange)="actualizarError(i, mod)"
+            [(ngModel)]="tipoVehiculo"
+            (change)="onTipoCambio()"
+            [class.is-invalid]="tipoVehiculoInvalido"
           >
             <option [ngValue]="null" disabled selected>
               -- Seleccionar --
             </option>
-            <option value="1">Sí</option>
-            <option value="2">No</option>
+            <option value="coche">Coche</option>
+            <option value="moto">Moto</option>
+            <option value="camper">Camper</option>
+            <option value="industrial">Industrial</option>
           </select>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- Neumáticos -->
-        @if (mod.nombre === 'NEUMÁTICOS' && mod.seleccionado) {
-        <div class="ms-4 mt-2">
-          <label class="form-label">Seleccione anotaciones si procede:</label>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.anotacion1"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="anotacion1{{ i }}"
-            />
-            <label class="form-check-label" for="anotacion1{{ i }}"
-              >Diferencia superior al 8%</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.anotacion2"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="anotacion2{{ i }}"
-            />
-            <label class="form-check-label" for="anotacion2{{ i }}"
-              >Índice de velocidad menor del original</label
-            >
+          <div class="invalid-feedback">
+            Debe seleccionar un tipo de vehículo.
           </div>
         </div>
-        }
-        <!-- INTERMITENTES -->
-        @if (mod.nombre === 'INTERMITENTES' && mod.seleccionado) {
-        <div class="ms-4">
-          <label class="form-label"
-            >Seleccione la posicion de los intermitentes:</label
-          >
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle!.interDelantero"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="interDelantero{{ i }}"
-            />
-            <label class="form-check-label" for="interDelantero{{ i }}"
-              >Delanteros</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle!.interTrasero"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="interTrasero{{ i }}"
-            />
-            <label class="form-check-label" for="interTrasero{{ i }}"
-              >Traseros</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle!.interLateral"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="interLateral{{ i }}"
-            />
-            <label class="form-check-label" for="interLateral{{ i }}"
-              >Laterales</label
-            >
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- SUSTITUCIÓN DE EJES -->
-        @if (mod.nombre === 'SUSTITUCIÓN DE EJES' && mod.seleccionado) {
-        <div mod.detalle class="ms-4">
-          <label class="form-label">Seleccione el/los ejes:</label>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle!.sustitucionEjeDelantero"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="sustitucionEjeDelantero{{ i }}"
-            />
-            <label class="form-check-label" for="sustitucionEjeDelantero{{ i }}"
-              >Delantero</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle!.sustitucionEjeTrasero"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="sustitucionEjeTrasero{{ i }}"
-            />
-            <label class="form-check-label" for="sustitucionEjeTrasero{{ i }}"
-              >Trasero</label
-            >
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- ESTRIBOS LATERALES O TALONERAS -->
-        @if ( mod.nombre === 'ESTRIBOS LATERALES O TALONERAS' &&
-        mod.seleccionado && mod.detalle) {
-        <div class="ms-4 mt-2">
-          <label class="form-label">Seleccione cuál instaló:</label>
-          <select
-            class="form-select mb-1"
-            [(ngModel)]="mod.detalle.estribosotaloneras"
-            (ngModelChange)="validarSubopciones()"
-            [class.is-invalid]="erroresSubopciones[i]"
-            name="estribosotaloneras{{ i }}"
-            [ngModelOptions]="{ standalone: true }"
-          >
-            <option [ngValue]="null" disabled>-- Seleccionar --</option>
-            <option value="estribos">Estribos</option>
-            <option value="taloneras">Taloneras</option>
-          </select>
-          <label class="form-label">¿Material antideslizante?</label>
-          <select
-            class="form-select mb-1"
-            [(ngModel)]="mod.detalle.anotacionAntideslizante"
-            (ngModelChange)="validarSubopciones()"
-            [class.is-invalid]="erroresSubopciones[i]"
-            name="anotacionAntideslizante{{ i }}"
-            [ngModelOptions]="{ standalone: true }"
-          >
-            <option [ngValue]="null" disabled>-- Seleccionar --</option>
-            <option value="1">Sí</option>
-            <option value="2">No</option>
-          </select>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debes escoger ambas opciones antes de continuar.
-          </div>
-          }
-        </div>
-        }
-        <!-- Aletines -->
-        @if ( mod.nombre.includes('ALETINES') && mod.seleccionado && mod.detalle
-        ) {
-        <div class="ms-4">
-          <label class="form-label">Seleccione el tipo:</label>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle.aletines"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="aletines{{ i }}"
-            />
-            <label class="form-check-label" for="aletines{{ i }}"
-              >Aletines</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle.sobrealetines"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="sobrealetines{{ i }}"
-            />
-            <label class="form-check-label" for="sobrealetines{{ i }}"
-              >Sobrealetines</label
-            >
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- Matrícula -->
-        @if ( mod.nombre.includes('MATRÍCULA') && mod.seleccionado &&
-        mod.detalle ) {
-        <div class="ms-4">
-          <label class="form-label">Modificación de matrícula:</label>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="instalacionPorta{{ i }}"
-              [(ngModel)]="mod.detalle.instalacionPorta"
-              name="instalacionPorta{{ i }}"
-            />
-            <label class="form-check-label" for="instalacionPorta{{ i }}">
-              Portamatrículas trasero
-            </label>
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="reubicacionTrasera{{ i }}"
-              [(ngModel)]="mod.detalle.reubicacionTrasera"
-              name="reubicacionTrasera{{ i }}"
-            />
-            <label class="form-check-label" for="reubicacionTrasera{{ i }}">
-              Reubicación matrícula trasera
-            </label>
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="cambioUbicacionDelantera{{ i }}"
-              [(ngModel)]="mod.detalle.cambioUbicacionDelantera"
-              name="cambioUbicacionDelantera{{ i }}"
-            />
-            <label
-              class="form-check-label"
-              for="cambioUbicacionDelantera{{ i }}"
-            >
-              Cambio ubicación matrícula delantera
-            </label>
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- Piloto trasero -->
-        @if ( mod.nombre.includes('PILOTO TRASERO') && mod.seleccionado &&
-        mod.detalle ) {
-        <div class="ms-4">
-          <label class="form-label">¿Qué elementos va a sustituir?</label>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="luzPosYFreno{{ i }}"
-              [(ngModel)]="mod.detalle.luzPosicionFreno"
-              name="luzPosicionFreno{{ i }}"
-              (change)="actualizarError(i, mod)"
-            />
-            <label class="form-check-label" for="luzPosYFreno{{ i }}">
-              Luz de posición y freno
-            </label>
-          </div>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="intermitente{{ i }}"
-              [(ngModel)]="mod.detalle.intermitente"
-              name="intermitente{{ i }}"
-              (ngModelChange)="actualizarError(i, mod)"
-            />
-            <label class="form-check-label" for="intermitente{{ i }}">
-              Intermitente
-            </label>
-          </div>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="marchaAtras{{ i }}"
-              [(ngModel)]="mod.detalle.marchaAtras"
-              name="marchaAtras{{ i }}"
-              (ngModelChange)="actualizarError(i, mod)"
-            />
-            <label class="form-check-label" for="marchaAtras{{ i }}">
-              Marcha atrás
-            </label>
-          </div>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="catadioptrico{{ i }}"
-              [(ngModel)]="mod.detalle.catadioptrico"
-              name="catadioptrico{{ i }}"
-              (ngModelChange)="actualizarError(i, mod)"
-            />
-            <label class="form-check-label" for="catadioptrico{{ i }}">
-              Catadióptrico
-            </label>
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- Mueble camper -->
-        @if ( mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && mod.seleccionado
-        && mod.opcionesMueble ) {
-        <div class="ms-4">
-          <label class="form-label">¿Qué tipo de mueble desea indicar?</label>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.opcionesMueble.muebleBajo"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="muebleBajo{{ i }}"
-            />
-            <label class="form-check-label" for="muebleBajo{{ i }}"
-              >Mueble bajo</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.opcionesMueble.muebleAlto"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="muebleAlto{{ i }}"
-            />
-            <label class="form-check-label" for="muebleAlto{{ i }}"
-              >Mueble alto</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.opcionesMueble.aseo"
-              (ngModelChange)="actualizarError(i, mod)"
-              id="aseo{{ i }}"
-            />
-            <label class="form-check-label" for="aseo{{ i }}">Aseo</label>
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- Instalación eléctrica camper -->
-        @if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && mod.seleccionado) {
-        <div class="ms-4">
-          <label class="form-label"
-            >¿Desea añadir anotación para avisar que solamente puede funcionar
-            con el vehículo parado?</label
-          >
-          <select class="form-select" [(ngModel)]="mod.anotacion">
-            <option [ngValue]="null" disabled selected>
-              -- Seleccionar --
-            </option>
-            <option [ngValue]="true">Sí</option>
-            <option [ngValue]="false">No</option>
-          </select>
-        </div>
-        }
-        <!-- Aumento o disminución de plazas -->
-        @if ( mod.nombre === 'AUMENTO O DISMINUCIÓN DE PLAZAS' &&
-        mod.seleccionado ) {
-        <div class="ms-4">
-          <label class="form-label">Tipo de modificación:</label>
-          <select class="form-select" [(ngModel)]="mod.tipoCambio">
-            <option [ngValue]="null" disabled selected>
-              -- Seleccionar --
-            </option>
-            <option value="aumento">Aumento</option>
-            <option value="disminucion">Disminución</option>
-          </select>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- MMA/MMTA moto -->
-        @if (mod.nombre === 'REDUCCIÓN MMA Y MMTA' && mod.seleccionado) {
-        <div class="ms-4">
-          <label class="form-label">¿Qué se modifica?</label>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="mod.ejeDelantero"
-              id="ejeDelantero{{ i }}"
-            />
-            <label class="form-check-label" for="ejeDelantero{{ i }}"
-              >Reducción en eje delantero</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="mod.ejeTotal"
-              id="ejeTotal{{ i }}"
-            />
-            <label class="form-check-label" for="ejeTotal{{ i }}"
-              >Reducción total</label
-            >
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- Guardabarros -->
-        @if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS' && mod.seleccionado) {
-        <div class="ms-4">
-          <label class="form-label">¿Qué guardabarros se ha sustituido?</label>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="mod.guardabarrosDelantero"
-              id="guardabarrosDelantero{{ i }}"
-            />
-            <label class="form-check-label" for="guardabarrosDelantero{{ i }}"
-              >Delantero</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="mod.guardabarrosTrasero"
-              id="guardabarrosTrasero{{ i }}"
-            />
-            <label class="form-check-label" for="guardabarrosTrasero{{ i }}"
-              >Trasero</label
-            >
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- Disco y pastilla de freno -->
-        @if ( mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' &&
-        mod.seleccionado ) {
-        <div class="ms-4">
-          <label class="form-label"
-            >¿Qué componente de freno se ha modificado?</label
-          >
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="mod.tieneDisco"
-              id="ejeDelantero{{ i }}"
-            />
-            <label class="form-check-label" for="ejeDelantero{{ i }}"
-              >Disco de freno</label
-            >
-          </div>
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="mod.tienePastilla"
-              id="tienePastilla{{ i }}"
-            />
-            <label class="form-check-label" for="tienePastilla{{ i }}"
-              >Pastilla de freno</label
-            >
-          </div>
-          @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-        <!-- Luces -->
-        @if (mod.nombre === 'LUCES' && mod.seleccionado) {
-        <div class="mt-3 ms-4 border-start ps-3">
-          <label class="form-label">
-            ¿Qué modificaciones se han hecho en luces?
-          </label>
-          @for (item of opcionesDescripcionLuces; track item.key; let k =
-          $index) {
-          <div class="form-check mb-1">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="luces-{{ k }}"
-              [(ngModel)]="mod.descripcionLuces![item.key]"
-            />
-            <label class="form-check-label" [for]="'luces-' + k">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[i]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-      </div>
-      }
-    </div>
-    }
 
-    <!-- Botones -->
-    <div class="d-flex justify-content-end mt-4">
-      <button class="btn btn-primary" (click)="continuarFormulario()">
-        Continuar →
-      </button>
+        @if (modificaciones.length > 0) {
+        <div class="mt-4">
+          <h5 class="mb-3">Modificaciones aplicables</h5>
+          @for (mod of modificaciones; track mod.nombre; let i = $index) {
+          <div class="mb-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [(ngModel)]="mod.seleccionado"
+                [id]="'mod-' + i"
+              />
+              <label class="form-check-label fw-bold" [for]="'mod-' + i">
+                {{ mod.nombre }}
+              </label>
+            </div>
+            @if (mod.nombre.includes('MUELLES') && mod.seleccionado) {
+            <div class="mt-2 ms-4">
+              <label class="form-label"
+                >¿Qué elementos se han modificado?</label
+              >
+              @for (item of detallesMuellesOpciones; track item.key; let j =
+              $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detallesMuelles![item.key]"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="detalle-muelle-{{ j }}"
+                  name="detalle-muelle-{{ j }}"
+                />
+                <label class="form-check-label" for="detalle-muelle-{{ j }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              } @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+              <label class="form-label mt-3"
+                >¿Desea añadir la anotación de la no modifican las condiciones
+                técnicas de dirección?</label
+              >
+              <select
+                class="form-select"
+                [(ngModel)]="mod.anotacion"
+                (ngModelChange)="actualizarError(i, mod)"
+              >
+                <option [ngValue]="null" disabled selected>
+                  -- Seleccionar --
+                </option>
+                <option value="1">Sí</option>
+                <option value="2">No</option>
+              </select>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if (mod.nombre === 'NEUMÁTICOS' && mod.seleccionado) {
+            <div class="ms-4 mt-2">
+              <label class="form-label"
+                >Seleccione anotaciones si procede:</label
+              >
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.anotacion1"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="anotacion1{{ i }}"
+                />
+                <label class="form-check-label" for="anotacion1{{ i }}"
+                  >Diferencia superior al 8%</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.anotacion2"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="anotacion2{{ i }}"
+                />
+                <label class="form-check-label" for="anotacion2{{ i }}"
+                  >Índice de velocidad menor del original</label
+                >
+              </div>
+            </div>
+            } @if (mod.nombre === 'INTERMITENTES' && mod.seleccionado) {
+            <div class="ms-4">
+              <label class="form-label"
+                >Seleccione la posicion de los intermitentes:</label
+              >
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle!.interDelantero"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="interDelantero{{ i }}"
+                />
+                <label class="form-check-label" for="interDelantero{{ i }}"
+                  >Delanteros</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle!.interTrasero"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="interTrasero{{ i }}"
+                />
+                <label class="form-check-label" for="interTrasero{{ i }}"
+                  >Traseros</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle!.interLateral"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="interLateral{{ i }}"
+                />
+                <label class="form-check-label" for="interLateral{{ i }}"
+                  >Laterales</label
+                >
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if (mod.nombre === 'SUSTITUCIÓN DE EJES' && mod.seleccionado) {
+            <div mod.detalle class="ms-4">
+              <label class="form-label">Seleccione el/los ejes:</label>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle!.sustitucionEjeDelantero"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="sustitucionEjeDelantero{{ i }}"
+                />
+                <label
+                  class="form-check-label"
+                  for="sustitucionEjeDelantero{{ i }}"
+                  >Delantero</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle!.sustitucionEjeTrasero"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="sustitucionEjeTrasero{{ i }}"
+                />
+                <label
+                  class="form-check-label"
+                  for="sustitucionEjeTrasero{{ i }}"
+                  >Trasero</label
+                >
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if ( mod.nombre === 'ESTRIBOS LATERALES O TALONERAS' &&
+            mod.seleccionado && mod.detalle) {
+            <div class="ms-4 mt-2">
+              <label class="form-label">Seleccione cuál instaló:</label>
+              <select
+                class="form-select mb-1"
+                [(ngModel)]="mod.detalle.estribosotaloneras"
+                (ngModelChange)="validarSubopciones()"
+                [class.is-invalid]="erroresSubopciones[i]"
+                name="estribosotaloneras{{ i }}"
+                [ngModelOptions]="{ standalone: true }"
+              >
+                <option [ngValue]="null" disabled>-- Seleccionar --</option>
+                <option value="estribos">Estribos</option>
+                <option value="taloneras">Taloneras</option>
+              </select>
+              <label class="form-label">¿Material antideslizante?</label>
+              <select
+                class="form-select mb-1"
+                [(ngModel)]="mod.detalle.anotacionAntideslizante"
+                (ngModelChange)="validarSubopciones()"
+                [class.is-invalid]="erroresSubopciones[i]"
+                name="anotacionAntideslizante{{ i }}"
+                [ngModelOptions]="{ standalone: true }"
+              >
+                <option [ngValue]="null" disabled>-- Seleccionar --</option>
+                <option value="1">Sí</option>
+                <option value="2">No</option>
+              </select>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debes escoger ambas opciones antes de continuar.
+              </div>
+              }
+            </div>
+            } @if ( mod.nombre.includes('ALETINES') && mod.seleccionado &&
+            mod.detalle ) {
+            <div class="ms-4">
+              <label class="form-label">Seleccione el tipo:</label>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle.aletines"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="aletines{{ i }}"
+                />
+                <label class="form-check-label" for="aletines{{ i }}"
+                  >Aletines</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle.sobrealetines"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="sobrealetines{{ i }}"
+                />
+                <label class="form-check-label" for="sobrealetines{{ i }}"
+                  >Sobrealetines</label
+                >
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if ( mod.nombre.includes('MATRÍCULA') && mod.seleccionado &&
+            mod.detalle ) {
+            <div class="ms-4">
+              <label class="form-label">Modificación de matrícula:</label>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="instalacionPorta{{ i }}"
+                  [(ngModel)]="mod.detalle.instalacionPorta"
+                  name="instalacionPorta{{ i }}"
+                />
+                <label class="form-check-label" for="instalacionPorta{{ i }}">
+                  Portamatrículas trasero
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="reubicacionTrasera{{ i }}"
+                  [(ngModel)]="mod.detalle.reubicacionTrasera"
+                  name="reubicacionTrasera{{ i }}"
+                />
+                <label class="form-check-label" for="reubicacionTrasera{{ i }}">
+                  Reubicación matrícula trasera
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="cambioUbicacionDelantera{{ i }}"
+                  [(ngModel)]="mod.detalle.cambioUbicacionDelantera"
+                  name="cambioUbicacionDelantera{{ i }}"
+                />
+                <label
+                  class="form-check-label"
+                  for="cambioUbicacionDelantera{{ i }}"
+                >
+                  Cambio ubicación matrícula delantera
+                </label>
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if ( mod.nombre.includes('PILOTO TRASERO') && mod.seleccionado &&
+            mod.detalle ) {
+            <div class="ms-4">
+              <label class="form-label">¿Qué elementos va a sustituir?</label>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="luzPosYFreno{{ i }}"
+                  [(ngModel)]="mod.detalle.luzPosicionFreno"
+                  name="luzPosicionFreno{{ i }}"
+                  (change)="actualizarError(i, mod)"
+                />
+                <label class="form-check-label" for="luzPosYFreno{{ i }}">
+                  Luz de posición y freno
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="intermitente{{ i }}"
+                  [(ngModel)]="mod.detalle.intermitente"
+                  name="intermitente{{ i }}"
+                  (ngModelChange)="actualizarError(i, mod)"
+                />
+                <label class="form-check-label" for="intermitente{{ i }}">
+                  Intermitente
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="marchaAtras{{ i }}"
+                  [(ngModel)]="mod.detalle.marchaAtras"
+                  name="marchaAtras{{ i }}"
+                  (ngModelChange)="actualizarError(i, mod)"
+                />
+                <label class="form-check-label" for="marchaAtras{{ i }}">
+                  Marcha atrás
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="catadioptrico{{ i }}"
+                  [(ngModel)]="mod.detalle.catadioptrico"
+                  name="catadioptrico{{ i }}"
+                  (ngModelChange)="actualizarError(i, mod)"
+                />
+                <label class="form-check-label" for="catadioptrico{{ i }}">
+                  Catadióptrico
+                </label>
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if ( mod.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
+            mod.seleccionado && mod.opcionesMueble ) {
+            <div class="ms-4">
+              <label class="form-label"
+                >¿Qué tipo de mueble desea indicar?</label
+              >
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.opcionesMueble.muebleBajo"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="muebleBajo{{ i }}"
+                />
+                <label class="form-check-label" for="muebleBajo{{ i }}"
+                  >Mueble bajo</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.opcionesMueble.muebleAlto"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="muebleAlto{{ i }}"
+                />
+                <label class="form-check-label" for="muebleAlto{{ i }}"
+                  >Mueble alto</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.opcionesMueble.aseo"
+                  (ngModelChange)="actualizarError(i, mod)"
+                  id="aseo{{ i }}"
+                />
+                <label class="form-check-label" for="aseo{{ i }}">Aseo</label>
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && mod.seleccionado) {
+            <div class="ms-4">
+              <label class="form-label"
+                >¿Desea añadir anotación para avisar que solamente puede
+                funcionar con el vehículo parado?</label
+              >
+              <select class="form-select" [(ngModel)]="mod.anotacion">
+                <option [ngValue]="null" disabled selected>
+                  -- Seleccionar --
+                </option>
+                <option [ngValue]="true">Sí</option>
+                <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            } @if ( mod.nombre === 'AUMENTO O DISMINUCIÓN DE PLAZAS' &&
+            mod.seleccionado ) {
+            <div class="ms-4">
+              <label class="form-label">Tipo de modificación:</label>
+              <select class="form-select" [(ngModel)]="mod.tipoCambio">
+                <option [ngValue]="null" disabled selected>
+                  -- Seleccionar --
+                </option>
+                <option value="aumento">Aumento</option>
+                <option value="disminucion">Disminución</option>
+              </select>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if (mod.nombre === 'REDUCCIÓN MMA Y MMTA' && mod.seleccionado) {
+            <div class="ms-4">
+              <label class="form-label">¿Qué se modifica?</label>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="mod.ejeDelantero"
+                  id="ejeDelantero{{ i }}"
+                />
+                <label class="form-check-label" for="ejeDelantero{{ i }}"
+                  >Reducción en eje delantero</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="mod.ejeTotal"
+                  id="ejeTotal{{ i }}"
+                />
+                <label class="form-check-label" for="ejeTotal{{ i }}"
+                  >Reducción total</label
+                >
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS' &&
+            mod.seleccionado) {
+            <div class="ms-4">
+              <label class="form-label"
+                >¿Qué guardabarros se ha sustituido?</label
+              >
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="mod.guardabarrosDelantero"
+                  id="guardabarrosDelantero{{ i }}"
+                />
+                <label
+                  class="form-check-label"
+                  for="guardabarrosDelantero{{ i }}"
+                  >Delantero</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="mod.guardabarrosTrasero"
+                  id="guardabarrosTrasero{{ i }}"
+                />
+                <label class="form-check-label" for="guardabarrosTrasero{{ i }}"
+                  >Trasero</label
+                >
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if ( mod.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' &&
+            mod.seleccionado ) {
+            <div class="ms-4">
+              <label class="form-label"
+                >¿Qué componente de freno se ha modificado?</label
+              >
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="mod.tieneDisco"
+                  id="ejeDelantero{{ i }}"
+                />
+                <label class="form-check-label" for="ejeDelantero{{ i }}"
+                  >Disco de freno</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="mod.tienePastilla"
+                  id="tienePastilla{{ i }}"
+                />
+                <label class="form-check-label" for="tienePastilla{{ i }}"
+                  >Pastilla de freno</label
+                >
+              </div>
+              @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            } @if (mod.nombre === 'LUCES' && mod.seleccionado) {
+            <div class="mt-3 ms-4 border-start ps-3">
+              <label class="form-label">
+                ¿Qué modificaciones se han hecho en luces?
+              </label>
+              @for (item of opcionesDescripcionLuces; track item.key; let k =
+              $index) {
+              <div class="form-check mb-1">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="luces-{{ k }}"
+                  [(ngModel)]="mod.descripcionLuces![item.key]"
+                />
+                <label class="form-check-label" [for]="'luces-' + k">
+                  {{ item.label }}
+                </label>
+              </div>
+              } @if (erroresSubopciones[i]) {
+              <div class="text-danger mt-1">
+                Debe seleccionar al menos una opción en este bloque.
+              </div>
+              }
+            </div>
+            }
+          </div>
+          }
+        </div>
+        }
+
+        <div class="d-flex justify-content-end mt-4">
+          <button class="btn btn-primary" (click)="continuarFormulario()">
+            Continuar →
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

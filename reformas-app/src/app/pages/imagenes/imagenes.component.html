@@ -1,43 +1,262 @@
-<div class="card p-4 shadow-sm mx-auto" style="max-width: 1500px">
-  <h5 class="mb-4 text-center">
-    Paso {{ step }} de 2:
+<style>
+  /* --- CONTENEDOR PRINCIPAL --- */
+  #ing-upload-wrapper {
+    font-family: "Roboto", sans-serif;
+    background-color: #ffffff;
+    padding: 2rem;
+    border: 1px solid #ced4da;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  #ing-upload-wrapper * {
+    border-radius: 0 !important;
+  }
+
+  /* --- TÍTULO DE PASO --- */
+  .ing-step-title {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: #000;
+    border-bottom: 3px solid #000;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  /* --- ZONA DE CARGA (CARD INDIVIDUAL) --- */
+  .ing-upload-card {
+    border: 1px solid #adb5bd;
+    background-color: #fff;
+    height: 100%;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .ing-upload-card:hover {
+    border-color: #000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .ing-label-technical {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #495057;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    display: block;
+    background-color: #e9ecef;
+    padding: 4px 0;
+    border: 1px solid #dee2e6;
+  }
+
+  /* --- DROPZONE --- */
+  .ing-dropzone-box {
+    border: 2px dashed #adb5bd;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .ing-dropzone-box:hover {
+    background-color: #e9ecef;
+    border-color: #6c757d;
+  }
+
+  .ing-dropzone-text {
+    font-family: "Roboto", sans-serif;
+    color: #6c757d;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  /* --- DROPZONE GRANDE (PASO 2) --- */
+  .ing-dropzone-large {
+    border: 2px dashed #000;
+    background-color: #f8f9fa;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+  }
+
+  .ing-dropzone-large:hover {
+    background-color: #e9ecef;
+  }
+
+  /* --- BOTÓN ELIMINAR (CUADRADO) --- */
+  .btn-ing-delete-sq {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    line-height: 1;
+    z-index: 10;
+    cursor: pointer;
+  }
+
+  .btn-ing-delete-sq:hover {
+    background-color: #bb2d3b;
+  }
+
+  /* --- ALERTAS Y ESTADOS --- */
+  .ing-alert-processing {
+    background-color: #cff4fc;
+    border: 1px solid #b6effb;
+    color: #055160;
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  /* --- BOTONES NAVEGACIÓN --- */
+  .ing-nav-container {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-ing-prev {
+    background-color: #fff;
+    border: 1px solid #adb5bd;
+    color: #6c757d;
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-ing-prev:hover {
+    border-color: #000;
+    color: #000;
+    background-color: #f8f9fa;
+  }
+
+  .btn-ing-next {
+    background-color: #0066ff;
+    border: 1px solid #0066ff;
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 0.6rem 2rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
+  }
+
+  .btn-ing-next:disabled {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #adb5bd;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .btn-ing-next:not(:disabled):hover {
+    background-color: #0052cc;
+    border-color: #0052cc;
+    box-shadow: 0 4px 8px rgba(0, 102, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn-ing-success {
+    background-color: #198754;
+    border: 1px solid #198754;
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 0.6rem 2rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-ing-success:disabled {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #adb5bd;
+  }
+
+  .btn-ing-success:not(:disabled):hover {
+    background-color: #157347;
+    border-color: #146c43;
+  }
+
+  .btn2:hover {
+    color: white;
+  }
+</style>
+
+<div id="ing-upload-wrapper">
+  <h5 class="ing-step-title">
+    Paso {{ step }} de 2 //
     {{
       step === 1
-        ? "Imágenes exteriores del vehículo (frontal, trasera, lateral derecho e izquierdo)"
-        : "Imágenes de los elementos reformados"
+        ? "DOCUMENTACIÓN GRÁFICA EXTERIOR"
+        : "DOCUMENTACIÓN ELEMENTOS REFORMADOS"
     }}
   </h5>
 
   <div
     *ngIf="procesando"
-    class="alert alert-info text-center p-2 mb-3 d-flex align-items-center justify-content-center gap-2"
+    class="alert ing-alert-processing text-center p-3 mb-4 d-flex align-items-center justify-content-center gap-3"
   >
     <div class="spinner-border spinner-border-sm" role="status"></div>
-    <span>🔄 Optimizando imágenes…</span>
+    <span>PROCESANDO DATOS Y OPTIMIZANDO IMÁGENES...</span>
   </div>
 
   <ng-container *ngIf="step === 1">
-    <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
       <div
         class="col"
         *ngFor="
           let label of [
             'Frontal',
             'Trasera',
-            'Lateral izquierdo',
-            'Lateral derecho'
+            'Lateral Izquierdo',
+            'Lateral Derecho'
           ];
           let i = index
         "
       >
         <div
-          class="card p-2 h-100"
+          class="ing-upload-card"
           (paste)="onPrevPaste($event, i)"
           (dragover)="$event.preventDefault()"
           (drop)="onPrevDrop($event, i)"
           tabindex="0"
         >
-          <p class="fw-bold mb-2 text-center">{{ label }}</p>
+          <span class="ing-label-technical">{{ label }}</span>
 
           <input
             type="file"
@@ -49,57 +268,41 @@
           />
 
           <div
-            class="ratio ratio-1x1 border rounded d-flex align-items-center justify-content-center bg-light"
+            class="ratio ratio-1x1 ing-dropzone-box"
             (click)="fileInput.click()"
-            style="cursor: pointer"
           >
             <img
               *ngIf="prevPreviews[i]"
               [src]="prevPreviews[i]"
-              class="w-100 h-100 rounded shadow-sm"
+              class="w-100 h-100"
               style="object-fit: cover"
             />
             <div
               *ngIf="!prevPreviews[i]"
-              class="d-flex flex-column align-items-center justify-content-center text-center text-muted p-3"
-              style="pointer-events: none; user-select: none"
+              class="ing-dropzone-text p-3 d-flex flex-column align-items-center"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                fill="currentColor"
-                class="bi bi-clipboard-plus mb-2"
-                viewBox="0 0 16 16"
+              <i class="bi bi-camera fs-2 mb-2 text-dark"></i>
+              <small class="text-uppercase fw-bold text-dark"
+                >Click o Arrastrar</small
               >
-                <path
-                  fill-rule="evenodd"
-                  d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"
-                />
-                <path
-                  fill-rule="evenodd"
-                  d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V9.5a.5.5 0 0 1-1 0V8H6a.5.5 0 0 1 0-1h1.5V5.5A.5.5 0 0 1 8 5"
-                />
-              </svg>
-              <small
-                >Haz clic para buscar, arrastra<br />o
-                <strong>pega la imagen</strong> (Ctrl+V)</small
+              <small class="d-block mt-1 text-muted" style="font-size: 0.7rem"
+                >(Ctrl+V para pegar)</small
               >
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-between">
-      <button class="btn btn-outline-secondary me-2" (click)="back()">
-        ← Anterior
+    <div class="ing-nav-container">
+      <button class="btn btn-ing-prev" (click)="back()">
+        <i class="bi bi-arrow-left"></i> ANTERIOR
       </button>
       <button
-        class="btn btn-primary"
+        class="btn btn2 btn-ing-next"
         [disabled]="isValidPreview(prevPreviews) < 4 || procesando"
         (click)="next()"
       >
-        Siguiente →
+        SIGUIENTE <i class="bi bi-arrow-right"></i>
       </button>
     </div>
   </ng-container>
@@ -117,103 +320,76 @@
 
     <div
       #postDropzone
-      class="card p-4 mb-3 dropzone-container"
+      class="ing-dropzone-large"
       (dragover)="$event.preventDefault()"
       (drop)="onPostDrop($event)"
       (click)="postFileInput.click()"
-      style="
-        cursor: pointer;
-        border: 2px dashed #6c757d;
-        min-height: 200px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      "
       tabindex="0"
     >
-      <div
-        class="d-flex flex-column align-items-center justify-content-center text-center text-muted p-3"
-        style="pointer-events: none; user-select: none"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          fill="currentColor"
-          class="bi bi-clipboard-plus mb-2"
-          viewBox="0 0 16 16"
+      <div class="text-center p-4">
+        <i class="bi bi-images fs-1 mb-3 d-block text-dark"></i>
+        <h6 class="text-uppercase fw-bold text-dark mb-1">
+          Área de Carga Múltiple
+        </h6>
+        <small class="text-muted d-block mb-2 font-monospace"
+          >ARRASTRE ARCHIVOS O HAGA CLIC</small
         >
-          <path
-            fill-rule="evenodd"
-            d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"
-          />
-          <path
-            fill-rule="evenodd"
-            d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V9.5a.5.5 0 0 1-1 0V8H6a.5.5 0 0 1 0-1h1.5V5.5A.5.5 0 0 1 8 5"
-          />
-        </svg>
-        <small>
-          Haz clic para buscar, arrastra
-          <br />
-          o <strong>pega las imágenes</strong> (Ctrl+V)
-        </small>
+        <span class="badge bg-secondary rounded-0 font-monospace"
+          >Soporta Pegado (Ctrl+V)</span
+        >
       </div>
     </div>
 
     <p
       *ngIf="postPreviews.length === 0 && !procesando"
-      class="text-center text-muted mb-3"
+      class="text-center text-muted mb-4 fst-italic font-monospace small"
     >
-      Aquí aparecerán las imágenes de los elementos reformados.
+      // NO HAY IMÁGENES CARGADAS EN EL SISTEMA
     </p>
 
     <div
       *ngIf="postPreviews.length > 0"
-      class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-3"
+      class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-4"
     >
       <div
         class="col position-relative"
         *ngFor="let preview of postPreviews; let i = index"
       >
         <button
-          class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 lh-1"
-          style="
-            z-index: 10;
-            width: 1.5rem;
-            height: 1.5rem;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            font-weight: bold;
-          "
+          class="btn-ing-delete-sq"
           (click)="deletePostImage(i)"
           title="Eliminar imagen"
         >
           &times;
         </button>
-        <div class="ratio ratio-1x1 border rounded bg-light">
+        <div class="ratio ratio-1x1 border bg-light">
           <img
             [src]="preview"
-            class="img-fluid object-fit-cover rounded"
+            class="img-fluid"
             style="width: 100%; height: 100%; object-fit: cover"
           />
         </div>
       </div>
     </div>
 
-    <div *ngIf="errorPostImagesCount" class="alert alert-danger p-2">
-      Debe subir un máximo de <strong>30 imágenes</strong>.
+    <div
+      *ngIf="errorPostImagesCount"
+      class="alert alert-danger rounded-0 font-monospace small mb-3"
+    >
+      <i class="bi bi-exclamation-octagon me-2"></i> LÍMITE EXCEDIDO: MÁXIMO 30
+      IMÁGENES PERMITIDAS.
     </div>
 
-    <div class="d-flex justify-content-between">
-      <button class="btn btn-outline-secondary" (click)="back()">
-        ← Anterior
+    <div class="ing-nav-container">
+      <button class="btn btn-ing-prev" (click)="back()">
+        <i class="bi bi-arrow-left"></i> ANTERIOR
       </button>
       <button
-        class="btn btn-success"
+        class="btn btn2 btn-ing-success"
         [disabled]="postImages.length === 0 || procesando"
         (click)="onSave()"
       >
-        Guardar imágenes
+        GUARDAR IMÁGENES <i class="bi bi-check-lg"></i>
       </button>
     </div>
   </ng-container>

@@ -1,81 +1,264 @@
-<!-- canva.component.html -->
-<div class="container py-3">
-  <div class="row">
-    <!-- Tabla de etiquetas -->
+<style>
+  /* --- WRAPPER PRINCIPAL --- */
+  #ing-canvas-wrapper {
+    font-family: "Roboto", sans-serif;
+    background-color: #ffffff;
+    padding: 2rem;
+    border: 1px solid #ced4da;
+  }
+
+  #ing-canvas-wrapper * {
+    border-radius: 0 !important;
+  }
+
+  /* EXCEPCIÓN: Restaurar border-radius solo para los marcadores (círculos) */
+  #ing-canvas-wrapper .rounded-circle {
+    border-radius: 50% !important;
+  }
+
+  /* --- BARRA DE HERRAMIENTAS --- */
+  .ing-toolbar {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #000;
+    padding-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-ing-utility {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+    background: transparent;
+    padding: 0.4rem 0.8rem;
+    transition: all 0.2s;
+  }
+
+  .btn-ing-utility:hover {
+    background-color: #f8f9fa;
+    border-color: #000;
+    color: #000;
+  }
+
+  /* --- TABLA DE DATOS --- */
+  .ing-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+  }
+
+  .ing-table td {
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.75rem;
+    vertical-align: middle;
+  }
+
+  .ing-table tr {
+    transition: background-color 0.15s;
+    cursor: pointer;
+  }
+
+  .ing-table tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  .ing-row-active {
+    background-color: #f0f7ff !important;
+    color: #000;
+    font-weight: 700;
+    border-left: 4px solid #0066ff;
+  }
+
+  .ing-index-badge {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid #adb5bd;
+  }
+
+  .ing-row-active .ing-index-badge {
+    background-color: #0066ff;
+    color: #fff;
+    border-color: #0066ff;
+  }
+
+  /* --- ZONA DE CANVAS --- */
+  .ing-canvas-box {
+    border: 1px solid #6c757d;
+    background-color: #f8f9fa;
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    position: relative;
+  }
+
+  /* --- BOTONES NAVEGACIÓN --- */
+  .ing-nav-container {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-ing-prev {
+    background-color: #fff;
+    border: 1px solid #adb5bd;
+    color: #6c757d;
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-ing-prev:hover {
+    border-color: #000;
+    color: #000;
+    background-color: #f8f9fa;
+  }
+
+  .btn-ing-next {
+    background-color: #0066ff;
+    border: 1px solid #0066ff;
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 0.6rem 2rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
+  }
+
+  .btn-ing-next:disabled {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #adb5bd;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .btn-ing-next:not(:disabled):hover {
+    background-color: #0052cc;
+    border-color: #0052cc;
+    box-shadow: 0 4px 8px rgba(0, 102, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn:hover {
+    color: white;
+  }
+</style>
+
+<div id="ing-canvas-wrapper" class="container mt-3">
+  <div class="row g-4">
     <div class="col-md-4">
-      <div class="d-flex mb-2">
+      <div class="ing-toolbar">
+        <span
+          class="text-uppercase small fw-bold text-muted"
+          style="font-family: 'JetBrains Mono'"
+          >Listado de Componentes</span
+        >
         <button
-          class="btn btn-outline-secondary btn-sm"
+          class="btn btn-ing-utility"
           (click)="undoMarker(); $event.stopPropagation()"
         >
-          ↺ Borrar último marcador
+          <i class="bi bi-arrow-counterclockwise"></i> Deshacer
         </button>
       </div>
-      <table class="table">
-        <tbody>
-          @for (label of labels; track label; let i = $index) {
-          <tr
-            (click)="selectRow(i)"
-            [ngClass]="{ 'table-primary': selectedIndex === i }"
-            style="cursor: pointer"
-          >
-            <td>{{ i + 1 }}</td>
-            <td>
-              {{ label | uppercase }}
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
+
+      <div class="table-responsive border border-top-0">
+        <table class="ing-table">
+          <tbody>
+            @for (label of labels; track label; let i = $index) {
+            <tr
+              (click)="selectRow(i)"
+              [class.ing-row-active]="selectedIndex === i"
+            >
+              <td style="width: 40px; text-align: center">
+                <span class="ing-index-badge">{{ i + 1 }}</span>
+              </td>
+              <td>
+                {{ label | uppercase }}
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Imagen con marcador -->
-    <div class="col-md-8 d-flex justify-content-center border">
-      <div
-        #canvasContainer
-        class="position-relative"
-        style="display: inline-block; max-width: 100%"
-        (click)="onImageClick($event)"
-      >
-        <img
-          #canvasImg
-          [src]="imageSrc"
-          alt="Diagrama vehículo"
-          class="img-fluid"
-          style="max-height: 500px"
-        />
-        @for (m of markers; track m) {
+    <div class="col-md-8">
+      <div class="ing-canvas-box">
         <div
-          class="position-absolute bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-semibold"
-          [style.left.%]="m.x * 100"
-          [style.top.%]="m.y * 100"
-          style="
-            width: 18px;
-            height: 18px;
-            font-size: 0.8rem;
-            transform: translate(-50%, -50%);
-            line-height: 1;
-            padding: 0;
-          "
+          #canvasContainer
+          class="position-relative"
+          style="display: inline-block; max-width: 100%"
+          (click)="onImageClick($event)"
         >
-          {{ m.label }}
+          <img
+            #canvasImg
+            [src]="imageSrc"
+            alt="Plano Técnico"
+            class="img-fluid d-block"
+            style="max-height: 500px; border: 1px solid #dee2e6"
+          />
+
+          @for (m of markers; track m) {
+          <div
+            class="position-absolute bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-semibold"
+            [style.left.%]="m.x * 100"
+            [style.top.%]="m.y * 100"
+            style="
+              width: 18px;
+              height: 18px;
+              font-size: 0.8rem;
+              transform: translate(-50%, -50%);
+              line-height: 1;
+              padding: 0;
+            "
+          >
+            {{ m.label }}
+          </div>
+          }
         </div>
-        }
+      </div>
+      <div class="text-end mt-2">
+        <small class="text-muted font-monospace small"
+          >// HAGA CLIC EN LA IMAGEN PARA SITUAR EL COMPONENTE
+          SELECCIONADO</small
+        >
       </div>
     </div>
   </div>
 
-  <!-- Botones de navegación -->
-  <div class="d-flex justify-content-between mt-4">
-    <button class="btn btn-outline-secondary" (click)="onBack()">
-      ← Volver
+  <div class="ing-nav-container">
+    <button class="btn btn-ing-prev" (click)="onBack()">
+      <i class="bi bi-arrow-left"></i> VOLVER
     </button>
     <button
-      class="btn btn-primary"
+      class="btn btn-ing-next"
       [disabled]="markers.length === 0"
       (click)="onContinue()"
     >
-      Continuar →
+      CONTINUAR <i class="bi bi-arrow-right"></i>
     </button>
   </div>
 

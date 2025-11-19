@@ -1,97 +1,259 @@
+<style>
+  /* CONTENEDOR PRINCIPAL */
+  #ing-safety-wrapper {
+    font-family: "Roboto", sans-serif;
+    background-color: #ffffff;
+    padding: 2rem;
+    border: 1px solid #ced4da;
+    max-width: 100%;
+  }
+
+  #ing-safety-wrapper * {
+    border-radius: 0 !important;
+  }
+
+  /* TÍTULO */
+  .ing-header-title {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: #000;
+    border-bottom: 3px solid #000;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  /* CHECKLIST INDUSTRIAL */
+  .ing-check-group {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #dee2e6;
+  }
+
+  .ing-check-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .ing-check-row:last-child {
+    border-bottom: none;
+  }
+
+  .ing-check-row:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* Estado activo (seleccionado) */
+  .ing-check-row.checked {
+    background-color: #f0f7ff;
+    border-left: 5px solid #0066ff;
+    padding-left: calc(1.25rem - 5px);
+  }
+
+  .ing-check-row .form-check-input {
+    width: 1.3em;
+    height: 1.3em;
+    margin-right: 1rem;
+    border: 1px solid #adb5bd;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .ing-check-row .form-check-input:checked {
+    background-color: #0066ff;
+    border-color: #0066ff;
+  }
+
+  .ing-check-label {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #495057;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .ing-check-row.checked .ing-check-label {
+    color: #000;
+    font-weight: 700;
+  }
+
+  /* ERROR BOX */
+  .ing-error-box {
+    border: 1px solid #dc3545;
+    background-color: #fff5f5;
+    color: #dc3545;
+    padding: 0.75rem 1rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  /* FOOTER BOTONES */
+  .ing-nav-container {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-ing-prev {
+    background-color: #fff;
+    border: 1px solid #adb5bd;
+    color: #6c757d;
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-ing-prev:hover {
+    border-color: #000;
+    color: #000;
+    background-color: #f8f9fa;
+  }
+
+  .btn-ing-next {
+    background-color: #0066ff;
+    border: 1px solid #0066ff;
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 0.6rem 2rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
+  }
+
+  .btn-ing-next:hover {
+    background-color: #0052cc;
+    border-color: #0052cc;
+    box-shadow: 0 4px 8px rgba(0, 102, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn:hover {
+    color: white;
+  }
+</style>
+
 @if ( (datosEntrada?.tipoVehiculo || '').toLowerCase() === 'coche' ) {
-<div class="p-3">
+<div id="ing-safety-wrapper" class="container mt-4">
   <form #form="ngForm" (ngSubmit)="onContinuar(form)" novalidate>
-    <h4>Pasos de seguridad y normativas</h4>
+    <h4 class="ing-header-title">Protocolo de Seguridad y Normativa</h4>
 
-    <div class="form-check mb-2">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        [(ngModel)]="opcionesCoche[0]"
-        name="opt0"
-        id="opt0"
-        (ngModelChange)="onCambioOpcion()"
-      />
-      <label class="form-check-label" for="opt0">
-        El vehículo dispone de sistema de frenado ABS.
-      </label>
+    <div class="ing-check-group">
+      <div class="ing-check-row" [class.checked]="opcionesCoche[0]">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="opcionesCoche[0]"
+          name="opt0"
+          id="opt0"
+          (ngModelChange)="onCambioOpcion()"
+        />
+        <label class="ing-check-label" for="opt0">
+          El vehículo dispone de sistema de frenado ABS.
+        </label>
+      </div>
+
+      <div class="ing-check-row" [class.checked]="opcionesCoche[1]">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="opcionesCoche[1]"
+          name="opt1"
+          id="opt1"
+          (ngModelChange)="onCambioOpcion()"
+        />
+        <label class="ing-check-label" for="opt1">
+          Se cumple en todo caso con la normativa de salientes exteriores.
+        </label>
+      </div>
+
+      <div class="ing-check-row" [class.checked]="opcionesCoche[2]">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="opcionesCoche[2]"
+          name="opt2"
+          id="opt2"
+          (ngModelChange)="onCambioOpcion()"
+        />
+        <label class="ing-check-label" for="opt2">
+          Los anclajes del paragolpes delantero son los originales, no
+          modificándose la altura libre.
+        </label>
+      </div>
+
+      <div class="ing-check-row" [class.checked]="opcionesCoche[3]">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="opcionesCoche[3]"
+          name="opt3"
+          id="opt3"
+          (ngModelChange)="onCambioOpcion()"
+        />
+        <label class="ing-check-label" for="opt3">
+          El sistema de remolcado delantero y trasero no se ve impedido tras la
+          reforma.
+        </label>
+      </div>
+
+      <div class="ing-check-row" [class.checked]="opcionesCoche[4]">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="opcionesCoche[4]"
+          name="opt4"
+          id="opt4"
+          (ngModelChange)="onCambioOpcion()"
+        />
+        <label class="ing-check-label" for="opt4">
+          Ninguna pieza asociada a las reformas presenta aristas vivas o
+          cortantes peligrosas.
+        </label>
+      </div>
     </div>
 
-    <div class="form-check mb-2">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        [(ngModel)]="opcionesCoche[1]"
-        name="opt1"
-        id="opt1"
-        (ngModelChange)="onCambioOpcion()"
-      />
-      <label class="form-check-label" for="opt1">
-        Se cumple en todo caso con la normativa de salientes exteriores.
-      </label>
-    </div>
-
-    <div class="form-check mb-2">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        [(ngModel)]="opcionesCoche[2]"
-        name="opt2"
-        id="opt2"
-        (ngModelChange)="onCambioOpcion()"
-      />
-      <label class="form-check-label" for="opt2">
-        Los anclajes del paragolpes delantero son los originales, no
-        modificándose la altura libre.
-      </label>
-    </div>
-
-    <div class="form-check mb-2">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        [(ngModel)]="opcionesCoche[3]"
-        name="opt3"
-        id="opt3"
-        (ngModelChange)="onCambioOpcion()"
-      />
-      <label class="form-check-label" for="opt3">
-        El sistema de remolcado delantero y trasero no se ve impedido tras la
-        reforma.
-      </label>
-    </div>
-
-    <div class="form-check mb-2">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        [(ngModel)]="opcionesCoche[4]"
-        name="opt4"
-        id="opt4"
-        (ngModelChange)="onCambioOpcion()"
-      />
-      <label class="form-check-label" for="opt4">
-        Ninguna pieza asociada a las reformas presenta aristas vivas o cortantes
-        peligrosas.
-      </label>
-    </div>
-
-    <!-- Validación “al menos una” -->
     @if (form.submitted && !anyOpcionCocheSeleccionada()) {
-    <div class="text-danger mt-2">
-      Debe marcar al menos una condición para continuar.
+    <div class="ing-error-box">
+      <i class="bi bi-exclamation-octagon-fill"></i>
+      DEBE MARCAR AL MENOS UNA CONDICIÓN PARA CONTINUAR.
     </div>
     }
 
-    <div class="mt-3 d-flex justify-content-between">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        (click)="onVolver()"
-      >
-        ← Volver
+    <div class="ing-nav-container">
+      <button type="button" class="btn btn-ing-prev" (click)="onVolver()">
+        <i class="bi bi-arrow-left"></i> VOLVER
       </button>
-      <button type="submit" class="btn btn-success">Continuar</button>
+      <button type="submit" class="btn btn-ing-next">
+        CONTINUAR <i class="bi bi-arrow-right"></i>
+      </button>
     </div>
   </form>
 </div>
