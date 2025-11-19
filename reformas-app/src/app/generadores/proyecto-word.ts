@@ -147,6 +147,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const response = await fetch('assets/logo.png');
   const imageBuffer = await response.arrayBuffer();
 
+  const response2 = await fetch('assets/logoNegro.png');
+  const imageBuffer2 = await response2.arrayBuffer();
+
   const modificaciones: Modificacion[] = data.modificaciones;
 
   let tipo = data.tipoVehiculo;
@@ -168,7 +171,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const responseBg = await fetch('assets/logo.png');
   const backgroundBuffer = await responseBg.arrayBuffer();
 
-  const transparentImageBuffer = await applyTransparency(imageBuffer, 0.3);
+  const transparentImageBuffer = await applyTransparency(imageBuffer2, 0.8);
 
   const logoImage = new ImageRun({
     data: imageBuffer,

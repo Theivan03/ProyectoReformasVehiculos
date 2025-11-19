@@ -7,7 +7,6 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 
@@ -70,7 +69,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     68: 3056.58,
   };
 
-  // “Mini-DB” de tornillos
   tornillosDB = [
     {
       diametro: 4,
@@ -125,9 +123,79 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   modificacionesSeleccionadas: any[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['datosEntrada']?.currentValue) {
+    console.log('--- DEBUG: ngOnChanges disparado ---', changes);
+    if (changes['datosEntrada']) {
+      console.log('--- DEBUG: Detectado cambio en datosEntrada ---');
       this.rebuild();
     }
+  }
+
+  ngOnInit(): void {
+    console.log('--- DEBUG: ngOnInit disparado ---');
+    this.rebuild();
+  }
+
+  private rebuild() {
+    console.group('--- DEBUG REBUILD EXECUTION ---');
+
+    if (!this.datosEntrada) {
+      console.error('ERROR: datosEntrada es null o undefined');
+      this.modificacionesSeleccionadas = [];
+      console.groupEnd();
+      return;
+    }
+
+    console.log('Datos Entrada recibidos:', this.datosEntrada);
+
+    if (!Array.isArray(this.datosEntrada.modificaciones)) {
+      console.error(
+        'ERROR: datosEntrada.modificaciones NO es un array',
+        this.datosEntrada.modificaciones
+      );
+      this.modificacionesSeleccionadas = [];
+      console.groupEnd();
+      return;
+    }
+
+    const total = this.datosEntrada.modificaciones.length;
+    console.log(`Array original tiene ${total} elementos.`);
+
+    this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
+      (m: any) => {
+        const isSelected =
+          m?.seleccionado === true || m?.seleccionado === 'true';
+        if (isSelected) console.log('Elemento aceptado:', m.nombre);
+        return isSelected;
+      }
+    );
+
+    console.log(
+      'LONGITUD FINAL modificacionesSeleccionadas:',
+      this.modificacionesSeleccionadas.length
+    );
+
+    if (this.modificacionesSeleccionadas.length === 0) {
+      console.warn('ALERTA: El array final está vacío.');
+    }
+
+    this.modificacionesSeleccionadas.forEach((m) => {
+      if (m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
+        if (m.diametroTornilloSeleccionado === undefined) {
+          m.diametroTornilloSeleccionado = null;
+        }
+        if (m.areaResistenteTornilloSeleccionado === undefined) {
+          m.areaResistenteTornilloSeleccionado = null;
+        }
+        if (m.diametroTornilloSeleccionado !== null) {
+          const t = this.tornillosDB.find(
+            (x) => x.diametro === m.diametroTornilloSeleccionado
+          );
+          if (t) m.areaResistenteTornilloSeleccionado = t.areaResistente;
+        }
+      }
+    });
+
+    console.groupEnd();
   }
 
   getTornilloActivo(mod: any) {
@@ -167,7 +235,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (!Array.isArray(mod.acciones)) {
       mod.acciones = [];
     }
-
     if (checked) {
       if (!mod.acciones.includes(accion)) {
         mod.acciones.push(accion);
@@ -177,15 +244,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnInit(): void {
-    console.log(this.datosEntrada);
-  }
-
   onDimensionesChange(
     mod: any,
-    sourceKey: string, // Campo donde está la cadena (ej: "dimensionesTaloneras")
-    targetWidthKey: string, // Campo donde guardar la anchura
-    targetHeightKey: string // Campo donde guardar la altura
+    sourceKey: string,
+    targetWidthKey: string,
+    targetHeightKey: string
   ) {
     const rawValue = mod[sourceKey];
     if (!rawValue || rawValue.trim() === '') {
@@ -193,15 +256,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       mod[targetHeightKey] = null;
       return;
     }
-
     const clean = rawValue.toLowerCase().replace('mm', '').trim();
     const parts = clean.split('x');
-
-    // Anchura (primer valor)
     const anchuraMm = parseFloat(parts[0]);
     mod[targetWidthKey] = !isNaN(anchuraMm) ? anchuraMm / 1000 : null;
-
-    // Altura (segundo valor si existe)
     if (parts.length >= 2) {
       const alturaMm = parseFloat(parts[1]);
       mod[targetHeightKey] = !isNaN(alturaMm) ? alturaMm / 1000 : null;
@@ -256,44 +314,9 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
   onContinuar(form: NgForm): void {
     this.formSubmitted = true;
-
     if (form.invalid || this.formularioInvalido()) {
       return;
     }
-
     this.continuar.emit(this.datosEntrada);
-  }
-
-  private rebuild() {
-    if (
-      !this.datosEntrada ||
-      !Array.isArray(this.datosEntrada.modificaciones)
-    ) {
-      this.modificacionesSeleccionadas = [];
-      return;
-    }
-
-    this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
-      (m: any) => m?.seleccionado
-    );
-
-    this.modificacionesSeleccionadas.forEach((m) => {
-      if (m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
-        if (m.diametroTornilloSeleccionado === undefined) {
-          m.diametroTornilloSeleccionado = null;
-        }
-
-        if (m.areaResistenteTornilloSeleccionado === undefined) {
-          m.areaResistenteTornilloSeleccionado = null;
-        }
-
-        if (m.diametroTornilloSeleccionado !== null) {
-          const t = this.tornillosDB.find(
-            (x) => x.diametro === m.diametroTornilloSeleccionado
-          );
-          if (t) m.areaResistenteTornilloSeleccionado = t.areaResistente;
-        }
-      }
-    });
   }
 }

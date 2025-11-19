@@ -88,6 +88,11 @@ export interface Modificacion {
   homologacionluzAntinieblas?: string;
   curvaturaluzAntinieblas?: number;
 
+  marcaluzFreno?: string;
+  referencialuzFreno?: string;
+  homologacionluzFreno?: string;
+  luzMatriculaIntegradaLuzFreno?: boolean;
+
   marcajesluzGrupoOptico?: string;
   curvaturaGuardaTrasMoto?: number;
   curvaturaManillar?: number;

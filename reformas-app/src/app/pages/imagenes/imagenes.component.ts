@@ -8,6 +8,7 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
+  HostListener, // <--- 1. IMPORTAR ESTO
 } from '@angular/core';
 import loadImage from 'blueimp-load-image';
 import { CommonModule } from '@angular/common';
@@ -45,11 +46,34 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
   errorPostImagesCount = false;
 
   // --------------------------------------------------
+  //  LISTENER GLOBAL PARA PEGAR (LA SOLUCIÓN)
+  // --------------------------------------------------
+  @HostListener('window:paste', ['$event'])
+  async onGlobalPaste(event: ClipboardEvent): Promise<void> {
+    // Solo actuamos si estamos en el paso 2
+    if (this.step !== 2) return;
+
+    // Si hay modales abiertos o inputs de texto activos, quizás quieras evitarlo,
+    // pero para esta pantalla suele estar bien así.
+
+    event.preventDefault(); // Evitar duplicados si el foco estaba en el div
+    if (this.procesando) return;
+
+    const files = this.getFilesFromClipboard(event);
+    if (files.length > 0) {
+      await this.procesarArchivosPost(files);
+    }
+  }
+
+  // --------------------------------------------------
   //  MANEJADORES PARA PASO 1 (ANTERIORES)
   // --------------------------------------------------
 
   async onPrevPaste(event: ClipboardEvent, index: number): Promise<void> {
     event.preventDefault();
+    // Evitamos que el listener global salte si estamos pegando en un input específico del paso 1
+    event.stopPropagation();
+
     if (this.procesando) return;
 
     const file = this.getFileFromClipboard(event);
@@ -74,7 +98,6 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const file = input.files[0];
     await this.procesarArchivoPrev(file, index);
-
     input.value = '';
   }
 
@@ -106,14 +129,12 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
   //  MANEJADORES PARA PASO 2 (POSTERIORES)
   // --------------------------------------------------
 
+  // NOTA: Este método se mantiene por si el foco está explícitamente en el div,
+  // pero el @HostListener de arriba hará el trabajo pesado.
   async onPostPaste(event: ClipboardEvent): Promise<void> {
-    event.preventDefault();
-    if (this.procesando) return;
-
-    const files = this.getFilesFromClipboard(event);
-    if (files.length > 0) {
-      await this.procesarArchivosPost(files);
-    }
+    // Ya lo maneja el global, pero por seguridad:
+    // event.preventDefault();
+    // ... lógica redundante si usas window:paste
   }
 
   async onPostDrop(event: DragEvent): Promise<void> {
@@ -127,9 +148,7 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
   async onPostSelected(ev: Event) {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
-
     await this.procesarArchivosPost(input.files);
-
     input.value = '';
   }
 
@@ -169,19 +188,15 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // --------------------------------------------------
-  //  MANEJADORES DE PORTAPAPELES
+  //  MANEJADORES DE PORTAPAPELES (SIN CAMBIOS)
   // --------------------------------------------------
-
   private getFileFromClipboard(event: ClipboardEvent): File | null {
     const clipboardData = event.clipboardData;
     if (!clipboardData) return null;
-
     if (clipboardData.files && clipboardData.files.length > 0) {
-      if (clipboardData.files[0].type.startsWith('image/')) {
+      if (clipboardData.files[0].type.startsWith('image/'))
         return clipboardData.files[0];
-      }
     }
-
     if (clipboardData.items) {
       for (let i = 0; i < clipboardData.items.length; i++) {
         const item = clipboardData.items[i];
@@ -198,7 +213,6 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
     const clipboardData = event.clipboardData;
     const files: File[] = [];
     if (!clipboardData) return files;
-
     if (clipboardData.files && clipboardData.files.length > 0) {
       for (let i = 0; i < clipboardData.files.length; i++) {
         if (clipboardData.files[i].type.startsWith('image/')) {
@@ -207,7 +221,6 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       if (files.length > 0) return files;
     }
-
     if (clipboardData.items) {
       for (let i = 0; i < clipboardData.items.length; i++) {
         const item = clipboardData.items[i];
@@ -221,12 +234,11 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // --------------------------------------------------
-  //  CICLO DE VIDA Y FUNCIONES COMUNES
+  //  CICLO DE VIDA Y RESTO (SIN CAMBIOS IMPORTANTES)
   // --------------------------------------------------
-
   async ngOnInit(): Promise<void> {
     this.step = this.origen === 'siguiente' ? 2 : 1;
-
+    // ... carga de datos igual que tenías ...
     if (Array.isArray(this.datosEntrada?.prevImagesB64)) {
       this.prevImagesB64 = [...this.datosEntrada.prevImagesB64];
       this.prevPreviews = [...this.prevImagesB64];
@@ -260,7 +272,6 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
       this.prevImages.push(new Blob());
       this.prevImagesB64.push('');
     }
-
     this.emitAutosave();
   }
 
@@ -307,7 +318,6 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
           if (!(canvasElement instanceof HTMLCanvasElement)) {
             return reject('No se pudo procesar la imagen');
           }
-
           const mimeType = 'image/jpeg';
           canvasElement.toBlob(
             (blob) => {
@@ -322,70 +332,51 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  // ... funciones movePrev, moveNext, movePrevPost, moveNextPost ...
   movePrev(i: number) {
     if (i === 0) return;
-    [this.prevPreviews[i - 1], this.prevPreviews[i]] = [
-      this.prevPreviews[i],
-      this.prevPreviews[i - 1],
-    ];
-    [this.prevImagesB64[i - 1], this.prevImagesB64[i]] = [
-      this.prevImagesB64[i],
-      this.prevImagesB64[i - 1],
-    ];
-    [this.prevImages[i - 1], this.prevImages[i]] = [
-      this.prevImages[i],
-      this.prevImages[i - 1],
-    ];
-    this.emitAutosave();
+    this.swapPrev(i, i - 1);
   }
-
   moveNext(i: number) {
     if (i === this.prevPreviews.length - 1) return;
-    [this.prevPreviews[i + 1], this.prevPreviews[i]] = [
+    this.swapPrev(i, i + 1);
+  }
+  private swapPrev(i: number, j: number) {
+    [this.prevPreviews[j], this.prevPreviews[i]] = [
       this.prevPreviews[i],
-      this.prevPreviews[i + 1],
+      this.prevPreviews[j],
     ];
-    [this.prevImagesB64[i + 1], this.prevImagesB64[i]] = [
+    [this.prevImagesB64[j], this.prevImagesB64[i]] = [
       this.prevImagesB64[i],
-      this.prevImagesB64[i + 1],
+      this.prevImagesB64[j],
     ];
-    [this.prevImages[i + 1], this.prevImages[i]] = [
+    [this.prevImages[j], this.prevImages[i]] = [
       this.prevImages[i],
-      this.prevImages[i + 1],
+      this.prevImages[j],
     ];
     this.emitAutosave();
   }
 
   movePrevPost(i: number) {
     if (i === 0) return;
-    [this.postPreviews[i - 1], this.postPreviews[i]] = [
-      this.postPreviews[i],
-      this.postPreviews[i - 1],
-    ];
-    [this.postImagesB64[i - 1], this.postImagesB64[i]] = [
-      this.postImagesB64[i],
-      this.postImagesB64[i - 1],
-    ];
-    [this.postImages[i - 1], this.postImages[i]] = [
-      this.postImages[i],
-      this.postImages[i - 1],
-    ];
-    this.emitAutosave();
+    this.swapPost(i, i - 1);
   }
-
   moveNextPost(i: number) {
     if (i === this.postPreviews.length - 1) return;
-    [this.postPreviews[i + 1], this.postPreviews[i]] = [
+    this.swapPost(i, i + 1);
+  }
+  private swapPost(i: number, j: number) {
+    [this.postPreviews[j], this.postPreviews[i]] = [
       this.postPreviews[i],
-      this.postPreviews[i + 1],
+      this.postPreviews[j],
     ];
-    [this.postImagesB64[i + 1], this.postImagesB64[i]] = [
+    [this.postImagesB64[j], this.postImagesB64[i]] = [
       this.postImagesB64[i],
-      this.postImagesB64[i + 1],
+      this.postImagesB64[j],
     ];
-    [this.postImages[i + 1], this.postImages[i]] = [
+    [this.postImages[j], this.postImages[i]] = [
       this.postImages[i],
-      this.postImages[i + 1],
+      this.postImages[j],
     ];
     this.emitAutosave();
   }
@@ -417,11 +408,9 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   deletePostImage(index: number): void {
     if (index < 0 || index >= this.postPreviews.length) return;
-
     this.postPreviews.splice(index, 1);
     this.postImages.splice(index, 1);
     this.postImagesB64.splice(index, 1);
-
     if (this.postImages.length <= 30) {
       this.errorPostImagesCount = false;
     }
@@ -429,6 +418,7 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private focusPostDropzone(): void {
+    // Aunque con el HostListener ya no es crítico, mantener el foco ayuda a la accesibilidad
     setTimeout(() => {
       if (this.step === 2 && this.postDropzone) {
         this.postDropzone.nativeElement.focus();

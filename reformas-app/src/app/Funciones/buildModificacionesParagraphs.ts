@@ -1854,6 +1854,22 @@ export function buildModificacionesParagraphs(
       (p as any)._rawText = raw;
       out.push(p);
     }
+
+    if (luces.descripcionLuces?.['luzFreno']) {
+      let led = '';
+      if (luces.luzMatriculaIntegradaLuzFreno === true) {
+        led = 'con luz de matrícula integrada';
+      }
+      raw = `- Sustitución del piloto trasero original por otro con sistema led de la marca ${luces.marcaluzAntinieblas} con referencia ${luces.marcaluzAntinieblas} ${led} y con contraseña de homologación ${luces.marcaluzAntinieblas}.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
   }
 
   //

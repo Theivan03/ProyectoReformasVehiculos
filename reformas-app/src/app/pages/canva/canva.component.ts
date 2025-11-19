@@ -77,6 +77,16 @@ export class CanvaComponent implements OnInit {
     kitElevacion: 'Kit de elevación',
   };
 
+  private readonly LUCES_LABELS: Record<string, string> = {
+    luzGrupoOptico: 'Grupo óptico delantero',
+    intermitenteDelantero: 'Intermitente delantero',
+    intermitenteTrasero: 'Intermitente trasero',
+    catadioptrico: 'Catadióptrico',
+    luzMatricula: 'Luz de matrícula',
+    luzAntinieblas: 'Luz antinieblas',
+    luzFreno: 'Luz de freno',
+  };
+
   private isCasuisticaSuspension(nombre: string | undefined): boolean {
     return (
       (nombre || '').trim().toUpperCase() ===
@@ -173,6 +183,12 @@ export class CanvaComponent implements OnInit {
         continue;
       }
 
+      if (mod?.seleccionado && mod?.nombre === 'LUCES') {
+        const sublabels = this.expandLuces(mod);
+        if (sublabels.length > 0) nuevasLabels.push(...sublabels);
+        continue;
+      }
+
       // 4) Resto (solo si están seleccionadas)
       if (mod?.seleccionado) {
         nuevasLabels.push(mod.nombre);
@@ -250,6 +266,21 @@ export class CanvaComponent implements OnInit {
       out.push(`Instalaciones secundarias`);
     }
 
+    return out;
+  }
+
+  private expandLuces(mod: any): string[] {
+    const det = mod?.descripcionLuces;
+    if (!det) return [];
+
+    const out: string[] = [];
+    (
+      Object.keys(this.LUCES_LABELS) as Array<keyof typeof this.LUCES_LABELS>
+    ).forEach((k) => {
+      if (det[k]) {
+        out.push(this.LUCES_LABELS[k]);
+      }
+    });
     return out;
   }
 

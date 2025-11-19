@@ -62,7 +62,7 @@
             <div
               *ngIf="!prevPreviews[i]"
               class="d-flex flex-column align-items-center justify-content-center text-center text-muted p-3"
-              style="pointer-events: none"
+              style="pointer-events: none; user-select: none"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -81,17 +81,15 @@
                   d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V9.5a.5.5 0 0 1-1 0V8H6a.5.5 0 0 1 0-1h1.5V5.5A.5.5 0 0 1 8 5"
                 />
               </svg>
-              <small>
-                Haz clic para buscar, arrastra
-                <br />
-                o <strong>pega la imagen</strong> (Ctrl+V)
-              </small>
+              <small
+                >Haz clic para buscar, arrastra<br />o
+                <strong>pega la imagen</strong> (Ctrl+V)</small
+              >
             </div>
           </div>
         </div>
       </div>
     </div>
-
     <div class="d-flex justify-content-between">
       <button class="btn btn-outline-secondary me-2" (click)="back()">
         ← Anterior
@@ -119,17 +117,23 @@
 
     <div
       #postDropzone
-      class="card p-4 h-100 mb-3 dropzone-container"
-      (paste)="onPostPaste($event)"
+      class="card p-4 mb-3 dropzone-container"
       (dragover)="$event.preventDefault()"
       (drop)="onPostDrop($event)"
       (click)="postFileInput.click()"
-      style="cursor: pointer; border-style: dashed; border-width: 2px"
+      style="
+        cursor: pointer;
+        border: 2px dashed #6c757d;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
       tabindex="0"
     >
       <div
         class="d-flex flex-column align-items-center justify-content-center text-center text-muted p-3"
-        style="pointer-events: none"
+        style="pointer-events: none; user-select: none"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -186,7 +190,6 @@
         >
           &times;
         </button>
-
         <div class="ratio ratio-1x1 border rounded bg-light">
           <img
             [src]="preview"

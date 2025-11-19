@@ -7288,9 +7288,8 @@
       <!-- LUCES -->
       @if (mod.nombre === 'LUCES' && mod.seleccionado) {
       @if(mod.descripcionLuces.luzGrupoOptico){
-      <h4>Grupo óptico delantero</h4>
       <div class="mb-4">
-        <h3>Luces</h3>
+        <h3>Grupo óptico delantero</h3>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -7364,9 +7363,8 @@
         </div>
       </div>
       } @if(mod.descripcionLuces.intermitenteDelantero){
-      <h4>Intermitentes delanteros</h4>
       <div class="mb-4">
-        <h3>Luces</h3>
+        <h3>Intermitentes delanteros</h3>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -7438,9 +7436,8 @@
         </div>
       </div>
       } @if(mod.descripcionLuces.intermitenteTrasero){
-      <h4>Intermitentes traseros</h4>
       <div class="mb-4">
-        <h3>Luces</h3>
+        <h3>Intermitentes traseros</h3>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -7509,9 +7506,8 @@
         </div>
       </div>
       } @if(mod.descripcionLuces.catadioptrico){
-      <h4>Catadióptricos</h4>
       <div class="mb-4">
-        <h3>Luces</h3>
+        <h3>Catadióptricos</h3>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -7561,9 +7557,8 @@
         </div>
       </div>
       } @if(mod.descripcionLuces.luzMatricula){
-      <h4>Lus de matrícula</h4>
       <div class="mb-4">
-        <h3>Luces</h3>
+        <h3>Luz de matrícula</h3>
         <div class="mb-2">
           <label class="form-label">Marca:</label>
           <input
@@ -7650,6 +7645,59 @@
             "
           />
           <label for="curv-luzAntinieblas-{{ i }}">Ratio curvatura mín.</label>
+        </div>
+      </div>
+      }@if(mod.descripcionLuces.luzFreno){
+      <div class="mb-4">
+        <h3>Luz de freno</h3>
+        <div class="mb-2">
+          <label class="form-label">Marca:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.marcaluzFreno"
+            name="marcaluzFreno{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.marcaluzFreno"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Referencia:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.referencialuzFreno"
+            name="referencialuzFreno{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.referencialuzFreno"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contraseña de homologación:</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="mod.homologacionluzFreno"
+            name="homologacionluzFreno{{ i }}"
+            required
+            [class.is-invalid]="formSubmitted && !mod.homologacionluzFreno"
+          />
+        </div>
+
+        <div class="form-check mb-2 mt-3">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="mod.luzMatriculaIntegradaLuzFreno"
+            name="luzMatriculaIntegradaLuzFreno{{ i }}"
+            id="luzMatriculaIntegradaLuzFreno{{ i }}"
+          />
+          <label
+            class="form-check-label"
+            for="luzMatriculaIntegradaLuzFreno{{ i }}"
+          >
+            Luz de matrícula integrada
+          </label>
         </div>
       </div>
       } }

@@ -7,8 +7,9 @@ import {
   NavigationStart,
 } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import LZString, { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 
-// Hijos standalone (ajusta paths si difieren)
 import { SeleccionSeccionesComponent } from '../seleccion-secciones/seleccion-secciones.component';
 import { MostrarSeccionesComponent } from '../mostrar-secciones/mostrar-secciones.component';
 import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-proyecto.component';
@@ -19,8 +20,6 @@ import { CocheonoComponent } from '../cocheono/cocheono.component';
 import { CanvaComponent } from '../canva/canva.component';
 import { ImagenesComponent } from '../imagenes/imagenes.component';
 import { GeneradorDocumentosComponent } from '../../generador-documentos/generador-documentos.component';
-import { HttpClient } from '@angular/common/http';
-import LZString, { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 
 type Step =
   | 'seleccion'
@@ -80,7 +79,8 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   datosResumenModificaciones: any = undefined;
   proyectoCargado = false;
 
-  payloadResumen: any = null;
+  // ESTA ES LA CLAVE: Variable explícita para el hijo
+  payloadResumen: any = {};
 
   origenImagenes: 'anterior' | 'siguiente' = 'anterior';
 
@@ -103,6 +103,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     } catch {}
   };
 
+  // Mantenemos el getter solo para el paso 1
   get datosParaTipoVehiculo(): any {
     return {
       tipoVehiculo:
@@ -119,38 +120,36 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
   }
 
-  private buildResumenPayload(extra?: any) {
-    const tipo =
-      this.datosGuardadosTipoVehiculo?.tipoVehiculo ??
-      this.datosGenerales?.tipoVehiculo ??
-      '';
+  // FUNCIÓN HELPER CENTRALIZADA
+  private generarPayloadResumenActualizado() {
+    const base = this.datosGenerales || {};
 
-    const mods =
-      this.datosGuardadosTipoVehiculo?.modificaciones ??
-      this.datosGenerales?.modificaciones ??
-      [];
+    // 1. Prioridad: Datos recién guardados en memoria
+    let mods = this.datosGuardadosTipoVehiculo?.modificaciones;
 
-    const opcionesCoche =
-      this.datosGuardadosTipoVehiculo?.opcionesCoche ??
-      this.datosGenerales?.opcionesCoche;
+    // 2. Fallback: Datos generales
+    if (!mods || mods.length === 0) {
+      mods = this.datosGenerales?.modificaciones;
+    }
 
-    const marcadores =
-      this.datosGuardadosTipoVehiculo?.marcadores ??
-      this.datosGenerales?.marcadores;
+    // 3. Fallback: Datos del proyecto (backend)
+    if (!mods || mods.length === 0) {
+      mods = this.datosProyecto?.modificaciones;
+    }
 
-    const base = {
-      tipoVehiculo: tipo,
-      modificaciones: mods,
-      ...(this.datosGenerales || {}),
-      opcionesCoche,
-      marcadores,
-      seccionesSeleccionadas: this.seccionesSeleccionadas || [],
-      respuestasGuardadas: this.respuestasGuardadas || {},
-      datosFormulario: this.datosFormularioGuardados || {},
-      ...(extra || {}),
+    // Asegurar array
+    mods = Array.isArray(mods) ? mods : [];
+
+    // Mismo proceso para tipoVehiculo
+    let tipo = this.datosGuardadosTipoVehiculo?.tipoVehiculo;
+    if (!tipo) tipo = this.datosGenerales?.tipoVehiculo;
+    if (!tipo) tipo = this.datosProyecto?.tipoVehiculo;
+
+    return {
+      ...base,
+      tipoVehiculo: tipo || '',
+      modificaciones: [...mods], // Clonamos el array para romper referencias
     };
-
-    return base;
   }
 
   constructor(
@@ -193,7 +192,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosProyecto = {};
       this.origenImagenes = 'anterior';
       this.vieneDePosterior = false;
-      this.payloadResumen = null;
+      this.payloadResumen = {}; // Resetear payload
       this.editNavDone = false;
 
       this.editMode = false;
@@ -314,6 +313,28 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
       const target = this.resolveStep(requested);
       this.step = target;
+
+      // 🔥🔥 CORRECCIÓN CRÍTICA AQUÍ 🔥🔥
+      if (this.step === 'resumen') {
+        // Comprobamos si el payload actual ya tiene datos válidos.
+        // Si payloadResumen ya tiene modificaciones (porque viene de onContinuar), NO lo tocamos.
+        const tieneDatosFrescos =
+          this.payloadResumen &&
+          Array.isArray(this.payloadResumen.modificaciones) &&
+          this.payloadResumen.modificaciones.length > 0;
+
+        if (tieneDatosFrescos) {
+          console.log(
+            '✅ [ROUTER] Se detectaron datos frescos en el payload. NO se regenera.'
+          );
+        } else {
+          console.log(
+            '🔄 [ROUTER] Payload vacío o navegación directa. Regenerando...'
+          );
+          this.payloadResumen = this.generarPayloadResumenActualizado();
+        }
+      }
+
       this.persist();
     });
 
@@ -388,7 +409,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   }
 
   private cargarProyectoDesdeServidor(id: string) {
-    this.proyectoCargado = false; // BLOQUEA RENDER
+    this.proyectoCargado = false;
 
     this.http
       .get(
@@ -396,19 +417,15 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (data: any) => {
-          this.datosProyecto = { ...data }; // Restaurar desde storage y mezclar
-
-          this.restore(); // Ir al primer paso
-
-          this.step = 'tipo-vehiculo'; // 🔥 SOLO AHORA desbloqueamos el render
-
+          this.datosProyecto = { ...data };
+          this.restore();
+          this.step = 'tipo-vehiculo';
           this.proyectoCargado = true;
-
           this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error al cargar proyecto:', err);
-          this.proyectoCargado = true; // evitar bloqueo
+          this.proyectoCargado = true;
         },
       });
   }
@@ -561,7 +578,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     } else {
       this.codigosPreseleccionados = [];
       this.respuestasGuardadas = {};
-    } // ---- 2) Resto de estado (con fallback al top-level del proyecto) ---- // 🔥 CAMBIO DE LÓGICA: 'base' (servidor) primero, 'saved' (localStorage) después.
+    }
 
     this.seccionesSeleccionadas =
       base.seccionesSeleccionadas || saved?.seccionesSeleccionadas || [];
@@ -582,10 +599,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
 
     this.datosGuardadosTipoVehiculo = {
-      ...this.datosGuardadosTipoVehiculo, // Memoria
-      ...(base.datosGuardadosTipoVehiculo || {}), // Servidor (base)
-      ...(saved?.datosGuardadosTipoVehiculo || {}), // LocalStorage (gana)
-    }; // 🔒 Protección extra
+      ...this.datosGuardadosTipoVehiculo,
+      ...(base.datosGuardadosTipoVehiculo || {}),
+      ...(saved?.datosGuardadosTipoVehiculo || {}),
+    };
 
     if (!this.datosGuardadosTipoVehiculo.tipoVehiculo) {
       this.datosGuardadosTipoVehiculo.tipoVehiculo =
@@ -635,7 +652,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       );
     }
 
-    this.payloadResumen = this.buildResumenPayload(event?.extra);
+    this.payloadResumen = this.generarPayloadResumenActualizado();
     this.persist();
     this.navigate('resumen');
   }
@@ -782,41 +799,63 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   onContinuarTipoVehiculo(event: any) {
     this.proyectoCargado = true;
 
-    if (event && Array.isArray(event.modificaciones)) {
+    // 1. NORMALIZACIÓN: Aseguramos de dónde vienen los datos
+    const datosEntrantes = event && event.datos ? event.datos : event;
+
+    console.log(
+      '🔥 DEBUG PADRE - Datos recibidos directo del hijo:',
+      datosEntrantes
+    );
+    console.log(
+      '🔥 DEBUG PADRE - Cantidad modificaciones:',
+      datosEntrantes?.modificaciones?.length
+    );
+
+    if (datosEntrantes) {
+      // 2. GUARDADO EN MEMORIA (Para persistencia y LocalStorage)
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
-        ...event,
+        ...datosEntrantes,
       };
+
+      // Asegurar copia profunda del array en memoria
+      if (Array.isArray(datosEntrantes.modificaciones)) {
+        this.datosGuardadosTipoVehiculo.modificaciones = [
+          ...datosEntrantes.modificaciones,
+        ];
+      }
 
       this.datosGenerales = {
         ...(this.datosGenerales || {}),
-        ...event,
+        ...datosEntrantes,
       };
 
       this.datosProyecto = {
         ...(this.datosProyecto || {}),
-        ...event,
+        ...datosEntrantes,
         enviadoPorCliente: false,
       };
     }
 
-    this.payloadResumen = this.buildResumenPayload(event);
+    // 3. GENERACIÓN DEL PAYLOAD (SOLUCIÓN DEFINITIVA)
+    // NO usamos this.generarPayloadResumenActualizado() aquí porque lee de memoria y puede fallar.
+    // Construimos el objeto DIRECTAMENTE con los datos que tenemos en la mano ('datosEntrantes').
+
+    const modsReales = Array.isArray(datosEntrantes.modificaciones)
+      ? [...datosEntrantes.modificaciones]
+      : [];
+
+    this.payloadResumen = {
+      ...(this.datosGenerales || {}), // Mantenemos contexto general
+      tipoVehiculo: datosEntrantes.tipoVehiculo || '',
+      modificaciones: modsReales, // Inyectamos el array directo del evento
+    };
+
+    console.log('📦 Payload FORZADO generado:', this.payloadResumen);
+
+    // 4. PERSISTIR Y NAVEGAR
     this.persist();
     this.navigate('resumen');
-  }
-
-  get datosParaResumen(): any {
-    const base = this.datosGenerales || {};
-    const mods =
-      this.datosGuardadosTipoVehiculo?.modificaciones ??
-      this.datosGuardadosTipoVehiculo?.tipoVehiculo ??
-      this.datosGenerales?.modificaciones ??
-      [];
-
-    return {
-      ...base,
-      modificaciones: [...mods],
-    };
   }
 
   onVolverDesdeResumenModificaciones(event?: any) {

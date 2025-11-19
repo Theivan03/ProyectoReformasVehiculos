@@ -1118,7 +1118,17 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       })
     );
 
-    // ... tus Paragraphs de título, pageBreak, etc. ...
+    const salto = new Paragraph({ pageBreakBefore: true });
+    const title = new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
+      children: [
+        new TextRun({
+          text: 'Anexo 3. Fotografías del vehículo después de la reforma',
+          bold: true,
+        }),
+      ],
+    });
 
     function buildPreviosTable(images: ImageInfo[]): Table {
       const rows: TableRow[] = [];
@@ -1221,7 +1231,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     }
 
     const prevTable = buildPreviosTable(infos);
-    return [prevTable];
+    return [salto, title, prevTable];
   }
 
   const anexosPorsteriores = await generarPosteriores(data);

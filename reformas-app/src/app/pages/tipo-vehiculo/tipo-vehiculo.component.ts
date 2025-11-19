@@ -56,15 +56,16 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     { key: 'luzGrupoOptico', label: 'Grupo óptico delantero' },
     {
       key: 'intermitenteDelantero',
-      label: 'Intermitentes delanteros en horquilla',
+      label: 'Intermitentes delanteros',
     },
     {
       key: 'intermitenteTrasero',
-      label: 'Intermitentes traseros en portamatrícula',
+      label: 'Intermitentes traseros',
     },
     { key: 'catadioptrico', label: 'Catadióptrico posterior' },
     { key: 'luzMatricula', label: 'Luz de matrícula' },
     { key: 'luzAntinieblas', label: 'Luz antiniebla delantera' },
+    { key: 'luzFreno', label: 'Luz de freno trasero' },
   ];
 
   // === Detecta "cliente" tanto por datosPrevios como por el @Input dedicado ===
@@ -180,6 +181,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         catadioptrico: false,
         luzMatricula: false,
         luzAntinieblas: false,
+        luzFreno: false,
       };
     }
 
@@ -479,6 +481,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
               catadioptrico: false,
               luzMatricula: false,
               luzAntinieblas: false,
+              luzFreno: false,
             },
           },
         ];

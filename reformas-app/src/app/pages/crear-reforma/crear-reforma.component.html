@@ -46,7 +46,7 @@
   <!-- 2) RESUMEN DE MODIFICACIONES -->
   @if (mostrarResumenModificaciones && !cargandoResumen) {
   <app-resumen-modificaciones
-    [datosEntrada]="datosParaResumen"
+    [datosEntrada]="payloadResumen"
     (volver)="onVolverDesdeResumenModificaciones($event)"
     (continuar)="onContinuarDesdeResumenModificaciones($event)"
   >
@@ -102,7 +102,7 @@
   <!-- 7) ¿COCHE O NO? -->
   @if (mostrarCocheOno) {
   <app-cocheono
-    [datosEntrada]="datosParaResumen"
+    [datosEntrada]="payloadResumen"
     (volver)="onVolverDesdeCocheONo($event)"
     (continuar)="onContinuarDesdeCocheONo($event)"
   >
@@ -112,7 +112,7 @@
   <!-- 8) CANVA -->
   @if (mostrarCanva) {
   <app-canva
-    [datosEntrada]="datosParaResumen"
+    [datosEntrada]="payloadResumen"
     (autosave)="onAutosaveCanva($event)"
     (volver)="onVolverDesdeCanva($event)"
     (continuar)="onContinuarDesdeCanva($event)"
@@ -123,7 +123,7 @@
   <!-- 9) IMÁGENES -->
   @if (mostrarImagenes) {
   <app-imagenes
-    [datosEntrada]="datosParaResumen"
+    [datosEntrada]="payloadResumen"
     [origen]="origenImagenes"
     (autosave)="onAutosaveImagenes($event)"
     (volver)="onVolverDesdeImagenes($event)"

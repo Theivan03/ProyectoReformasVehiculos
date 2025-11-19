@@ -63,7 +63,13 @@
       "modelo": "5",
       "referencia": "5",
       "marcajes": "5",
-      "homologacion": "5"
+      "homologacion": "5",
+      "marcaluzGrupoOptico": "5",
+      "modeloluzGrupoOptico": "5",
+      "referencialuzGrupoOptico": "5",
+      "marcajesluzGrupoOptico": "5",
+      "homologacionluzGrupoOptico": "5",
+      "curvaturaluzGrupoOptico": 5
     }
   ],
   "numeroProyecto": 127,
@@ -193,10 +199,10 @@
   },
   "marcadores": [
     {
-      "x": 0.376797385620915,
-      "y": 0.49641361382563903,
+      "x": 0.3471153846153846,
+      "y": 0.42382259206798867,
       "label": "1",
-      "etiqueta": "LUCES"
+      "etiqueta": "Luz de grupo óptico"
     }
   ],
   "fechaFirma": "Teulada, 14 de noviembre de 2025",
