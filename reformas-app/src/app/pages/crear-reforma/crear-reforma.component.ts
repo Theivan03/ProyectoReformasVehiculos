@@ -65,6 +65,9 @@ interface SavedState {
   templateUrl: './crear-reforma.component.html',
 })
 export class CrearReformaComponent implements OnInit, OnDestroy {
+  // 🔥 PUENTE DE DATOS (Sobrevive a la recarga del componente)
+  public static bridgePayload: any = null;
+
   step: Step = 'tipo-vehiculo';
 
   codigosPreseleccionados: any = undefined;
@@ -79,7 +82,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   datosResumenModificaciones: any = undefined;
   proyectoCargado = false;
 
-  // ESTA ES LA CLAVE: Variable explícita para el hijo
   payloadResumen: any = {};
 
   origenImagenes: 'anterior' | 'siguiente' = 'anterior';
@@ -103,7 +105,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     } catch {}
   };
 
-  // Mantenemos el getter solo para el paso 1
   get datosParaTipoVehiculo(): any {
     return {
       tipoVehiculo:
@@ -120,27 +121,18 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
   }
 
-  // FUNCIÓN HELPER CENTRALIZADA
   private generarPayloadResumenActualizado() {
     const base = this.datosGenerales || {};
 
-    // 1. Prioridad: Datos recién guardados en memoria
     let mods = this.datosGuardadosTipoVehiculo?.modificaciones;
-
-    // 2. Fallback: Datos generales
     if (!mods || mods.length === 0) {
       mods = this.datosGenerales?.modificaciones;
     }
-
-    // 3. Fallback: Datos del proyecto (backend)
     if (!mods || mods.length === 0) {
       mods = this.datosProyecto?.modificaciones;
     }
-
-    // Asegurar array
     mods = Array.isArray(mods) ? mods : [];
 
-    // Mismo proceso para tipoVehiculo
     let tipo = this.datosGuardadosTipoVehiculo?.tipoVehiculo;
     if (!tipo) tipo = this.datosGenerales?.tipoVehiculo;
     if (!tipo) tipo = this.datosProyecto?.tipoVehiculo;
@@ -148,7 +140,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     return {
       ...base,
       tipoVehiculo: tipo || '',
-      modificaciones: [...mods], // Clonamos el array para romper referencias
+      modificaciones: [...mods],
     };
   }
 
@@ -177,6 +169,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     try {
       this.clearWizardStorage();
       sessionStorage.clear();
+      CrearReformaComponent.bridgePayload = null; // Limpiar puente
 
       this.step = 'tipo-vehiculo';
       this.codigosPreseleccionados = [];
@@ -192,7 +185,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosProyecto = {};
       this.origenImagenes = 'anterior';
       this.vieneDePosterior = false;
-      this.payloadResumen = {}; // Resetear payload
+      this.payloadResumen = {};
       this.editNavDone = false;
 
       this.editMode = false;
@@ -235,7 +228,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGuardadosTipoVehiculo?.tipoVehiculo ||
       ''
     ).toLowerCase();
-
     return this.step === 'coche-o-no' && tipo === 'coche';
   }
   get mostrarCanva() {
@@ -314,22 +306,19 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       const target = this.resolveStep(requested);
       this.step = target;
 
-      // 🔥🔥 CORRECCIÓN CRÍTICA AQUÍ 🔥🔥
+      // 🔥🔥 SOLUCIÓN DEL PUENTE 🔥🔥
       if (this.step === 'resumen') {
-        // Comprobamos si el payload actual ya tiene datos válidos.
-        // Si payloadResumen ya tiene modificaciones (porque viene de onContinuar), NO lo tocamos.
-        const tieneDatosFrescos =
-          this.payloadResumen &&
-          Array.isArray(this.payloadResumen.modificaciones) &&
-          this.payloadResumen.modificaciones.length > 0;
+        // 1. Primero miramos si el componente estático tiene los datos "en la nevera"
+        if (CrearReformaComponent.bridgePayload) {
+          console.log('🌉 [INIT] Recuperando datos desde el PUENTE ESTÁTICO.');
+          this.payloadResumen = CrearReformaComponent.bridgePayload;
 
-        if (tieneDatosFrescos) {
-          console.log(
-            '✅ [ROUTER] Se detectaron datos frescos en el payload. NO se regenera.'
-          );
+          // Opcional: Limpiar el puente si quieres, o dejarlo por seguridad
+          CrearReformaComponent.bridgePayload = null;
         } else {
+          // 2. Si no hay puente (ej: recarga F5), intentamos regenerar desde memoria/storage
           console.log(
-            '🔄 [ROUTER] Payload vacío o navegación directa. Regenerando...'
+            '🔄 [INIT] No hay puente. Regenerando desde memoria local...'
           );
           this.payloadResumen = this.generarPayloadResumenActualizado();
         }
@@ -341,6 +330,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
   }
 
+  // ... [Tus métodos privados migrateLegacyKey, stripHeavy, buildSnapshotLight... igual que antes] ...
   private migrateLegacyKey() {
     const legacy = localStorage.getItem(STORAGE_PREFIX);
     const nueva = `${STORAGE_PREFIX}-nueva`;
@@ -349,27 +339,21 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       localStorage.removeItem(STORAGE_PREFIX);
     }
   }
-
   private static readonly HEAVY_KEYS = [
     'prevImagesB64',
     'postImagesB64',
     'prevImages',
     'postImages',
   ];
-
   private stripHeavy = (obj: any) => {
     if (!obj || typeof obj !== 'object') return obj;
     const copy: any = Array.isArray(obj)
       ? obj.map((x) => ({ ...(x || {}) }))
       : { ...obj };
-
-    for (const k of CrearReformaComponent.HEAVY_KEYS) {
+    for (const k of CrearReformaComponent.HEAVY_KEYS)
       if (k in copy) delete copy[k];
-    }
-
     return copy;
   };
-
   private buildSnapshotLight(): SavedState {
     return {
       step: this.step,
@@ -386,7 +370,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       ),
     };
   }
-
   private buildSnapshotUltraLite(): SavedState {
     const respuestasMin: any = {};
     Object.entries(this.respuestasGuardadas || {}).forEach(([k, arr]: any) => {
@@ -394,7 +377,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         ? arr.map((x) => ({ codigo: x.codigo }))
         : [];
     });
-
     return {
       step: this.step,
       codigosPreseleccionados: (this.codigosPreseleccionados || []).slice(
@@ -410,7 +392,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
   private cargarProyectoDesdeServidor(id: string) {
     this.proyectoCargado = false;
-
     this.http
       .get(
         `http://192.168.1.41:3000/proyectos/${id}/proyecto.json?cache_bust=${new Date().getTime()}`
@@ -442,21 +423,18 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGuardadosTipoVehiculo?.tipoVehiculo ||
       ''
     ).toLowerCase();
-
     if (next === 'coche-o-no' && tipo !== 'coche') {
       this.step = 'canva';
       this.persist();
       this.router.navigate(['/reforma', 'canva']);
       return;
     }
-
     if (this.step === 'canva' && next === 'coche-o-no' && tipo !== 'coche') {
       this.step = 'formulario';
       this.persist();
       this.router.navigate(['/reforma', 'formulario']);
       return;
     }
-
     this.step = this.resolveStep(next);
     this.persist();
     this.router.navigate(['/reforma', this.step]);
@@ -469,24 +447,14 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       localStorage.setItem(this.storageKey, compressed);
       return;
     } catch (e1) {
-      console.warn(
-        '[persist] QuotaExceeded con snapshot light. Probando ultra-lite…',
-        e1
-      );
+      console.warn('[persist] QuotaExceeded', e1);
     }
-
     try {
       const ultraLite = this.buildSnapshotUltraLite();
       const compressedUltra = compressToUTF16(JSON.stringify(ultraLite));
       localStorage.setItem(this.storageKey, compressedUltra);
-      console.warn(
-        '[persist] Se guardó snapshot ULTRA-LITE. Estado completo sólo en memoria/servidor.'
-      );
     } catch (e2) {
-      console.error(
-        '[persist] No se pudo guardar ni el ultra-lite en localStorage.',
-        e2
-      );
+      console.error('[persist] Error fatal', e2);
     }
   }
 
@@ -494,17 +462,15 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     try {
       const raw = localStorage.getItem(this.storageKey);
       if (!raw) return null;
-
       let parsed: any = null;
       try {
-        const decompressed = decompressFromUTF16(raw);
-        parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(raw);
+        const d = decompressFromUTF16(raw);
+        parsed = d ? JSON.parse(d) : JSON.parse(raw);
       } catch {
         parsed = JSON.parse(raw);
       }
       return parsed as SavedState;
     } catch (e) {
-      console.error('Error leyendo storage:', e);
       return null;
     }
   }
@@ -515,23 +481,20 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosProyecto && Object.keys(this.datosProyecto).length
         ? this.datosProyecto
         : {};
-
     if (!saved && !base) return;
 
     this.step = 'tipo-vehiculo';
-
+    // ... [Lógica de restauración de códigos igual que antes] ...
     const codigosDetalladosRoot =
       (saved as any)?.codigosDetallados || (base as any)?.codigosDetallados;
     const codigosDetalladosDG =
       (saved as any)?.datosGenerales?.codigosDetallados ||
       (base as any)?.datosGenerales?.codigosDetallados;
-
     const esBloqueTipoVehiculo = (obj: any) =>
       obj &&
       typeof obj === 'object' &&
       (typeof obj.tipoVehiculo === 'string' ||
         Array.isArray(obj.modificaciones));
-
     const normalizarRespuestas = (src: any) =>
       Object.fromEntries(
         Object.entries(src)
@@ -582,22 +545,18 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
     this.seccionesSeleccionadas =
       base.seccionesSeleccionadas || saved?.seccionesSeleccionadas || [];
-
     this.respuestasGuardadas =
       this.respuestasGuardadas ||
       base.respuestasGuardadas ||
       saved?.respuestasGuardadas ||
       {};
-
     this.datosFormularioGuardados =
       base.datosFormularioGuardados || saved?.datosFormularioGuardados || base;
-
     this.datosGenerales = {
       ...base.datosGenerales,
       ...(saved?.datosGenerales || {}),
       ...base,
     };
-
     this.datosGuardadosTipoVehiculo = {
       ...this.datosGuardadosTipoVehiculo,
       ...(base.datosGuardadosTipoVehiculo || {}),
@@ -611,7 +570,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         this.datosGenerales?.tipoVehiculo ||
         '';
     }
-
     if (
       (!this.datosGuardadosTipoVehiculo.modificaciones ||
         this.datosGuardadosTipoVehiculo.modificaciones.length === 0) &&
@@ -619,13 +577,13 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     ) {
       this.datosGuardadosTipoVehiculo.modificaciones = base.modificaciones;
     }
-
     this.datosResumenModificaciones =
       base.datosResumenModificaciones ||
       saved?.datosResumenModificaciones ||
       {};
   }
 
+  // ... [Métodos de navegación (onContinuar, onVolverDesdeSeleccion...) se mantienen igual] ...
   onContinuar(secciones: { codigo: string; descripcion: string }[]) {
     this.vieneDePosterior = false;
     this.seccionesSeleccionadas = Array.isArray(secciones) ? secciones : [];
@@ -651,7 +609,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         (s: any) => s.codigo
       );
     }
-
     this.payloadResumen = this.generarPayloadResumenActualizado();
     this.persist();
     this.navigate('resumen');
@@ -661,7 +618,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.vieneDePosterior = false;
     this.navigate('seleccion');
   }
-
   onFinalizarRecoleccion(event: any) {
     this.respuestasGuardadas = event || {};
     const TIPO_ACTUAL =
@@ -675,19 +631,15 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('formulario');
   }
-
   onAutosaveFormulario(event: { datos: any; paginaActual: number }) {
     if (!event) return;
-
     this.mergeGenerales(event.datos);
-
     this.datosFormularioGuardados = {
       ...event.datos,
       paginaActual: event.paginaActual ?? event.datos?.paginaActual ?? 1,
     };
     this.persist();
   }
-
   onVolverDesdeFormulario(event?: any) {
     const datos = event?.datosFormulario ?? event?.datos ?? event ?? null;
     this.vieneDePosterior = true;
@@ -698,12 +650,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('subseleccion');
   }
-
   onFinalizarFormulario(event: any) {
     if (event) {
       this.datosFormularioGuardados = { ...event, paginaActual: 1 };
       this.mergeGenerales(event);
-
       if (!this.datosGuardadosTipoVehiculo) {
         this.datosGuardadosTipoVehiculo = {
           tipoVehiculo: '',
@@ -711,7 +661,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         };
       }
     }
-
     if (this.datosFormularioGuardados.reformasPrevias === true) {
       this.persist();
       this.navigate('reformas-previas');
@@ -721,13 +670,11 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.navigate(tipo === 'coche' ? 'coche-o-no' : 'canva');
     }
   }
-
   onAutosaveReformasPrevias(data: any) {
     this.mergeGenerales(data);
     this.datosProyecto = { ...(this.datosProyecto || {}), ...data };
     this.persist();
   }
-
   onVolverDesdeReformasPrevias(event?: any) {
     if (event)
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
@@ -743,7 +690,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('formulario');
   }
-
   onContinuarDesdeReformasPrevias(event: any) {
     if (event) {
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
@@ -755,37 +701,27 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('coche-o-no');
   }
-
   onAutosaveTipoVehiculo(event: {
     tipoVehiculo: string;
     modificaciones: any[];
   }) {
     if (!event) return;
     if (!Array.isArray(event.modificaciones)) return;
-
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       ...event,
     };
-
-    this.datosGenerales = {
-      ...(this.datosGenerales || {}),
-      ...event,
-    };
-
+    this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
     this.datosProyecto = {
       ...(this.datosProyecto || {}),
       ...event,
       enviadoPorCliente: false,
     };
-
     this.persist();
   }
-
   onVolverDesdeTipoVehiculo(event?: any) {
     if (event?.datos) this.datosGuardadosTipoVehiculo = event.datos;
     else if (event) this.datosGuardadosTipoVehiculo = event;
-
     this.persist();
     if (this.datosGenerales?.reformasPrevias === true) {
       this.navigate('reformas-previas');
@@ -796,40 +732,27 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
   cargandoResumen = false;
 
+  // 🔥🔥 AQUÍ USAMOS EL PUENTE ESTÁTICO PARA GUARDAR LOS DATOS ANTES DE MORIR 🔥🔥
   onContinuarTipoVehiculo(event: any) {
     this.proyectoCargado = true;
-
-    // 1. NORMALIZACIÓN: Aseguramos de dónde vienen los datos
     const datosEntrantes = event && event.datos ? event.datos : event;
 
-    console.log(
-      '🔥 DEBUG PADRE - Datos recibidos directo del hijo:',
-      datosEntrantes
-    );
-    console.log(
-      '🔥 DEBUG PADRE - Cantidad modificaciones:',
-      datosEntrantes?.modificaciones?.length
-    );
+    console.log('🔥 [ON-CONTINUAR] Datos:', datosEntrantes);
 
     if (datosEntrantes) {
-      // 2. GUARDADO EN MEMORIA (Para persistencia y LocalStorage)
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
         ...datosEntrantes,
       };
-
-      // Asegurar copia profunda del array en memoria
       if (Array.isArray(datosEntrantes.modificaciones)) {
         this.datosGuardadosTipoVehiculo.modificaciones = [
           ...datosEntrantes.modificaciones,
         ];
       }
-
       this.datosGenerales = {
         ...(this.datosGenerales || {}),
         ...datosEntrantes,
       };
-
       this.datosProyecto = {
         ...(this.datosProyecto || {}),
         ...datosEntrantes,
@@ -837,23 +760,23 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       };
     }
 
-    // 3. GENERACIÓN DEL PAYLOAD (SOLUCIÓN DEFINITIVA)
-    // NO usamos this.generarPayloadResumenActualizado() aquí porque lee de memoria y puede fallar.
-    // Construimos el objeto DIRECTAMENTE con los datos que tenemos en la mano ('datosEntrantes').
-
     const modsReales = Array.isArray(datosEntrantes.modificaciones)
       ? [...datosEntrantes.modificaciones]
       : [];
 
-    this.payloadResumen = {
-      ...(this.datosGenerales || {}), // Mantenemos contexto general
+    // Creamos el payload
+    const payloadFinal = {
+      ...(this.datosGenerales || {}),
       tipoVehiculo: datosEntrantes.tipoVehiculo || '',
-      modificaciones: modsReales, // Inyectamos el array directo del evento
+      modificaciones: modsReales,
     };
 
-    console.log('📦 Payload FORZADO generado:', this.payloadResumen);
+    this.payloadResumen = payloadFinal;
 
-    // 4. PERSISTIR Y NAVEGAR
+    // GUARDAR EN EL PUENTE ESTÁTICO (Esto sobrevive a la destrucción del componente)
+    CrearReformaComponent.bridgePayload = payloadFinal;
+    console.log('🌉 [ON-CONTINUAR] Datos guardados en el PUENTE ESTÁTICO.');
+
     this.persist();
     this.navigate('resumen');
   }
@@ -861,7 +784,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   onVolverDesdeResumenModificaciones(event?: any) {
     if (event?.datos) this.datosResumenModificaciones = event.datos;
     else if (event) this.datosResumenModificaciones = event;
-
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
@@ -873,11 +795,9 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         this.datosResumenModificaciones?.modificaciones ??
         this.datosGuardadosTipoVehiculo?.modificaciones,
     };
-
     this.persist();
     this.navigate('tipo-vehiculo');
   }
-
   onContinuarDesdeResumenModificaciones(event: any) {
     if (event) {
       this.datosResumenModificaciones = {
@@ -886,15 +806,12 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       };
       this.mergeGenerales(event);
     }
-
     this.persist();
     this.navigate('seleccion');
   }
-
   onAutosaveCocheONo(event: any) {
     if (!event) return;
     this.mergeGenerales(event.datos);
-
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
@@ -906,13 +823,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
     this.persist();
   }
-
   goToLastSignal = 0;
-
   onVolverDesdeCocheONo(event?: any) {
     if (event) {
       this.mergeGenerales(event);
-
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
         tipoVehiculo:
@@ -924,14 +838,11 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
           event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
       };
     }
-
     this.goToLastSignal++;
-
     this.datosFormularioGuardados = {
       ...(this.datosFormularioGuardados || {}),
       paginaActual: Number.MAX_SAFE_INTEGER,
     };
-
     if (this.datosFormularioGuardados.reformasPrevias === true) {
       this.persist();
       this.navigate('reformas-previas');
@@ -941,11 +852,9 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.navigate('formulario');
     }
   }
-
   onContinuarDesdeCocheONo(event: any) {
     if (event) {
       this.mergeGenerales(event);
-
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
         tipoVehiculo:
@@ -960,11 +869,9 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('canva');
   }
-
   onAutosaveCanva(event: any) {
     if (!event) return;
     this.mergeGenerales(event.datos);
-
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
@@ -978,26 +885,21 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
     this.persist();
   }
-
   onVolverDesdeCanva(event?: any) {
     if (event) {
       this.mergeGenerales(event);
-
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
       };
     }
-
     this.persist();
     const tipo = (this.datosGenerales?.tipoVehiculo || '').toLowerCase();
     this.navigate(tipo === 'coche' ? 'coche-o-no' : 'formulario');
   }
-
   onContinuarDesdeCanva(event: any) {
     if (event) {
       this.mergeGenerales(event);
-
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
@@ -1007,37 +909,27 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.origenImagenes = 'anterior';
     this.navigate('imagenes');
   }
-
   private mergeGenerales(event: any) {
     const TIPO_ACTUAL =
       this.datosGenerales?.tipoVehiculo ||
       this.datosGuardadosTipoVehiculo?.tipoVehiculo;
-
-    this.datosGenerales = {
-      ...this.datosGenerales,
-      ...event,
-    };
-
+    this.datosGenerales = { ...this.datosGenerales, ...event };
     if (!this.datosGenerales.tipoVehiculo && TIPO_ACTUAL) {
       this.datosGenerales.tipoVehiculo = TIPO_ACTUAL;
     }
   }
-
   onAutosaveImagenes(event: any) {
     if (!event) return;
     this.mergeGenerales(event.datos);
-
     this.datosResumenModificaciones = {
       ...(this.datosResumenModificaciones || {}),
       ...event,
     };
     this.persist();
   }
-
   onVolverDesdeImagenes(event?: any) {
     if (event) {
       this.mergeGenerales(event);
-
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
@@ -1046,11 +938,9 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('canva');
   }
-
   onContinuarDesdeImagenes(event: any) {
     if (event) {
       this.mergeGenerales(event);
-
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
@@ -1059,7 +949,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('generador');
   }
-
   onVolverDesdeGenerador(event?: any) {
     if (event?.datos) this.datosGenerales = event.datos;
     this.origenImagenes = 'siguiente';
