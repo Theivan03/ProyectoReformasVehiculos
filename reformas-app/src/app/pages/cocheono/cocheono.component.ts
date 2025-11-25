@@ -87,10 +87,10 @@ export class CocheonoComponent implements OnInit {
     }
 
     // Para coche: requiere al menos una opción
-    if (this.anyOpcionCocheSeleccionada()) {
-      this.continuar.emit(this.datosEntrada);
-    } else {
-      form?.control.markAllAsTouched();
-    }
+    // if (this.anyOpcionCocheSeleccionada()) {
+    this.continuar.emit(this.datosEntrada);
+    // } else {
+    //   form?.control.markAllAsTouched();
+    // }
   }
 }

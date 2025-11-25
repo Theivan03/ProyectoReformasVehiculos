@@ -587,13 +587,32 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   onContinuar(secciones: { codigo: string; descripcion: string }[]) {
     this.vieneDePosterior = false;
     this.seccionesSeleccionadas = Array.isArray(secciones) ? secciones : [];
-    this.codigosPreseleccionados = this.seccionesSeleccionadas.map(
+
+    // Obtenemos los códigos válidos (ej: ['4'])
+    const codigosValidos = this.seccionesSeleccionadas.map(
       (s: { codigo: any }) => s.codigo
     );
+    this.codigosPreseleccionados = codigosValidos;
+
+    // 🔥 LIMPIEZA DE HUÉRFANOS 🔥
+    // Si teníamos guardado algo de la sección '3' y esta ya no está en codigosValidos,
+    // creamos un nuevo objeto solo con las respuestas de las secciones que SÍ siguen activas.
+    if (this.respuestasGuardadas) {
+      const respuestasLimpias: any = {};
+
+      codigosValidos.forEach((codigo: string) => {
+        // Si existían respuestas para este código, las conservamos.
+        if (this.respuestasGuardadas[codigo]) {
+          respuestasLimpias[codigo] = this.respuestasGuardadas[codigo];
+        }
+      });
+
+      this.respuestasGuardadas = respuestasLimpias;
+    }
+
     this.persist();
     this.navigate('subseleccion');
   }
-
   onVolverDesdeSeleccion(event?: {
     secciones?: { codigo: string; descripcion: string }[];
     codigos?: string[];
@@ -614,7 +633,13 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.navigate('resumen');
   }
 
-  volverASeleccionDesdeSubseleccion() {
+  volverASeleccionDesdeSubseleccion(event?: any) {
+    // 🔥 CAMBIO CLAVE: Si vienen datos del hijo, los guardamos antes de salir
+    if (event && typeof event === 'object') {
+      this.respuestasGuardadas = event;
+      this.persist(); // Guardar en localStorage
+    }
+
     this.vieneDePosterior = false;
     this.navigate('seleccion');
   }

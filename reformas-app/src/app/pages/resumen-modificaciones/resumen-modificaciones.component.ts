@@ -193,6 +193,12 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           if (t) m.areaResistenteTornilloSeleccionado = t.areaResistente;
         }
       }
+
+      if (m.nombre === 'INSTALACIÓN ELÉCTRICA') {
+        if (!Array.isArray(m.placasSolares)) {
+          m.placasSolares = [];
+        }
+      }
     });
 
     console.groupEnd();

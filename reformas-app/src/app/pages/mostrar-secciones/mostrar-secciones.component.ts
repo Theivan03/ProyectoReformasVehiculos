@@ -47,8 +47,12 @@ export class MostrarSeccionesComponent implements OnInit {
     this.aplicarIndice();
   }
 
-  @Output() volverASeleccion = new EventEmitter<void>();
-  @Output() finalizarRecoleccion = new EventEmitter<any>();
+  @Output() volverASeleccion = new EventEmitter<{
+    [codigo: string]: { codigo: string; descripcion: string }[];
+  }>();
+  @Output() finalizarRecoleccion = new EventEmitter<{
+    [codigo: string]: { codigo: string; descripcion: string }[];
+  }>();
 
   indiceActual = 0;
   seccionesFiltradas: Array<{
@@ -130,7 +134,7 @@ export class MostrarSeccionesComponent implements OnInit {
     if (this.indiceActual > 0) {
       this.indiceActual--;
     } else {
-      this.volverASeleccion.emit();
+      this.volverASeleccion.emit(this._respuestas);
     }
   }
 

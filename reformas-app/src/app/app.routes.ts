@@ -17,5 +17,5 @@ export const routes: Routes = [
   { path: 'ingenieros', component: GestionarIngenieroComponent },
   { path: 'reforma/:step', component: CrearReformaComponent },
   { path: 'reforma', redirectTo: 'reforma/seleccion', pathMatch: 'full' },
-  { path: '**', redirectTo: 'reforma/seleccion' },
+  { path: '**', redirectTo: '' },
 ];

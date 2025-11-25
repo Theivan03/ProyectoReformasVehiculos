@@ -48,6 +48,8 @@ export interface Modificacion {
     interDelantero?: boolean;
     interTrasero?: boolean;
     interLateral?: boolean;
+    luzMatricula?: boolean;
+    luzAntinieblas?: boolean;
     estribosotaloneras?: boolean;
     anotacionAntideslizante?: boolean;
   };
@@ -73,6 +75,202 @@ export interface Modificacion {
   marcajesintermitenteTrasero?: string;
   homologacionintermitenteTrasero?: string;
   curvaturaintermitenteTrasero?: number;
+
+  ubicacionDiscos?: 'delanteros' | 'traseros' | 'ambos';
+  sonIguales?: boolean;
+  marcaDiscos?: string;
+  modeloDiscos?: string;
+  referenciaDiscos?: string;
+  diametroDiscos?: number;
+  espesorDiscos?: number;
+  modeloDiscoTrasero?: string;
+  diametroDiscoTrasero?: number;
+  espesorDiscoTrasero?: number;
+
+  marcaVolante?: string;
+  diametroVolante?: number;
+  llevaEspaciador?: boolean;
+  espesorEspaciador?: number;
+  tieneAirbagOriginal?: boolean;
+  tieneAirbagNuevo?: boolean;
+  marcaEspaciador?: string;
+
+  mandosOriginalesLuzMarchaAtras?: boolean;
+  descripcionAccionamientoLuzMarchaAtras?: string;
+  referenciaLuzMarchaAtras?: string;
+  tecnologiaLuzMarchaAtras?: string;
+  marcaLuzMarchaAtras?: string;
+  marcajeLuzMarchaAtras?: string;
+  contrasenaLuzMarchaAtras?: string;
+
+  ubicacionAntiniebla?: 'delanteros' | 'traseros' | 'ambos';
+  marcaAntinieblaDel?: string;
+  homologacionAntinieblaDel?: string;
+  marcaAntinieblaTras?: string;
+  homologacionAntinieblaTras?: string;
+
+  ubicacionPROTECTORES?: 'delantero' | 'trasero';
+  materialProtectorPROTECTORES?: string;
+  medidaLargoPROTECTORES?: number;
+  medidaAltoPROTECTORES?: number;
+
+  materialPlancha?: string;
+  ubicacionPlancha?: string;
+  medidaLargoPLANCHA?: number;
+  medidaAnchoPLANCHA?: number;
+
+  marcaTecho?: string;
+  referenciaTecho?: string;
+  anchoTecho?: number;
+  largoTecho?: number;
+  altoTecho?: number;
+  materialEstructuraTecho?: string;
+  tipoAccionamientoTecho?: string;
+  distanciaAsientosSueloTecho?: number;
+
+  tipoOrigenAsiento?: string;
+  referenciaAsiento?: string;
+
+  esReubicadoVelocimetro?: boolean;
+  observacionesTestigosVelocimetro?: string;
+  estaCalibradoVelocimetro?: boolean;
+  tipoVelocimetro?: string;
+  modeloVelocimetro?: string;
+  listaTestigosVelocimetro?: string;
+
+  incluirNotaIntegridadBasculante?: boolean;
+  marcaBasculante?: string;
+  modeloBasculante?: string;
+  contrasenaBasculante?: string;
+
+  plazasAntesReduccion?: number;
+  plazasDespuesReduccion?: number;
+  desinstalacionAsideroReduccion?: boolean;
+  desinstalacionEstriberasReduccion?: boolean;
+
+  marcaMandoLuces?: string;
+  modeloMandoLuces?: string;
+  funcionesIzquierdoMandoLuces?: string;
+  funcionesDerechoMandoLuces?: string;
+
+  retornoAutomaticoAcelerador?: boolean;
+  marcaAcelerador?: string;
+  modeloAcelerador?: string;
+
+  marcaTorretas?: string;
+  medidaLargoTorretas?: number;
+  medidaAnchoTorretas?: number;
+  medidaAltoTorretas?: number;
+
+  tipoModificacionSubchasis?: string;
+  descripcionCorteSubchasis?: string;
+
+  cumpleSalientesEstriberas?: boolean;
+  marcaEstriberas?: string;
+  refPisanteEstriberas?: string;
+  refSoporteEstriberas?: string;
+
+  reubicaFrenoSoportesDesplazados?: boolean;
+  reubicaCambioSoportesDesplazados?: boolean;
+  marcaSoportesDesplazados?: string;
+  referenciaSoportesDesplazados?: string;
+
+  ubicacionBombaFreno?: string;
+  marcaBombaFrenoDel?: string;
+  referenciaBombaFrenoDel?: string;
+  marcaBombaFrenoTras?: string;
+  referenciaBombaFrenoTras?: string;
+
+  anclajesOriginalesDeposito?: boolean;
+  descripcionUbicacionDeposito?: string;
+  marcaDeposito?: string;
+  modeloDeposito?: string;
+  contrasenaDeposito?: string;
+  capacidadDeposito?: number;
+
+  ubicacionSoporteMatricula?: string;
+  materialSoporteMatricula?: string;
+  marcaSoporteMatricula?: string;
+  medidaAnchoSoporteMatricula?: number;
+  medidaAltoSoporteMatricula?: number;
+
+  sinAfectacionEstructuralAntena?: boolean;
+  tipoAntena?: string;
+  ubicacionAntena?: string;
+  marcaAntena?: string;
+  modeloAntena?: string;
+
+  enEmplazamientoOriginalEnganche?: boolean;
+  marcaEnganche?: string;
+  claseEnganche?: string;
+  contrasenaEnganche?: string;
+  mmrEnganche?: number;
+
+  numeroPlazasBanqueta?: number;
+  esUsoEstacionarioBanqueta?: boolean;
+  materialBanqueta?: string;
+  ubicacionBanqueta?: string;
+  marcaBanqueta?: string;
+  modeloBanqueta?: string;
+
+  marcaTermo?: string;
+  modeloTermo?: string;
+  capacidadTermo?: number;
+  ubicacionTermo?: string;
+
+  zonaLateralesRevestimiento?: string;
+  zonaSueloRevestimiento?: string;
+  zonaTechoRevestimiento?: string;
+  instalaTarimaRevestimiento?: boolean;
+  materialTarimaRevestimiento?: string;
+  materialPaneladoRevestimiento?: string;
+
+  marcaCalandra?: string;
+  referenciaCalandra?: string;
+  materialCalandra?: string;
+  medidaLargoCALANDRA?: number;
+  medidaAltoCALANDRA?: number;
+
+  usAnclajesOriginalesINTERCOOLER?: boolean;
+  descSoportesINTERCOOLER?: string;
+  marcaIntercooler?: string;
+  refIntercooler?: string;
+  medidaLargoINTERCOOLER?: number;
+  medidaAltoINTERCOOLER?: number;
+  medidaEspesorINTERCOOLER?: number;
+
+  marcaEscape?: string;
+  referenciaEscape?: string;
+  contrasenaHomologacionEscape?: string;
+  cambiaNumeroSalidas?: boolean;
+  numeroSalidasEscape?: number;
+  cambiaUbicacion?: boolean;
+  descripcionUbicacionEscape?: string;
+
+  ubicacionPanelRelojes?: string;
+  medidaAnchoRelojes?: number;
+  medidaAltoRelojes?: number;
+  numeroRelojes?: number;
+  descripcionRelojes?: string;
+
+  materialDifusor?: string;
+  marcaDifusor?: string;
+  modeloDifusor?: string;
+  largoDifusor?: number;
+  altoDifusor?: number;
+
+  ubicacionVentana?: string;
+  materialVentana?: string;
+  largoVentana?: number;
+  altoVentana?: number;
+
+  ubicacionRefuerzo?: string;
+  materialRefuerzo?: string;
+  marcaRefuerzo?: string;
+  referenciaRefuerzo?: string;
+  largoRefuerzo?: number;
+  altoRefuerzo?: number;
+  fondoRefuerzo?: number;
 
   marcacatadioptrico?: string;
   referenciacatadioptrico?: string;

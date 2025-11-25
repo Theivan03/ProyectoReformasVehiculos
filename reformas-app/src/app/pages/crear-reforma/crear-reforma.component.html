@@ -150,7 +150,7 @@
     [secciones]="seccionesSeleccionadas || []"
     [respuestas]="respuestasGuardadas || {}"
     [desdePosterior]="vieneDePosterior"
-    (volverASeleccion)="volverASeleccionDesdeSubseleccion()"
+    (volverASeleccion)="volverASeleccionDesdeSubseleccion($event)"
     (finalizarRecoleccion)="onFinalizarRecoleccion($event)"
   >
   </app-mostrar-secciones>
