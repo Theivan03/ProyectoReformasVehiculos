@@ -10,7 +10,6 @@ import { Subscription } from 'rxjs';
 
 // Hijos standalone (ajusta paths si difieren)
 import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-proyecto.component';
-import { ReformasPreviasComponent } from '../reformas-previas/reformas-previas.component';
 import { ResumenModificacionesComponent } from '../resumen-modificaciones/resumen-modificaciones.component';
 import { TipoVehiculoComponent } from '../tipo-vehiculo/tipo-vehiculo.component';
 import { ImagenesComponent } from '../imagenes/imagenes.component';
@@ -45,7 +44,6 @@ interface SavedState {
   imports: [
     CommonModule,
     FormularioProyectoComponent,
-    ReformasPreviasComponent,
     TipoVehiculoComponent,
     ResumenModificacionesComponent,
     ImagenesComponent,
@@ -108,9 +106,6 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   // Getters para el template
   get mostrarFormularioProyecto() {
     return this.step === 'formulario';
-  }
-  get mostrarReformasPrevias() {
-    return this.step === 'reformas-previas';
   }
   get mostrarTipoVehiculo() {
     return this.step === 'tipo-vehiculo';
@@ -345,7 +340,8 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
     }
     this.persist();
-    this.navigate('formulario');
+    // this.navigate('formulario');
+    this.navigate('imagenes');
   }
 
   get datosParaResumen(): any {

@@ -1,851 +1,1224 @@
-@if (mostrarPreseleccion) {
-<div class="container mt-4">
-  <div class="card p-4 shadow-sm">
-    <h4 class="mb-3">Tipo de Vehículo</h4>
-    <p class="text-muted mb-3">Elige una opción y pulsa “Siguiente”.</p>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;800&family=Roboto:wght@300;400;500&display=swap");
 
-    <div class="row g-3">
-      <div class="col-6 col-md-3" *ngFor="let o of opcionesVehiculo">
-        <div
-          class="card h-100 text-center border-2"
-          [ngClass]="{
-            'border-primary shadow': tipoVehiculo === o.value,
-            'border-light': tipoVehiculo !== o.value
-          }"
-          role="button"
-          (click)="seleccionarTipoPrevia(o.value)"
+  .ing-form-scope {
+    --font-tech: "JetBrains Mono", monospace;
+    --font-reading: "Roboto", sans-serif;
+    --color-accent: #0066ff;
+    --color-border: #dee2e6;
+  }
+
+  .ing-form-scope * {
+    border-radius: 0 !important;
+  }
+
+  .ing-card-select {
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    background-color: #fff;
+  }
+
+  .ing-card-select:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    border-color: #adb5bd;
+  }
+
+  .ing-card-select.selected {
+    border: 2px solid var(--color-accent);
+    background-color: #f8fbff;
+  }
+
+  .ing-card-select.selected .card-title {
+    color: var(--color-accent);
+    font-weight: 800;
+  }
+
+  .ing-sub-option-block {
+    border-left: 3px solid var(--color-border);
+    padding-left: 1.5rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1.5rem;
+    margin-left: 0.4rem;
+  }
+
+  .ing-sub-sub-option-block {
+    border-left: 2px dashed var(--color-border);
+    padding-left: 1rem;
+    margin-top: 0.5rem;
+    margin-left: 0.2rem;
+  }
+
+  .form-check-input:checked {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .form-check-label {
+    font-family: var(--font-reading);
+    color: #495057;
+    cursor: pointer;
+    padding-top: 2px;
+  }
+
+  .ing-label-tech {
+    font-family: var(--font-tech);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: #212529;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+</style>
+
+<div class="ing-form-scope container mt-4 mb-5">
+  @if (mostrarPreseleccion) {
+  <div class="card border border-light-subtle shadow-sm bg-white">
+    <div class="card-body p-4 p-lg-5">
+      <div class="mb-4 pb-2 border-bottom">
+        <h2
+          class="h4 text-uppercase fw-bold mb-2"
+          style="font-family: var(--font-tech)"
         >
-          <img
-            [src]="o.img"
-            class="card-img-top p-3 img-fluid"
-            alt="{{ o.label }}"
-          />
-          <div class="card-body py-2">
-            <div class="fw-semibold">{{ o.label }}</div>
-          </div>
-          <!-- Amplía el click -->
-          <a class="stretched-link" tabindex="-1"></a>
-        </div>
-      </div>
-    </div>
-
-    <div class="text-danger mt-3" *ngIf="tipoVehiculoInvalido && !tipoVehiculo">
-      Debe seleccionar un tipo de vehículo.
-    </div>
-
-    <div class="d-flex justify-content-end mt-4">
-      <button
-        class="btn btn-primary"
-        (click)="irASiguientePaso()"
-        [disabled]="!tipoVehiculo"
-      >
-        Siguiente →
-      </button>
-    </div>
-  </div>
-</div>
-} @else {
-
-<div class="container mt-4">
-  <div class="card p-4 shadow-sm">
-    <h4 class="mb-3">Tipo de Vehículo</h4>
-
-    <!-- Selector tipo vehículo -->
-    <div class="mb-3">
-      <label class="form-label">Seleccione el tipo de vehículo:</label>
-      <select
-        class="form-select"
-        [(ngModel)]="tipoVehiculo"
-        (change)="onTipoCambio()"
-        [class.is-invalid]="tipoVehiculoInvalido"
-      >
-        <option [ngValue]="null" disabled selected>-- Seleccionar --</option>
-        <option value="coche">Coche</option>
-        <option value="moto">Moto</option>
-        <option value="camper">Camper</option>
-        <option value="industrial">Industrial</option>
-      </select>
-      <div class="invalid-feedback">Debe seleccionar un tipo de vehículo.</div>
-    </div>
-
-    <!-- Lista de modificaciones -->
-    @if (modificaciones.length > 0) {
-    <div class="mt-4">
-      <h5 class="mb-3">Modificaciones aplicables</h5>
-      @if(tipoVehiculo === "coche" || tipoVehiculo === "industrial"){ @for (mod
-      of modificaciones; track mod; let modIndex = $index) {
-
-      <div class="mb-3">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            [(ngModel)]="mod.seleccionado"
-            [id]="'mod-' + modIndex"
-          />
-          <label class="form-check-label" [for]="'mod-' + modIndex">
-            {{ mod.nombre }}
-          </label>
-        </div>
-
-        <!-- Ruedas -->
-        @if (mod.nombre.includes('Ruedas') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleRuedas; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="ruedas-{{ i }}"
-              name="ruedas-{{ i }}"
-            />
-            <label class="form-check-label" for="ruedas-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Suspensión -->
-        @if (mod.nombre === 'Suspensión' && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-
-          @for (item of detallesMuellesOpciones; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="suspension-{{ i }}"
-              name="suspension-{{ i }}"
-            />
-            <label class="form-check-label" for="suspension-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Carrocería -->
-        @if (mod.nombre.includes('Carrocería') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleCarroceria; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="carroceria-{{ i }}"
-              name="carroceria-{{ i }}"
-            />
-            <label class="form-check-label" for="carroceria-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Luces -->
-        @if (mod.nombre.includes('Luces') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of opcionesDescripcionLuces; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="luces-{{ i }}"
-              name="luces-{{ i }}"
-            />
-            <label class="form-check-label" for="luces-{{ i }}">
-              {{ item.label }}
-            </label>
-            <!-- Sub-if para focos de trabajo -->
-            @if (item.key === 'focosDeTrabajo' && mod.detalle?.focosDeTrabajo) {
-            <div class="mt-3 ms-4 border-start ps-3">
-              <label class="form-label"
-                >¿Dónde están los focos de trabajo?</label
-              >
-              @for (foco of opcionesDescripcionFocosDeTrabajo; track foco; let j
-              = $index) {
-              <div class="form-check mb-1">
-                <input
-                  type="checkbox"
-                  class="form-check-input"
-                  id="foco-{{ j }}"
-                  [(ngModel)]="mod.focosTrabajo![foco.key]"
-                />
-                <label class="form-check-label" [for]="'foco-' + j">
-                  {{ foco.label }}
-                </label>
-              </div>
-              }
-            </div>
-            }
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Dirección -->
-        @if (mod.nombre.includes('Dirección') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleDireccion; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="direccion-{{ i }}"
-              name="direccion-{{ i }}"
-            />
-            <label class="form-check-label" for="direccion-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Freno -->
-        @if (mod.nombre.includes('Freno') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleFrenos; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="freno-{{ i }}"
-              name="freno-{{ i }}"
-            />
-            <label class="form-check-label" for="freno-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Unidad motriz -->
-        @if (mod.nombre.includes('Unidad motriz') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleUnidadMotriz; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="motriz-{{ i }}"
-              name="motriz-{{ i }}"
-            />
-            <label class="form-check-label" for="motriz-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-
-        }
-      </div>
-      } } @if(tipoVehiculo === "moto"){ @for (mod of modificaciones; track mod;
-      let modIndex = $index) {
-
-      <div class="mb-3">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            [(ngModel)]="mod.seleccionado"
-            [id]="'mod-' + modIndex"
-          />
-          <label class="form-check-label" [for]="'mod-' + modIndex">
-            {{ mod.nombre }}
-          </label>
-        </div>
-
-        <!-- Ruedas -->
-        @if (mod.nombre.includes('Ruedas') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleRuedasMotos; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="ruedas-{{ i }}"
-              name="ruedas-{{ i }}"
-            />
-            <label class="form-check-label" for="ruedas-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Suspensión -->
-        @if (mod.nombre === 'Suspensión' && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-
-          @for (item of detallesSuspensionesMotos; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="suspension-{{ i }}"
-              name="suspension-{{ i }}"
-            />
-            <label class="form-check-label" for="suspension-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Carrocería -->
-        @if (mod.nombre.includes('Carrocería') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detallesCarroceriaMoto; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="carroceria-{{ i }}"
-              name="carroceria-{{ i }}"
-            />
-            <label class="form-check-label" for="carroceria-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Dirección -->
-        @if (mod.nombre.includes('Chasis y Subchasis') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleChasisSubchasisMotos; track item; let i = $index)
-          {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="chasis-{{ i }}"
-              name="chasis-{{ i }}"
-            />
-            <label class="form-check-label" for="chasis-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Luces -->
-        @if (mod.nombre.includes('Luces') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of opcionesDescripcionLucesMoto; track item; let i =
-          $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="luces-{{ i }}"
-              name="luces-{{ i }}"
-            />
-            <label class="form-check-label" for="luces-{{ i }}">
-              {{ item.label }}
-            </label>
-            <!-- Sub-if para focos de trabajo -->
-            @if (item.key === 'focosDeTrabajo' && mod.detalle?.focosDeTrabajo) {
-            <div class="mt-3 ms-4 border-start ps-3">
-              <label class="form-label"
-                >¿Dónde están los focos de trabajo?</label
-              >
-              @for (foco of opcionesDescripcionFocosDeTrabajo; track foco; let j
-              = $index) {
-              <div class="form-check mb-1">
-                <input
-                  type="checkbox"
-                  class="form-check-input"
-                  id="foco-{{ j }}"
-                  [(ngModel)]="mod.focosTrabajo![foco.key]"
-                />
-                <label class="form-check-label" [for]="'foco-' + j">
-                  {{ foco.label }}
-                </label>
-              </div>
-              }
-            </div>
-            }
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Freno -->
-        @if (mod.nombre.includes('Freno') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleFrenosMoto; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="freno-{{ i }}"
-              name="freno-{{ i }}"
-            />
-            <label class="form-check-label" for="freno-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Unidad motriz -->
-        @if (mod.nombre.includes('Unidad motriz') && mod.seleccionado) {
-        <div class="mt-2 ms-4">
-          <label class="form-label">¿Qué elementos se han modificado?</label>
-          @for (item of detalleUnidadMotrizMoto; track item; let i = $index) {
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [(ngModel)]="mod.detalle![item.key]"
-              (ngModelChange)="actualizarError(modIndex, mod)"
-              id="motriz-{{ i }}"
-              name="motriz-{{ i }}"
-            />
-            <label class="form-check-label" for="motriz-{{ i }}">
-              {{ item.label }}
-            </label>
-          </div>
-          } @if (erroresSubopciones[modIndex]) {
-          <div class="text-danger mt-1">
-            Debe seleccionar al menos una opción en este bloque.
-          </div>
-          }
-        </div>
-        }
-      </div>
-      } } @if(tipoVehiculo === "camper"){ @for (mod of modificaciones; track
-      mod; let modIndex = $index) {
-
-      <div class="mb-3">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            [(ngModel)]="mod.seleccionado"
-            [id]="'mod-' + modIndex"
-          />
-          <label class="form-check-label" [for]="'mod-' + modIndex">
-            {{ mod.nombre }}
-          </label>
-        </div>
+          Selección de Vehículo
+        </h2>
+        <p class="text-muted mb-0" style="font-family: var(--font-reading)">
+          Indique la categoría del vehículo para cargar las normativas
+          correspondientes.
+        </p>
       </div>
 
-      <!-- Ruedas -->
-      @if (mod.nombre.includes('Ruedas') && mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of detalleRuedas; track item; let i = $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="ruedas-{{ i }}"
-            name="ruedas-{{ i }}"
-          />
-          <label class="form-check-label" for="ruedas-{{ i }}">
-            {{ item.label }}
-          </label>
-        </div>
-        } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
-        </div>
-        }
-      </div>
-      }
-
-      <!-- Suspensión -->
-      @if (mod.nombre.includes('Suspensión') && mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of detallesSuspensionesCamper; track item; let i = $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="suspension-{{ i }}"
-            name="suspension-{{ i }}"
-          />
-          <label class="form-check-label" for="suspension-{{ i }}">
-            {{ item.label }}
-          </label>
-        </div>
-        } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
-        </div>
-        }
-      </div>
-      }
-
-      <!-- Modificaciones en el interior del vehículo -->
-      @if (mod.nombre.includes('Modificaciones en el interior del vehículo') &&
-      mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-
-        @for (item of detallesInteriorVehiculo; track item; let i = $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="interior-{{ i }}"
-            name="interior-{{ i }}"
-          />
-          <label class="form-check-label" for="interior-{{ i }}">
-            {{ item.label }}
-          </label>
-        </div>
-
-        <!-- Subbloque: Mobiliario interior -->
-        @if (item.key === 'mobiliarioInterior' &&
-        mod.detalle?.mobiliarioInterior) {
-        <div class="mt-3 ms-4 border-start ps-3">
-          <label class="form-label">Seleccione el mobiliario:</label>
-          @for (mueble of opcionesDescripcionMobiliarioInterior; track mueble;
-          let j = $index) {
-          <div class="form-check mb-1">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="mobiliario-{{ j }}"
-              [(ngModel)]="mod.mobiliarioInterior![mueble.key]"
-            />
-            <label class="form-check-label" [for]="'mobiliario-' + j">
-              {{ mueble.label }}
-            </label>
-          </div>
-          }
-        </div>
-        }
-
-        <!-- Subbloque: Fontanería -->
-        @if (item.key === 'fontaneria' && mod.detalle?.fontaneria) {
-        <div class="mt-3 ms-4 border-start ps-3">
-          <label class="form-label">Seleccione la fontanería:</label>
-          @for (f of opcionesDescripcionFontaneria; track f; let k = $index) {
-          <div class="form-check mb-1">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="fontaneria-{{ k }}"
-              [(ngModel)]="mod.fontaneria![f.key]"
-            />
-            <label class="form-check-label" [for]="'fontaneria-' + k">
-              {{ f.label }}
-            </label>
-          </div>
-          }
-        </div>
-        } } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
-        </div>
-        }
-      </div>
-      }
-
-      <!-- Instalación eléctrica -->
-      @if (mod.nombre.includes('Instalación eléctrica') && mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of detallesInstalacionElectricaCamper; track item; let i =
-        $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="electrico-{{ i }}"
-            name="electrico-{{ i }}"
-          />
-          <label class="form-check-label" for="electrico-{{ i }}">
-            {{ item.label }}
-          </label>
-        </div>
-        } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
-        </div>
-        }
-      </div>
-      }
-
-      <!-- Carrocería -->
-      @if (mod.nombre.includes('Carrocería') && mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of detalleCarroceriaCamper; track item; let i = $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="carroceriaCamper-{{ i }}"
-            name="carroceriaCamper-{{ i }}"
-          />
-          <label class="form-check-label" for="carroceriaCamper-{{ i }}">
-            {{ item.label }}
-          </label>
-        </div>
-        } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
-        </div>
-        }
-      </div>
-      }
-
-      <!-- Luces -->
-      @if (mod.nombre.includes('Luces') && mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of opcionesDescripcionLuces; track item; let i = $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="luces-{{ i }}"
-            name="luces-{{ i }}"
-          />
-          <label class="form-check-label" for="luces-{{ i }}">
-            {{ item.label }}
-          </label>
-          <!-- Sub-if para focos de trabajo -->
-          @if (item.key === 'focosDeTrabajo' && mod.detalle?.focosDeTrabajo) {
-          <div class="mt-3 ms-4 border-start ps-3">
-            <label class="form-label">¿Dónde están los focos de trabajo?</label>
-            @for (foco of opcionesDescripcionFocosDeTrabajo; track foco; let j =
-            $index) {
-            <div class="form-check mb-1">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id="foco-{{ j }}"
-                [(ngModel)]="mod.focosTrabajo![foco.key]"
+      <div class="row g-3 g-lg-4">
+        <div class="col-6 col-md-3" *ngFor="let o of opcionesVehiculo">
+          <div
+            class="card h-100 ing-card-select text-center p-3"
+            [ngClass]="{ selected: tipoVehiculo === o.value }"
+            (click)="seleccionarTipoPrevia(o.value)"
+          >
+            <div class="ratio ratio-4x3 mb-3">
+              <img
+                [src]="o.img"
+                class="object-fit-contain"
+                alt="{{ o.label }}"
               />
-              <label class="form-check-label" [for]="'foco-' + j">
-                {{ foco.label }}
-              </label>
+            </div>
+            <div class="card-body p-0">
+              <div
+                class="card-title mb-0 text-uppercase"
+                style="font-family: var(--font-tech); font-size: 0.9rem"
+              >
+                {{ o.label }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4" *ngIf="tipoVehiculoInvalido && !tipoVehiculo">
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <div>
+            Requisito: Debe seleccionar un tipo de vehículo para continuar.
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-5 pt-3 border-top">
+        <button
+          class="btn btn-primary btn-lg text-uppercase fw-bold px-5 d-flex align-items-center gap-2"
+          style="
+            font-family: var(--font-tech);
+            background-color: var(--color-accent);
+            border: none;
+          "
+          (click)="irASiguientePaso()"
+          [disabled]="!tipoVehiculo"
+        >
+          Siguiente <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  } @else {
+
+  <div class="card border border-light-subtle shadow-sm bg-white">
+    <div class="card-body p-4 p-lg-5">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pb-3 border-bottom gap-3"
+      >
+        <div>
+          <h2
+            class="h4 text-uppercase fw-bold mb-1"
+            style="font-family: var(--font-tech)"
+          >
+            Configuración Técnica
+          </h2>
+          <span
+            class="badge bg-light text-dark border rounded-0"
+            style="font-family: var(--font-tech)"
+          >
+            TIPO: {{ tipoVehiculo | uppercase }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Selector tipo vehículo (Fallback) -->
+      <div class="mb-5">
+        <label class="ing-label-tech">Cambiar categoría de vehículo</label>
+        <select
+          class="form-select form-select-lg bg-light"
+          [(ngModel)]="tipoVehiculo"
+          (change)="onTipoCambio()"
+          [class.is-invalid]="tipoVehiculoInvalido"
+          style="font-family: var(--font-reading)"
+        >
+          <option [ngValue]="null" disabled selected>-- SELECCIONAR --</option>
+          <option value="coche">COCHE / TURISMO</option>
+          <option value="moto">MOTO</option>
+          <option value="camper">CAMPER / VIVIENDA</option>
+          <option value="industrial">INDUSTRIAL</option>
+        </select>
+        <div class="invalid-feedback" style="font-family: var(--font-tech)">
+          CAMPO REQUERIDO
+        </div>
+      </div>
+
+      <!-- Lista de modificaciones -->
+      @if (modificaciones.length > 0) {
+      <div class="mt-4">
+        <h5
+          class="mb-4 pb-2 border-bottom border-2 border-dark text-uppercase fw-bold"
+          style="font-family: var(--font-tech)"
+        >
+          Modificaciones Realizadas
+        </h5>
+
+        <!-- Bloque COCHE / INDUSTRIAL -->
+        @if(tipoVehiculo === "coche" || tipoVehiculo === "industrial"){ @for
+        (mod of modificaciones; track mod; let modIndex = $index) {
+
+        <div class="mb-2">
+          <!-- Checkbox Principal (Padre) -->
+          <div
+            class="form-check p-3 border mb-0"
+            [ngClass]="{
+              'bg-light border-dark': mod.seleccionado,
+              'border-light-subtle': !mod.seleccionado
+            }"
+          >
+            <input
+              class="form-check-input mt-1"
+              type="checkbox"
+              [(ngModel)]="mod.seleccionado"
+              [id]="'mod-' + modIndex"
+              style="width: 1.3em; height: 1.3em"
+            />
+            <label
+              class="form-check-label fw-bold ms-2 text-uppercase fs-6"
+              [for]="'mod-' + modIndex"
+              style="font-family: var(--font-tech); color: #000"
+            >
+              {{ mod.nombre }}
+            </label>
+          </div>
+
+          <!-- Ruedas -->
+          @if (mod.nombre.includes('Ruedas') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2"
+              >Elementos modificados:</label
+            >
+            <div class="row row-cols-1 row-cols-md-2 g-2">
+              @for (item of detalleRuedas; track item; let i = $index) {
+              <div class="col">
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="mod.detalle![item.key]"
+                    (ngModelChange)="actualizarError(modIndex, mod)"
+                    id="ruedas-{{ i }}"
+                    name="ruedas-{{ i }}"
+                  />
+                  <label class="form-check-label" for="ruedas-{{ i }}">
+                    {{ item.label }}
+                  </label>
+                </div>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Suspensión -->
+          @if (mod.nombre === 'Suspensión' && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2"
+              >Elementos modificados:</label
+            >
+            <div class="row row-cols-1 row-cols-md-2 g-2">
+              @for (item of detallesMuellesOpciones; track item; let i = $index)
+              {
+              <div class="col">
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="mod.detalle![item.key]"
+                    (ngModelChange)="actualizarError(modIndex, mod)"
+                    id="suspension-{{ i }}"
+                    name="suspension-{{ i }}"
+                  />
+                  <label class="form-check-label" for="suspension-{{ i }}">
+                    {{ item.label }}
+                  </label>
+                </div>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Carrocería -->
+          @if (mod.nombre.includes('Carrocería') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2"
+              >Elementos modificados:</label
+            >
+            <div class="row row-cols-1 row-cols-md-2 g-2">
+              @for (item of detalleCarroceria; track item; let i = $index) {
+              <div class="col">
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="mod.detalle![item.key]"
+                    (ngModelChange)="actualizarError(modIndex, mod)"
+                    id="carroceria-{{ i }}"
+                    name="carroceria-{{ i }}"
+                  />
+                  <label class="form-check-label" for="carroceria-{{ i }}">
+                    {{ item.label }}
+                  </label>
+                </div>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Luces -->
+          @if (mod.nombre.includes('Luces') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2"
+              >Elementos modificados:</label
+            >
+            <div class="d-flex flex-column gap-2">
+              @for (item of opcionesDescripcionLuces; track item; let i =
+              $index) {
+              <div>
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="mod.detalle![item.key]"
+                    (ngModelChange)="actualizarError(modIndex, mod)"
+                    id="luces-{{ i }}"
+                    name="luces-{{ i }}"
+                  />
+                  <label class="form-check-label" for="luces-{{ i }}">
+                    {{ item.label }}
+                  </label>
+                </div>
+
+                <!-- Sub-if para focos de trabajo -->
+                @if (item.key === 'focosDeTrabajo' &&
+                mod.detalle?.focosDeTrabajo) {
+                <div class="ing-sub-sub-option-block bg-light p-2">
+                  <label class="ing-label-tech small text-secondary"
+                    >Ubicación de focos:</label
+                  >
+                  <div class="d-flex flex-wrap gap-3">
+                    @for (foco of opcionesDescripcionFocosDeTrabajo; track foco;
+                    let j = $index) {
+                    <div class="form-check">
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="foco-{{ j }}"
+                        [(ngModel)]="mod.focosTrabajo![foco.key]"
+                      />
+                      <label class="form-check-label small" [for]="'foco-' + j">
+                        {{ foco.label }}
+                      </label>
+                    </div>
+                    }
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Dirección -->
+          @if (mod.nombre.includes('Dirección') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2"
+              >Elementos modificados:</label
+            >
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleDireccion; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="direccion-{{ i }}"
+                  name="direccion-{{ i }}"
+                />
+                <label class="form-check-label" for="direccion-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Freno -->
+          @if (mod.nombre.includes('Freno') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2"
+              >Elementos modificados:</label
+            >
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleFrenos; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="freno-{{ i }}"
+                  name="freno-{{ i }}"
+                />
+                <label class="form-check-label" for="freno-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Unidad motriz -->
+          @if (mod.nombre.includes('Unidad motriz') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2"
+              >Elementos modificados:</label
+            >
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleUnidadMotriz; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="motriz-{{ i }}"
+                  name="motriz-{{ i }}"
+                />
+                <label class="form-check-label" for="motriz-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
             </div>
             }
           </div>
           }
         </div>
-        } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
+        } }
+
+        <!-- Bloque MOTO -->
+        @if(tipoVehiculo === "moto"){ @for (mod of modificaciones; track mod;
+        let modIndex = $index) {
+
+        <div class="mb-2">
+          <div
+            class="form-check p-3 border mb-0"
+            [ngClass]="{
+              'bg-light border-dark': mod.seleccionado,
+              'border-light-subtle': !mod.seleccionado
+            }"
+          >
+            <input
+              class="form-check-input mt-1"
+              type="checkbox"
+              [(ngModel)]="mod.seleccionado"
+              [id]="'mod-' + modIndex"
+              style="width: 1.3em; height: 1.3em"
+            />
+            <label
+              class="form-check-label fw-bold ms-2 text-uppercase fs-6"
+              [for]="'mod-' + modIndex"
+              style="font-family: var(--font-tech); color: #000"
+            >
+              {{ mod.nombre }}
+            </label>
+          </div>
+
+          <!-- Ruedas Moto -->
+          @if (mod.nombre.includes('Ruedas') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleRuedasMotos; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="ruedas-{{ i }}"
+                  name="ruedas-{{ i }}"
+                />
+                <label class="form-check-label" for="ruedas-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Suspensión Moto -->
+          @if (mod.nombre === 'Suspensión' && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detallesSuspensionesMotos; track item; let i =
+              $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="suspension-{{ i }}"
+                  name="suspension-{{ i }}"
+                />
+                <label class="form-check-label" for="suspension-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Carrocería Moto -->
+          @if (mod.nombre.includes('Carrocería') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detallesCarroceriaMoto; track item; let i = $index)
+              {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="carroceria-{{ i }}"
+                  name="carroceria-{{ i }}"
+                />
+                <label class="form-check-label" for="carroceria-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Chasis y Subchasis Moto -->
+          @if (mod.nombre.includes('Chasis y Subchasis') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleChasisSubchasisMotos; track item; let i =
+              $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="chasis-{{ i }}"
+                  name="chasis-{{ i }}"
+                />
+                <label class="form-check-label" for="chasis-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Luces Moto -->
+          @if (mod.nombre.includes('Luces') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of opcionesDescripcionLucesMoto; track item; let i =
+              $index) {
+              <div>
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="mod.detalle![item.key]"
+                    (ngModelChange)="actualizarError(modIndex, mod)"
+                    id="luces-{{ i }}"
+                    name="luces-{{ i }}"
+                  />
+                  <label class="form-check-label" for="luces-{{ i }}">
+                    {{ item.label }}
+                  </label>
+                </div>
+                @if (item.key === 'focosDeTrabajo' &&
+                mod.detalle?.focosDeTrabajo) {
+                <div class="ing-sub-sub-option-block bg-light p-2">
+                  <label class="ing-label-tech small text-secondary"
+                    >Ubicación:</label
+                  >
+                  <div class="d-flex flex-wrap gap-3">
+                    @for (foco of opcionesDescripcionFocosDeTrabajo; track foco;
+                    let j = $index) {
+                    <div class="form-check">
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="foco-{{ j }}"
+                        [(ngModel)]="mod.focosTrabajo![foco.key]"
+                      />
+                      <label class="form-check-label small" [for]="'foco-' + j">
+                        {{ foco.label }}
+                      </label>
+                    </div>
+                    }
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Freno Moto -->
+          @if (mod.nombre.includes('Freno') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleFrenosMoto; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="freno-{{ i }}"
+                  name="freno-{{ i }}"
+                />
+                <label class="form-check-label" for="freno-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Unidad motriz Moto -->
+          @if (mod.nombre.includes('Unidad motriz') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleUnidadMotrizMoto; track item; let i = $index)
+              {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="motriz-{{ i }}"
+                  name="motriz-{{ i }}"
+                />
+                <label class="form-check-label" for="motriz-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
         </div>
-        }
+        } }
+
+        <!-- Bloque CAMPER -->
+        @if(tipoVehiculo === "camper"){ @for (mod of modificaciones; track mod;
+        let modIndex = $index) {
+
+        <div class="mb-2">
+          <div
+            class="form-check p-3 border mb-0"
+            [ngClass]="{
+              'bg-light border-dark': mod.seleccionado,
+              'border-light-subtle': !mod.seleccionado
+            }"
+          >
+            <input
+              class="form-check-input mt-1"
+              type="checkbox"
+              [(ngModel)]="mod.seleccionado"
+              [id]="'mod-' + modIndex"
+              style="width: 1.3em; height: 1.3em"
+            />
+            <label
+              class="form-check-label fw-bold ms-2 text-uppercase fs-6"
+              [for]="'mod-' + modIndex"
+              style="font-family: var(--font-tech); color: #000"
+            >
+              {{ mod.nombre }}
+            </label>
+          </div>
+
+          <!-- Ruedas Camper -->
+          @if (mod.nombre.includes('Ruedas') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleRuedas; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="ruedas-{{ i }}"
+                  name="ruedas-{{ i }}"
+                />
+                <label class="form-check-label" for="ruedas-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Suspensión Camper -->
+          @if (mod.nombre.includes('Suspensión') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detallesSuspensionesCamper; track item; let i =
+              $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="suspension-{{ i }}"
+                  name="suspension-{{ i }}"
+                />
+                <label class="form-check-label" for="suspension-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Interior Camper -->
+          @if (mod.nombre.includes('Modificaciones en el interior del vehículo')
+          && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detallesInteriorVehiculo; track item; let i =
+              $index) {
+              <div>
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="mod.detalle![item.key]"
+                    (ngModelChange)="actualizarError(modIndex, mod)"
+                    id="interior-{{ i }}"
+                    name="interior-{{ i }}"
+                  />
+                  <label class="form-check-label" for="interior-{{ i }}">
+                    {{ item.label }}
+                  </label>
+                </div>
+
+                <!-- Mobiliario -->
+                @if (item.key === 'mobiliarioInterior' &&
+                mod.detalle?.mobiliarioInterior) {
+                <div class="ing-sub-sub-option-block bg-light p-2">
+                  <label class="ing-label-tech small text-secondary"
+                    >Tipos de mobiliario:</label
+                  >
+                  @for (mueble of opcionesDescripcionMobiliarioInterior; track
+                  mueble; let j = $index) {
+                  <div class="form-check mb-1">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="mobiliario-{{ j }}"
+                      [(ngModel)]="mod.mobiliarioInterior![mueble.key]"
+                    />
+                    <label
+                      class="form-check-label small"
+                      [for]="'mobiliario-' + j"
+                    >
+                      {{ mueble.label }}
+                    </label>
+                  </div>
+                  }
+                </div>
+                }
+
+                <!-- Fontanería -->
+                @if (item.key === 'fontaneria' && mod.detalle?.fontaneria) {
+                <div class="ing-sub-sub-option-block bg-light p-2">
+                  <label class="ing-label-tech small text-secondary"
+                    >Instalación:</label
+                  >
+                  @for (f of opcionesDescripcionFontaneria; track f; let k =
+                  $index) {
+                  <div class="form-check mb-1">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="fontaneria-{{ k }}"
+                      [(ngModel)]="mod.fontaneria![f.key]"
+                    />
+                    <label
+                      class="form-check-label small"
+                      [for]="'fontaneria-' + k"
+                    >
+                      {{ f.label }}
+                    </label>
+                  </div>
+                  }
+                </div>
+                }
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Instalación eléctrica Camper -->
+          @if (mod.nombre.includes('Instalación eléctrica') && mod.seleccionado)
+          {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detallesInstalacionElectricaCamper; track item; let
+              i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="electrico-{{ i }}"
+                  name="electrico-{{ i }}"
+                />
+                <label class="form-check-label" for="electrico-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Carrocería Camper -->
+          @if (mod.nombre.includes('Carrocería') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleCarroceriaCamper; track item; let i = $index)
+              {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="carroceriaCamper-{{ i }}"
+                  name="carroceriaCamper-{{ i }}"
+                />
+                <label class="form-check-label" for="carroceriaCamper-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Luces Camper -->
+          @if (mod.nombre.includes('Luces') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of opcionesDescripcionLuces; track item; let i =
+              $index) {
+              <div>
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="mod.detalle![item.key]"
+                    (ngModelChange)="actualizarError(modIndex, mod)"
+                    id="luces-{{ i }}"
+                    name="luces-{{ i }}"
+                  />
+                  <label class="form-check-label" for="luces-{{ i }}">
+                    {{ item.label }}
+                  </label>
+                </div>
+                <!-- Sub-if focos trabajo -->
+                @if (item.key === 'focosDeTrabajo' &&
+                mod.detalle?.focosDeTrabajo) {
+                <div class="ing-sub-sub-option-block bg-light p-2">
+                  <label class="ing-label-tech small text-secondary"
+                    >Ubicación:</label
+                  >
+                  <div class="d-flex flex-wrap gap-3">
+                    @for (foco of opcionesDescripcionFocosDeTrabajo; track foco;
+                    let j = $index) {
+                    <div class="form-check">
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="foco-{{ j }}"
+                        [(ngModel)]="mod.focosTrabajo![foco.key]"
+                      />
+                      <label class="form-check-label small" [for]="'foco-' + j">
+                        {{ foco.label }}
+                      </label>
+                    </div>
+                    }
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Dirección Camper -->
+          @if (mod.nombre.includes('Dirección') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleDireccion; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="direccion-{{ i }}"
+                  name="direccion-{{ i }}"
+                />
+                <label class="form-check-label" for="direccion-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Freno Camper -->
+          @if (mod.nombre.includes('Freno') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleFrenos; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="freno-{{ i }}"
+                  name="freno-{{ i }}"
+                />
+                <label class="form-check-label" for="freno-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Unidad motriz Camper -->
+          @if (mod.nombre.includes('Unidad motriz') && mod.seleccionado) {
+          <div class="ing-sub-option-block">
+            <label class="ing-label-tech text-muted mb-2">Elementos:</label>
+            <div class="d-flex flex-column gap-2">
+              @for (item of detalleUnidadMotriz; track item; let i = $index) {
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [(ngModel)]="mod.detalle![item.key]"
+                  (ngModelChange)="actualizarError(modIndex, mod)"
+                  id="motriz-{{ i }}"
+                  name="motriz-{{ i }}"
+                />
+                <label class="form-check-label" for="motriz-{{ i }}">
+                  {{ item.label }}
+                </label>
+              </div>
+              }
+            </div>
+            @if (erroresSubopciones[modIndex]) {
+            <div
+              class="text-danger mt-2 small fw-bold"
+              style="font-family: var(--font-tech)"
+            >
+              <i class="bi bi-x-circle"></i> SELECCIÓN REQUERIDA
+            </div>
+            }
+          </div>
+          }
+        </div>
+        } }
       </div>
       }
 
-      <!-- Dirección -->
-      @if (mod.nombre.includes('Dirección') && mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of detalleDireccion; track item; let i = $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="direccion-{{ i }}"
-            name="direccion-{{ i }}"
-          />
-          <label class="form-check-label" for="direccion-{{ i }}">
-            {{ item.label }}
-          </label>
-        </div>
-        } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
-        </div>
-        }
+      <!-- Navegación Footer -->
+      <div
+        class="d-flex flex-wrap justify-content-between align-items-center mt-5 pt-3 border-top gap-3"
+      >
+        <button
+          class="btn btn-outline-secondary btn-lg order-2 order-md-1 px-4 text-uppercase fw-bold"
+          style="font-family: var(--font-tech); border-width: 2px"
+          (click)="volverFormulario()"
+        >
+          <i class="bi bi-arrow-left me-2"></i> Volver
+        </button>
+        <button
+          class="btn btn-primary btn-lg order-1 order-md-2 flex-grow-1 flex-md-grow-0 px-5 text-uppercase fw-bold d-flex align-items-center justify-content-center gap-2"
+          style="
+            font-family: var(--font-tech);
+            background-color: var(--color-accent);
+            border: none;
+          "
+          (click)="continuarFormulario()"
+        >
+          Continuar <i class="bi bi-arrow-right"></i>
+        </button>
       </div>
-      }
-
-      <!-- Freno -->
-      @if (mod.nombre.includes('Freno') && mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of detalleFrenos; track item; let i = $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="freno-{{ i }}"
-            name="freno-{{ i }}"
-          />
-          <label class="form-check-label" for="freno-{{ i }}">
-            {{ item.label }}
-          </label>
-        </div>
-        } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
-        </div>
-        }
-      </div>
-      }
-
-      <!-- Unidad motriz -->
-      @if (mod.nombre.includes('Unidad motriz') && mod.seleccionado) {
-      <div class="mt-2 ms-4">
-        <label class="form-label">¿Qué elementos se han modificado?</label>
-        @for (item of detalleUnidadMotriz; track item; let i = $index) {
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="mod.detalle![item.key]"
-            (ngModelChange)="actualizarError(modIndex, mod)"
-            id="motriz-{{ i }}"
-            name="motriz-{{ i }}"
-          />
-          <label class="form-check-label" for="motriz-{{ i }}">
-            {{ item.label }}
-          </label>
-        </div>
-        } @if (erroresSubopciones[modIndex]) {
-        <div class="text-danger mt-1">
-          Debe seleccionar al menos una opción en este bloque.
-        </div>
-        }
-      </div>
-
-      } }}
-    </div>
-    }
-
-    <!-- Botones -->
-    <div class="d-flex justify-content-between mt-4">
-      <button class="btn btn-outline-secondary" (click)="volverFormulario()">
-        ← Volver
-      </button>
-      <button class="btn btn-primary" (click)="continuarFormulario()">
-        Continuar →
-      </button>
     </div>
   </div>
+  }
 </div>
-}

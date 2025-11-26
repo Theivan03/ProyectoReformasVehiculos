@@ -1,147 +1,319 @@
-<form #formulario="ngForm" (ngSubmit)="enviarFormulario()" novalidate>
-  <div class="container mt-3">
-    <!-- Datos básicos -->
-    <div class="row">
-      <div class="col-md-4 mb-2">
-        <label class="form-label">Nombre *</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="datos.nombre"
-          name="nombre"
-          #ctrlNombre="ngModel"
-          required
-          [class.is-invalid]="ctrlNombre.invalid && ctrlNombre.touched"
-        />
-        <div class="invalid-feedback">Este campo es obligatorio.</div>
-      </div>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;800&family=Roboto:wght@300;400;500&display=swap");
 
-      <div class="col-md-8 mb-2">
-        <label class="form-label">Apellidos *</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="datos.apellidos"
-          name="apellidos"
-          #ctrlApellidos="ngModel"
-          required
-          [class.is-invalid]="ctrlApellidos.invalid && ctrlApellidos.touched"
-        />
-        <div class="invalid-feedback">Este campo es obligatorio.</div>
-      </div>
-    </div>
+  .ing-form-scope {
+    --font-tech: "JetBrains Mono", monospace;
+    --font-reading: "Roboto", sans-serif;
+    --color-accent: #0066ff;
+    --color-success: #198754;
+    --color-border: #dee2e6;
+  }
 
-    <!-- Campos condicionales (longitud, anchura, etc.) -->
-    <div class="row">
-      @if (mostrarLongitud) {
-      <div class="col-md-4 mb-2">
-        <label class="form-label">Longitud (A) *</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="datos.longitudDespues"
-          name="longitudDespues"
-          required
-        />
-      </div>
-      } @if (mostrarAnchura) {
-      <div class="col-md-4 mb-2">
-        <label class="form-label">Anchura (E) *</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="datos.anchuraDespues"
-          name="anchuraDespues"
-          required
-        />
-      </div>
-      } @if (mostrarAltura) {
-      <div class="col-md-4 mb-2">
-        <label class="form-label">Altura (D) *</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="datos.alturaDespues"
-          name="alturaDespues"
-          required
-        />
-      </div>
-      } @if (mostrarVoladizo) {
-      <div class="col-md-4 mb-2">
-        <label class="form-label">Voladizo (C) *</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="datos.voladizoDespues"
-          name="voladizoDespues"
-          required
-        />
-      </div>
-      } @if (mostrarViaDelantera) {
-      <div class="col-md-4 mb-2">
-        <label class="form-label">Vía delantera (F) *</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="datos.viaDelanteraDespues"
-          name="viaDelanteraDespues"
-          required
-        />
-      </div>
-      } @if (mostrarViaTrasera) {
-      <div class="col-md-4 mb-2">
-        <label class="form-label">Vía trasera (G) *</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="datos.viaTraseraDespues"
-          name="viaTraseraDespues"
-          required
-        />
-      </div>
-      }
-    </div>
+  .ing-form-scope * {
+    border-radius: 0 !important;
+  }
 
-    <!-- ABS -->
-    <div class="mt-4">
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [(ngModel)]="datos.opcionesCoche[0]"
-          name="optABS"
-          id="optABS"
-        />
-        <label class="form-check-label" for="optABS">
-          El vehículo dispone de sistema de frenado ABS.
-        </label>
-      </div>
-    </div>
+  .ing-input {
+    font-family: var(--font-reading);
+    border: 1px solid #ced4da;
+    padding: 0.7rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background-color: #f8f9fa;
+  }
 
-    <!-- Imagen -->
-    <div class="text-center mt-4">
-      <img
-        src="../../../assets/coche.png"
-        alt="Plano vehículo"
-        class="img-fluid border rounded shadow-sm"
-        style="max-height: 500px"
-      />
-      <p class="text-muted mt-2">
-        Vista esquemática del vehículo para saber cómo medirlo de la forma
-        correcta
-      </p>
-    </div>
+  .ing-input:focus {
+    border-color: #000;
+    border-left-width: 5px;
+    border-left-color: var(--color-accent);
+    box-shadow: none;
+    background-color: #fff;
+  }
 
-    <!-- Botones -->
-    <div class="d-flex justify-content-between mt-3">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        (click)="volver()"
-      >
-        Volver
-      </button>
-      <button type="submit" class="btn btn-success">Siguiente</button>
+  .ing-input.is-invalid {
+    border-left-width: 5px;
+    border-left-color: #dc3545;
+    background-color: #fff8f8;
+  }
+
+  .ing-label-tech {
+    font-family: var(--font-tech);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    display: block;
+    letter-spacing: -0.5px;
+  }
+
+  .ing-section-title {
+    font-family: var(--font-tech);
+    text-transform: uppercase;
+    font-weight: 800;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+    font-size: 1.1rem;
+  }
+
+  .btn-ing-success {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: #fff;
+    font-family: var(--font-tech);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .btn-ing-success:hover {
+    background-color: #146c43;
+    border-color: #146c43;
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.2);
+  }
+
+  .invalid-feedback {
+    font-family: var(--font-tech);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+</style>
+
+<div class="ing-form-scope container mt-4 mb-5">
+  <div class="card border border-light-subtle shadow-sm bg-white">
+    <div class="card-body p-4 p-lg-5">
+      <form #formulario="ngForm" (ngSubmit)="enviarFormulario()" novalidate>
+        <h5 class="ing-section-title mt-0">Datos del Titular</h5>
+
+        <div class="row g-3">
+          <div class="col-md-5">
+            <label class="ing-label-tech">Nombre *</label>
+            <input
+              type="text"
+              class="form-control ing-input"
+              [(ngModel)]="datos.nombre"
+              name="nombreTitular"
+              #ctrlNombre="ngModel"
+              required
+              [class.is-invalid]="ctrlNombre.invalid && ctrlNombre.touched"
+              placeholder="NOMBRE"
+            />
+            <div class="invalid-feedback">CAMPO OBLIGATORIO</div>
+          </div>
+
+          <div class="col-md-7">
+            <label class="ing-label-tech">Apellidos *</label>
+            <input
+              type="text"
+              class="form-control ing-input"
+              [(ngModel)]="datos.apellidos"
+              name="apellidosTitular"
+              #ctrlApellidos="ngModel"
+              required
+              [class.is-invalid]="
+                ctrlApellidos.invalid && ctrlApellidos.touched
+              "
+              placeholder="APELLIDOS"
+            />
+            <div class="invalid-feedback">CAMPO OBLIGATORIO</div>
+          </div>
+        </div>
+
+        @if (mostrarLongitud || mostrarAnchura || mostrarAltura ||
+        mostrarVoladizo || mostrarViaDelantera || mostrarViaTrasera) {
+        <h5 class="ing-section-title">Medidas Finales (mm)</h5>
+
+        <div class="row g-3">
+          @if (mostrarLongitud) {
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label class="ing-label-tech">Longitud (A) *</label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control ing-input"
+                [(ngModel)]="datos.longitudDespues"
+                name="longitudDespuesVehiculo"
+                required
+                placeholder="0"
+              />
+              <span
+                class="input-group-text bg-light border-start-0"
+                style="font-family: var(--font-tech)"
+                >mm</span
+              >
+            </div>
+          </div>
+          } @if (mostrarAnchura) {
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label class="ing-label-tech">Anchura (E) *</label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control ing-input"
+                [(ngModel)]="datos.anchuraDespues"
+                name="anchuraDespuesVehiculo"
+                required
+                placeholder="0"
+              />
+              <span
+                class="input-group-text bg-light border-start-0"
+                style="font-family: var(--font-tech)"
+                >mm</span
+              >
+            </div>
+          </div>
+          } @if (mostrarAltura) {
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label class="ing-label-tech">Altura (D) *</label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control ing-input"
+                [(ngModel)]="datos.alturaDespues"
+                name="alturaDespuesVehiculo"
+                required
+                placeholder="0"
+              />
+              <span
+                class="input-group-text bg-light border-start-0"
+                style="font-family: var(--font-tech)"
+                >mm</span
+              >
+            </div>
+          </div>
+          } @if (mostrarVoladizo) {
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label class="ing-label-tech">Voladizo (C) *</label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control ing-input"
+                [(ngModel)]="datos.voladizoDespues"
+                name="voladizoDespuesVehiculo"
+                required
+                placeholder="0"
+              />
+              <span
+                class="input-group-text bg-light border-start-0"
+                style="font-family: var(--font-tech)"
+                >mm</span
+              >
+            </div>
+          </div>
+          } @if (mostrarViaDelantera) {
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label class="ing-label-tech">Vía delantera (F) *</label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control ing-input"
+                [(ngModel)]="datos.viaDelanteraDespues"
+                name="viaDelanteraDespuesVehiculo"
+                required
+                placeholder="0"
+              />
+              <span
+                class="input-group-text bg-light border-start-0"
+                style="font-family: var(--font-tech)"
+                >mm</span
+              >
+            </div>
+          </div>
+          } @if (mostrarViaTrasera) {
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label class="ing-label-tech">Vía trasera (G) *</label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control ing-input"
+                [(ngModel)]="datos.viaTraseraDespues"
+                name="viaTraseraDespuesVehiculo"
+                required
+                placeholder="0"
+              />
+              <span
+                class="input-group-text bg-light border-start-0"
+                style="font-family: var(--font-tech)"
+                >mm</span
+              >
+            </div>
+          </div>
+          }
+        </div>
+        }
+
+        <div class="mt-4 p-3 bg-light border border-start-0 border-end-0">
+          <div class="form-check d-flex align-items-center">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [(ngModel)]="datos.opcionesCoche[0]"
+              name="optABSVehiculo"
+              id="optABSVehiculo"
+              style="width: 1.4em; height: 1.4em; margin-top: 0"
+            />
+            <label
+              class="form-check-label ms-3 fw-bold text-uppercase text-dark"
+              for="optABSVehiculo"
+              style="font-family: var(--font-tech); font-size: 0.9rem"
+            >
+              El vehículo dispone de sistema de frenado ABS
+            </label>
+          </div>
+        </div>
+
+        <div class="mt-5 mb-4">
+          <div
+            class="card bg-white border p-1 mx-auto"
+            style="max-width: 700px"
+          >
+            <div class="card-header bg-white border-bottom-0 pb-0">
+              <span
+                class="badge bg-secondary text-uppercase rounded-0"
+                style="font-family: var(--font-tech)"
+                >Referencia Visual</span
+              >
+            </div>
+            <img
+              src="../../../assets/coche.png"
+              alt="Plano vehículo"
+              class="card-img-top p-3 img-fluid object-fit-contain"
+              style="max-height: 400px"
+            />
+            <div class="card-footer bg-light border-top text-center py-2">
+              <small
+                class="text-muted text-uppercase fw-bold"
+                style="font-family: var(--font-tech); font-size: 0.75rem"
+              >
+                <i class="bi bi-rulers me-1"></i> Guía de cotas para medición
+                correcta
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="d-flex flex-wrap justify-content-between align-items-center mt-5 pt-3 border-top gap-3"
+        >
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-lg order-2 order-md-1 px-4 text-uppercase fw-bold"
+            style="font-family: var(--font-tech); border-width: 2px"
+            (click)="volver()"
+          >
+            <i class="bi bi-arrow-left me-2"></i> Volver
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-ing-success btn-lg order-1 order-md-2 flex-grow-1 flex-md-grow-0 px-5 d-flex align-items-center justify-content-center gap-2"
+          >
+            Siguiente <i class="bi bi-check-lg"></i>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
-</form>
+</div>

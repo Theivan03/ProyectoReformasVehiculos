@@ -363,15 +363,15 @@ export class ImagenesComponent implements OnInit {
     Suspensión: {
       muelleDelantero: [
         {
-          src: 'assets/suspelantera1.png',
+          src: 'assets/suspdelantera1.png',
           id: 'muelle-del-01',
         },
         {
-          src: 'assets/suspelantera2.png',
+          src: 'assets/suspdelantera2.png',
           id: 'muelle-del-02',
         },
         {
-          src: 'assets/suspelantera3.png',
+          src: 'assets/suspdelantera3.png',
           id: 'muelle-del-03',
         },
         {
@@ -521,15 +521,15 @@ export class ImagenesComponent implements OnInit {
       ],
       muelleDelanteroCamper: [
         {
-          src: 'assets/suspelantera1.png',
+          src: 'assets/suspdelantera1.png',
           id: 'muelle-del-01',
         },
         {
-          src: 'assets/suspelantera2.png',
+          src: 'assets/suspdelantera2.png',
           id: 'muelle-del-02',
         },
         {
-          src: 'assets/suspelantera3.png',
+          src: 'assets/suspdelantera3.png',
           id: 'muelle-del-03',
         },
         {

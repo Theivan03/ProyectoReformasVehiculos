@@ -1,237 +1,343 @@
-<div class="card p-4 shadow-sm mx-auto" style="max-width: 1500px">
-  <h5 class="mb-4 text-center">
-    Paso {{ step }} de 3:
-    {{
-      step === 1
-        ? "Imágenes exteriores del vehículo (frontal, trasera, lateral derecho e izquierdo)"
-        : step === 2
-        ? "Imágenes de las reformas (incluye subselecciones si las hay)"
-        : "Imágenes de la documentación"
-    }}
-  </h5>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;800&family=Roboto:wght@300;400;500&display=swap");
 
-  <!-- STEP 1 (compacto, sin recortes y con poco espacio en blanco) -->
-  <ng-container *ngIf="step === 1">
-    <label class="form-label"
-      >Sube las imágenes <strong>previas</strong> del vehículo:</label
-    >
+  .ing-form-scope {
+    --font-tech: "JetBrains Mono", monospace;
+    --font-reading: "Roboto", sans-serif;
+    --color-accent: #0066ff;
+    --color-success: #198754;
+    --color-border: #dee2e6;
+    --color-bg-input: #f8f9fa;
+  }
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
-      <div
-        class="col"
-        *ngFor="
-          let label of [
-            'Frontal',
-            'Trasera',
-            'Lateral izquierdo',
-            'Lateral derecho'
-          ];
-          let i = index
-        "
-      >
-        <div class="card p-3 text-center h-100">
-          <h6 class="fw-bold mb-2">{{ label }}</h6>
+  .ing-form-scope * {
+    border-radius: 0 !important;
+  }
 
-          <!-- Ejemplo (orientativo) — imagen sin recortes y sin contenedor alto fijo -->
-          <small class="text-muted d-block text-start mb-1"
-            >Ejemplo (orientativo)</small
-          >
-          <div class="border rounded p-2 bg-white mb-2">
-            <ng-container [ngSwitch]="label">
-              <img
-                *ngSwitchCase="'Frontal'"
-                src="../../../assets/delanteravehiculo.png"
-                class="img-fluid d-block mx-auto"
-                style="
-                  max-height: 240px;
-                  height: auto;
-                  width: auto;
-                  max-width: 100%;
-                  object-fit: contain;
-                "
-                alt="Ejemplo frontal"
-              />
-              <img
-                *ngSwitchCase="'Trasera'"
-                src="../../../assets/traseravehiculo.png"
-                class="img-fluid d-block mx-auto"
-                style="
-                  max-height: 240px;
-                  height: auto;
-                  width: auto;
-                  max-width: 100%;
-                  object-fit: contain;
-                "
-                alt="Ejemplo trasera"
-              />
-              <img
-                *ngSwitchCase="'Lateral izquierdo'"
-                src="../../../assets/izquierdavehiculo.jpg"
-                class="img-fluid d-block mx-auto"
-                style="
-                  max-height: 240px;
-                  height: auto;
-                  width: auto;
-                  max-width: 100%;
-                  object-fit: contain;
-                "
-                alt="Ejemplo lateral izquierdo"
-              />
-              <img
-                *ngSwitchCase="'Lateral derecho'"
-                src="../../../assets/derechavehiculo.jpg"
-                class="img-fluid d-block mx-auto"
-                style="
-                  max-height: 240px;
-                  height: auto;
-                  width: auto;
-                  max-width: 100%;
-                  object-fit: contain;
-                "
-                alt="Ejemplo lateral derecho"
-              />
-              <img
-                *ngSwitchDefault
-                src="assets/ejemplos/frontal.jpg"
-                class="img-fluid d-block mx-auto"
-                style="
-                  max-height: 240px;
-                  height: auto;
-                  width: auto;
-                  max-width: 100%;
-                  object-fit: contain;
-                "
-                alt="Ejemplo"
-              />
-            </ng-container>
-          </div>
+  .ing-section-title {
+    font-family: var(--font-tech);
+    text-transform: uppercase;
+    font-weight: 800;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: #000;
+  }
 
-          <!-- Acciones -->
-          <div class="d-flex gap-2 justify-content-center mb-2">
-            <button
-              type="button"
-              class="btn btn-outline-primary btn-sm"
-              (click)="openInput('gallery', 1, i)"
-            >
-              📂 Galería
-            </button>
-            <input
-              #galleryInputs
-              type="file"
-              accept="image/*"
-              class="d-none"
-              (change)="onPrevSelected($event, i)"
-            />
+  .ing-label-tech {
+    font-family: var(--font-tech);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    display: block;
+    letter-spacing: -0.5px;
+  }
 
-            <button
-              type="button"
-              class="btn btn-outline-success btn-sm"
-              (click)="openInput('camera', 1, i)"
-            >
-              📷 Cámara
-            </button>
-            <input
-              #cameraInputs
-              type="file"
-              accept="image/*"
-              capture="environment"
-              class="d-none"
-              (change)="onPrevSelected($event, i)"
-            />
-          </div>
+  .ing-card-tech {
+    border: 1px solid var(--color-border);
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
 
-          <!-- Previsualización del usuario (compacta y sin marcos altos fijos) -->
-          <ng-container *ngIf="prevPreviews[i]; else dropPrevio">
-            <div class="border rounded p-2 bg-white">
-              <img
-                [src]="prevPreviews[i]"
-                class="img-fluid d-block mx-auto rounded shadow-sm"
-                style="
-                  max-height: 260px;
-                  height: auto;
-                  width: auto;
-                  max-width: 100%;
-                  object-fit: contain;
-                "
-                [alt]="'preview ' + label"
-              />
-            </div>
-          </ng-container>
+  .ing-card-header {
+    background-color: #fff;
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.5rem 1rem;
+  }
 
-          <!-- Dropzone cuando no hay imagen: bajo, limpio, sin generar huecos -->
-          <ng-template #dropPrevio>
+  .ing-badge {
+    font-family: var(--font-tech);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.35em 0.65em;
+    background-color: #e9ecef;
+    color: #495057;
+  }
+
+  .ing-dropzone {
+    background-color: var(--color-bg-input);
+    border: 2px dashed #ced4da;
+    transition: all 0.2s ease;
+  }
+
+  .ing-dropzone:hover {
+    background-color: #fff;
+    border-color: var(--color-accent);
+  }
+
+  .btn-ing-success {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: #fff;
+    font-family: var(--font-tech);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 0.5rem 1.5rem;
+  }
+
+  .btn-ing-success:hover {
+    background-color: #146c43;
+    border-color: #146c43;
+  }
+
+  .btn-ing-outline {
+    background-color: transparent;
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    font-family: var(--font-tech);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .btn-ing-outline:hover {
+    background-color: #6c757d;
+    color: #fff;
+  }
+
+  .btn-ing-action {
+    font-family: var(--font-tech);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+</style>
+
+<div class="ing-form-scope container mt-4 mb-5">
+  <div class="card border border-light-subtle shadow-sm bg-white p-4 p-lg-5">
+    <h5 class="ing-section-title mt-0">
+      <span class="text-muted me-2">Paso {{ step }} / 3</span>
+      {{
+        step === 1
+          ? "EXTERIOR DEL VEHÍCULO"
+          : step === 2
+          ? "REFORMAS Y MODIFICACIONES"
+          : "DOCUMENTACIÓN TÉCNICA"
+      }}
+    </h5>
+
+    <ng-container *ngIf="step === 1">
+      <p class="mb-4" style="font-family: var(--font-reading)">
+        Sube las imágenes <strong>previas</strong> del vehículo para establecer
+        el estado inicial.
+      </p>
+
+      <div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+        <div
+          class="col"
+          *ngFor="
+            let label of [
+              'Frontal',
+              'Trasera',
+              'Lateral izquierdo',
+              'Lateral derecho'
+            ];
+            let i = index
+          "
+        >
+          <div class="ing-card-tech h-100 d-flex flex-column">
             <div
-              class="border border-2 border-dashed rounded bg-light d-flex align-items-center justify-content-center"
-              style="min-height: 140px"
+              class="ing-card-header d-flex justify-content-between align-items-center"
             >
-              <span class="text-muted">Aún no hay imagen</span>
+              <span class="ing-label-tech mb-0">{{ label }}</span>
+              <span class="ing-badge">VISTA {{ i + 1 }}</span>
             </div>
-          </ng-template>
+
+            <div class="p-3 flex-grow-1">
+              <div class="text-center mb-3 p-2 bg-light border">
+                <ng-container [ngSwitch]="label">
+                  <img
+                    *ngSwitchCase="'Frontal'"
+                    src="../../../assets/delanteravehiculo.png"
+                    class="img-fluid object-fit-contain"
+                    style="max-height: 150px"
+                    alt="Ref Frontal"
+                  />
+                  <img
+                    *ngSwitchCase="'Trasera'"
+                    src="../../../assets/traseravehiculo.png"
+                    class="img-fluid object-fit-contain"
+                    style="max-height: 150px"
+                    alt="Ref Trasera"
+                  />
+                  <img
+                    *ngSwitchCase="'Lateral izquierdo'"
+                    src="../../../assets/izquierdavehiculo.jpg"
+                    class="img-fluid object-fit-contain"
+                    style="max-height: 150px"
+                    alt="Ref Izquierda"
+                  />
+                  <img
+                    *ngSwitchCase="'Lateral derecho'"
+                    src="../../../assets/derechavehiculo.jpg"
+                    class="img-fluid object-fit-contain"
+                    style="max-height: 150px"
+                    alt="Ref Derecha"
+                  />
+                  <img
+                    *ngSwitchDefault
+                    src="assets/ejemplos/frontal.jpg"
+                    class="img-fluid object-fit-contain"
+                    style="max-height: 150px"
+                    alt="Ref Default"
+                  />
+                </ng-container>
+                <small
+                  class="d-block mt-1 text-muted"
+                  style="font-family: var(--font-tech); font-size: 0.65rem"
+                  >REFERENCIA VISUAL</small
+                >
+              </div>
+
+              <div class="d-grid gap-2 d-flex justify-content-center mb-3">
+                <button
+                  type="button"
+                  class="btn btn-outline-dark btn-sm btn-ing-action"
+                  (click)="openInput('gallery', 1, i)"
+                >
+                  <i class="bi bi-folder2-open me-1"></i> Galería
+                </button>
+                <input
+                  #galleryInputs
+                  type="file"
+                  accept="image/*"
+                  class="d-none"
+                  (change)="onPrevSelected($event, i)"
+                />
+
+                <button
+                  type="button"
+                  class="btn btn-outline-dark btn-sm btn-ing-action"
+                  (click)="openInput('camera', 1, i)"
+                >
+                  <i class="bi bi-camera me-1"></i> Cámara
+                </button>
+                <input
+                  #cameraInputs
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  class="d-none"
+                  (change)="onPrevSelected($event, i)"
+                />
+              </div>
+
+              <ng-container *ngIf="prevPreviews[i]; else dropPrevio">
+                <div class="border p-1 bg-white">
+                  <img
+                    [src]="prevPreviews[i]"
+                    class="img-fluid d-block mx-auto"
+                    style="max-height: 200px; object-fit: contain"
+                    [alt]="'preview ' + label"
+                  />
+                </div>
+              </ng-container>
+
+              <ng-template #dropPrevio>
+                <div
+                  class="ing-dropzone d-flex align-items-center justify-content-center p-4 text-center"
+                  style="min-height: 120px"
+                >
+                  <span
+                    class="text-muted"
+                    style="font-family: var(--font-tech); font-size: 0.75rem"
+                  >
+                    [ SIN IMAGEN ]
+                  </span>
+                </div>
+              </ng-template>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="d-flex justify-content-between">
-      <button class="btn btn-outline-secondary me-2" (click)="back()">
-        ← Anterior
-      </button>
-      <button
-        class="btn btn-primary"
-        [disabled]="isValidPreview(prevPreviews) < 4"
-        (click)="next()"
+      <div
+        class="d-flex justify-content-between align-items-center pt-3 border-top"
       >
-        Siguiente →
-      </button>
-    </div>
-  </ng-container>
+        <button class="btn btn-ing-outline" (click)="back()">
+          <i class="bi bi-arrow-left me-2"></i> Anterior
+        </button>
+        <button
+          class="btn btn-ing-success"
+          [disabled]="isValidPreview(prevPreviews) < 4"
+          (click)="next()"
+        >
+          Siguiente <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </ng-container>
 
-  <!-- *** SOLO PÁGINA 2 (ocupa ancho completo) *** -->
-  <ng-container *ngIf="step === 2">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <label class="form-label fw-bold mb-0"
-        >Sube las imágenes de las reformas realizadas:</label
+    <ng-container *ngIf="step === 2">
+      <div
+        class="d-flex flex-wrap align-items-center justify-content-between mb-4"
       >
-      <small class="text-muted"
-        >Total: {{ postImagesB64.length }}/{{ totalSlots }}</small
-      >
-    </div>
+        <p class="mb-0" style="font-family: var(--font-reading)">
+          Sube las imágenes de las reformas realizadas.
+        </p>
+        <span class="ing-badge bg-dark text-white">
+          Total: {{ postImagesB64.length }}/{{ totalSlots }}
+        </span>
+      </div>
 
-    <div class="row g-4">
-      <div class="col-12" *ngFor="let mod of modsSeleccionadas; let i = index">
-        <div class="card p-3 shadow-sm">
-          <!-- Cabecera mod -->
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-            <h5 class="fw-bold text-dark mb-0 me-auto">
+      <div class="d-flex flex-column gap-4 mb-5">
+        <div
+          class="ing-card-tech p-0"
+          *ngFor="let mod of modsSeleccionadas; let i = index"
+        >
+          <div
+            class="ing-card-header bg-light d-flex flex-wrap align-items-center gap-3"
+          >
+            <h6
+              class="ing-label-tech mb-0 me-auto"
+              style="font-size: 0.9rem; color: #000"
+            >
               {{ tituloMod(mod.nombre) }}
-            </h5>
+            </h6>
 
             <button
-              class="btn btn-outline-danger btn-sm"
+              class="btn btn-outline-danger btn-sm btn-ing-action"
               (click)="openConfirmRemove(mod)"
             >
-              Quitar reforma
+              <i class="bi bi-trash me-1"></i> Eliminar
             </button>
 
             <ng-container *ngIf="subopcionesPosibles(mod).length > 0">
               <div class="dropdown">
                 <button
-                  class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                  class="btn btn-outline-dark btn-sm dropdown-toggle btn-ing-action"
                   type="button"
                   data-bs-toggle="dropdown"
                 >
-                  Especificar subselecciones
+                  Especificar Subselección
                 </button>
-                <ul class="dropdown-menu p-2" style="min-width: 280px">
-                  <li *ngFor="let so of subopcionesPosibles(mod)">
-                    <label class="d-flex align-items-center gap-2 px-2 py-1">
+                <ul class="dropdown-menu rounded-0 shadow p-0">
+                  <li
+                    *ngFor="let so of subopcionesPosibles(mod)"
+                    class="border-bottom"
+                  >
+                    <label
+                      class="d-flex align-items-center gap-2 px-3 py-2 cursor-pointer dropdown-item"
+                    >
                       <input
                         #cb
                         type="checkbox"
-                        class="form-check-input"
+                        class="form-check-input mt-0"
                         [checked]="isSubopcionActiva(mod, so.key)"
                         (change)="toggleSubopcion(mod, so.key, cb.checked)"
+                        style="width: 1.2em; height: 1.2em"
                       />
-                      <span>{{ tituloSub(mod.nombre, so.key) }}</span>
+                      <span
+                        style="
+                          font-family: var(--font-reading);
+                          font-size: 0.9rem;
+                        "
+                      >
+                        {{ tituloSub(mod.nombre, so.key) }}
+                      </span>
                     </label>
                   </li>
                 </ul>
@@ -239,410 +345,366 @@
             </ng-container>
           </div>
 
-          <!-- SOLO slots de subselecciones activas -->
-          <div class="row g-3">
-            <div
-              [ngClass]="shouldFullWidth(mod, soKey) ? 'col-12' : 'col-md-6'"
-              *ngFor="let soKey of subopcionesActivas(mod)"
-            >
-              <div class="card p-3 h-100 text-center">
-                <h6 class="fw-bold mb-3">{{ tituloSub(mod.nombre, soKey) }}</h6>
-
-                <!-- 🔎 EJEMPLOS: grid responsive que ocupa TODO el ancho -->
-                <div class="mb-3">
-                  <small class="text-muted d-block text-start mb-2"
-                    >Ejemplos (orientativos)</small
-                  >
-
-                  <!-- Grid: se rellena a lo ancho y baja a la siguiente fila si no caben -->
+          <div class="p-3">
+            <div class="row g-3">
+              <div
+                [ngClass]="shouldFullWidth(mod, soKey) ? 'col-12' : 'col-md-6'"
+                *ngFor="let soKey of subopcionesActivas(mod)"
+              >
+                <div class="border p-3 bg-white h-100">
                   <div
-                    style="
-                      display: grid;
-                      grid-template-columns: repeat(
-                        auto-fill,
-                        minmax(260px, 1fr)
-                      );
-                      gap: 16px;
-                      width: 100%;
-                    "
+                    class="d-flex justify-content-between align-items-center mb-3"
                   >
-                    <div
-                      class="border rounded p-2 bg-white h-100"
-                      *ngFor="let ej of visibleExamplesFor(mod, soKey)"
+                    <span class="ing-label-tech text-primary mb-0">{{
+                      tituloSub(mod.nombre, soKey)
+                    }}</span>
+                    <button
+                      class="btn btn-link text-danger p-0 text-decoration-none"
+                      style="font-family: var(--font-tech); font-size: 0.7rem"
+                      (click)="openConfirmRemoveSub(mod, soKey)"
                     >
-                      <!-- Marco fijo para uniformidad -->
+                      [ QUITAR ]
+                    </button>
+                  </div>
+
+                  <div class="mb-3 p-2 bg-light border">
+                    <small
+                      class="ing-label-tech text-muted mb-2"
+                      style="font-size: 0.65rem"
+                      >EJEMPLOS ORIENTATIVOS</small
+                    >
+                    <div class="d-flex gap-2 overflow-auto pb-2">
                       <div
-                        class="w-100 d-flex align-items-center justify-content-center rounded border"
-                        style="height: 200px; background: #fff"
+                        class="border bg-white p-1 flex-shrink-0 text-center"
+                        style="width: 140px"
+                        *ngFor="let ej of visibleExamplesFor(mod, soKey)"
                       >
-                        <!-- Imagen adaptada SIN recortes -->
                         <img
                           [src]="ej.src"
-                          style="
-                            max-width: 100%;
-                            max-height: 100%;
-                            width: auto;
-                            height: auto;
-                            object-fit: contain;
-                            display: block;
-                          "
-                          [alt]="'Ejemplo ' + tituloSub(mod.nombre, soKey)"
+                          class="img-fluid object-fit-contain"
+                          style="height: 80px"
+                          [alt]="'Ejemplo'"
                         />
+                        <div
+                          class="text-truncate mt-1 text-muted"
+                          style="font-size: 0.6rem"
+                        >
+                          {{ ej.label }}
+                        </div>
                       </div>
-                      <small
-                        *ngIf="ej.label"
-                        class="d-block text-truncate mt-2 text-muted"
-                        >{{ ej.label }}</small
-                      >
                     </div>
                   </div>
-                </div>
 
-                <!-- Inputs ocultos (siempre disponibles para mantener ambas opciones) -->
+                  <input
+                    #galleryInputsMods
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    class="d-none"
+                    (change)="onSelectedForSlot($event, mod, soKey)"
+                  />
+                  <input
+                    #cameraInputsMods
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    multiple
+                    class="d-none"
+                    (change)="onSelectedForSlot($event, mod, soKey)"
+                  />
+
+                  <div class="ing-dropzone p-3 mb-3">
+                    <ng-container
+                      *ngIf="
+                        !perSlotPreviews[slotKey(mod, soKey)]?.length;
+                        else conImagenes
+                      "
+                    >
+                      <div class="text-center py-4">
+                        <p
+                          class="text-muted mb-1"
+                          style="
+                            font-family: var(--font-tech);
+                            font-size: 0.8rem;
+                          "
+                        >
+                          NO HAY IMÁGENES
+                        </p>
+                        <small class="d-block mb-3 text-muted">
+                          Límite: {{ maxImagesForSlot(mod, soKey) }}
+                        </small>
+                        <div class="d-flex gap-2 justify-content-center">
+                          <button
+                            type="button"
+                            class="btn btn-dark btn-sm btn-ing-action"
+                            (click)="openInputForSlot('gallery', mod, soKey)"
+                          >
+                            Galería
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-dark btn-sm btn-ing-action"
+                            (click)="openInputForSlot('camera', mod, soKey)"
+                          >
+                            Cámara
+                          </button>
+                        </div>
+                      </div>
+                    </ng-container>
+
+                    <ng-template #conImagenes>
+                      <div class="w-100">
+                        <div
+                          class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2"
+                        >
+                          <span class="ing-badge">
+                            {{
+                              perSlotPreviews[slotKey(mod, soKey)]?.length || 0
+                            }}
+                            / {{ maxImagesForSlot(mod, soKey) }}
+                          </span>
+                          <div class="d-flex gap-2">
+                            <button
+                              type="button"
+                              class="btn btn-outline-dark btn-sm py-0 px-2 rounded-0"
+                              (click)="openInputForSlot('gallery', mod, soKey)"
+                              [disabled]="
+                                (perSlotPreviews[slotKey(mod, soKey)]?.length ||
+                                  0) >= maxImagesForSlot(mod, soKey)
+                              "
+                            >
+                              <i class="bi bi-plus-lg"></i> Galería
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-outline-dark btn-sm py-0 px-2 rounded-0"
+                              (click)="openInputForSlot('camera', mod, soKey)"
+                              [disabled]="
+                                (perSlotPreviews[slotKey(mod, soKey)]?.length ||
+                                  0) >= maxImagesForSlot(mod, soKey)
+                              "
+                            >
+                              <i class="bi bi-plus-lg"></i> Cámara
+                            </button>
+                          </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                          <div
+                            class="position-relative border bg-white p-1"
+                            style="width: 100px; height: 100px"
+                            *ngFor="
+                              let prev of perSlotPreviews[slotKey(mod, soKey)];
+                              let j = index
+                            "
+                          >
+                            <img
+                              [src]="prev"
+                              class="w-100 h-100 object-fit-cover"
+                              [alt]="'Foto'"
+                            />
+                            <button
+                              type="button"
+                              class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-0 d-flex align-items-center justify-content-center"
+                              style="width: 20px; height: 20px"
+                              (click)="removeSlotImage(mod, soKey, j)"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="d-flex justify-content-between align-items-center pt-3 border-top"
+      >
+        <button class="btn btn-ing-outline" (click)="back()">
+          <i class="bi bi-arrow-left me-2"></i> Anterior
+        </button>
+        <button class="btn btn-ing-success" (click)="next()">
+          Siguiente <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="step === 3">
+      <div
+        class="alert alert-light border border-dark rounded-0 mb-4 d-flex align-items-center"
+      >
+        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+        <div>
+          <strong class="text-uppercase" style="font-family: var(--font-tech)"
+            >Nota Informativa:</strong
+          >
+          <div class="small">
+            No es obligatorio adjuntar documentación en este paso para
+            continuar.
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-5">
+        <div
+          class="col-md-6 col-lg-3"
+          *ngFor="
+            let doc of [
+              'Ficha Tecnica',
+              'Permiso De Circulacion',
+              'Ticket De Peso',
+              'Documentacion Adicional'
+            ];
+            let i = index
+          "
+        >
+          <div class="ing-card-tech h-100 d-flex flex-column">
+            <div class="ing-card-header text-center">
+              <span class="ing-label-tech mb-0">{{ doc }}</span>
+            </div>
+
+            <div class="p-3 flex-grow-1 d-flex flex-column">
+              <div class="bg-light border p-2 mb-3 text-center flex-grow-0">
+                <ng-container [ngSwitch]="doc">
+                  <div
+                    *ngSwitchCase="'Ficha Tecnica'"
+                    class="d-flex gap-1 justify-content-center"
+                  >
+                    <img
+                      src="../../../assets/fichatecnica1.png"
+                      class="border bg-white"
+                      style="height: 60px; object-fit: contain"
+                    />
+                    <img
+                      src="../../../assets/fichatecnica2.png"
+                      class="border bg-white"
+                      style="height: 60px; object-fit: contain"
+                    />
+                  </div>
+                  <img
+                    *ngSwitchCase="'Permiso De Circulacion'"
+                    src="../../../assets/permisodecirculacionvehiculo.png"
+                    class="border bg-white mx-auto d-block"
+                    style="height: 60px; object-fit: contain"
+                  />
+                  <div
+                    *ngSwitchCase="'TicketDe Peso'"
+                    class="d-flex gap-1 justify-content-center"
+                  >
+                    <img
+                      src="../../../assets/ticketpeso1.png"
+                      class="border bg-white"
+                      style="height: 60px; object-fit: contain"
+                    />
+                    <img
+                      src="../../../assets/ticketpeso2.png"
+                      class="border bg-white"
+                      style="height: 60px; object-fit: contain"
+                    />
+                  </div>
+                </ng-container>
+                <small
+                  class="d-block mt-1 text-muted"
+                  style="font-size: 0.6rem; font-family: var(--font-tech)"
+                  >REFERENCIA</small
+                >
+              </div>
+
+              <div class="d-grid gap-2 mb-2">
+                <button
+                  class="btn btn-outline-dark btn-sm btn-ing-action"
+                  (click)="openInput('gallery', 3, i)"
+                >
+                  📂 Galería
+                </button>
                 <input
-                  #galleryInputsMods
+                  #galleryInputsDocs
                   type="file"
                   accept="image/*"
                   multiple
                   class="d-none"
-                  (change)="onSelectedForSlot($event, mod, soKey)"
+                  (change)="onDocSelected($event, doc, 'gallery')"
                 />
+                <button
+                  class="btn btn-outline-dark btn-sm btn-ing-action"
+                  (click)="openInput('camera', 3, i)"
+                >
+                  📷 Cámara
+                </button>
                 <input
-                  #cameraInputsMods
+                  #cameraInputsDocs
                   type="file"
                   accept="image/*"
                   capture="environment"
                   multiple
                   class="d-none"
-                  (change)="onSelectedForSlot($event, mod, soKey)"
+                  (change)="onDocSelected($event, doc, 'camera')"
                 />
+              </div>
 
-                <!-- Dropzone -->
-                <div
-                  class="border border-2 border-dashed rounded p-3 bg-light d-flex flex-column justify-content-center align-items-center"
-                  style="min-height: 260px"
-                >
-                  <!-- SIN imágenes -->
-                  <ng-container
-                    *ngIf="
-                      !perSlotPreviews[slotKey(mod, soKey)]?.length;
-                      else conImagenes
+              <div
+                *ngIf="docError[doc]"
+                class="alert alert-danger rounded-0 py-1 px-2 mb-2 small text-uppercase font-monospace"
+              >
+                {{ docError[doc] }}
+              </div>
+
+              <div class="ing-dropzone p-2 flex-grow-1">
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                  <div
+                    class="position-relative border bg-white"
+                    style="width: 60px; height: 60px"
+                    *ngFor="
+                      let preview of docsPreviews[doc] || [];
+                      let j = index
                     "
                   >
-                    <div class="text-center">
-                      <p class="text-muted mb-1">Selecciona o haz foto(s)</p>
-                      <small class="text-muted d-block mb-2"
-                        >Máx:
-                        {{ maxImagesForSlot(mod, soKey) }} imagen(es)</small
-                      >
-                      <div class="d-flex gap-2 justify-content-center">
-                        <button
-                          type="button"
-                          class="btn btn-outline-primary btn-sm"
-                          (click)="openInputForSlot('gallery', mod, soKey)"
-                        >
-                          📂 Galería
-                        </button>
-                        <button
-                          type="button"
-                          class="btn btn-outline-success btn-sm"
-                          (click)="openInputForSlot('camera', mod, soKey)"
-                        >
-                          📷 Cámara
-                        </button>
-                      </div>
-                    </div>
-                  </ng-container>
-
-                  <!-- CON imágenes -->
-                  <ng-template #conImagenes>
-                    <div class="w-100">
-                      <div
-                        class="d-flex justify-content-between align-items-center mb-2"
-                      >
-                        <small class="text-muted">
-                          {{
-                            perSlotPreviews[slotKey(mod, soKey)]?.length || 0
-                          }}
-                          / {{ maxImagesForSlot(mod, soKey) }}
-                        </small>
-                        <div class="d-flex gap-2">
-                          <button
-                            type="button"
-                            class="btn btn-outline-primary btn-sm"
-                            (click)="openInputForSlot('gallery', mod, soKey)"
-                            [disabled]="
-                              (perSlotPreviews[slotKey(mod, soKey)]?.length ||
-                                0) >= maxImagesForSlot(mod, soKey)
-                            "
-                            title="Añadir desde la galería"
-                          >
-                            📂 Galería
-                          </button>
-                          <button
-                            type="button"
-                            class="btn btn-outline-success btn-sm"
-                            (click)="openInputForSlot('camera', mod, soKey)"
-                            [disabled]="
-                              (perSlotPreviews[slotKey(mod, soKey)]?.length ||
-                                0) >= maxImagesForSlot(mod, soKey)
-                            "
-                            title="Hacer más fotos"
-                          >
-                            📷 Cámara
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- Previews del usuario: grid que ocupa TODO el ancho -->
-                      <div
-                        style="
-                          display: grid;
-                          grid-template-columns: repeat(
-                            auto-fill,
-                            minmax(220px, 1fr)
-                          );
-                          gap: 12px;
-                          width: 100%;
-                        "
-                      >
-                        <div
-                          class="position-relative border rounded p-2 bg-white h-100"
-                          *ngFor="
-                            let prev of perSlotPreviews[slotKey(mod, soKey)];
-                            let j = index
-                          "
-                        >
-                          <div
-                            class="w-100 d-flex align-items-center justify-content-center rounded border"
-                            style="height: 160px; background: #fff"
-                          >
-                            <img
-                              [src]="prev"
-                              style="
-                                max-width: 100%;
-                                max-height: 100%;
-                                width: auto;
-                                height: auto;
-                                object-fit: contain;
-                                display: block;
-                              "
-                              [alt]="
-                                'Foto ' +
-                                (j + 1) +
-                                ' en ' +
-                                tituloSub(mod.nombre, soKey)
-                              "
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
-                            (click)="removeSlotImage(mod, soKey, j)"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </ng-template>
-                </div>
-
-                <!-- Quitar slot de la lista (con modal) -->
-                <div class="text-center mt-2">
-                  <button
-                    class="btn btn-link text-danger p-0"
-                    (click)="openConfirmRemoveSub(mod, soKey)"
+                    <img [src]="preview" class="w-100 h-100 object-fit-cover" />
+                    <button
+                      type="button"
+                      class="btn btn-danger p-0 position-absolute top-0 end-0 rounded-0 d-flex align-items-center justify-content-center"
+                      style="width: 15px; height: 15px; font-size: 10px"
+                      (click)="removeDocImage(doc, j)"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                  <span
+                    *ngIf="!(docsPreviews[doc] && docsPreviews[doc].length)"
+                    class="text-muted small align-self-center py-2"
+                    style="font-size: 0.7rem"
+                    >Vacío</span
                   >
-                    Quitar esta subselección
-                  </button>
                 </div>
               </div>
             </div>
           </div>
-          <!-- /row -->
         </div>
       </div>
-    </div>
 
-    <div class="d-flex justify-content-between mt-4">
-      <button class="btn btn-outline-secondary" (click)="back()">
-        ← Anterior
-      </button>
-      <button class="btn btn-primary" (click)="next()">Siguiente →</button>
-    </div>
-  </ng-container>
-
-  <!-- STEP 3 (dos ejemplos en Ficha Técnica y Ticket de Peso) -->
-  <ng-container *ngIf="step === 3">
-    <label class="form-label fw-bold">
-      Sube las imágenes de la documentación: <br />
-      <b>No es obligatorio adjuntar ningúna imagen para poder continuar</b>
-    </label>
-
-    <div class="row g-4">
       <div
-        class="col-md-4"
-        *ngFor="
-          let doc of [
-            'FichaTecnica',
-            'PermisoDeCirculacion',
-            'TicketDePeso',
-            'DocumentacionAdicional'
-          ];
-          let i = index
-        "
+        class="d-flex justify-content-between align-items-center pt-3 border-top"
       >
-        <div class="card p-3 shadow-sm text-center h-100">
-          <h6 class="fw-bold text-dark mb-3">{{ doc }}</h6>
-
-          <!-- 🖼️ Ejemplos -->
-          <div class="mb-3">
-            <small class="text-muted d-block mb-2">Ejemplo (orientativo)</small>
-
-            <ng-container [ngSwitch]="doc">
-              <!-- Ficha Técnica: 2 ejemplos -->
-              <div
-                *ngSwitchCase="'FichaTecnica'"
-                class="d-grid gap-2"
-                style="grid-template-columns: repeat(2, 1fr)"
-              >
-                <div class="border rounded p-2 bg-white">
-                  <img
-                    src="../../../assets/fichatecnica1.png"
-                    class="img-fluid d-block mx-auto rounded border"
-                    style="max-height: 180px; object-fit: contain"
-                    alt="Ejemplo Ficha Técnica (anverso)"
-                  />
-                </div>
-                <div class="border rounded p-2 bg-white">
-                  <img
-                    src="../../../assets/fichatecnica2.png"
-                    class="img-fluid d-block mx-auto rounded border"
-                    style="max-height: 180px; object-fit: contain"
-                    alt="Ejemplo Ficha Técnica (reverso)"
-                  />
-                </div>
-              </div>
-
-              <!-- Permiso de circulación: 1 ejemplo -->
-              <img
-                *ngSwitchCase="'PermisoDeCirculacion'"
-                src="../../../assets/permisodecirculacionvehiculo.png"
-                class="img-fluid rounded border d-block mx-auto"
-                style="max-height: 180px; object-fit: contain"
-                alt="Ejemplo Permiso de Circulación"
-              />
-
-              <!-- Ticket de peso: 2 ejemplos (si no hay segundo, se repite el primero) -->
-              <div
-                *ngSwitchCase="'TicketDePeso'"
-                class="d-grid gap-2"
-                style="grid-template-columns: repeat(2, 1fr)"
-              >
-                <div class="border rounded p-2 bg-white">
-                  <img
-                    src="../../../assets/ticketpeso1.png"
-                    class="img-fluid rounded border d-block mx-auto"
-                    style="max-height: 180px; object-fit: contain"
-                    alt="Ejemplo Ticket de Peso (1)"
-                  />
-                </div>
-                <div class="border rounded p-2 bg-white">
-                  <img
-                    src="../../../assets/ticketpeso2.png"
-                    class="img-fluid rounded border d-block mx-auto"
-                    style="max-height: 180px; object-fit: contain"
-                    alt="Ejemplo Ticket de Peso (2)"
-                  />
-                </div>
-              </div>
-            </ng-container>
-          </div>
-
-          <!-- Controles de subida -->
-          <div class="d-flex gap-2 justify-content-center mb-2">
-            <button
-              type="button"
-              class="btn btn-outline-primary btn-sm"
-              (click)="openInput('gallery', 3, i)"
-            >
-              📂 Galería
-            </button>
-            <input
-              #galleryInputsDocs
-              type="file"
-              accept="image/*"
-              multiple
-              class="d-none"
-              (change)="onDocSelected($event, doc, 'gallery')"
-            />
-
-            <button
-              type="button"
-              class="btn btn-outline-success btn-sm"
-              (click)="openInput('camera', 3, i)"
-            >
-              📷 Cámara
-            </button>
-            <input
-              #cameraInputsDocs
-              type="file"
-              accept="image/*"
-              capture="environment"
-              multiple
-              class="d-none"
-              (change)="onDocSelected($event, doc, 'camera')"
-            />
-          </div>
-          <small class="text-muted">Máx. 4</small>
-
-          <!-- Errores -->
-          <div
-            *ngIf="docError[doc]"
-            class="alert alert-danger py-1 px-2 mt-2 fade show"
-          >
-            {{ docError[doc] }}
-          </div>
-
-          <!-- Previews del usuario -->
-          <div class="d-flex flex-wrap gap-2 mt-2 justify-content-center">
-            <div
-              class="position-relative"
-              style="width: 110px"
-              *ngFor="let preview of docsPreviews[doc] || []; let j = index"
-            >
-              <img
-                [src]="preview"
-                class="img-fluid rounded border shadow-sm"
-                style="max-height: 95px; object-fit: cover"
-                [alt]="'Documento ' + doc + ' ' + (j + 1)"
-              />
-              <button
-                type="button"
-                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
-                (click)="removeDocImage(doc, j)"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        </div>
+        <button class="btn btn-ing-outline" (click)="back()">
+          <i class="bi bi-arrow-left me-2"></i> Anterior
+        </button>
+        <button
+          class="btn btn-ing-success d-flex align-items-center gap-2"
+          (click)="onSave()"
+        >
+          Guardar Imágenes <i class="bi bi-check-lg"></i>
+        </button>
       </div>
-    </div>
-
-    <div class="d-flex justify-content-between mt-4">
-      <button class="btn btn-outline-secondary" (click)="back()">
-        ← Anterior
-      </button>
-      <button class="btn btn-success" (click)="onSave()">
-        Guardar imágenes
-      </button>
-    </div>
-  </ng-container>
+    </ng-container>
+  </div>
 </div>
 
-<!-- 🔶 Modal confirmar quitar reforma/subselección -->
 <div
   class="modal fade"
   id="modalQuitarReforma"
@@ -650,13 +712,18 @@
   aria-hidden="true"
 >
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-lg border-0 rounded-3">
+    <div class="modal-content border-0 rounded-0 shadow-lg">
       <div
-        class="modal-header"
+        class="modal-header rounded-0 text-white"
         [ngClass]="modalAction === 'mod' ? 'bg-danger' : 'bg-warning'"
       >
-        <h5 class="modal-title text-white">
-          {{ modalAction === "mod" ? "Quitar reforma" : "Quitar subselección" }}
+        <h5
+          class="modal-title text-uppercase"
+          style="font-family: var(--font-tech)"
+        >
+          {{
+            modalAction === "mod" ? "Eliminar Reforma" : "Eliminar Subselección"
+          }}
         </h5>
         <button
           type="button"
@@ -666,48 +733,47 @@
         ></button>
       </div>
 
-      <div class="modal-body text-center">
+      <div class="modal-body text-center p-4">
         <ng-container *ngIf="modalAction === 'mod'; else subMsg">
-          <p class="mb-2">Vas a quitar esta reforma de la lista:</p>
-          <p class="fw-bold text-secondary">{{ modParaQuitar?.nombre }}</p>
-          <small class="text-muted"
-            >Se eliminarán también las imágenes asociadas.</small
-          >
+          <p class="mb-2">
+            Vas a eliminar la siguiente reforma y sus imágenes:
+          </p>
+          <h5 class="ing-section-title border-bottom-0 mb-0 text-danger">
+            {{ modParaQuitar?.nombre }}
+          </h5>
         </ng-container>
 
         <ng-template #subMsg>
-          <p class="mb-2">Vas a quitar esta subselección:</p>
-          <p class="fw-bold text-secondary mb-1">{{ modParaQuitar?.nombre }}</p>
-          <p class="text-muted">
+          <p class="mb-2">Vas a eliminar la subselección:</p>
+          <h5 class="ing-section-title border-bottom-0 mb-0 text-warning">
+            {{ modParaQuitar?.nombre }}
+          </h5>
+          <p class="fw-bold mt-2">
             {{
               subParaQuitarKey
                 ? tituloSub(modParaQuitar?.nombre, subParaQuitarKey)
                 : ""
             }}
           </p>
-          <small class="text-muted"
-            >Se eliminará la(s) imagen(es) asociada(s) a esta
-            subselección.</small
-          >
         </ng-template>
       </div>
 
-      <div class="modal-footer justify-content-center">
+      <div class="modal-footer justify-content-center bg-light rounded-0">
         <button
           type="button"
-          class="btn btn-secondary px-4"
+          class="btn btn-outline-secondary rounded-0 px-4"
           data-bs-dismiss="modal"
         >
-          Cancelar
+          CANCELAR
         </button>
         <button
           type="button"
-          class="btn px-4"
+          class="btn rounded-0 px-4 fw-bold text-uppercase"
           [ngClass]="modalAction === 'mod' ? 'btn-danger' : 'btn-warning'"
           (click)="confirmRemove()"
           data-bs-dismiss="modal"
         >
-          {{ modalAction === "mod" ? "Quitar reforma" : "Quitar subselección" }}
+          CONFIRMAR
         </button>
       </div>
     </div>

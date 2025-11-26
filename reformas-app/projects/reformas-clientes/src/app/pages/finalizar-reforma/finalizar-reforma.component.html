@@ -1,70 +1,200 @@
-<div class="container mt-5">
-  <div class="card shadow p-4 text-center">
-    <h3 class="mb-3 text-success">✅ Reforma completada</h3>
-    <p class="mb-4">
-      Ha finalizado todos los pasos del formulario.<br />
-      Puede regresar para revisar los datos o enviarnos el proyecto para su
-      revisión.
-    </p>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;800&family=Roboto:wght@300;400;500&display=swap");
 
-    <!-- Barra de progreso -->
-    <div *ngIf="guardando" class="progress mb-3" style="height: 20px">
+  .ing-completion-scope {
+    --font-tech: "JetBrains Mono", monospace;
+    --font-reading: "Roboto", sans-serif;
+    --color-accent: #0066ff;
+    --color-success: #198754;
+    --color-danger: #dc3545;
+    --color-border: #dee2e6;
+  }
+
+  .ing-completion-scope * {
+    border-radius: 0 !important;
+  }
+
+  .ing-status-title {
+    font-family: var(--font-tech);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+  }
+
+  .ing-progress {
+    background-color: #e9ecef;
+    height: 25px;
+    border: 1px solid #ced4da;
+  }
+
+  .ing-progress-bar {
+    background-color: var(--color-accent);
+    font-family: var(--font-tech);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 23px;
+  }
+
+  .btn-ing {
+    font-family: var(--font-tech);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.8rem 2rem;
+    letter-spacing: 0.5px;
+    border-width: 2px;
+  }
+
+  .btn-ing-primary {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+  }
+  .btn-ing-primary:hover {
+    background-color: #0052cc;
+    border-color: #0052cc;
+  }
+
+  .btn-ing-outline {
+    border-color: #adb5bd;
+    color: #6c757d;
+    background: transparent;
+  }
+  .btn-ing-outline:hover {
+    border-color: #000;
+    color: #000;
+    background-color: #f8f9fa;
+  }
+
+  /* Modales personalizados */
+  .ing-modal-content {
+    border: 1px solid #000;
+    border-radius: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+  .ing-modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1.5rem;
+  }
+  .ing-modal-body {
+    padding: 2rem;
+    font-family: var(--font-reading);
+    font-size: 1.1rem;
+    text-align: center;
+  }
+  .ing-modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #dee2e6;
+    background-color: #fff;
+  }
+</style>
+
+<div class="ing-completion-scope container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
       <div
-        class="progress-bar progress-bar-striped progress-bar-animated"
-        role="progressbar"
-        [style.width.%]="progreso"
+        class="card border border-light-subtle shadow-sm bg-white p-5 text-center"
       >
-        {{ progreso }}%
-      </div>
-    </div>
+        <div class="mb-4">
+          <i
+            class="bi bi-check-circle-fill text-success"
+            style="font-size: 4rem"
+          ></i>
+        </div>
 
-    <div class="d-flex justify-content-center gap-3">
-      <button class="btn btn-outline-secondary" (click)="volver()">
-        ← Volver
-      </button>
-      <button
-        class="btn btn-primary"
-        (click)="guardarDB()"
-        [disabled]="guardando"
-      >
-        Finalizar y Guardar
-      </button>
+        <h2 class="ing-status-title mb-3">Reforma Completada</h2>
+
+        <p
+          class="text-muted mb-5 lead"
+          style="font-family: var(--font-reading)"
+        >
+          Ha finalizado la introducción de datos técnicos.<br />
+          El sistema está listo para compilar el proyecto y enviarlo a revisión.
+        </p>
+
+        <!-- Barra de progreso -->
+        <div *ngIf="guardando" class="mb-4">
+          <div class="d-flex justify-content-between mb-1">
+            <span
+              class="small fw-bold text-uppercase"
+              style="font-family: var(--font-tech)"
+              >Estado del proceso</span
+            >
+            <span class="small fw-bold" style="font-family: var(--font-tech)"
+              >{{ progreso }}%</span
+            >
+          </div>
+          <div class="progress ing-progress">
+            <div
+              class="progress-bar progress-bar-striped progress-bar-animated ing-progress-bar"
+              role="progressbar"
+              [style.width.%]="progreso"
+            >
+              PROCESANDO DATOS...
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4"
+        >
+          <button
+            type="button"
+            class="btn btn-ing btn-ing-outline"
+            (click)="volver()"
+            [disabled]="guardando"
+          >
+            <i class="bi bi-arrow-left me-2"></i> Revisar Datos
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-ing btn-ing-primary shadow"
+            (click)="guardarDB()"
+            [disabled]="guardando"
+          >
+            Finalizar y Guardar <i class="bi bi-save2-fill ms-2"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Modal ÉXITO -->
 <div
-  class="modal fade"
+  class="ing-completion-scope modal fade"
   id="modalExito"
   tabindex="-1"
   aria-labelledby="modalExitoLabel"
   aria-hidden="true"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
 >
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-success" id="modalExitoLabel">
-          ✅ Proyecto guardado
+    <div class="modal-content ing-modal-content">
+      <div class="modal-header ing-modal-header">
+        <h5
+          class="modal-title ing-status-title text-success w-100 text-center"
+          id="modalExitoLabel"
+        >
+          <i class="bi bi-cloud-check-fill me-2"></i> Proyecto Guardado
         </h5>
+      </div>
+      <div class="modal-body ing-modal-body">
+        <p class="mb-0">
+          El expediente se ha generado y enviado correctamente a nuestros
+          ingenieros.
+        </p>
+      </div>
+      <div class="modal-footer ing-modal-footer justify-content-center">
         <button
           type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Cerrar"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <p>El proyecto se ha enviado correctamente.</p>
-      </div>
-      <div class="modal-footer border-0">
-        <button
-          type="button"
-          class="btn btn-success w-100"
+          class="btn btn-ing btn-success w-100"
           data-bs-dismiss="modal"
           (click)="cerrarModal()"
         >
-          Aceptar
+          ACEPTAR
         </button>
       </div>
     </div>
@@ -73,17 +203,20 @@
 
 <!-- Modal ERROR -->
 <div
-  class="modal fade"
+  class="ing-completion-scope modal fade"
   id="modalError"
   tabindex="-1"
   aria-labelledby="modalErrorLabel"
   aria-hidden="true"
 >
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-danger" id="modalErrorLabel">
-          ❌ Error al guardar
+    <div class="modal-content ing-modal-content border-danger">
+      <div class="modal-header ing-modal-header bg-danger-subtle border-danger">
+        <h5
+          class="modal-title ing-status-title text-danger w-100 text-center"
+          id="modalErrorLabel"
+        >
+          <i class="bi bi-exclamation-octagon-fill me-2"></i> Error de Sistema
         </h5>
         <button
           type="button"
@@ -92,17 +225,24 @@
           aria-label="Cerrar"
         ></button>
       </div>
-      <div class="modal-body">
-        <p>Ha ocurrido un error al guardar el proyecto. Inténtelo de nuevo.</p>
+      <div class="modal-body ing-modal-body">
+        <p class="mb-0">
+          Ha ocurrido un error crítico al intentar guardar el proyecto.
+        </p>
+        <small
+          class="d-block mt-3 text-muted"
+          style="font-family: var(--font-tech)"
+          >CODE: SAVE_ERR_DB_TIMEOUT</small
+        >
       </div>
-      <div class="modal-footer border-0">
+      <div class="modal-footer ing-modal-footer justify-content-center">
         <button
           type="button"
-          class="btn btn-outline-danger w-100"
+          class="btn btn-ing btn-outline-danger w-100"
           data-bs-dismiss="modal"
           (click)="cerrarModal()"
         >
-          Cerrar
+          CERRAR E INTENTAR DE NUEVO
         </button>
       </div>
     </div>
