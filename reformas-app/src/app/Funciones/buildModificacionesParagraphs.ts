@@ -3564,17 +3564,14 @@ function buildLabelsFromMods(data: any): string[] {
   return labels;
 }
 
-export function generarTablaLeyenda(data: any): Table {
-  // 1) Reconstruir la lista igual que en la UI
-  const labels = buildLabelsFromMods(data); // ← aquí está la clave
+export function generarTablaLeyenda(data: any): (Table | Paragraph)[] {
+  const labels = buildLabelsFromMods(data);
 
-  // 2) Crear pares { numero, nombre } ya numerados
   const seleccionadas = labels.map((nombre: string, i: number) => ({
     numero: i + 1,
-    nombre, // en minúsculas/mixto aquí; lo convertimos a MAYÚSCULAS al pintar
+    nombre,
   }));
 
-  // 3) Dividir en dos columnas equilibradas
   const mitad = Math.ceil(seleccionadas.length / 2);
   const col1 = seleccionadas.slice(0, mitad);
   const col2 = seleccionadas.slice(mitad);
@@ -3583,7 +3580,6 @@ export function generarTablaLeyenda(data: any): Table {
     col2.push({ numero: 0, nombre: '' });
   }
 
-  // 4) Construir filas (con cabecera “LEYENDA”)
   const filas = [
     new TableRow({
       cantSplit: true,
@@ -3646,11 +3642,23 @@ export function generarTablaLeyenda(data: any): Table {
     ),
   ];
 
-  return new Table({
+  const tabla = new Table({
     alignment: AlignmentType.CENTER,
     width: { size: 85, type: WidthType.PERCENTAGE },
     rows: filas,
   });
+
+  return [
+    new Paragraph({
+      children: [],
+      spacing: { after: 25 },
+    }),
+    tabla,
+    new Paragraph({
+      children: [],
+      spacing: { before: 25 },
+    }),
+  ];
 }
 
 function renderWordArtBrowser(text: string): Promise<Uint8Array> {

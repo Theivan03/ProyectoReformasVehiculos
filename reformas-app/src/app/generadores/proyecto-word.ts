@@ -171,7 +171,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const responseBg = await fetch('assets/logo.png');
   const backgroundBuffer = await responseBg.arrayBuffer();
 
-  const transparentImageBuffer = await applyTransparency(imageBuffer2, 0.8);
+  const transparentImageBuffer = await applyTransparency(imageBuffer2, 0.7);
 
   const logoImage = new ImageRun({
     data: imageBuffer,

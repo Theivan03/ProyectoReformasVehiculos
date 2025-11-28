@@ -340,8 +340,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
     }
     this.persist();
-    // this.navigate('formulario');
-    this.navigate('imagenes');
+    this.navigate('formulario');
   }
 
   get datosParaResumen(): any {

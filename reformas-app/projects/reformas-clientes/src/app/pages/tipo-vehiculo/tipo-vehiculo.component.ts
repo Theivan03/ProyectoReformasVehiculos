@@ -57,6 +57,14 @@ export class TipoVehiculoComponent implements OnInit {
     { key: 'paragolpesDelantero', label: 'Paragolpes delantero' },
     { key: 'paragolpesTrasero', label: 'Paragolpes trasero' },
     { key: 'aleron', label: 'Alerón' },
+    { key: 'lip', label: 'Lip delantero' },
+    { key: 'canard', label: 'Canards' },
+    { key: 'capo', label: 'Capó' },
+    { key: 'difusor', label: 'Difusor' },
+    { key: 'asientos', label: 'Asientos' },
+    { key: 'barrasAntivuelco', label: 'Barras antivuelco' },
+    { key: 'techoSolar', label: 'Techo solar' },
+    { key: 'taloneras', label: 'Taloneras' },
     { key: 'aletines', label: 'Aletines' },
     { key: 'sobrealetines', label: 'Sobrealetines' },
     { key: 'snorkel', label: 'Snorkel' },
@@ -72,6 +80,8 @@ export class TipoVehiculoComponent implements OnInit {
 
   opcionesDescripcionLuces = [
     { key: 'faroDelantero', label: 'Faro delantero' },
+    { key: 'largoAlcance', label: 'Largo alcance' },
+    { key: 'antiniebla', label: 'Antiniebla' },
     {
       key: 'PilotoTrasero',
       label: 'Piloto trasero',
@@ -123,16 +133,23 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleUnidadMotriz = [
-    { key: 'cambioDeMotor', label: 'Tambor por disco' },
+    { key: 'cambioDeMotor', label: 'Motor' },
     {
       key: 'CambioCajaCambios',
-      label: 'Discos perforados/rayados',
+      label: 'Caja de cambios',
     },
     {
       key: 'cambioEscape',
-      label: 'Latiguillos',
+      label: 'Sistema de escape',
     },
-    { key: 'ampliacionNDepositosCombustible', label: 'Bomba' },
+    {
+      key: 'colaEscape',
+      label: 'Ssolamente cola de escape',
+    },
+    {
+      key: 'ampliacionNDepositosCombustible',
+      label: 'Ampliación número de depósitos de combustible',
+    },
   ];
 
   detalleRuedasMotos = [
@@ -141,7 +158,7 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detallesSuspensionesMotos = [
-    { key: 'horquillaDelanteraMoto', label: 'Muelle delantero' },
+    { key: 'horquillaDelanteraMoto', label: 'Horquilla delanteracarro' },
     { key: 'muelleDelanteroMoto', label: 'Muelle delantero' },
     { key: 'muelleTraseroMoto', label: 'Muelle trasero' },
     { key: 'amortiguadorDelanteroMoto', label: 'Amortiguador delantero' },
@@ -203,16 +220,19 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleUnidadMotrizMoto = [
-    { key: 'cambioDeMotorMoto', label: 'Tambor por disco' },
+    { key: 'cambioDeMotorMoto', label: 'Motor' },
     {
       key: 'CambioCajaCambiosMoto',
-      label: 'Discos perforados/rayados',
+      label: 'Caja de cambios',
     },
     {
       key: 'cambioEscapeMoto',
-      label: 'Latiguillos',
+      label: 'Sistema de escape',
     },
-    { key: 'ampliacionNDepositosCombustibleMoto', label: 'Bomba' },
+    {
+      key: 'ampliacionNDepositosCombustibleMoto',
+      label: 'Número de depósitos de combustible',
+    },
   ];
 
   detalleRuedasCamper = [
@@ -222,17 +242,14 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detallesSuspensionesCamper = [
-    { key: 'muelleDelanteroCamper', label: 'Muelle delantero' },
-    { key: 'muelleTraseroCamper', label: 'Muelle trasero' },
-    { key: 'ballestasDelanterasCamper', label: 'Ballesta delantera' },
-    { key: 'ballestasTraserasCamper', label: 'Ballesta trasera' },
-    { key: 'amortiguadorDelanteroCamper', label: 'Amortiguador delantero' },
-    { key: 'amortiguadorTraseroCamper', label: 'Amortiguador trasero' },
-    {
-      key: 'suplementoSuspensionDelanteroCamper',
-      label: 'Amortiguador delantero',
-    },
-    { key: 'suplementoSuspensionTraseroCamper', label: 'Amortiguador trasero' },
+    { key: 'muelleDelantero', label: 'Muelle delantero' },
+    { key: 'muelleTrasero', label: 'Muelle trasero' },
+    { key: 'ballestaDelantera', label: 'Ballesta delantera' },
+    { key: 'ballestaTrasera', label: 'Ballesta trasera' },
+    { key: 'amortiguadorDelantero', label: 'Amortiguador delantero' },
+    { key: 'amortiguadorTrasero', label: 'Amortiguador trasero' },
+    { key: 'suplementoSusDelantero', label: 'Suplemento suspensión delantero' },
+    { key: 'suplementoSusTrasero', label: 'Suplemento suspensión trasero' },
   ];
 
   opcionesDescripcionMobiliarioInterior = [
@@ -303,66 +320,60 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleCarroceriaCamper = [
-    { key: 'paragolpesDelanteroCamper', label: 'Paragolpes delantero' },
-    { key: 'paragolpesTraseroCamper', label: 'Paragolpes trasero' },
-    { key: 'aleronCamper', label: 'Alerón' },
-    { key: 'aletinesYSobrealetinesCamper', label: 'Aletines y sobrealetines' },
-    { key: 'snorkelCamper', label: 'Snorkel' },
-    { key: 'peldañosCamper', label: 'Peldaños' },
-    { key: 'talonerasEstribosCamper', label: 'Taloneras / Estribos' },
-    { key: 'cabrestanteCamper', label: 'Cabrestante' },
-    { key: 'defensaDelanteraCamper', label: 'Defensa delantera' },
-    {
-      key: 'soporteRuedaRepuestoCamper',
-      label: 'Soporte de rueda de repuesto',
-    },
+    { key: 'paragolpesDelantero', label: 'Paragolpes delantero' },
+    { key: 'paragolpesTrasero', label: 'Paragolpes trasero' },
+    { key: 'aleron', label: 'Alerón' },
+    { key: 'lip', label: 'Lip delantero' },
+    { key: 'canard', label: 'Canards' },
+    { key: 'capo', label: 'Capó' },
+    { key: 'difusor', label: 'Difusor' },
+    { key: 'asientos', label: 'Asientos' },
+    { key: 'techoSolar', label: 'Techo solar' },
+    { key: 'taloneras', label: 'Taloneras' },
+    { key: 'aletines', label: 'Aletines' },
+    { key: 'sobrealetines', label: 'Sobrealetines' },
+    { key: 'snorkel', label: 'Snorkel' },
+    { key: 'peldaños', label: 'Peldaños' },
+    { key: 'talonerasEstribos', label: 'Taloneras / Estribos' },
+    { key: 'matriculaDelanteraPequeña', label: 'Matrícula delantera pequeña' },
+    { key: 'cabrestante', label: 'Cabrestante' },
+    { key: 'barraAntiempotramiento', label: 'Barra Antiempotramiento' },
+    { key: 'defensaDelantera', label: 'Defensa delantera' },
+    { key: 'soporteRuedaRepuesto', label: 'Soporte de rueda de repuesto' },
+    { key: 'bodyLift', label: 'Body lift' },
   ];
 
   ngOnInit(): void {
     if (this.datosPrevios) {
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo ?? '';
 
-      const prevMods = this.datosPrevios.modificaciones ?? [];
-      this.modificaciones = prevMods.map((mod: Modificacion) => {
-        if (mod.nombre === 'LUCES' && !mod.descripcionLuces) {
-          mod.descripcionLuces = {
-            luzGrupoOptico: false,
-            intermitenteDelantero: false,
-            intermitenteTrasero: false,
-            catadioptrico: false,
-            luzMatricula: false,
-          };
-        }
-        return mod;
-      });
-    }
-
-    // Asegurar que siempre hay un array válido en modificaciones
-    this.modificaciones = (this.modificaciones || []).map((mod: any) => {
-      if (mod.detalle) return mod;
-
-      if (mod.nombre === 'ALETINES Y SOBREALETINES') {
-        return { ...mod, detalle: { aletines: false, sobrealetines: false } };
+      // Restaurar modificaciones previas asegurando la estructura
+      if (this.datosPrevios.modificaciones) {
+        this.modificaciones = this.datosPrevios.modificaciones.map(
+          (mod: any) => ({
+            ...mod,
+            detalle: mod.detalle || {}, // Asegura que detalle nunca sea null/undefined
+            // Inicializar objetos específicos si no existen
+            descripcionLuces:
+              mod.nombre === 'Luces' ? mod.descripcionLuces || {} : undefined,
+            focosTrabajo:
+              mod.nombre === 'Luces' ? mod.focosTrabajo || {} : undefined,
+            mobiliarioInterior: mod.nombre.includes('Interior')
+              ? mod.mobiliarioInterior || {}
+              : undefined,
+            fontaneria: mod.nombre.includes('Interior')
+              ? mod.fontaneria || {}
+              : undefined,
+          })
+        );
       }
-
-      return {
-        ...mod,
-        detalle: {
-          interDelantero: false,
-          interTrasero: false,
-          interLateral: false,
-          sustitucionEjeDelantero: false,
-          sustitucionEjeTrasero: false,
-        },
-      };
-    });
+    }
 
     // Si ya venía un tipo de vehículo guardado, saltamos la preselección
     if (this.datosPrevios?.tipoVehiculo) {
       this.mostrarPreseleccion = false;
     }
 
-    // Primer autosave
     this.emitAutosave();
   }
 

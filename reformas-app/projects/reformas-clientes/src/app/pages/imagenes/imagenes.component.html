@@ -139,68 +139,61 @@
             let i = index
           "
         >
-          <div class="ing-card-tech h-100 d-flex flex-column">
-            <div
-              class="ing-card-header d-flex justify-content-between align-items-center"
-            >
-              <span class="ing-label-tech mb-0">{{ label }}</span>
-              <span class="ing-badge">VISTA {{ i + 1 }}</span>
-            </div>
+          <div class="card h-100 shadow-sm border bg-white">
+            <div class="card-body d-flex flex-column p-3">
+              <div class="mb-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span
+                    class="badge bg-dark rounded-0"
+                    style="font-family: var(--font-tech)"
+                  >
+                    VISTA {{ i + 1 }}
+                  </span>
+                  <h6
+                    class="fw-bold text-primary mb-0 text-uppercase"
+                    style="font-size: 0.9rem"
+                  >
+                    {{ label }}
+                  </h6>
+                </div>
 
-            <div class="p-3 flex-grow-1">
-              <div class="text-center mb-3 p-2 bg-light border">
-                <ng-container [ngSwitch]="label">
-                  <img
-                    *ngSwitchCase="'Frontal'"
-                    src="../../../assets/delanteravehiculo.png"
-                    class="img-fluid object-fit-contain"
-                    style="max-height: 150px"
-                    alt="Ref Frontal"
-                  />
-                  <img
-                    *ngSwitchCase="'Trasera'"
-                    src="../../../assets/traseravehiculo.png"
-                    class="img-fluid object-fit-contain"
-                    style="max-height: 150px"
-                    alt="Ref Trasera"
-                  />
-                  <img
-                    *ngSwitchCase="'Lateral izquierdo'"
-                    src="../../../assets/izquierdavehiculo.jpg"
-                    class="img-fluid object-fit-contain"
-                    style="max-height: 150px"
-                    alt="Ref Izquierda"
-                  />
-                  <img
-                    *ngSwitchCase="'Lateral derecho'"
-                    src="../../../assets/derechavehiculo.jpg"
-                    class="img-fluid object-fit-contain"
-                    style="max-height: 150px"
-                    alt="Ref Derecha"
-                  />
-                  <img
-                    *ngSwitchDefault
-                    src="assets/ejemplos/frontal.jpg"
-                    class="img-fluid object-fit-contain"
-                    style="max-height: 150px"
-                    alt="Ref Default"
-                  />
-                </ng-container>
-                <small
-                  class="d-block mt-1 text-muted"
-                  style="font-family: var(--font-tech); font-size: 0.65rem"
-                  >REFERENCIA VISUAL</small
-                >
+                <div class="bg-light border text-center p-2">
+                  <ng-container [ngSwitch]="label">
+                    <img
+                      *ngSwitchCase="'Frontal'"
+                      src="../../../assets/delanteravehiculo.png"
+                      class="img-fluid object-fit-contain"
+                      style="height: 250px; width: 100%"
+                    />
+                    <img
+                      *ngSwitchCase="'Trasera'"
+                      src="../../../assets/traseravehiculo.png"
+                      class="img-fluid object-fit-contain"
+                      style="height: 250px; width: 100%"
+                    />
+                    <img
+                      *ngSwitchCase="'Lateral izquierdo'"
+                      src="../../../assets/izquierdavehiculo.jpg"
+                      class="img-fluid object-fit-contain"
+                      style="height: 250px; width: 100%"
+                    />
+                    <img
+                      *ngSwitchCase="'Lateral derecho'"
+                      src="../../../assets/derechavehiculo.jpg"
+                      class="img-fluid object-fit-contain"
+                      style="height: 250px; width: 100%"
+                    />
+                    <img
+                      *ngSwitchDefault
+                      src="assets/ejemplos/frontal.jpg"
+                      class="img-fluid object-fit-contain"
+                      style="height: 250px; width: 100%"
+                    />
+                  </ng-container>
+                </div>
               </div>
 
-              <div class="d-grid gap-2 d-flex justify-content-center mb-3">
-                <button
-                  type="button"
-                  class="btn btn-outline-dark btn-sm btn-ing-action"
-                  (click)="openInput('gallery', 1, i)"
-                >
-                  <i class="bi bi-folder2-open me-1"></i> Galería
-                </button>
+              <div class="flex-grow-1 border-top pt-3">
                 <input
                   #galleryInputs
                   type="file"
@@ -208,14 +201,6 @@
                   class="d-none"
                   (change)="onPrevSelected($event, i)"
                 />
-
-                <button
-                  type="button"
-                  class="btn btn-outline-dark btn-sm btn-ing-action"
-                  (click)="openInput('camera', 1, i)"
-                >
-                  <i class="bi bi-camera me-1"></i> Cámara
-                </button>
                 <input
                   #cameraInputs
                   type="file"
@@ -224,32 +209,59 @@
                   class="d-none"
                   (change)="onPrevSelected($event, i)"
                 />
-              </div>
 
-              <ng-container *ngIf="prevPreviews[i]; else dropPrevio">
-                <div class="border p-1 bg-white">
-                  <img
-                    [src]="prevPreviews[i]"
-                    class="img-fluid d-block mx-auto"
-                    style="max-height: 200px; object-fit: contain"
-                    [alt]="'preview ' + label"
-                  />
-                </div>
-              </ng-container>
-
-              <ng-template #dropPrevio>
-                <div
-                  class="ing-dropzone d-flex align-items-center justify-content-center p-4 text-center"
-                  style="min-height: 120px"
-                >
-                  <span
-                    class="text-muted"
-                    style="font-family: var(--font-tech); font-size: 0.75rem"
+                <ng-container *ngIf="prevPreviews[i]; else botonesGrandes">
+                  <div
+                    class="position-relative bg-light border p-1"
+                    style="min-height: 150px"
                   >
-                    [ SIN IMAGEN ]
-                  </span>
-                </div>
-              </ng-template>
+                    <img
+                      [src]="prevPreviews[i]"
+                      class="w-100 object-fit-contain"
+                      style="height: 180px; display: block"
+                    />
+
+                    <button
+                      type="button"
+                      class="btn btn-danger position-absolute top-0 end-0 rounded-0 d-flex align-items-center justify-content-center shadow"
+                      style="width: 32px; height: 32px; margin: 5px"
+                      (click)="openInput('camera', 1, i)"
+                      title="Cambiar imagen"
+                    >
+                      <i class="bi bi-x-lg">X</i>
+                    </button>
+
+                    <div
+                      class="text-center bg-success text-white py-1 mt-1"
+                      style="font-size: 0.7rem; font-family: var(--font-tech)"
+                    >
+                      VISTA REGISTRADA
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #botonesGrandes>
+                  <div
+                    class="d-flex w-100 gap-2 h-100 align-items-end"
+                    style="min-height: 100px"
+                  >
+                    <button
+                      class="btn btn-outline-dark flex-grow-1 py-3"
+                      (click)="openInput('gallery', 1, i)"
+                    >
+                      <i class="bi bi-folder2-open fs-4 d-block mb-1"></i>
+                      <span class="small fw-bold">GALERÍA</span>
+                    </button>
+                    <button
+                      class="btn btn-outline-dark flex-grow-1 py-3"
+                      (click)="openInput('camera', 1, i)"
+                    >
+                      <i class="bi bi-camera fs-4 d-block mb-1"></i>
+                      <span class="small fw-bold">CÁMARA</span>
+                    </button>
+                  </div>
+                </ng-template>
+              </div>
             </div>
           </div>
         </div>
@@ -261,11 +273,7 @@
         <button class="btn btn-ing-outline" (click)="back()">
           <i class="bi bi-arrow-left me-2"></i> Anterior
         </button>
-        <button
-          class="btn btn-ing-success"
-          [disabled]="isValidPreview(prevPreviews) < 4"
-          (click)="next()"
-        >
+        <button class="btn btn-ing-success" (click)="next()">
           Siguiente <i class="bi bi-arrow-right ms-2"></i>
         </button>
       </div>
@@ -346,178 +354,146 @@
           </div>
 
           <div class="p-3">
-            <div class="row g-3">
-              <div
-                [ngClass]="shouldFullWidth(mod, soKey) ? 'col-12' : 'col-md-6'"
-                *ngFor="let soKey of subopcionesActivas(mod)"
-              >
-                <div class="border p-3 bg-white h-100">
+            <div class="d-flex flex-column gap-5">
+              <ng-container *ngFor="let soKey of subopcionesActivas(mod)">
+                <div>
                   <div
-                    class="d-flex justify-content-between align-items-center mb-3"
+                    class="d-flex justify-content-between align-items-end mb-3 border-bottom border-2 pb-2"
                   >
-                    <span class="ing-label-tech text-primary mb-0">{{
-                      tituloSub(mod.nombre, soKey)
-                    }}</span>
+                    <h5 class="ing-label-tech text-dark mb-0 fs-6">
+                      {{ tituloSub(mod.nombre, soKey) }}
+                    </h5>
                     <button
-                      class="btn btn-link text-danger p-0 text-decoration-none"
-                      style="font-family: var(--font-tech); font-size: 0.7rem"
+                      class="btn btn-link text-danger p-0 text-decoration-none fw-bold"
+                      style="font-family: var(--font-tech); font-size: 0.75rem"
                       (click)="openConfirmRemoveSub(mod, soKey)"
                     >
-                      [ QUITAR ]
+                      [ ELIMINAR GRUPO ]
                     </button>
                   </div>
 
-                  <div class="mb-3 p-2 bg-light border">
-                    <small
-                      class="ing-label-tech text-muted mb-2"
-                      style="font-size: 0.65rem"
-                      >EJEMPLOS ORIENTATIVOS</small
+                  <div class="row row-cols-1 row-cols-md-2 g-4">
+                    <div
+                      class="col"
+                      *ngFor="
+                        let ex of visibleExamplesFor(mod, soKey);
+                        let i = index
+                      "
                     >
-                    <div class="d-flex gap-2 overflow-auto pb-2">
-                      <div
-                        class="border bg-white p-1 flex-shrink-0 text-center"
-                        style="width: 140px"
-                        *ngFor="let ej of visibleExamplesFor(mod, soKey)"
-                      >
-                        <img
-                          [src]="ej.src"
-                          class="img-fluid object-fit-contain"
-                          style="height: 80px"
-                          [alt]="'Ejemplo'"
-                        />
-                        <div
-                          class="text-truncate mt-1 text-muted"
-                          style="font-size: 0.6rem"
-                        >
-                          {{ ej.label }}
+                      <div class="card h-100 shadow-sm border bg-white">
+                        <div class="card-body d-flex flex-column p-3">
+                          <div class="mb-3">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                              <span
+                                class="badge bg-dark rounded-0"
+                                style="font-family: var(--font-tech)"
+                                >{{ i + 1 }}</span
+                              >
+                              <h6
+                                class="fw-bold text-primary mb-0 text-uppercase"
+                                style="font-size: 0.9rem; line-height: 1.2"
+                              >
+                                {{ ex.label || "Detalle Requerido " + (i + 1) }}
+                              </h6>
+                            </div>
+
+                            <div class="bg-light border text-center p-2">
+                              <img
+                                [src]="ex.src"
+                                class="img-fluid object-fit-contain"
+                                style="height: 250px; width: 100%"
+                                [alt]="ex.label"
+                              />
+                            </div>
+                          </div>
+
+                          <div class="flex-grow-1 border-top pt-3">
+                            <input
+                              #singleGallery
+                              type="file"
+                              accept="image/*"
+                              class="d-none"
+                              (change)="
+                                onSelectedForIndex($event, mod, soKey, i)
+                              "
+                            />
+                            <input
+                              #singleCamera
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              class="d-none"
+                              (change)="
+                                onSelectedForIndex($event, mod, soKey, i)
+                              "
+                            />
+
+                            <ng-container
+                              *ngIf="
+                                getPreviewAt(mod, soKey, i) as userImg;
+                                else botonesGrandes
+                              "
+                            >
+                              <div
+                                class="position-relative bg-light border p-1"
+                                style="min-height: 150px"
+                              >
+                                <img
+                                  [src]="userImg"
+                                  class="w-100 object-fit-contain"
+                                  style="height: 180px; display: block"
+                                />
+
+                                <button
+                                  type="button"
+                                  class="btn btn-danger position-absolute top-0 end-0 rounded-0 d-flex align-items-center justify-content-center shadow"
+                                  style="width: 32px; height: 32px; margin: 5px"
+                                  (click)="removeImageAtIndex(mod, soKey, i)"
+                                >
+                                  <i class="bi bi-x-lg">X</i>
+                                </button>
+
+                                <div
+                                  class="text-center bg-success text-white py-1 mt-1"
+                                  style="
+                                    font-size: 0.7rem;
+                                    font-family: var(--font-tech);
+                                  "
+                                >
+                                  IMAGEN ADJUNTADA CORRECTAMENTE
+                                </div>
+                              </div>
+                            </ng-container>
+
+                            <ng-template #botonesGrandes>
+                              <div
+                                class="d-flex w-100 gap-2 h-100 align-items-end"
+                              >
+                                <button
+                                  class="btn btn-outline-dark flex-grow-1 py-3"
+                                  (click)="singleGallery.click()"
+                                >
+                                  <i
+                                    class="bi bi-folder2-open fs-4 d-block mb-1"
+                                  ></i>
+                                  <span class="small fw-bold">GALERÍA</span>
+                                </button>
+                                <button
+                                  class="btn btn-outline-dark flex-grow-1 py-3"
+                                  (click)="singleCamera.click()"
+                                >
+                                  <i class="bi bi-camera fs-4 d-block mb-1"></i>
+                                  <span class="small fw-bold">CÁMARA</span>
+                                </button>
+                              </div>
+                            </ng-template>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-
-                  <input
-                    #galleryInputsMods
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    class="d-none"
-                    (change)="onSelectedForSlot($event, mod, soKey)"
-                  />
-                  <input
-                    #cameraInputsMods
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    multiple
-                    class="d-none"
-                    (change)="onSelectedForSlot($event, mod, soKey)"
-                  />
-
-                  <div class="ing-dropzone p-3 mb-3">
-                    <ng-container
-                      *ngIf="
-                        !perSlotPreviews[slotKey(mod, soKey)]?.length;
-                        else conImagenes
-                      "
-                    >
-                      <div class="text-center py-4">
-                        <p
-                          class="text-muted mb-1"
-                          style="
-                            font-family: var(--font-tech);
-                            font-size: 0.8rem;
-                          "
-                        >
-                          NO HAY IMÁGENES
-                        </p>
-                        <small class="d-block mb-3 text-muted">
-                          Límite: {{ maxImagesForSlot(mod, soKey) }}
-                        </small>
-                        <div class="d-flex gap-2 justify-content-center">
-                          <button
-                            type="button"
-                            class="btn btn-dark btn-sm btn-ing-action"
-                            (click)="openInputForSlot('gallery', mod, soKey)"
-                          >
-                            Galería
-                          </button>
-                          <button
-                            type="button"
-                            class="btn btn-dark btn-sm btn-ing-action"
-                            (click)="openInputForSlot('camera', mod, soKey)"
-                          >
-                            Cámara
-                          </button>
-                        </div>
-                      </div>
-                    </ng-container>
-
-                    <ng-template #conImagenes>
-                      <div class="w-100">
-                        <div
-                          class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2"
-                        >
-                          <span class="ing-badge">
-                            {{
-                              perSlotPreviews[slotKey(mod, soKey)]?.length || 0
-                            }}
-                            / {{ maxImagesForSlot(mod, soKey) }}
-                          </span>
-                          <div class="d-flex gap-2">
-                            <button
-                              type="button"
-                              class="btn btn-outline-dark btn-sm py-0 px-2 rounded-0"
-                              (click)="openInputForSlot('gallery', mod, soKey)"
-                              [disabled]="
-                                (perSlotPreviews[slotKey(mod, soKey)]?.length ||
-                                  0) >= maxImagesForSlot(mod, soKey)
-                              "
-                            >
-                              <i class="bi bi-plus-lg"></i> Galería
-                            </button>
-                            <button
-                              type="button"
-                              class="btn btn-outline-dark btn-sm py-0 px-2 rounded-0"
-                              (click)="openInputForSlot('camera', mod, soKey)"
-                              [disabled]="
-                                (perSlotPreviews[slotKey(mod, soKey)]?.length ||
-                                  0) >= maxImagesForSlot(mod, soKey)
-                              "
-                            >
-                              <i class="bi bi-plus-lg"></i> Cámara
-                            </button>
-                          </div>
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2">
-                          <div
-                            class="position-relative border bg-white p-1"
-                            style="width: 100px; height: 100px"
-                            *ngFor="
-                              let prev of perSlotPreviews[slotKey(mod, soKey)];
-                              let j = index
-                            "
-                          >
-                            <img
-                              [src]="prev"
-                              class="w-100 h-100 object-fit-cover"
-                              [alt]="'Foto'"
-                            />
-                            <button
-                              type="button"
-                              class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-0 d-flex align-items-center justify-content-center"
-                              style="width: 20px; height: 20px"
-                              (click)="removeSlotImage(mod, soKey, j)"
-                            >
-                              &times;
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-template>
-                  </div>
                 </div>
-              </div>
+              </ng-container>
             </div>
           </div>
         </div>
@@ -551,9 +527,9 @@
         </div>
       </div>
 
-      <div class="row g-4 mb-5">
+      <div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
         <div
-          class="col-md-6 col-lg-3"
+          class="col"
           *ngFor="
             let doc of [
               'Ficha Tecnica',
@@ -564,65 +540,72 @@
             let i = index
           "
         >
-          <div class="ing-card-tech h-100 d-flex flex-column">
-            <div class="ing-card-header text-center">
-              <span class="ing-label-tech mb-0">{{ doc }}</span>
-            </div>
+          <div class="card h-100 shadow-sm border bg-white">
+            <div class="card-body d-flex flex-column p-3">
+              <div class="mb-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span
+                    class="badge bg-dark rounded-0"
+                    style="font-family: var(--font-tech)"
+                    >DOC {{ i + 1 }}</span
+                  >
+                  <h6
+                    class="fw-bold text-primary mb-0 text-uppercase"
+                    style="font-size: 0.9rem"
+                  >
+                    {{ doc }}
+                  </h6>
+                </div>
 
-            <div class="p-3 flex-grow-1 d-flex flex-column">
-              <div class="bg-light border p-2 mb-3 text-center flex-grow-0">
-                <ng-container [ngSwitch]="doc">
-                  <div
-                    *ngSwitchCase="'Ficha Tecnica'"
-                    class="d-flex gap-1 justify-content-center"
-                  >
+                <div class="bg-light border text-center p-2">
+                  <ng-container [ngSwitch]="doc">
+                    <div
+                      *ngSwitchCase="'Ficha Tecnica'"
+                      class="d-flex gap-1 justify-content-center"
+                    >
+                      <img
+                        src="../../../assets/fichatecnica1.png"
+                        class="border bg-white img-fluid object-fit-contain"
+                        style="height: 200px; width: 48%"
+                      />
+                      <img
+                        src="../../../assets/fichatecnica2.png"
+                        class="border bg-white img-fluid object-fit-contain"
+                        style="height: 200px; width: 48%"
+                      />
+                    </div>
                     <img
-                      src="../../../assets/fichatecnica1.png"
-                      class="border bg-white"
-                      style="height: 60px; object-fit: contain"
+                      *ngSwitchCase="'Permiso De Circulacion'"
+                      src="../../../assets/permisodecirculacionvehiculo.png"
+                      class="border bg-white img-fluid object-fit-contain"
+                      style="height: 200px; width: 48%"
                     />
-                    <img
-                      src="../../../assets/fichatecnica2.png"
-                      class="border bg-white"
-                      style="height: 60px; object-fit: contain"
-                    />
-                  </div>
-                  <img
-                    *ngSwitchCase="'Permiso De Circulacion'"
-                    src="../../../assets/permisodecirculacionvehiculo.png"
-                    class="border bg-white mx-auto d-block"
-                    style="height: 60px; object-fit: contain"
-                  />
-                  <div
-                    *ngSwitchCase="'TicketDe Peso'"
-                    class="d-flex gap-1 justify-content-center"
-                  >
-                    <img
-                      src="../../../assets/ticketpeso1.png"
-                      class="border bg-white"
-                      style="height: 60px; object-fit: contain"
-                    />
-                    <img
-                      src="../../../assets/ticketpeso2.png"
-                      class="border bg-white"
-                      style="height: 60px; object-fit: contain"
-                    />
-                  </div>
-                </ng-container>
-                <small
-                  class="d-block mt-1 text-muted"
-                  style="font-size: 0.6rem; font-family: var(--font-tech)"
-                  >REFERENCIA</small
-                >
+                    <div
+                      *ngSwitchCase="'Ticket De Peso'"
+                      class="d-flex gap-1 justify-content-center"
+                    >
+                      <img
+                        src="../../../assets/ticketpeso1.png"
+                        class="border bg-white img-fluid object-fit-contain"
+                        style="height: 200px; width: 48%"
+                      />
+                      <img
+                        src="../../../assets/ticketpeso2.png"
+                        class="border bg-white img-fluid object-fit-contain"
+                        style="height: 200px; width: 48%"
+                      />
+                    </div>
+                    <div
+                      *ngSwitchDefault
+                      class="text-muted py-4 small font-monospace"
+                    >
+                      DOCUMENTO GENERAL
+                    </div>
+                  </ng-container>
+                </div>
               </div>
 
-              <div class="d-grid gap-2 mb-2">
-                <button
-                  class="btn btn-outline-dark btn-sm btn-ing-action"
-                  (click)="openInput('gallery', 3, i)"
-                >
-                  📂 Galería
-                </button>
+              <div class="flex-grow-1 border-top pt-3">
                 <input
                   #galleryInputsDocs
                   type="file"
@@ -631,12 +614,6 @@
                   class="d-none"
                   (change)="onDocSelected($event, doc, 'gallery')"
                 />
-                <button
-                  class="btn btn-outline-dark btn-sm btn-ing-action"
-                  (click)="openInput('camera', 3, i)"
-                >
-                  📷 Cámara
-                </button>
                 <input
                   #cameraInputsDocs
                   type="file"
@@ -646,42 +623,78 @@
                   class="d-none"
                   (change)="onDocSelected($event, doc, 'camera')"
                 />
-              </div>
 
-              <div
-                *ngIf="docError[doc]"
-                class="alert alert-danger rounded-0 py-1 px-2 mb-2 small text-uppercase font-monospace"
-              >
-                {{ docError[doc] }}
-              </div>
+                <div
+                  *ngIf="docError[doc]"
+                  class="alert alert-danger rounded-0 py-1 px-2 mb-2 small text-uppercase font-monospace"
+                >
+                  {{ docError[doc] }}
+                </div>
 
-              <div class="ing-dropzone p-2 flex-grow-1">
-                <div class="d-flex flex-wrap gap-2 justify-content-center">
-                  <div
-                    class="position-relative border bg-white"
-                    style="width: 60px; height: 60px"
-                    *ngFor="
-                      let preview of docsPreviews[doc] || [];
-                      let j = index
-                    "
-                  >
-                    <img [src]="preview" class="w-100 h-100 object-fit-cover" />
-                    <button
-                      type="button"
-                      class="btn btn-danger p-0 position-absolute top-0 end-0 rounded-0 d-flex align-items-center justify-content-center"
-                      style="width: 15px; height: 15px; font-size: 10px"
-                      (click)="removeDocImage(doc, j)"
+                <ng-container
+                  *ngIf="
+                    docsPreviews[doc] && docsPreviews[doc].length > 0;
+                    else botonesGrandesDocs
+                  "
+                >
+                  <div class="d-flex flex-column gap-3">
+                    <div
+                      *ngFor="let preview of docsPreviews[doc]; let j = index"
+                      class="position-relative bg-light border p-1"
                     >
-                      &times;
+                      <img
+                        [src]="preview"
+                        class="w-100 object-fit-contain"
+                        style="height: 180px; display: block"
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-danger position-absolute top-0 end-0 rounded-0 d-flex align-items-center justify-content-center shadow"
+                        style="width: 32px; height: 32px; margin: 5px"
+                        (click)="removeDocImage(doc, j)"
+                      >
+                        <i class="bi bi-x-lg">X</i>
+                      </button>
+                      <div
+                        class="text-center bg-success text-white py-1 mt-1"
+                        style="font-size: 0.7rem; font-family: var(--font-tech)"
+                      >
+                        PÁGINA {{ j + 1 }} ADJUNTADA
+                      </div>
+                    </div>
+
+                    <button
+                      *ngIf="docsPreviews[doc].length < 4"
+                      class="btn btn-outline-dark btn-sm w-100 py-2 text-uppercase fw-bold"
+                      style="font-family: var(--font-tech)"
+                      (click)="openInput('camera', 3, i)"
+                    >
+                      <i class="bi bi-plus-circle me-2"></i> Añadir otra página
                     </button>
                   </div>
-                  <span
-                    *ngIf="!(docsPreviews[doc] && docsPreviews[doc].length)"
-                    class="text-muted small align-self-center py-2"
-                    style="font-size: 0.7rem"
-                    >Vacío</span
+                </ng-container>
+
+                <ng-template #botonesGrandesDocs>
+                  <div
+                    class="d-flex w-100 gap-2 h-100 align-items-end"
+                    style="min-height: 100px"
                   >
-                </div>
+                    <button
+                      class="btn btn-outline-dark flex-grow-1 py-3"
+                      (click)="openInput('gallery', 3, i)"
+                    >
+                      <i class="bi bi-folder2-open fs-4 d-block mb-1"></i>
+                      <span class="small fw-bold">GALERÍA</span>
+                    </button>
+                    <button
+                      class="btn btn-outline-dark flex-grow-1 py-3"
+                      (click)="openInput('camera', 3, i)"
+                    >
+                      <i class="bi bi-camera fs-4 d-block mb-1"></i>
+                      <span class="small fw-bold">CÁMARA</span>
+                    </button>
+                  </div>
+                </ng-template>
               </div>
             </div>
           </div>
