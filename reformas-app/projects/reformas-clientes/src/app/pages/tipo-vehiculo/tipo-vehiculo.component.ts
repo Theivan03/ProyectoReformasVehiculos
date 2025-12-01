@@ -64,9 +64,7 @@ export class TipoVehiculoComponent implements OnInit {
     { key: 'asientos', label: 'Asientos' },
     { key: 'barrasAntivuelco', label: 'Barras antivuelco' },
     { key: 'techoSolar', label: 'Techo solar' },
-    { key: 'taloneras', label: 'Taloneras' },
-    { key: 'aletines', label: 'Aletines' },
-    { key: 'sobrealetines', label: 'Sobrealetines' },
+    { key: 'aletinesYSobrealetines', label: 'Aletines y sobrealetines' },
     { key: 'snorkel', label: 'Snorkel' },
     { key: 'peldaños', label: 'Peldaños' },
     { key: 'talonerasEstribos', label: 'Taloneras / Estribos' },
@@ -91,19 +89,6 @@ export class TipoVehiculoComponent implements OnInit {
       label: 'Intermitentes laterales',
     },
     { key: 'focosDeTrabajo', label: 'Focos de trabajo' },
-  ];
-
-  opcionesDescripcionFocosDeTrabajo = [
-    { key: 'focoParaDelantero', label: 'Foco en paragolpes delantero' },
-    {
-      key: 'focoParaTrasero',
-      label: 'Foco en paragolpes trasero',
-    },
-    {
-      key: 'focoParteTrasera',
-      label: 'Foco en parte trasera',
-    },
-    { key: 'focoEnTecho', label: 'Foco en el techo' },
   ];
 
   detalleDireccion = [
@@ -236,9 +221,8 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleRuedasCamper = [
-    { key: 'neumaticosCamper', label: 'Neumaticos' },
-    { key: 'llantasCamper', label: 'Llantas' },
-    { key: 'separadoresDeRuedaCamper', label: 'Separadores de rueda(Quads)' },
+    { key: 'neumaticos', label: 'Neumaticos y llantas' },
+    { key: 'separadoresDeRueda', label: 'Separadores de rueda' },
   ];
 
   detallesSuspensionesCamper = [
@@ -329,9 +313,7 @@ export class TipoVehiculoComponent implements OnInit {
     { key: 'difusor', label: 'Difusor' },
     { key: 'asientos', label: 'Asientos' },
     { key: 'techoSolar', label: 'Techo solar' },
-    { key: 'taloneras', label: 'Taloneras' },
-    { key: 'aletines', label: 'Aletines' },
-    { key: 'sobrealetines', label: 'Sobrealetines' },
+    { key: 'aletinesYSobrealetinesCamper', label: 'Aletines y sobrealetines' },
     { key: 'snorkel', label: 'Snorkel' },
     { key: 'peldaños', label: 'Peldaños' },
     { key: 'talonerasEstribos', label: 'Taloneras / Estribos' },

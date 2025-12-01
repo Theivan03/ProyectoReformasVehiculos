@@ -357,32 +357,6 @@
                     {{ item.label }}
                   </label>
                 </div>
-
-                <!-- Sub-if para focos de trabajo -->
-                @if (item.key === 'focosDeTrabajo' &&
-                mod.detalle?.focosDeTrabajo) {
-                <div class="ing-sub-sub-option-block bg-light p-2">
-                  <label class="ing-label-tech small text-secondary"
-                    >Ubicación de focos:</label
-                  >
-                  <div class="d-flex flex-wrap gap-3">
-                    @for (foco of opcionesDescripcionFocosDeTrabajo; track foco;
-                    let j = $index) {
-                    <div class="form-check">
-                      <input
-                        type="checkbox"
-                        class="form-check-input"
-                        id="foco-{{ j }}"
-                        [(ngModel)]="mod.focosTrabajo![foco.key]"
-                      />
-                      <label class="form-check-label small" [for]="'foco-' + j">
-                        {{ foco.label }}
-                      </label>
-                    </div>
-                    }
-                  </div>
-                </div>
-                }
               </div>
               }
             </div>
@@ -681,30 +655,6 @@
                     {{ item.label }}
                   </label>
                 </div>
-                @if (item.key === 'focosDeTrabajo' &&
-                mod.detalle?.focosDeTrabajo) {
-                <div class="ing-sub-sub-option-block bg-light p-2">
-                  <label class="ing-label-tech small text-secondary"
-                    >Ubicación:</label
-                  >
-                  <div class="d-flex flex-wrap gap-3">
-                    @for (foco of opcionesDescripcionFocosDeTrabajo; track foco;
-                    let j = $index) {
-                    <div class="form-check">
-                      <input
-                        type="checkbox"
-                        class="form-check-input"
-                        id="foco-{{ j }}"
-                        [(ngModel)]="mod.focosTrabajo![foco.key]"
-                      />
-                      <label class="form-check-label small" [for]="'foco-' + j">
-                        {{ foco.label }}
-                      </label>
-                    </div>
-                    }
-                  </div>
-                </div>
-                }
               </div>
               }
             </div>
@@ -1057,31 +1007,6 @@
                     {{ item.label }}
                   </label>
                 </div>
-                <!-- Sub-if focos trabajo -->
-                @if (item.key === 'focosDeTrabajo' &&
-                mod.detalle?.focosDeTrabajo) {
-                <div class="ing-sub-sub-option-block bg-light p-2">
-                  <label class="ing-label-tech small text-secondary"
-                    >Ubicación:</label
-                  >
-                  <div class="d-flex flex-wrap gap-3">
-                    @for (foco of opcionesDescripcionFocosDeTrabajo; track foco;
-                    let j = $index) {
-                    <div class="form-check">
-                      <input
-                        type="checkbox"
-                        class="form-check-input"
-                        id="foco-{{ j }}"
-                        [(ngModel)]="mod.focosTrabajo![foco.key]"
-                      />
-                      <label class="form-check-label small" [for]="'foco-' + j">
-                        {{ foco.label }}
-                      </label>
-                    </div>
-                    }
-                  </div>
-                </div>
-                }
               </div>
               }
             </div>

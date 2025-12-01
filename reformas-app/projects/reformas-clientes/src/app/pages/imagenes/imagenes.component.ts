@@ -299,34 +299,35 @@ export class ImagenesComponent implements OnInit {
     'Enganche de remolque': [
       {
         src: 'assets/remolque1.png',
-        id: 'enganche-default',
+        id: 'enganche-default-1',
         label: 'Fotografía de la/s placas/s del gancho de remolque',
       },
       {
         src: 'assets/remolque2.jpg',
-        id: 'enganche-default',
+        id: 'enganche-default-2',
         label: 'Fotografía de la/s placas/s del gancho de remolque',
       },
       {
         src: 'assets/remolque3.jpg',
-        id: 'enganche-default',
+        id: 'enganche-default-3',
         label: 'Fotografía de la/s placas/s del gancho de remolque',
       },
     ],
+
     'Enganche de remolque (quads)': [
       {
         src: 'assets/remolque1.png',
-        id: 'enganche-quads-default',
+        id: 'enganche-quads-default-1',
         label: 'Fotografía de la/s placas/s del gancho de remolque',
       },
       {
         src: 'assets/remolque2.jpg',
-        id: 'enganche-default',
+        id: 'enganche-quads-default-2',
         label: 'Fotografía de la/s placas/s del gancho de remolque',
       },
       {
         src: 'assets/remolque3.jpg',
-        id: 'enganche-default',
+        id: 'enganche-quads-default-3',
         label: 'Fotografía de la/s placas/s del gancho de remolque',
       },
     ],
@@ -561,6 +562,7 @@ export class ImagenesComponent implements OnInit {
           label: 'Altura parte lateral',
         },
       ],
+
       ballestaTrasera: [
         {
           src: 'assets/ballesta1.png',
@@ -628,7 +630,7 @@ export class ImagenesComponent implements OnInit {
           label: 'Foto detalle de la horquilla instalada',
         },
         {
-          src: 'assets/suspensionMoto2.jpg',
+          src: 'assets/suspensionMoto2.png',
           id: 'horq-moto-del-01',
           label: 'Foto de la adaptación de la horquilla a los frenos',
         },
@@ -795,21 +797,21 @@ export class ImagenesComponent implements OnInit {
           label: '',
         },
         {
-          src: 'assets/neumaticos4.png',
+          src: 'assets/neumatico4.png',
           id: 'neumaticos-a',
           label: '',
         },
         {
-          src: 'assets/neumaticos5.png',
+          src: 'assets/neumatico5.png',
           id: 'neumaticos-b',
           label: '',
         },
         {
-          src: 'assets/neumaticos6.png',
+          src: 'assets/neumatico6.png',
           id: 'neumaticos-c',
         },
         {
-          src: 'assets/neumaticos7.png',
+          src: 'assets/neumatico7.png',
           id: 'neumaticos-d',
           label: '',
         },
@@ -845,9 +847,9 @@ export class ImagenesComponent implements OnInit {
       ],
       talonerasEstribos: [
         {
-          src: 'assets/ejemplos/mods/carroceria/taloneras-01.jpg',
+          src: 'assets/taloneras1.jpg',
           id: 'taloneras-01',
-          label: '',
+          label: 'Lateral del vehículo',
         },
       ],
       matriculaDelanteraPequeña: [
@@ -914,20 +916,44 @@ export class ImagenesComponent implements OnInit {
       ],
       aleronCamper: [
         {
-          src: 'assets/ejemplos/mods/carroceria/aleron-camper-01.jpg',
-          id: 'aleron-camper-01',
-          label: '',
+          src: 'assets/ejemplos/mods/carroceria/aleron-01.jpg',
+          id: 'aleron-01',
+          label: 'Foto por la parte lateral del alerón',
+        },
+        {
+          src: 'assets/ejemplos/mods/carroceria/aleron-01.jpg',
+          id: 'aleron-01',
+          label: 'Foto por la parte trasera del alerón',
         },
       ],
       aletinesYSobrealetinesCamper: [
         {
-          src: 'assets/ejemplos/mods/carroceria/aletines-1.jpg',
+          src: 'assets/aletines1.png',
           id: 'aletines-a',
           label: '',
         },
         {
-          src: 'assets/ejemplos/mods/carroceria/aletines-2.jpg',
+          src: 'assets/aletinesdelantero.png',
           id: 'aletines-b',
+          label: '',
+        },
+        {
+          src: 'assets/neumaticos4.png',
+          id: 'neumaticos-a',
+          label: '',
+        },
+        {
+          src: 'assets/neumaticos5.png',
+          id: 'neumaticos-b',
+          label: '',
+        },
+        {
+          src: 'assets/neumaticos6.png',
+          id: 'neumaticos-c',
+        },
+        {
+          src: 'assets/neumaticos7.png',
+          id: 'neumaticos-d',
           label: '',
         },
       ],
@@ -969,9 +995,9 @@ export class ImagenesComponent implements OnInit {
       ],
       talonerasEstribosCamper: [
         {
-          src: 'assets/ejemplos/mods/carroceria/taloneras-camper-01.jpg',
+          src: 'assets/taloneras1.jpg',
           id: 'taloneras-camper-01',
-          label: '',
+          label: 'Lateral del vehículo',
         },
       ],
       cabrestanteCamper: [
@@ -1124,9 +1150,24 @@ export class ImagenesComponent implements OnInit {
       ],
       focosDeTrabajo: [
         {
-          src: 'assets/ejemplos/mods/luces/focos-trabajo-01.jpg',
-          id: 'focos-trabajo-01',
-          label: '',
+          src: 'assets/ejemplo.png',
+          id: 'inter-lat-01',
+          label: 'Foco en paragolpes delantero (opcional)',
+        },
+        {
+          src: 'assets/ejemplo.png',
+          id: 'inter-lat-01',
+          label: 'Foco en paragolpes trasero (opcional)',
+        },
+        {
+          src: 'assets/ejemplo.png',
+          id: 'inter-lat-01',
+          label: 'Foco en la parte trasera (opcional)',
+        },
+        {
+          src: 'assets/ejemplo.png',
+          id: 'inter-lat-01',
+          label: 'Foco en el techo (opcional)',
         },
       ],
       antiniebla: [
@@ -1152,14 +1193,14 @@ export class ImagenesComponent implements OnInit {
       ],
       PilotoTraseroMoto: [
         {
-          src: 'assets/ejemplos/mods/luces/luz-matricula-moto-01.jpg',
+          src: 'assets/pilototraseromoto.png',
           id: 'piloto-moto-tras-01',
           label: 'Marcaje',
         },
       ],
       luzDeMatriculaMoto: [
         {
-          src: 'assets/ejemplos/mods/luces/luz-matricula-moto-01.jpg',
+          src: 'assets/luzmatricula.jpg',
           id: 'luz-matricula-moto-01',
           label: 'Marcaje',
         },
@@ -1233,26 +1274,26 @@ export class ImagenesComponent implements OnInit {
       ],
       discosPerforadosRayados: [
         {
-          src: 'assets/freno1.png',
+          src: 'assets/freno1.jpg',
           id: 'discos-perf-01',
-          label: '',
+          label: 'Discos y pinzas eje delantero',
         },
         {
-          src: 'assets/freno3.png',
+          src: 'assets/freno3.jpg',
           id: 'discos-perf-02',
-          label: '',
+          label: 'Discos y pinzas eje trasero',
         },
       ],
       latiguillos: [
         {
-          src: 'assets/freno2.png',
-          id: 'discos-perf-01',
-          label: '',
+          src: 'assets/freno2.jpg',
+          id: 'latigui-perf-01',
+          label: 'Latiguillos eje delantero',
         },
         {
-          src: 'assets/freno4.png',
-          id: 'discos-perf-02',
-          label: '',
+          src: 'assets/freno4.jpg',
+          id: 'latigui-perf-02',
+          label: 'Latiguillos eje trasero',
         },
       ],
       bomba: [
@@ -1779,6 +1820,7 @@ export class ImagenesComponent implements OnInit {
   //   CICLO VIDA
   // =======================================================================
   async ngOnInit(): Promise<void> {
+    console.log('EditorModificacionesComponent ngOnInit', this.datosEntrada);
     if (this.datosEntrada?.step) this.step = this.datosEntrada.step;
 
     // Restaurar previas
@@ -1929,6 +1971,9 @@ export class ImagenesComponent implements OnInit {
     return this.titulos.mod?.[modNombre] ?? modNombre;
   }
   tituloSub(modNombre: string, subKey: string): string {
+    if (subKey === 'default') {
+      return 'Imágenes Generales';
+    }
     return this.titulos.sub?.[modNombre]?.[subKey] ?? this.pretty(subKey);
   }
 
@@ -1962,17 +2007,33 @@ export class ImagenesComponent implements OnInit {
 
   public initSelectedSuboptsFromDetalle() {
     this.selectedSubopts = {};
+
+    const clavesContenedores = [
+      'mobiliarioInterior',
+      'fontaneria',
+      'focosTrabajo',
+    ];
+
     for (const mod of this.modsSeleccionadas) {
       const set = new Set<string>();
 
       if (mod?.detalle && typeof mod.detalle === 'object') {
-        for (const [k, v] of Object.entries(mod.detalle)) if (v) set.add(k);
+        for (const [k, v] of Object.entries(mod.detalle)) {
+          if (v && !clavesContenedores.includes(k)) {
+            set.add(k);
+          }
+        }
       }
-      for (const sub of ['mobiliarioInterior', 'fontaneria', 'focosTrabajo']) {
+
+      for (const sub of clavesContenedores) {
         if (mod?.[sub] && typeof mod[sub] === 'object') {
           for (const [k, v] of Object.entries(mod[sub]))
             if (v) set.add(k as string);
         }
+      }
+
+      if (set.size === 0) {
+        set.add('default');
       }
 
       this.selectedSubopts[mod.nombre] = set;
