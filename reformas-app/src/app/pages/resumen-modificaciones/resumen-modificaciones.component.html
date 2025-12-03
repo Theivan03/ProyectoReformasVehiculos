@@ -10459,6 +10459,108 @@
           </div>
         </section>
       </div>
+      } @if (mod.nombre === 'AUMENTO DE PLAZAS' && mod.seleccionado) {
+      <div class="mb-3">
+        <section class="mod-card reduccion-plazas">
+          <div class="mod-card__header">
+            <h4 class="mod-card__title">Reducción de Plazas de Asiento</h4>
+          </div>
+
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input
+                    type="number"
+                    class="form-control"
+                    placeholder="Plazas Antes"
+                    [(ngModel)]="mod.plazasAntesReduccion"
+                    name="plazasAntesReduccion{{ i }}"
+                    required
+                    min="1"
+                    [class.is-invalid]="
+                      formSubmitted && !mod.plazasAntesReduccion
+                    "
+                  />
+                  <label>Nº PLAZAS ANTES</label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input
+                    type="number"
+                    class="form-control"
+                    placeholder="Plazas Después"
+                    [(ngModel)]="mod.plazasDespuesReduccion"
+                    name="plazasDespuesReduccion{{ i }}"
+                    required
+                    min="1"
+                    [class.is-invalid]="
+                      formSubmitted && !mod.plazasDespuesReduccion
+                    "
+                  />
+                  <label>Nº PLAZAS DESPUÉS</label>
+                </div>
+              </div>
+
+              @if (mod.plazasDespuesReduccion == 1) {
+              <div class="col-12 mt-3">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <h6 class="card-title small text-muted fw-bold mb-3">
+                      ADAPTACIÓN A MONOPLAZA (Obligatorio)
+                    </h6>
+
+                    <div class="form-check form-switch mb-2">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="desinstalacionAsidero{{ i }}"
+                        [(ngModel)]="mod.desinstalacionAsideroReduccion"
+                        name="desinstalacionAsideroReduccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.desinstalacionAsideroReduccion
+                        "
+                      />
+                      <label
+                        class="form-check-label"
+                        for="desinstalacionAsidero{{ i }}"
+                      >
+                        Desinstalación del asidero / sistema de sujeción del
+                        pasajero
+                      </label>
+                    </div>
+
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="desinstalacionEstriberas{{ i }}"
+                        [(ngModel)]="mod.desinstalacionEstriberasReduccion"
+                        name="desinstalacionEstriberasReduccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted &&
+                          !mod.desinstalacionEstriberasReduccion
+                        "
+                      />
+                      <label
+                        class="form-check-label"
+                        for="desinstalacionEstriberas{{ i }}"
+                      >
+                        Desinstalación de las estriberas del pasajero
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </section>
+      </div>
       } @if (mod.nombre === 'REDUCCIÓN DE PLAZAS' && mod.seleccionado) {
       <div class="mb-3">
         <section class="mod-card reduccion-plazas">

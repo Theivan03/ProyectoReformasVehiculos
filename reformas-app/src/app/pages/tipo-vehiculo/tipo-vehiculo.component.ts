@@ -488,6 +488,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
           },
           {
+            nombre: 'AUMENTO DE PLAZAS',
+            seleccionado: false,
+          },
+          {
             nombre: 'REDUCCIÓN DE PLAZAS',
             seleccionado: false,
           },
@@ -597,6 +601,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
           { nombre: 'MANDOS LUCES', seleccionado: false },
           { nombre: 'MANILLAR', seleccionado: false },
           { nombre: 'RECORTE SUBCHASIS', seleccionado: false },
+          { nombre: 'AUMENTO DE PLAZAS', seleccionado: false },
           { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
           {
             nombre: 'REDUCCIÓN MMA Y MMTA',
@@ -775,6 +780,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
               aseo: false,
             },
           },
+          { nombre: 'AUMENTO DE PLAZAS', seleccionado: false },
           { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
           { nombre: 'REGISTRO DE LLENADO DE AGUA', seleccionado: false },
           { nombre: 'REVESTIMIENTO INTERIOR', seleccionado: false },

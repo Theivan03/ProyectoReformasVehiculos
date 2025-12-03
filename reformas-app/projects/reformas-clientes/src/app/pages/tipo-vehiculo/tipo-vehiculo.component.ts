@@ -55,6 +55,12 @@ export class TipoVehiculoComponent implements OnInit {
 
   detalleCarroceria = [
     { key: 'paragolpesDelantero', label: 'Paragolpes delantero' },
+    { key: 'ventanaLateral', label: 'Ventana lateral' },
+    { key: 'calandra', label: 'Calandra' },
+    { key: 'intercooler', label: 'Intercooler' },
+    { key: 'panelRelojes', label: 'Panel de relojes' },
+    { key: 'reduccionMMA', label: 'Reducción MMA' },
+    { key: 'reduccionMMTA', label: 'Reducción MMTA' },
     { key: 'paragolpesTrasero', label: 'Paragolpes trasero' },
     { key: 'aleron', label: 'Alerón' },
     { key: 'lip', label: 'Lip delantero' },
@@ -64,11 +70,11 @@ export class TipoVehiculoComponent implements OnInit {
     { key: 'asientos', label: 'Asientos' },
     { key: 'barrasAntivuelco', label: 'Barras antivuelco' },
     { key: 'techoSolar', label: 'Techo solar' },
-    { key: 'aletinesYSobrealetines', label: 'Aletines y sobrealetines' },
+    { key: 'aletines', label: 'Aletines y sobrealetines' },
     { key: 'snorkel', label: 'Snorkel' },
     { key: 'peldaños', label: 'Peldaños' },
     { key: 'talonerasEstribos', label: 'Taloneras / Estribos' },
-    { key: 'matriculaDelanteraPequeña', label: 'Matrícula delantera pequeña' },
+    { key: 'matriculaDelanteraPequena', label: 'Matrícula delantera pequeña' },
     { key: 'cabrestante', label: 'Cabrestante' },
     { key: 'barraAntiempotramiento', label: 'Barra Antiempotramiento' },
     { key: 'defensaDelantera', label: 'Defensa delantera' },
@@ -89,10 +95,12 @@ export class TipoVehiculoComponent implements OnInit {
       label: 'Intermitentes laterales',
     },
     { key: 'focosDeTrabajo', label: 'Focos de trabajo' },
+    { key: 'luz3freno', label: '3ª luz de freno' },
+    { key: 'luzMatricula', label: 'Luz de matrícula' },
   ];
 
   detalleDireccion = [
-    { key: 'volanteYPiña', label: 'Volante y piña' },
+    { key: 'volanteYPina', label: 'Volante y piña' },
     {
       key: 'barraDeDireccion',
       label: 'Barra de dirección',
@@ -102,10 +110,19 @@ export class TipoVehiculoComponent implements OnInit {
       label: 'Amortiguación de dirección',
     },
     { key: 'sustitucionDeEjes', label: 'Sustitución de ejes' },
+    {
+      key: 'barraMovimiento',
+      label: 'Barra para regular la convergencia de las ruedas (alineamiento)',
+    },
+    {
+      key: 'barraAlineamiento',
+      label:
+        'Barra para regular la convergencia de las ruedas (movimiento lateral)',
+    },
   ];
 
   detalleFrenos = [
-    { key: 'tamborPorDisco', label: 'Tambor por disco' },
+    { key: 'tamborPorDisco', label: 'Cambio de tambor a disco' },
     {
       key: 'discosPerforadosRayados',
       label: 'Discos perforados/rayados',
@@ -129,7 +146,7 @@ export class TipoVehiculoComponent implements OnInit {
     },
     {
       key: 'colaEscape',
-      label: 'Ssolamente cola de escape',
+      label: 'Solamente cola de escape',
     },
     {
       key: 'ampliacionNDepositosCombustible',
@@ -143,7 +160,7 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detallesSuspensionesMotos = [
-    { key: 'horquillaDelanteraMoto', label: 'Horquilla delanteracarro' },
+    { key: 'horquillaDelanteraMoto', label: 'Horquilla delantera' },
     { key: 'muelleDelanteroMoto', label: 'Muelle delantero' },
     { key: 'muelleTraseroMoto', label: 'Muelle trasero' },
     { key: 'amortiguadorDelanteroMoto', label: 'Amortiguador delantero' },
@@ -153,6 +170,13 @@ export class TipoVehiculoComponent implements OnInit {
   detallesCarroceriaMoto = [
     { key: 'guardabarrosDelanteroMoto', label: 'Guardabarros delantero' },
     { key: 'guardabarrosTraseroMoto', label: 'Guardabarros trasero' },
+    { key: 'protectoresParagolpesMoto', label: 'Protectores paragolpes' },
+    { key: 'mandoAceleradorMoto', label: 'Mando acelerador' },
+    { key: 'basculanteMoto', label: 'Basculante' },
+    { key: 'torretasMoto', label: 'Torretas' },
+    { key: 'mandoLucesMoto', label: 'Mandos de las luces' },
+    { key: 'reduccionMMA', label: 'Reducción MMA' },
+    { key: 'reduccionMMTA', label: 'Reducción MMTA' },
     { key: 'estribosMoto', label: 'Estribos' },
     { key: 'cabrestanteMoto', label: 'Cabrestante (quads)' },
     {
@@ -192,7 +216,7 @@ export class TipoVehiculoComponent implements OnInit {
   ];
 
   detalleFrenosMoto = [
-    { key: 'tamborPorDiscoMoto', label: 'Tambor por disco' },
+    { key: 'tamborPorDiscoMoto', label: 'Cambio de tambor a disco' },
     {
       key: 'discosPerforadosRayadosMoto',
       label: 'Discos perforados/rayados',
@@ -294,6 +318,7 @@ export class TipoVehiculoComponent implements OnInit {
 
   detallesInstalacionElectricaCamper = [
     { key: 'placaSolar', label: 'Placa solar' },
+    { key: 'antena', label: 'Antena' },
     { key: 'inversor', label: 'Inversor' },
     { key: 'reguladorSolar', label: 'Regulador solar' },
     { key: 'cargadorDeBateria', label: 'Cargador de batería' },
@@ -305,6 +330,11 @@ export class TipoVehiculoComponent implements OnInit {
 
   detalleCarroceriaCamper = [
     { key: 'paragolpesDelantero', label: 'Paragolpes delantero' },
+    { key: 'calandra', label: 'Calandra' },
+    { key: 'reduccionMMA', label: 'Reducción MMA' },
+    { key: 'reduccionMMTA', label: 'Reducción MMTA' },
+    { key: 'intercooler', label: 'Intercooler' },
+    { key: 'panelRelojes', label: 'PANEL RELOJES' },
     { key: 'paragolpesTrasero', label: 'Paragolpes trasero' },
     { key: 'aleron', label: 'Alerón' },
     { key: 'lip', label: 'Lip delantero' },
@@ -313,11 +343,11 @@ export class TipoVehiculoComponent implements OnInit {
     { key: 'difusor', label: 'Difusor' },
     { key: 'asientos', label: 'Asientos' },
     { key: 'techoSolar', label: 'Techo solar' },
-    { key: 'aletinesYSobrealetinesCamper', label: 'Aletines y sobrealetines' },
+    { key: 'aletinesCamper', label: 'Aletines y sobrealetines' },
     { key: 'snorkel', label: 'Snorkel' },
     { key: 'peldaños', label: 'Peldaños' },
     { key: 'talonerasEstribos', label: 'Taloneras / Estribos' },
-    { key: 'matriculaDelanteraPequeña', label: 'Matrícula delantera pequeña' },
+    { key: 'matriculaDelanteraPequena', label: 'Matrícula delantera pequeña' },
     { key: 'cabrestante', label: 'Cabrestante' },
     { key: 'barraAntiempotramiento', label: 'Barra Antiempotramiento' },
     { key: 'defensaDelantera', label: 'Defensa delantera' },
@@ -440,13 +470,14 @@ export class TipoVehiculoComponent implements OnInit {
             seleccionado: false,
             detalle: {
               paragolpesDelantero: false,
+              ventanaLateral: false,
               paragolpesTrasero: false,
               aleron: false,
-              aletinesYSobrealetines: false,
+              aletines: false,
               snorkel: false,
               peldaños: false,
               talonerasEstribos: false,
-              matriculaDelanteraPequeña: false,
+              matriculaDelanteraPequena: false,
               cabrestante: false,
               barraAntiempotramiento: false,
               defensaDelantera: false,
@@ -462,6 +493,8 @@ export class TipoVehiculoComponent implements OnInit {
               PilotoTrasero: false,
               intermitentesLaterales: false,
               focosDeTrabajo: false,
+              luz3freno: false,
+              luzMatricula: false,
             },
             focosTrabajo: {
               paragolpesDelantero: false,
@@ -474,10 +507,12 @@ export class TipoVehiculoComponent implements OnInit {
             nombre: 'Dirección',
             seleccionado: false,
             detalle: {
-              volanteYPiña: false,
+              volanteYPina: false,
               barraDeDireccion: false,
               amortiguadorDeDireccion: false,
               sustitucionDeEjes: false,
+              barraAlineamiento: false,
+              barraMovimiento: false,
             },
           },
           {
@@ -502,6 +537,7 @@ export class TipoVehiculoComponent implements OnInit {
           },
           { nombre: 'Enganche de remolque', seleccionado: false },
           { nombre: 'Portabicicletas', seleccionado: false },
+          { nombre: 'Aumento de plazas de asiento', seleccionado: false },
           { nombre: 'Reducción de plazas de asiento', seleccionado: false },
         ];
       case 'moto':
@@ -585,7 +621,8 @@ export class TipoVehiculoComponent implements OnInit {
             },
           },
           { nombre: 'Enganche de remolque (quads)', seleccionado: false },
-          { nombre: 'Reducción de plazas de asiento', seleccionado: false },
+          { nombre: 'Aumento de plazas', seleccionado: false },
+          { nombre: 'Reducción de plazas', seleccionado: false },
         ];
       case 'camper':
         return [
@@ -663,7 +700,7 @@ export class TipoVehiculoComponent implements OnInit {
               paragolpesDelanteroCamper: false,
               paragolpesTraseroCamper: false,
               aleronCamper: false,
-              aletinesYSobrealetinesCamper: false,
+              aletinesCamper: false,
               snorkelCamper: false,
               peldañosCamper: false,
               talonerasEstribosCamper: false,
@@ -680,6 +717,8 @@ export class TipoVehiculoComponent implements OnInit {
               PilotoTrasero: false,
               intermitentesLaterales: false,
               focosDeTrabajo: false,
+              luz3freno: false,
+              luzMatricula: false,
             },
             focosTrabajo: {
               paragolpesDelantero: false,
@@ -692,7 +731,7 @@ export class TipoVehiculoComponent implements OnInit {
             nombre: 'Dirección',
             seleccionado: false,
             detalle: {
-              volanteYPiña: false,
+              volanteYPina: false,
               barraDeDireccion: false,
               amortiguadorDeDireccion: false,
             },
@@ -721,6 +760,9 @@ export class TipoVehiculoComponent implements OnInit {
           { nombre: 'Portabicicletas', seleccionado: false },
 
           { nombre: 'Toldo', seleccionado: false },
+          { nombre: 'Aumento de plazas de asiento', seleccionado: false },
+          { nombre: 'Reducción de plazas de asiento', seleccionado: false },
+          { nombre: 'Cambio de clasificación', seleccionado: false },
         ];
 
       default:
@@ -808,11 +850,11 @@ export class TipoVehiculoComponent implements OnInit {
             mod.detalle.paragolpesDelantero,
             mod.detalle.paragolpesTrasero,
             mod.detalle.aleron,
-            mod.detalle.aletinesYSobrealetines,
+            mod.detalle.aletines,
             mod.detalle.snorkel,
             mod.detalle.peldaños,
             mod.detalle.talonerasEstribos,
-            mod.detalle.matriculaDelanteraPequeña,
+            mod.detalle.matriculaDelanteraPequena,
             mod.detalle.cabrestante,
             mod.detalle.barraAntiempotramiento,
             mod.detalle.defensaDelantera,
@@ -828,16 +870,20 @@ export class TipoVehiculoComponent implements OnInit {
             mod.detalle.PilotoTrasero,
             mod.detalle.intermitentesLaterales,
             mod.detalle.focosDeTrabajo,
+            mod.detalle.luz3freno,
+            mod.detalle.luzMatricula,
           ];
           invalido = !opts.some((v) => v);
         }
 
         if (mod.nombre === 'Dirección' && mod.detalle) {
           const opts = [
-            mod.detalle.volanteYPiña,
+            mod.detalle.volanteYPina,
             mod.detalle.barraDeDireccion,
             mod.detalle.amortiguadorDeDireccion,
             mod.detalle.sustitucionDeEjes,
+            mod.detalle.barraAlineamiento,
+            mod.detalle.barraMovimiento,
           ];
           invalido = !opts.some((v) => v);
         }
@@ -1007,7 +1053,7 @@ export class TipoVehiculoComponent implements OnInit {
             mod.detalle.paragolpesDelanteroCamper,
             mod.detalle.paragolpesTraseroCamper,
             mod.detalle.aleronCamper,
-            mod.detalle.aletinesYSobrealetinesCamper,
+            mod.detalle.aletinesCamper,
             mod.detalle.snorkelCamper,
             mod.detalle.peldañosCamper,
             mod.detalle.talonerasEstribosCamper,
@@ -1024,13 +1070,15 @@ export class TipoVehiculoComponent implements OnInit {
             mod.detalle.PilotoTrasero,
             mod.detalle.intermitentesLaterales,
             mod.detalle.focosDeTrabajo,
+            mod.detalle.luz3freno,
+            mod.detalle.luzMatricula,
           ];
           invalido = !opts.some((v) => v);
         }
 
         if (mod.nombre === 'Dirección' && mod.detalle) {
           const opts = [
-            mod.detalle.volanteYPiña,
+            mod.detalle.volanteYPina,
             mod.detalle.barraDeDireccion,
             mod.detalle.amortiguadorDeDireccion,
           ];
@@ -1096,11 +1144,11 @@ export class TipoVehiculoComponent implements OnInit {
           mod.detalle.paragolpesDelantero,
           mod.detalle.paragolpesTrasero,
           mod.detalle.aleron,
-          mod.detalle.aletinesYSobrealetines,
+          mod.detalle.aletines,
           mod.detalle.snorkel,
           mod.detalle.peldaños,
           mod.detalle.talonerasEstribos,
-          mod.detalle.matriculaDelanteraPequeña,
+          mod.detalle.matriculaDelanteraPequena,
           mod.detalle.cabrestante,
           mod.detalle.barraAntiempotramiento,
           mod.detalle.defensaDelantera,
@@ -1116,16 +1164,20 @@ export class TipoVehiculoComponent implements OnInit {
           mod.detalle.PilotoTrasero,
           mod.detalle.intermitentesLaterales,
           mod.detalle.focosDeTrabajo,
+          mod.detalle.luz3freno,
+          mod.detalle.luzMatricula,
         ];
         invalido = !opts.some((v) => v);
       }
 
       if (mod.nombre === 'Dirección' && mod.detalle) {
         const opts = [
-          mod.detalle.volanteYPiña,
+          mod.detalle.volanteYPina,
           mod.detalle.barraDeDireccion,
           mod.detalle.amortiguadorDeDireccion,
           mod.detalle.sustitucionDeEjes,
+          mod.detalle.barraAlineamiento,
+          mod.detalle.barraMovimiento,
         ];
         invalido = !opts.some((v) => v);
       }
@@ -1283,7 +1335,7 @@ export class TipoVehiculoComponent implements OnInit {
           mod.detalle.paragolpesDelanteroCamper,
           mod.detalle.paragolpesTraseroCamper,
           mod.detalle.aleronCamper,
-          mod.detalle.aletinesYSobrealetinesCamper,
+          mod.detalle.aletinesCamper,
           mod.detalle.snorkelCamper,
           mod.detalle.peldañosCamper,
           mod.detalle.talonerasEstribosCamper,
@@ -1300,13 +1352,15 @@ export class TipoVehiculoComponent implements OnInit {
           mod.detalle.PilotoTrasero,
           mod.detalle.intermitentesLaterales,
           mod.detalle.focosDeTrabajo,
+          mod.detalle.luz3freno,
+          mod.detalle.luzMatricula,
         ];
         invalido = !opts.some((v) => v);
       }
 
       if (mod.nombre === 'Dirección' && mod.detalle) {
         const opts = [
-          mod.detalle.volanteYPiña,
+          mod.detalle.volanteYPina,
           mod.detalle.barraDeDireccion,
           mod.detalle.amortiguadorDeDireccion,
         ];

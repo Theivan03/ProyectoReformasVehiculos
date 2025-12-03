@@ -1,0 +1,11 @@
+"filename", "language", "TypeScript", "HTML", "JSON", "comment", "blank", "total"
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\talleres.json", "JSON", 0, 0, 11, 0, 0, 11
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\projects\reformas-clientes\src\app\interfaces\modificacion.ts", "TypeScript", 4, 0, 0, 0, 1, 5
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\projects\reformas-clientes\src\app\pages\crear-reforma\crear-reforma.component.ts", "TypeScript", 0, 0, 0, 1, 0, 1
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\projects\reformas-clientes\src\app\pages\imagenes\imagenes.component.ts", "TypeScript", 194, 0, 0, 0, 6, 200
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\projects\reformas-clientes\src\app\pages\resumen-modificaciones\resumen-modificaciones.component.html", "HTML", 0, 984, 0, -8, 42, 1018
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\projects\reformas-clientes\src\app\pages\tipo-vehiculo\tipo-vehiculo.component.html", "HTML", 0, -72, 0, -2, -1, -75
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\projects\reformas-clientes\src\app\pages\tipo-vehiculo\tipo-vehiculo.component.ts", "TypeScript", 23, 0, 0, 0, -1, 22
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\resumen-modificaciones\resumen-modificaciones.component.html", "HTML", 0, 97, 0, 0, 5, 102
+"c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\tipo-vehiculo\tipo-vehiculo.component.ts", "TypeScript", 6, 0, 0, 0, 0, 6
+"Total", "-", 227, 1009, 11, -9, 52, 1290

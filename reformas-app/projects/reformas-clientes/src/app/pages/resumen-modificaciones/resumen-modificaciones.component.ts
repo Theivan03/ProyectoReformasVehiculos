@@ -41,7 +41,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     detalles?: string[]; // opcional, si hay que mirar subcampos
     tipoVehiculo?: string;
   }[] = [
-    { nombre: 'Luces' },
     { nombre: 'Portabicicletas' },
     { nombre: 'Freno', tipoVehiculo: 'coche' },
     { nombre: 'Freno', tipoVehiculo: 'industrial' },
@@ -127,10 +126,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     },
     {
       nombre: 'Carrocería',
-      tipoVehiculo: 'camper',
-    },
-    {
-      nombre: 'Luces',
       tipoVehiculo: 'camper',
     },
     {
@@ -354,6 +349,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    console.log('ResumenModificacionesComponent ngOnInit', this.datosEntrada);
     this.modificacionesSeleccionadas = this.datosEntrada.modificaciones.filter(
       (mod: any) => mod.seleccionado
     );

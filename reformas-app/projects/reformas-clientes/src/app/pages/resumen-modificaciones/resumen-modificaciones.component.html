@@ -151,9 +151,697 @@
   <form #form="ngForm" (ngSubmit)="onContinuar(form)" novalidate>
     @for (mod of modificacionesSeleccionadas; track mod; let i = $index) {
     <div class="mb-5">
-      <!-- COCHES -->
-      <!-- Enganche de remolque -->
-      @if ( mod.nombre === 'Enganche de remolque' && mod.seleccionado ) {
+      <!-- Luces -->
+      @if (mod.nombre === 'Luces' && mod.seleccionado) {
+      <div class="mb-5">
+        @if(mod.detalle.faroDelanteroMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Faro Delantero</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaFaroDelantero"
+                  name="marcaFaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaFaroDelantero"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.modeloFaroDelantero"
+                  name="modeloFaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloFaroDelantero"
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referenciaFaroDelantero"
+                  name="referenciaFaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.referenciaFaroDelantero
+                  "
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marcajes</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcajesFaroDelantero"
+                  name="marcajesFaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.marcajesFaroDelantero
+                  "
+                  placeholder="Ej: HR PL 50R"
+                />
+              </div>
+              <div class="col-12">
+                <label class="ing-label">Contraseña de Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacionFaroDelantero"
+                  name="homologacionFaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacionFaroDelantero
+                  "
+                  placeholder="Ej: E9*113R00*2233*00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.PilotoTraseroMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Piloto Trasero</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaPilotoTrasero"
+                  name="marcaPilotoTrasero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaPilotoTrasero"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.modeloPilotoTrasero"
+                  name="modeloPilotoTrasero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloPilotoTrasero"
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referenciaPilotoTrasero"
+                  name="referenciaPilotoTrasero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.referenciaPilotoTrasero
+                  "
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marcajes</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcajesPilotoTrasero"
+                  name="marcajesPilotoTrasero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.marcajesPilotoTrasero
+                  "
+                  placeholder="Ej: 50R-001234"
+                />
+              </div>
+              <div class="col-12">
+                <label class="ing-label">Contraseña de Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacionPilotoTrasero"
+                  name="homologacionPilotoTrasero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacionPilotoTrasero
+                  "
+                  placeholder="Ej: E9*50R00*1234*00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.luzDeMatriculaMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Luz de Matrícula</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaLuzMatricula"
+                  name="marcaLuzMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaLuzMatricula"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.modeloLuzMatricula"
+                  name="modeloLuzMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloLuzMatricula"
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referenciaLuzMatricula"
+                  name="referenciaLuzMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.referenciaLuzMatricula
+                  "
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marcajes</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcajesLuzMatricula"
+                  name="marcajesLuzMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.marcajesLuzMatricula
+                  "
+                  placeholder="Ej: L-00"
+                />
+              </div>
+              <div class="col-12">
+                <label class="ing-label">Contraseña de Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacionLuzMatricula"
+                  name="homologacionLuzMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacionLuzMatricula
+                  "
+                  placeholder="Ej: E9*50R00*5678*00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.intermitentesMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Intermitentes</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaIntermitentes"
+                  name="marcaIntermitentes{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaIntermitentes"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.modeloIntermitentes"
+                  name="modeloIntermitentes{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloIntermitentes"
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referenciaIntermitentes"
+                  name="referenciaIntermitentes{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.referenciaIntermitentes
+                  "
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marcajes</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcajesIntermitentes"
+                  name="marcajesIntermitentes{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.marcajesIntermitentes
+                  "
+                  placeholder="Ej: 11, 12"
+                />
+              </div>
+              <div class="col-12">
+                <label class="ing-label">Contraseña de Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacionIntermitentes"
+                  name="homologacionIntermitentes{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacionIntermitentes
+                  "
+                  placeholder="Ej: E9*50R00*9999*00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.faroDelantero) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Faro delantero</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcafaroDelantero"
+                  name="marcafaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcafaroDelantero"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.modelofaroDelantero"
+                  name="modelofaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modelofaroDelantero"
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referenciafaroDelantero"
+                  name="referenciafaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.referenciafaroDelantero
+                  "
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marcajes</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcajesfaroDelantero"
+                  name="marcajesfaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.marcajesfaroDelantero
+                  "
+                  placeholder="Ej: 11, 12"
+                />
+              </div>
+              <div class="col-12">
+                <label class="ing-label">Contraseña de Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacionfaroDelantero"
+                  name="homologacionfaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacionfaroDelantero
+                  "
+                  placeholder="Ej: E9*50R00*9999*00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.largoAlcance) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Largo alcance</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcafaroDelantero"
+                  name="marcafaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcafaroDelantero"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.modelofaroDelantero"
+                  name="modelofaroDelantero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modelofaroDelantero"
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referenciaLargoAlcance"
+                  name="referenciaLargoAlcance{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.referenciaLargoAlcance
+                  "
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marcajes</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcajesLargoAlcance"
+                  name="marcajesLargoAlcance{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.marcajesLargoAlcance
+                  "
+                  placeholder="Ej: 11, 12"
+                />
+              </div>
+              <div class="col-12">
+                <label class="ing-label">Contraseña de Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacionLargoAlcance"
+                  name="homologacionLargoAlcance{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacionLargoAlcance
+                  "
+                  placeholder="Ej: E9*50R00*9999*00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.antiniebla) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Antiniebla</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaluzAntinieblas"
+                  name="marcaluzAntinieblas{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaluzAntinieblas"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marcaje</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcajesluzAntinieblas"
+                  name="marcajesluzAntinieblas{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.marcajesluzAntinieblas
+                  "
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacionluzAntinieblas"
+                  name="homologacionluzAntinieblas{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacionluzAntinieblas
+                  "
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.PilotoTrasero) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Piloto trasero</h3>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaPilotoTrasero"
+                  name="marcaPilotoTrasero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaPilotoTrasero"
+                  placeholder="Ej: E9*50R00*9999*00"
+                />
+              </div>
+              <div class="col-12">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.refPilotoTrasero"
+                  name="refPilotoTrasero{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.refPilotoTrasero"
+                  placeholder="Ej: E9*50R00*9999*00"
+                />
+              </div>
+              <div class="col-12">
+                <label class="ing-label">Ubicación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.ubicacionPilotoTrasero"
+                  name="ubicacionPilotoTrasero{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.ubicacionPilotoTrasero
+                  "
+                  placeholder="Ej: E9*50R00*9999*00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.intermitentesLaterales) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Intermitentes</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referenciaIntermitentes"
+                  name="referenciaIntermitentes{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.referenciaIntermitentes
+                  "
+                  placeholder=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.focosDeTrabajo) {
+        <!-- Por terminar -->
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Focos de trabajo</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaIntermitentes"
+                  name="marcaIntermitentes{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaIntermitentes"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.luz3freno) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">3ª luz de freno</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marca3Freno"
+                  name="marca3Freno{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marca3Freno"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marcaje</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaje3Freno"
+                  name="marcaje3Freno{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaje3Freno"
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacion3Freno"
+                  name="homologacion3Freno{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.homologacion3Freno"
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Ubicación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.situado3Freno"
+                  name="situado3Freno{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.situado3Freno"
+                  placeholder="Ej: 11, 12"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if(mod.detalle.luzMatricula) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Luz de matrícula</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaluzMatricula"
+                  name="marcaluzMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaluzMatricula"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referencialuzMatricula"
+                  name="referencialuzMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.referencialuzMatricula
+                  "
+                  placeholder="Modelo comercial"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="ing-label">Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.homologacionluzMatricula"
+                  name="homologacionluzMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacionluzMatricula
+                  "
+                  placeholder="Ref. en la tulipa"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      } @if ( mod.nombre === 'Enganche de remolque' && mod.seleccionado ) {
       <div class="ing-nested-card shadow-sm">
         <h3 class="ing-mod-title">Enganche de remolque</h3>
 
@@ -315,7 +1003,91 @@
           </div>
         </div>
       </div>
-      } @if (mod.nombre === 'Ruedas' && mod.seleccionado) {
+      }
+      @if (mod.nombre === 'Aumento de plazas de asiento' && mod.seleccionado)
+      {
+      <div class="ing-nested-card shadow-sm">
+        <h3 class="ing-mod-title">Reducción de Plazas</h3>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="ing-label">¿Qué plaza desea añadir?</label>
+            <input
+              type="text"
+              class="form-control ing-input"
+              [(ngModel)]="mod.enclaje"
+              name="enclajePlaza{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.enclaje"
+              placeholder="Ej: Central trasera, Tercera fila completa..."
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="ing-label">Nº Plazas ANTES</label>
+            <input
+              type="number"
+              min="0"
+              class="form-control ing-input bg-light"
+              [(ngModel)]="mod.plazasAntes"
+              name="plazasAntes{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.plazasAntes"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="ing-label text-primary fw-bold"
+              >Nº Plazas DESPUÉS</label
+            >
+            <input
+              type="number"
+              min="0"
+              class="form-control ing-input border-primary"
+              [(ngModel)]="mod.plazasDespues"
+              name="plazasDespues{{ i }}"
+              required
+              [class.is-invalid]="formSubmitted && !mod.plazasDespues"
+            />
+          </div>
+        </div>
+      </div>
+      }
+      @if (mod.nombre === 'Cambio de clasificación' && mod.seleccionado)
+      {
+      <div class="ing-nested-card shadow-sm mb-4">
+  <div class="p-4">
+    <h3 class="ing-mod-title mb-4">Cambio de Clasificación</h3>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="ing-label">Clasificación Actual</label>
+        <input
+          type="text"
+          class="form-control ing-input"
+          placeholder="Ej: 2400 Furgón"
+          [(ngModel)]="mod.clasificacionActual"
+          name="clasificacionActual{{ i }}"
+          required
+          [class.is-invalid]="formSubmitted && !mod.clasificacionActual"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="ing-label text-primary fw-bold">Clasificación Final</label>
+        <input
+          type="text"
+          class="form-control ing-input"
+          style="border-left-width: 4px; border-left-color: var(--color-accent);"
+          placeholder="Ej: 2448 Furgón vivienda"
+          [(ngModel)]="mod.clasificacionFinal"
+          name="clasificacionFinal{{ i }}"
+          required
+          [class.is-invalid]="formSubmitted && !mod.clasificacionFinal"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+      }
+      @if (mod.nombre === 'Ruedas' && mod.seleccionado) {
       @if(mod.detalle.neumaticos) {
       <div class="ing-nested-card shadow-sm">
         <h3 class="ing-mod-title">Llantas y Neumáticos</h3>
@@ -525,8 +1297,11 @@
         </div>
       </div>
       } }
+
       <!-- Carrocería -->
-      @if (mod.nombre === 'Carrocería' && mod.seleccionado) {
+      @if (mod.nombre === 'Carrocería' && mod.seleccionado &&
+      (datosEntrada.tipoVehiculo === 'coche' || datosEntrada.tipoVehiculo ===
+      "camper" || datosEntrada.tipoVehiculo === 'industrial')) {
       <div class="ing-nested-card shadow-sm mt-4">
         @if (mod.detalle?.aletines) {
         <div class="ing-nested-card shadow-sm mb-4">
@@ -897,6 +1672,68 @@
             </div>
           </div>
         </div>
+        } @if (mod.detalle.reduccionMMA) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Disminución de Masa Máxima Admisible (MMA)
+            </h3>
+
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <label class="ing-label">Nueva MMA Solicitada</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    min="0"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.nuevaMMA"
+                    name="nuevaMMA{{ i }}"
+                    required
+                    [class.is-invalid]="formSubmitted && !mod.nuevaMMA"
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                  >
+                    kg
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle.reduccionMMTA) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Disminución de Masa Máxima Técnicamente Admisible (MMTA)
+            </h3>
+
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <label class="ing-label">Nueva MMTA Solicitada</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    min="0"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.nuevaMMTA"
+                    name="nuevaMMTA{{ i }}"
+                    required
+                    [class.is-invalid]="formSubmitted && !mod.nuevaMMTA"
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                  >
+                    kg
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         }
 
         <!-- SNORKEL -->
@@ -1135,296 +1972,645 @@
             </div>
           </div>
         </div>
-        } @if (mod.nombre === 'Carrocería' && mod.seleccionado) {
+        } @if (mod.detalle.defensaDelantera) {
         <div class="ing-nested-card shadow-sm mb-4">
-          @if (mod.detalle?.aletines) {
-          <div class="ing-nested-card shadow-sm mb-4">
-            <h3 class="ing-mod-title">Aletines</h3>
+          <h3 class="ing-mod-title">Defensa Delantera</h3>
 
-            <div class="row g-0">
-              <div
-                class="col-12 col-lg-4 bg-light p-4 border-end border-bottom"
-              >
-                <label class="ing-label mb-3 text-dark fw-bold fs-6"
-                  >TIPO DE ACCIÓN</label
+          <div class="p-4">
+            <div class="row g-3">
+              <div class="col-12 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
                 >
-                <div class="d-flex flex-column gap-3">
-                  <div class="form-check p-2 bg-white border">
-                    <input
-                      class="form-check-input ms-1"
-                      type="checkbox"
-                      id="accion-instalacion-aletines-{{ i }}"
-                      [checked]="mod.acciones?.includes('Instalacion')"
-                      (change)="
-                        toggleAccion(mod, 'Instalacion', $event.target.checked)
-                      "
-                    />
-                    <label
-                      class="form-check-label ing-check-label fw-bold ms-2"
-                      for="accion-instalacion-aletines-{{ i }}"
-                    >
-                      Instalación
-                    </label>
-                  </div>
-
-                  <div class="form-check p-2 bg-white border">
-                    <input
-                      class="form-check-input ms-1"
-                      type="checkbox"
-                      id="accion-sustitucion-aletines-{{ i }}"
-                      [checked]="mod.acciones?.includes('Sustitucion')"
-                      (change)="
-                        toggleAccion(mod, 'Sustitucion', $event.target.checked)
-                      "
-                    />
-                    <label
-                      class="form-check-label ing-check-label fw-bold ms-2"
-                      for="accion-sustitucion-aletines-{{ i }}"
-                    >
-                      Sustitución
-                    </label>
-                  </div>
-
-                  <div class="form-check p-2 bg-white border">
-                    <input
-                      class="form-check-input ms-1"
-                      type="checkbox"
-                      id="accion-desmontaje-aletines-{{ i }}"
-                      [checked]="mod.acciones?.includes('Desmontaje')"
-                      (change)="
-                        toggleAccion(mod, 'Desmontaje', $event.target.checked)
-                      "
-                    />
-                    <label
-                      class="form-check-label ing-check-label fw-bold ms-2"
-                      for="accion-desmontaje-aletines-{{ i }}"
-                    >
-                      Desmontaje
-                    </label>
-                  </div>
-                </div>
+                  Especificaciones Técnicas
+                </h6>
               </div>
 
-              <div class="col-12 col-lg-8 p-4">
-                <div class="row g-3">
-                  <div class="col-12 mb-2">
-                    <h6
-                      class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
-                    >
-                      Datos de la Pieza
-                    </h6>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="ing-label">Marca</label>
-                    <input
-                      type="text"
-                      class="form-control ing-input"
-                      [(ngModel)]="mod.marcaAletines"
-                      name="marcaAletines{{ i }}"
-                      placeholder="Marca del fabricante"
-                    />
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="ing-label">Referencia</label>
-                    <input
-                      type="text"
-                      class="form-control ing-input"
-                      [(ngModel)]="mod.referenciaAletines"
-                      name="referenciaAletines{{ i }}"
-                      placeholder="Referencia de la pieza"
-                    />
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="ing-label">Ancho (mm)</label>
-                    <div class="input-group">
-                      <input
-                        type="number"
-                        min="0"
-                        class="form-control ing-input"
-                        [(ngModel)]="mod.anchoAletines"
-                        name="anchoAletines{{ i }}"
-                        placeholder="0"
-                      />
-                      <span
-                        class="input-group-text bg-light border-start-0 font-monospace text-muted small"
-                        >mm</span
-                      >
-                    </div>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="ing-label">Peso Pieza (Kg)</label>
-                    <div class="input-group">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        class="form-control ing-input"
-                        [(ngModel)]="mod.pesoPiezaKgAletines"
-                        name="pesoPiezaKgAletines{{ i }}"
-                        required
-                        [class.is-invalid]="
-                          formSubmitted && mod.pesoPiezaKgAletines == null
-                        "
-                        placeholder="0.00"
-                      />
-                      <span
-                        class="input-group-text bg-light border-start-0 font-monospace text-muted small"
-                        >Kg</span
-                      >
-                    </div>
-                  </div>
-
-                  <div class="col-12 mt-4 mb-2">
-                    <h6
-                      class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
-                    >
-                      Sujeción
-                    </h6>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="ing-label">Diámetro Tornillos</label>
-                    <select
-                      class="form-select ing-select"
-                      [(ngModel)]="mod.metricaAletines"
-                      (ngModelChange)="onMetricaChange(mod)"
-                      name="metricaAletines{{ i }}"
-                    >
-                      <option [ngValue]="null" disabled>
-                        -- SELECCIONAR --
-                      </option>
-                      @for (num of metricasTornillos; track num) {
-                      <option [value]="num">{{ num }}</option>
-                      }
-                    </select>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="ing-label">Nº de Tornillos</label>
-                    <input
-                      type="number"
-                      min="0"
-                      class="form-control ing-input"
-                      [(ngModel)]="mod.numTornillosAletines"
-                      name="numTornillosAletines{{ i }}"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaDefensa"
+                  name="marcaDefensa{{ i }}"
+                  placeholder="Marca del fabricante"
+                />
               </div>
-            </div>
-          </div>
-          } @if (mod.detalle.defensaDelantera) {
-          <div class="ing-nested-card shadow-sm mb-4">
-            <h3 class="ing-mod-title">Defensa Delantera</h3>
 
-            <div class="p-4">
-              <div class="row g-3">
-                <div class="col-12 mb-2">
-                  <h6
-                    class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
-                  >
-                    Especificaciones Técnicas
-                  </h6>
-                </div>
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.modeloDefensa"
+                  name="modeloDefensa{{ i }}"
+                  placeholder="Modelo comercial"
+                />
+              </div>
 
-                <div class="col-md-6">
-                  <label class="ing-label">Marca</label>
-                  <input
-                    type="text"
-                    class="form-control ing-input"
-                    [(ngModel)]="mod.marcaDefensa"
-                    name="marcaDefensa{{ i }}"
-                    placeholder="Marca del fabricante"
-                  />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="ing-label">Modelo</label>
-                  <input
-                    type="text"
-                    class="form-control ing-input"
-                    [(ngModel)]="mod.modeloDefensa"
-                    name="modeloDefensa{{ i }}"
-                    placeholder="Modelo comercial"
-                  />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="ing-label">Grosor del Tubo (mm)</label>
-                  <div class="input-group">
-                    <input
-                      type="number"
-                      min="0"
-                      class="form-control ing-input"
-                      [(ngModel)]="mod.grosorTuboDefensa"
-                      name="grosorTuboDefensa{{ i }}"
-                      placeholder="0"
-                    />
-                    <span
-                      class="input-group-text bg-light border-start-0 font-monospace text-muted small"
-                      >mm</span
-                    >
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="ing-label">Medidas Totales (mm)</label>
-                  <input
-                    type="text"
-                    class="form-control ing-input"
-                    [(ngModel)]="mod.medidasDefensa"
-                    name="medidasDefensa{{ i }}"
-                    placeholder="Ej: 1200 x 400 mm"
-                  />
-                </div>
-
-                <div class="col-12 mt-4 mb-2">
-                  <h6
-                    class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
-                  >
-                    Sujeción
-                  </h6>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="ing-label">Diámetro Tornillos</label>
-                  <select
-                    class="form-select ing-select"
-                    [(ngModel)]="mod.metricaDefensa"
-                    name="metricaDefensa{{ i }}"
-                  >
-                    <option [ngValue]="null" disabled>-- SELECCIONAR --</option>
-                    @for (num of metricasTornillos; track num) {
-                    <option [value]="num">{{ num }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="ing-label">Nº de Tornillos</label>
+              <div class="col-md-6">
+                <label class="ing-label">Grosor del Tubo (mm)</label>
+                <div class="input-group">
                   <input
                     type="number"
                     min="0"
                     class="form-control ing-input"
-                    [(ngModel)]="mod.nTornillosDefensa"
-                    name="nTornillosDefensa{{ i }}"
+                    [(ngModel)]="mod.grosorTuboDefensa"
+                    name="grosorTuboDefensa{{ i }}"
                     placeholder="0"
                   />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
                 </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Medidas Totales (mm)</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.medidasDefensa"
+                  name="medidasDefensa{{ i }}"
+                  placeholder="Ej: 1200 x 400 mm"
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Sujeción
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Diámetro Tornillos</label>
+                <select
+                  class="form-select ing-select"
+                  [(ngModel)]="mod.metricaDefensa"
+                  name="metricaDefensa{{ i }}"
+                >
+                  <option [ngValue]="null" disabled>-- SELECCIONAR --</option>
+                  @for (num of metricasTornillos; track num) {
+                  <option [value]="num">{{ num }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Nº de Tornillos</label>
+                <input
+                  type="number"
+                  min="0"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.nTornillosDefensa"
+                  name="nTornillosDefensa{{ i }}"
+                  placeholder="0"
+                />
               </div>
             </div>
           </div>
-          }
         </div>
         }
 
         <!-- PARAGOLPES DELANTERO -->
-        @if (mod.detalle.paragolpesDelantero) {
+        @if (mod.detalle.ventanaLateral) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-1">Ventana</h3>
+            <p
+              class="text-muted small mb-4"
+              style="font-family: var(--font-reading)"
+            >
+              Aperturas laterales o traseras
+            </p>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="ing-label">Cantidad</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="0"
+                  [(ngModel)]="mod.cantidadVentanas"
+                  name="cantidadVentanas"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.cantidadVentanas"
+                />
+              </div>
+
+              <div class="col-md-8">
+                <label class="ing-label">Contraseña Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Ej: 43R-001234"
+                  [(ngModel)]="mod.homologacionVentana"
+                  name="homologacionVentana"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.homologacionVentana"
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Datos Técnicos
+                </h6>
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Marca del fabricante"
+                  [(ngModel)]="mod.marcaVentana"
+                  name="marcaVentana"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaVentana"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Modelo comercial"
+                  [(ngModel)]="mod.modeloVentana"
+                  name="modeloVentana"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloVentana"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Dimensiones</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Ej: 500x300 mm"
+                  [(ngModel)]="mod.dimensionesVentana"
+                  name="dimensionesVentana"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.dimensionesVentana"
+                />
+              </div>
+
+              <div class="col-12">
+                <label class="ing-label">Descripción Técnica</label>
+                <textarea
+                  class="form-control ing-input"
+                  style="height: 100px"
+                  placeholder="Detalles de instalación, ubicación, tipo de apertura..."
+                  [(ngModel)]="mod.descripcionVentana"
+                  name="descripcionVentana"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.descripcionVentana"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle.calandra) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Sustitución de Calandra Delantera
+            </h3>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Marca del fabricante"
+                  [(ngModel)]="mod.marcaCalandra"
+                  name="marcaCalandra{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaCalandra"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Referencia de la pieza"
+                  [(ngModel)]="mod.referenciaCalandra"
+                  name="referenciaCalandra{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.referenciaCalandra"
+                />
+              </div>
+
+              <div class="col-12">
+                <label class="ing-label">Material</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Ej: Plástico ABS, Fibra de carbono..."
+                  [(ngModel)]="mod.materialCalandra"
+                  name="materialCalandra{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.materialCalandra"
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Dimensiones
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Ancho / Largo</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaLargoCALANDRA"
+                    name="medidaLargoCALANDRA{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaLargoCALANDRA
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Alto</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAltoCALANDRA"
+                    name="medidaAltoCALANDRA{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaAltoCALANDRA
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle.intercooler) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Sustitución de Intercooler</h3>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Marca del fabricante"
+                  [(ngModel)]="mod.marcaIntercooler"
+                  name="marcaIntercooler{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaIntercooler"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Referencia de la pieza"
+                  [(ngModel)]="mod.refIntercooler"
+                  name="refIntercooler{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.refIntercooler"
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Dimensiones del Núcleo
+                </h6>
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Largo</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaLargoINTERCOOLER"
+                    name="medidaLargoINTERCOOLER{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaLargoINTERCOOLER
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Alto</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAltoINTERCOOLER"
+                    name="medidaAltoINTERCOOLER{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaAltoINTERCOOLER
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Espesor</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaEspesorINTERCOOLER"
+                    name="medidaEspesorINTERCOOLER{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaEspesorINTERCOOLER
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-12 mt-4">
+                <div class="p-3 bg-light border">
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input ms-0 me-2"
+                      type="checkbox"
+                      id="anclajesOriginales{{ i }}"
+                      [(ngModel)]="mod.usAnclajesOriginalesINTERCOOLER"
+                      name="usAnclajesOriginalesINTERCOOLER{{ i }}"
+                    />
+                    <label
+                      class="form-check-label ing-check-label fw-bold"
+                      for="anclajesOriginales{{ i }}"
+                    >
+                      Se sujeta sobre los anclajes originales
+                    </label>
+                  </div>
+
+                  @if (!mod.usAnclajesOriginalesINTERCOOLER) {
+                  <div class="mt-3">
+                    <label class="ing-label">Descripción de la fijación</label>
+                    <input
+                      type="text"
+                      class="form-control ing-input"
+                      placeholder="Ej: Soportes artesanales de acero..."
+                      [(ngModel)]="mod.descSoportesINTERCOOLER"
+                      name="descSoportesINTERCOOLER{{ i }}"
+                      required
+                      [class.is-invalid]="
+                        formSubmitted && !mod.descSoportesINTERCOOLER
+                      "
+                    />
+                  </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle.panelRelojes) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Instalación de Panel de Relojes / Manómetros
+            </h3>
+
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="ing-label">Ubicación en el vehículo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Ej: Parte central salpicadero, pilar A..."
+                  [(ngModel)]="mod.ubicacionPanelRelojes"
+                  name="ubicacionPanelRelojes{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.ubicacionPanelRelojes
+                  "
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Nº de Relojes</label>
+                <input
+                  type="number"
+                  class="form-control ing-input"
+                  placeholder="0"
+                  [(ngModel)]="mod.numeroRelojes"
+                  name="numeroRelojes{{ i }}"
+                  required
+                  min="1"
+                  [class.is-invalid]="formSubmitted && !mod.numeroRelojes"
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Dimensiones del Soporte
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Ancho</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAnchoRelojes"
+                    name="medidaAnchoRelojes{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaAnchoRelojes
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Alto</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAltoRelojes"
+                    name="medidaAltoRelojes{{ i }}"
+                    required
+                    [class.is-invalid]="formSubmitted && !mod.medidaAltoRelojes"
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="ing-label">Descripción Técnica</label>
+                <textarea
+                  class="form-control ing-input"
+                  placeholder="Ej: Presión turbo, temperatura aceite, voltímetro..."
+                  style="height: 100px"
+                  [(ngModel)]="mod.descripcionRelojes"
+                  name="descripcionRelojes{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.descripcionRelojes"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle.difusor) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Instalación de Difusor Trasero</h3>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Marca del fabricante"
+                  [(ngModel)]="mod.marcaDifusor"
+                  name="marcaDifusor{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaDifusor"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Modelo comercial"
+                  [(ngModel)]="mod.modeloDifusor"
+                  name="modeloDifusor{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloDifusor"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Material</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Ej: Plástico ABS, Carbono"
+                  [(ngModel)]="mod.materialDifusor"
+                  name="materialDifusor{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.materialDifusor"
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Dimensiones
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Largo</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.largoDifusor"
+                    name="largoDifusor{{ i }}"
+                    required
+                    [class.is-invalid]="formSubmitted && !mod.largoDifusor"
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Alto / Ancho</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.altoDifusor"
+                    name="altoDifusor{{ i }}"
+                    required
+                    [class.is-invalid]="formSubmitted && !mod.altoDifusor"
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle.paragolpesDelantero) {
         <div class="ing-nested-card shadow-sm mb-4">
           <h3 class="ing-mod-title">Paragolpes Delantero</h3>
 
@@ -1959,8 +3145,100 @@
         </div>
         }
 
-        <!-- CABRESTANTE -->
-        @if (mod.detalle.cabrestante) {
+        <!-- SOPORTE MATRÍCULA -->
+        @if (mod.detalle.matriculaDelanteraPequena) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Sustitución de Soporte de Matrícula
+            </h3>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Material</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Ej: Acero, Aluminio, Plástico..."
+                  [(ngModel)]="mod.materialSoporteMatricula"
+                  name="materialSoporteMatricula{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.materialSoporteMatricula
+                  "
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Dimensiones
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Ancho</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAnchoSoporteMatricula"
+                    name="medidaAnchoSoporteMatricula{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaAnchoSoporteMatricula
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Alto</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAltoSoporteMatricula"
+                    name="medidaAltoSoporteMatricula{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaAltoSoporteMatricula
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-12 mt-3">
+                <div
+                  class="alert alert-light border-start border-4 border-info rounded-0 mb-0"
+                >
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill text-info me-2"></i>
+                    <small
+                      class="text-muted"
+                      style="font-family: var(--font-reading)"
+                    >
+                      Recuerde que el soporte debe garantizar la visibilidad y
+                      los ángulos reglamentarios de la matrícula e iluminación.
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle.cabrestante) {
         <div class="ing-nested-card shadow-sm mb-4">
           <h3 class="ing-mod-title">Cabrestante</h3>
 
@@ -2597,13 +3875,13 @@
         <div class="ing-nested-card shadow-sm">
           <h3 class="ing-mod-title">Componentes de Suspensión</h3>
 
-          <!-- MUELLES HELICOIDALES -->
+          <!-- MUELLES -->
           @if (mod.detalle?.muelleDelantero || mod.detalle?.muelleTrasero) {
           <div class="mb-5">
             <h4
               class="ing-sub-title text-dark bg-transparent border-0 ps-0 mb-3 border-bottom pb-2"
             >
-              <i class="bi bi-spring me-2"></i>Muelles Helicoidales
+              <i class="bi bi-spring me-2"></i>Muelles
             </h4>
 
             <div class="row g-4">
@@ -3101,159 +4379,6 @@
       </div>
       }
 
-      <!-- ========================================== -->
-      <!-- BLOQUE: DIRECCIÓN -->
-      <!-- ========================================== -->
-      @if (mod.nombre === 'Dirección' && mod.seleccionado) {
-      <div class="mb-5">
-        <div class="ing-nested-card shadow-sm">
-          <h3 class="ing-mod-title">Sistema de Dirección</h3>
-
-          @if(mod.detalle?.amortiguadorDeDireccion){
-          <div class="row g-3 mb-4">
-            <div class="col-12">
-              <h4 class="ing-sub-title">Amortiguador de Dirección</h4>
-            </div>
-            <div class="col-md-6">
-              <label class="ing-label">Marca</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.marcaAmortiguador"
-                name="marcaAmortiguador{{ i }}"
-              />
-            </div>
-            <div class="col-md-6">
-              <label class="ing-label">Referencia</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.referenciaAmortiguador"
-                name="referenciaAmortiguador{{ i }}"
-              />
-            </div>
-          </div>
-          } @if (mod.detalle.barraDeDireccion) {
-          <div class="row g-0">
-            <div class="col-12">
-              <h4 class="ing-sub-title mb-3">Barra de Dirección</h4>
-            </div>
-            <!-- Acciones -->
-            <div class="col-12 col-lg-4 bg-light p-4 border">
-              <label class="ing-label mb-3 text-dark">ACCIÓN A REALIZAR</label>
-              <div class="d-flex flex-column gap-2">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="accion-instalacion-barra-{{ i }}"
-                    [checked]="mod.acciones?.includes('Instalacion')"
-                    (change)="
-                      toggleAccion(mod, 'Instalacion', $event.target.checked)
-                    "
-                  />
-                  <label
-                    class="form-check-label ing-check-label"
-                    for="accion-instalacion-barra-{{ i }}"
-                    >Instalación</label
-                  >
-                </div>
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="accion-sustitucion-barra-{{ i }}"
-                    [checked]="mod.acciones?.includes('Sustitucion')"
-                    (change)="
-                      toggleAccion(mod, 'Sustitucion', $event.target.checked)
-                    "
-                  />
-                  <label
-                    class="form-check-label ing-check-label"
-                    for="accion-sustitucion-barra-{{ i }}"
-                    >Sustitución</label
-                  >
-                </div>
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="accion-desmontaje-barra-{{ i }}"
-                    [checked]="mod.acciones?.includes('Desmontaje')"
-                    (change)="
-                      toggleAccion(mod, 'Desmontaje', $event.target.checked)
-                    "
-                  />
-                  <label
-                    class="form-check-label ing-check-label"
-                    for="accion-desmontaje-barra-{{ i }}"
-                    >Desmontaje</label
-                  >
-                </div>
-              </div>
-            </div>
-            <!-- Datos -->
-            <div class="col-12 col-lg-8 p-4 border border-start-0">
-              <label class="ing-label">Marca</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.marcaBarraDireccion"
-                name="marcaBarraDireccion{{ i }}"
-              />
-            </div>
-          </div>
-          }
-        </div>
-      </div>
-      }
-
-      <!-- ========================================== -->
-      <!-- BLOQUE: SUSTITUCIÓN DE EJES -->
-      <!-- ========================================== -->
-      @if (mod.detalle?.sustitucionDeEjes) {
-      <div class="mb-5">
-        <div class="ing-nested-card shadow-sm">
-          <h3 class="ing-mod-title">Sustitución de Ejes</h3>
-          <div class="row g-3">
-            <div class="col-12 mb-2">
-              <div class="alert alert-info rounded-0 d-flex align-items-center">
-                <i class="bi bi-info-circle-fill me-2"></i> Indique los datos
-                del vehículo donante o eje nuevo.
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label class="ing-label">Marca Procedente</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.marcaEje"
-                name="marcaEje{{ i }}"
-              />
-            </div>
-            <div class="col-md-6">
-              <label class="ing-label">Denominación Comercial</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.denominacionEje"
-                name="denominacionEje{{ i }}"
-              />
-            </div>
-            <div class="col-12">
-              <label class="ing-label">Contraseña de Homologación</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.contrasenaHomologacionEje"
-                name="contrasenaHomologacionEje{{ i }}"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      }
-
       <!-- Amortiguador de Dirección -->
       <!-- ========================================== -->
       <!-- BLOQUE: DIRECCIÓN -->
@@ -3264,7 +4389,143 @@
           <h3 class="ing-mod-title">Sistema de Dirección</h3>
 
           <!-- Amortiguador de Dirección -->
-          @if(mod.detalle?.amortiguadorDeDireccion){
+          @if(mod.detalle?.volanteYPina){
+          <div class="ing-nested-card shadow-sm p-4 border-bottom">
+            <div class="row g-3">
+              <div class="col-12">
+                <h3
+                  class="ing-mod-title mb-0 border-0 bg-transparent ps-0 text-dark"
+                >
+                  Volante y Piña
+                </h3>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Marca del volante</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaVolante"
+                  name="marcaVolante{{ i }}"
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Diámetro del volante (mm)</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.diametroVolante"
+                  name="diametroVolante{{ i }}"
+                  placeholder="0"
+                />
+              </div>
+
+              <div class="col-12">
+                <div class="form-check bg-light p-3 border">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="checkEspaciador{{ i }}"
+                    [(ngModel)]="mod.llevaEspaciador"
+                    name="llevaEspaciador{{ i }}"
+                  />
+                  <label
+                    class="form-check-label ing-check-label fw-bold"
+                    for="checkEspaciador{{ i }}"
+                  >
+                    ¿Instala espaciador / piña?
+                  </label>
+                </div>
+              </div>
+
+              @if (mod.llevaEspaciador) {
+              <div class="col-md-6">
+                <label class="ing-label">Marca Espaciador</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaEspaciador"
+                  name="marcaEspaciador{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && mod.llevaEspaciador && !mod.marcaEspaciador
+                  "
+                  placeholder="Marca del fabricante"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Espesor Espaciador</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    [(ngModel)]="mod.espesorEspaciador"
+                    name="espesorEspaciador{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted &&
+                      mod.llevaEspaciador &&
+                      !mod.espesorEspaciador
+                    "
+                    placeholder="0"
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+              }
+
+              <div class="col-12 mt-4">
+                <h6
+                  class="ing-sub-title mb-3 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Sistema de Airbag
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-check form-switch p-2 border bg-white">
+                  <input
+                    class="form-check-input ms-0 me-2"
+                    type="checkbox"
+                    id="airbagOriginal{{ i }}"
+                    [(ngModel)]="mod.tieneAirbagOriginal"
+                    name="tieneAirbagOriginal{{ i }}"
+                  />
+                  <label
+                    class="form-check-label ing-check-label"
+                    for="airbagOriginal{{ i }}"
+                  >
+                    El volante original tenía Airbag
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-check form-switch p-2 border bg-white">
+                  <input
+                    class="form-check-input ms-0 me-2"
+                    type="checkbox"
+                    id="airbagNuevo{{ i }}"
+                    [(ngModel)]="mod.tieneAirbagNuevo"
+                    name="tieneAirbagNuevo{{ i }}"
+                  />
+                  <label
+                    class="form-check-label ing-check-label"
+                    for="airbagNuevo{{ i }}"
+                  >
+                    El volante nuevo mantiene Airbag
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          } @if(mod.detalle?.amortiguadorDeDireccion){
           <div class="p-4 border-bottom">
             <div class="row g-3">
               <div class="col-12">
@@ -3448,6 +4709,76 @@
           </div>
         </div>
       </div>
+      } @if (mod.detalle?.barraAlineamiento) {
+      <div class="mb-5">
+        <div class="ing-nested-card shadow-sm">
+          <h3 class="ing-mod-title">Barra para Regular la Convergencia</h3>
+
+          <div class="p-4">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaConvergencia"
+                  name="marcaConvergencia{{ i }}"
+                  placeholder="Marca origen"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      } @if (mod.detalle?.barraMovimiento) {
+      <div class="mb-5">
+        <div class="ing-nested-card shadow-sm">
+          <h3 class="ing-mod-title">Sustitución de Ejes</h3>
+
+          <div class="p-4">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca Procedente</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.marcaEje"
+                  name="marcaEje{{ i }}"
+                  placeholder="Marca origen"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Denominación Comercial</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="mod.regulable"
+                  name="regulable{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && mod.regulable === undefined
+                  "
+                >
+                  <option value="" disabled selected>-- SELECCIONAR --</option>
+                  <option [ngValue]="true">SÍ</option>
+                  <option [ngValue]="false">NO</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="ing-label">Referencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  [(ngModel)]="mod.referenciaConvergenciaReg"
+                  name="referenciaConvergenciaReg{{ i }}"
+                  placeholder="Ej: e1*2001/116*0000*00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       }
       <!-- Suspensión -->
       @if ( mod.nombre === 'Suspensión' && mod.seleccionado &&
@@ -3617,7 +4948,8 @@
       </div>
       }
       <!-- Carrocería -->
-      @if (mod.nombre === 'Carrocería' && mod.seleccionado) {
+      @if (mod.nombre === 'Carrocería' && mod.seleccionado &&
+      (datosEntrada.tipoVehiculo === 'moto')) {
       <div class="ing-nested-card shadow-sm mb-4">
         @if (mod.detalle?.guardabarrosDelanteroMoto) {
         <div class="ing-nested-card shadow-sm mb-4">
@@ -3718,6 +5050,496 @@
                   <option [value]="num">{{ num }}</option>
                   }
                 </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle?.reduccionMMA) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Disminución de Masa Máxima Admisible (MMA)
+            </h3>
+
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <label class="ing-label">Nueva MMA Solicitada</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    min="0"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.nuevaMMA"
+                    name="nuevaMMA{{ i }}"
+                    required
+                    [class.is-invalid]="formSubmitted && !mod.nuevaMMA"
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                  >
+                    kg
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle?.reduccionMMTA) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Disminución de Masa Máxima Técnicamente Admisible (MMTA)
+            </h3>
+
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <label class="ing-label">Nueva MMTA Solicitada</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    min="0"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.nuevaMMTA"
+                    name="nuevaMMTA{{ i }}"
+                    required
+                    [class.is-invalid]="formSubmitted && !mod.nuevaMMTA"
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                  >
+                    kg
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle?.protectoresParagolpesMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Instalación de Protectores de Paragolpes
+            </h3>
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="ing-label mb-2">Ubicación</label>
+                <div class="d-flex gap-4 p-3 bg-light border">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="ubicacionProtector{{ i }}"
+                      id="ubiDelantero{{ i }}"
+                      value="delantero"
+                      [(ngModel)]="mod.ubicacionPROTECTORES"
+                      required
+                    />
+                    <label
+                      class="form-check-label ing-check-label"
+                      for="ubiDelantero{{ i }}"
+                    >
+                      Paragolpes Delantero
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="ubicacionProtector{{ i }}"
+                      id="ubiTrasero{{ i }}"
+                      value="trasero"
+                      [(ngModel)]="mod.ubicacionPROTECTORES"
+                      required
+                    />
+                    <label
+                      class="form-check-label ing-check-label"
+                      for="ubiTrasero{{ i }}"
+                    >
+                      Paragolpes Trasero
+                    </label>
+                  </div>
+                </div>
+                <div
+                  *ngIf="formSubmitted && !mod.ubicacionPROTECTORES"
+                  class="text-danger small mt-1"
+                >
+                  Seleccione una ubicación.
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="ing-label">Material</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Ej: Plástico ABS, Goma, Acero..."
+                  [(ngModel)]="mod.materialProtectorPROTECTORES"
+                  name="materialProtector{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.materialProtectorPROTECTORES
+                  "
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Dimensiones
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Largo</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaLargoPROTECTORES"
+                    name="medidaLargoPROTECTORES{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaLargoPROTECTORES
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Alto / Ancho</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAltoPROTECTORES"
+                    name="medidaAltoPROTECTORES{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaAltoPROTECTORES
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle?.mandoAceleradorMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Sustitución de Mando de Acelerador
+            </h3>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Marca del fabricante"
+                  [(ngModel)]="mod.marcaAcelerador"
+                  name="marcaAcelerador{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaAcelerador"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Modelo comercial"
+                  [(ngModel)]="mod.modeloAcelerador"
+                  name="modeloAcelerador{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloAcelerador"
+                />
+              </div>
+
+              <div class="col-12 mt-3">
+                <div class="alert alert-warning border-0 rounded-0 mb-0">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="retornoAutomatico{{ i }}"
+                      [(ngModel)]="mod.retornoAutomaticoAcelerador"
+                      name="retornoAutomaticoAcelerador{{ i }}"
+                      required
+                      [class.is-invalid]="
+                        formSubmitted && !mod.retornoAutomaticoAcelerador
+                      "
+                    />
+                    <label
+                      class="form-check-label ing-check-label fw-bold text-dark"
+                      for="retornoAutomatico{{ i }}"
+                    >
+                      <i
+                        class="bi bi-exclamation-triangle-fill text-warning me-2"
+                      ></i>
+                      El mando dispone de un retorno automático a la posición de
+                      reposo (Comprobación obligatoria)
+                    </label>
+                  </div>
+                </div>
+                <div
+                  *ngIf="formSubmitted && !mod.retornoAutomaticoAcelerador"
+                  class="text-danger small mt-1 ms-1"
+                >
+                  Debe confirmar esta comprobación de seguridad.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle?.mandoLucesMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Sustitución de Mandos / Botoneras
+            </h3>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Marca del fabricante"
+                  [(ngModel)]="mod.marcaMandoLuces"
+                  name="marcaMandoLuces{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaMandoLuces"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Modelo</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Modelo comercial"
+                  [(ngModel)]="mod.modeloMandoLuces"
+                  name="modeloMandoLuces{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloMandoLuces"
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Funciones Incorporadas
+                </h6>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Mando Izquierdo</label>
+                <textarea
+                  class="form-control ing-input"
+                  placeholder="Ej: Ráfaga, intermitencia, claxon..."
+                  style="height: 120px"
+                  [(ngModel)]="mod.funcionesIzquierdoMandoLuces"
+                  name="funcionesIzquierdoMandoLuces{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.funcionesIzquierdoMandoLuces
+                  "
+                ></textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="ing-label">Mando Derecho</label>
+                <textarea
+                  class="form-control ing-input"
+                  placeholder="Ej: Arranque, paro emergencia, luces..."
+                  style="height: 120px"
+                  [(ngModel)]="mod.funcionesDerechoMandoLuces"
+                  name="funcionesDerechoMandoLuces{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.funcionesDerechoMandoLuces
+                  "
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle?.basculanteMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">Sustitución de Basculante</h3>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="ing-label">Marca Procedencia</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Marca origen"
+                  [(ngModel)]="mod.marcaBasculante"
+                  name="marcaBasculante{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaBasculante"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Denominación Comercial</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Modelo comercial"
+                  [(ngModel)]="mod.modeloBasculante"
+                  name="modeloBasculante{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.modeloBasculante"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Contraseña Homologación</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Ej: e9*168/2013*..."
+                  [(ngModel)]="mod.contrasenaBasculante"
+                  name="contrasenaBasculante{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.contrasenaBasculante
+                  "
+                />
+              </div>
+
+              <div class="col-12 mt-4">
+                <div class="p-3 bg-light border">
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input ms-0 me-2"
+                      type="checkbox"
+                      id="notaIntegridad{{ i }}"
+                      [(ngModel)]="mod.incluirNotaIntegridadBasculante"
+                      name="incluirNotaIntegridadBasculante{{ i }}"
+                    />
+                    <label
+                      class="form-check-label ing-check-label fw-bold text-primary"
+                      for="notaIntegridad{{ i }}"
+                    >
+                      Incluir nota de integridad estructural y compatibilidad
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        } @if (mod.detalle?.torretasMoto) {
+        <div class="ing-nested-card shadow-sm mb-4">
+          <div class="p-4">
+            <h3 class="ing-mod-title mb-4">
+              Sustitución de Torretas de Manillar
+            </h3>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="ing-label">Marca</label>
+                <input
+                  type="text"
+                  class="form-control ing-input"
+                  placeholder="Marca del fabricante"
+                  [(ngModel)]="mod.marcaTorretas"
+                  name="marcaTorretas{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marcaTorretas"
+                />
+              </div>
+
+              <div class="col-12 mt-4 mb-2">
+                <h6
+                  class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark border-bottom pb-2"
+                >
+                  Dimensiones
+                </h6>
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Largo</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaLargoTorretas"
+                    name="medidaLargoTorretas{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaLargoTorretas
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Ancho</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAnchoTorretas"
+                    name="medidaAnchoTorretas{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaAnchoTorretas
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="ing-label">Alto</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    class="form-control ing-input"
+                    placeholder="0"
+                    [(ngModel)]="mod.medidaAltoTorretas"
+                    name="medidaAltoTorretas{{ i }}"
+                    required
+                    [class.is-invalid]="
+                      formSubmitted && !mod.medidaAltoTorretas
+                    "
+                  />
+                  <span
+                    class="input-group-text bg-light border-start-0 font-monospace text-muted small"
+                    >mm</span
+                  >
+                </div>
               </div>
             </div>
           </div>
@@ -4467,309 +6289,6 @@
               </div>
             </div>
             }
-          </div>
-        </div>
-        }
-      </div>
-      }
-
-      <!-- Luces -->
-      @if (mod.nombre === 'Luces' && mod.seleccionado) {
-      <div class="mb-5">
-        @if(mod.detalle.faroDelanteroMoto) {
-        <div class="ing-nested-card shadow-sm mb-4">
-          <div class="p-4">
-            <h3 class="ing-mod-title mb-4">Faro Delantero</h3>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="ing-label">Marca</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.marcaFaroDelantero"
-                  name="marcaFaroDelantero{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && !mod.marcaFaroDelantero"
-                  placeholder="Marca del fabricante"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Modelo</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.modeloFaroDelantero"
-                  name="modeloFaroDelantero{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && !mod.modeloFaroDelantero"
-                  placeholder="Modelo comercial"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Referencia</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.referenciaFaroDelantero"
-                  name="referenciaFaroDelantero{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.referenciaFaroDelantero
-                  "
-                  placeholder="Ref. en la tulipa"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Marcajes</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.marcajesFaroDelantero"
-                  name="marcajesFaroDelantero{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.marcajesFaroDelantero
-                  "
-                  placeholder="Ej: HR PL 50R"
-                />
-              </div>
-              <div class="col-12">
-                <label class="ing-label">Contraseña de Homologación</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.homologacionFaroDelantero"
-                  name="homologacionFaroDelantero{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.homologacionFaroDelantero
-                  "
-                  placeholder="Ej: E9*113R00*2233*00"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        } @if(mod.detalle.PilotoTraseroMoto) {
-        <div class="ing-nested-card shadow-sm mb-4">
-          <div class="p-4">
-            <h3 class="ing-mod-title mb-4">Piloto Trasero</h3>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="ing-label">Marca</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.marcaPilotoTrasero"
-                  name="marcaPilotoTrasero{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && !mod.marcaPilotoTrasero"
-                  placeholder="Marca del fabricante"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Modelo</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.modeloPilotoTrasero"
-                  name="modeloPilotoTrasero{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && !mod.modeloPilotoTrasero"
-                  placeholder="Modelo comercial"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Referencia</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.referenciaPilotoTrasero"
-                  name="referenciaPilotoTrasero{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.referenciaPilotoTrasero
-                  "
-                  placeholder="Ref. en la tulipa"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Marcajes</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.marcajesPilotoTrasero"
-                  name="marcajesPilotoTrasero{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.marcajesPilotoTrasero
-                  "
-                  placeholder="Ej: 50R-001234"
-                />
-              </div>
-              <div class="col-12">
-                <label class="ing-label">Contraseña de Homologación</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.homologacionPilotoTrasero"
-                  name="homologacionPilotoTrasero{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.homologacionPilotoTrasero
-                  "
-                  placeholder="Ej: E9*50R00*1234*00"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        } @if(mod.detalle.luzDeMatriculaMoto) {
-        <div class="ing-nested-card shadow-sm mb-4">
-          <div class="p-4">
-            <h3 class="ing-mod-title mb-4">Luz de Matrícula</h3>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="ing-label">Marca</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.marcaLuzMatricula"
-                  name="marcaLuzMatricula{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && !mod.marcaLuzMatricula"
-                  placeholder="Marca del fabricante"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Modelo</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.modeloLuzMatricula"
-                  name="modeloLuzMatricula{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && !mod.modeloLuzMatricula"
-                  placeholder="Modelo comercial"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Referencia</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.referenciaLuzMatricula"
-                  name="referenciaLuzMatricula{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.referenciaLuzMatricula
-                  "
-                  placeholder="Ref. en la tulipa"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Marcajes</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.marcajesLuzMatricula"
-                  name="marcajesLuzMatricula{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.marcajesLuzMatricula
-                  "
-                  placeholder="Ej: L-00"
-                />
-              </div>
-              <div class="col-12">
-                <label class="ing-label">Contraseña de Homologación</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.homologacionLuzMatricula"
-                  name="homologacionLuzMatricula{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.homologacionLuzMatricula
-                  "
-                  placeholder="Ej: E9*50R00*5678*00"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        } @if(mod.detalle.intermitentesMoto) {
-        <div class="ing-nested-card shadow-sm mb-4">
-          <div class="p-4">
-            <h3 class="ing-mod-title mb-4">Intermitentes</h3>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="ing-label">Marca</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.marcaIntermitentes"
-                  name="marcaIntermitentes{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && !mod.marcaIntermitentes"
-                  placeholder="Marca del fabricante"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Modelo</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.modeloIntermitentes"
-                  name="modeloIntermitentes{{ i }}"
-                  required
-                  [class.is-invalid]="formSubmitted && !mod.modeloIntermitentes"
-                  placeholder="Modelo comercial"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Referencia</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.referenciaIntermitentes"
-                  name="referenciaIntermitentes{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.referenciaIntermitentes
-                  "
-                  placeholder="Ref. en la tulipa"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="ing-label">Marcajes</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.marcajesIntermitentes"
-                  name="marcajesIntermitentes{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.marcajesIntermitentes
-                  "
-                  placeholder="Ej: 11, 12"
-                />
-              </div>
-              <div class="col-12">
-                <label class="ing-label">Contraseña de Homologación</label>
-                <input
-                  type="text"
-                  class="form-control ing-input"
-                  [(ngModel)]="mod.homologacionIntermitentes"
-                  name="homologacionIntermitentes{{ i }}"
-                  required
-                  [class.is-invalid]="
-                    formSubmitted && !mod.homologacionIntermitentes
-                  "
-                  placeholder="Ej: E9*50R00*9999*00"
-                />
-              </div>
-            </div>
           </div>
         </div>
         }
@@ -5954,7 +7473,8 @@
             </div>
           </div>
         </div>
-        }@if(mod.detalle.placaSolar) {
+        }
+        @if(mod.detalle.placaSolar) {
         <div class="ing-nested-card shadow-sm mb-4">
           <div class="p-4">
             <h3 class="ing-mod-title mb-4">
@@ -6045,7 +7565,92 @@
             </div>
           </div>
         </div>
-        }@if(mod.detalle.reguladorSolar) {
+        }
+        @if(mod.detalle.antena) {
+        <div class="ing-nested-card shadow-sm mb-4">
+  <div class="p-4">
+    <h3 class="ing-mod-title mb-4">
+      Instalación de Antena Parabólica / TV
+    </h3>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="ing-label">Marca</label>
+        <input
+          type="text"
+          class="form-control ing-input"
+          placeholder="Marca del fabricante"
+          [(ngModel)]="mod.marcaAntena"
+          name="marcaAntena{{ i }}"
+          required
+          [class.is-invalid]="formSubmitted && !mod.marcaAntena"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="ing-label">Modelo</label>
+        <input
+          type="text"
+          class="form-control ing-input"
+          placeholder="Modelo comercial"
+          [(ngModel)]="mod.modeloAntena"
+          name="modeloAntena{{ i }}"
+          required
+          [class.is-invalid]="formSubmitted && !mod.modeloAntena"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="ing-label">Tipo</label>
+        <input
+          type="text"
+          class="form-control ing-input"
+          placeholder="Ej: Abatible automática, Fija, Omnidireccional..."
+          [(ngModel)]="mod.tipoAntena"
+          name="tipoAntena{{ i }}"
+          required
+          [class.is-invalid]="formSubmitted && !mod.tipoAntena"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="ing-label">Ubicación</label>
+        <input
+          type="text"
+          class="form-control ing-input"
+          placeholder="Ej: Techo, parte trasera..."
+          [(ngModel)]="mod.ubicacionAntena"
+          name="ubicacionAntena{{ i }}"
+          required
+          [class.is-invalid]="formSubmitted && !mod.ubicacionAntena"
+        />
+      </div>
+
+      <div class="col-12 mt-4">
+        <div class="p-3 bg-light border">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input ms-0 me-2"
+              type="checkbox"
+              id="sinAfectacionEstructural{{ i }}"
+              [(ngModel)]="mod.sinAfectacionEstructuralAntena"
+              name="sinAfectacionEstructuralAntena{{ i }}"
+            />
+            <label
+              class="form-check-label ing-check-label text-dark"
+              for="sinAfectacionEstructural{{ i }}"
+            >
+              La instalación no afecta a la estructura del vehículo (sin
+              cortar travesaños/nervios)
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        }
+        @if(mod.detalle.reguladorSolar) {
         <div class="ing-nested-card shadow-sm mb-4">
           <div class="p-4">
             <h3 class="ing-mod-title mb-4">
@@ -6210,7 +7815,8 @@
         class="btn btn-ing btn-ing-outline px-4 py-2"
         (click)="onVolver()"
       >
-        <i class="bi bi-arrow-left me-2"></i> VOLVER
+        <i class="bi bi-arrow-left me-2"></i>
+        VOLVER
       </button>
 
       <button

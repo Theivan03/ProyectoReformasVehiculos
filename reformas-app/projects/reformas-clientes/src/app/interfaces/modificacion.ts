@@ -17,6 +17,7 @@ export interface Modificacion {
   cargaVertical?: number;
   capacidadKg?: number;
   capacidadLb?: number;
+
   marcaCargadorDeBateria?: string;
   modeloCarcadorDeBaretia?: string;
   potenciaCargadorDeBateria?: string;
@@ -77,6 +78,10 @@ export interface Modificacion {
   };
   detalle?: {
     muelleDelantero?: boolean;
+    luz3freno?: boolean;
+    luzMatricula?: boolean;
+    barraMovimiento?: boolean;
+    barraAlineamiento?: boolean;
     sobrealetines?: boolean;
     aletines?: boolean;
     muelleTrasero?: boolean;
@@ -98,7 +103,7 @@ export interface Modificacion {
     snorkel?: boolean;
     peldaños?: boolean;
     talonerasEstribos?: boolean;
-    matriculaDelanteraPequeña?: boolean;
+    matriculaDelanteraPequena?: boolean;
     cabrestante?: boolean;
     barraAntiempotramiento?: boolean;
     defensaDelantera?: boolean;
@@ -108,7 +113,7 @@ export interface Modificacion {
     PilotoTrasero?: boolean;
     intermitentesLaterales?: boolean;
     focosDeTrabajo?: boolean;
-    volanteYPiña?: boolean;
+    volanteYPina?: boolean;
     barraDeDireccion?: boolean;
     amortiguadorDeDireccion?: boolean;
     sustitucionDeEjes?: boolean;
@@ -181,7 +186,7 @@ export interface Modificacion {
     paragolpesDelanteroCamper?: boolean;
     paragolpesTraseroCamper?: boolean;
     aleronCamper?: boolean;
-    aletinesYSobrealetinesCamper?: boolean;
+    aletinesCamper?: boolean;
     snorkelCamper?: boolean;
     peldañosCamper?: boolean;
     talonerasEstribosCamper?: boolean;

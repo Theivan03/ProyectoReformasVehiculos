@@ -305,44 +305,56 @@ export class ImagenesComponent implements OnInit {
       {
         src: 'assets/remolque2.jpg',
         id: 'enganche-default-2',
-        label: 'Fotografía de la/s placas/s del gancho de remolque',
+        label: 'Fotografía de la altura del gancho de remolque',
       },
       {
         src: 'assets/remolque3.jpg',
         id: 'enganche-default-3',
-        label: 'Fotografía de la/s placas/s del gancho de remolque',
+        label: 'Fotografía de la distancia que sobresale el gancho de remolque',
       },
     ],
 
     'Enganche de remolque (quads)': [
       {
-        src: 'assets/remolque1.png',
+        src: 'assets/remolquequad.png',
         id: 'enganche-quads-default-1',
-        label: 'Fotografía de la/s placas/s del gancho de remolque',
+        label: 'Fotografía general del enganche de remolque instalado',
       },
       {
-        src: 'assets/remolque2.jpg',
+        src: 'assets/remolque1.jpg',
         id: 'enganche-quads-default-2',
         label: 'Fotografía de la/s placas/s del gancho de remolque',
       },
       {
-        src: 'assets/remolque3.jpg',
+        src: 'assets/remolque2.jpg',
         id: 'enganche-quads-default-3',
-        label: 'Fotografía de la/s placas/s del gancho de remolque',
+        label: 'Fotografía de la altura del gancho de remolque',
+      },
+      {
+        src: 'assets/remolque3.jpg',
+        id: 'enganche-quads-default-4',
+        label: 'Fotografía de la distancia que sobresale el gancho de remolque',
       },
     ],
     Portabicicletas: [
       {
-        src: 'assets/ejemplos/mods/portabicis/default.jpg',
+        src: 'assets/portabicis.jpg',
         id: 'portabicis-default',
-        label: '',
+        label: 'Foto general del portabicicletas instalado',
+      },
+    ],
+    'Reducción de plazas': [
+      {
+        src: 'assets/reduccionplazasquad.jpg',
+        id: 'reduccion-plazas-default',
+        label: 'Foto general del interior tras la reducción de plazas',
       },
     ],
     'Reducción de plazas de asiento': [
       {
-        src: 'assets/ejemplos/mods/reduccion-plazas/default.jpg',
+        src: 'assets/reduccionplazas.jpg',
         id: 'reduccion-plazas-default',
-        label: '',
+        label: 'Foto general del interior tras la reducción de plazas',
       },
     ],
     'Modificaciones en el interior del vehículo': [
@@ -361,9 +373,9 @@ export class ImagenesComponent implements OnInit {
     ],
     Toldo: [
       {
-        src: 'assets/ejemplos/mods/toldo/default.jpg',
+        src: 'assets/toldo.jpg',
         id: 'toldo-default',
-        label: '',
+        label: 'Foto general del toldo instalado',
       },
     ],
     'Chasis y Subchasis': [
@@ -452,9 +464,9 @@ export class ImagenesComponent implements OnInit {
       ],
       separadoresDeRuedaMoto: [
         {
-          src: 'assets/ejemplos/mods/chasis/default.jpg',
+          src: 'assets/separadorquad.jpg',
           id: 'sep-01',
-          label: '',
+          label: 'Foto del separador instalado',
         },
       ],
       neumaticosCamper: [
@@ -597,30 +609,100 @@ export class ImagenesComponent implements OnInit {
       ],
       amortiguadorDelantero: [
         {
-          src: 'assets/ejemplos/mods/suspension/amort-del-01.jpg',
-          id: 'amort-del-01',
-          label: 'Fotogeneral del amortiguador',
+          src: 'assets/referenciaamortiguadordelantero1.jpg',
+          id: 'amortiguador-del-01',
+          label: 'Eje delantero general',
+        },
+        {
+          src: 'assets/referenciaamortiguadordelantero2.jpg',
+          id: 'amortiguador-del-02',
+          label: 'Referencia Amortiguador eje delantero',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte delantera',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte trasera',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte lateral',
         },
       ],
       amortiguadorTrasero: [
         {
-          src: 'assets/ejemplos/mods/suspension/amort-tras-01.jpg',
-          id: 'amort-tras-01',
-          label: 'Fotogeneral del amortiguador',
+          src: 'assets/referenciaamortiguadortrasero1.jpg',
+          id: 'amortiguador-tras-01',
+          label: 'Eje delantero general',
+        },
+        {
+          src: 'assets/referenciaamortiguadortrasero2.jpg',
+          id: 'amortiguador-tras-02',
+          label: 'Referencia Amortiguador eje delantero',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte delantera',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte trasera',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte lateral',
         },
       ],
       suplementoSusDelantero: [
         {
-          src: 'assets/ejemplos/mods/suspension/sup-del-01.jpg',
-          id: 'sup-del-01',
-          label: 'Fotogeneral del suplemento',
+          src: 'assets/suplementossuspension.jpg',
+          id: 'muelle-del-01',
+          label: 'Eje delantero general',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte delantera',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte trasera',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte lateral',
         },
       ],
       suplementoSusTrasero: [
         {
-          src: 'assets/ejemplos/mods/suspension/sup-tras-01.jpg',
-          id: 'sup-tras-01',
-          label: 'Fotogeneral del suplemento',
+          src: 'assets/suplementossuspension.jpg',
+          id: 'muelle-del-01',
+          label: 'Eje delantero general',
+        },
+        {
+          src: 'assets/alturadelante.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte delantera',
+        },
+        {
+          src: 'assets/alturadetras.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte trasera',
+        },
+        {
+          src: 'assets/alturalateral.png',
+          id: 'muelle-del-03',
+          label: 'Altura parte lateral',
         },
       ],
       horquillaDelanteraMoto: [
@@ -637,21 +719,21 @@ export class ImagenesComponent implements OnInit {
       ],
       muelleDelanteroMoto: [
         {
-          src: 'assets/ejemplos/mods/suspension/muelle-moto-del-01.jpg',
+          src: 'assets/muelledelanteromoto.jpg',
           id: 'muelle-moto-del-01',
           label: 'Muelle delantero general',
         },
       ],
       muelleTraseroMoto: [
         {
-          src: 'assets/ejemplos/mods/suspension/muelle-moto-tras-01.jpg',
+          src: 'assets/muelletraseromoto.jpg',
           id: 'muelle-moto-tras-01',
           label: 'Muelle trasero general',
         },
       ],
       amortiguadorDelanteroMoto: [
         {
-          src: 'assets/amortiguadorMoto.jpg',
+          src: 'assets/amortiguadordelanteromoto.jpg',
           id: 'amort-moto-del-01',
           label: 'Foto detalle del amortiguador instalado',
         },
@@ -840,9 +922,20 @@ export class ImagenesComponent implements OnInit {
       ],
       peldaños: [
         {
-          src: 'assets/ejemplos/mods/carroceria/peldanos-01.jpg',
+          src: 'assets/peldañoscoche1.jpg',
           id: 'peldanos-01',
-          label: '',
+          label: 'Foto general de los peldaños instalados',
+        },
+        {
+          src: 'assets/peldañoscoche2.jpg',
+          id: 'peldanos-01',
+          label:
+            'Foto de la parte inferior del vehículo con los peldaños instalados',
+        },
+        {
+          src: 'assets/peldañoscoche3.jpg',
+          id: 'peldanos-01',
+          label: 'Foto de los botones para accionar los peldaños',
         },
       ],
       talonerasEstribos: [
@@ -854,9 +947,9 @@ export class ImagenesComponent implements OnInit {
       ],
       matriculaDelanteraPequeña: [
         {
-          src: 'assets/ejemplos/mods/carroceria/mat-del-peq-01.jpg',
+          src: 'assets/matriculapequeñajpg',
           id: 'mat-del-peq-01',
-          label: '',
+          label: 'Foto general de la matrícula delantera pequeña instalada',
         },
       ],
       cabrestante: [
@@ -873,9 +966,9 @@ export class ImagenesComponent implements OnInit {
       ],
       barraAntiempotramiento: [
         {
-          src: 'assets/ejemplos/mods/carroceria/barra-anti-01.jpg',
+          src: 'assets/barraantiempotramiento.jpg',
           id: 'barra-anti-01',
-          label: '',
+          label: 'Foto general de la barra antiempotramiento instalada',
         },
       ],
       defensaDelantera: [
@@ -887,16 +980,16 @@ export class ImagenesComponent implements OnInit {
       ],
       soporteRuedaRepuesto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/soporte-repuesto-01.jpg',
+          src: 'assets/soportederuedas.jpg',
           id: 'soporte-repuesto-01',
-          label: '',
+          label: 'Foto general del soporte de rueda de repuesto',
         },
       ],
       bodyLift: [
         {
-          src: 'assets/ejemplos/mods/carroceria/body-lift-01.jpg',
+          src: 'assets/bodylift.jpg',
           id: 'body-lift-01',
-          label: '',
+          label: 'Foto general del body lift instalado',
         },
       ],
 
@@ -988,9 +1081,20 @@ export class ImagenesComponent implements OnInit {
       ],
       peldañosCamper: [
         {
-          src: 'assets/ejemplos/mods/carroceria/peldanos-camper-01.jpg',
-          id: 'peldanos-camper-01',
-          label: '',
+          src: 'assets/peldañoscoche1.jpg',
+          id: 'peldanos-01',
+          label: 'Foto general de los peldaños instalados',
+        },
+        {
+          src: 'assets/peldañoscoche2.jpg',
+          id: 'peldanos-01',
+          label:
+            'Foto de la parte inferior del vehículo con los peldaños instalados',
+        },
+        {
+          src: 'assets/peldañoscoche3.jpg',
+          id: 'peldanos-01',
+          label: 'Foto de los botones para accionar los peldaños',
         },
       ],
       talonerasEstribosCamper: [
@@ -1031,30 +1135,40 @@ export class ImagenesComponent implements OnInit {
       ],
       guardabarrosTraseroMoto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/guardabarros-moto-tras-01.jpg',
+          src: 'assets/guardabarrostraseromoto.jpg',
           id: 'guard-moto-tras-01',
-          label: '',
+          label: 'Foto trasera del guardabarros',
         },
       ],
       estribosMoto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/estribos-moto-01.jpg',
+          src: 'assets/estriberasmoto.jpg',
           id: 'estribos-moto-01',
-          label: '',
+          label: 'Foto general de las estriberas instaladas',
+        },
+        {
+          src: 'assets/estriberasmoto2.jpg',
+          id: 'estribos-moto-01',
+          label: 'Foto de la homologación de las estriberas',
         },
       ],
       cabrestanteMoto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/cabrestante-quads-01.jpg',
+          src: 'assets/cabrestantequad1.jpg',
           id: 'cabrestante-quads-01',
-          label: '',
+          label: 'Foto general del cabrestante instalado',
+        },
+        {
+          src: 'assets/cabrestantequad2.jpg',
+          id: 'cabrestante-quads-01',
+          label: 'Foto de la peegatina de información del cabrestante',
         },
       ],
       cambioPlacaDeMatriculaMoto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/cambio-placa-moto-01.jpg',
+          src: 'assets/cambioplacamoto.jpg',
           id: 'cambio-placa-moto-01',
-          label: '',
+          label: 'Foto general de la placa de matrícula instalada',
         },
       ],
       retrovisoresMoto: [
@@ -1071,9 +1185,9 @@ export class ImagenesComponent implements OnInit {
       ],
       carenadoMoto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/carenado-moto-01.jpg',
+          src: 'assets/carenadomoto.jpg',
           id: 'carenado-moto-01',
-          label: '',
+          label: 'Foto general del carenado instalado',
         },
       ],
       depositoDeCombustibleMoto: [
@@ -1104,23 +1218,23 @@ export class ImagenesComponent implements OnInit {
       ],
       sillinMoto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/sillin-moto-01.jpg',
+          src: 'assets/sillinmoto.jpg',
           id: 'sillin-moto-01',
-          label: '',
+          label: 'Foto general del sillín instalado',
         },
       ],
       mandosAdelantadosMoto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/mandos-adelantados-moto-01.jpg',
+          src: 'assets/mandosadelantados.jpg',
           id: 'mandos-adelantados-moto-01',
-          label: '',
+          label: 'Foto general de los mandos adelantados instalados',
         },
       ],
       asiderosParaPasajeroMoto: [
         {
-          src: 'assets/ejemplos/mods/carroceria/asideros-moto-01.jpg',
+          src: 'assets/asiderosmoto.jpg',
           id: 'asideros-moto-01',
-          label: '',
+          label: 'Asideros para pasajero instalados',
         },
       ],
     },
@@ -1150,24 +1264,34 @@ export class ImagenesComponent implements OnInit {
       ],
       focosDeTrabajo: [
         {
-          src: 'assets/ejemplo.png',
+          src: 'assets/focosdetrabajo1.jpg',
           id: 'inter-lat-01',
-          label: 'Foco en paragolpes delantero (opcional)',
+          label: 'Foco general desde la parte frontal trasera (opcional)',
         },
         {
-          src: 'assets/ejemplo.png',
+          src: 'assets/focostrabajocamper2.jpg',
           id: 'inter-lat-01',
-          label: 'Foco en paragolpes trasero (opcional)',
+          label: 'Foco general desde la parte frontal delantera (opcional)',
         },
         {
-          src: 'assets/ejemplo.png',
+          src: 'assets/intermitentelateral.png',
           id: 'inter-lat-01',
-          label: 'Foco en la parte trasera (opcional)',
+          label: 'Homologación en paragolpes delantero (opcional)',
         },
         {
-          src: 'assets/ejemplo.png',
+          src: 'assets/intermitentelateral.png',
           id: 'inter-lat-01',
-          label: 'Foco en el techo (opcional)',
+          label: 'Homologación en paragolpes trasero (opcional)',
+        },
+        {
+          src: 'assets/intermitentelateral.png',
+          id: 'inter-lat-01',
+          label: 'Homologación en la parte trasera (opcional)',
+        },
+        {
+          src: 'assets/intermitentelateral.png',
+          id: 'inter-lat-01',
+          label: 'Homologación en el techo (opcional)',
         },
       ],
       antiniebla: [
@@ -1214,9 +1338,14 @@ export class ImagenesComponent implements OnInit {
       ],
       intermitentesMoto: [
         {
-          src: 'assets/ejemplos/mods/luces/intermitentes-moto-01.jpg',
+          src: 'assets/intermitentemoto1.jpg',
           id: 'intermitentes-moto-01',
-          label: '',
+          label: 'Foto del intermitente delantero',
+        },
+        {
+          src: 'assets/intermitentemoto2.jpg',
+          id: 'intermitentes-moto-02',
+          label: 'Foto del intermitente delantero',
         },
       ],
     },
@@ -1242,9 +1371,9 @@ export class ImagenesComponent implements OnInit {
       ],
       barraDeDireccion: [
         {
-          src: 'assets/ejemplos/mods/direccion/barra-01.jpg',
+          src: 'assets/barradedireccion.jpg',
           id: 'barra-dir-01',
-          label: '',
+          label: 'Anclajes de la barra de dirección',
         },
       ],
       amortiguadorDeDireccion: [
@@ -1256,9 +1385,9 @@ export class ImagenesComponent implements OnInit {
       ],
       sustitucionDeEjes: [
         {
-          src: 'assets/ejemplos/mods/direccion/sustitucion-ejes-01.jpg',
+          src: 'assets/sustitucionejes.jpg',
           id: 'sust-ejes-01',
-          label: '',
+          label: 'Foto general de los ejes instalados',
         },
       ],
     },
@@ -1298,16 +1427,16 @@ export class ImagenesComponent implements OnInit {
       ],
       bomba: [
         {
-          src: 'assets/ejemplos/mods/freno/bomba-01.jpg',
+          src: 'assets/bombafrenocoche.jpg',
           id: 'bomba-01',
-          label: '',
+          label: 'Bomba de freno',
         },
       ],
       tamborPorDiscoMoto: [
         {
-          src: 'assets/ejemplos/mods/freno/tambor-por-disco-moto-01.jpg',
+          src: 'assets/tambormoto.jpg',
           id: 'tpd-moto-01',
-          label: '',
+          label: 'Freno de tampor',
         },
       ],
       discosPerforadosRayadosMoto: [
@@ -1326,9 +1455,9 @@ export class ImagenesComponent implements OnInit {
       ],
       bombaMoto: [
         {
-          src: 'assets/ejemplos/mods/freno/bomba-moto-01.jpg',
+          src: 'assets/bombamoto.jpg',
           id: 'bomba-moto-01',
-          label: '',
+          label: 'Foto de la bomba de freno instalada',
         },
       ],
     },
@@ -1406,23 +1535,28 @@ export class ImagenesComponent implements OnInit {
       ],
       ampliacionNDepositosCombustible: [
         {
-          src: 'assets/ejemplos/mods/unidad-motriz/depositos-extra-01.jpg',
+          src: 'assets/sumentodedepositos.jpg',
           id: 'dep-extra-01',
-          label: '',
+          label: 'Ampliación de depósitos de combustible',
         },
       ],
       cambioDeMotorMoto: [
         {
-          src: 'assets/ejemplos/mods/unidad-motriz/cambio-motor-moto-01.jpg',
+          src: 'assets/cambiomotormoto.jpg',
           id: 'cambio-motor-moto-01',
-          label: '',
+          label: 'Foto general del motor instalado',
+        },
+        {
+          src: 'assets/codigomotormoto.jpg',
+          id: 'cambio-motor-moto-01',
+          label: 'Foto del código del motor instalado',
         },
       ],
       CambioCajaCambiosMoto: [
         {
-          src: 'assets/ejemplos/mods/unidad-motriz/caja-cambios-moto-01.jpg',
+          src: 'assets/cajadecambiosmoto.jpg',
           id: 'caja-cambios-moto-01',
-          label: '',
+          label: 'Foto general de la caja de cambios instalada',
         },
       ],
       cambioEscapeMoto: [
@@ -1434,9 +1568,9 @@ export class ImagenesComponent implements OnInit {
       ],
       ampliacionNDepositosCombustibleMoto: [
         {
-          src: 'assets/ejemplos/mods/unidad-motriz/depositos-moto-01.jpg',
+          src: 'assets/aumentodepositomoto.jpg',
           id: 'dep-moto-01',
-          label: '',
+          label: 'Foto general del depósito adicional instalado',
         },
       ],
     },
@@ -1445,16 +1579,16 @@ export class ImagenesComponent implements OnInit {
     'Chasis y Subchasis': {
       recorteSubchasisMoto: [
         {
-          src: 'assets/ejemplos/mods/chasis/recorte-subchasis-moto-01.jpg',
+          src: 'assets/recortesubchasis.jpg',
           id: 'recorte-subchasis-moto-01',
-          label: '',
+          label: 'Foto general del recorte del subchasis',
         },
       ],
       modificacionDeChasisMoto: [
         {
-          src: 'assets/ejemplos/mods/chasis/mod-chasis-moto-01.jpg',
+          src: 'assets/chasismoto.jpg',
           id: 'mod-chasis-moto-01',
-          label: '',
+          label: 'Foto general de la modificación del chasis',
         },
       ],
     },
@@ -1688,7 +1822,7 @@ export class ImagenesComponent implements OnInit {
       ],
       cargadorDeBateria: [
         {
-          src: 'assets/ejemplos/mods/inst-elec/cargador-01.jpg',
+          src: 'assets/cargadorBateria1.jpg',
           id: 'cargador-01',
           label: '',
         },
@@ -1708,23 +1842,28 @@ export class ImagenesComponent implements OnInit {
       ],
       iluminacionExterior: [
         {
-          src: 'assets/ejemplos/mods/inst-elec/ilum-ext-01.jpg',
+          src: 'assets/intermitentelateral.png',
           id: 'ilum-ext-01',
-          label: '',
+          label: 'Homologación de la iluminación exterior',
+        },
+        {
+          src: 'assets/iluminacionExterior.jpg',
+          id: 'ilum-ext-02',
+          label: 'Foto general de la iluminación exterior instalada',
         },
       ],
       tomaCorrienteexterior: [
         {
-          src: 'assets/ejemplos/mods/inst-elec/toma-corr-ext-01.jpg',
+          src: 'assets/tomacorrenteexterior.jpg',
           id: 'toma-corr-ext-01',
-          label: '',
+          label: 'Foto general de la toma de corriente exterior',
         },
       ],
       tomaCorrienteInterior: [
         {
-          src: 'assets/ejemplos/mods/inst-elec/toma-corr-int-01.jpg',
+          src: 'assets/tomacorrenteinterior.jpg',
           id: 'toma-corr-int-01',
-          label: '',
+          label: 'Foto general de la toma de corriente interior',
         },
       ],
     },
