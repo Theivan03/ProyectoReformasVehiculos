@@ -334,7 +334,7 @@ export class TipoVehiculoComponent implements OnInit {
     { key: 'reduccionMMA', label: 'Reducción MMA' },
     { key: 'reduccionMMTA', label: 'Reducción MMTA' },
     { key: 'intercooler', label: 'Intercooler' },
-    { key: 'panelRelojes', label: 'PANEL RELOJES' },
+    { key: 'panelRelojes', label: 'Panel de relojes' },
     { key: 'paragolpesTrasero', label: 'Paragolpes trasero' },
     { key: 'aleron', label: 'Alerón' },
     { key: 'lip', label: 'Lip delantero' },

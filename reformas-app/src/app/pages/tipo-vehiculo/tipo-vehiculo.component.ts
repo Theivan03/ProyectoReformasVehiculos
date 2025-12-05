@@ -11,6 +11,12 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Modificacion } from '../../interfaces/modificacion';
 
+interface GrupoModificacion {
+  nombre: string;
+  seleccionado: boolean; // El checkbox "padre"
+  items: string[]; // Los nombres exactos de tus mods
+}
+
 @Component({
   selector: 'app-tipo-vehiculo',
   imports: [FormsModule],
@@ -574,6 +580,27 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
           },
           { nombre: 'ASIENTO', seleccionado: false },
           {
+            nombre: 'CABRESTANTE',
+            seleccionado: false,
+          },
+          {
+            nombre: 'MATRÍCULA Y PORTAMATRÍCULA',
+            seleccionado: false,
+            detalle: {
+              instalacionPorta: false,
+              reubicacionTrasera: false,
+              cambioUbicacionDelantera: false,
+            },
+          },
+          {
+            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
+            seleccionado: false,
+          },
+          {
+            nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
+            seleccionado: false,
+          },
+          {
             nombre: 'DISCO DE FRENO Y PINZA DE FRENO',
             seleccionado: false,
             // usamos claves que el HTML espera
@@ -654,6 +681,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
           },
           {
+            nombre: 'ANTIEMPOTRAMIENTO',
+            seleccionado: false,
+          },
+          {
             nombre: 'NEUMÁTICOS',
             seleccionado: false,
             anotacion1: false,
@@ -669,7 +700,37 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             },
           },
           {
+            nombre: 'BARRA DE DIRECCIÓN',
+            seleccionado: false,
+          },
+          {
+            nombre: 'AMORTIGUADOR DE DIRECCIÓN',
+            seleccionado: false,
+          },
+          {
+            nombre: 'SUSTITUCIÓN DE EJES',
+            seleccionado: false,
+            detalle: {
+              sustitucionEjeTrasero: false,
+              sustitucionEjeDelantero: false,
+            },
+          },
+          {
+            nombre:
+              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)',
+            seleccionado: false,
+          },
+          {
+            nombre:
+              'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)',
+            seleccionado: false,
+          },
+          {
             nombre: 'CABRESTANTE',
+            seleccionado: false,
+          },
+          {
+            nombre: 'CALANDRA',
             seleccionado: false,
           },
           {
@@ -698,6 +759,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
           },
           {
+            nombre: 'DIFUSOR TRASERO',
+            seleccionado: false,
+          },
+          {
             nombre: 'SUSTITUCIÓN DE VOLANTE',
             seleccionado: false,
           },
@@ -710,10 +775,8 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
           },
           {
-            nombre: 'NEUMÁTICOS',
+            nombre: 'PANEL RELOJES',
             seleccionado: false,
-            anotacion1: false,
-            anotacion2: false,
           },
           { nombre: 'ANTENA', seleccionado: false },
           {
@@ -736,6 +799,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             nombre: 'INSTALACIÓN DE TERMO',
             seleccionado: false,
             anotacion: false,
+          },
+          {
+            nombre: 'INTERCOOLER',
+            seleccionado: false,
           },
           {
             nombre: 'INSTALACIÓN ELÉCTRICA',
@@ -780,11 +847,13 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
               aseo: false,
             },
           },
-          { nombre: 'AUMENTO DE PLAZAS', seleccionado: false },
-          { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
           { nombre: 'REGISTRO DE LLENADO DE AGUA', seleccionado: false },
           { nombre: 'REVESTIMIENTO INTERIOR', seleccionado: false },
           { nombre: 'SNORKEL', seleccionado: false },
+          {
+            nombre: 'SUSTITUCIÓN DE SISTEMA DE ESCAPE',
+            seleccionado: false,
+          },
           {
             nombre:
               'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL',
@@ -798,6 +867,153 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       default:
         return [];
     }
+  }
+
+  grupos: GrupoModificacion[] = [
+    {
+      nombre: 'ILUMINACIÓN Y SEÑALIZACIÓN',
+      seleccionado: false,
+      items: [
+        'LUCES',
+        'ANTINIEBLA',
+        '3ª LUZ DE FRENO',
+        'DIURNAS',
+        'INTERMITENTES',
+        'LUCES DE LARGO ALCANCE',
+        'LUCES MATRÍCULA',
+        'LUZ DE CRUCE',
+        'LUZ DE POSICIÓN',
+        'LUZ MARCHA ATRÁS',
+        'PILOTO TRASERO',
+        'SOPORTES PARA LUCES DE USO ESPECÍFICO',
+        'FAROS DELANTEROS PRINCIPALES',
+      ],
+    },
+    {
+      nombre: 'CARROCERÍA EXTERIOR',
+      seleccionado: false,
+      items: [
+        'ALETINES Y SOBREALETINES',
+        'CALANDRA',
+        'DEFENSA DELANTERA',
+        'DIFUSOR TRASERO',
+        'ESTRIBOS LATERALES O TALONERAS',
+        'PARAGOLPES DELANTERO',
+        'PARAGOLPES TRASERO',
+        'PROTECTORES PARAGOLPES',
+        'REFUERZO PARAGOLPES',
+        'SNORKEL',
+        'SOPORTE PARA RUEDA DE REPUESTO',
+        'PLANCHA CAPÓ',
+        'MATRÍCULA Y PORTAMATRÍCULA',
+        'CABRESTANTE',
+        'ANTIEMPOTRAMIENTO',
+        'ANTENA',
+        'TOLDO',
+        'TECHO ELEVABLE',
+      ],
+    },
+    {
+      nombre: 'SUSPENSIÓN, EJES Y RUEDAS',
+      seleccionado: false,
+      items: [
+        'NEUMÁTICOS',
+        'LLANTAS Y NEUMÁTICOS',
+        'SEPARADORES DE RUEDA',
+        'SUSTITUCIÓN DE EJES',
+        'AMORTIGUADOR DE DIRECCIÓN',
+        'BARRA DE DIRECCIÓN',
+        'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)',
+        'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)',
+        'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR',
+        'SUSTITUCIÓN DE BASCULANTE',
+        'HORQUILLA DELANTERA',
+        'TORRETAS',
+      ],
+    },
+    {
+      nombre: 'FRENOS',
+      seleccionado: false,
+      items: [
+        'DISCO DE FRENO Y PINZA DE FRENO',
+        'SUSTITUCIÓN DE DISCOS DE FRENO',
+        'SUSTITUCIÓN DE BOMBA DE FRENO',
+        'LATIGUILLOS',
+      ],
+    },
+    {
+      nombre: 'INTERIOR Y CONFORT',
+      seleccionado: false,
+      items: [
+        'MOBILIARIO INTERIOR VEHÍCULO',
+        'SUSTITUCIÓN DE VOLANTE',
+        'PANEL RELOJES',
+        'ASIENTO',
+        'BANQUETA',
+        'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL',
+        'REVESTIMIENTO INTERIOR',
+        'CALEFACCIÓN ESTACIONARIA',
+        'INSTALACIÓN DE BASES GIRATORIAS',
+      ],
+    },
+    {
+      nombre: 'INSTALACIONES Y AGUA',
+      seleccionado: false,
+      items: [
+        'INSTALACIÓN ELÉCTRICA',
+        'BOMBA DE AGUA',
+        'DEPÓSITO DE AGUA LIMPIA',
+        'DEPÓSITO DE AGUA SUCIA',
+        'DUCHA EXTERIOR',
+        'INSTALACIÓN DE TERMO',
+        'REGISTRO DE LLENADO DE AGUA',
+        'TOMA EXTERIOR 230V',
+      ],
+    },
+    {
+      nombre: 'CARROCERÍA Y CHASIS (ESTRUCTURAL)',
+      seleccionado: false,
+      items: [
+        'VENTANA',
+        'VENTANA LATERAL',
+        'CLARABOYA',
+        'AUMENTO DE PLAZAS',
+        'REDUCCIÓN DE PLAZAS',
+        'AUMENTO O DISMINUCIÓN DE PLAZAS',
+        'RECORTE SUBCHASIS',
+        'SUSTITUCIÓN GUARDABARROS',
+        'SOPORTE MATRÍCULA',
+        'SOPORTES DESPLAZADOS',
+        'ENGANCHE REMOLQUE',
+        'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
+        'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
+      ],
+    },
+    {
+      nombre: 'MOTOR Y TÉCNICO',
+      seleccionado: false,
+      items: [
+        'INTERCOOLER',
+        'SUSTITUCIÓN DE SISTEMA DE ESCAPE',
+        'SUSTITUCIÓN DE DEPÓSITO',
+        'MANDO ACELERADOR',
+        'MANDOS LUCES',
+        'MANILLAR',
+        'VELOCÍMETRO',
+        'CAMBIO DE CLASIFICACIÓN',
+      ],
+    },
+  ];
+
+  getModsDeGrupo(itemsGrupo: string[]) {
+    return this.modificaciones.filter((m) => itemsGrupo.includes(m.nombre));
+  }
+
+  getModsSinGrupo() {
+    const todosLosItemsAgrupados = this.grupos.flatMap((g) => g.items);
+    return this.modificaciones.filter(
+      (m) => !todosLosItemsAgrupados.includes(m.nombre)
+    );
   }
 
   continuarFormulario(): void {

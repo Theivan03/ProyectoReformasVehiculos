@@ -2440,8 +2440,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 5) MANILLAR
   //
   const manillar = modificaciones.find(
-    (m) =>
-      m.nombre === 'MANILLAR' && m.seleccionado && data.tipoVehiculo === 'moto'
+    (m) => m.nombre === 'MANILLAR' && m.seleccionado
   );
   if (manillar) {
     raw = `- Sustitución de manillar por otro marca ${manillar.marca} modelo ${manillar.modelo} y de medidas ${manillar.medidasManillar}.`;
@@ -2471,10 +2470,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 6) VELOCÍMETRO
   //
   const velocimetro = modificaciones.find(
-    (m) =>
-      m.nombre === 'VELOCÍMETRO' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+    (m) => m.nombre === 'VELOCÍMETRO' && m.seleccionado
   );
   if (velocimetro) {
     raw = `- Sustitución del velocímetro, por otro de la marca ${velocimetro.marca} referencia ${velocimetro.referencia} y contraseña de homologación ${velocimetro.homologacion}. Incorpora los testigos de intermitente derecho e izquierdo, luz larga y neutro.`;
@@ -2513,10 +2509,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 8) RETROVISORES
   //
   const retrovisores = modificaciones.find(
-    (m) =>
-      m.nombre === 'RETROVISORES' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+    (m) => m.nombre === 'RETROVISORES' && m.seleccionado
   );
   if (retrovisores) {
     raw = `- Sustitución y reubicación de espejos retrovisores por otros, marca ${retrovisores.marca}, modelo ${retrovisores.modelo}, con marcaje ${retrovisores.marcaje} y contraseña de homologación ${retrovisores.homologacion}.`;
@@ -2534,10 +2527,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 9) HORQUILLA DELANTERA
   //
   const horquilladelantera = modificaciones.find(
-    (m) =>
-      m.nombre === 'HORQUILLA DELANTERA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+    (m) => m.nombre === 'HORQUILLA DELANTERA' && m.seleccionado
   );
   if (horquilladelantera) {
     raw = `- Sustitución de horquilla delantera por otra procedente de una moto marca ${horquilladelantera.marca}, tipo ${horquilladelantera.tipo}, variante ${horquilladelantera.variante} y denominación comercial ${horquilladelantera.denominacion}.`;
@@ -2555,10 +2545,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 10) DISCO DE FRENO Y PINZA DE FRENO
   //
   const frenos = modificaciones.find(
-    (m) =>
-      m.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+    (m) => m.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' && m.seleccionado
   );
   if (frenos) {
     if (frenos?.tieneDisco) {
@@ -2721,10 +2708,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 1) CAMBIO DE CLASIFICACIÓN
   //
   const cambioclasi = modificaciones.find(
-    (m) =>
-      m.nombre === 'CAMBIO DE CLASIFICACIÓN' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'CAMBIO DE CLASIFICACIÓN' && m.seleccionado
   );
   if (cambioclasi) {
     raw = `- Cambio de clasificación del vehículo de ${data.clasificacionAntes} a ${data.clasificacionDespues}.`;
@@ -2946,8 +2930,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre ===
         'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+      m.seleccionado
   );
   if (banqueta) {
     raw = `- Sustitución de asiento delantero biplaza por uno individual procedente de ${banqueta.marcaAsiento}, contraseña de homologación ${banqueta.contrasenaAsiento}, de la variante de ${banqueta.plazasAsiento} plazas ${banqueta.posicionAsiento}, manteniéndose el cinturón de la plaza lateral derecha en anclaje original.`;
@@ -2965,10 +2948,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 4) INSTALACIÓN DE BASES GIRATORIAS
   //
   const giratiorias = modificaciones.find(
-    (m) =>
-      m.nombre === 'INSTALACIÓN DE BASES GIRATORIAS' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'INSTALACIÓN DE BASES GIRATORIAS' && m.seleccionado
   );
   if (giratiorias) {
     raw = `- Instalación de bases giratorias en los asientos delanteros, marca ${giratiorias.marcaBaseGiratoria}, referencia ${giratiorias.referenciaConductor} (conductor) y ${giratiorias.referenciaAcompanante} (acompañante), sobre anclajes originales, con contraseña de homologación ${giratiorias.homologacionBase}. Las bases giratorias se instalan según instrucciones del fabricante y en anclajes originales.`;
@@ -2986,10 +2966,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 5) CALEFACCIÓN ESTACIONARIA
   //
   const calefac = modificaciones.find(
-    (m) =>
-      m.nombre === 'CALEFACCIÓN ESTACIONARIA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'CALEFACCIÓN ESTACIONARIA' && m.seleccionado
   );
   if (calefac) {
     raw = `- Instalación de sistema de calefacción marca ${calefac.marcaCalefaccion} modelo ${calefac.modeloCalefaccion} contraseña de homologación ${calefac.homologacionCalefaccion}, con salidas al espacio de carga del vehículo. El combustible utilizado es Diésel que se toma del depósito mediante espadín. ${calefac.descripcionCalefaccion}. Se realiza instalación del sistema de alimentación según indicaciones de fabricante y se garantiza la estanqueidad del sistema.`;
@@ -3006,10 +2983,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 6) MOBILIARIO INTERIOR VEHÍCULO
   //
   const mobil = modificaciones.find(
-    (m) =>
-      m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
   );
   if (mobil) {
     raw = `- Instalación de mobiliario para convertir el vehículo en furgón vivienda en la zona de carga del vehículo, compuesto por:`;
@@ -3078,10 +3052,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 7) CLARABOYA
   //
   const claraboya = modificaciones.find(
-    (m) =>
-      m.nombre === 'CLARABOYA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'CLARABOYA' && m.seleccionado
   );
   if (claraboya) {
     raw = `- Instalación en el techo del vehículo ${claraboya.cantidadClaraboya} claraboyas, marca ${claraboya.marcaClaraboya} modelo ${claraboya.modeloClaraboya} ${claraboya.descripcionClaraboya}, con contraseña de homologación ${claraboya.homologacionClaraboya}, sin afectar a la estructura principal del vehículo.`;
@@ -3099,8 +3070,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 8) VENTANA
   //
   const ventana = modificaciones.find(
-    (m) =>
-      m.nombre === 'VENTANA' && m.seleccionado && data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'VENTANA' && m.seleccionado
   );
   if (ventana) {
     raw = `- Instalación de ${ventana.cantidadVentanas} ventanas abatibles/correderas ${ventana.descripcionVentana} marca ${ventana.marcaVentana} modelo ${ventana.modeloVentana} de dimensiones ${ventana.dimensionesVentana}mm y contraseña de homologación ${ventana.homologacionVentana}, sin afectar a la estructura principal del vehículo.`;
@@ -3118,10 +3088,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 9) DEPÓSITO DE AGUA SUCIA
   //
   const aguasucia = modificaciones.find(
-    (m) =>
-      m.nombre === 'DEPÓSITO DE AGUA SUCIA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'DEPÓSITO DE AGUA SUCIA' && m.seleccionado
   );
   if (aguasucia) {
     raw = `- Instalación de depósito para agua sucia de ${aguasucia.litrosAguaSucia} litros en la parte trasera en los bajos del vehículo. Este depósito se vacía mediante un grifo.`;
@@ -3139,10 +3106,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 10) DEPÓSITO DE AGUA LIMPIA
   //
   const agualimpia = modificaciones.find(
-    (m) =>
-      m.nombre === 'DEPÓSITO DE AGUA LIMPIA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'DEPÓSITO DE AGUA LIMPIA' && m.seleccionado
   );
   if (agualimpia) {
     raw = `- Instalación de depósito para agua limpia de ${agualimpia.litrosAguaLimpia} litros y medidas ${agualimpia.medidasAguaLimpia}mm en la parte trasera del lateral izquierdo.`;
@@ -3160,10 +3124,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 12) BOMBA DE AGUA
   //
   const bombaagua = modificaciones.find(
-    (m) =>
-      m.nombre === 'BOMBA DE AGUA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'BOMBA DE AGUA' && m.seleccionado
   );
   if (bombaagua) {
     raw = `- Instalación de bomba de agua de 12V marca ${bombaagua.marcaBombaAgua} modelo ${bombaagua.modeloBombaAgua} ubicada en la parte trasera izquierda del vehículo.`;
@@ -3181,10 +3142,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 13) REGISTRO DE LLENADO DE AGUA
   //
   const llenadoagua = modificaciones.find(
-    (m) =>
-      m.nombre === 'REGISTRO DE LLENADO DE AGUA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'REGISTRO DE LLENADO DE AGUA' && m.seleccionado
   );
   if (llenadoagua) {
     raw = `- Instalación de registro ${llenadoagua.ubicacionRegistroAgua} para llenado de agua, fabricado en plástico de Ø ${llenadoagua.tamanoRegistroAgua}mm, sin afectar a la estructura del vehículo.`;
@@ -3202,10 +3160,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 14) TOMA EXTERIOR 230V
   //
   const toma230v = modificaciones.find(
-    (m) =>
-      m.nombre === 'TOMA EXTERIOR 230V' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'TOMA EXTERIOR 230V' && m.seleccionado
   );
   if (toma230v) {
     raw = `- Instalación de una toma de corriente exterior de ${toma230v.voltajeTomaExterior}V en la ${toma230v.ubicacionTomaExterior} fabricado en plástico de medidas ${toma230v.medidasTomaExterior}mm, sin afectar a la estructura del vehículo.`;
@@ -3223,10 +3178,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 15) DUCHA EXTERIOR
   //
   const duchaexterior = modificaciones.find(
-    (m) =>
-      m.nombre === 'DUCHA EXTERIOR' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'DUCHA EXTERIOR' && m.seleccionado
   );
   if (duchaexterior) {
     raw = `- Instalación de registro con ducha exterior en la ${duchaexterior.ubicacionDuchaExterior} para llenado de agua, fabricado en plástico, sin afectar a la estructura del vehículo.`;
@@ -3244,10 +3196,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 16) INSTALACIÓN ELÉCTRICA
   //
   const instalacionelectrica = modificaciones.find(
-    (m) =>
-      m.nombre === 'INSTALACIÓN ELÉCTRICA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'INSTALACIÓN ELÉCTRICA' && m.seleccionado
   );
   if (instalacionelectrica) {
     raw = `- Instalación de sistema solar fotovoltaico compuesto por:`;
@@ -3346,8 +3295,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 17) TOLDO
   //
   const toldo = modificaciones.find(
-    (m) =>
-      m.nombre === 'TOLDO' && m.seleccionado && data.tipoVehiculo === 'camper'
+    (m) => m.nombre === 'TOLDO' && m.seleccionado
   );
   if (toldo) {
     raw = `- Instalación de toldo marca ${toldo.marcaToldo} de medidas ${toldo.medidasToldo}mm en ${toldo.ubicacionToldo} del vehículo sin afectar a la estructura.`;

@@ -1,20 +1,20 @@
 # Summary
 
-Date : 2025-10-17 13:34:13
+Date : 2025-12-03 08:53:10
 
 Directory c:\\ProyectoVehiculos\\ProyectoReformasVehiculos
 
-Total : 273 files,  106971 codes, 2689 comments, 5443 blanks, all 115103 lines
+Total : 266 files,  131939 codes, 2449 comments, 6597 blanks, all 140985 lines
 
 Summary / [Details](details.md) / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
 ## Languages
 | language | files | code | comment | blank | total |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| TypeScript | 125 | 47,605 | 1,685 | 4,006 | 53,296 |
-| JSON | 51 | 30,951 | 12 | 46 | 31,009 |
-| HTML | 46 | 27,622 | 941 | 1,193 | 29,756 |
-| PostCSS | 45 | 404 | 24 | 105 | 533 |
+| TypeScript | 119 | 51,157 | 1,798 | 4,259 | 57,214 |
+| HTML | 43 | 46,235 | 588 | 2,103 | 48,926 |
+| JSON | 56 | 33,796 | 12 | 47 | 33,855 |
+| PostCSS | 42 | 362 | 24 | 95 | 481 |
 | JavaScript | 1 | 313 | 24 | 65 | 402 |
 | JSON with Comments | 1 | 39 | 2 | 1 | 42 |
 | Markdown | 2 | 37 | 0 | 25 | 62 |
@@ -23,11 +23,16 @@ Summary / [Details](details.md) / [Diff Summary](diff.md) / [Diff Details](diff-
 ## Directories
 | path | files | code | comment | blank | total |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| . | 273 | 106,971 | 2,689 | 5,443 | 115,103 |
+| . | 266 | 131,939 | 2,449 | 6,597 | 140,985 |
 | . (Files) | 3 | 235 | 0 | 3 | 238 |
-| backend | 32 | 13,148 | 24 | 67 | 13,239 |
-| backend (Files) | 6 | 1,407 | 24 | 67 | 1,498 |
-| backend\\proyectos | 26 | 11,741 | 0 | 0 | 11,741 |
+| backend | 37 | 15,993 | 24 | 68 | 16,085 |
+| backend (Files) | 6 | 1,429 | 24 | 67 | 1,520 |
+| backend\\proyectos | 31 | 14,564 | 0 | 1 | 14,565 |
+| backend\\proyectos\\125_2025 | 1 | 556 | 0 | 0 | 556 |
+| backend\\proyectos\\126_2025 | 1 | 331 | 0 | 1 | 332 |
+| backend\\proyectos\\127_2025 | 1 | 229 | 0 | 0 | 229 |
+| backend\\proyectos\\128_2025 | 1 | 368 | 0 | 0 | 368 |
+| backend\\proyectos\\129_2025 | 1 | 1,339 | 0 | 0 | 1,339 |
 | backend\\proyectos\\18_2025 | 1 | 406 | 0 | 0 | 406 |
 | backend\\proyectos\\19_2025 | 1 | 492 | 0 | 0 | 492 |
 | backend\\proyectos\\20_2025 | 1 | 381 | 0 | 0 | 381 |
@@ -54,27 +59,24 @@ Summary / [Details](details.md) / [Diff Summary](diff.md) / [Diff Details](diff-
 | backend\\proyectos\\41_2025 | 1 | 1,077 | 0 | 0 | 1,077 |
 | backend\\proyectos\\42_2025 | 1 | 425 | 0 | 0 | 425 |
 | backend\\proyectos\\43_2025 | 1 | 374 | 0 | 0 | 374 |
-| reformas-app | 238 | 93,588 | 2,665 | 5,373 | 101,626 |
+| reformas-app | 226 | 115,711 | 2,425 | 6,526 | 124,662 |
 | reformas-app (Files) | 7 | 16,511 | 6 | 30 | 16,547 |
-| reformas-app\\projects | 147 | 44,919 | 1,525 | 3,176 | 49,620 |
-| reformas-app\\projects\\reformas-clientes | 56 | 12,406 | 371 | 969 | 13,746 |
+| reformas-app\\projects | 135 | 49,874 | 1,436 | 3,368 | 54,678 |
+| reformas-app\\projects\\reformas-clientes | 44 | 17,361 | 282 | 1,161 | 18,804 |
 | reformas-app\\projects\\reformas-clientes (Files) | 2 | 27 | 4 | 2 | 33 |
-| reformas-app\\projects\\reformas-clientes\\src | 54 | 12,379 | 367 | 967 | 13,713 |
+| reformas-app\\projects\\reformas-clientes\\src | 42 | 17,334 | 278 | 1,159 | 18,771 |
 | reformas-app\\projects\\reformas-clientes\\src (Files) | 3 | 19 | 1 | 4 | 24 |
-| reformas-app\\projects\\reformas-clientes\\src\\app | 48 | 11,896 | 366 | 952 | 13,214 |
+| reformas-app\\projects\\reformas-clientes\\src\\app | 36 | 16,851 | 277 | 1,144 | 18,272 |
 | reformas-app\\projects\\reformas-clientes\\src\\app (Files) | 6 | 76 | 4 | 20 | 100 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\formulario-taller | 4 | 268 | 8 | 33 | 309 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\funciones | 1 | 956 | 11 | 51 | 1,018 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\interfaces | 1 | 607 | 0 | 22 | 629 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages | 32 | 9,944 | 343 | 808 | 11,095 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\cocheono | 4 | 176 | 14 | 31 | 221 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\crear-reforma | 4 | 464 | 26 | 71 | 561 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\finalizar-reforma | 4 | 277 | 15 | 47 | 339 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\formulario-proyecto | 4 | 412 | 12 | 38 | 462 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\imagenes | 4 | 1,061 | 39 | 130 | 1,230 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\reformas-previas | 4 | 106 | 0 | 22 | 128 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\resumen-modificaciones | 4 | 5,429 | 196 | 305 | 5,930 |
-| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\tipo-vehiculo | 4 | 2,019 | 41 | 164 | 2,224 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\funciones | 1 | 965 | 11 | 52 | 1,028 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\interfaces | 1 | 611 | 0 | 23 | 634 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\pages | 24 | 15,154 | 262 | 1,031 | 16,447 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\crear-reforma | 4 | 506 | 24 | 77 | 607 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\finalizar-reforma | 4 | 404 | 15 | 60 | 479 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\formulario-proyecto | 4 | 575 | 7 | 52 | 634 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\imagenes | 4 | 3,164 | 68 | 205 | 3,437 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\resumen-modificaciones | 4 | 8,145 | 107 | 468 | 8,720 |
+| reformas-app\\projects\\reformas-clientes\\src\\app\\pages\\tipo-vehiculo | 4 | 2,360 | 41 | 169 | 2,570 |
 | reformas-app\\projects\\reformas-clientes\\src\\app\\services | 4 | 45 | 0 | 18 | 63 |
 | reformas-app\\projects\\reformas-clientes\\src\\assets | 3 | 464 | 0 | 11 | 475 |
 | reformas-app\\projects\\reformas-test | 91 | 32,513 | 1,154 | 2,207 | 35,874 |
@@ -104,29 +106,29 @@ Summary / [Details](details.md) / [Diff Summary](diff.md) / [Diff Details](diff-
 | reformas-app\\projects\\reformas-test\\src\\app\\pages\\tipo-vehiculo | 4 | 1,221 | 49 | 89 | 1,359 |
 | reformas-app\\projects\\reformas-test\\src\\app\\services | 4 | 45 | 0 | 18 | 63 |
 | reformas-app\\projects\\reformas-test\\src\\assets | 3 | 464 | 0 | 11 | 475 |
-| reformas-app\\src | 84 | 32,158 | 1,134 | 2,167 | 35,459 |
+| reformas-app\\src | 84 | 49,326 | 983 | 3,128 | 53,437 |
 | reformas-app\\src (Files) | 3 | 24 | 1 | 6 | 31 |
-| reformas-app\\src\\app | 78 | 31,670 | 1,133 | 2,150 | 34,953 |
-| reformas-app\\src\\app (Files) | 6 | 118 | 5 | 21 | 144 |
-| reformas-app\\src\\app\\Funciones | 2 | 7,063 | 403 | 574 | 8,040 |
-| reformas-app\\src\\app\\formulario-taller | 4 | 367 | 3 | 37 | 407 |
-| reformas-app\\src\\app\\generador-documentos | 4 | 383 | 8 | 49 | 440 |
-| reformas-app\\src\\app\\generadores | 5 | 9,492 | 233 | 437 | 10,162 |
-| reformas-app\\src\\app\\gestionar-ingeniero | 4 | 393 | 3 | 38 | 434 |
-| reformas-app\\src\\app\\interfaces | 1 | 478 | 0 | 17 | 495 |
-| reformas-app\\src\\app\\pages | 48 | 13,331 | 478 | 959 | 14,768 |
-| reformas-app\\src\\app\\pages\\canva | 4 | 432 | 30 | 66 | 528 |
-| reformas-app\\src\\app\\pages\\cocheono | 4 | 176 | 14 | 31 | 221 |
-| reformas-app\\src\\app\\pages\\crear-reforma | 4 | 856 | 49 | 111 | 1,016 |
-| reformas-app\\src\\app\\pages\\editar-reforma | 4 | 246 | 6 | 34 | 286 |
-| reformas-app\\src\\app\\pages\\formulario-proyecto | 4 | 934 | 12 | 84 | 1,030 |
-| reformas-app\\src\\app\\pages\\home | 4 | 31 | 0 | 11 | 42 |
-| reformas-app\\src\\app\\pages\\imagenes | 4 | 421 | 15 | 54 | 490 |
-| reformas-app\\src\\app\\pages\\mostrar-secciones | 4 | 191 | 8 | 28 | 227 |
-| reformas-app\\src\\app\\pages\\reformas-previas | 4 | 113 | 1 | 24 | 138 |
-| reformas-app\\src\\app\\pages\\resumen-modificaciones | 4 | 8,590 | 294 | 403 | 9,287 |
-| reformas-app\\src\\app\\pages\\seleccion-secciones | 4 | 120 | 0 | 24 | 144 |
-| reformas-app\\src\\app\\pages\\tipo-vehiculo | 4 | 1,221 | 49 | 89 | 1,359 |
+| reformas-app\\src\\app | 78 | 48,838 | 982 | 3,111 | 52,931 |
+| reformas-app\\src\\app (Files) | 6 | 265 | 3 | 38 | 306 |
+| reformas-app\\src\\app\\Funciones | 2 | 7,841 | 459 | 792 | 9,092 |
+| reformas-app\\src\\app\\formulario-taller | 4 | 341 | 7 | 49 | 397 |
+| reformas-app\\src\\app\\generador-documentos | 4 | 579 | 1 | 74 | 654 |
+| reformas-app\\src\\app\\generadores | 5 | 10,015 | 242 | 469 | 10,726 |
+| reformas-app\\src\\app\\gestionar-ingeniero | 4 | 373 | 8 | 53 | 434 |
+| reformas-app\\src\\app\\interfaces | 1 | 679 | 0 | 56 | 735 |
+| reformas-app\\src\\app\\pages | 48 | 28,700 | 262 | 1,562 | 30,524 |
+| reformas-app\\src\\app\\pages\\canva | 4 | 626 | 26 | 93 | 745 |
+| reformas-app\\src\\app\\pages\\cocheono | 4 | 305 | 29 | 50 | 384 |
+| reformas-app\\src\\app\\pages\\crear-reforma | 4 | 1,104 | 29 | 101 | 1,234 |
+| reformas-app\\src\\app\\pages\\editar-reforma | 4 | 422 | 3 | 59 | 484 |
+| reformas-app\\src\\app\\pages\\formulario-proyecto | 4 | 1,103 | 27 | 105 | 1,235 |
+| reformas-app\\src\\app\\pages\\home | 4 | 80 | 0 | 16 | 96 |
+| reformas-app\\src\\app\\pages\\imagenes | 4 | 755 | 31 | 99 | 885 |
+| reformas-app\\src\\app\\pages\\mostrar-secciones | 4 | 313 | 8 | 47 | 368 |
+| reformas-app\\src\\app\\pages\\reformas-previas | 4 | 223 | 1 | 38 | 262 |
+| reformas-app\\src\\app\\pages\\resumen-modificaciones | 4 | 21,815 | 67 | 801 | 22,683 |
+| reformas-app\\src\\app\\pages\\seleccion-secciones | 4 | 263 | 9 | 44 | 316 |
+| reformas-app\\src\\app\\pages\\tipo-vehiculo | 4 | 1,691 | 32 | 109 | 1,832 |
 | reformas-app\\src\\app\\services | 4 | 45 | 0 | 18 | 63 |
 | reformas-app\\src\\assets | 3 | 464 | 0 | 11 | 475 |
 
