@@ -1,14 +1,24 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { AppComponent } from './app/app.component';
+import { appConfig } from './app/app.config';
 import { routes } from './app/app.routes';
 import localeEs from '@angular/common/locales/es';
 import { registerLocaleData } from '@angular/common';
 
 import { LOCALE_ID } from '@angular/core';
+import { provideHttpClient, withFetch } from '@angular/common/http';
+
+bootstrapApplication(AppComponent, appConfig).catch((err) =>
+  console.error(err)
+);
 
 registerLocaleData(localeEs, 'es');
 
 bootstrapApplication(AppComponent, {
-  providers: [provideRouter(routes), { provide: LOCALE_ID, useValue: 'es' }],
+  providers: [
+    provideRouter(routes),
+    { provide: LOCALE_ID, useValue: 'es' },
+    provideHttpClient(withFetch()),
+  ],
 }).catch((err) => console.error('BOOT ERROR:', err));

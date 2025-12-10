@@ -80,8 +80,18 @@
         padding: 0.75rem 1rem;
         border-left: 3px solid transparent;
         transition: all 0.2s ease;
+        cursor: pointer;
       }
 
+      /* Alineación perfecta de iconos */
+      .sidebar-link span {
+        width: 30px;
+        display: inline-flex;
+        justify-content: center;
+        text-align: center;
+      }
+
+      /* Estilos por defecto (se sobrescriben con las clases específicas) */
       .sidebar-link:hover {
         color: var(--tech-accent);
         background-color: #f1f5f9;
@@ -108,6 +118,39 @@
         border: 1px solid var(--tech-border);
         min-height: 400px;
       }
+
+      /* --- COLORES PERSONALIZADOS POR ROL --- */
+
+      /* COCHE: VERDE */
+      .nav-link-coche:hover {
+        background-color: #ecfdf5 !important; /* Fondo verde muy claro */
+        border-left-color: #10b981 !important; /* Borde verde */
+        color: #047857 !important; /* Texto verde oscuro */
+      }
+
+      /* VIVIENDA: AZUL */
+      .nav-link-vivienda:hover {
+        background-color: #eff6ff !important; /* Fondo azul muy claro */
+        border-left-color: #3b82f6 !important; /* Borde azul */
+        color: #1d4ed8 !important; /* Texto azul oscuro */
+      }
+
+      /* ADMIN: NARANJA */
+      .nav-link-admin:hover {
+        background-color: #fff7ed !important; /* Fondo naranja muy claro */
+        border-left-color: #f97316 !important; /* Borde naranja */
+        color: #c2410c !important; /* Texto naranja oscuro */
+      }
+
+      /* LOGOUT: ROJO */
+      .nav-link-logout {
+        color: #ef4444 !important;
+      }
+      .nav-link-logout:hover {
+        background-color: #fef2f2 !important; /* Fondo rojo muy claro */
+        border-left-color: #ef4444 !important; /* Borde rojo */
+        color: #b91c1c !important; /* Texto rojo oscuro */
+      }
     </style>
   </head>
   <body>
@@ -115,7 +158,9 @@
       <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="/">
           <img src="assets/logo.png" alt="Logo" height="36" class="me-3" />
-          <span class="fs-6">PROYECTO REFORMAS</span>
+          <span class="fs-6"
+            >GESTIÓN DE INFORMACIÓN Y CREACIÓN DE DOCUMENTACIÓN</span
+          >
         </a>
       </div>
     </header>
@@ -123,51 +168,107 @@
     <div class="container-fluid flex-grow-1 d-flex p-0">
       <div class="row g-0 w-100">
         <nav
+          *ngIf="usuarioLogueado"
           class="col-md-3 col-lg-2 d-md-block bg-white border-end sidebar collapse"
           style="border-color: var(--tech-border) !important"
         >
           <div class="position-sticky pt-4">
-            <h6 class="sidebar-heading px-4 mb-2 text-uppercase fw-bold">
-              Gestión Principal
-            </h6>
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <a
-                  class="nav-link sidebar-link d-flex align-items-center"
-                  routerLink="/crear-reforma"
-                  (click)="resetAndNavigate('/crear-reforma')"
-                >
-                  <span class="me-2">📝</span> Nueva Reforma
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link sidebar-link d-flex align-items-center"
-                  routerLink="/editar-reforma"
-                >
-                  <span class="me-2">🛠️</span> Editar Reforma
-                </a>
-              </li>
-            </ul>
+            <!-- SECCIÓN 1: COCHE (Y ADMIN) -->
+            <ng-container *ngIf="esAdmin || esRolCoche">
+              <h6 class="sidebar-heading px-4 mb-2 text-uppercase fw-bold">
+                Gestión Principal
+              </h6>
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <a
+                    class="nav-link sidebar-link nav-link-coche d-flex align-items-center"
+                    routerLink="/crear-reforma"
+                    (click)="resetAndNavigate('/crear-reforma')"
+                  >
+                    <span class="me-2">📝</span> Nueva Reforma
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link sidebar-link nav-link-coche d-flex align-items-center"
+                    routerLink="/editar-reforma"
+                  >
+                    <span class="me-2">🛠️</span> Editar Reforma
+                  </a>
+                </li>
+              </ul>
+            </ng-container>
 
+            <!-- SECCIÓN 2: BASE DE DATOS (ADMIN Y COCHE - Talleres) -->
+            <ng-container *ngIf="esAdmin">
+              <h6 class="sidebar-heading px-4 mt-4 mb-2 text-uppercase fw-bold">
+                Base de Datos
+              </h6>
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <a
+                    class="nav-link sidebar-link nav-link-admin d-flex align-items-center"
+                    routerLink="/admin"
+                  >
+                    <span class="me-2">🧍</span> Gestión Usuarios
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link sidebar-link nav-link-admin d-flex align-items-center"
+                    routerLink="/taller"
+                  >
+                    <span class="me-2">⚙️</span> Talleres
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link sidebar-link nav-link-admin d-flex align-items-center"
+                    routerLink="/ingenieros"
+                  >
+                    <span class="me-2">👷‍♂️</span> Ingenieros
+                  </a>
+                </li>
+              </ul>
+            </ng-container>
+
+            <!-- SECCIÓN 3: VIVIENDA (Y ADMIN) -->
+            <ng-container *ngIf="esAdmin || esRolVivienda">
+              <h6 class="sidebar-heading px-4 mt-4 mb-2 text-uppercase fw-bold">
+                Base de Datos
+              </h6>
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <a
+                    class="nav-link sidebar-link nav-link-vivienda d-flex align-items-center"
+                    routerLink="/documentacion-vt"
+                  >
+                    <span class="me-2">🏠</span> Documentos de presentación VT
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link sidebar-link nav-link-vivienda d-flex align-items-center"
+                    routerLink="/#"
+                  >
+                    <span class="me-2">⚡</span> Memoria técnica de diseño
+                  </a>
+                </li>
+              </ul>
+            </ng-container>
+
+            <!-- SESIÓN (PARA TODOS) -->
             <h6 class="sidebar-heading px-4 mt-4 mb-2 text-uppercase fw-bold">
-              Base de Datos
+              Sesión
             </h6>
-            <ul class="nav flex-column">
+            <ul class="nav flex-column mb-4">
               <li class="nav-item">
                 <a
-                  class="nav-link sidebar-link d-flex align-items-center"
-                  routerLink="/taller"
+                  class="nav-link sidebar-link nav-link-logout d-flex align-items-center"
+                  (click)="cerrarSesion()"
+                  style="cursor: pointer"
                 >
-                  <span class="me-2">⚙️</span> Talleres
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link sidebar-link d-flex align-items-center"
-                  routerLink="/ingenieros"
-                >
-                  <span class="me-2">👷‍♂️</span> Ingenieros
+                  <span class="me-2">🚪</span> Cerrar Sesión
                 </a>
               </li>
             </ul>
@@ -175,7 +276,11 @@
         </nav>
 
         <main
-          class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content h-100"
+          class="px-md-4 py-4 main-content h-100"
+          [ngClass]="{
+            'col-md-9 ms-sm-auto col-lg-10': usuarioLogueado,
+            'col-12': !usuarioLogueado
+          }"
         >
           <div
             class="p-4 bg-white border shadow-sm"

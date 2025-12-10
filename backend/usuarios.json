@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "usuario": "admin",
+    "password": "$2b$10$1jH70sQzbT3H3vPYfsQcUekyf5JW9afAWF5OuFfsQdBC9kApijzmO",
+    "rol": "administrador"
+  },
+  {
+    "id": 2,
+    "usuario": "ivan",
+    "password": "$2b$10$XFFBlNS7l9GdUD2YV4GUXOFkPUQYVtcilHlCtyMjbUz5J1N5gE.ma",
+    "rol": "coche"
+  }
+]

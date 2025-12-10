@@ -1,37 +1,147 @@
 const express = require('express');
 const fs = require('fs');
 const cors = require('cors');
-const app = express();
 const path = require('path');
 const { imageSize } = require('image-size');
 const multer = require('multer');
 const { exec } = require('child_process');
-const uploadDocx = multer({ dest: 'uploads_docx/' });
-const multerDocx = multer({ storage: multer.memoryStorage() });
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
+const uploadDocx = multer({ dest: 'uploads_docx/' });
+const multerDocx = multer({ storage: multer.memoryStorage() });
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fieldSize: 50 * 1024 * 1024,  // 50 MB por campo de texto (metadata)
-    fileSize: 50 * 1024 * 1024    // 50 MB por archivo
+    fieldSize: 50 * 1024 * 1024,
+    fileSize: 50 * 1024 * 1024
   }
 });
+
+const USUARIOS_PATH = path.join(__dirname, 'usuarios.json');
+let baseDeDatosUsuariosServidor = [];
+
+if (fs.existsSync(USUARIOS_PATH)) {
+  try {
+    const rawData = fs.readFileSync(USUARIOS_PATH, 'utf-8');
+    baseDeDatosUsuariosServidor = JSON.parse(rawData);
+  } catch (error) {
+    baseDeDatosUsuariosServidor = [];
+  }
+}
+
+const llaveSecretaServidorJWT = 'ivanPutoamo';
+
+const guardarUsuariosEnDisco = () => {
+  try {
+    fs.writeFileSync(USUARIOS_PATH, JSON.stringify(baseDeDatosUsuariosServidor, null, 2));
+  } catch (error) {
+    console.error('Error guardando usuarios.json', error);
+  }
+};
+
+const crearUsuarioAdminPorDefecto = async () => {
+  const saltAdmin = await bcrypt.genSalt(10);
+  const passwordHashedAdmin = await bcrypt.hash('123456', saltAdmin);
+
+  const usuarioAdmin = {
+    id: 1,
+    usuario: 'admin',
+    password: passwordHashedAdmin,
+    rol: 'administrador'
+  };
+
+  const existeAdmin = baseDeDatosUsuariosServidor.find(u => u.usuario === 'admin');
+  if (!existeAdmin) {
+    baseDeDatosUsuariosServidor.push(usuarioAdmin);
+    console.log('--> Usuario ADMIN creado: admin / 123456');
+    guardarUsuariosEnDisco();
+  }
+};
+
+crearUsuarioAdminPorDefecto();
+
+app.post('/api/registro', async (req, res) => {
+  const { usuarioRegistroApp, passwordRegistroApp, tipoUsuarioApp } = req.body;
+
+  const saltServidor = await bcrypt.genSalt(10);
+  const passwordHashedServidor = await bcrypt.hash(passwordRegistroApp, saltServidor);
+
+  let siguienteId = 1;
+  if (baseDeDatosUsuariosServidor.length > 0) {
+    const idsExistentes = baseDeDatosUsuariosServidor.map(u => u.id);
+    siguienteId = Math.max(...idsExistentes) + 1;
+  }
+
+  const nuevoUsuarioServidor = {
+    id: siguienteId,
+    usuario: usuarioRegistroApp,
+    password: passwordHashedServidor,
+    rol: tipoUsuarioApp
+  };
+
+  baseDeDatosUsuariosServidor.push(nuevoUsuarioServidor);
+  guardarUsuariosEnDisco();
+  res.json({ mensaje: 'Usuario cifrado y almacenado exitosamente' });
+});
+
+app.post('/api/login', async (req, res) => {
+  const { usuarioLoginApp, passwordLoginApp } = req.body;
+
+  const usuarioEncontradoServidor = baseDeDatosUsuariosServidor.find(u => u.usuario === usuarioLoginApp);
+
+  if (!usuarioEncontradoServidor) {
+    return res.status(400).json({ error: 'Usuario no encontrado' });
+  }
+
+  const passwordValidaServidor = await bcrypt.compare(passwordLoginApp, usuarioEncontradoServidor.password);
+
+  if (!passwordValidaServidor) {
+    return res.status(400).json({ error: 'Contraseña incorrecta' });
+  }
+
+  const tokenSesionServidor = jwt.sign(
+    { id: usuarioEncontradoServidor.id, rol: usuarioEncontradoServidor.rol },
+    llaveSecretaServidorJWT,
+    { expiresIn: '1h' }
+  );
+
+  res.json({ token: tokenSesionServidor });
+});
+
+app.get('/api/usuarios', (req, res) => {
+  res.json(baseDeDatosUsuariosServidor);
+});
+
+app.delete('/api/usuarios/:id', (req, res) => {
+  const idUsuario = parseInt(req.params.id);
+  const indiceUsuario = baseDeDatosUsuariosServidor.findIndex(u => u.id === idUsuario);
+
+  if (indiceUsuario !== -1) {
+    baseDeDatosUsuariosServidor.splice(indiceUsuario, 1);
+    guardarUsuariosEnDisco();
+    res.json({ mensaje: 'Usuario eliminado correctamente' });
+  } else {
+    res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+});
+
 const ULTIMO_PROYECTO_PATH = path.join(__dirname, 'ultimoProyecto.json');
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
-});
-
 app.get('/talleres', (req, res) => {
-  const data = fs.readFileSync('./talleres.json', 'utf-8');
-  res.json(JSON.parse(data));
+  try {
+    const data = fs.readFileSync('./talleres.json', 'utf-8');
+    res.json(JSON.parse(data));
+  } catch (error) {
+    res.json([]);
+  }
 });
-
 
 app.post('/talleres', (req, res) => {
   fs.writeFileSync('./talleres.json', JSON.stringify(req.body, null, 2));
@@ -41,29 +151,38 @@ app.post('/talleres', (req, res) => {
 app.delete('/talleres/:nombre', (req, res) => {
   const nombreAEliminar = decodeURIComponent(req.params.nombre).trim().toLowerCase();
 
-  const data = fs.readFileSync('./talleres.json', 'utf-8');
-  let talleres = JSON.parse(data);
+  try {
+    const data = fs.readFileSync('./talleres.json', 'utf-8');
+    let talleres = JSON.parse(data);
 
-  const talleresFiltrados = talleres.filter(
-    t => t.nombre.trim().toLowerCase() !== nombreAEliminar
-  );
+    const talleresFiltrados = talleres.filter(
+      t => t.nombre.trim().toLowerCase() !== nombreAEliminar
+    );
 
-  if (talleres.length === talleresFiltrados.length) {
-    return res.status(404).send({ message: 'Taller no encontrado para eliminar' });
+    if (talleres.length === talleresFiltrados.length) {
+      return res.status(404).send({ message: 'Taller no encontrado para eliminar' });
+    }
+
+    fs.writeFileSync('./talleres.json', JSON.stringify(talleresFiltrados, null, 2));
+    res.status(200).send({ message: 'Taller eliminado correctamente' });
+  } catch (error) {
+    res.status(500).send({ message: 'Error al eliminar taller' });
   }
-
-  fs.writeFileSync('./talleres.json', JSON.stringify(talleresFiltrados, null, 2));
-  res.status(200).send({ message: 'Taller eliminado correctamente' });
 });
 
 app.use('/imgs', express.static(path.join(__dirname, 'imgs'), {
   setHeaders: (res) => {
-    res.set('Access-Control-Allow-Origin', '*'); // permite uso desde html2canvas
+    res.set('Access-Control-Allow-Origin', '*');
   }
 }));
 
 app.get('/image-sizes', (req, res) => {
   const carpetaImgs = path.join(__dirname, 'imgs');
+  
+  if (!fs.existsSync(carpetaImgs)) {
+      return res.json([]);
+  }
+
   const imagenes = fs.readdirSync(carpetaImgs).filter(file =>
     /\.(png|jpe?g)$/i.test(file)
   );
@@ -97,6 +216,9 @@ app.post('/guardar-imagen-plano', (req, res) => {
   const base64Data = imagenBase64.replace(/^data:image\/png;base64,/, '');
   const rutaDestino = path.join(__dirname, 'imgs/planos', nombreArchivo);
 
+  const dir = path.dirname(rutaDestino);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
   fs.writeFile(rutaDestino, base64Data, 'base64', (err) => {
     if (err) {
       console.error('Error al guardar la imagen:', err.message);
@@ -128,38 +250,30 @@ app.post(
   ]),
   (req, res) => {
     try {
-      // 1) Parseamos metadatos
       let metadata = JSON.parse(req.body.metadata);
       const num = String(metadata.numeroProyecto);
-
       const añoAhora = new Date().getFullYear().toString();
 
-      // 2) Crear o limpiar carpeta raíz del proyecto
-      const projectDir = path.join(__dirname, 'proyectos', num+"_"+añoAhora);
+      const projectDir = path.join(__dirname, 'proyectos', num + "_" + añoAhora);
       if (fs.existsSync(projectDir)) {
-        // si existe, borramos todo para empezar limpio
         fs.rmSync(projectDir, { recursive: true, force: true });
       }
       fs.mkdirSync(projectDir, { recursive: true });
 
-      // 3) Guardar metadata en proyecto.json (siempre sobreescribe)
       const metadataPath = path.join(projectDir, 'proyecto.json');
       fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8');
 
-      // 4) Subcarpetas de imágenes (prev y post)
       const prevDir = path.join(projectDir, 'lados');
       const postDir = path.join(projectDir, 'post');
       fs.mkdirSync(prevDir, { recursive: true });
       fs.mkdirSync(postDir, { recursive: true });
 
-      // 5) Guardar cada imagen previa
       const prevFiles = req.files['prevImage'] || [];
       prevFiles.forEach((file, idx) => {
         const fn = file.originalname || `prev-${idx}.png`;
         fs.writeFileSync(path.join(prevDir, fn), file.buffer);
       });
 
-      // 6) Guardar cada imagen posterior
       const postFiles = req.files['postImage'] || [];
       postFiles.forEach((file, idx) => {
         const fn = file.originalname || `post-${idx}.png`;
@@ -173,7 +287,6 @@ app.post(
         'utf-8'
       );
 
-       // 8) Devolver al cliente
       return res.json({
         message: 'Proyecto guardado correctamente',
         proyecto: num,
@@ -187,21 +300,20 @@ app.post(
 
 app.get('/ultimo-proyecto', (req, res) => {
   try {
-    // Leemos el JSON de contador
+    if (!fs.existsSync(ULTIMO_PROYECTO_PATH)) {
+        return res.json({ siguiente: 1, año: new Date().getFullYear().toString() });
+    }
     const raw = fs.readFileSync(ULTIMO_PROYECTO_PATH, 'utf-8');
     const data = JSON.parse(raw);
     const añoGuardado = data.año;
     const ultimoGuardado = Number(data.ultimo);
 
-    // Año actual en servidor
     const añoAhora = new Date().getFullYear().toString();
 
-    // Calculamos el siguiente número
     const siguiente = añoAhora !== añoGuardado
-      ? 1    // ha cambiado de año → arrancamos en 1
+      ? 1
       : ultimoGuardado + 1;
 
-    // Devolvemos sin tocar el archivo
     res.json({ siguiente, año: añoAhora });
   } catch (err) {
     console.error('Error en GET /ultimo-proyecto:', err);
@@ -216,21 +328,18 @@ app.post('/convertir-docx-a-pdf', uploadDocx.single('doc'), (req, res) => {
 
   const pdfPath = path.join(outputDir, path.parse(docxPath).name + '.pdf');
   const comando = `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"` +
-                  ` --headless --convert-to pdf "${docxPath}" --outdir "${outputDir}"`;
+    ` --headless --convert-to pdf "${docxPath}" --outdir "${outputDir}"`;
 
   exec(comando, (err, stdout, stderr) => {
     if (err) {
       console.error('Error convirtiendo a PDF:', stderr || err);
-      // respuesta de error al cliente
       return res.status(500).json({ error: 'Fallo al convertir a PDF' });
     }
 
-    // enviamos el PDF al cliente
     res.sendFile(pdfPath, (sendErr) => {
       if (sendErr) {
         console.error('Error enviando el PDF:', sendErr);
       }
-      // y ahora borramos ambos ficheros sin que rompa si no existen
       [docxPath, pdfPath].forEach((file) => {
         fs.rm(file, { force: true }, (rmErr) => {
           if (rmErr) {
@@ -244,6 +353,9 @@ app.post('/convertir-docx-a-pdf', uploadDocx.single('doc'), (req, res) => {
 
 app.get('/proyectos', (req, res) => {
   const proyectosDir = path.join(__dirname, 'proyectos');
+  if (!fs.existsSync(proyectosDir)) {
+      return res.json([]);
+  }
   const carpetas = fs.readdirSync(proyectosDir);
 
   let proyectos = carpetas.map(carpeta => {
@@ -264,10 +376,8 @@ app.get('/proyectos', (req, res) => {
     }
   });
 
-  // Ordenar descendente por númeroProyecto
   proyectos.sort((a, b) => Number(b.numeroProyecto) - Number(a.numeroProyecto));
 
-  // Filtros
   const { marca, matricula, propietario } = req.query;
   if (marca) {
     proyectos = proyectos.filter(p =>
@@ -285,7 +395,6 @@ app.get('/proyectos', (req, res) => {
     );
   }
 
-  // Limitar a 25 si no hay filtros
   if (!marca && !matricula && !propietario) {
     proyectos = proyectos.slice(0, 25);
   }
@@ -294,7 +403,7 @@ app.get('/proyectos', (req, res) => {
 });
 
 app.get('/proyectos/:id/proyecto.json', (req, res) => {
-  const id = req.params.id; // ej: "15_2025"
+  const id = req.params.id;
   const pjPath = path.join(__dirname, 'proyectos', id, 'proyecto.json');
 
   if (!fs.existsSync(pjPath)) {
@@ -319,14 +428,11 @@ app.post('/guardar-docx', multerDocx.single('docx'), (req, res) => {
       return res.status(400).json({ error: 'No se ha recibido ningún archivo DOCX' });
     }
 
-    // 🔧 Sanitizar nombre: eliminar caracteres no válidos para nombres de archivo
     const referencia = referenciaOriginal.replace(/[\/\\:*?"<>|]/g, '-').trim();
 
-    // Carpeta de destino
     const outputDir = path.join(__dirname, 'documentos_generados');
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
-    // Ruta final
     const filename = `${referencia}.docx`;
     const fullPath = path.join(outputDir, filename);
 
@@ -343,27 +449,43 @@ app.post('/guardar-docx', multerDocx.single('docx'), (req, res) => {
   }
 });
 
-// ✅ Servir documentos generados (.docx)
 app.use(
   '/documentos_generados',
   express.static(path.join(__dirname, 'documentos_generados'), {
     setHeaders: (res) => {
-      res.set('Access-Control-Allow-Origin', '*'); // permite descarga desde el cliente
-    },
+      res.set('Access-Control-Allow-Origin', '*');
+    }
   })
 );
 
-// === INGENIEROS ===
 app.get('/ingenieros', (req, res) => {
   try {
+    if (!fs.existsSync('./ingenieros.json')) {
+        return res.json([]);
+    }
     const raw = fs.readFileSync('./ingenieros.json', 'utf-8');
     const data = JSON.parse(raw);
 
-    // Si es un objeto, lo convertimos a array
     const lista = Array.isArray(data) ? data : [data];
     res.json(lista);
   } catch (err) {
     console.error('Error al leer ingenieros.json:', err);
+    res.status(500).json([]);
+  }
+});
+
+app.get('/arquitectos', (req, res) => {
+  try {
+    if (!fs.existsSync('./arquitectos.json')) {
+        return res.json([]);
+    }
+    const raw = fs.readFileSync('./arquitectos.json', 'utf-8');
+    const data = JSON.parse(raw);
+
+    const lista = Array.isArray(data) ? data : [data];
+    res.json(lista);
+  } catch (err) {
+    console.error('Error al leer arquitectos.json:', err);
     res.status(500).json([]);
   }
 });
@@ -375,6 +497,16 @@ app.post('/ingenieros', (req, res) => {
   } catch (err) {
     console.error('Error guardando ingenieros:', err);
     res.status(500).send({ message: 'Error al guardar ingenieros' });
+  }
+});
+
+app.post('/arquitectos', (req, res) => {
+  try {
+    fs.writeFileSync('./arquitectos.json', JSON.stringify(req.body, null, 2));
+    res.status(200).send({ message: 'Ingenieros actualizados' });
+  } catch (err) {
+    console.error('Error guardando arquitectos:', err);
+    res.status(500).send({ message: 'Error al guardar arquitectos' });
   }
 });
 
@@ -398,4 +530,31 @@ app.delete('/ingenieros/:nombre', (req, res) => {
     console.error('Error al eliminar ingeniero:', err);
     res.status(500).send({ message: 'Error al eliminar ingeniero' });
   }
+});
+
+app.delete('/arquitectos/:nombre', (req, res) => {
+  try {
+    const nombreAEliminar = decodeURIComponent(req.params.nombre)
+      .trim()
+      .toLowerCase();
+
+    const raw = fs.readFileSync('./arquitectos.json', 'utf-8');
+    let arquitectos = JSON.parse(raw);
+    if (!Array.isArray(arquitectos)) arquitectos = [arquitectos];
+
+    const filtrados = arquitectos.filter(
+      (i) => i.nombre.trim().toLowerCase() !== nombreAEliminar
+    );
+
+    fs.writeFileSync('./arquitectos.json', JSON.stringify(filtrados, null, 2));
+    res.status(200).send({ message: 'Arquitecto eliminado correctamente' });
+  } catch (err) {
+    console.error('Error al eliminar arquitecto:', err);
+    res.status(500).send({ message: 'Error al eliminar arquitecto' });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor completo corriendo en http://0.0.0.0:${PORT}`);
 });

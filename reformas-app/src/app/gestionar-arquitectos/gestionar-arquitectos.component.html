@@ -1,0 +1,166 @@
+<style>
+  .gestionar-wrapper {
+    max-width: 900px;
+  }
+
+  /* Card inicial */
+  .seleccionar-card {
+    max-width: 500px;
+    border-radius: 14px !important;
+  }
+
+  /* Formulario general */
+  .formulario-card {
+    border-radius: 14px !important;
+    margin-top: 20px;
+  }
+
+  /* Inputs y botones */
+  .btn-lg {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 1.05rem;
+  }
+
+  .form-control-lg {
+    font-size: 0.95rem;
+    padding: 10px 14px;
+  }
+
+  /* Labels */
+  label {
+    font-size: 0.9rem;
+  }
+
+  /* Cards */
+  .card {
+    border-radius: 14px !important;
+  }
+</style>
+
+<div class="gestionar-wrapper container py-4">
+  <!-- CARD INICIAL -->
+  @if (!accion && !guardado) {
+  <div class="card shadow-sm mx-auto p-4 seleccionar-card">
+    <h4 class="text-center mb-3">Gestión de arquitectos</h4>
+    <p class="text-muted text-center mb-4">
+      Seleccione una acción para continuar
+    </p>
+
+    <div class="d-flex flex-column gap-3">
+      <button
+        class="btn btn-primary btn-lg w-100"
+        (click)="seleccionarAccion('crear')"
+      >
+        ➕ Añadir nuevo arquitecto
+      </button>
+
+      <button
+        class="btn btn-outline-secondary btn-lg w-100"
+        (click)="seleccionarAccion('editar')"
+      >
+        ✏️ Modificar arquitecto existente
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- PROGRESO -->
+  @if (procesando) {
+  <div class="progress my-4" style="height: 22px">
+    <div
+      class="progress-bar progress-bar-striped progress-bar-animated"
+      role="progressbar"
+      [style.width.%]="progreso"
+    >
+      {{ progreso }}%
+    </div>
+  </div>
+  }
+
+  <!-- BOTÓN VOLVER -->
+  @if (accion && !guardado) {
+  <button class="btn btn-link ps-0 mb-3" (click)="volverAlInicio()">
+    ← Volver al menú principal
+  </button>
+  }
+
+  <!-- SELECCIÓN DE INGENIERO -->
+  @if (accion === 'editar' && !guardado && arquitectos.length) {
+  <div class="card shadow-sm p-4 mb-3">
+    <label class="form-label fw-bold">Seleccionar arquitecto:</label>
+    <select
+      class="form-select form-select-lg"
+      [(ngModel)]="arquitectoSeleccionadoNombre"
+      (change)="cargarArquitecto()"
+    >
+      <option [ngValue]="null" disabled selected>-- Seleccionar --</option>
+
+      @for (i of arquitectos; track i) {
+      <option [ngValue]="i.nombre">{{ i.nombre }}</option>
+      }
+    </select>
+  </div>
+  }
+
+  <!-- FORMULARIO -->
+  @if (accion && !guardado) {
+  <form
+    #form="ngForm"
+    (ngSubmit)="form.valid && guardarArquitecto()"
+    class="card p-4 shadow-sm formulario-card"
+    novalidate
+  >
+    <h5 class="mb-4 fw-bold">
+      {{ accion === "crear" ? "Nuevo Arquitecto" : "Editar Arquitecto" }}
+    </h5>
+
+    <!-- GRID DE CAMPOS -->
+    <div class="row g-3">
+      @for (campo of [
+      'nombre','dni','direccionFiscal','oficina','codigoPostal','localidad','provincia',
+      'titulacion','especialidad','colegio','universidad','numero','correo','tlf',
+      'web','url','correoEmpresa' ]; track campo) {
+
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ formatLabel(campo) }}</label>
+        <input
+          type="text"
+          class="form-control form-control-lg"
+          [(ngModel)]="formularioArquitecto[campo]"
+          [name]="campo"
+          required
+          #ctrl="ngModel"
+        />
+        @if (ctrl.invalid && ctrl.touched) {
+        <div class="text-danger small mt-1">Campo obligatorio.</div>
+        }
+      </div>
+
+      }
+    </div>
+
+    <!-- BOTONES -->
+    @if (accion === 'editar') {
+    <div class="d-flex gap-3 mt-4">
+      <button type="submit" class="btn btn-success btn-lg flex-grow-1">
+        Guardar cambios
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger btn-lg"
+        (click)="confirmarEliminacion(formularioArquitecto.nombre)"
+      >
+        🗑️
+      </button>
+    </div>
+    } @if (accion === 'crear') {
+    <button type="submit" class="btn btn-success btn-lg w-100 mt-4">
+      Guardar arquitecto
+    </button>
+    }
+  </form>
+  }
+</div>
+
+<!-- MODALES SE MANTIENEN IGUAL -->

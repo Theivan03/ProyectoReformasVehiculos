@@ -1,0 +1,1513 @@
+<style>
+  :host {
+    display: block;
+    background-color: #f1f5f9;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .main-container {
+    padding: 2rem 1rem;
+  }
+
+  .app-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    background-color: white;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .app-header {
+    background-color: #0f172a;
+    padding: 1.5rem 2rem;
+    color: white;
+  }
+
+  .step-badge {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    font-family: monospace;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .progress-container {
+    height: 6px;
+    background-color: #e2e8f0;
+    width: 100%;
+  }
+
+  .progress-bar-custom {
+    height: 100%;
+    background-color: #2563eb;
+    transition: width 0.3s ease;
+  }
+
+  .content-area {
+    padding: 2rem;
+    min-height: 400px;
+  }
+
+  .footer-area {
+    padding: 1.5rem 2rem;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .servicio-card {
+    padding: 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    height: 100%;
+  }
+
+  .servicio-card:hover {
+    border-color: #cbd5e1;
+  }
+
+  .servicio-card-selected {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+    color: #1e3a8a;
+  }
+
+  .form-control,
+  .form-select {
+    padding: 0.625rem;
+    border-radius: 0.375rem;
+    border-color: #cbd5e1;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+  }
+
+  .check-card {
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background-color: white;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .check-card:hover {
+    background-color: #f8fafc;
+  }
+
+  .btn-next {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+  }
+
+  .btn-next:hover {
+    background-color: #1d4ed8;
+    color: white;
+  }
+
+  .btn-prev {
+    background-color: white;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+  }
+
+  .btn-prev:hover {
+    background-color: #f1f5f9;
+  }
+
+  .btn-prev:disabled {
+    background-color: #e2e8f0;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+  }
+
+  .section-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+  }
+
+  .technical-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    height: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .technical-card:hover {
+    border-color: #93c5fd;
+  }
+
+  .section-header-styled {
+    background-color: #f8fafc;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    border-left: 5px solid #2563eb;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .section-header-styled:first-of-type {
+    margin-top: 0;
+  }
+
+  .section-header-styled lucide-icon {
+    margin-right: 0.75rem;
+    color: #3b82f6;
+  }
+
+  .animation-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="main-container">
+  <div class="app-card">
+    <div class="app-header d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="h4 fw-bold mb-1">Gestor Documentación VT</h1>
+        <p class="mb-0 opacity-75 small">
+          Sistema de generación de expedientes
+        </p>
+      </div>
+      <div class="step-badge">Fase {{ pasoActual_gestor }} / 7</div>
+    </div>
+
+    <div class="progress-container">
+      <div
+        class="progress-bar-custom"
+        [style.width.%]="(pasoActual_gestor / 7) * 100"
+      ></div>
+    </div>
+
+    <div class="content-area">
+      @switch (pasoActual_gestor) { @case (1) {
+      <div>
+        <h2 class="section-title h3">1. Selección de Servicios</h2>
+        <p class="section-subtitle">
+          Seleccione los trámites que desea gestionar para este expediente.
+        </p>
+
+        <div class="row g-3">
+          @for (servicio of serviciosDisponibles_gestor; track servicio.key) {
+          <div class="col-md-6">
+            <div
+              (click)="toggleServicio_gestor(servicio.key)"
+              class="servicio-card"
+              [ngClass]="{
+                'servicio-card-selected':
+                  $any(datosGlobales_gestor)[servicio.key]
+              }"
+            >
+              <span class="fw-bold">{{ servicio.label }}</span>
+              @if ($any(datosGlobales_gestor)[servicio.key]) {
+              <lucide-icon
+                [img]="icons_gestor.CheckSquare"
+                class="text-primary"
+              ></lucide-icon>
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      } @case (2) {
+      <div>
+        <h2 class="section-title h3">2. Verificaciones Previas</h2>
+        <p class="section-subtitle">
+          Confirme que se cumplen los requisitos iniciales.
+        </p>
+
+        <div class="d-flex flex-column gap-2">
+          @for (check of checksVerificacion_gestor; track check.key) {
+          <label class="check-card d-flex align-items-center gap-3 shadow-sm">
+            <input
+              type="checkbox"
+              [(ngModel)]="$any(datosGlobales_gestor)[check.key]"
+              class="form-check-input mt-0"
+              style="width: 1.25em; height: 1.25em"
+            />
+            <span class="text-secondary fw-medium">{{ check.label }}</span>
+          </label>
+          }
+        </div>
+      </div>
+      } @case (3) {
+      <div class="d-flex flex-column gap-4">
+        <h2 class="section-title h3">3. Datos de Titular e Interesado</h2>
+
+        <div class="card bg-light border-0">
+          <div class="card-body">
+            <h3 class="h5 text-primary fw-bold mb-3 d-flex align-items-center">
+              <lucide-icon [img]="icons_gestor.User" class="me-2"></lucide-icon>
+              Datos del Titular (Propietario)
+            </h3>
+
+            <div class="row g-3 mb-2">
+              <div class="col-md-5">
+                <label class="form-label small fw-bold text-secondary"
+                  >Nombre</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_nombre"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-7">
+                <label class="form-label small fw-bold text-secondary"
+                  >Apellidos</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_apellidos"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >DNI / NIE</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_dni_nif"
+                  class="form-control"
+                />
+              </div>
+            </div>
+
+            @if (datosGlobales_gestor.existe_interesado_representante) {
+            <div
+              class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-3 shadow-sm animation-fade-in"
+            >
+              <div class="d-flex align-items-center mb-3 text-primary">
+                <lucide-icon
+                  [img]="icons_gestor.Home"
+                  size="18"
+                  class="me-2"
+                ></lucide-icon>
+                <h6 class="fw-bold mb-0">
+                  Domicilio del Titular (A efectos de notificación)
+                </h6>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold text-secondary"
+                    >Tipo de Vía</label
+                  >
+                  <select
+                    [(ngModel)]="datosGlobales_gestor.titular_tipo_via"
+                    class="form-select bg-white"
+                  >
+                    @for(via of listaTiposVia_gestor; track via){
+                    <option [value]="via.toLowerCase()">{{ via }}</option>
+                    }
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                <div class="col-md-9">
+                  <label class="form-label small fw-bold text-secondary"
+                    >Nombre de la Vía</label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="datosGlobales_gestor.titular_nombre_via"
+                    class="form-control bg-white"
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold text-secondary"
+                    >Número
+                    <span class="fw-normal text-muted">(Op.)</span></label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="datosGlobales_gestor.titular_numero"
+                    class="form-control bg-white"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold text-secondary"
+                    >Piso <span class="fw-normal text-muted">(Op.)</span></label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="datosGlobales_gestor.titular_piso"
+                    class="form-control bg-white"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold text-secondary"
+                    >Puerta
+                    <span class="fw-normal text-muted">(Op.)</span></label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="datosGlobales_gestor.titular_puerta"
+                    class="form-control bg-white"
+                  />
+                </div>
+
+                <div class="col-md-3">
+                  <label class="form-label small fw-bold text-secondary"
+                    >C. Postal</label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="datosGlobales_gestor.titular_codigo_postal"
+                    class="form-control bg-white"
+                  />
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label small fw-bold text-secondary"
+                    >Población</label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="datosGlobales_gestor.titular_poblacion"
+                    class="form-control bg-white"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold text-secondary"
+                    >Provincia</label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="datosGlobales_gestor.titular_provincia"
+                    class="form-control bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center my-2 ps-1">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="toggleInteresado"
+              [(ngModel)]="datosGlobales_gestor.existe_interesado_representante"
+            />
+            <label
+              class="form-check-label fw-medium text-dark ms-2 cursor-pointer"
+              for="toggleInteresado"
+            >
+              Gestionar mediante Interesado / Representante
+            </label>
+          </div>
+        </div>
+
+        @if (datosGlobales_gestor.existe_interesado_representante) {
+        <div
+          class="card bg-success-subtle border border-success-subtle animation-fade-in"
+        >
+          <div class="card-body">
+            <h3 class="h5 text-success fw-bold mb-3 d-flex align-items-center">
+              <lucide-icon [img]="icons_gestor.User" class="me-2"></lucide-icon>
+              Datos del Interesado (Representante)
+            </h3>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Nombre</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.interesada_nombre"
+                  class="form-control border-success"
+                />
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small fw-bold text-secondary"
+                  >Apellidos</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.interesada_apellidos"
+                  class="form-control border-success"
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary"
+                  >DNI / NIE</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.interesada_dni_nif"
+                  class="form-control border-success"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      } @case (4) {
+      <div>
+        <h2 class="section-title h3">4. Datos de la Vivienda</h2>
+
+        <div class="card mt-3 shadow-sm border-light">
+          <div class="card-body p-4">
+            <div class="section-header-styled mt-0">
+              <lucide-icon [img]="icons_gestor.Home" size="20"></lucide-icon>
+              Ubicación y Referencia
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label small fw-bold text-secondary"
+                  >Dirección completa</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_direccion_completa"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary"
+                  >Tipo Vía</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.vivienda_tipo_via"
+                  class="form-select"
+                >
+                  @for(via of listaTiposVia_gestor; track via){
+                  <option [value]="via.toLowerCase()">{{ via }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Nombre Vía</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_nombre_via"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary"
+                  >Núm. (Opcional)</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_numero"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary"
+                  >Piso</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_piso"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary"
+                  >Pta. (Opcional)</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_puerta"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary"
+                  >C.P.</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_codigo_postal"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"
+                  >Población</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_poblacion"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Provincia</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_provincia"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-12">
+                <label class="form-label small fw-bold text-secondary"
+                  >Referencia Catastral</label
+                >
+                <div class="input-group">
+                  <span class="input-group-text bg-white"
+                    ><lucide-icon
+                      [img]="icons_gestor.Home"
+                      size="16"
+                    ></lucide-icon
+                  ></span>
+                  <input
+                    type="text"
+                    [(ngModel)]="
+                      datosGlobales_gestor.vivienda_referencia_catastral
+                    "
+                    class="form-control font-monospace"
+                  />
+                </div>
+              </div>
+            </div>
+
+            @if (ver_suelo_ano || ver_ccu_completo || ver_solo_util) {
+            <div class="section-header-styled animation-fade-in">
+              <lucide-icon [img]="icons_gestor.HardHat" size="20"></lucide-icon>
+              Características Físicas
+            </div>
+            <div class="row g-3 animation-fade-in">
+              @if (ver_suelo_ano) {
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"
+                  >Tipo Suelo</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.vivienda_tipo_suelo"
+                  class="form-select"
+                >
+                  <option value="">Seleccione...</option>
+                  <option value="urbano">Urbano</option>
+                  <option value="rustico">Rústico</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"
+                  >Año Const.</label
+                >
+                <input
+                  type="number"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_ano_construccion"
+                  class="form-control"
+                />
+              </div>
+              } @if (ver_ccu_completo) {
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Sup. Total</label
+                >
+                <div class="input-group">
+                  <input
+                    type="number"
+                    [(ngModel)]="datosGlobales_gestor.vivienda_superficie_total"
+                    class="form-control"
+                  />
+                  <span class="input-group-text small">m²</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Sup. Const.</label
+                >
+                <div class="input-group">
+                  <input
+                    type="number"
+                    [(ngModel)]="
+                      datosGlobales_gestor.vivienda_superficie_construida
+                    "
+                    (input)="calcularSuperficieUtil_gestor()"
+                    class="form-control"
+                  />
+                  <span class="input-group-text small">m²</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Sup. Útil</label
+                >
+                <div class="input-group">
+                  <input
+                    type="number"
+                    [(ngModel)]="datosGlobales_gestor.vivienda_superficie_util"
+                    class="form-control bg-light"
+                  />
+                  <span class="input-group-text small">m²</span>
+                </div>
+              </div>
+              } @else if (ver_solo_util) {
+              <div class="col-md-12">
+                <label class="form-label small fw-bold text-secondary"
+                  >Superficie Útil</label
+                >
+                <div class="input-group">
+                  <input
+                    type="number"
+                    [(ngModel)]="datosGlobales_gestor.vivienda_superficie_util"
+                    class="form-control"
+                  />
+                  <span class="input-group-text small">m²</span>
+                </div>
+              </div>
+              }
+            </div>
+            } @if (ver_ccu_completo) {
+            <div class="section-header-styled animation-fade-in">
+              <lucide-icon [img]="icons_gestor.Home" size="20"></lucide-icon>
+              Linderos (CCU)
+            </div>
+            <div class="row g-3 animation-fade-in">
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Frente</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.vivienda_lindero_frente"
+                  class="form-select"
+                >
+                  <option value="">Seleccione...</option>
+                  @for(op of listaOpcionesLinderos_gestor; track op){
+                  <option [value]="op">{{ op }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Fondo</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.vivienda_lindero_fondo"
+                  class="form-select"
+                >
+                  <option value="">Seleccione...</option>
+                  @for(op of listaOpcionesLinderos_gestor; track op){
+                  <option [value]="op">{{ op }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-4"></div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Derecha</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.vivienda_lindero_derecha"
+                  class="form-select"
+                >
+                  <option value="">Seleccione...</option>
+                  @for(op of listaOpcionesLinderos_gestor; track op){
+                  <option [value]="op">{{ op }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Izquierda</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.vivienda_lindero_izquierda"
+                  class="form-select"
+                >
+                  <option value="">Seleccione...</option>
+                  @for(op of listaOpcionesLinderos_gestor; track op){
+                  <option [value]="op">{{ op }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-4"></div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Arriba</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.vivienda_lindero_arriba"
+                  class="form-select"
+                >
+                  <option value="">Seleccione...</option>
+                  @for(op of listaOpcionesLinderos_gestor; track op){
+                  <option [value]="op">{{ op }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Abajo</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.vivienda_lindero_abajo"
+                  class="form-select"
+                >
+                  <option value="">Seleccione...</option>
+                  @for(op of listaOpcionesLinderos_gestor; track op){
+                  <option [value]="op">{{ op }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            } @if (ver_plantas) {
+            <div class="section-header-styled animation-fade-in">
+              <lucide-icon [img]="icons_gestor.Home" size="20"></lucide-icon>
+              Plantas de la Vivienda
+            </div>
+            <div
+              class="bg-slate-50 p-3 rounded border border-slate-200 animation-fade-in"
+            >
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h6 class="fw-bold mb-0 text-dark">Descripción</h6>
+                <button
+                  class="btn btn-sm btn-outline-primary d-flex align-items-center"
+                  (click)="agregarPlanta_gestor()"
+                >
+                  <lucide-icon
+                    [img]="icons_gestor.Plus"
+                    size="14"
+                    class="me-1"
+                  ></lucide-icon>
+                  Añadir
+                </button>
+              </div>
+              @if (datosGlobales_gestor.vivienda_lista_plantas.length === 0) {
+              <p class="text-center text-muted small py-2">
+                Añada las plantas de la vivienda.
+              </p>
+              } @for (planta of datosGlobales_gestor.vivienda_lista_plantas;
+              track $index) {
+              <div class="row g-2 mb-2">
+                <div class="col-md-4">
+                  <select
+                    [(ngModel)]="planta.tipo"
+                    class="form-select form-select-sm"
+                  >
+                    <option value="">Tipo...</option>
+                    @for(tipo of listaTiposPlanta_gestor; track tipo){
+                    <option [value]="tipo">{{ tipo }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-7">
+                  <input
+                    type="text"
+                    [(ngModel)]="planta.descripcion"
+                    class="form-control form-select-sm"
+                    placeholder="Descripción"
+                  />
+                </div>
+                <div class="col-md-1">
+                  <button
+                    class="btn btn-sm btn-outline-danger w-100"
+                    (click)="eliminarPlanta_gestor($index)"
+                  >
+                    <lucide-icon
+                      [img]="icons_gestor.Trash2"
+                      size="14"
+                    ></lucide-icon>
+                  </button>
+                </div>
+              </div>
+              }
+            </div>
+            } @if (ver_empresas_suministros || ver_alcantarillado) {
+            <div class="section-header-styled animation-fade-in">
+              <lucide-icon
+                [img]="icons_gestor.CheckSquare"
+                size="20"
+              ></lucide-icon>
+              Suministros
+            </div>
+            <div class="row g-3 animation-fade-in">
+              @if (ver_alcantarillado) {
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="alcantarillado"
+                    [(ngModel)]="
+                      datosGlobales_gestor.vivienda_alcantarillado_publico
+                    "
+                  />
+                  <label
+                    class="form-check-label small fw-bold ms-2"
+                    for="alcantarillado"
+                    >Dispone de Alcantarillado Público</label
+                  >
+                </div>
+              </div>
+              } @if (ver_empresas_suministros) {
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Empresa Agua</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_empresa_agua"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Empresa Luz</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_empresa_luz"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Empresa Basura</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_empresa_basura"
+                  class="form-control"
+                />
+              </div>
+              }
+            </div>
+            } @if (ver_datos_vt_conselleria) {
+            <div class="section-header-styled animation-fade-in">
+              <lucide-icon
+                [img]="icons_gestor.FileText"
+                size="20"
+              ></lucide-icon>
+              Datos VT Consellería
+            </div>
+            <div class="row g-3 animation-fade-in">
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Última Compra</label
+                >
+                <input
+                  type="date"
+                  [(ngModel)]="
+                    datosGlobales_gestor.vivienda_fecha_ultima_compra
+                  "
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Cód. Seguridad ICU</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="
+                    datosGlobales_gestor.vivienda_codigo_seguridad_icu
+                  "
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Fecha Emisión ICU</label
+                >
+                <input
+                  type="date"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_fecha_emision_icu"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="col-md-6 d-flex align-items-center mt-4">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="esEstudio"
+                    [(ngModel)]="datosGlobales_gestor.vivienda_es_estudio"
+                  />
+                  <label
+                    class="form-check-label small fw-bold ms-2"
+                    for="esEstudio"
+                    >¿Es un estudio?</label
+                  >
+                </div>
+              </div>
+              @if (!datosGlobales_gestor.vivienda_es_estudio) {
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"
+                  >Nº Dormitorios</label
+                >
+                <input
+                  type="number"
+                  [(ngModel)]="
+                    datosGlobales_gestor.vivienda_cantidad_dormitorios
+                  "
+                  class="form-control"
+                />
+              </div>
+              }
+            </div>
+            } @if (ver_datos_nra) {
+            <div class="section-header-styled animation-fade-in">
+              <lucide-icon
+                [img]="icons_gestor.FileText"
+                size="20"
+              ></lucide-icon>
+              Gestión NRA
+            </div>
+            <div class="row g-3 animation-fade-in">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"
+                  >Nombre Registro Propiedad</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="
+                    datosGlobales_gestor.vivienda_nombre_registro_propiedad
+                  "
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"
+                  >CRU (Cód. Reg. Único)</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_cru"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"
+                  >Nº Arrendatarios</label
+                >
+                <input
+                  type="number"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_num_arrendatarios"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-secondary"
+                  >Número VT</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.vivienda_numero_vt"
+                  class="form-control"
+                  placeholder="Ej: VT-12345-V"
+                />
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      } @case (5) {
+      <div>
+        <h2 class="section-title h3">5. Asignación Técnica</h2>
+        <p class="section-subtitle">
+          Seleccione los profesionales responsables de los informes.
+        </p>
+
+        <div class="row g-4 mt-2">
+          <div class="col-md-6">
+            <div class="technical-card shadow-sm">
+              <div class="d-flex align-items-center text-primary mb-3">
+                <lucide-icon
+                  [img]="icons_gestor.HardHat"
+                  class="me-2"
+                ></lucide-icon>
+                <h3 class="h5 fw-bold mb-0">Arquitecto</h3>
+              </div>
+              <label class="form-label small fw-bold text-secondary"
+                >Seleccionar Profesional</label
+              >
+              <select
+                [(ngModel)]="
+                  datosGlobales_gestor.tecnico_arquitecto_seleccionado
+                "
+                class="form-select bg-light"
+              >
+                <option [ngValue]="null">-- Sin asignar --</option>
+                @for (arq of listaArquitectos_gestor; track arq.nombre) {
+                <option [ngValue]="arq">
+                  {{ arq.nombre }}
+                </option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="technical-card shadow-sm">
+              <div class="d-flex align-items-center text-primary mb-3">
+                <lucide-icon
+                  [img]="icons_gestor.HardHat"
+                  class="me-2"
+                ></lucide-icon>
+                <h3 class="h5 fw-bold mb-0">Ingeniero</h3>
+              </div>
+              <label class="form-label small fw-bold text-secondary"
+                >Seleccionar Profesional</label
+              >
+              <select
+                [(ngModel)]="
+                  datosGlobales_gestor.tecnico_ingeniero_seleccionado
+                "
+                class="form-select bg-light"
+              >
+                <option [ngValue]="null">-- Sin asignar --</option>
+                @for (ing of listaIngenieros_gestor; track ing.nombre) {
+                <option [ngValue]="ing">
+                  {{ ing.nombre }}
+                </option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      } @case (6) {
+      <div>
+        <h2 class="section-title h3">6. Asignación de Fechas</h2>
+        <p class="section-subtitle">
+          Establezca la fecha de firma para los documentos.
+        </p>
+
+        @if (serviciosActivosList.length === 0) {
+        <div class="alert alert-warning mt-3">
+          No hay servicios seleccionados. Vuelva a la Fase 1.
+        </div>
+        } @else {
+
+        <div class="card shadow-sm border-light mt-4">
+          <div class="card-body p-4">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <label
+                  class="form-label small fw-bold text-secondary text-uppercase ls-1 mb-2"
+                >
+                  <lucide-icon
+                    [img]="icons_gestor.Calendar"
+                    size="16"
+                    class="me-1 text-primary"
+                  ></lucide-icon>
+                  Fecha de Firma
+                </label>
+                <input
+                  type="date"
+                  class="form-control form-control-lg border-2"
+                  [(ngModel)]="datosGlobales_gestor.fecha_global"
+                  [disabled]="datosGlobales_gestor.usar_fechas_distintas"
+                  [ngClass]="{
+                    'bg-light text-muted':
+                      datosGlobales_gestor.usar_fechas_distintas
+                  }"
+                />
+                @if (!datosGlobales_gestor.usar_fechas_distintas) {
+                <div class="form-text text-success small mt-1">
+                  <lucide-icon
+                    [img]="icons_gestor.CheckSquare"
+                    size="12"
+                    class="me-1"
+                  ></lucide-icon>
+                  Esta fecha se aplicará a todos los documentos.
+                </div>
+                }
+              </div>
+
+              <div class="col-md-6 border-start ps-md-4 mt-3 mt-md-0">
+                <div
+                  class="form-check form-switch d-flex align-items-center p-0 m-0 gap-2"
+                >
+                  <input
+                    class="form-check-input ms-0 mt-0"
+                    type="checkbox"
+                    role="switch"
+                    id="checkFechasDistintas"
+                    style="width: 3em; height: 1.5em"
+                    [(ngModel)]="datosGlobales_gestor.usar_fechas_distintas"
+                  />
+                  <label
+                    class="form-check-label fw-bold text-dark cursor-pointer"
+                    for="checkFechasDistintas"
+                  >
+                    Utilizar fechas distintas por trámite
+                  </label>
+                </div>
+                <p class="small text-muted mt-2 mb-0">
+                  Active esta opción si necesita firmar el CCU un día y la
+                  Licencia otro día diferente.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @if (datosGlobales_gestor.usar_fechas_distintas) {
+        <div class="mt-4 animation-fade-in">
+          <h6 class="text-secondary fw-bold mb-3 ps-1">
+            Fechas específicas por documento:
+          </h6>
+
+          <div class="row g-3">
+            @for (servicio of serviciosActivosList; track servicio.key) {
+            <div class="col-md-6">
+              <div
+                class="p-3 bg-white border rounded shadow-sm d-flex align-items-center justify-content-between hover-effect"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div class="bg-blue-50 p-2 rounded text-primary">
+                    <lucide-icon
+                      [img]="icons_gestor.FileText"
+                      size="20"
+                    ></lucide-icon>
+                  </div>
+                  <span class="fw-semibold text-dark">{{
+                    servicio.label
+                  }}</span>
+                </div>
+
+                <input
+                  type="date"
+                  class="form-control form-control-sm border-secondary"
+                  style="width: 140px"
+                  [(ngModel)]="
+                    datosGlobales_gestor.fechas_tramites[servicio.key]
+                  "
+                />
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        } }
+      </div>
+      } @case (7) {
+      <div>
+        <h2 class="section-title h3">7. Generación de Documentos</h2>
+
+        @if (!hayServiciosSeleccionados_gestor) {
+        <div class="alert alert-warning mt-3" role="alert">
+          No se seleccionaron servicios en la Fase 1. Vuelva atrás para
+          seleccionar qué documentos generar.
+        </div>
+        } @else {
+        <div class="d-flex flex-column gap-3 mt-4">
+          @if (datosGlobales_gestor.servicio_seleccion_ccu) {
+          <div class="card shadow-sm border-light">
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">Represetnación CCU</h4>
+                  <p class="small text-muted mb-0">
+                    Incluye Modelo de Representación
+                  </p>
+                </div>
+              </div>
+              <button
+                (click)="
+                  generarDocumentoRepresentacionCCU2ocu(
+                    'del Certificado de Compatibilidad Urbanística para vivienda turística'
+                  )
+                "
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento
+              </button>
+            </div>
+          </div>
+          } @if (datosGlobales_gestor.servicio_seleccion_segunda_ocupacion) {
+          <div class="card shadow-sm border-light">
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">Representación 2ª Ocupación</h4>
+                  <p class="small text-muted mb-0">
+                    Modelo genérico Consellería
+                  </p>
+                </div>
+              </div>
+              <button
+                (click)="
+                  generarDocumentoRepresentacionCCU2ocu(
+                    'de la licencia de segunda ocupación'
+                  )
+                "
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento
+              </button>
+            </div>
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">
+                    Declaración responsable técnico proyectista 2ª Ocupación
+                  </h4>
+                  <p class="small text-muted mb-0">
+                    Modelo genérico Consellería
+                  </p>
+                </div>
+              </div>
+              <button
+                (click)="generarDeclaracionTecnico()"
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento
+              </button>
+            </div>
+          </div>
+          } @if (datosGlobales_gestor.servicio_seleccion_cee) {
+          <div class="card shadow-sm border-light">
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">Representación CEE</h4>
+                  <p class="small text-muted mb-0">Modelo genérico</p>
+                </div>
+              </div>
+              <button
+                (click)="generarDocumentoRepresentacionCEE()"
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento
+              </button>
+            </div>
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">Acta de visita CEE</h4>
+                  <p class="small text-muted mb-0">Modelo genérico</p>
+                </div>
+              </div>
+              <button
+                (click)="generarDocumentoActaVisitaCEE()"
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento
+              </button>
+            </div>
+          </div>
+          } @if (datosGlobales_gestor.servicio_seleccion_registro_vt) {
+          <div class="card shadow-sm border-light">
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">Registro Turismo</h4>
+                  <p class="small text-muted mb-0">
+                    Documento con el cual cumplimentar toda la información
+                  </p>
+                </div>
+              </div>
+              <button class="btn btn-dark btn-sm d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento de demostración
+              </button>
+            </div>
+          </div>
+          } @if (datosGlobales_gestor.servicio_seleccion_nra) {
+          <div class="card shadow-sm border-light">
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">Registro NRA</h4>
+                  <p class="small text-muted mb-0">
+                    Documento con el cual cumplimentar toda la información
+                  </p>
+                </div>
+              </div>
+              <button class="btn btn-dark btn-sm d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento de demostración
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      } }
+    </div>
+
+    <div class="footer-area d-flex justify-content-between">
+      <button
+        (click)="retrocederFase_gestor()"
+        [disabled]="pasoActual_gestor === 1"
+        class="btn btn-prev d-flex align-items-center rounded-3"
+      >
+        <lucide-icon
+          [img]="icons_gestor.ChevronLeft"
+          class="me-2"
+          size="20"
+        ></lucide-icon>
+        Anterior
+      </button>
+
+      @if (pasoActual_gestor < 7) {
+      <button
+        (click)="avanzarFase_gestor()"
+        class="btn btn-next d-flex align-items-center rounded-3 shadow"
+      >
+        Siguiente
+        <lucide-icon
+          [img]="icons_gestor.ChevronRight"
+          class="ms-2"
+          size="20"
+        ></lucide-icon>
+      </button>
+      } @else {
+      <button
+        (click)="finalizarExpediente_gestor()"
+        class="btn btn-success d-flex align-items-center rounded-3 shadow px-4 py-2 fw-bold"
+      >
+        <lucide-icon
+          [img]="icons_gestor.Save"
+          class="me-2"
+          size="20"
+        ></lucide-icon>
+        Finalizar Expediente
+      </button>
+      }
+    </div>
+  </div>
+</div>
