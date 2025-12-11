@@ -390,9 +390,35 @@ export class GestorDocumentacionComponent implements OnInit {
       this.isLoading = false;
     } catch (err) {
       console.error('Error al generar declaración:', err);
-      alert(
-        'Error generando el PDF. Asegúrate de que la plantilla "DECLARACION RESPONSABLE TECNICO PROYECTISTA.pdf" está en la carpeta assets.'
+      alert('Error generando el PDF.');
+      this.isLoading = false;
+    }
+  }
+
+  async generarMemoriaTecnica() {
+    this.isLoading = true;
+    try {
+      await this.documentoService.generarMemoriaTecnica(
+        this.datosGlobales_gestor
       );
+      this.isLoading = false;
+    } catch (err) {
+      console.error('Error al generar declaración:', err);
+      alert('Error generando el PDF.');
+      this.isLoading = false;
+    }
+  }
+
+  async generarAnexoDecretoOcupacion() {
+    this.isLoading = true;
+    try {
+      await this.documentoService.generarAnexoDecretoOcupacion(
+        this.datosGlobales_gestor
+      );
+      this.isLoading = false;
+    } catch (err) {
+      console.error('Error al generar los anexos y la ficha:', err);
+      alert('Error generando el PDF.');
       this.isLoading = false;
     }
   }

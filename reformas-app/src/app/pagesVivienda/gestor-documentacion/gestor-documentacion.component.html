@@ -1251,6 +1251,40 @@
         </div>
         } @else {
         <div class="d-flex flex-column gap-3 mt-4">
+          <div class="card shadow-sm border-light">
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">Autoliquidaciones y Trámites</h4>
+                  <p class="small text-muted mb-0">
+                    Incluye todos los enlaces a los pagos y a los trámites
+                  </p>
+                </div>
+              </div>
+              <button
+                (click)="
+                  generarDocumentoRepresentacionCCU2ocu(
+                    'del Certificado de Compatibilidad Urbanística para vivienda turística'
+                  )
+                "
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento
+              </button>
+            </div>
+          </div>
           @if (datosGlobales_gestor.servicio_seleccion_ccu) {
           <div class="card shadow-sm border-light">
             <div
@@ -1263,7 +1297,7 @@
                   size="32"
                 ></lucide-icon>
                 <div>
-                  <h4 class="h6 fw-bold mb-0">Represetnación CCU</h4>
+                  <h4 class="h6 fw-bold mb-0">Representación CCU</h4>
                   <p class="small text-muted mb-0">
                     Incluye Modelo de Representación
                   </p>
@@ -1275,6 +1309,34 @@
                     'del Certificado de Compatibilidad Urbanística para vivienda turística'
                   )
                 "
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento
+              </button>
+            </div>
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">Memória técnica CCU</h4>
+                  <p class="small text-muted mb-0">
+                    Incluye Modelo de Memória Técnica para la presentación
+                  </p>
+                </div>
+              </div>
+              <button
+                (click)="generarMemoriaTecnica()"
                 class="btn btn-dark btn-sm d-flex align-items-center"
               >
                 <lucide-icon
@@ -1340,6 +1402,36 @@
               </div>
               <button
                 (click)="generarDeclaracionTecnico()"
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
+                <lucide-icon
+                  [img]="icons_gestor.Download"
+                  size="16"
+                  class="me-2"
+                ></lucide-icon>
+                Descargar documento
+              </button>
+            </div>
+            <div
+              class="card-body d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons_gestor.FileText"
+                  class="text-danger me-3"
+                  size="32"
+                ></lucide-icon>
+                <div>
+                  <h4 class="h6 fw-bold mb-0">
+                    Anexos I y II junto a la ficha
+                  </h4>
+                  <p class="small text-muted mb-0">
+                    Modelo genérico de anexos y fichas
+                  </p>
+                </div>
+              </div>
+              <button
+                (click)="generarAnexoDecretoOcupacion()"
                 class="btn btn-dark btn-sm d-flex align-items-center"
               >
                 <lucide-icon
