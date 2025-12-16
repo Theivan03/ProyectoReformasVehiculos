@@ -11,6 +11,7 @@ import { LoginGestionUsuariosComponent } from './pages/login-gestion-usuarios/lo
 import { AuthProteccionRutasGuard } from './auth-proteccion-rutas.guard';
 import { AdminGestionUsuariosComponent } from './pages/admin-gestion-usuarios/admin-gestion-usuarios.component';
 import { GestorDocumentacionComponent } from './pagesVivienda/gestor-documentacion/gestor-documentacion.component';
+import { GestorTrelloComponent } from './pagesVivienda/gestor-trello/gestor-trello.component';
 
 export const routes: Routes = [
   {
@@ -32,6 +33,11 @@ export const routes: Routes = [
       { path: 'reforma', redirectTo: 'reforma/seleccion', pathMatch: 'full' },
       { path: 'admin', component: AdminGestionUsuariosComponent },
       { path: 'documentacion-vt', component: GestorDocumentacionComponent },
+      {
+        path: 'editar-expediente/:id',
+        component: GestorDocumentacionComponent,
+      },
+      { path: 'gestion-viviendas', component: GestorTrelloComponent },
     ],
   },
   { path: '**', redirectTo: '' },

@@ -192,6 +192,46 @@
     animation: fadeIn 0.3s ease-in-out;
   }
 
+  /* Animación de entrada suave hacia abajo */
+  .animation-slide-in-down {
+    animation: slideInDown 0.6s ease-out forwards;
+  }
+
+  @keyframes slideInDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px); /* Empieza un poco más arriba */
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0); /* Termina en su posición original */
+    }
+  }
+
+  /* (Opcional) Estilo para las tarjetas si no lo tenías ya */
+  .servicio-card {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .servicio-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+  }
+
+  .servicio-card-selected {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -206,26 +246,32 @@
 
 <div class="main-container">
   <div class="app-card">
-    <div class="app-header d-flex justify-content-between align-items-center">
+    <div class="app-header ...">
       <div>
-        <h1 class="h4 fw-bold mb-1">Gestor Documentación VT</h1>
+        <h1 class="h4 fw-bold mb-1">
+          {{ esModoEdicion ? "Editar Expediente" : "Nuevo Expediente" }}
+        </h1>
         <p class="mb-0 opacity-75 small">
-          Sistema de generación de expedientes
+          {{
+            esModoEdicion
+              ? "Modificando datos existentes"
+              : "Sistema de generación de expedientes"
+          }}
         </p>
       </div>
-      <div class="step-badge">Fase {{ pasoActual_gestor }} / 7</div>
+      <div class="step-badge">Fase {{ pasoActual_gestor }} / 8</div>
     </div>
 
     <div class="progress-container">
       <div
         class="progress-bar-custom"
-        [style.width.%]="(pasoActual_gestor / 7) * 100"
+        [style.width.%]="(pasoActual_gestor / 8) * 100"
       ></div>
     </div>
 
     <div class="content-area">
       @switch (pasoActual_gestor) { @case (1) {
-      <div>
+      <div class="animation-slide-in-down">
         <h2 class="section-title h3">1. Selección de Servicios</h2>
         <p class="section-subtitle">
           Seleccione los trámites que desea gestionar para este expediente.
@@ -255,7 +301,7 @@
         </div>
       </div>
       } @case (2) {
-      <div>
+      <div class="animation-slide-in-down">
         <h2 class="section-title h3">2. Verificaciones Previas</h2>
         <p class="section-subtitle">
           Confirme que se cumplen los requisitos iniciales.
@@ -276,7 +322,7 @@
         </div>
       </div>
       } @case (3) {
-      <div class="d-flex flex-column gap-4">
+      <div class="d-flex flex-column gap-4 animation-slide-in-down">
         <h2 class="section-title h3">3. Datos de Titular e Interesado</h2>
 
         <div class="card bg-light border-0">
@@ -318,111 +364,101 @@
                 />
               </div>
             </div>
-
+            <br />
+            <br />
             @if (datosGlobales_gestor.existe_interesado_representante) {
-            <div
-              class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-3 shadow-sm animation-fade-in"
-            >
-              <div class="d-flex align-items-center mb-3 text-primary">
-                <lucide-icon
-                  [img]="icons_gestor.Home"
-                  size="18"
-                  class="me-2"
-                ></lucide-icon>
-                <h6 class="fw-bold mb-0">
+            <div class="row g-3 border-top pt-3">
+              <div class="col-12">
+                <h6 class="text-secondary small fw-bold mb-3">
                   Domicilio del Titular (A efectos de notificación)
                 </h6>
               </div>
 
-              <div class="row g-3">
-                <div class="col-md-3">
-                  <label class="form-label small fw-bold text-secondary"
-                    >Tipo de Vía</label
-                  >
-                  <select
-                    [(ngModel)]="datosGlobales_gestor.titular_tipo_via"
-                    class="form-select bg-white"
-                  >
-                    @for(via of listaTiposVia_gestor; track via){
-                    <option [value]="via.toLowerCase()">{{ via }}</option>
-                    }
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
-                <div class="col-md-9">
-                  <label class="form-label small fw-bold text-secondary"
-                    >Nombre de la Vía</label
-                  >
-                  <input
-                    type="text"
-                    [(ngModel)]="datosGlobales_gestor.titular_nombre_via"
-                    class="form-control bg-white"
-                  />
-                </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary"
+                  >Tipo de Vía</label
+                >
+                <select
+                  [(ngModel)]="datosGlobales_gestor.titular_tipo_via"
+                  class="form-select"
+                >
+                  @for(via of listaTiposVia_gestor; track via){
+                  <option [value]="via.toLowerCase()">{{ via }}</option>
+                  }
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div class="col-md-9">
+                <label class="form-label small fw-bold text-secondary"
+                  >Nombre de la Vía</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_nombre_via"
+                  class="form-control"
+                />
+              </div>
 
-                <div class="col-md-4">
-                  <label class="form-label small fw-bold text-secondary"
-                    >Número
-                    <span class="fw-normal text-muted">(Op.)</span></label
-                  >
-                  <input
-                    type="text"
-                    [(ngModel)]="datosGlobales_gestor.titular_numero"
-                    class="form-control bg-white"
-                  />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-bold text-secondary"
-                    >Piso <span class="fw-normal text-muted">(Op.)</span></label
-                  >
-                  <input
-                    type="text"
-                    [(ngModel)]="datosGlobales_gestor.titular_piso"
-                    class="form-control bg-white"
-                  />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-bold text-secondary"
-                    >Puerta
-                    <span class="fw-normal text-muted">(Op.)</span></label
-                  >
-                  <input
-                    type="text"
-                    [(ngModel)]="datosGlobales_gestor.titular_puerta"
-                    class="form-control bg-white"
-                  />
-                </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary">
+                  Número <span class="fw-normal text-muted">(Op.)</span>
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_numero"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary">
+                  Piso <span class="fw-normal text-muted">(Op.)</span>
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_piso"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary">
+                  Puerta <span class="fw-normal text-muted">(Op.)</span>
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_puerta"
+                  class="form-control"
+                />
+              </div>
 
-                <div class="col-md-3">
-                  <label class="form-label small fw-bold text-secondary"
-                    >C. Postal</label
-                  >
-                  <input
-                    type="text"
-                    [(ngModel)]="datosGlobales_gestor.titular_codigo_postal"
-                    class="form-control bg-white"
-                  />
-                </div>
-                <div class="col-md-5">
-                  <label class="form-label small fw-bold text-secondary"
-                    >Población</label
-                  >
-                  <input
-                    type="text"
-                    [(ngModel)]="datosGlobales_gestor.titular_poblacion"
-                    class="form-control bg-white"
-                  />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-bold text-secondary"
-                    >Provincia</label
-                  >
-                  <input
-                    type="text"
-                    [(ngModel)]="datosGlobales_gestor.titular_provincia"
-                    class="form-control bg-white"
-                  />
-                </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary"
+                  >C. Postal</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_codigo_postal"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small fw-bold text-secondary"
+                  >Población</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_poblacion"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-secondary"
+                  >Provincia</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="datosGlobales_gestor.titular_provincia"
+                  class="form-control"
+                />
               </div>
             </div>
             }
@@ -493,7 +529,7 @@
         }
       </div>
       } @case (4) {
-      <div>
+      <div class="animation-slide-in-down">
         <h2 class="section-title h3">4. Datos de la Vivienda</h2>
 
         <div class="card mt-3 shadow-sm border-light">
@@ -505,9 +541,9 @@
 
             <div class="row g-3">
               <div class="col-12">
-                <label class="form-label small fw-bold text-secondary"
-                  >Dirección completa</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Dirección completa
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_direccion_completa"
@@ -515,9 +551,9 @@
                 />
               </div>
               <div class="col-md-2">
-                <label class="form-label small fw-bold text-secondary"
-                  >Tipo Vía</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Tipo Vía
+                </label>
                 <select
                   [(ngModel)]="datosGlobales_gestor.vivienda_tipo_via"
                   class="form-select"
@@ -528,9 +564,9 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Nombre Vía</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Nombre Vía
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_nombre_via"
@@ -538,9 +574,9 @@
                 />
               </div>
               <div class="col-md-2">
-                <label class="form-label small fw-bold text-secondary"
-                  >Núm. (Opcional)</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Núm. (Opcional)
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_numero"
@@ -548,9 +584,9 @@
                 />
               </div>
               <div class="col-md-2">
-                <label class="form-label small fw-bold text-secondary"
-                  >Piso</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Piso
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_piso"
@@ -558,9 +594,9 @@
                 />
               </div>
               <div class="col-md-2">
-                <label class="form-label small fw-bold text-secondary"
-                  >Pta. (Opcional)</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Pta. (Opcional)
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_puerta"
@@ -569,9 +605,9 @@
               </div>
 
               <div class="col-md-2">
-                <label class="form-label small fw-bold text-secondary"
-                  >C.P.</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  C.P.
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_codigo_postal"
@@ -579,9 +615,9 @@
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary"
-                  >Población</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Población
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_poblacion"
@@ -589,9 +625,9 @@
                 />
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Provincia</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Provincia
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_provincia"
@@ -599,16 +635,16 @@
                 />
               </div>
               <div class="col-md-12">
-                <label class="form-label small fw-bold text-secondary"
-                  >Referencia Catastral</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Referencia Catastral
+                </label>
                 <div class="input-group">
-                  <span class="input-group-text bg-white"
-                    ><lucide-icon
+                  <span class="input-group-text bg-white">
+                    <lucide-icon
                       [img]="icons_gestor.Home"
                       size="16"
-                    ></lucide-icon
-                  ></span>
+                    ></lucide-icon>
+                  </span>
                   <input
                     type="text"
                     [(ngModel)]="
@@ -628,9 +664,9 @@
             <div class="row g-3 animation-fade-in">
               @if (ver_suelo_ano) {
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary"
-                  >Tipo Suelo</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Tipo Suelo
+                </label>
                 <select
                   [(ngModel)]="datosGlobales_gestor.vivienda_tipo_suelo"
                   class="form-select"
@@ -641,9 +677,9 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary"
-                  >Año Const.</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Año Const.
+                </label>
                 <input
                   type="number"
                   [(ngModel)]="datosGlobales_gestor.vivienda_ano_construccion"
@@ -652,22 +688,23 @@
               </div>
               } @if (ver_ccu_completo) {
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Sup. Total</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Sup. Total
+                </label>
                 <div class="input-group">
                   <input
                     type="number"
                     [(ngModel)]="datosGlobales_gestor.vivienda_superficie_total"
                     class="form-control"
+                    placeholder="0"
                   />
                   <span class="input-group-text small">m²</span>
                 </div>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Sup. Const.</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Sup. Const.
+                </label>
                 <div class="input-group">
                   <input
                     type="number"
@@ -676,14 +713,15 @@
                     "
                     (input)="calcularSuperficieUtil_gestor()"
                     class="form-control"
+                    placeholder="0"
                   />
                   <span class="input-group-text small">m²</span>
                 </div>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Sup. Útil</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Sup. Útil
+                </label>
                 <div class="input-group">
                   <input
                     type="number"
@@ -695,9 +733,9 @@
               </div>
               } @else if (ver_solo_util) {
               <div class="col-md-12">
-                <label class="form-label small fw-bold text-secondary"
-                  >Superficie Útil</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Superficie Útil
+                </label>
                 <div class="input-group">
                   <input
                     type="number"
@@ -716,9 +754,9 @@
             </div>
             <div class="row g-3 animation-fade-in">
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Frente</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Frente
+                </label>
                 <select
                   [(ngModel)]="datosGlobales_gestor.vivienda_lindero_frente"
                   class="form-select"
@@ -730,9 +768,9 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Fondo</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Fondo
+                </label>
                 <select
                   [(ngModel)]="datosGlobales_gestor.vivienda_lindero_fondo"
                   class="form-select"
@@ -746,9 +784,9 @@
               <div class="col-md-4"></div>
 
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Derecha</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Derecha
+                </label>
                 <select
                   [(ngModel)]="datosGlobales_gestor.vivienda_lindero_derecha"
                   class="form-select"
@@ -760,9 +798,9 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Izquierda</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Izquierda
+                </label>
                 <select
                   [(ngModel)]="datosGlobales_gestor.vivienda_lindero_izquierda"
                   class="form-select"
@@ -776,9 +814,9 @@
               <div class="col-md-4"></div>
 
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Arriba</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Arriba
+                </label>
                 <select
                   [(ngModel)]="datosGlobales_gestor.vivienda_lindero_arriba"
                   class="form-select"
@@ -790,9 +828,9 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Abajo</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Abajo
+                </label>
                 <select
                   [(ngModel)]="datosGlobales_gestor.vivienda_lindero_abajo"
                   class="form-select"
@@ -897,9 +935,9 @@
               </div>
               } @if (ver_empresas_suministros) {
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Empresa Agua</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Empresa Agua
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_empresa_agua"
@@ -907,9 +945,9 @@
                 />
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Empresa Luz</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Empresa Luz
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_empresa_luz"
@@ -917,9 +955,9 @@
                 />
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Empresa Basura</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Empresa Basura
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_empresa_basura"
@@ -938,9 +976,9 @@
             </div>
             <div class="row g-3 animation-fade-in">
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Última Compra</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Última Compra
+                </label>
                 <input
                   type="date"
                   [(ngModel)]="
@@ -950,9 +988,9 @@
                 />
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Cód. Seguridad ICU</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Cód. Seguridad ICU
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="
@@ -962,9 +1000,9 @@
                 />
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-bold text-secondary"
-                  >Fecha Emisión ICU</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Fecha Emisión ICU
+                </label>
                 <input
                   type="date"
                   [(ngModel)]="datosGlobales_gestor.vivienda_fecha_emision_icu"
@@ -989,9 +1027,9 @@
               </div>
               @if (!datosGlobales_gestor.vivienda_es_estudio) {
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary"
-                  >Nº Dormitorios</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Nº Dormitorios
+                </label>
                 <input
                   type="number"
                   [(ngModel)]="
@@ -1012,9 +1050,9 @@
             </div>
             <div class="row g-3 animation-fade-in">
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary"
-                  >Nombre Registro Propiedad</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Nombre Registro Propiedad
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="
@@ -1024,9 +1062,9 @@
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary"
-                  >CRU (Cód. Reg. Único)</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  CRU (Cód. Reg. Único)
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_cru"
@@ -1034,9 +1072,9 @@
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary"
-                  >Nº Arrendatarios</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Nº Arrendatarios
+                </label>
                 <input
                   type="number"
                   [(ngModel)]="datosGlobales_gestor.vivienda_num_arrendatarios"
@@ -1044,9 +1082,9 @@
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold text-secondary"
-                  >Número VT</label
-                >
+                <label class="form-label small fw-bold text-secondary">
+                  Número VT
+                </label>
                 <input
                   type="text"
                   [(ngModel)]="datosGlobales_gestor.vivienda_numero_vt"
@@ -1060,7 +1098,7 @@
         </div>
       </div>
       } @case (5) {
-      <div>
+      <div class="animation-slide-in-down">
         <h2 class="section-title h3">5. Asignación Técnica</h2>
         <p class="section-subtitle">
           Seleccione los profesionales responsables de los informes.
@@ -1080,6 +1118,7 @@
                 >Seleccionar Profesional</label
               >
               <select
+                [compareWith]="compararProfesionales"
                 [(ngModel)]="
                   datosGlobales_gestor.tecnico_arquitecto_seleccionado
                 "
@@ -1087,9 +1126,7 @@
               >
                 <option [ngValue]="null">-- Sin asignar --</option>
                 @for (arq of listaArquitectos_gestor; track arq.nombre) {
-                <option [ngValue]="arq">
-                  {{ arq.nombre }}
-                </option>
+                <option [ngValue]="arq">{{ arq.nombre }}</option>
                 }
               </select>
             </div>
@@ -1108,6 +1145,7 @@
                 >Seleccionar Profesional</label
               >
               <select
+                [compareWith]="compararProfesionales"
                 [(ngModel)]="
                   datosGlobales_gestor.tecnico_ingeniero_seleccionado
                 "
@@ -1115,17 +1153,15 @@
               >
                 <option [ngValue]="null">-- Sin asignar --</option>
                 @for (ing of listaIngenieros_gestor; track ing.nombre) {
-                <option [ngValue]="ing">
-                  {{ ing.nombre }}
-                </option>
+                <option [ngValue]="ing">{{ ing.nombre }}</option>
                 }
               </select>
             </div>
           </div>
         </div>
       </div>
-      } @case (6) {
-      <div>
+      }@case (6) {
+      <div class="animation-slide-in-down">
         <h2 class="section-title h3">6. Asignación de Fechas</h2>
         <p class="section-subtitle">
           Establezca la fecha de firma para los documentos.
@@ -1241,7 +1277,126 @@
         } }
       </div>
       } @case (7) {
-      <div>
+      <div class="d-flex flex-column gap-4 animation-fade-in">
+        <h2 class="section-title h3">7. Firma del Cliente</h2>
+
+        <div class="card bg-light border-0 shadow-sm">
+          <div class="card-body p-4">
+            @if (datosGlobales_gestor.check_firma_digital_disponible) {
+            <div class="text-center py-5">
+              <div class="mb-3 text-success">
+                <lucide-icon
+                  [img]="icons_gestor.CheckSquare"
+                  size="64"
+                ></lucide-icon>
+              </div>
+              <h4 class="h4 text-success fw-bold">Firma Digital Disponible</h4>
+              <p class="text-secondary mb-0">
+                Has indicado que el cliente dispone de firma digital.
+                <br />No es necesario adjuntar una firma manuscrita para los
+                documentos.
+              </p>
+            </div>
+            } @else {
+            <div class="text-center mb-4">
+              <h4 class="h5 text-primary fw-bold mb-2">
+                Captura de Firma Manuscrita
+              </h4>
+              <p class="text-secondary small">
+                Pega una captura (<strong>Ctrl+V</strong>), arrastra la imagen
+                aquí o selecciona el archivo.
+              </p>
+            </div>
+
+            <div
+              class="d-flex flex-column align-items-center justify-content-center border rounded-3 p-5 position-relative transition-all"
+              [ngClass]="{
+                'bg-primary-subtle border-primary': isDragging,
+                'bg-white': !isDragging
+              }"
+              style="
+                border-style: dashed !important;
+                border-width: 2px;
+                min-height: 250px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+              "
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+            >
+              @if (!datosGlobales_gestor.firma_cliente_imagen) {
+              <div class="text-center pointer-events-none">
+                <div class="mb-3 text-secondary opacity-50">
+                  <lucide-icon
+                    [img]="icons_gestor.Upload"
+                    size="48"
+                  ></lucide-icon>
+                </div>
+                <h6 class="fw-bold text-secondary mb-1">
+                  Arrastra tu imagen aquí
+                </h6>
+                <p class="small text-muted mb-3">
+                  o presiona Ctrl+V para pegar
+                </p>
+
+                <label
+                  class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2"
+                >
+                  <lucide-icon
+                    [img]="icons_gestor.ImageIcon"
+                    size="16"
+                  ></lucide-icon>
+                  Seleccionar Archivo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    (change)="cargarFirmaInput($event)"
+                    hidden
+                  />
+                </label>
+              </div>
+              } @else {
+              <div class="position-relative d-inline-block">
+                <img
+                  [src]="datosGlobales_gestor.firma_cliente_imagen"
+                  alt="Firma Cliente"
+                  class="img-fluid border rounded shadow-sm bg-white"
+                  style="
+                    max-height: 200px;
+                    max-width: 100%;
+                    object-fit: contain;
+                  "
+                />
+
+                <button
+                  class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 rounded-circle p-0 d-flex align-items-center justify-content-center shadow"
+                  style="width: 32px; height: 32px"
+                  (click)="eliminarFirma()"
+                  title="Eliminar firma"
+                >
+                  <lucide-icon
+                    [img]="icons_gestor.XCircle"
+                    size="20"
+                  ></lucide-icon>
+                </button>
+              </div>
+              <p class="text-success small mt-3 fw-medium mb-0">
+                <lucide-icon
+                  [img]="icons_gestor.CheckSquare"
+                  size="16"
+                  class="me-1"
+                ></lucide-icon>
+                Firma cargada correctamente
+              </p>
+              }
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      }@case (8) {
+      <div class="animation-slide-in-down">
         <h2 class="section-title h3">7. Generación de Documentos</h2>
 
         @if (!hayServiciosSeleccionados_gestor) {
@@ -1516,7 +1671,10 @@
                   </p>
                 </div>
               </div>
-              <button class="btn btn-dark btn-sm d-flex align-items-center">
+              <button
+                (click)="generarRegistroVTCoselleria()"
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
                 <lucide-icon
                   [img]="icons_gestor.Download"
                   size="16"
@@ -1544,7 +1702,10 @@
                   </p>
                 </div>
               </div>
-              <button class="btn btn-dark btn-sm d-flex align-items-center">
+              <button
+                (click)="generarGuiaPresentacionTelematica()"
+                class="btn btn-dark btn-sm d-flex align-items-center"
+              >
                 <lucide-icon
                   [img]="icons_gestor.Download"
                   size="16"
@@ -1575,7 +1736,7 @@
         Anterior
       </button>
 
-      @if (pasoActual_gestor < 7) {
+      @if (pasoActual_gestor < 8) {
       <button
         (click)="avanzarFase_gestor()"
         class="btn btn-next d-flex align-items-center rounded-3 shadow"
@@ -1590,14 +1751,18 @@
       } @else {
       <button
         (click)="finalizarExpediente_gestor()"
-        class="btn btn-success d-flex align-items-center rounded-3 shadow px-4 py-2 fw-bold"
+        class="btn d-flex align-items-center rounded-3 shadow px-4 py-2 fw-bold"
+        [ngClass]="
+          esModoEdicion ? 'btn-warning text-dark' : 'btn-success text-white'
+        "
       >
         <lucide-icon
           [img]="icons_gestor.Save"
           class="me-2"
           size="20"
         ></lucide-icon>
-        Finalizar Expediente
+
+        {{ esModoEdicion ? "Guardar Cambios" : "Finalizar Expediente" }}
       </button>
       }
     </div>

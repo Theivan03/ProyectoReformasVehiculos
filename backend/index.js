@@ -11,8 +11,8 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 app.use(cors());
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+app.use(express.json({ limit: '50mb' })); // Aumentado límite por si las imágenes base64 son grandes
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 const uploadDocx = multer({ dest: 'uploads_docx/' });
 const multerDocx = multer({ storage: multer.memoryStorage() });
@@ -24,6 +24,7 @@ const upload = multer({
   }
 });
 
+// --- GESTIÓN DE USUARIOS ---
 const USUARIOS_PATH = path.join(__dirname, 'usuarios.json');
 let baseDeDatosUsuariosServidor = [];
 
@@ -132,6 +133,7 @@ app.delete('/api/usuarios/:id', (req, res) => {
   }
 });
 
+// --- GESTIÓN DE TALLERES ---
 const ULTIMO_PROYECTO_PATH = path.join(__dirname, 'ultimoProyecto.json');
 
 app.get('/talleres', (req, res) => {
@@ -170,6 +172,7 @@ app.delete('/talleres/:nombre', (req, res) => {
   }
 });
 
+// --- GESTIÓN DE IMÁGENES ---
 app.use('/imgs', express.static(path.join(__dirname, 'imgs'), {
   setHeaders: (res) => {
     res.set('Access-Control-Allow-Origin', '*');
@@ -242,6 +245,7 @@ app.post('/guardar-firma', (req, res) => {
   res.json({ message: 'Firma guardada', ruta });
 });
 
+// --- GESTIÓN DE PROYECTOS (ANTIGUA) ---
 app.post(
   '/guardar-proyecto',
   upload.fields([
@@ -321,6 +325,7 @@ app.get('/ultimo-proyecto', (req, res) => {
   }
 });
 
+// --- CONVERSIÓN DOCX -> PDF ---
 app.post('/convertir-docx-a-pdf', uploadDocx.single('doc'), (req, res) => {
   const docxPath = path.resolve(req.file.path);
   const outputDir = path.join(__dirname, 'pdf_generados');
@@ -419,6 +424,7 @@ app.get('/proyectos/:id/proyecto.json', (req, res) => {
   }
 });
 
+// --- GUARDAR DOCX ---
 app.post('/guardar-docx', multerDocx.single('docx'), (req, res) => {
   try {
     const referenciaOriginal = req.body.referenciaProyecto || 'documento_sin_nombre';
@@ -458,6 +464,7 @@ app.use(
   })
 );
 
+// --- INGENIEROS & ARQUITECTOS ---
 app.get('/ingenieros', (req, res) => {
   try {
     if (!fs.existsSync('./ingenieros.json')) {
@@ -553,6 +560,101 @@ app.delete('/arquitectos/:nombre', (req, res) => {
     res.status(500).send({ message: 'Error al eliminar arquitecto' });
   }
 });
+
+// ================================================================
+//  NUEVO: GESTIÓN DE VIVIENDAS (EXPEDIENTES TIPO TRELLO)
+// ================================================================
+
+// Definimos la carpeta y el archivo JSON
+const VIVIENDAS_DIR = path.join(__dirname, 'viviendas');
+const VIVIENDAS_FILE = path.join(VIVIENDAS_DIR, 'viviendas.json');
+
+app.post('/api/viviendas', (req, res) => {
+  try {
+    // 1. Crear carpeta si no existe
+    if (!fs.existsSync(VIVIENDAS_DIR)) {
+      fs.mkdirSync(VIVIENDAS_DIR, { recursive: true });
+    }
+
+    // 2. Leer archivo actual o iniciar array vacío
+    let viviendas = [];
+    if (fs.existsSync(VIVIENDAS_FILE)) {
+      const data = fs.readFileSync(VIVIENDAS_FILE, 'utf-8');
+      try {
+        viviendas = JSON.parse(data);
+        if (!Array.isArray(viviendas)) viviendas = [];
+      } catch (e) {
+        viviendas = [];
+      }
+    }
+
+    // 3. Crear el nuevo objeto (Expediente)
+    // Generamos un ID simple basado en el timestamp para poder identificarlo luego en el Trello
+    const nuevoExpediente = {
+      id: Date.now(), // ID único
+      ...req.body
+    };
+
+    // 4. Añadir al array y guardar
+    viviendas.push(nuevoExpediente);
+    fs.writeFileSync(VIVIENDAS_FILE, JSON.stringify(viviendas, null, 2));
+
+    console.log(`--> Nuevo expediente de vivienda guardado. ID: ${nuevoExpediente.id}`);
+    
+    res.status(200).json({ 
+      message: 'Expediente guardado correctamente', 
+      id: nuevoExpediente.id 
+    });
+
+  } catch (error) {
+    console.error('Error guardando vivienda:', error);
+    res.status(500).json({ error: 'Error interno al guardar el expediente' });
+  }
+});
+
+// Endpoint GET opcional por si quieres listar las viviendas (para el Trello)
+app.get('/api/viviendas', (req, res) => {
+  try {
+    if (fs.existsSync(VIVIENDAS_FILE)) {
+      const data = fs.readFileSync(VIVIENDAS_FILE, 'utf-8');
+      res.json(JSON.parse(data));
+    } else {
+      res.json([]);
+    }
+  } catch (error) {
+    console.error('Error leyendo viviendas:', error);
+    res.status(500).json({ error: 'Error al leer viviendas' });
+  }
+});
+
+app.put('/api/viviendas/:id', (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const nuevosDatos = req.body;
+
+    if (!fs.existsSync(VIVIENDAS_FILE)) {
+      return res.status(404).json({ error: 'No existe el archivo de datos' });
+    }
+
+    const data = fs.readFileSync(VIVIENDAS_FILE, 'utf-8');
+    let viviendas = JSON.parse(data);
+
+    const index = viviendas.findIndex(v => v.id === id);
+
+    if (index !== -1) {
+      viviendas[index] = { ...viviendas[index], ...nuevosDatos };
+      fs.writeFileSync(VIVIENDAS_FILE, JSON.stringify(viviendas, null, 2));
+      res.json({ message: 'Vivienda actualizada correctamente' });
+    } else {
+      res.status(404).json({ error: 'Vivienda no encontrada' });
+    }
+  } catch (error) {
+    console.error('Error actualizando vivienda:', error);
+    res.status(500).json({ error: 'Error interno al actualizar' });
+  }
+});
+
+// ================================================================
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {

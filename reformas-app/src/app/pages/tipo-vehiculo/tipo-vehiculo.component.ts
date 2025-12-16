@@ -95,6 +95,29 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
     this.haAplicadoResetPorCliente = true; // <- ya no volveremos a pisar la selección del usuario
     this.refreshSnapshot();
+    this.actualizarEstadoGrupos();
+  }
+
+  // Carga todas las opciones disponibles para el tipo y marca las que venían guardadas
+  private cargarYFusionarModificaciones(
+    tipo: string,
+    guardadas: any[]
+  ): Modificacion[] {
+    // 1. Obtenemos la plantilla completa (todas las opciones posibles para este vehículo)
+    const plantillaCompleta = this.obtenerModificacionesPorTipo(tipo);
+
+    // 2. Recorremos la plantilla y buscamos si hay datos guardados para cada ítem
+    return plantillaCompleta.map((modBase) => {
+      const encontrada = guardadas.find((g) => g.nombre === modBase.nombre);
+
+      if (encontrada) {
+        // Si existe en lo guardado, usamos los datos guardados (normalizados)
+        return this.normalizarModificacion(encontrada);
+      } else {
+        // Si no existe, usamos la opción base (desmarcada)
+        return this.normalizarModificacion(modBase);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -110,8 +133,9 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     ) {
       // Edición creada por admin → restaurar normalmente
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
-      this.modificaciones = (this.datosPrevios.modificaciones || []).map(
-        (mod: any) => this.normalizarModificacion(mod)
+      this.modificaciones = this.cargarYFusionarModificaciones(
+        this.tipoVehiculo,
+        this.datosPrevios.modificaciones || []
       );
     } else if (!this.esCliente) {
       // Proyecto nuevo del admin
@@ -120,8 +144,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     }
 
     this.refreshSnapshot();
-
-    // 🔥 YA NO EMITE AUTOSAVE AQUÍ (evita enviar datos vacíos al padre)
+    this.actualizarEstadoGrupos();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -142,14 +165,42 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       if (nuevos.tipoVehiculo) {
         this.tipoVehiculo = nuevos.tipoVehiculo;
       }
-      if (Array.isArray(nuevos.modificaciones)) {
+      if (this.tipoVehiculo && Array.isArray(nuevos.modificaciones)) {
+        this.modificaciones = this.cargarYFusionarModificaciones(
+          this.tipoVehiculo,
+          nuevos.modificaciones
+        );
+      } else if (Array.isArray(nuevos.modificaciones)) {
+        // Fallback por si no hay tipo definido aún (raro, pero posible)
         this.modificaciones = nuevos.modificaciones.map((mod: any) =>
           this.normalizarModificacion(mod)
         );
       }
       this.refreshSnapshot();
+      this.actualizarEstadoGrupos();
       this.emitAutosave();
     }
+  }
+
+  onCambioGrupo(grupo: GrupoModificacion): void {
+    // Si el usuario ha desmarcado el grupo, desmarcamos todos sus hijos
+    if (!grupo.seleccionado) {
+      grupo.items.forEach((nombreItem) => {
+        const mod = this.modificaciones.find((m) => m.nombre === nombreItem);
+        if (mod) {
+          mod.seleccionado = false;
+          // Opcional: Si quieres limpiar detalles al cerrar sección, hazlo aquí.
+          // Por ejemplo:
+          // if (mod.detalle) { ...resetear detalle... }
+        }
+      });
+    }
+
+    // Si el usuario lo ha marcado (grupo.seleccionado = true), no hacemos nada especial con los hijos,
+    // simplemente dejamos que el grupo se quede en 'true' para que el *ngIf del HTML muestre el contenido.
+
+    this.refreshSnapshot();
+    this.emitAutosave();
   }
 
   // Detecta cualquier cambio en 'modificaciones' (marca, subopción, etc.) y emite autosave sin tocar el HTML
@@ -1137,6 +1188,20 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     });
 
     return esValido;
+  }
+
+  private actualizarEstadoGrupos(): void {
+    if (!this.grupos || !this.modificaciones) return;
+
+    this.grupos.forEach((grupo) => {
+      const hayHijaSeleccionada = this.modificaciones.some(
+        (mod) => mod.seleccionado && grupo.items.includes(mod.nombre)
+      );
+
+      if (hayHijaSeleccionada) {
+        grupo.seleccionado = true;
+      }
+    });
   }
 
   actualizarError(index: number, mod: Modificacion): void {

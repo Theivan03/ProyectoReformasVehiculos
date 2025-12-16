@@ -57,6 +57,9 @@ export class CanvaComponent implements OnInit {
 
   firmaUrl = '';
   fechaFirma = '';
+  nombreIngeniero: string = '';
+  numColegiado: string = '';
+  tituloIngeniero: string = '';
 
   private tipoVehiculoAnterior = '';
   private etiquetasAnteriores: string[] = [];
@@ -134,6 +137,12 @@ export class CanvaComponent implements OnInit {
       .toString()
       .trim()
       .toLowerCase();
+
+    const ingeniero = this.datosEntrada?.ingeniero || {};
+
+    this.nombreIngeniero = ingeniero.nombre;
+    this.numColegiado = 'Col nº ' + ingeniero.numero + ' ' + ingeniero.colegio;
+    this.tituloIngeniero = 'EL ' + ingeniero.titulacion;
 
     if (this.tipoVehiculoAnterior && tipoActual !== this.tipoVehiculoAnterior) {
       this.markers = [];

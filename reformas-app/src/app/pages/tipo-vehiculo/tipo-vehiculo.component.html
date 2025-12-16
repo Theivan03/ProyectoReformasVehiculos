@@ -161,7 +161,9 @@
                   type="checkbox"
                   [(ngModel)]="grupo.seleccionado"
                   id="grupo-check-{{ g }}"
+                  (change)="onCambioGrupo(grupo)"
                 />
+
                 <label
                   class="form-check-label fw-bold text-uppercase ms-2"
                   for="grupo-check-{{ g }}"
