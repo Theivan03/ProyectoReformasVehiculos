@@ -44,6 +44,7 @@ interface SavedState {
   datosGenerales?: any;
   datosGuardadosTipoVehiculo?: any;
   datosResumenModificaciones?: any;
+  codigosDetallados?: any;
 }
 
 @Component({
@@ -423,24 +424,38 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGuardadosTipoVehiculo?.tipoVehiculo ||
       ''
     ).toLowerCase();
+
+    const navigationExtras = {
+      queryParams: { editId: this.editId }, // <--- ESTA ES LA CLAVE
+      queryParamsHandling: 'merge' as const, // Mantiene otros parámetros si los hubiera
+    };
+
     if (next === 'coche-o-no' && tipo !== 'coche') {
       this.step = 'canva';
       this.persist();
-      this.router.navigate(['/reforma', 'canva']);
+      this.router.navigate(['/reforma', 'canva'], navigationExtras);
       return;
     }
     if (this.step === 'canva' && next === 'coche-o-no' && tipo !== 'coche') {
       this.step = 'formulario';
       this.persist();
-      this.router.navigate(['/reforma', 'formulario']);
+      this.router.navigate(['/reforma', 'formulario'], navigationExtras);
       return;
     }
     this.step = this.resolveStep(next);
     this.persist();
-    this.router.navigate(['/reforma', this.step]);
+    this.router.navigate(['/reforma', this.step], navigationExtras);
   }
 
   private persist() {
+    // 🔥 PROTECCIÓN CRÍTICA:
+    // Si estamos editando un proyecto y aún no ha terminado de cargar (proyectoCargado es false),
+    // PROHIBIDO guardar, porque sobrescribiríamos los datos buenos con el estado vacío inicial.
+    if (this.editId && !this.proyectoCargado) {
+      console.warn('⛔ [PERSIST] Bloqueado: El proyecto aún está cargando.');
+      return;
+    }
+
     try {
       const light = this.buildSnapshotLight();
       const compressed = compressToUTF16(JSON.stringify(light));
@@ -481,20 +496,70 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosProyecto && Object.keys(this.datosProyecto).length
         ? this.datosProyecto
         : {};
-    if (!saved && !base) return;
+
+    // Si no hay datos en ningún lado, salir
+    if (!saved && Object.keys(base).length === 0) return;
 
     this.step = 'tipo-vehiculo';
-    // ... [Lógica de restauración de códigos igual que antes] ...
-    const codigosDetalladosRoot =
-      (saved as any)?.codigosDetallados || (base as any)?.codigosDetallados;
-    const codigosDetalladosDG =
-      (saved as any)?.datosGenerales?.codigosDetallados ||
-      (base as any)?.datosGenerales?.codigosDetallados;
-    const esBloqueTipoVehiculo = (obj: any) =>
-      obj &&
-      typeof obj === 'object' &&
-      (typeof obj.tipoVehiculo === 'string' ||
-        Array.isArray(obj.modificaciones));
+
+    // =========================================================
+    // 1. RECUPERAR CÓDIGOS DE SECCIONES (IDs 4, 5, 8...)
+    // =========================================================
+
+    let codigosEncontrados: string[] = [];
+    let origenDatos = '';
+
+    // ESTRATEGIA A: LocalStorage (Solo si tiene datos reales, no arrays vacíos)
+    if (
+      Array.isArray(saved?.codigosPreseleccionados) &&
+      saved.codigosPreseleccionados.length > 0
+    ) {
+      codigosEncontrados = saved.codigosPreseleccionados.map(String);
+      origenDatos = 'LocalStorage (Array)';
+    }
+    // ESTRATEGIA B: Servidor - Raíz (Para tu JSON con "codigosDetallados": { "4": ... })
+    else if (
+      base.codigosDetallados &&
+      Object.keys(base.codigosDetallados).length > 0
+    ) {
+      codigosEncontrados = Object.keys(base.codigosDetallados).filter((key) => {
+        return Array.isArray(base.codigosDetallados[key]);
+      });
+      origenDatos = 'Servidor (codigosDetallados ROOT)';
+    }
+    // ESTRATEGIA C: Servidor - DatosGenerales
+    else if (
+      base.datosGenerales?.codigosDetallados &&
+      Object.keys(base.datosGenerales.codigosDetallados).length > 0
+    ) {
+      codigosEncontrados = Object.keys(
+        base.datosGenerales.codigosDetallados
+      ).filter((key) => {
+        return Array.isArray(base.datosGenerales.codigosDetallados[key]);
+      });
+      origenDatos = 'Servidor (codigosDetallados DG)';
+    }
+    // ESTRATEGIA D: Fallback Array simple
+    else if (Array.isArray(base.seccionesSeleccionadas)) {
+      codigosEncontrados = base.seccionesSeleccionadas.map((s: any) =>
+        String(s?.codigo)
+      );
+      origenDatos = 'Servidor (seccionesSeleccionadas Array)';
+    }
+
+    this.codigosPreseleccionados = codigosEncontrados;
+
+    console.log(
+      `✅ [RESTORE] Códigos cargados: ${this.codigosPreseleccionados.join(
+        ', '
+      )}`
+    );
+    console.log(`ℹ️ [RESTORE] Fuente de datos: ${origenDatos}`);
+
+    // =========================================================
+    // 2. RECUPERAR RESPUESTAS (Detalles internos)
+    // =========================================================
+
     const normalizarRespuestas = (src: any) =>
       Object.fromEntries(
         Object.entries(src)
@@ -508,55 +573,37 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
           ])
       );
 
-    if (codigosDetalladosRoot && typeof codigosDetalladosRoot === 'object') {
-      if (esBloqueTipoVehiculo(codigosDetalladosRoot)) {
-        this.datosGuardadosTipoVehiculo = {
-          ...(this.datosGuardadosTipoVehiculo || {}),
-          tipoVehiculo: codigosDetalladosRoot.tipoVehiculo ?? '',
-          modificaciones: Array.isArray(codigosDetalladosRoot.modificaciones)
-            ? codigosDetalladosRoot.modificaciones
-            : this.datosGuardadosTipoVehiculo?.modificaciones || [],
-        };
-        this.codigosPreseleccionados = saved?.codigosPreseleccionados
-          ? saved.codigosPreseleccionados.map(String)
-          : [];
-        this.respuestasGuardadas = {};
-      } else {
-        this.codigosPreseleccionados = Object.keys(codigosDetalladosRoot)
-          .filter((k) => Array.isArray((codigosDetalladosRoot as any)[k]))
-          .map(String);
-        this.respuestasGuardadas = normalizarRespuestas(codigosDetalladosRoot);
-      }
-    } else if (codigosDetalladosDG && typeof codigosDetalladosDG === 'object') {
-      this.codigosPreseleccionados = Object.keys(codigosDetalladosDG)
-        .filter((k) => Array.isArray((codigosDetalladosDG as any)[k]))
-        .map(String);
-      this.respuestasGuardadas = normalizarRespuestas(codigosDetalladosDG);
-    } else if (Array.isArray(saved?.codigosPreseleccionados)) {
-      this.codigosPreseleccionados = saved.codigosPreseleccionados.map(String);
-    } else if (Array.isArray(saved?.seccionesSeleccionadas)) {
-      this.codigosPreseleccionados = saved.seccionesSeleccionadas.map(
-        (s: any) => String(s?.codigo)
-      );
+    if (origenDatos.includes('codigosDetallados')) {
+      const fuente =
+        base.codigosDetallados || base.datosGenerales?.codigosDetallados;
+      this.respuestasGuardadas = normalizarRespuestas(fuente);
     } else {
-      this.codigosPreseleccionados = [];
-      this.respuestasGuardadas = {};
+      this.respuestasGuardadas =
+        saved?.respuestasGuardadas || base.respuestasGuardadas || {};
     }
 
+    // =========================================================
+    // 3. RECUPERAR RESTO DE DATOS
+    // =========================================================
+
     this.seccionesSeleccionadas =
-      base.seccionesSeleccionadas || saved?.seccionesSeleccionadas || [];
-    this.respuestasGuardadas =
-      this.respuestasGuardadas ||
-      base.respuestasGuardadas ||
-      saved?.respuestasGuardadas ||
-      {};
+      saved?.seccionesSeleccionadas ||
+      base.seccionesSeleccionadas ||
+      base.datosGenerales?.seccionesSeleccionadas ||
+      [];
+
+    // IMPORTANTE: Si tenemos códigos pero no los objetos completos de secciones,
+    // el componente hijo 'seleccion-secciones' sabrá marcarlos gracias a 'codigosPreseleccionados'.
+
     this.datosFormularioGuardados =
       base.datosFormularioGuardados || saved?.datosFormularioGuardados || base;
+
     this.datosGenerales = {
       ...base.datosGenerales,
       ...(saved?.datosGenerales || {}),
       ...base,
     };
+
     this.datosGuardadosTipoVehiculo = {
       ...this.datosGuardadosTipoVehiculo,
       ...(base.datosGuardadosTipoVehiculo || {}),
@@ -570,6 +617,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         this.datosGenerales?.tipoVehiculo ||
         '';
     }
+
     if (
       (!this.datosGuardadosTipoVehiculo.modificaciones ||
         this.datosGuardadosTipoVehiculo.modificaciones.length === 0) &&
@@ -577,6 +625,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     ) {
       this.datosGuardadosTipoVehiculo.modificaciones = base.modificaciones;
     }
+
     this.datosResumenModificaciones =
       base.datosResumenModificaciones ||
       saved?.datosResumenModificaciones ||
