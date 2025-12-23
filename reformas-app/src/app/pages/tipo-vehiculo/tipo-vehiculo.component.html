@@ -618,10 +618,13 @@
                     <option value="disminucion">Disminución</option>
                   </select>
                 </div>
-                } @if (mod.nombre === 'REDUCCIÓN MMA Y MMTA' &&
-                mod.seleccionado) {
-                <div class="ms-4">
-                  <label class="form-label">¿Qué se modifica?</label>
+                }
+                <div
+                  *ngIf="
+                    mod.nombre === 'REDUCCIÓN MMA Y MMTA' && mod.seleccionado
+                  "
+                  class="ms-4"
+                >
                   <div class="form-check">
                     <input
                       class="form-check-input"
@@ -636,6 +639,7 @@
                       Reducción en eje delantero
                     </label>
                   </div>
+
                   <div class="form-check">
                     <input
                       class="form-check-input"
@@ -650,8 +654,15 @@
                       Reducción total
                     </label>
                   </div>
+
+                  <p
+                    *ngIf="erroresSubopciones[modificaciones.indexOf(mod)]"
+                    class="text-danger small mt-1"
+                  >
+                    Debes seleccionar al menos una opción.
+                  </p>
                 </div>
-                } @if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS' &&
+                @if (mod.nombre === 'SUSTITUCIÓN GUARDABARROS' &&
                 mod.seleccionado) {
                 <div class="ms-4">
                   <label class="form-label"
@@ -750,35 +761,85 @@
             </div>
             }
           </div>
-          } } @if (getModsSinGrupo().length > 0) {
-          <div class="card mb-3 border-secondary-subtle">
-            <div class="card-header bg-warning-subtle fw-bold text-uppercase">
-              Otras Modificaciones
-            </div>
-            <div class="card-body">
-              @for (mod of getModsSinGrupo(); track mod.nombre; let m = $index)
-              {
-              <div class="mb-3 border-bottom pb-3">
+          }
+        }
+        </div>
+        } @if (getModsSinGrupo().length > 0) {
+        <div class="card mb-3 border-secondary-subtle">
+          <div class="card-header bg-warning-subtle fw-bold text-uppercase">
+            Otras Modificaciones
+          </div>
+          <div class="card-body">
+            @for (mod of getModsSinGrupo(); track mod.nombre) {
+            <div class="mb-3 border-bottom pb-3">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="mod.seleccionado"
+                  [id]="'mod-otros-' + $index"
+                  (change)="onCambioSubopcion(mod)"
+                />
+                <label
+                  class="form-check-label fw-bold"
+                  [for]="'mod-otros-' + $index"
+                >
+                  {{ mod.nombre }}
+                </label>
+              </div>
+
+              @if (mod.nombre === 'REDUCCIÓN MMA Y MMTA' && mod.seleccionado) {
+              <div class="ms-4 mt-2">
+                <label class="form-label">¿Qué se modifica?</label>
+
                 <div class="form-check">
                   <input
                     class="form-check-input"
                     type="checkbox"
-                    [(ngModel)]="mod.seleccionado"
-                    [id]="'mod-otros-' + m"
-                    (change)="onCambioSubopcion(mod)"
+                    [id]="'ejeDelantero-otros-' + $index"
+                    [(ngModel)]="mod.ejeDelantero"
+                    (change)="
+                      onCambioSubopcion(mod);
+                      actualizarError(modificaciones.indexOf(mod), mod)
+                    "
                   />
                   <label
-                    class="form-check-label fw-bold"
-                    [for]="'mod-otros-' + m"
+                    class="form-check-label"
+                    [for]="'ejeDelantero-otros-' + $index"
                   >
-                    {{ mod.nombre }}
+                    Reducción en eje delantero
                   </label>
                 </div>
+
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [id]="'ejeTotal-otros-' + $index"
+                    [(ngModel)]="mod.ejeTotal"
+                    (change)="
+                      onCambioSubopcion(mod);
+                      actualizarError(modificaciones.indexOf(mod), mod)
+                    "
+                  />
+                  <label
+                    class="form-check-label"
+                    [for]="'ejeTotal-otros-' + $index"
+                  >
+                    Reducción total
+                  </label>
+                </div>
+
+                @if (erroresSubopciones[modificaciones.indexOf(mod)]) {
+                <p class="text-danger small mt-1">
+                  Debes seleccionar al menos una opción.
+                </p>
+                }
               </div>
               }
             </div>
+            }
           </div>
-          }
         </div>
         }
 

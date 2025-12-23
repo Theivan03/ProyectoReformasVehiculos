@@ -1,0 +1,547 @@
+<div class="main-container">
+  <div class="app-card">
+    <div class="app-header d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="h4 fw-bold mb-1">Memoria Técnica de Diseño</h1>
+        <p class="mb-0 opacity-75 small">
+          Generador de documentación técnica (Autoconsumo)
+        </p>
+      </div>
+      <div class="step-badge">Fase {{ pasoActual }} / {{ totalPasos }}</div>
+    </div>
+
+    <div class="progress-container">
+      <div
+        class="progress-bar-custom"
+        [style.width.%]="(pasoActual / totalPasos) * 100"
+      ></div>
+    </div>
+
+    <div class="content-area">
+      <div *ngIf="pasoActual === 1" class="animation-slide-in-down">
+        <h2 class="section-title h3">1. Datos del Titular</h2>
+        <p class="section-subtitle">
+          Información del propietario y domicilio social.
+        </p>
+
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label">Nombre Completo / Razón Social</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white"
+                ><lucide-icon [img]="icons.User" size="18"></lucide-icon
+              ></span>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.titular.nombre"
+                placeholder="Ej: Juan Pérez"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">NIF / CIF</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.nif"
+            />
+          </div>
+
+          <div class="col-12"><hr class="text-muted opacity-25" /></div>
+
+          <div class="col-md-12">
+            <label class="form-label"
+              >Domicilio Social (Dirección Completa)</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.domicilio"
+              placeholder="Calle Mayor 12, 1º A"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">CP</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.cp"
+            />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">Población</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.poblacion"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Provincia</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.provincia"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Teléfono</label>
+            <input
+              type="tel"
+              class="form-control"
+              [(ngModel)]="datos.titular.telefono"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Correo Electrónico</label>
+            <input
+              type="email"
+              class="form-control"
+              [(ngModel)]="datos.titular.correo"
+            />
+          </div>
+
+          <div class="col-12 mt-4">
+            <div
+              class="form-check form-switch bg-light p-3 rounded border d-flex align-items-center"
+            >
+              <input
+                class="form-check-input me-3"
+                type="checkbox"
+                role="switch"
+                id="mismaDireccionCheck"
+                [(ngModel)]="datos.mismaDireccion"
+                style="width: 3em; height: 1.5em"
+              />
+              <label
+                class="form-check-label fw-bold cursor-pointer"
+                for="mismaDireccionCheck"
+              >
+                El emplazamiento de la instalación es el mismo que el domicilio
+                social
+              </label>
+            </div>
+          </div>
+
+          <div
+            class="col-12 animation-slide-in-down"
+            *ngIf="datos.mismaDireccion"
+          >
+            <div
+              class="card border-primary-subtle bg-primary-subtle bg-opacity-10 p-3 mt-2"
+            >
+              <h6 class="fw-bold text-primary mb-3">
+                Detalles del Emplazamiento (Misma Ubicación)
+              </h6>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div
+                    class="type-selector p-2 rounded d-flex align-items-center bg-white"
+                    [class.active]="datos.tipoVivienda === 'piso'"
+                    (click)="datos.tipoVivienda = 'piso'"
+                  >
+                    <lucide-icon
+                      [img]="icons.Building"
+                      size="20"
+                      class="me-2"
+                    ></lucide-icon>
+                    <span>Piso / Bloque</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div
+                    class="type-selector p-2 rounded d-flex align-items-center bg-white"
+                    [class.active]="datos.tipoVivienda === 'chalet'"
+                    (click)="datos.tipoVivienda = 'chalet'"
+                  >
+                    <lucide-icon
+                      [img]="icons.Home"
+                      size="20"
+                      class="me-2"
+                    ></lucide-icon>
+                    <span>Chalet / Unifamiliar</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Referencia Catastral</label>
+                  <input
+                    type="text"
+                    class="form-control font-monospace bg-white"
+                    [(ngModel)]="datos.emplazamiento.refCatastral"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Uso</label>
+                  <select
+                    class="form-select bg-white"
+                    [(ngModel)]="datos.emplazamiento.uso"
+                  >
+                    <option value="Vivienda">Vivienda</option>
+                    <option value="Local Comercial">Local Comercial</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 2" class="animation-slide-in-down">
+        <h2 class="section-title h3">2. Emplazamiento y Tipo</h2>
+        <p class="section-subtitle">
+          Ubicación física de la instalación (Distinta del titular).
+        </p>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <label class="form-label">Tipo de Vivienda</label>
+          </div>
+          <div class="col-md-6">
+            <div
+              class="type-selector p-3 rounded d-flex align-items-center"
+              [class.active]="datos.tipoVivienda === 'piso'"
+              (click)="datos.tipoVivienda = 'piso'"
+            >
+              <lucide-icon
+                [img]="icons.Building"
+                size="24"
+                class="me-3"
+              ></lucide-icon>
+              <div>
+                <h6 class="fw-bold mb-0">Piso / Bloque</h6>
+                <small class="text-muted">Instalación en edificio</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div
+              class="type-selector p-3 rounded d-flex align-items-center"
+              [class.active]="datos.tipoVivienda === 'chalet'"
+              (click)="datos.tipoVivienda = 'chalet'"
+            >
+              <lucide-icon
+                [img]="icons.Home"
+                size="24"
+                class="me-3"
+              ></lucide-icon>
+              <div>
+                <h6 class="fw-bold mb-0">Chalet / Unifamiliar</h6>
+                <small class="text-muted">Vivienda aislada</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-light p-3 mb-3">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Dirección Completa (Instalación)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-white"
+                  ><lucide-icon [img]="icons.MapPin" size="18"></lucide-icon
+                ></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="datos.emplazamiento.direccion"
+                  placeholder="Ej: Avenida del Mediterráneo 45"
+                />
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">CP</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.cp"
+              />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Población</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.poblacion"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Provincia</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.provincia"
+              />
+            </div>
+
+            <div class="col-md-8">
+              <label class="form-label">Referencia Catastral</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                [(ngModel)]="datos.emplazamiento.refCatastral"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Uso</label>
+              <select class="form-select" [(ngModel)]="datos.emplazamiento.uso">
+                <option value="Vivienda">Vivienda</option>
+                <option value="Local Comercial">Local Comercial</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 3" class="animation-slide-in-down">
+        <h2 class="section-title h3">3. Características Técnicas</h2>
+        <p class="section-subtitle">Datos de la instalación y protecciones.</p>
+        <div class="row g-4">
+          <div class="col-md-12">
+            <div class="card bg-light border-0 p-3 mb-3">
+              <h6 class="fw-bold text-primary mb-3 d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons.Zap"
+                  size="18"
+                  class="me-2"
+                ></lucide-icon>
+                Generación Fotovoltaica
+              </h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Potencia Instalada (kW)</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="datos.caracteristicas.potenciaInstalada"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Potencia Inversor (kW)</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="datos.caracteristicas.potenciaInversor"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Nº Módulos</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="datos.caracteristicas.numModulos"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="card bg-white border p-3 mb-3">
+              <h6 class="fw-bold text-dark mb-3 d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons.Box"
+                  size="18"
+                  class="me-2"
+                ></lucide-icon>
+                Caja General de Protección (Sección C.1)
+              </h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Tipo de Esquema</label>
+                  <select
+                    class="form-select"
+                    [(ngModel)]="datos.caracteristicas.cgp.esquema"
+                  >
+                    <option value="7">Esquema 7</option>
+                    <option value="10">Esquema 10</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Intensidad Nom. CGP (A)</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="datos.caracteristicas.cgp.intensidad"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Intensidad Fusibles (A)</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="datos.caracteristicas.cgp.fusibles"
+                  />
+                </div>
+                <div class="col-12">
+                  <small class="text-muted fst-italic"
+                    >* Se configurará automáticamente como "Conexión
+                    Subterránea" y "Nicho en Pared".</small
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              class="card bg-white border p-3"
+              *ngIf="datos.tipoVivienda === 'piso'"
+            >
+              <h6 class="fw-bold text-dark mb-3 d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons.CheckSquare"
+                  size="18"
+                  class="me-2"
+                ></lucide-icon>
+                Datos Contadores (Sección C.3)
+              </h6>
+              <div class="alert alert-info py-2 small">
+                Se configurará como <strong>Concentrada / Armario</strong>.
+              </div>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Nº Centralizaciones</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="
+                      datos.caracteristicas.contadores.numCentralizaciones
+                    "
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Total Contadores</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="
+                      datos.caracteristicas.contadores.totalContadores
+                    "
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Intensidad Nominal (A)</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="
+                      datos.caracteristicas.contadores.intensidadNominal
+                    "
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 4" class="animation-slide-in-down">
+        <h2 class="section-title h3">4. Finalización</h2>
+        <p class="section-subtitle">
+          Establezca la fecha de firma y genere el documento.
+        </p>
+        <div class="card bg-white border shadow-sm p-4 mb-4">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Lugar de Firma</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light"
+                  ><lucide-icon
+                    [img]="icons.MapPin"
+                    size="16"
+                  ></lucide-icon></span
+                ><input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="datos.fechaFirma.lugar"
+                />
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Día</label
+              ><input
+                type="text"
+                class="form-control text-center"
+                [(ngModel)]="datos.fechaFirma.dia"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Mes</label
+              ><select class="form-select" [(ngModel)]="datos.fechaFirma.mes">
+                <option value="Enero">Enero</option>
+                <option value="Febrero">Febrero</option>
+                <option value="Marzo">Marzo</option>
+                <option value="Abril">Abril</option>
+                <option value="Mayo">Mayo</option>
+                <option value="Junio">Junio</option>
+                <option value="Julio">Julio</option>
+                <option value="Agosto">Agosto</option>
+                <option value="Septiembre">Septiembre</option>
+                <option value="Octubre">Octubre</option>
+                <option value="Noviembre">Noviembre</option>
+                <option value="Diciembre">Diciembre</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Año</label
+              ><input
+                type="text"
+                class="form-control text-center"
+                [(ngModel)]="datos.fechaFirma.anyo"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-info d-flex align-items-center">
+          <lucide-icon [img]="icons.FileText" class="me-3"></lucide-icon>
+          <div>
+            <strong>Todo listo.</strong> Se generará el PDF configurado como
+            <strong>{{ datos.tipoVivienda | titlecase }}</strong
+            >.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-area d-flex justify-content-between">
+      <button
+        class="btn-prev d-flex align-items-center"
+        (click)="retrocederPaso()"
+        [disabled]="pasoActual === 1"
+      >
+        <lucide-icon
+          [img]="icons.ChevronLeft"
+          size="18"
+          class="me-2"
+        ></lucide-icon>
+        Anterior
+      </button>
+
+      <button
+        *ngIf="pasoActual < totalPasos"
+        class="btn-next d-flex align-items-center"
+        (click)="avanzarPaso()"
+      >
+        Siguiente
+        <lucide-icon
+          [img]="icons.ChevronRight"
+          size="18"
+          class="ms-2"
+        ></lucide-icon>
+      </button>
+
+      <button
+        *ngIf="pasoActual === totalPasos"
+        class="btn-next bg-success border-success d-flex align-items-center"
+        (click)="generarPDF()"
+        [disabled]="isGenerating"
+      >
+        <lucide-icon
+          [img]="icons.Download"
+          size="18"
+          class="me-2"
+        ></lucide-icon>
+        {{ isGenerating ? "Generando..." : "Descargar Memoria PDF" }}
+      </button>
+    </div>
+  </div>
+</div>

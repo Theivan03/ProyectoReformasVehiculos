@@ -42,5 +42,27 @@
     "responsable": "Vicente José Ribes Gilabert",
     "telefono": "96 5157171",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "Star-Team Clasico Motos S.L.",
+    "direccion": "Avda. de Valencia, 49",
+    "poblacion": "El Verger",
+    "provincia": "Alicante",
+    "registroIndustrial": "03-106058",
+    "registroEspecial": "A-3793",
+    "responsable": "Wolfgang Kruchten",
+    "telefono": "965750552",
+    "especialidad": "mecánica"
+  },
+  {
+    "nombre": "Autos Xaló",
+    "direccion": "AV. de la Generalitat Valenciana, 13, nave A",
+    "poblacion": "Xaló",
+    "provincia": "Alicante",
+    "registroIndustrial": "03-50069",
+    "registroEspecial": "A-1790",
+    "responsable": "Francisco José Cervera Grimalt",
+    "telefono": "699638789",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
   }
 ]

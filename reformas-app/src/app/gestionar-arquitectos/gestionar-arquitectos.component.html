@@ -118,9 +118,8 @@
     <!-- GRID DE CAMPOS -->
     <div class="row g-3">
       @for (campo of [
-      'nombre','dni','direccionFiscal','oficina','codigoPostal','localidad','provincia',
-      'titulacion','especialidad','colegio','universidad','numero','correo','tlf',
-      'web','url','correoEmpresa' ]; track campo) {
+      'nombre','dni','direccionFiscal','codigoPostal','localidad','provincia',
+      'titulacion','colegio','universidad','numero' ]; track campo) {
 
       <div class="col-md-6">
         <label class="form-label fw-semibold">{{ formatLabel(campo) }}</label>

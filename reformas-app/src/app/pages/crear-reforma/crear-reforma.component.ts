@@ -400,8 +400,29 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data: any) => {
           this.datosProyecto = { ...data };
+
+          // Guardamos el paso actual antes de que restore() lo reinicie
+          // Si el usuario ya navegó (ej: a 'resumen'), esto lo capturará.
+          // También miramos la URL por seguridad.
+          const pasoYaNavegado = this.step;
+          const pasoEnUrl = this.route.snapshot.paramMap.get('step') as Step;
+
+          // restore() reinicia internamente this.step a 'tipo-vehiculo',
+          // por eso debemos proteger el paso real después de llamarlo.
           this.restore();
-          this.step = 'tipo-vehiculo';
+
+          // 🔥 CORRECCIÓN DEL BUG:
+          // Si ya estamos en un paso distinto a 'tipo-vehiculo' (porque el usuario avanzó
+          // mientras cargaba o porque recargó la página en el paso 3), RESPETA ESE PASO.
+          if (pasoEnUrl && pasoEnUrl !== 'tipo-vehiculo') {
+            this.step = this.resolveStep(pasoEnUrl);
+          } else if (pasoYaNavegado && pasoYaNavegado !== 'tipo-vehiculo') {
+            this.step = pasoYaNavegado;
+          } else {
+            // Solo si no hay indicación contraria, vamos al inicio
+            this.step = 'tipo-vehiculo';
+          }
+
           this.proyectoCargado = true;
           this.cdr.detectChanges();
         },
@@ -497,38 +518,25 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         ? this.datosProyecto
         : {};
 
-    // Si no hay datos en ningún lado, salir
     if (!saved && Object.keys(base).length === 0) return;
 
     this.step = 'tipo-vehiculo';
 
-    // =========================================================
-    // 1. RECUPERAR CÓDIGOS DE SECCIONES (IDs 4, 5, 8...)
-    // =========================================================
-
     let codigosEncontrados: string[] = [];
-    let origenDatos = '';
 
-    // ESTRATEGIA A: LocalStorage (Solo si tiene datos reales, no arrays vacíos)
     if (
       Array.isArray(saved?.codigosPreseleccionados) &&
       saved.codigosPreseleccionados.length > 0
     ) {
       codigosEncontrados = saved.codigosPreseleccionados.map(String);
-      origenDatos = 'LocalStorage (Array)';
-    }
-    // ESTRATEGIA B: Servidor - Raíz (Para tu JSON con "codigosDetallados": { "4": ... })
-    else if (
+    } else if (
       base.codigosDetallados &&
       Object.keys(base.codigosDetallados).length > 0
     ) {
       codigosEncontrados = Object.keys(base.codigosDetallados).filter((key) => {
         return Array.isArray(base.codigosDetallados[key]);
       });
-      origenDatos = 'Servidor (codigosDetallados ROOT)';
-    }
-    // ESTRATEGIA C: Servidor - DatosGenerales
-    else if (
+    } else if (
       base.datosGenerales?.codigosDetallados &&
       Object.keys(base.datosGenerales.codigosDetallados).length > 0
     ) {
@@ -537,28 +545,13 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       ).filter((key) => {
         return Array.isArray(base.datosGenerales.codigosDetallados[key]);
       });
-      origenDatos = 'Servidor (codigosDetallados DG)';
-    }
-    // ESTRATEGIA D: Fallback Array simple
-    else if (Array.isArray(base.seccionesSeleccionadas)) {
+    } else if (Array.isArray(base.seccionesSeleccionadas)) {
       codigosEncontrados = base.seccionesSeleccionadas.map((s: any) =>
         String(s?.codigo)
       );
-      origenDatos = 'Servidor (seccionesSeleccionadas Array)';
     }
 
     this.codigosPreseleccionados = codigosEncontrados;
-
-    console.log(
-      `✅ [RESTORE] Códigos cargados: ${this.codigosPreseleccionados.join(
-        ', '
-      )}`
-    );
-    console.log(`ℹ️ [RESTORE] Fuente de datos: ${origenDatos}`);
-
-    // =========================================================
-    // 2. RECUPERAR RESPUESTAS (Detalles internos)
-    // =========================================================
 
     const normalizarRespuestas = (src: any) =>
       Object.fromEntries(
@@ -573,6 +566,11 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
           ])
       );
 
+    let origenDatos = '';
+    if (base.codigosDetallados || base.datosGenerales?.codigosDetallados) {
+      origenDatos = 'codigosDetallados';
+    }
+
     if (origenDatos.includes('codigosDetallados')) {
       const fuente =
         base.codigosDetallados || base.datosGenerales?.codigosDetallados;
@@ -582,27 +580,27 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         saved?.respuestasGuardadas || base.respuestasGuardadas || {};
     }
 
-    // =========================================================
-    // 3. RECUPERAR RESTO DE DATOS
-    // =========================================================
-
     this.seccionesSeleccionadas =
       saved?.seccionesSeleccionadas ||
       base.seccionesSeleccionadas ||
       base.datosGenerales?.seccionesSeleccionadas ||
       [];
 
-    // IMPORTANTE: Si tenemos códigos pero no los objetos completos de secciones,
-    // el componente hijo 'seleccion-secciones' sabrá marcarlos gracias a 'codigosPreseleccionados'.
-
     this.datosFormularioGuardados =
-      base.datosFormularioGuardados || saved?.datosFormularioGuardados || base;
+      saved?.datosFormularioGuardados || base.datosFormularioGuardados || base;
 
     this.datosGenerales = {
-      ...base.datosGenerales,
-      ...(saved?.datosGenerales || {}),
       ...base,
+      ...(base.datosGenerales || {}),
+      ...(saved?.datosGenerales || {}),
     };
+
+    if (this.datosFormularioGuardados) {
+      this.datosGenerales = {
+        ...this.datosGenerales,
+        ...this.datosFormularioGuardados,
+      };
+    }
 
     this.datosGuardadosTipoVehiculo = {
       ...this.datosGuardadosTipoVehiculo,
@@ -619,11 +617,18 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     }
 
     if (
-      (!this.datosGuardadosTipoVehiculo.modificaciones ||
-        this.datosGuardadosTipoVehiculo.modificaciones.length === 0) &&
-      Array.isArray(base.modificaciones)
+      !this.datosGuardadosTipoVehiculo.modificaciones ||
+      this.datosGuardadosTipoVehiculo.modificaciones.length === 0
     ) {
-      this.datosGuardadosTipoVehiculo.modificaciones = base.modificaciones;
+      if (
+        Array.isArray(base.modificaciones) &&
+        base.modificaciones.length > 0
+      ) {
+        this.datosGuardadosTipoVehiculo.modificaciones = base.modificaciones;
+      } else if (Array.isArray(saved?.datosGenerales?.modificaciones)) {
+        this.datosGuardadosTipoVehiculo.modificaciones =
+          saved.datosGenerales.modificaciones;
+      }
     }
 
     this.datosResumenModificaciones =
@@ -694,14 +699,24 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   }
   onFinalizarRecoleccion(event: any) {
     this.respuestasGuardadas = event || {};
+
     const TIPO_ACTUAL =
       this.datosGenerales?.tipoVehiculo ||
       this.datosGuardadosTipoVehiculo?.tipoVehiculo;
+
+    // 🔥 CORRECCIÓN: Recuperamos las modificaciones guardadas
+    const MODIFICACIONES_ACTUALES =
+      this.datosGuardadosTipoVehiculo?.modificaciones ||
+      this.datosGenerales?.modificaciones ||
+      [];
+
     this.datosFormularioGuardados = {
       ...(this.datosFormularioGuardados || {}),
       paginaActual: 1,
       tipoVehiculo: TIPO_ACTUAL || null,
+      modificaciones: MODIFICACIONES_ACTUALES, // <--- AHORA SÍ LAS PASAMOS AL FORMULARIO
     };
+
     this.persist();
     this.navigate('formulario');
   }
@@ -735,6 +750,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         };
       }
     }
+
+    // ACTUALIZACIÓN CRÍTICA: Sincronizar payloadResumen con los datos nuevos del formulario
+    this.payloadResumen = { ...(this.datosGenerales || {}) };
+
     if (this.datosFormularioGuardados.reformasPrevias === true) {
       this.persist();
       this.navigate('reformas-previas');
@@ -767,11 +786,23 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   onContinuarDesdeReformasPrevias(event: any) {
     if (event) {
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+
+      if (this.datosFormularioGuardados) {
+        this.datosGenerales = {
+          ...this.datosGenerales,
+          ...this.datosFormularioGuardados,
+        };
+      }
+
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
         ...(this.datosGenerales || {}),
       };
     }
+
+    // ACTUALIZACIÓN CRÍTICA: Sincronizar payloadResumen antes de ir a coche-o-no
+    this.payloadResumen = { ...(this.datosGenerales || {}) };
+
     this.persist();
     this.navigate('coche-o-no');
   }

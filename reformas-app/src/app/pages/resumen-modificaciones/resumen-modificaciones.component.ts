@@ -25,6 +25,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
   public readonly REMOLQUE_TAMBIEN_HOMOLOGADO =
     'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO';
+  public readonly REMOLQUE_NO_HOMOLOGADO =
+    'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO';
   readonly BARRA_ALINEAMIENTO =
     'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)';
   readonly BARRA_MOV_LATERAL =
@@ -131,7 +133,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log('--- DEBUG: ngOnInit disparado ---');
+    console.log(
+      '--- DEBUG: ngOnInit disparado ---  datosEntrada en resumen modificaciones:',
+      this.datosEntrada
+    );
     this.rebuild();
   }
 

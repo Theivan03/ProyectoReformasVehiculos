@@ -245,7 +245,7 @@ app.post('/guardar-firma', (req, res) => {
   res.json({ message: 'Firma guardada', ruta });
 });
 
-// --- GESTIÓN DE PROYECTOS (ANTIGUA) ---
+// --- GESTIÓN DE PROYECTOS (MODIFICADA) ---
 app.post(
   '/guardar-proyecto',
   upload.fields([
@@ -259,37 +259,66 @@ app.post(
       const añoAhora = new Date().getFullYear().toString();
 
       const projectDir = path.join(__dirname, 'proyectos', num + "_" + añoAhora);
+      
+      // Si la carpeta existe, la limpiamos para sobreescribir (edición)
       if (fs.existsSync(projectDir)) {
         fs.rmSync(projectDir, { recursive: true, force: true });
       }
       fs.mkdirSync(projectDir, { recursive: true });
 
+      // Guardar metadata
       const metadataPath = path.join(projectDir, 'proyecto.json');
       fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8');
 
+      // Crear carpetas de imágenes
       const prevDir = path.join(projectDir, 'lados');
       const postDir = path.join(projectDir, 'post');
       fs.mkdirSync(prevDir, { recursive: true });
       fs.mkdirSync(postDir, { recursive: true });
 
+      // Guardar imágenes previas
       const prevFiles = req.files['prevImage'] || [];
       prevFiles.forEach((file, idx) => {
         const fn = file.originalname || `prev-${idx}.png`;
         fs.writeFileSync(path.join(prevDir, fn), file.buffer);
       });
 
+      // Guardar imágenes posteriores
       const postFiles = req.files['postImage'] || [];
       postFiles.forEach((file, idx) => {
         const fn = file.originalname || `post-${idx}.png`;
         fs.writeFileSync(path.join(postDir, fn), file.buffer);
       });
 
-      const newCounter = { ultimo: num, año: añoAhora };
-      fs.writeFileSync(
-        ULTIMO_PROYECTO_PATH,
-        JSON.stringify(newCounter, null, 2),
-        'utf-8'
-      );
+      // --- LÓGICA DE CONTADOR CORREGIDA ---
+      let ultimoGuardado = 0;
+      let añoGuardado = añoAhora;
+
+      // 1. Leemos el contador actual si existe
+      if (fs.existsSync(ULTIMO_PROYECTO_PATH)) {
+        const raw = fs.readFileSync(ULTIMO_PROYECTO_PATH, 'utf-8');
+        const data = JSON.parse(raw);
+        ultimoGuardado = Number(data.ultimo);
+        añoGuardado = data.año;
+      }
+
+      // 2. Solo actualizamos el contador si:
+      //    a) El año ha cambiado (reseteo a lo que venga).
+      //    b) Es el mismo año PERO el número que guardamos es MAYOR que el último registrado (es uno nuevo).
+      const numActual = Number(num);
+
+      if (añoAhora !== añoGuardado || numActual > ultimoGuardado) {
+        const newCounter = { ultimo: num, año: añoAhora };
+        fs.writeFileSync(
+          ULTIMO_PROYECTO_PATH,
+          JSON.stringify(newCounter, null, 2),
+          'utf-8'
+        );
+        console.log(`Contador actualizado a: ${num} (${añoAhora})`);
+      } else {
+        console.log(`Edición detectada (Proyecto ${num}). El contador se mantiene en ${ultimoGuardado}.`);
+      }
+      // -------------------------------------
 
       return res.json({
         message: 'Proyecto guardado correctamente',

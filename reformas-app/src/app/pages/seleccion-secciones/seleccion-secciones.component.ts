@@ -36,6 +36,10 @@ export class SeleccionSeccionesComponent implements OnInit {
   seccionesSeleccionadas: { codigo: string; descripcion: string }[] = [];
 
   ngOnInit(): void {
+    console.log(
+      'Opciones de reforma cargadas en seleccion secciones:',
+      this.opcionesReforma
+    );
     this.syncFromPre();
   }
 

@@ -223,17 +223,16 @@
         <div class="col-md-4">
           <label class="form-label">Taller *</label>
           <select
+            name="taller"
             class="form-select"
             [(ngModel)]="datos.tallerSeleccionado"
+            (ngModelChange)="onCambioTaller($event)"
             [compareWith]="compararTalleres"
-            name="tallerSeleccionado"
-            #tallerField="ngModel"
             required
-            [class.is-invalid]="tallerField.invalid && tallerField.touched"
           >
-            <option [ngValue]="null" disabled>SELECCIONE UN TALLER</option>
-            <option *ngFor="let t of talleres" [ngValue]="t">
-              {{ t.nombre }}
+            <option [ngValue]="null">Selecciona un taller</option>
+            <option *ngFor="let taller of talleres" [ngValue]="taller">
+              {{ taller.nombre }}
             </option>
           </select>
           <div class="invalid-feedback">CAMPO OBLIGATORIO</div>

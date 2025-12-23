@@ -92,10 +92,10 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     viaDelanteraDespues: '---',
     viaTraseraDespues: '---',
     neumaticoDespues: '---',
-    masaRealDespues: 0,
-    mmaDespues: 0,
-    mmaEje1Despues: 0,
-    mmaEje2Despues: 0,
+    masaRealDespues: '---',
+    mmaDespues: '---',
+    mmaEje1Despues: '---',
+    mmaEje2Despues: '---',
     mmaConjuntoDespues: '---',
     clasificacionDespues: '---',
     mmrbarradetraccionDespues: '---',
@@ -140,52 +140,58 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Merge de datos iniciales
     if (changes['datosIniciales'] && this.datosIniciales) {
-      const anteriorNumero = this.datos?.numeroProyecto;
-      this.datos = { ...this.datos, ...this.datosIniciales };
+      const esMismoProyecto =
+        this.datos.numeroProyecto === this.datosIniciales.numeroProyecto;
+      const esPrimeraCarga = changes['datosIniciales'].firstChange;
 
-      if (this.datos.fechaProyecto) {
-        this.datos.fechaProyecto = this.datos.fechaProyecto
-          .toString()
-          .slice(0, 10);
-      }
-      if (this.datos.fechaMatriculacion) {
-        this.datos.fechaMatriculacion = this.datos.fechaMatriculacion
-          .toString()
-          .slice(0, 10);
-      }
+      if (!esMismoProyecto || esPrimeraCarga) {
+        const anteriorNumero = this.datos?.numeroProyecto;
 
-      if (this.datos.numeroProyecto !== anteriorNumero) {
-        const anyo = this.esEdicion ? new Date().getFullYear() : this.año;
-        this.generarReferencia(anyo);
-      }
+        this.datos = { ...this.datos, ...this.datosIniciales };
 
-      // Normalizamos referencias a taller/ingeniero si ya han cargado
-      if (this.talleres?.length && this.datos.tallerSeleccionado) {
-        const tallerReal = this.talleres.find(
-          (t) => t.nombre === this.datos.tallerSeleccionado?.nombre
-        );
-        this.datos.tallerSeleccionado =
-          tallerReal || this.datos.tallerSeleccionado;
-      }
+        if (this.datos.taller && !this.datos.tallerSeleccionado) {
+          this.datos.tallerSeleccionado = this.datos.taller;
+        }
+        if (this.datos.ingeniero && !this.datos.ingenieroSeleccionado) {
+          this.datos.ingenieroSeleccionado = this.datos.ingeniero;
+        }
 
-      if (this.ingenieros?.length && this.datos.ingenieroSeleccionado) {
-        const ingReal = this.ingenieros.find(
-          (i) => i.nombre === this.datos.ingenieroSeleccionado?.nombre
-        );
-        this.datos.ingenieroSeleccionado =
-          ingReal || this.datos.ingenieroSeleccionado;
-      }
+        if (this.datos.fechaProyecto) {
+          this.datos.fechaProyecto = this.datos.fechaProyecto
+            .toString()
+            .slice(0, 10);
+        }
+        if (this.datos.fechaMatriculacion) {
+          this.datos.fechaMatriculacion = this.datos.fechaMatriculacion
+            .toString()
+            .slice(0, 10);
+        }
 
-      // Ajuste de página si viene seteada en datosIniciales (incluye sentinel 999)
-      const p = Number(this.datosIniciales?.paginaActual);
-      if (Number.isFinite(p) && p > 0) {
-        this.paginaActual = this.clampToTotal(p);
+        if (this.datos.numeroProyecto !== anteriorNumero) {
+          const anyo = this.esEdicion ? new Date().getFullYear() : this.año;
+          this.generarReferencia(anyo);
+        }
+
+        this.intentarNormalizarListas();
+
+        const p = Number(this.datosIniciales?.paginaActual);
+        if (Number.isFinite(p) && p > 0) {
+          this.paginaActual = this.clampToTotal(p);
+        }
+      } else {
+        if (this.datosIniciales.tipoVehiculo !== undefined) {
+          this.datos.tipoVehiculo = this.datosIniciales.tipoVehiculo;
+        }
+        if (this.datosIniciales.modificaciones !== undefined) {
+          this.datos.modificaciones = this.datosIniciales.modificaciones;
+        }
+        if (this.datosIniciales.reformasPrevias !== undefined) {
+          this.datos.reformasPrevias = this.datosIniciales.reformasPrevias;
+        }
       }
     }
 
-    // Rellena codigosReforma desde respuestas
     if (this.respuestas) {
       const codigos = (Object.values(this.respuestas) as { codigo: string }[][])
         .flat()
@@ -194,9 +200,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       this.datos.codigosReforma = codigos;
     }
 
-    // Señal para forzar última página
     if (changes['goToLastSignal'] && !changes['goToLastSignal'].firstChange) {
-      // Defer para asegurar que totalPaginas ya está consistente
       setTimeout(() => {
         this.paginaActual = this.totalPaginas || 1;
         this.emitAutosave();
@@ -207,7 +211,10 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   ngOnInit(): void {
     // Carga catálogo talleres
     this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
-      next: (data) => (this.talleres = data),
+      next: (data) => {
+        this.talleres = data;
+        this.intentarNormalizarListas(); // <--- Normalizar cuando llegan los datos
+      },
       error: (err) => console.error('Error al cargar talleres:', err),
     });
 
@@ -215,12 +222,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     this.http.get<any[]>('http://192.168.1.41:3000/ingenieros').subscribe({
       next: (data) => {
         this.ingenieros = Array.isArray(data) ? data : [data];
-        if (this.datos.ingenieroSeleccionado) {
-          const ing = this.ingenieros.find(
-            (i) => i.nombre === this.datos.ingenieroSeleccionado?.nombre
-          );
-          this.datos.ingenieroSeleccionado = ing || null;
-        }
+        this.intentarNormalizarListas(); // <--- Normalizar cuando llegan los datos
       },
       error: (err) => console.error('Error al cargar ingenieros:', err),
     });
@@ -253,6 +255,40 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     }
   }
 
+  private intentarNormalizarListas() {
+    // Normalizar Taller
+    if (this.talleres?.length && this.datos.tallerSeleccionado) {
+      const encontrado = this.talleres.find(
+        (t) => t.nombre === this.datos.tallerSeleccionado.nombre
+      );
+      if (encontrado) {
+        this.datos.tallerSeleccionado = encontrado;
+        // Importante: Actualizamos también la propiedad 'taller' para que estén sync
+        this.datos.taller = encontrado;
+      }
+    }
+
+    // Normalizar Ingeniero
+    if (this.ingenieros?.length && this.datos.ingenieroSeleccionado) {
+      const encontrado = this.ingenieros.find(
+        (i) => i.nombre === this.datos.ingenieroSeleccionado.nombre
+      );
+      if (encontrado) {
+        this.datos.ingenieroSeleccionado = encontrado;
+        this.datos.ingenieroSeleccionado = encontrado;
+      }
+    }
+  }
+
+  onCambioTaller(nuevoTaller: any) {
+    // Esto actualiza la vista inmediatamente
+    this.datos.tallerSeleccionado = nuevoTaller;
+    // Esto asegura que el dato que se guarda es el correcto
+    this.datos.taller = nuevoTaller;
+    // Guardamos
+    this.emitAutosave();
+  }
+
   onNumeroProyectoChange(valor: any): void {
     this.datos.numeroProyecto = valor;
     this.generarReferencia(this.año || new Date().getFullYear());
@@ -265,6 +301,14 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   private emitAutosave() {
+    // Sincronización JUSTO ANTES de guardar
+    if (this.datos.tallerSeleccionado) {
+      this.datos.taller = this.datos.tallerSeleccionado;
+    }
+    if (this.datos.ingenieroSeleccionado) {
+      this.datos.ingeniero = this.datos.ingenieroSeleccionado;
+    }
+
     this.autosave.emit({
       datos: { ...this.datos, paginaActual: this.paginaActual },
       paginaActual: this.paginaActual,
@@ -430,6 +474,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       ...this.datos,
       codigosDetallados: this.respuestas,
     };
+    console.log('Formulario finalizado:', finalData);
     this.finalizarFormulario.emit(finalData);
   }
 

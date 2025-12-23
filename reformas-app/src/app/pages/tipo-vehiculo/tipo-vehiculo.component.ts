@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Modificacion } from '../../interfaces/modificacion';
+import { CommonModule } from '@angular/common';
 
 interface GrupoModificacion {
   nombre: string;
@@ -19,7 +20,7 @@ interface GrupoModificacion {
 
 @Component({
   selector: 'app-tipo-vehiculo',
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   standalone: true,
   templateUrl: './tipo-vehiculo.component.html',
   styleUrl: './tipo-vehiculo.component.css',
@@ -337,8 +338,9 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
 
     // MMA/MMTA moto
     if (mod.nombre === 'REDUCCIÓN MMA Y MMTA') {
-      if (typeof mod.ejeDelantero !== 'boolean') mod.ejeDelantero = false;
-      if (typeof mod.ejeTotal !== 'boolean') mod.ejeTotal = false;
+      if (typeof mod.ejeDelantero !== 'boolean')
+        mod.ejeDelantero = !!mod.ejeDelantero;
+      if (typeof mod.ejeTotal !== 'boolean') mod.ejeTotal = !!mod.ejeTotal;
     }
 
     // Mobiliario
@@ -545,10 +547,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
           },
           {
-            nombre: 'AUMENTO DE PLAZAS',
-            seleccionado: false,
-          },
-          {
             nombre: 'REDUCCIÓN DE PLAZAS',
             seleccionado: false,
           },
@@ -684,6 +682,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
           {
             nombre: 'REDUCCIÓN MMA Y MMTA',
             seleccionado: false,
+
             ejeDelantero: false,
             ejeTotal: false,
           },
@@ -1038,6 +1037,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         'ENGANCHE REMOLQUE',
         'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
         'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO',
+        'MANDO ACELERADOR',
+        'MANDOS LUCES',
+        'MANILLAR',
+        'VELOCÍMETRO',
       ],
     },
     {
@@ -1047,11 +1050,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         'INTERCOOLER',
         'SUSTITUCIÓN DE SISTEMA DE ESCAPE',
         'SUSTITUCIÓN DE DEPÓSITO',
-        'MANDO ACELERADOR',
-        'MANDOS LUCES',
-        'MANILLAR',
-        'VELOCÍMETRO',
-        'CAMBIO DE CLASIFICACIÓN',
       ],
     },
   ];

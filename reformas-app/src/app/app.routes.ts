@@ -12,6 +12,8 @@ import { AuthProteccionRutasGuard } from './auth-proteccion-rutas.guard';
 import { AdminGestionUsuariosComponent } from './pages/admin-gestion-usuarios/admin-gestion-usuarios.component';
 import { GestorDocumentacionComponent } from './pagesVivienda/gestor-documentacion/gestor-documentacion.component';
 import { GestorTrelloComponent } from './pagesVivienda/gestor-trello/gestor-trello.component';
+import { GestionarArquitectosComponent } from './gestionar-arquitectos/gestionar-arquitectos.component';
+import { MemoriaTecnicaDisenoComponent } from './pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component';
 
 export const routes: Routes = [
   {
@@ -29,6 +31,7 @@ export const routes: Routes = [
       { path: 'formulario', component: FormularioProyectoComponent },
       { path: 'taller', component: GestionarTallerComponent },
       { path: 'ingenieros', component: GestionarIngenieroComponent },
+      { path: 'arquitectos', component: GestionarArquitectosComponent },
       { path: 'reforma/:step', component: CrearReformaComponent },
       { path: 'reforma', redirectTo: 'reforma/seleccion', pathMatch: 'full' },
       { path: 'admin', component: AdminGestionUsuariosComponent },
@@ -38,6 +41,10 @@ export const routes: Routes = [
         component: GestorDocumentacionComponent,
       },
       { path: 'gestion-viviendas', component: GestorTrelloComponent },
+      {
+        path: 'memoria-tecnica-diseno',
+        component: MemoriaTecnicaDisenoComponent,
+      },
     ],
   },
   { path: '**', redirectTo: '' },

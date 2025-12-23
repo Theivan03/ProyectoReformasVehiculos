@@ -22,6 +22,7 @@ export class CocheonoComponent implements OnInit {
   opcionesCoche: boolean[] = [false, false, false, false, false];
 
   ngOnInit(): void {
+    console.log('CocheonoComponent ngOnInit', this.datosEntrada);
     const tipo = (this.datosEntrada?.tipoVehiculo || '')
       .toString()
       .trim()

@@ -62,6 +62,11 @@ export class MostrarSeccionesComponent implements OnInit {
   }> = [];
 
   ngOnInit(): void {
+    console.log('MostrarSeccionesComponent initialized with:', {
+      secciones: this._secciones,
+      respuestas: this._respuestas,
+      desdePosterior: this._desdePosterior,
+    });
     this.rebuild();
     this.aplicarIndice();
   }
