@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http'; // 🔥 IMPORTANTE
 import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { saveAs } from 'file-saver';
 import {
@@ -18,138 +19,30 @@ import {
   Building,
   Box,
   Image as ImageIcon,
+  CloudUpload,
+  ArrowLeft, // Icono para guardar
 } from 'lucide-angular';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-memoria-tecnica-diseno',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
-  templateUrl: './memoria-tecnica-diseno.component.html',
-  styles: [
-    `
-      :host {
-        display: block;
-        background-color: #f1f5f9;
-        min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-          'Helvetica Neue', Arial, sans-serif;
-      }
-      .main-container {
-        padding: 2rem 1rem;
-      }
-      .app-card {
-        border: none;
-        border-radius: 1rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        background-color: white;
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-      .app-header {
-        background-color: #0f172a;
-        padding: 1.5rem 2rem;
-        color: white;
-      }
-      .step-badge {
-        background-color: #1e293b;
-        color: #e2e8f0;
-        font-family: monospace;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-      }
-      .progress-container {
-        height: 6px;
-        background-color: #e2e8f0;
-        width: 100%;
-      }
-      .progress-bar-custom {
-        height: 100%;
-        background-color: #2563eb;
-        transition: width 0.3s ease;
-      }
-      .content-area {
-        padding: 2rem;
-        min-height: 400px;
-      }
-      .footer-area {
-        padding: 1.5rem 2rem;
-        background-color: #f8fafc;
-        border-top: 1px solid #e2e8f0;
-      }
-      .section-title {
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 0.5rem;
-      }
-      .section-subtitle {
-        color: #64748b;
-        margin-bottom: 1.5rem;
-      }
-      .form-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #64748b;
-      }
-      .form-control,
-      .form-select {
-        padding: 0.625rem;
-        border-radius: 0.375rem;
-        border-color: #cbd5e1;
-      }
-      .form-control:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
-      }
-      .btn-next {
-        background-color: #2563eb;
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        border-radius: 0.5rem;
-      }
-      .btn-prev {
-        background-color: white;
-        border: 1px solid #cbd5e1;
-        color: #475569;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        border-radius: 0.5rem;
-      }
-      .animation-slide-in-down {
-        animation: slideInDown 0.4s ease-out forwards;
-      }
-      .type-selector {
-        cursor: pointer;
-        transition: all 0.2s;
-        border: 2px solid #e2e8f0;
-      }
-      .type-selector:hover {
-        border-color: #94a3b8;
-      }
-      .type-selector.active {
-        border-color: #2563eb;
-        background-color: #eff6ff;
-        color: #1e40af;
-      }
-      @keyframes slideInDown {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-    `,
+  imports: [
+    CommonModule,
+    FormsModule,
+    LucideAngularModule,
+    HttpClientModule,
+    RouterModule,
   ],
+  templateUrl: './memoria-tecnica-diseno.component.html',
+  styles: [],
 })
 export class MemoriaTecnicaDisenoComponent {
   pasoActual = 1;
   totalPasos = 4;
   isGenerating = false;
+  isSaving = false;
+  isLoadingData = false;
 
   icons = {
     FileText,
@@ -165,12 +58,14 @@ export class MemoriaTecnicaDisenoComponent {
     Building,
     Box,
     ImageIcon,
+    CloudUpload,
+    ArrowLeft,
   };
 
   datos = {
+    id: null,
     // NUEVO: Control de dirección
     mismaDireccion: false, // Por defecto false (pide las dos)
-    tipoVivienda: 'piso', // 'piso' | 'chalet'
 
     titular: {
       nombre: '',
@@ -193,26 +88,39 @@ export class MemoriaTecnicaDisenoComponent {
       planoImagen: null as string | null,
     },
     caracteristicas: {
-      tension: '',
       potenciaInstalada: '',
-      potenciaInversor: '',
-      numModulos: '',
-      derivacionIndividual: {
-        type: '',
-        seccion: '',
-        longitud: '',
-        caidaTension: '',
-      },
-      protecciones: { interruptorGeneral: '', diferencial: '' },
-      cgp: { esquema: '', intensidad: '', fusibles: '' },
-      contadores: {
-        numCentralizaciones: '',
-        totalContadores: '',
-        intensidadNominal: '',
-      },
     },
     fechaFirma: { dia: '', mes: '', anyo: '', lugar: '' },
   };
+
+  constructor(
+    private http: HttpClient,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.cargarDatosDelServidor(id);
+    }
+  }
+
+  cargarDatosDelServidor(id: string) {
+    this.isLoadingData = true;
+    this.http.get(`http://localhost:3000/api/memorias/${id}`).subscribe({
+      next: (data: any) => {
+        // Mezclamos los datos recibidos con la estructura base para no perder campos
+        this.datos = { ...this.datos, ...data };
+        this.isLoadingData = false;
+      },
+      error: (err) => {
+        console.error('Error cargando memoria:', err);
+        alert('No se pudo cargar la memoria solicitada.');
+        this.router.navigate(['/memorias']);
+      },
+    });
+  }
 
   // 🔥 LÓGICA DE NAVEGACIÓN MODIFICADA
   avanzarPaso() {
@@ -233,10 +141,38 @@ export class MemoriaTecnicaDisenoComponent {
     }
   }
 
+  volver() {
+    this.router.navigate(['/memorias']);
+  }
+
   private extraerSoloCalle(direccionCompleta: string): string {
     if (!direccionCompleta) return '';
     const match = direccionCompleta.match(/^(.*?)\s+(\d+|s\/n|nº\d+)/i);
     return match && match[1] ? match[1].trim() : direccionCompleta;
+  }
+
+  guardarEnServidor() {
+    this.isSaving = true;
+
+    // URL de tu servidor (ajusta el puerto si es diferente)
+    const url = 'http://localhost:3000/api/memorias';
+
+    this.http.post(url, this.datos).subscribe({
+      next: (response: any) => {
+        this.isSaving = false;
+        if (response.id) {
+          this.datos.id = response.id; // Guardamos el ID por si le da a guardar otra vez (para editar)
+          alert('✅ Datos guardados correctamente en el servidor.');
+        }
+      },
+      error: (error) => {
+        this.isSaving = false;
+        console.error('Error al guardar:', error);
+        alert(
+          '❌ Error al conectar con el servidor. Revisa que esté encendido.'
+        );
+      },
+    });
   }
 
   async generarPDF() {
@@ -358,64 +294,24 @@ export class MemoriaTecnicaDisenoComponent {
         'form1[0].Pagina1[0].seccion\\.b[0].B_P_Instalada[0]',
         this.datos.caracteristicas.potenciaInstalada
       );
-      setField(
-        'form1[0].Pagina1[0].seccion\\.b[0].B_P_Inversor[0]',
-        this.datos.caracteristicas.potenciaInversor
-      );
-      setField(
-        'form1[0].Pagina1[0].seccion\\.b[0].B_N_Modulos[0]',
-        this.datos.caracteristicas.numModulos
-      );
 
       const nombreCalleSolo = this.extraerSoloCalle(
         this.datos.emplazamiento.direccion
       );
       setField('form1[0].Pagina1[0].seccion\\.c[0].C_EMPL[0]', nombreCalleSolo);
 
-      setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV2[0]', true);
-      setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV4[0]', true);
-      setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV1[0]', false);
-      setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV3[0]', false);
-      setField(
-        'form1[0].Pagina1[0].seccion\\.c[0].C_ENT[0]',
-        `ESQUEMA ${this.datos.caracteristicas.cgp.esquema}`
-      );
-      setField(
-        'form1[0].Pagina1[0].seccion\\.c[0].C_INOM[0]',
-        this.datos.caracteristicas.cgp.intensidad
-      );
-      setField(
-        'form1[0].Pagina1[0].seccion\\.c[0].C_INFUS[0]',
-        this.datos.caracteristicas.cgp.fusibles
-      );
-
-      if (this.datos.tipoVivienda === 'chalet') {
-        setCheck('form1[0].Pagina1[0].seccion\\.c[0].C3_CV1[0]', true);
-        setCheck('form1[0].Pagina1[0].seccion\\.c[0].C3_CV2[0]', true);
-        setField('form1[0].Pagina1[0].seccion\\.c[0].C_NCC[0]', '');
-        setField('form1[0].Pagina1[0].seccion\\.c[0].C_NTC[0]', '');
-        setField('form1[0].Pagina1[0].seccion\\.c[0].C_INNOM[0]', '');
-      } else {
-        setCheck('form1[0].Pagina1[0].seccion\\.c[0].C3_CV3[0]', true);
-        setCheck('form1[0].Pagina1[0].seccion\\.c[0].C3_CV5[0]', true);
-        setCheck('form1[0].Pagina1[0].seccion\\.c[0].C3_CV6[0]', true);
-        setField(
-          'form1[0].Pagina1[0].seccion\\.c[0].C_NCC[0]',
-          this.datos.caracteristicas.contadores.numCentralizaciones
-        );
-        setField(
-          'form1[0].Pagina1[0].seccion\\.c[0].C_NTC[0]',
-          this.datos.caracteristicas.contadores.totalContadores
-        );
-        setField(
-          'form1[0].Pagina1[0].seccion\\.c[0].C_INNOM[0]',
-          this.datos.caracteristicas.contadores.intensidadNominal
-        );
-      }
+      // setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV2[0]', true);
+      // setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV4[0]', true);
+      // setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV1[0]', false);
+      // setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV3[0]', false);
 
       setField(
         'form1[0].Pagina6[0].seccion\\.K[0].FI_DIA[0]',
         this.datos.fechaFirma.dia
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_Superficie[0]',
+        this.datos.emplazamiento.superficie
       );
       setField(
         'form1[0].Pagina6[0].seccion\\.K[0].FI_MES[0]',
@@ -485,7 +381,7 @@ export class MemoriaTecnicaDisenoComponent {
       });
 
       // Nombre de la calle
-      const textCalle = `C/ ${nombreCalleSolo.toUpperCase()}`;
+      const textCalle = `${nombreCalleSolo.toUpperCase()}`;
       const textWidth = fontHand.widthOfTextAtSize(textCalle, 18);
 
       page5.drawText(textCalle, {

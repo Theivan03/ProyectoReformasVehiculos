@@ -683,6 +683,108 @@ app.put('/api/viviendas/:id', (req, res) => {
   }
 });
 
+const MEMORIAS_DIR = path.join(__dirname, 'memorias_tecnicas');
+const MEMORIAS_FILE = path.join(MEMORIAS_DIR, 'memorias.json');
+
+// 1. Guardar (Crear o Editar) una Memoria
+app.post('/api/memorias', (req, res) => {
+  try {
+    // Asegurar que existe la carpeta
+    if (!fs.existsSync(MEMORIAS_DIR)) {
+      fs.mkdirSync(MEMORIAS_DIR, { recursive: true });
+    }
+
+    // Leer archivo existente o iniciar array
+    let memorias = [];
+    if (fs.existsSync(MEMORIAS_FILE)) {
+      try {
+        const data = fs.readFileSync(MEMORIAS_FILE, 'utf-8');
+        memorias = JSON.parse(data);
+        if (!Array.isArray(memorias)) memorias = [];
+      } catch (e) {
+        memorias = [];
+      }
+    }
+
+    const datosEntrantes = req.body;
+    let memoriaGuardada;
+
+    // Lógica: Si trae ID, buscamos y actualizamos. Si no, creamos nuevo.
+    if (datosEntrantes.id) {
+      // --- EDICIÓN ---
+      const index = memorias.findIndex(m => m.id === datosEntrantes.id);
+      if (index !== -1) {
+        // Actualizamos mezclando datos antiguos con nuevos
+        memorias[index] = { ...memorias[index], ...datosEntrantes, fechaEdicion: new Date().toISOString() };
+        memoriaGuardada = memorias[index];
+        console.log(`--> Memoria Técnica actualizada. ID: ${memoriaGuardada.id}`);
+      } else {
+        // Traía ID pero no existía (raro, pero lo tratamos como nuevo)
+        memorias.push(datosEntrantes);
+        memoriaGuardada = datosEntrantes;
+      }
+    } else {
+      // --- CREACIÓN ---
+      const nuevaMemoria = {
+        ...datosEntrantes,
+        id: Date.now(), // Generamos ID único basado en tiempo
+        fechaCreacion: new Date().toISOString()
+      };
+      memorias.push(nuevaMemoria);
+      memoriaGuardada = nuevaMemoria;
+      console.log(`--> Nueva Memoria Técnica creada. ID: ${nuevaMemoria.id}`);
+    }
+
+    // Guardar en disco
+    fs.writeFileSync(MEMORIAS_FILE, JSON.stringify(memorias, null, 2));
+
+    // Devolver ID al frontend
+    res.json({ 
+      message: 'Memoria guardada correctamente', 
+      id: memoriaGuardada.id 
+    });
+
+  } catch (error) {
+    console.error('Error guardando memoria técnica:', error);
+    res.status(500).json({ error: 'Error al guardar la memoria en el servidor' });
+  }
+});
+
+// 2. Obtener una memoria por ID (Para cargar datos futuros)
+app.get('/api/memorias/:id', (req, res) => {
+  try {
+    const idBuscado = Number(req.params.id);
+    if (!fs.existsSync(MEMORIAS_FILE)) return res.status(404).json({ error: 'No hay datos' });
+
+    const data = fs.readFileSync(MEMORIAS_FILE, 'utf-8');
+    const memorias = JSON.parse(data);
+    const memoria = memorias.find(m => m.id === idBuscado);
+
+    if (memoria) res.json(memoria);
+    else res.status(404).json({ error: 'Memoria no encontrada' });
+
+  } catch (error) {
+    console.error('Error leyendo memoria:', error);
+    res.status(500).json({ error: 'Error interno leyendo datos' });
+  }
+});
+
+// 3. Obtener TODAS las memorias (Para la lista)
+app.get('/api/memorias', (req, res) => {
+  try {
+    if (fs.existsSync(MEMORIAS_FILE)) {
+      const data = fs.readFileSync(MEMORIAS_FILE, 'utf-8');
+      const memorias = JSON.parse(data);
+      res.json(memorias);
+    } else {
+      res.json([]); // Si no existe el archivo, devolvemos un array vacío
+    }
+  } catch (error) {
+    console.error('Error leyendo lista de memorias:', error);
+    res.status(500).json({ error: 'Error interno leyendo lista' });
+  }
+});
+
 // ================================================================
 
 const PORT = process.env.PORT || 3000;

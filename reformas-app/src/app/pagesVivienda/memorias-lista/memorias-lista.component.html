@@ -1,0 +1,92 @@
+<div class="main-container">
+  <div class="app-card">
+    <div class="app-header d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="h4 fw-bold mb-1">Memorias Guardadas</h1>
+        <p class="mb-0 opacity-75 small">Gestión de expedientes técnicos</p>
+      </div>
+      <button
+        class="btn btn-primary d-flex align-items-center gap-2"
+        (click)="nuevaMemoria()"
+      >
+        <lucide-icon [img]="icons.Plus" size="18"></lucide-icon> Nueva Memoria
+      </button>
+    </div>
+
+    <div class="content-area p-4">
+      <div *ngIf="cargando" class="text-center py-5 text-muted">
+        <div class="spinner-border mb-2" role="status"></div>
+        <p>Cargando memorias...</p>
+      </div>
+
+      <div *ngIf="!cargando && memorias.length === 0" class="text-center py-5">
+        <div class="mb-3 opacity-50">
+          <lucide-icon
+            [img]="icons.FileText"
+            size="48"
+            class="text-muted mx-auto d-block"
+          ></lucide-icon>
+        </div>
+        <h5 class="text-muted">No hay memorias guardadas</h5>
+        <p class="small text-muted mb-4">
+          Crea la primera para empezar a trabajar.
+        </p>
+        <button class="btn btn-outline-primary btn-sm" (click)="nuevaMemoria()">
+          Crear Ahora
+        </button>
+      </div>
+
+      <div *ngIf="!cargando && memorias.length > 0" class="table-responsive">
+        <table class="table table-hover align-middle border-top">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-3">Titular</th>
+              <th scope="col">Dirección</th>
+              <th scope="col">Fecha</th>
+              <th scope="col" class="text-end pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of memorias" class="cursor-pointer">
+              <td class="ps-3" (click)="editarMemoria(m.id)">
+                <div class="fw-bold text-dark">
+                  {{ m.titular.nombre || "Sin Nombre" }}
+                </div>
+                <div class="small text-muted font-monospace">
+                  {{ m.titular.nif }}
+                </div>
+              </td>
+              <td (click)="editarMemoria(m.id)">
+                <div class="text-dark">
+                  {{ m.emplazamiento.direccion || "Sin Dirección" }}
+                </div>
+                <div class="small text-muted">
+                  {{ m.emplazamiento.poblacion }}
+                </div>
+              </td>
+              <td (click)="editarMemoria(m.id)">
+                <span class="badge bg-light text-dark border">
+                  {{ m.fechaEdicion || m.fechaCreacion | date : "dd/MM/yyyy" }}
+                </span>
+              </td>
+              <td class="text-end pe-3">
+                <button
+                  class="btn btn-sm btn-outline-primary d-inline-flex align-items-center"
+                  (click)="editarMemoria(m.id)"
+                  title="Editar Memoria"
+                >
+                  <lucide-icon
+                    [img]="icons.Pencil"
+                    size="16"
+                    class="me-1"
+                  ></lucide-icon>
+                  Editar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

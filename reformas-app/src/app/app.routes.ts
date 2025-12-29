@@ -14,6 +14,7 @@ import { GestorDocumentacionComponent } from './pagesVivienda/gestor-documentaci
 import { GestorTrelloComponent } from './pagesVivienda/gestor-trello/gestor-trello.component';
 import { GestionarArquitectosComponent } from './gestionar-arquitectos/gestionar-arquitectos.component';
 import { MemoriaTecnicaDisenoComponent } from './pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component';
+import { MemoriasListaComponent } from './pagesVivienda/memorias-lista/memorias-lista.component';
 
 export const routes: Routes = [
   {
@@ -43,6 +44,14 @@ export const routes: Routes = [
       { path: 'gestion-viviendas', component: GestorTrelloComponent },
       {
         path: 'memoria-tecnica-diseno',
+        component: MemoriaTecnicaDisenoComponent,
+      },
+      {
+        path: 'memorias',
+        component: MemoriasListaComponent,
+      },
+      {
+        path: 'memoria-tecnica-diseno/:id',
         component: MemoriaTecnicaDisenoComponent,
       },
     ],

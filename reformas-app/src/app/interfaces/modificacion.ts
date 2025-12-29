@@ -311,6 +311,76 @@ export interface Modificacion {
   espesorTacoTrasero?: number;
   esLed?: boolean;
   esLedPosicion?: boolean;
+
+  ubicacionAleron?: string;
+  materialAleron?: string;
+  marcaAleron?: string;
+  referenciaAleron?: string;
+  medidasAleron?: string;
+
+  tipoFabricacionLip?: string;
+  materialLipDelantero?: string;
+  marcaLipDelantero?: string;
+  referenciaLipDelantero?: string;
+  medidasLipDelantero?: string;
+
+  ubicacionAsientos?: string;
+  refAsientoConductor?: string;
+  refAsientosTraseros?: string;
+  refAsientoCopiloto?: string;
+  procedenciaAsientos?: string;
+  anoProcedenciaAsientos?: number;
+
+  ubicacionBarras?: string;
+  marcaBarras?: string;
+  modeloBarras?: string;
+  materialBarras?: string;
+  diametroTuboBarras?: number;
+  medidasBarras?: string;
+
+  ubicacionTecho?: string;
+  medidasTecho?: string;
+  homologacionTecho?: string;
+
+  zonaPeldano?: string;
+  marcaPeldano?: string;
+  materialPeldano?: string;
+  medidasPeldano?: string;
+
+  ladoVentana?: 'izquierdo' | 'derecho' | 'ambos';
+  medidasVentana?: string;
+
+  tipoFabricacionBodyLift?: string;
+  marcaBodyLift?: string;
+  cantidadTacosBodyLift?: number;
+  referenciaBodyLift?: string;
+  materialBodyLift?: string;
+  diametroBodyLift?: number;
+  alturaBodyLift?: number;
+
+  ubicacionLatiguillos?: string;
+  ubicacionSeparadores?: string;
+  separadoresIguales?: boolean;
+  marcaSeparadoresTraseros?: string;
+  referenciaSeparadoresTraseros?: string;
+  grosorSeparadoresTraseros?: string;
+
+  marcaVehiculoDonanteMotor?: string;
+  modeloVehiculoDonanteMotor?: string;
+  marcaMotor?: string;
+  tipoMotor?: string;
+  numCilindrosMotor?: number;
+  cilindradaMotor?: number;
+  potenciaFiscalMotor?: number;
+  potenciaRealMotor?: number;
+  nuevaTaraMotor?: number;
+
+  ubicacionChasis?: string;
+  descripcionOperacionChasis?: string;
+  elementoUnionChasis?: string;
+  medidasChasis?: string;
+  materialChasis?: string;
+
   guardabarrosDelantero?: boolean;
   guardabarrosTrasero?: boolean;
   grosor?: number;

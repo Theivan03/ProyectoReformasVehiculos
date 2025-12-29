@@ -1,0 +1,60 @@
+[
+  {
+    "id": 1767012768498,
+    "mismaDireccion": false,
+    "tipoVivienda": "piso",
+    "titular": {
+      "nombre": "5",
+      "nif": "5",
+      "domicilio": "5",
+      "cp": "5",
+      "poblacion": "5",
+      "provincia": "5",
+      "telefono": "5",
+      "correo": "5"
+    },
+    "emplazamiento": {
+      "direccion": "5",
+      "poblacion": "5",
+      "provincia": "5",
+      "cp": "5",
+      "refCatastral": "5",
+      "uso": "Vivienda",
+      "superficie": "",
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "tension": "",
+      "potenciaInstalada": 5,
+      "potenciaInversor": 5,
+      "numModulos": 5,
+      "derivacionIndividual": {
+        "type": "",
+        "seccion": "",
+        "longitud": "",
+        "caidaTension": ""
+      },
+      "protecciones": {
+        "interruptorGeneral": "",
+        "diferencial": ""
+      },
+      "cgp": {
+        "esquema": "7",
+        "intensidad": 5,
+        "fusibles": 5
+      },
+      "contadores": {
+        "numCentralizaciones": 5,
+        "totalContadores": 5,
+        "intensidadNominal": 5
+      }
+    },
+    "fechaFirma": {
+      "dia": "5",
+      "mes": "Febrero",
+      "anyo": "2025",
+      "lugar": "5"
+    },
+    "fechaCreacion": "2025-12-29T12:52:48.498Z"
+  }
+]

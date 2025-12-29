@@ -166,19 +166,32 @@ export function buildModificacionesParagraphs(
   const separadoresruedas = modificaciones.find(
     (m) => m.nombre === 'SEPARADORES DE RUEDA' && m.seleccionado
   );
+
   if (separadoresruedas) {
-    separadoresruedas.acciones?.forEach((accion: string) => {
-      const raw = `- ${accion} de separadores de rueda en eje trasero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores} de espesor fabricados en duraluminio, asegurando la no interferencia entre la rueda y ningún punto de la carrocería.`;
+    let descripcion = '';
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
+    if (separadoresruedas.ubicacionSeparadores === 'delanteros') {
+      descripcion = `en eje delantero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores}mm de espesor`;
+    } else if (separadoresruedas.ubicacionSeparadores === 'traseros') {
+      descripcion = `en eje trasero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores}mm de espesor`;
+    } else if (separadoresruedas.ubicacionSeparadores === 'ambos') {
+      if (separadoresruedas.separadoresIguales) {
+        descripcion = `en ambos ejes marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores}mm de espesor`;
+      } else {
+        descripcion = `en ambos ejes. En el eje delantero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores}mm de espesor, y en el eje trasero marca ${separadoresruedas.marcaSeparadoresTraseros}, referencia ${separadoresruedas.referenciaSeparadoresTraseros}, de ${separadoresruedas.grosorSeparadoresTraseros}mm de espesor`;
+      }
+    }
 
-      (p as any)._rawText = raw;
-      out.push(p);
+    const raw = `- Instalación de separadores de rueda ${descripcion} fabricados en duraluminio, asegurando la no interferencia entre la rueda y ningún punto de la carrocería.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
     });
+
+    (p as any)._rawText = raw;
+    out.push(p);
   }
 
   //
@@ -1324,6 +1337,244 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         out.push(p);
       });
     }
+  }
+
+  const aleron = modificaciones.find(
+    (m) => m.nombre === 'ALERÓN' && m.seleccionado
+  );
+
+  if (aleron) {
+    const raw = `- Instalación de alerón ${aleron.ubicacionAleron}, fabricado en ${aleron.materialAleron}, de la marca ${aleron.marcaAleron}, con referencia ${aleron.referenciaAleron} y medidas ${aleron.medidasAleron}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const lipDelantero = modificaciones.find(
+    (m) => m.nombre === 'LIP DELANTERO' && m.seleccionado
+  );
+
+  if (lipDelantero) {
+    let raw = '';
+
+    if (lipDelantero.tipoFabricacionLip === 'artesanal') {
+      raw = `- Instalación de lip delantero fabricado en ${lipDelantero.materialLipDelantero} de forma artesanal, de medidas ${lipDelantero.medidasLipDelantero}.`;
+    } else if (lipDelantero.tipoFabricacionLip === 'marca') {
+      raw = `- Instalación de lip delantero de la marca ${lipDelantero.marcaLipDelantero}, con referencia ${lipDelantero.referenciaLipDelantero} y medidas ${lipDelantero.medidasLipDelantero}.`;
+    }
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const asientos = modificaciones.find(
+    (m) => m.nombre === 'CAMBIO DE ASIENTOS' && m.seleccionado
+  );
+
+  if (asientos) {
+    let ubicacionTexto = '';
+    let referenciasTexto = '';
+
+    // 1. Definir texto de ubicación y referencias según selección
+    if (asientos.ubicacionAsientos === 'delanteros') {
+      ubicacionTexto = 'delanteros';
+      referenciasTexto = `La referencia de los asientos es ${asientos.refAsientoConductor} (piloto) y ${asientos.refAsientoCopiloto} (copiloto).`;
+    } else if (asientos.ubicacionAsientos === 'traseros') {
+      ubicacionTexto = 'traseros';
+      referenciasTexto = `La referencia de los asientos es ${asientos.refAsientosTraseros}.`;
+    } else if (asientos.ubicacionAsientos === 'ambos') {
+      ubicacionTexto = 'delanteros y traseros';
+      referenciasTexto = `La referencia de los asientos delanteros es ${asientos.refAsientoConductor} (piloto) y ${asientos.refAsientoCopiloto} (copiloto), y la de los traseros es ${asientos.refAsientosTraseros}.`;
+    }
+
+    const raw = `- Sustitución de los asientos ${ubicacionTexto} originales por otros procedentes del vehículo ${asientos.procedenciaAsientos}, del año ${asientos.anoProcedenciaAsientos} con el mismo chasis e instalados en anclajes originales, sin afectar al correcto funcionamiento de los airbags. Se mantienen los cinturones de seguridad originales. ${referenciasTexto}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const barras = modificaciones.find(
+    (m) => m.nombre === 'BARRAS ANTIVUELCO' && m.seleccionado
+  );
+
+  if (barras) {
+    const raw = `- Instalación de barras antivuelco ${barras.ubicacionBarras} marca ${barras.marcaBarras} modelo ${barras.modeloBarras}, fabricadas en tubo de ${barras.materialBarras} de ${barras.diametroTuboBarras}mm y dimensiones ${barras.medidasBarras}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const techoSolar = modificaciones.find(
+    (m) => m.nombre === 'TECHO SOLAR' && m.seleccionado
+  );
+
+  if (techoSolar) {
+    const raw = `- Instalación en el techo del vehículo de un techo solar, de la marca ${techoSolar.marcaTecho} ${techoSolar.ubicacionTecho}, de medidas ${techoSolar.medidasTecho} mm, con contraseña de homologación ${techoSolar.homologacionTecho}, sin afectar a la estructura principal del vehículo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const peldanos = modificaciones.find(
+    (m) => m.nombre === 'PELDAÑOS' && m.seleccionado
+  );
+
+  if (peldanos) {
+    const raw = `- Instalación de peldaño en ${peldanos.zonaPeldano}, de la marca ${peldanos.marcaPeldano}, fabricado en ${peldanos.materialPeldano}, de medidas ${peldanos.medidasPeldano}mm.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const ventanaAbatible = modificaciones.find(
+    (m) => m.nombre === 'VENTANA ABATIBLE' && m.seleccionado
+  );
+
+  if (ventanaAbatible) {
+    let ubicacionTexto = '';
+
+    // Ajustamos el texto gramaticalmente según la selección
+    if (ventanaAbatible.ladoVentana === 'izquierdo') {
+      ubicacionTexto = 'en el lateral izquierdo';
+    } else if (ventanaAbatible.ladoVentana === 'derecho') {
+      ubicacionTexto = 'en el lateral derecho';
+    } else if (ventanaAbatible.ladoVentana === 'ambos') {
+      ubicacionTexto = 'en ambos laterales';
+    }
+
+    // Frase: Instalación de ventana trasera abatible en el lateral izquierdo, de la marca Malaika,
+    // fabricada en acero, de dimensiones 110 x 475mm.
+    const raw = `- Instalación de ventana trasera abatible ${ubicacionTexto}, de la marca ${ventanaAbatible.marcaVentana}, fabricada en ${ventanaAbatible.materialVentana}, de dimensiones ${ventanaAbatible.medidasVentana}mm.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const bodyLift = modificaciones.find(
+    (m) => m.nombre === 'BODY LIFT' && m.seleccionado
+  );
+
+  if (bodyLift) {
+    let origenTexto = '';
+
+    if (bodyLift.tipoFabricacionBodyLift === 'artesanal') {
+      origenTexto = 'fabricados de forma artesanal';
+    } else if (bodyLift.tipoFabricacionBodyLift === 'marca') {
+      origenTexto = `de la marca ${bodyLift.marcaBodyLift} con referencia ${bodyLift.referenciaBodyLift}`;
+    }
+
+    const raw = `- Instalación de ${bodyLift.cantidadTacosBodyLift} tacos de ${bodyLift.materialBodyLift} ${origenTexto} ubicados entre el chasis y la carrocería, de ${bodyLift.diametroBodyLift}mm de diámetro y ${bodyLift.alturaBodyLift}mm de espesor.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const motor = modificaciones.find(
+    (m) => m.nombre === 'MOTOR' && m.seleccionado
+  );
+
+  if (motor) {
+    const introRaw = `- Sustitución del motor original por otro usado, procedente de vehículo marca ${motor.marcaVehiculoDonanteMotor}, modelo ${motor.modeloVehiculoDonanteMotor}, con las siguientes características:`;
+
+    const pIntro = new Paragraph({
+      spacing: { line: 260, after: 0 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: introRaw })],
+    });
+    (pIntro as any)._rawText = introRaw;
+    out.push(pIntro);
+
+    const caracteristicas = [
+      `Motor: Marca: ${motor.marcaMotor}`,
+      `Tipo: ${motor.tipoMotor}`,
+      `Nº Cilindros/Cilindrada: ${motor.numCilindrosMotor}/${motor.cilindradaMotor}`,
+      `Potencia Fiscal/Real (C.V.F./kW): ${motor.potenciaFiscalMotor}/${motor.potenciaRealMotor}`,
+    ];
+
+    caracteristicas.forEach((item) => {
+      const itemRaw = `o   ${item}`;
+      const pItem = new Paragraph({
+        spacing: { line: 260, after: 0 },
+        indent: { left: 1200 },
+        children: [new TextRun({ text: itemRaw })],
+      });
+      (pItem as any)._rawText = itemRaw;
+      out.push(pItem);
+    });
+
+    const taraRaw = `Tara= ${motor.nuevaTaraMotor} kg.`;
+    const pTara = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: taraRaw })],
+    });
+    (pTara as any)._rawText = taraRaw;
+    out.push(pTara);
+  }
+
+  const chasis = modificaciones.find(
+    (m) => m.nombre === 'MODIFICACION DE CHASIS' && m.seleccionado
+  );
+
+  if (chasis) {
+    const raw = `- Modificación de ${chasis.ubicacionChasis} ${chasis.descripcionOperacionChasis} con ${chasis.elementoUnionChasis} de ${chasis.medidasChasis}, fabricado en ${chasis.materialChasis}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
   }
 
   //
@@ -2488,13 +2739,21 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 7) LATIGUILLOS
   //
   const latiguillos = modificaciones.find(
-    (m) =>
-      m.nombre === 'LATIGUILLOS' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+    (m) => m.nombre === 'LATIGUILLOS' && m.seleccionado
   );
+
   if (latiguillos) {
-    raw = `- Sustitución de los latiguillos de freno por unos metálicos en los dos ejes. En el eje delantero se han instalado unos latiguillos metálicos marca ${latiguillos.marcaDelanteros} ref. ${latiguillos.referenciaDelanteros} y en el eje trasero unos latiguillos metálicos marca ${latiguillos.marcaTraseros} ref. ${latiguillos.referenciaTraseros}. Ambos son de la misma longitud y sección que los originales y van instalados en la misma ubicación y utilizan los anclajes originales.`;
+    let detalleUbicacion = '';
+
+    if (latiguillos.ubicacionLatiguillos === 'delanteros') {
+      detalleUbicacion = `en el eje delantero. Se han instalado unos latiguillos metálicos marca ${latiguillos.marcaDelanteros} ref. ${latiguillos.referenciaDelanteros}`;
+    } else if (latiguillos.ubicacionLatiguillos === 'traseros') {
+      detalleUbicacion = `en el eje trasero. Se han instalado unos latiguillos metálicos marca ${latiguillos.marcaTraseros} ref. ${latiguillos.referenciaTraseros}`;
+    } else {
+      detalleUbicacion = `en los dos ejes. En el eje delantero se han instalado unos latiguillos metálicos marca ${latiguillos.marcaDelanteros} ref. ${latiguillos.referenciaDelanteros} y en el eje trasero unos latiguillos metálicos marca ${latiguillos.marcaTraseros} ref. ${latiguillos.referenciaTraseros}`;
+    }
+
+    const raw = `- Sustitución de los latiguillos de freno por unos metálicos ${detalleUbicacion}. Estos son de la misma longitud y sección que los originales y van instalados en la misma ubicación y utilizan los anclajes originales.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },

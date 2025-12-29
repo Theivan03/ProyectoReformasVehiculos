@@ -394,6 +394,50 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
           },
           {
+            nombre: 'ALERÓN',
+            seleccionado: false,
+          },
+          {
+            nombre: 'LIP DELANTERO',
+            seleccionado: false,
+          },
+          {
+            nombre: 'CANARD',
+            seleccionado: false,
+          },
+          {
+            nombre: 'CAMBIO DE ASIENTOS',
+            seleccionado: false,
+          },
+          {
+            nombre: 'BARRAS ANTIVUELCO',
+            seleccionado: false,
+          },
+          {
+            nombre: 'TECHO SOLAR',
+            seleccionado: false,
+          },
+          {
+            nombre: 'PELDAÑOS',
+            seleccionado: false,
+          },
+          {
+            nombre: 'VENTANA ABATIBLE',
+            seleccionado: false,
+          },
+          {
+            nombre: 'BODY LIFT',
+            seleccionado: false,
+          },
+          {
+            nombre: 'LATIGUILLOS',
+            seleccionado: false,
+          },
+          {
+            nombre: 'MOTOR',
+            seleccionado: false,
+          },
+          {
             nombre: 'ALETINES Y SOBREALETINES',
             seleccionado: false,
             detalle: { aletines: false, sobrealetines: false },
@@ -660,6 +704,11 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
           { nombre: 'HORQUILLA DELANTERA', seleccionado: false },
           { nombre: 'LATIGUILLOS', seleccionado: false },
           { nombre: 'LLANTAS Y NEUMÁTICOS', seleccionado: false },
+          { nombre: 'MODIFICACION DE CHASIS', seleccionado: false },
+          {
+            nombre: 'MOTOR',
+            seleccionado: false,
+          },
           {
             nombre: 'LUCES',
             seleccionado: false,
@@ -709,6 +758,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
           },
           {
+            nombre: 'PLANCHA CAPÓ',
+            seleccionado: false,
+          },
+          {
             nombre:
               'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR',
             seleccionado: false,
@@ -728,6 +781,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
           },
           {
             nombre: 'SEPARADORES DE RUEDA',
+            seleccionado: false,
+          },
+          {
+            nombre: 'SOPORTES PARA LUCES DE USO ESPECÍFICO',
             seleccionado: false,
           },
           {
@@ -751,6 +808,50 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
           },
           {
             nombre: 'BARRA DE DIRECCIÓN',
+            seleccionado: false,
+          },
+          {
+            nombre: 'ALERÓN',
+            seleccionado: false,
+          },
+          {
+            nombre: 'LIP DELANTERO',
+            seleccionado: false,
+          },
+          {
+            nombre: 'CANARD',
+            seleccionado: false,
+          },
+          {
+            nombre: 'CAMBIO DE ASIENTOS',
+            seleccionado: false,
+          },
+          {
+            nombre: 'BARRAS ANTIVUELCO',
+            seleccionado: false,
+          },
+          {
+            nombre: 'TECHO SOLAR',
+            seleccionado: false,
+          },
+          {
+            nombre: 'PELDAÑOS',
+            seleccionado: false,
+          },
+          {
+            nombre: 'VENTANA ABATIBLE',
+            seleccionado: false,
+          },
+          {
+            nombre: 'BODY LIFT',
+            seleccionado: false,
+          },
+          {
+            nombre: 'LATIGUILLOS',
+            seleccionado: false,
+          },
+          {
+            nombre: 'MOTOR',
             seleccionado: false,
           },
           {
@@ -945,6 +1046,13 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       items: [
         'ALETINES Y SOBREALETINES',
         'CALANDRA',
+        'ALERÓN',
+        'LIP DELANTERO',
+        'CANARD',
+        'TECHO SOLAR',
+        'VENTANA ABATIBLE',
+        'BODY LIFT',
+        'PELDAÑOS',
         'DEFENSA DELANTERA',
         'DIFUSOR TRASERO',
         'ESTRIBOS LATERALES O TALONERAS',
@@ -996,6 +1104,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       seleccionado: false,
       items: [
         'MOBILIARIO INTERIOR VEHÍCULO',
+        'CAMBIO DE ASIENTOS',
         'SUSTITUCIÓN DE VOLANTE',
         'PANEL RELOJES',
         'ASIENTO',
@@ -1027,8 +1136,11 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         'VENTANA',
         'VENTANA LATERAL',
         'CLARABOYA',
+        'MODIFICACION DE CHASIS',
         'AUMENTO DE PLAZAS',
         'REDUCCIÓN DE PLAZAS',
+        'BARRAS ANTIVUELCO',
+        'CAMBIO DE ASIENTOS',
         'AUMENTO O DISMINUCIÓN DE PLAZAS',
         'RECORTE SUBCHASIS',
         'SUSTITUCIÓN GUARDABARROS',
@@ -1048,6 +1160,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       seleccionado: false,
       items: [
         'INTERCOOLER',
+        'MOTOR',
         'SUSTITUCIÓN DE SISTEMA DE ESCAPE',
         'SUSTITUCIÓN DE DEPÓSITO',
       ],
