@@ -64,5 +64,16 @@
     "responsable": "Francisco José Cervera Grimalt",
     "telefono": "699638789",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "VILAMARINA, S.L.",
+    "direccion": "C/Marconi, 2",
+    "poblacion": "Benissa",
+    "provincia": "Alicante",
+    "registroIndustrial": "03-65128",
+    "registroEspecial": "A-2940",
+    "responsable": "Antonio Vila Vives",
+    "telefono": "965733563",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
   }
 ]

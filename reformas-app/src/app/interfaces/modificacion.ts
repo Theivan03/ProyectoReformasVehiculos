@@ -165,6 +165,11 @@ export interface Modificacion {
   tipoModificacionSubchasis?: string;
   descripcionCorteSubchasis?: string;
 
+  medidaLlantas?: string;
+  medidaNeumaticos?: string;
+
+  reformasAdicionales?: string;
+
   cumpleSalientesEstriberas?: boolean;
   marcaEstriberas?: string;
   refPisanteEstriberas?: string;

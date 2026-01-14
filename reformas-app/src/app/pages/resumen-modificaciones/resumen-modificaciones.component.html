@@ -477,22 +477,36 @@
             >
           </div>
 
+          <div class="col-6">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Medida de neumáticos"
+                [(ngModel)]="mod.medidaNeumaticos"
+                name="medidaNeumaticos{{ i }}"
+                required
+                [class.is-invalid]="formSubmitted && !mod.medidaNeumaticos"
+              />
+              <label>MEDIDA DE LOS NEUMÁTICOS</label>
+            </div>
+          </div>
+
           <div class="row g-3">
-            <div class="col-12">
+            <div class="col-6">
               <div class="form-floating">
                 <input
                   type="text"
                   class="form-control"
-                  placeholder="Medida"
-                  [(ngModel)]="mod.medidas"
-                  name="medidasNeumaticos{{ i }}"
+                  placeholder="Medida de llanta"
+                  [(ngModel)]="mod.medidaLlantas"
+                  name="medidaLlantas{{ i }}"
                   required
-                  [class.is-invalid]="formSubmitted && !mod.medidas"
+                  [class.is-invalid]="formSubmitted && !mod.medidaLlantas"
                 />
                 <label>MEDIDA DE LAS LLANTAS</label>
               </div>
             </div>
-
             @if (mod.anotacion2) {
             <div class="col-12">
               <hr class="mod-sep" />
@@ -757,6 +771,7 @@
                       placeholder="Cw"
                       [(ngModel)]="mod.coefAerodinamicoCwAletines"
                       name="coefAerodinamicoCwAletines{{ i }}"
+                      value="0.82"
                       required
                       [class.is-invalid]="
                         formSubmitted && mod.coefAerodinamicoCwAletines == null
@@ -773,6 +788,7 @@
                       min="0"
                       class="form-control"
                       placeholder="V2"
+                      value="38.89"
                       [(ngModel)]="mod.velocidadAireV2msAletines"
                       name="velocidadAireV2msAletines{{ i }}"
                       required
@@ -792,6 +808,7 @@
                       class="form-control"
                       placeholder="Densidad"
                       [(ngModel)]="mod.densidadAireKgM3Aletines"
+                      value="1.29"
                       name="densidadAireKgM3Aletines{{ i }}"
                       required
                       [class.is-invalid]="
@@ -829,6 +846,7 @@
                       class="form-control"
                       placeholder="K"
                       [(ngModel)]="mod.coefSeguridadKAletines"
+                      value="3"
                       name="coefSeguridadKAletines{{ i }}"
                       required
                       [class.is-invalid]="
@@ -863,6 +881,7 @@
                       step="0.01"
                       min="0"
                       class="form-control"
+                      value="36.64"
                       placeholder="As"
                       [(ngModel)]="mod.seccionResistenteAsAletines"
                       name="seccionResistenteAsAletines{{ i }}"
@@ -1013,6 +1032,7 @@
                       step="0.01"
                       min="0"
                       class="form-control"
+                      value="800"
                       placeholder="Curvatura"
                       [(ngModel)]="mod.curvaturaSobrealetines"
                       name="curvaturaSobrealetines{{ i }}"
@@ -1506,6 +1526,7 @@
                       step="0.01"
                       min="0"
                       class="form-control"
+                      value="800"
                       placeholder="Curvatura"
                       [(ngModel)]="mod.curvaturaSnorkel"
                       name="curvaturaSnorkel{{ i }}"
@@ -1536,6 +1557,7 @@
                       placeholder="Cw"
                       [(ngModel)]="mod.cwCoefAerodinamicoSnorkel"
                       name="cwCoefAerodinamicoSnorkel{{ i }}"
+                      value="0.82"
                       required
                       [class.is-invalid]="
                         formSubmitted && mod.cwCoefAerodinamicoSnorkel == null
@@ -1553,6 +1575,7 @@
                       class="form-control"
                       placeholder="Densidad"
                       [(ngModel)]="mod.densidadAireKgM3Snorkel"
+                      value="1.29"
                       name="densidadAireKgM3Snorkel{{ i }}"
                       required
                       [class.is-invalid]="
@@ -1570,6 +1593,7 @@
                       min="0"
                       class="form-control"
                       placeholder="V2"
+                      value="38.89"
                       [(ngModel)]="mod.velocidadAireV2msSnorkel"
                       name="velocidadAireV2msSnorkel{{ i }}"
                       required
@@ -1590,6 +1614,7 @@
                       placeholder="K"
                       [(ngModel)]="mod.coefSeguridadKSnorkel"
                       name="coefSeguridadKSnorkel{{ i }}"
+                      value="3"
                       required
                       [class.is-invalid]="
                         formSubmitted && mod.coefSeguridadKSnorkel == null
@@ -1629,6 +1654,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Calidad"
+                      value="8.8"
                       [(ngModel)]="mod.calidadTornilloSnorkel"
                       name="calidadTornilloSnorkel{{ i }}"
                       required
@@ -1647,6 +1673,7 @@
                       min="0"
                       class="form-control"
                       placeholder="As"
+                      value="36.64"
                       [(ngModel)]="mod.seccionResistenteAsSnorkel"
                       name="seccionResistenteAsSnorkel{{ i }}"
                       required
@@ -2970,6 +2997,7 @@
                       min="0"
                       class="form-control"
                       placeholder="As"
+                      value="36.64"
                       [(ngModel)]="mod.seccionResistenteAsLucesEspecificas"
                       name="seccionResistenteAsLucesEspecificas{{ i }}"
                       required
@@ -3024,6 +3052,7 @@
                       placeholder="Cw"
                       [(ngModel)]="mod.cwCoefAerodinamicoLucesEspecificas"
                       name="cwCoefAerodinamicoLucesEspecificas{{ i }}"
+                      value="0.82"
                       required
                       [class.is-invalid]="
                         formSubmitted &&
@@ -3042,6 +3071,7 @@
                       class="form-control"
                       placeholder="Densidad"
                       [(ngModel)]="mod.densidadAireKgM3LucesEspecificas"
+                      value="1.29"
                       name="densidadAireKgM3LucesEspecificas{{ i }}"
                       required
                       [class.is-invalid]="
@@ -3060,6 +3090,7 @@
                       min="0"
                       class="form-control"
                       placeholder="V2"
+                      value="38.89"
                       [(ngModel)]="mod.velocidadAireV2msLucesEspecificas"
                       name="velocidadAireV2msLucesEspecificas{{ i }}"
                       required
@@ -3099,6 +3130,7 @@
                       placeholder="K"
                       [(ngModel)]="mod.coefSeguridadKLucesEspecificas"
                       name="coefSeguridadKLucesEspecificas{{ i }}"
+                      value="3"
                       required
                       [class.is-invalid]="
                         formSubmitted &&
@@ -3286,6 +3318,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Ratio"
+                      value="800"
                       [(ngModel)]="mod.curvaturaSoporteRuedaRepuesto"
                       name="curvaturaSoporteRuedaRepuesto{{ i }}"
                       required
@@ -7062,6 +7095,7 @@
                       class="form-control"
                       placeholder="Cw"
                       [(ngModel)]="mod.coefAerodinamicoEstribos"
+                      value="0.82"
                       name="coefAerodinamicoEstribos{{ i }}"
                     />
                     <label>Cw (COEF.)</label>
@@ -7124,6 +7158,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Calidad"
+                      value="8.8"
                       [(ngModel)]="mod.calidadTornilloEstribos"
                       name="calidadTornilloEstribos{{ i }}"
                       readonly
@@ -7137,6 +7172,7 @@
                       type="number"
                       step="0.01"
                       min="0"
+                      value="36.64"
                       class="form-control"
                       placeholder="As"
                       [(ngModel)]="mod.seccionResistenteAsEstribos"
@@ -7183,6 +7219,7 @@
                       class="form-control"
                       placeholder="Densidad"
                       [(ngModel)]="mod.densidadAireKgM3Estribos"
+                      value="1.29"
                       name="densidadAireKgM3Estribos{{ i }}"
                     />
                     <label>p (DENSIDAD)</label>
@@ -7196,6 +7233,7 @@
                       min="0"
                       class="form-control"
                       placeholder="V2"
+                      value="38.89"
                       [(ngModel)]="mod.velocidadAireV2msEstribos"
                       name="velocidadAireV2msEstribos{{ i }}"
                     />
@@ -7225,6 +7263,7 @@
                       class="form-control"
                       placeholder="K"
                       [(ngModel)]="mod.coefSeguridadKEstribos"
+                      value="3"
                       name="coefSeguridadKEstribos{{ i }}"
                     />
                     <label>K (SEGURIDAD)</label>
@@ -9479,6 +9518,7 @@
                     min="0"
                     class="form-control"
                     placeholder="Curvatura"
+                    value="800"
                     [(ngModel)]="mod.curvaturaGuardaDelantMoto"
                     name="curvaturaGuardaDelantMoto{{ i }}"
                     required
@@ -9595,6 +9635,7 @@
                     min="0"
                     class="form-control"
                     placeholder="Curvatura"
+                    value="800"
                     [(ngModel)]="mod.curvaturaGuardaTrasMoto"
                     name="curvaturaGuardaTrasMoto{{ i }}"
                     required
@@ -9678,6 +9719,7 @@
                   class="form-control"
                   placeholder="Curvatura"
                   id="curv-manillar-{{ i }}"
+                  value="800"
                   [(ngModel)]="mod.curvaturaManillar"
                   name="curvaturaManillar{{ i }}"
                   required
@@ -10469,6 +10511,7 @@
                         step="0.01"
                         class="form-control"
                         placeholder="Curvatura"
+                        value="800"
                         [(ngModel)]="mod.curvaturaluzGrupoOptico"
                         name="curvaturaluzGrupoOptico{{ i }}"
                         required
@@ -10545,6 +10588,7 @@
                       <input
                         type="number"
                         step="0.01"
+                        value="800"
                         class="form-control"
                         placeholder="Curvatura"
                         [(ngModel)]="mod.curvaturaintermitenteDelantero"
@@ -10624,6 +10668,7 @@
                         type="number"
                         step="0.01"
                         class="form-control"
+                        value="800"
                         placeholder="Curvatura"
                         [(ngModel)]="mod.curvaturaintermitenteTrasero"
                         name="curvaturaintermitenteTrasero{{ i }}"
@@ -10690,6 +10735,7 @@
                         step="0.01"
                         class="form-control"
                         placeholder="Curvatura"
+                        value="800"
                         [(ngModel)]="mod.curvaturacatadioptrico"
                         name="curvaturacatadioptrico{{ i }}"
                         required
@@ -10805,6 +10851,7 @@
                         type="number"
                         step="0.01"
                         class="form-control"
+                        value="800"
                         placeholder="Curvatura"
                         [(ngModel)]="mod.curvaturaluzAntinieblas"
                         name="curvaturaluzAntinieblas{{ i }}"
@@ -11237,6 +11284,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Calidad"
+                      value="8.8"
                       [(ngModel)]="mod.calidadTornilloParagolpesTrasero"
                       name="calidadTornilloParagolpesTrasero{{ i }}"
                       required
@@ -11309,6 +11357,7 @@
                       min="0"
                       class="form-control"
                       placeholder="As"
+                      value="36.64"
                       [(ngModel)]="mod.seccionResistenteAsParagolpesTrasero"
                       name="seccionResistenteAsParagolpesTrasero{{ i }}"
                       required
@@ -11356,6 +11405,7 @@
                       class="form-control"
                       placeholder="Cw"
                       [(ngModel)]="mod.coefAerodinamicoParagolpesTrasero"
+                      value="0.82"
                       name="coefAerodinamicoParagolpesTrasero{{ i }}"
                       required
                       [class.is-invalid]="
@@ -11375,6 +11425,7 @@
                       class="form-control"
                       placeholder="Densidad"
                       [(ngModel)]="mod.densidadAireKgM3ParagolpesTrasero"
+                      value="1.29"
                       name="densidadAireKgM3ParagolpesTrasero{{ i }}"
                       required
                       [class.is-invalid]="
@@ -11393,6 +11444,7 @@
                       min="0"
                       class="form-control"
                       placeholder="V2"
+                      value="38.89"
                       [(ngModel)]="mod.velocidadAireV2msParagolpesTrasero"
                       name="velocidadAireV2msParagolpesTrasero{{ i }}"
                       required
@@ -11432,6 +11484,7 @@
                       class="form-control"
                       placeholder="K"
                       [(ngModel)]="mod.coefSeguridadKParagolpesTrasero"
+                      value="3"
                       name="coefSeguridadKParagolpesTrasero{{ i }}"
                       required
                       [class.is-invalid]="
@@ -11970,6 +12023,7 @@
                       min="0"
                       class="form-control"
                       placeholder="As"
+                      value="36.64"
                       [(ngModel)]="mod.seccionResistenteAsParagolpesDelantero"
                       name="seccionResistenteAsParagolpesDelantero{{ i }}"
                       required
@@ -12016,6 +12070,7 @@
                       placeholder="Cw"
                       [(ngModel)]="mod.cwCoefAerodinamicoParagolpesDelantero"
                       name="cwCoefAerodinamicoParagolpesDelantero{{ i }}"
+                      value="0.82"
                       required
                       [class.is-invalid]="
                         formSubmitted &&
@@ -12034,6 +12089,7 @@
                       class="form-control"
                       placeholder="Densidad"
                       [(ngModel)]="mod.densidadAireKgM3ParagolpesDelantero"
+                      value="1.29"
                       name="densidadAireKgM3ParagolpesDelantero{{ i }}"
                       required
                       [class.is-invalid]="
@@ -12052,6 +12108,7 @@
                       min="0"
                       class="form-control"
                       placeholder="V2"
+                      value="38.89"
                       [(ngModel)]="mod.velocidadAireV2msParagolpesDelantero"
                       name="velocidadAireV2msParagolpesDelantero{{ i }}"
                       required
@@ -12092,6 +12149,7 @@
                       placeholder="K"
                       [(ngModel)]="mod.coefSeguridadKParagolpesDelantero"
                       name="coefSeguridadKParagolpesDelantero{{ i }}"
+                      value="3"
                       required
                       [class.is-invalid]="
                         formSubmitted &&
@@ -13191,6 +13249,7 @@
                   type="text"
                   class="form-control"
                   placeholder="Ratio"
+                  value="800"
                   [(ngModel)]="mod.curvaturaDefensaDelantera"
                   name="curvaturaDefensaDelantera{{ i }}"
                   required
@@ -15919,6 +15978,39 @@
                 <label>Nº TORNILLOS</label>
               </div>
             </div>
+          </div>
+        </section>
+      </div>
+      } @if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' &&
+      mod.seleccionado) {
+      <div class="mb-3">
+        <section class="mod-card toldo">
+          <div class="mod-card__header">
+            <h4 class="mod-card__title">
+              CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES
+            </h4>
+          </div>
+
+          <div class="ing-info-box">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <strong>NOTA TÉCNICA:</strong> Describa cualquier reforma no
+            existente en las opciones anteriores realizada en el vehículo
+            relevante para el presente proyecto. Esta información constará en la
+            documentación técnica final. <br /><br />En este campo de texto se
+            deberán utilizar saltos de línea para separar los distintos puntos o
+            apartados que se quieran incluir.<br /><br />
+            Cada línea deberá empezar siempre por "Instalación", "Desmontaje" o
+            "Sustitución", según corresponda.
+          </div>
+
+          <div class="mb-3">
+            <textarea
+              class="form-control"
+              [(ngModel)]="mod.reformasAdicionales"
+              name="reformasAdicionales"
+              rows="8"
+              placeholder="// Escriba aquí los detalles técnicos introduciendo saltos de línea..."
+            ></textarea>
           </div>
         </section>
       </div>

@@ -661,6 +661,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             },
           },
           {
+            nombre: 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES',
+            seleccionado: false,
+          },
+          {
             nombre: 'VENTANA LATERAL',
             seleccionado: false,
           },
@@ -684,6 +688,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
               reubicacionTrasera: false,
               cambioUbicacionDelantera: false,
             },
+          },
+          {
+            nombre: 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES',
+            seleccionado: false,
           },
           {
             nombre: 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
@@ -759,6 +767,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
           },
           {
             nombre: 'PLANCHA CAPÓ',
+            seleccionado: false,
+          },
+          {
+            nombre: 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES',
             seleccionado: false,
           },
           {

@@ -667,6 +667,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('subseleccion');
   }
+
   onVolverDesdeSeleccion(event?: {
     secciones?: { codigo: string; descripcion: string }[];
     codigos?: string[];
@@ -682,7 +683,31 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         (s: any) => s.codigo
       );
     }
-    this.payloadResumen = this.generarPayloadResumenActualizado();
+
+    // 🔥 CORRECCIÓN: Usar el PUENTE también al volver 🔥
+    if (
+      this.datosResumenModificaciones &&
+      Array.isArray(this.datosResumenModificaciones.modificaciones) &&
+      this.datosResumenModificaciones.modificaciones.length > 0
+    ) {
+      console.log(
+        '🔙 [VOLVER] Recuperando datos detallados y cargando el PUENTE.'
+      );
+
+      const payloadRecuperado = { ...this.datosResumenModificaciones };
+
+      // 1. Asignamos localmente (por si acaso)
+      this.payloadResumen = payloadRecuperado;
+
+      // 2. IMPORTANTE: Llenamos el puente para que el ngOnInit lo encuentre
+      // y NO regenere los datos desde cero.
+      CrearReformaComponent.bridgePayload = payloadRecuperado;
+    } else {
+      console.log('⚠️ [VOLVER] No hay datos previos, regenerando...');
+      this.payloadResumen = this.generarPayloadResumenActualizado();
+      // Si regeneramos, no hace falta puente, porque la regeneración es lo correcto aquí
+    }
+
     this.persist();
     this.navigate('resumen');
   }
@@ -704,17 +729,17 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       this.datosGenerales?.tipoVehiculo ||
       this.datosGuardadosTipoVehiculo?.tipoVehiculo;
 
-    // 🔥 CORRECCIÓN: Recuperamos las modificaciones guardadas
     const MODIFICACIONES_ACTUALES =
-      this.datosGuardadosTipoVehiculo?.modificaciones ||
+      this.datosResumenModificaciones?.modificaciones ||
       this.datosGenerales?.modificaciones ||
+      this.datosGuardadosTipoVehiculo?.modificaciones ||
       [];
 
     this.datosFormularioGuardados = {
       ...(this.datosFormularioGuardados || {}),
       paginaActual: 1,
       tipoVehiculo: TIPO_ACTUAL || null,
-      modificaciones: MODIFICACIONES_ACTUALES, // <--- AHORA SÍ LAS PASAMOS AL FORMULARIO
+      modificaciones: MODIFICACIONES_ACTUALES,
     };
 
     this.persist();
@@ -1005,6 +1030,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   onContinuarDesdeCanva(event: any) {
     if (event) {
       this.mergeGenerales(event);
+      // Guardamos los datos del canva en la variable maestra
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
@@ -1012,6 +1038,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     }
     this.persist();
     this.origenImagenes = 'anterior';
+
+    // 🔥 CORRECCIÓN: Actualizar el payload que se enviará al componente de imágenes
+    this.payloadResumen = { ...(this.datosResumenModificaciones || {}) };
+
     this.navigate('imagenes');
   }
   private mergeGenerales(event: any) {
@@ -1057,6 +1087,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   onVolverDesdeGenerador(event?: any) {
     if (event?.datos) this.datosGenerales = event.datos;
     this.origenImagenes = 'siguiente';
+
+    // 🔥 CORRECCIÓN: Cargar los datos guardados (incluidas las imágenes) para enviarlos
+    this.payloadResumen = { ...(this.datosResumenModificaciones || {}) };
+
     this.navigate('imagenes');
   }
 }

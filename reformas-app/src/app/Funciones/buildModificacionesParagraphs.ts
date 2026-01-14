@@ -105,8 +105,8 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'NEUMÁTICOS' && m.seleccionado
   );
   if (neumaticos) {
-    const medidaNeumatico = data.neumaticoDespues || '---';
-    const medidaLlantas = neumaticos.medidas || '---';
+    const medidaNeumatico = neumaticos.medidaNeumaticos || '---';
+    const medidaLlantas = neumaticos.medidaLlantas || '---';
     const raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${medidaNeumatico}, montados sobre llantas de medidas ${medidaLlantas}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
 
     const p = new Paragraph({
@@ -248,6 +248,39 @@ export function buildModificacionesParagraphs(
 
       (p as any)._rawText = raw;
       out.push(p);
+    });
+  }
+
+  // Buscamos la modificación específica
+  const campoLibre = modificaciones.find(
+    (m) =>
+      m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' && m.seleccionado
+  );
+
+  if (campoLibre && campoLibre.reformasAdicionales) {
+    const lineas = campoLibre.reformasAdicionales.split('\n');
+
+    // 2. Iteramos sobre cada línea
+    lineas.forEach((linea: string) => {
+      const lineaLimpia = linea.trim();
+
+      if (lineaLimpia.length > 0) {
+        const raw = `- ${lineaLimpia}`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [
+            new TextRun({
+              text: raw,
+            }),
+          ],
+        });
+
+        (p as any)._rawText = raw;
+
+        out.push(p);
+      }
     });
   }
 

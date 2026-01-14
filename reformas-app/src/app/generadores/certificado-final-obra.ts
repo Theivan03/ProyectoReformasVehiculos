@@ -942,7 +942,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       spacing: { after: 300 },
       children: [
         new TextRun({
-          text: 'Anexo 2. Fotografías del vehículo antes de la reforma',
+          text: 'Anexo 2. Fotografías del vehículo después de la reforma',
           bold: true,
         }),
       ],
@@ -1124,7 +1124,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       spacing: { after: 300 },
       children: [
         new TextRun({
-          text: 'Anexo 3. Fotografías del vehículo después de la reforma',
+          text: 'Anexo 3. Fotografías de las reformas',
           bold: true,
         }),
       ],
