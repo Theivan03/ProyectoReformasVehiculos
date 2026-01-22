@@ -516,7 +516,9 @@ export async function buildCalculos(
               new TableCell({
                 children: [
                   new Paragraph({
-                    text: radioNeumatico.toString().replace('.', ',') + ' m',
+                    text:
+                      radioNeumatico.toFixed(5).toString().replace('.', ',') +
+                      ' m',
                     alignment: AlignmentType.RIGHT,
                   }),
                 ],
@@ -579,7 +581,7 @@ export async function buildCalculos(
         new Paragraph({
           children: [
             new TextRun({
-              text: 'Lo primero que calculamos, es la fuerza de salida de la maneta (',
+              text: 'Lo primero que calculamos, es la fuerza de salida del pedal (',
             }),
             new TextRun({ text: 'FSP', italics: true }),
             new TextRun({ text: ') con la aplicación de la fuerza de ' }),
@@ -1252,7 +1254,11 @@ export async function buildCalculos(
               new TableCell({
                 children: [
                   new Paragraph({
-                    text: newradioNeumatico.toString().replace('.', ',') + ' m',
+                    text:
+                      newradioNeumatico
+                        .toFixed(5)
+                        .toString()
+                        .replace('.', ',') + ' m',
                     alignment: AlignmentType.RIGHT,
                   }),
                 ],
@@ -1323,7 +1329,7 @@ export async function buildCalculos(
         new Paragraph({
           children: [
             new TextRun({
-              text: 'Lo primero que calculamos, es la fuerza de salida de la maneta (',
+              text: 'Lo primero que calculamos, es la fuerza de salida del pedal (',
             }),
             new TextRun({ text: 'FSP', italics: true }),
             new TextRun({ text: ') con la aplicación de la fuerza de ' }),
@@ -1765,6 +1771,4502 @@ export async function buildCalculos(
       out.push(
         new Paragraph({
           text: `Fuerza total de frenado (FTF) = ${(frenos.numPinzasDelanteras ?? 0) * 2}*FFR`,
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text:
+                'FTF = ' +
+                newFuerzaTotalFrenadoFtf.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Podemos concluir que el sistema de frenado instalado es más eficaz que el que montaba el vehículo en origen ya que la Fuerza total de frenado es superior, por lo tanto ',
+            }),
+            new TextRun({
+              text: 'ES VÁLIDO.',
+              bold: true,
+              italics: true,
+              underline: {
+                type: UnderlineType.SINGLE,
+              },
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+    }
+
+    //Coche trasero
+    if (
+      frenos &&
+      (frenos.ubicacionDiscos === 'traseros' ||
+        frenos.ubicacionDiscos === 'ambos')
+    ) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Frenos Traseros',
+              bold: true,
+              size: 24,
+            }),
+          ],
+        }),
+      );
+      contador++;
+
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Sistema original (FRENOS DE DISCO)',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const diametroExt = frenos.ant_diametroExteriorDiscoTrasero ?? 0;
+      const diametroInt = frenos.ant_diametroInteriorDiscoTrasero ?? 0;
+      const radioExt = diametroExt / 2;
+      const radioInt = diametroInt / 2;
+      const diametroBomba = frenos.ant_diametroBombaTrasera ?? 0;
+      const diametroPiston = frenos.ant_dimensionPistonTrasera ?? 0;
+      const numPistones = frenos.ant_numPistonesTrasero ?? 0;
+      const numPinzas = frenos.ant_numPinzasTraseras ?? 0;
+      const numDiscos = frenos.ant_numDiscosTrasero ?? 0;
+
+      const tablaDimensiones = new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          ['Diámetro exterior (m) ØDET', diametroExt + ' m'],
+          ['Diámetro interior (m) ØDIT', diametroInt + ' m'],
+          ['Radio exterior (m) RDET', radioExt + ' m'],
+          ['Radio interior (m) RDIT', radioInt + ' m'],
+          ['Diámetro bomba', diametroBomba + 'm'],
+          ['Diámetro pistón', diametroPiston + 'm'],
+          ['Número de pistones por pinza', numPistones.toString()],
+          ['Nº de pinzas por rueda', numPinzas.toString()],
+          ['Nº de discos por rueda', numDiscos.toString()],
+        ].map(
+          ([label, val]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ text: label })],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: val,
+                      alignment: AlignmentType.RIGHT,
+                    }),
+                  ],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+              ],
+            }),
+        ),
+      });
+
+      out.push(tablaDimensiones);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para la realización del cálculo, aplicamos una fuerza de 50 kg en el pedal de freno. Del manual del vehículo obtenemos los siguientes datos:',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaPedalKg = 50;
+      const fuerzaPedalN = 490.5;
+      const relacionPedal = 5;
+      const coefFriccion = 0.4;
+      const radioNeumatico =
+        ((frenos.ant_radioNeumaticoTrasero ?? 0) * 25.4 +
+          2 *
+            (((frenos.ant_perfilNeumaticoTrasero ?? 0) *
+              (frenos.ant_anchoNeumaticoTrasero ?? 0)) /
+              100)) /
+        2 /
+        1000;
+      console.log('radioNeumatico', radioNeumatico);
+
+      const tablaDatosManual = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza ejercida en el pedal (Fep)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${fuerzaPedalKg} Kg -> ${fuerzaPedalN.toFixed(1).replace('.', ',')} N`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Relación de desmultiplicación (Rp)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `1:${relacionPedal}`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'coeficiente de fricción (µF)' }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: coefFriccion.toString().replace('.', ','),
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: 'Radio del neumático',
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text:
+                      radioNeumatico.toFixed(5).toString().replace('.', ',') +
+                      ' m',
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaDatosManual);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Se ha mantenido original todo el circuito del líquido de frenos',
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocidos todos los datos, empezamos a realizar los cálculos.',
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para conocer la influencia del pedal de freno sobre el sistema, cabe resaltar que el pedal es un elemento amplificador de la fuerza que ejerce el conductor. Las ecuaciones que se muestran a continuación son para un sistema de frenado sin servofreno. Por lo tanto, para conocer el valor de la fuerza que se ejerce sobre el sistema se emplea la siguiente expresión, donde se puede apreciar como la fuerza aplicada por el conductor (',
+            }),
+            new TextRun({ text: 'Fep', italics: true }),
+            new TextRun({
+              text: ') se multiplica por la relación del pedal (',
+            }),
+            new TextRun({ text: 'Rp', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'SP', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'ep', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'p', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Lo primero que calculamos, es la fuerza de salida del pedal (',
+            }),
+            new TextRun({ text: 'FSP', italics: true }),
+            new TextRun({ text: ') con la aplicación de la fuerza de ' }),
+            new TextRun({
+              text: fuerzaPedalN.toFixed(1).replace('.', ',') + ' N.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaSalidaFsp = fuerzaPedalN * relacionPedal;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'sp', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaSalidaFsp.toFixed(1).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza, calculamos la presión teórica de la bomba (',
+            }),
+            new TextRun({ text: 'PB', italics: true }),
+            new TextRun({
+              text: '). Suponemos que el líquido que se utiliza en el sistema de frenado es totalmente incompresible, y que los conductos del circuito hidráulico son totalmente rígidos.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const radioBombaFrenos = diametroBomba / 2;
+      const areaBombaFrenos = Math.PI * Math.pow(radioBombaFrenos, 2);
+
+      const presionBombaFrenos =
+        areaBombaFrenos > 0 ? fuerzaSalidaFsp / areaBombaFrenos : 0;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true, bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'SP', subScript: true }),
+            new TextRun({ text: ' / A', italics: true }),
+            new TextRun({ text: 'b', subScript: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                presionBombaFrenos.toFixed(2).replace('.', ',') +
+                ' N/m²',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'Ab', italics: true }),
+            new TextRun({ text: ' el área del cilindro hidráulico.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Suponiendo que durante todo el recorrido del circuito hidráulico no existen perdidas, se extrae que la presión será igual en todos los puntos de este. Por ello, podemos afirmar que la presión de la salida del bombín de frenado es la misma que llega al pistón de pinza de frenos (PPF).',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true }),
+            new TextRun({ text: 'B', subScript: true, italics: true }),
+            new TextRun({ text: ' = P', italics: true }),
+            new TextRun({ text: 'PF', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'En el final del recorrido del circuito hidráulico, el líquido de frenos ejerce una presión sobre los pistones de la pinza de freno. Este último elemento es el encargado de generar y transformar esa presión hidráulica en fuerza mecánica lineal, que posteriormente se aplicará sobre las pastillas de freno.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocemos la presión que ejerce la pinza de frenos, podemos calcular la fuerza que se ejerce sobre la pastilla de frenos (',
+            }),
+            new TextRun({ text: 'FP', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' = Nº', bold: true }),
+            new TextRun({ text: 'PISTONES', subScript: true, bold: true }),
+            new TextRun({ text: ' * P', italics: true, bold: true }),
+            new TextRun({ text: 'PF', subScript: true, bold: true }),
+            new TextRun({ text: ' * A', italics: true, bold: true }),
+            new TextRun({ text: 'PP', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'APP', italics: true }),
+            new TextRun({ text: ' el área del pistón de la pinza.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const radioPistonFrenos = diametroPiston / 2;
+      const areaPistonFrenos = Math.PI * Math.pow(radioPistonFrenos, 2);
+      const fuerzaPistonFrenos =
+        numPistones * presionBombaFrenos * areaPistonFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaPistonFrenos.toFixed(2) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza generada por la presión hidráulica, la multiplicamos por el coeficiente de fricción que hay entre el disco y la pastilla (',
+            }),
+            new TextRun({ text: 'μF', italics: true }),
+            new TextRun({
+              text: '), y así conoceremos cual es la fuerza de fricción (',
+            }),
+            new TextRun({ text: 'FFF', italics: true }),
+            new TextRun({
+              text: ') que tenemos entre el disco y la pastilla.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las condiciones que tomamos para la realización de estos cálculos para un ',
+            }),
+            new TextRun({ text: 'μF=0,4', italics: true }),
+            new TextRun({
+              text: ' que pertenece al coeficiente de fricción entre un disco de acero y un juego de pastillas de compuesto orgánico.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' * μ', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaFriccionFrenos = fuerzaPistonFrenos * coefFriccion;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Calculamos la fuerza total que generemos con la fuerza de fricción.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({ text: ' = 2 * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaTotalFriccionFrenos = 2 * fuerzaFriccionFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaTotalFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocida la fuerza de rozamiento, el siguiente paso es conocer los pares de frenado producidos por el contacto entre el disco y las pastillas.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({ text: ' = M * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'E', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'M', italics: true }),
+            new TextRun({ text: ' el número de pastillas en cada disco y ' }),
+            new TextRun({ text: 'RE', italics: true }),
+            new TextRun({ text: ' el radio efectivo del disco.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Par de frenado en una rueda delantera:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const radioEfectivo = radioInt + (radioExt - radioInt) / 2;
+      console.log('radioEfectivo revisar', radioEfectivo);
+      // Nota: En la imagen anterior Ftff = 2 * Fff. Y Nf se calcula usando esa fuerza total por el radio.
+      // Basado en los números: 29317 * 0.11425 = ~3349
+      const parFrenado = 2 * fuerzaFriccionFrenos * radioEfectivo;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + parFrenado.toFixed(4).replace('.', ',') + ' Nm',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Al considerar que tanto el neumático como el disco de frenos están anclados al buje, que es el elemento del eje que permite el giro; el par en ambos será constante en todo momento. Por lo tanto, suponiendo que el par producido en el disco es el mismo que en los neumáticos, se crea una fuerza de reacción (fuerza de frenado (FFR)) que se genera en la calzada, producida por el contacto entre el neumático y el asfalto.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'FR', subScript: true, italics: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'N', italics: true }),
+            new TextRun({ text: 'F', subScript: true, italics: true }),
+            new TextRun({ text: ' / R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Donde ' }),
+            new TextRun({ text: 'R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+            new TextRun({ text: ' es el radio del neumático' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const fuerzaReaccionFfr = parFrenado / radioNeumatico;
+
+      out.push(
+        new Paragraph({
+          text: 'Fuerza de frenado en una pinza:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FR', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' + fuerzaReaccionFfr.toFixed(4).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado en las ruedas delanteras (${(frenos.ant_numPinzasTraseras ?? 0) * 2} pinzas):`,
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaTotalFrenadoFtf =
+        (frenos.ant_numPinzasTraseras ?? 0) * 2 * fuerzaReaccionFfr;
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado (FTF) = ${(frenos.ant_numPinzasTraseras ?? 0) * 2}*FFR`,
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text:
+                'FTF = ' +
+                fuerzaTotalFrenadoFtf.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Sistema reformado (FRENOS DE DISCO)',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newDiametroExt = frenos.diametroExteriorDiscoTrasero ?? 0;
+      const newDiametroInt = frenos.diametroInteriorDiscoTrasero ?? 0;
+      const newRadioExt = newDiametroExt / 2;
+      const newRadioInt = newDiametroInt / 2;
+      const newDiametroBomba = frenos.diametroBombaDiscoTrasero ?? 0;
+      const newDimensionPiston = frenos.dimensionPistonDiscoTrasero ?? 0;
+      const newNumPistones = frenos.numPistonesDiscos ?? 0;
+      const newNumPinzas = frenos.numPinzasTraseras ?? 0;
+      const newNumDiscos = frenos.numDiscosTrasero ?? 0;
+
+      const newradioNeumatico =
+        ((frenos.radioNeumaticoDiscoTrasero ?? 0) * 25.4 +
+          2 *
+            (((frenos.perfilNeumaticoDiscoTrasero ?? 0) *
+              (frenos.anchoNeumaticoDiscoTrasero ?? 0)) /
+              100)) /
+        2 /
+        1000;
+      console.log('newradioNeumatico', newradioNeumatico);
+
+      const tablaReformado = new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          ['Diámetro exterior (m) ØDET', newDiametroExt + ' m'],
+          ['Diámetro interior (m) ØDIT', newDiametroInt + ' m'],
+          ['Radio exterior (m) RDET', newRadioExt + ' m'],
+          ['Radio interior (m) RDIT', newRadioInt + ' m'],
+          ['Diámetro bomba', newDiametroBomba + 'm'],
+          ['Diámetro pistón', newDimensionPiston + 'm'],
+          ['Número de pistones por pinza', newNumPistones.toString()],
+          ['Nº de pinzas por rueda', newNumPinzas.toString()],
+          ['Nº de discos por rueda', newNumDiscos.toString()],
+        ].map(
+          ([label, val]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ text: label })],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: val,
+                      alignment: AlignmentType.RIGHT,
+                    }),
+                  ],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+              ],
+            }),
+        ),
+      });
+
+      out.push(tablaReformado);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para la realización del cálculo, aplicamos una fuerza de 50 kg en el pedal de freno. Del manual del vehículo obtenemos los siguientes datos:',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const tablaDatosManualReformado = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza ejercida en el pedal (Fep)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${fuerzaPedalKg} Kg -> ${fuerzaPedalN.toFixed(1).replace('.', ',')} N`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Relación de desmultiplicación (Rp)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `1:${relacionPedal}`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'coeficiente de fricción (µF)' }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: coefFriccion.toString().replace('.', ','),
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: 'Radio del neumático',
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text:
+                      newradioNeumatico
+                        .toFixed(5)
+                        .toString()
+                        .replace('.', ',') + ' m',
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaDatosManualReformado);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Se ha mantenido original todo el circuito del líquido de frenos',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocidos todos los datos, empezamos a realizar los cálculos.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para conocer la influencia del pedal de freno sobre el sistema, cabe resaltar que el pedal es un elemento amplificador de la fuerza que ejerce el conductor. Las ecuaciones que se muestran a continuación son para un sistema de frenado sin servofreno. Por lo tanto, para conocer el valor de la fuerza que se ejerce sobre el sistema se emplea la siguiente expresión, donde se puede apreciar como la fuerza aplicada por el conductor (',
+            }),
+            new TextRun({ text: 'Fep', italics: true }),
+            new TextRun({
+              text: ') se multiplica por la relación del pedal (',
+            }),
+            new TextRun({ text: 'Rp', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'SP', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'ep', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'p', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Lo primero que calculamos, es la fuerza de salida del pedal (',
+            }),
+            new TextRun({ text: 'FSP', italics: true }),
+            new TextRun({ text: ') con la aplicación de la fuerza de ' }),
+            new TextRun({
+              text: fuerzaPedalN.toFixed(1).replace('.', ',') + ' N.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Nota: fuerzaSalidaFsp ya se calculó arriba (490.5 * 5 = 2452.5), se reutiliza
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'sp', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaSalidaFsp.toFixed(1).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza, calculamos la presión teórica de la bomba (',
+            }),
+            new TextRun({ text: 'PB', italics: true }),
+            new TextRun({
+              text: '). Suponemos que el líquido que se utiliza en el sistema de frenado es totalmente incompresible, y que los conductos del circuito hidráulico son totalmente rígidos.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Cálculos específicos para el SISTEMA REFORMADO
+      const newRadioBombaFrenos = newDiametroBomba / 2;
+      const newAreaBombaFrenos = Math.PI * Math.pow(newRadioBombaFrenos, 2);
+      const newPresionBombaFrenos = fuerzaSalidaFsp / newAreaBombaFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true, bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'SP', subScript: true }),
+            new TextRun({ text: ' / A', italics: true }),
+            new TextRun({ text: 'b', subScript: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newPresionBombaFrenos.toFixed(2).replace('.', ',') +
+                ' N/m²',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'Ab', italics: true }),
+            new TextRun({ text: ' el área del cilindro hidráulico.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Suponiendo que durante todo el recorrido del circuito hidráulico no existen perdidas, se extrae que la presión será igual en todos los puntos de este. Por ello, podemos afirmar que la presión de la salida del bombín de frenado es la misma que llega al pistón de pinza de frenos (PPF).',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true }),
+            new TextRun({ text: 'B', subScript: true, italics: true }),
+            new TextRun({ text: ' = P', italics: true }),
+            new TextRun({ text: 'PF', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'En el final del recorrido del circuito hidráulico, el líquido de frenos ejerce una presión sobre los pistones de la pinza de freno. Este último elemento es el encargado de generar y transformar esa presión hidráulica en fuerza mecánica lineal, que posteriormente se aplicará sobre las pastillas de freno.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocemos la presión que ejerce la pinza de frenos, podemos calcular la fuerza que se ejerce sobre la pastilla de frenos (',
+            }),
+            new TextRun({ text: 'FP', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' = Nº', bold: true }),
+            new TextRun({ text: 'PISTONES', subScript: true, bold: true }),
+            new TextRun({ text: ' * P', italics: true, bold: true }),
+            new TextRun({ text: 'PF', subScript: true, bold: true }),
+            new TextRun({ text: ' * A', italics: true, bold: true }),
+            new TextRun({ text: 'PP', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'APP', italics: true }),
+            new TextRun({ text: ' el área del pistón de la pinza.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Cálculos fuerza pistón REFORMADO
+      const newRadioPistonFrenos = newDimensionPiston / 2;
+      const newAreaPistonFrenos = Math.PI * Math.pow(newRadioPistonFrenos, 2);
+      const newFuerzaPistonFrenos =
+        newNumPistones * newPresionBombaFrenos * newAreaPistonFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newFuerzaPistonFrenos.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza generada por la presión hidráulica, la multiplicamos por el coeficiente de fricción que hay entre el disco y la pastilla (',
+            }),
+            new TextRun({ text: 'μF', italics: true }),
+            new TextRun({
+              text: '), y así conoceremos cual es la fuerza de fricción (',
+            }),
+            new TextRun({ text: 'FFF', italics: true }),
+            new TextRun({
+              text: ') que tenemos entre el disco y la pastilla.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las condiciones que tomamos para la realización de estos cálculos para un ',
+            }),
+            new TextRun({ text: 'μF=0,4', italics: true }),
+            new TextRun({
+              text: ' que pertenece al coeficiente de fricción entre un disco de acero y un juego de pastillas de compuesto orgánico.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' * μ', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaFriccionFrenos = newFuerzaPistonFrenos * coefFriccion;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newFuerzaFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Calculamos la fuerza total que generemos con la fuerza de fricción.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ` = ${(newNumDiscos ?? 0) * 2} * F`,
+              italics: true,
+              bold: true,
+            }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaTotalFriccionFrenos =
+        (newNumDiscos ?? 0) * 2 * newFuerzaFriccionFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newFuerzaTotalFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocida la fuerza de rozamiento, el siguiente paso es conocer los pares de frenado producidos por el contacto entre el disco y las pastillas.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({ text: ' = M * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'E', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'M', italics: true }),
+            new TextRun({ text: ' el número de pastillas en cada disco y ' }),
+            new TextRun({ text: 'RE', italics: true }),
+            new TextRun({ text: ' el radio efectivo del disco.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Par de frenado en una rueda trasera:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newRadioEfectivo = newRadioExt + (newRadioInt - newRadioExt) / 2;
+      console.log('newRadioEfectivo', newRadioEfectivo);
+      const newParFrenado = 2 * newFuerzaFriccionFrenos * newRadioEfectivo;
+      console.log('newParFrenado', newParFrenado);
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newParFrenado.toFixed(4).replace('.', ',') + ' Nm',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Al considerar que tanto el neumático como el disco de frenos están anclados al buje, que es el elemento del eje que permite el giro; el par en ambos será constante en todo momento. Por lo tanto, suponiendo que el par producido en el disco es el mismo que en los neumáticos, se crea una fuerza de reacción (fuerza de frenado (FFR)) que se genera en la calzada, producida por el contacto entre el neumático y el asfalto.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'FR', subScript: true, italics: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'N', italics: true }),
+            new TextRun({ text: 'F', subScript: true, italics: true }),
+            new TextRun({ text: ' / R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Donde ' }),
+            new TextRun({ text: 'R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+            new TextRun({ text: ' es el radio del neumático' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const newFuerzaReaccionFfr = newParFrenado / newradioNeumatico;
+
+      out.push(
+        new Paragraph({
+          text: 'Fuerza de frenado en una pinza:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FR', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newFuerzaReaccionFfr.toFixed(3).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado en las ruedas traseras (${frenos.numPinzasTraseras ?? 0 * 2} pinzas):`,
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaTotalFrenadoFtf =
+        (frenos.numPinzasTraseras ?? 0) * 2 * newFuerzaReaccionFfr;
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado (FTF) = ${(frenos.numPinzasTraseras ?? 0) * 2}*FFR`,
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text:
+                'FTF = ' +
+                newFuerzaTotalFrenadoFtf.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Podemos concluir que el sistema de frenado instalado es más eficaz que el que montaba el vehículo en origen ya que la Fuerza total de frenado es superior, por lo tanto ',
+            }),
+            new TextRun({
+              text: 'ES VÁLIDO.',
+              bold: true,
+              italics: true,
+              underline: {
+                type: UnderlineType.SINGLE,
+              },
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+    }
+
+    //Inicio pinza moto
+
+    const pinzaMoto = modificaciones.find(
+      (m) => m.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' && m.seleccionado,
+    );
+    if (pinzaMoto && pinzaMoto.pastillaDelantera) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Frenos Delanteros',
+              bold: true,
+              size: 24,
+            }),
+          ],
+        }),
+      );
+      contador++;
+
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Sistema original (FRENOS DE DISCO)',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const diametroExt = pinzaMoto.ant_diametroExteriorDiscoDelantero ?? 0;
+      const diametroInt = pinzaMoto.ant_diametroInteriorDiscoDelantero ?? 0;
+      const radioExt = diametroExt / 2;
+      const radioInt = diametroInt / 2;
+      const diametroBomba = pinzaMoto.ant_diametroBombaDelantera ?? 0;
+      const diametroPiston = pinzaMoto.ant_dimensionPistonDelantera ?? 0;
+      const numPistones = pinzaMoto.ant_numPistonesDelantero ?? 0;
+      const numPinzas = pinzaMoto.ant_numPinzasDelanteras ?? 0;
+      const numDiscos = pinzaMoto.ant_numDiscosDelantero ?? 0;
+
+      const tablaDimensiones = new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          ['Diámetro exterior (m) ØDET', diametroExt + ' m'],
+          ['Diámetro interior (m) ØDIT', diametroInt + ' m'],
+          ['Radio exterior (m) RDET', radioExt + ' m'],
+          ['Radio interior (m) RDIT', radioInt + ' m'],
+          ['Diámetro bomba', diametroBomba + 'm'],
+          ['Diámetro pistón', diametroPiston + 'm'],
+          ['Número de pistones por pinza', numPistones.toString()],
+          ['Nº de pinzas por rueda', numPinzas.toString()],
+          ['Nº de discos por rueda', numDiscos.toString()],
+        ].map(
+          ([label, val]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ text: label })],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: val,
+                      alignment: AlignmentType.RIGHT,
+                    }),
+                  ],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+              ],
+            }),
+        ),
+      });
+
+      out.push(tablaDimensiones);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para la realización del cálculo, aplicamos una fuerza de 50 kg en la maneta de freno. Del manual del vehículo obtenemos los siguientes datos:',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaPedalKg = 50;
+      const fuerzaPedalN = 490.5;
+      const relacionPedal = 5;
+      const coefFriccion = 0.4;
+      const radioNeumatico =
+        ((pinzaMoto.ant_radioNeumaticoDelantero ?? 0) * 25.4 +
+          2 *
+            (((pinzaMoto.ant_anchoNeumaticoDelantero ?? 0) *
+              (pinzaMoto.ant_perfilNeumaticoDelantero ?? 0)) /
+              100)) /
+        2 /
+        1000;
+      console.log('radioNeumatico', radioNeumatico);
+
+      const tablaDatosManual = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza ejercida en la maneta (Fep)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${fuerzaPedalKg} Kg -> ${fuerzaPedalN.toFixed(1).replace('.', ',')} N`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Relación de desmultiplicación (Rp)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `1:${relacionPedal}`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'coeficiente de fricción (µF)' }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: coefFriccion.toString().replace('.', ','),
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: 'Radio del neumático',
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text:
+                      radioNeumatico.toFixed(5).toString().replace('.', ',') +
+                      ' m',
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaDatosManual);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Se ha mantenido original todo el circuito del líquido de frenos',
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocidos todos los datos, empezamos a realizar los cálculos.',
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para conocer la influencia de la maneta de freno sobre el sistema, cabe resaltar que la maneta es un elemento amplificador de la fuerza que ejerce el conductor. Las ecuaciones que se muestran a continuación son para un sistema de frenado sin servofreno. Por lo tanto, para conocer el valor de la fuerza que se ejerce sobre el sistema se emplea la siguiente expresión, donde se puede apreciar como la fuerza aplicada por el conductor (',
+            }),
+            new TextRun({ text: 'Fep', italics: true }),
+            new TextRun({
+              text: ') se multiplica por la relación de la maneta (',
+            }),
+            new TextRun({ text: 'Rp', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'SP', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'ep', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'p', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Lo primero que calculamos, es la fuerza de salida de la maneta (',
+            }),
+            new TextRun({ text: 'FSP', italics: true }),
+            new TextRun({ text: ') con la aplicación de la fuerza de ' }),
+            new TextRun({
+              text: fuerzaPedalN.toFixed(1).replace('.', ',') + ' N.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaSalidaFsp = fuerzaPedalN * relacionPedal;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'sp', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaSalidaFsp.toFixed(1).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza, calculamos la presión teórica de la bomba (',
+            }),
+            new TextRun({ text: 'PB', italics: true }),
+            new TextRun({
+              text: '). Suponemos que el líquido que se utiliza en el sistema de frenado es totalmente incompresible, y que los conductos del circuito hidráulico son totalmente rígidos.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const radioBombaFrenos = diametroBomba / 2;
+      const areaBombaFrenos = Math.PI * Math.pow(radioBombaFrenos, 2);
+
+      const presionBombaFrenos =
+        areaBombaFrenos > 0 ? fuerzaSalidaFsp / areaBombaFrenos : 0;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true, bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'SP', subScript: true }),
+            new TextRun({ text: ' / A', italics: true }),
+            new TextRun({ text: 'b', subScript: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                presionBombaFrenos.toFixed(2).replace('.', ',') +
+                ' N/m²',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'Ab', italics: true }),
+            new TextRun({ text: ' el área del cilindro hidráulico.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Suponiendo que durante todo el recorrido del circuito hidráulico no existen perdidas, se extrae que la presión será igual en todos los puntos de este. Por ello, podemos afirmar que la presión de la salida del bombín de frenado es la misma que llega al pistón de pinza de frenos (PPF).',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true }),
+            new TextRun({ text: 'B', subScript: true, italics: true }),
+            new TextRun({ text: ' = P', italics: true }),
+            new TextRun({ text: 'PF', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'En el final del recorrido del circuito hidráulico, el líquido de frenos ejerce una presión sobre los pistones de la pinza de freno. Este último elemento es el encargado de generar y transformar esa presión hidráulica en fuerza mecánica lineal, que posteriormente se aplicará sobre las pastillas de freno.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocemos la presión que ejerce la pinza de frenos, podemos calcular la fuerza que se ejerce sobre la pastilla de frenos (',
+            }),
+            new TextRun({ text: 'FP', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' = Nº', bold: true }),
+            new TextRun({ text: 'PISTONES', subScript: true, bold: true }),
+            new TextRun({ text: ' * P', italics: true, bold: true }),
+            new TextRun({ text: 'PF', subScript: true, bold: true }),
+            new TextRun({ text: ' * A', italics: true, bold: true }),
+            new TextRun({ text: 'PP', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'APP', italics: true }),
+            new TextRun({ text: ' el área del pistón de la pinza.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const radioPistonFrenos = diametroPiston / 2;
+      const areaPistonFrenos = Math.PI * Math.pow(radioPistonFrenos, 2);
+      const fuerzaPistonFrenos =
+        numPistones * presionBombaFrenos * areaPistonFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaPistonFrenos.toFixed(2) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza generada por la presión hidráulica, la multiplicamos por el coeficiente de fricción que hay entre el disco y la pastilla (',
+            }),
+            new TextRun({ text: 'μF', italics: true }),
+            new TextRun({
+              text: '), y así conoceremos cual es la fuerza de fricción (',
+            }),
+            new TextRun({ text: 'FFF', italics: true }),
+            new TextRun({
+              text: ') que tenemos entre el disco y la pastilla.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las condiciones que tomamos para la realización de estos cálculos para un ',
+            }),
+            new TextRun({ text: 'μF=0,4', italics: true }),
+            new TextRun({
+              text: ' que pertenece al coeficiente de fricción entre un disco de acero y un juego de pastillas de compuesto orgánico.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' * μ', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaFriccionFrenos = fuerzaPistonFrenos * coefFriccion;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Calculamos la fuerza total que generemos con la fuerza de fricción.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({ text: ' = 2 * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaTotalFriccionFrenos = 1 * fuerzaFriccionFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaTotalFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocida la fuerza de rozamiento, el siguiente paso es conocer los pares de frenado producidos por el contacto entre el disco y las pastillas.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({ text: ' = M * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'E', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'M', italics: true }),
+            new TextRun({ text: ' el número de pastillas en cada disco y ' }),
+            new TextRun({ text: 'RE', italics: true }),
+            new TextRun({ text: ' el radio efectivo del disco.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Par de frenado en una rueda delantera:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const radioEfectivo = radioInt + (radioExt - radioInt) / 2;
+      console.log('radioEfectivo revisar', radioEfectivo);
+      // Nota: En la imagen anterior Ftff = 2 * Fff. Y Nf se calcula usando esa fuerza total por el radio.
+      // Basado en los números: 29317 * 0.11425 = ~3349
+      const parFrenado = 2 * fuerzaFriccionFrenos * radioEfectivo;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + parFrenado.toFixed(4).replace('.', ',') + ' Nm',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Al considerar que tanto el neumático como el disco de frenos están anclados al buje, que es el elemento del eje que permite el giro; el par en ambos será constante en todo momento. Por lo tanto, suponiendo que el par producido en el disco es el mismo que en los neumáticos, se crea una fuerza de reacción (fuerza de frenado (FFR)) que se genera en la calzada, producida por el contacto entre el neumático y el asfalto.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'FR', subScript: true, italics: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'N', italics: true }),
+            new TextRun({ text: 'F', subScript: true, italics: true }),
+            new TextRun({ text: ' / R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Donde ' }),
+            new TextRun({ text: 'R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+            new TextRun({ text: ' es el radio del neumático' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const fuerzaReaccionFfr = parFrenado / radioNeumatico;
+
+      out.push(
+        new Paragraph({
+          text: 'Fuerza de frenado en una pinza:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FR', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' + fuerzaReaccionFfr.toFixed(4).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado en las rueda delantera (${(pinzaMoto.ant_numPinzasDelanteras ?? 0) * 1} pinzas):`,
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaTotalFrenadoFtf =
+        (pinzaMoto.ant_numPinzasDelanteras ?? 0) * 1 * fuerzaReaccionFfr;
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado (FTF) = ${(pinzaMoto.ant_numPinzasDelanteras ?? 0) * 1}*FFR`,
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text:
+                'FTF = ' +
+                fuerzaTotalFrenadoFtf.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Sistema reformado (FRENOS DE DISCO)',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newDiametroExt = pinzaMoto.diametroExteriorDiscoDelantero ?? 0;
+      const newDiametroInt = pinzaMoto.diametroInteriorDiscoDelantero ?? 0;
+      const newRadioExt = newDiametroExt / 2;
+      const newRadioInt = newDiametroInt / 2;
+      const newDiametroBomba = pinzaMoto.diametroBombaDelantera ?? 0;
+      const newDimensionPiston = pinzaMoto.dimensionPistonDelantera ?? 0;
+      const newNumPistones = pinzaMoto.numPistonesDelantero ?? 0;
+      const newNumPinzas = pinzaMoto.numPinzasDelanteras ?? 0;
+      const newNumDiscos = pinzaMoto.numDiscosDelantero ?? 0;
+
+      const newradioNeumatico =
+        ((pinzaMoto.radioNeumaticoDiscos ?? 0) * 25.4 +
+          2 *
+            (((pinzaMoto.perfilNeumaticoDiscos ?? 0) *
+              (pinzaMoto.anchoNeumaticoDiscos ?? 0)) /
+              100)) /
+        2 /
+        1000;
+      console.log('newradioNeumatico', newradioNeumatico);
+
+      const tablaReformado = new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          ['Diámetro exterior (m) ØDET', newDiametroExt + ' m'],
+          ['Diámetro interior (m) ØDIT', newDiametroInt + ' m'],
+          ['Radio exterior (m) RDET', newRadioExt + ' m'],
+          ['Radio interior (m) RDIT', newRadioInt + ' m'],
+          ['Diámetro bomba', newDiametroBomba + 'm'],
+          ['Diámetro pistón', newDimensionPiston + 'm'],
+          ['Número de pistones por pinza', newNumPistones.toString()],
+          ['Nº de pinzas por rueda', newNumPinzas.toString()],
+          ['Nº de discos por rueda', newNumDiscos.toString()],
+        ].map(
+          ([label, val]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ text: label })],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: val,
+                      alignment: AlignmentType.RIGHT,
+                    }),
+                  ],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+              ],
+            }),
+        ),
+      });
+
+      out.push(tablaReformado);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para la realización del cálculo, aplicamos una fuerza de 50 kg en la maneta de freno. Del manual del vehículo obtenemos los siguientes datos:',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const tablaDatosManualReformado = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza ejercida en la maneta (Fep)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${fuerzaPedalKg} Kg -> ${fuerzaPedalN.toFixed(1).replace('.', ',')} N`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Relación de desmultiplicación (Rp)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `1:${relacionPedal}`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'coeficiente de fricción (µF)' }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: coefFriccion.toString().replace('.', ','),
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: 'Radio del neumático',
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text:
+                      newradioNeumatico
+                        .toFixed(5)
+                        .toString()
+                        .replace('.', ',') + ' m',
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaDatosManualReformado);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Se ha mantenido original todo el circuito del líquido de frenos',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocidos todos los datos, empezamos a realizar los cálculos.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para conocer la influencia de la maneta de freno sobre el sistema, cabe resaltar que la maneta es un elemento amplificador de la fuerza que ejerce el conductor. Las ecuaciones que se muestran a continuación son para un sistema de frenado sin servofreno. Por lo tanto, para conocer el valor de la fuerza que se ejerce sobre el sistema se emplea la siguiente expresión, donde se puede apreciar como la fuerza aplicada por el conductor (',
+            }),
+            new TextRun({ text: 'Fep', italics: true }),
+            new TextRun({
+              text: ') se multiplica por la relación de la maneta (',
+            }),
+            new TextRun({ text: 'Rp', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'SP', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'ep', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'p', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Lo primero que calculamos, es la fuerza de salida de la maneta (',
+            }),
+            new TextRun({ text: 'FSP', italics: true }),
+            new TextRun({ text: ') con la aplicación de la fuerza de ' }),
+            new TextRun({
+              text: fuerzaPedalN.toFixed(1).replace('.', ',') + ' N.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Nota: fuerzaSalidaFsp ya se calculó arriba (490.5 * 5 = 2452.5), se reutiliza
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'sp', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaSalidaFsp.toFixed(1).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza, calculamos la presión teórica de la bomba (',
+            }),
+            new TextRun({ text: 'PB', italics: true }),
+            new TextRun({
+              text: '). Suponemos que el líquido que se utiliza en el sistema de frenado es totalmente incompresible, y que los conductos del circuito hidráulico son totalmente rígidos.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Cálculos específicos para el SISTEMA REFORMADO
+      const newRadioBombaFrenos = newDiametroBomba / 2;
+      const newAreaBombaFrenos = Math.PI * Math.pow(newRadioBombaFrenos, 2);
+      const newPresionBombaFrenos = fuerzaSalidaFsp / newAreaBombaFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true, bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'SP', subScript: true }),
+            new TextRun({ text: ' / A', italics: true }),
+            new TextRun({ text: 'b', subScript: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newPresionBombaFrenos.toFixed(2).replace('.', ',') +
+                ' N/m²',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'Ab', italics: true }),
+            new TextRun({ text: ' el área del cilindro hidráulico.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Suponiendo que durante todo el recorrido del circuito hidráulico no existen perdidas, se extrae que la presión será igual en todos los puntos de este. Por ello, podemos afirmar que la presión de la salida del bombín de frenado es la misma que llega al pistón de pinza de frenos (PPF).',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true }),
+            new TextRun({ text: 'B', subScript: true, italics: true }),
+            new TextRun({ text: ' = P', italics: true }),
+            new TextRun({ text: 'PF', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'En el final del recorrido del circuito hidráulico, el líquido de frenos ejerce una presión sobre los pistones de la pinza de freno. Este último elemento es el encargado de generar y transformar esa presión hidráulica en fuerza mecánica lineal, que posteriormente se aplicará sobre las pastillas de freno.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocemos la presión que ejerce la pinza de frenos, podemos calcular la fuerza que se ejerce sobre la pastilla de frenos (',
+            }),
+            new TextRun({ text: 'FP', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' = Nº', bold: true }),
+            new TextRun({ text: 'PISTONES', subScript: true, bold: true }),
+            new TextRun({ text: ' * P', italics: true, bold: true }),
+            new TextRun({ text: 'PF', subScript: true, bold: true }),
+            new TextRun({ text: ' * A', italics: true, bold: true }),
+            new TextRun({ text: 'PP', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'APP', italics: true }),
+            new TextRun({ text: ' el área del pistón de la pinza.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Cálculos fuerza pistón REFORMADO
+      const newRadioPistonFrenos = newDimensionPiston / 2;
+      const newAreaPistonFrenos = Math.PI * Math.pow(newRadioPistonFrenos, 2);
+      const newFuerzaPistonFrenos =
+        newNumPistones * newPresionBombaFrenos * newAreaPistonFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newFuerzaPistonFrenos.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza generada por la presión hidráulica, la multiplicamos por el coeficiente de fricción que hay entre el disco y la pastilla (',
+            }),
+            new TextRun({ text: 'μF', italics: true }),
+            new TextRun({
+              text: '), y así conoceremos cual es la fuerza de fricción (',
+            }),
+            new TextRun({ text: 'FFF', italics: true }),
+            new TextRun({
+              text: ') que tenemos entre el disco y la pastilla.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las condiciones que tomamos para la realización de estos cálculos para un ',
+            }),
+            new TextRun({ text: 'μF=0,4', italics: true }),
+            new TextRun({
+              text: ' que pertenece al coeficiente de fricción entre un disco de acero y un juego de pastillas de compuesto orgánico.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' * μ', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaFriccionFrenos = newFuerzaPistonFrenos * coefFriccion;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newFuerzaFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Calculamos la fuerza total que generemos con la fuerza de fricción.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ` = ${(newNumDiscos ?? 0) * 1} * F`,
+              italics: true,
+              bold: true,
+            }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaTotalFriccionFrenos =
+        (newNumDiscos ?? 0) * 1 * newFuerzaFriccionFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newFuerzaTotalFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocida la fuerza de rozamiento, el siguiente paso es conocer los pares de frenado producidos por el contacto entre el disco y las pastillas.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({ text: ' = M * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'E', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'M', italics: true }),
+            new TextRun({ text: ' el número de pastillas en cada disco y ' }),
+            new TextRun({ text: 'RE', italics: true }),
+            new TextRun({ text: ' el radio efectivo del disco.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Par de frenado en una rueda trasera:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newRadioEfectivo = newRadioExt + (newRadioInt - newRadioExt) / 2;
+      console.log('newRadioEfectivo', newRadioEfectivo);
+      const newParFrenado = 1 * newFuerzaFriccionFrenos * newRadioEfectivo;
+      console.log('newParFrenado', newParFrenado);
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newParFrenado.toFixed(4).replace('.', ',') + ' Nm',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Al considerar que tanto el neumático como el disco de frenos están anclados al buje, que es el elemento del eje que permite el giro; el par en ambos será constante en todo momento. Por lo tanto, suponiendo que el par producido en el disco es el mismo que en los neumáticos, se crea una fuerza de reacción (fuerza de frenado (FFR)) que se genera en la calzada, producida por el contacto entre el neumático y el asfalto.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'FR', subScript: true, italics: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'N', italics: true }),
+            new TextRun({ text: 'F', subScript: true, italics: true }),
+            new TextRun({ text: ' / R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Donde ' }),
+            new TextRun({ text: 'R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+            new TextRun({ text: ' es el radio del neumático' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const newFuerzaReaccionFfr = newParFrenado / newradioNeumatico;
+
+      out.push(
+        new Paragraph({
+          text: 'Fuerza de frenado en una pinza:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FR', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newFuerzaReaccionFfr.toFixed(3).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado en las ruedas traseras (${pinzaMoto.numPinzasTraseras ?? 0 * 1} pinzas):`,
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaTotalFrenadoFtf =
+        (pinzaMoto.numPinzasTraseras ?? 0) * 1 * newFuerzaReaccionFfr;
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado (FTF) = ${(pinzaMoto.numPinzasTraseras ?? 0) * 1}*FFR`,
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text:
+                'FTF = ' +
+                newFuerzaTotalFrenadoFtf.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Podemos concluir que el sistema de frenado instalado es más eficaz que el que montaba el vehículo en origen ya que la Fuerza total de frenado es superior, por lo tanto ',
+            }),
+            new TextRun({
+              text: 'ES VÁLIDO.',
+              bold: true,
+              italics: true,
+              underline: {
+                type: UnderlineType.SINGLE,
+              },
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+    }
+
+    //Moto trasero
+    if (pinzaMoto && pinzaMoto.pastillaTrasera) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Freno Trasero',
+              bold: true,
+              size: 24,
+            }),
+          ],
+        }),
+      );
+      contador++;
+
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Sistema original (FRENOS DE DISCO)',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const diametroExt = pinzaMoto.ant_diametroExteriorDiscoTrasero ?? 0;
+      const diametroInt = pinzaMoto.ant_diametroInteriorDiscoTrasero ?? 0;
+      const radioExt = diametroExt / 2;
+      const radioInt = diametroInt / 2;
+      const diametroBomba = pinzaMoto.ant_diametroBombaTrasera ?? 0;
+      const diametroPiston = pinzaMoto.ant_dimensionPistonTrasera ?? 0;
+      const numPistones = pinzaMoto.ant_numPistonesTrasero ?? 0;
+      const numPinzas = pinzaMoto.ant_numPinzasTraseras ?? 0;
+      const numDiscos = pinzaMoto.ant_numDiscosTrasero ?? 0;
+
+      const tablaDimensiones = new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          ['Diámetro exterior (m) ØDET', diametroExt + ' m'],
+          ['Diámetro interior (m) ØDIT', diametroInt + ' m'],
+          ['Radio exterior (m) RDET', radioExt + ' m'],
+          ['Radio interior (m) RDIT', radioInt + ' m'],
+          ['Diámetro bomba', diametroBomba + 'm'],
+          ['Diámetro pistón', diametroPiston + 'm'],
+          ['Número de pistones por pinza', numPistones.toString()],
+          ['Nº de pinzas por rueda', numPinzas.toString()],
+          ['Nº de discos por rueda', numDiscos.toString()],
+        ].map(
+          ([label, val]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ text: label })],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: val,
+                      alignment: AlignmentType.RIGHT,
+                    }),
+                  ],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+              ],
+            }),
+        ),
+      });
+
+      out.push(tablaDimensiones);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para la realización del cálculo, aplicamos una fuerza de 50 kg en el pedal de freno. Del manual del vehículo obtenemos los siguientes datos:',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaPedalKg = 50;
+      const fuerzaPedalN = 490.5;
+      const relacionPedal = 5;
+      const coefFriccion = 0.4;
+      const radioNeumatico =
+        ((pinzaMoto.ant_radioNeumaticoDelantero ?? 0) * 25.4 +
+          2 *
+            (((pinzaMoto.ant_anchoNeumaticoDelantero ?? 0) *
+              (pinzaMoto.ant_perfilNeumaticoDelantero ?? 0)) /
+              100)) /
+        2 /
+        1000;
+      console.log('radioNeumatico', radioNeumatico);
+
+      const tablaDatosManual = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza ejercida en la maneta (Fep)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${fuerzaPedalKg} Kg -> ${fuerzaPedalN.toFixed(1).replace('.', ',')} N`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Relación de desmultiplicación (Rp)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `1:${relacionPedal}`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'coeficiente de fricción (µF)' }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: coefFriccion.toString().replace('.', ','),
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: 'Radio del neumático',
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text:
+                      radioNeumatico.toFixed(5).toString().replace('.', ',') +
+                      ' m',
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaDatosManual);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Se ha mantenido original todo el circuito del líquido de frenos',
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocidos todos los datos, empezamos a realizar los cálculos.',
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para conocer la influencia de el pedal de freno sobre el sistema, cabe resaltar que el pedal es un elemento amplificador de la fuerza que ejerce el conductor. Las ecuaciones que se muestran a continuación son para un sistema de frenado sin servofreno. Por lo tanto, para conocer el valor de la fuerza que se ejerce sobre el sistema se emplea la siguiente expresión, donde se puede apreciar como la fuerza aplicada por el conductor (',
+            }),
+            new TextRun({ text: 'Fep', italics: true }),
+            new TextRun({
+              text: ') se multiplica por la relación de el pedal (',
+            }),
+            new TextRun({ text: 'Rp', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'SP', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'ep', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'p', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Lo primero que calculamos, es la fuerza de salida del pedal (',
+            }),
+            new TextRun({ text: 'FSP', italics: true }),
+            new TextRun({ text: ') con la aplicación de la fuerza de ' }),
+            new TextRun({
+              text: fuerzaPedalN.toFixed(1).replace('.', ',') + ' N.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaSalidaFsp = fuerzaPedalN * relacionPedal;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'sp', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaSalidaFsp.toFixed(1).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza, calculamos la presión teórica de la bomba (',
+            }),
+            new TextRun({ text: 'PB', italics: true }),
+            new TextRun({
+              text: '). Suponemos que el líquido que se utiliza en el sistema de frenado es totalmente incompresible, y que los conductos del circuito hidráulico son totalmente rígidos.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const radioBombaFrenos = diametroBomba / 2;
+      const areaBombaFrenos = Math.PI * Math.pow(radioBombaFrenos, 2);
+
+      const presionBombaFrenos =
+        areaBombaFrenos > 0 ? fuerzaSalidaFsp / areaBombaFrenos : 0;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true, bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'SP', subScript: true }),
+            new TextRun({ text: ' / A', italics: true }),
+            new TextRun({ text: 'b', subScript: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                presionBombaFrenos.toFixed(2).replace('.', ',') +
+                ' N/m²',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'Ab', italics: true }),
+            new TextRun({ text: ' el área del cilindro hidráulico.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Suponiendo que durante todo el recorrido del circuito hidráulico no existen perdidas, se extrae que la presión será igual en todos los puntos de este. Por ello, podemos afirmar que la presión de la salida del bombín de frenado es la misma que llega al pistón de pinza de frenos (PPF).',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true }),
+            new TextRun({ text: 'B', subScript: true, italics: true }),
+            new TextRun({ text: ' = P', italics: true }),
+            new TextRun({ text: 'PF', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'En el final del recorrido del circuito hidráulico, el líquido de frenos ejerce una presión sobre los pistones de la pinza de freno. Este último elemento es el encargado de generar y transformar esa presión hidráulica en fuerza mecánica lineal, que posteriormente se aplicará sobre las pastillas de freno.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocemos la presión que ejerce la pinza de frenos, podemos calcular la fuerza que se ejerce sobre la pastilla de frenos (',
+            }),
+            new TextRun({ text: 'FP', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' = Nº', bold: true }),
+            new TextRun({ text: 'PISTONES', subScript: true, bold: true }),
+            new TextRun({ text: ' * P', italics: true, bold: true }),
+            new TextRun({ text: 'PF', subScript: true, bold: true }),
+            new TextRun({ text: ' * A', italics: true, bold: true }),
+            new TextRun({ text: 'PP', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'APP', italics: true }),
+            new TextRun({ text: ' el área del pistón de la pinza.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const radioPistonFrenos = diametroPiston / 2;
+      const areaPistonFrenos = Math.PI * Math.pow(radioPistonFrenos, 2);
+      const fuerzaPistonFrenos =
+        numPistones * presionBombaFrenos * areaPistonFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaPistonFrenos.toFixed(2) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza generada por la presión hidráulica, la multiplicamos por el coeficiente de fricción que hay entre el disco y la pastilla (',
+            }),
+            new TextRun({ text: 'μF', italics: true }),
+            new TextRun({
+              text: '), y así conoceremos cual es la fuerza de fricción (',
+            }),
+            new TextRun({ text: 'FFF', italics: true }),
+            new TextRun({
+              text: ') que tenemos entre el disco y la pastilla.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las condiciones que tomamos para la realización de estos cálculos para un ',
+            }),
+            new TextRun({ text: 'μF=0,4', italics: true }),
+            new TextRun({
+              text: ' que pertenece al coeficiente de fricción entre un disco de acero y un juego de pastillas de compuesto orgánico.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' * μ', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaFriccionFrenos = fuerzaPistonFrenos * coefFriccion;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Calculamos la fuerza total que generemos con la fuerza de fricción.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({ text: ' = 2 * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaTotalFriccionFrenos = 1 * fuerzaFriccionFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaTotalFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocida la fuerza de rozamiento, el siguiente paso es conocer los pares de frenado producidos por el contacto entre el disco y las pastillas.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({ text: ' = M * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'E', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'M', italics: true }),
+            new TextRun({ text: ' el número de pastillas en cada disco y ' }),
+            new TextRun({ text: 'RE', italics: true }),
+            new TextRun({ text: ' el radio efectivo del disco.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Par de frenado en una rueda delantera:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const radioEfectivo = radioInt + (radioExt - radioInt) / 2;
+      console.log('radioEfectivo revisar', radioEfectivo);
+      // Nota: En la imagen anterior Ftff = 2 * Fff. Y Nf se calcula usando esa fuerza total por el radio.
+      // Basado en los números: 29317 * 0.11425 = ~3349
+      const parFrenado = 2 * fuerzaFriccionFrenos * radioEfectivo;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + parFrenado.toFixed(4).replace('.', ',') + ' Nm',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Al considerar que tanto el neumático como el disco de frenos están anclados al buje, que es el elemento del eje que permite el giro; el par en ambos será constante en todo momento. Por lo tanto, suponiendo que el par producido en el disco es el mismo que en los neumáticos, se crea una fuerza de reacción (fuerza de frenado (FFR)) que se genera en la calzada, producida por el contacto entre el neumático y el asfalto.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'FR', subScript: true, italics: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'N', italics: true }),
+            new TextRun({ text: 'F', subScript: true, italics: true }),
+            new TextRun({ text: ' / R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Donde ' }),
+            new TextRun({ text: 'R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+            new TextRun({ text: ' es el radio del neumático' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const fuerzaReaccionFfr = parFrenado / radioNeumatico;
+
+      out.push(
+        new Paragraph({
+          text: 'Fuerza de frenado en una pinza:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FR', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' + fuerzaReaccionFfr.toFixed(4).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado en las rueda trasera (${(pinzaMoto.ant_numPinzasTraseras ?? 0) * 1} pinzas):`,
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaTotalFrenadoFtf =
+        (pinzaMoto.ant_numPinzasTraseras ?? 0) * 1 * fuerzaReaccionFfr;
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado (FTF) = ${(pinzaMoto.ant_numPinzasTraseras ?? 0) * 1}*FFR`,
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text:
+                'FTF = ' +
+                fuerzaTotalFrenadoFtf.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Sistema reformado (FRENOS DE DISCO)',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newDiametroExt = pinzaMoto.diametroExteriorDiscoTrasero ?? 0;
+      const newDiametroInt = pinzaMoto.diametroInteriorDiscoTrasero ?? 0;
+      const newRadioExt = newDiametroExt / 2;
+      const newRadioInt = newDiametroInt / 2;
+      const newDiametroBomba = pinzaMoto.diametroBombaDiscoTrasero ?? 0;
+      const newDimensionPiston = pinzaMoto.dimensionPistonDiscoTrasero ?? 0;
+      const newNumPistones = pinzaMoto.numPistonesDiscoTrasero ?? 0;
+      const newNumPinzas = pinzaMoto.numPinzasTraseras ?? 0;
+      const newNumDiscos = pinzaMoto.numDiscosTrasero ?? 0;
+
+      const newradioNeumatico =
+        ((pinzaMoto.radioNeumaticoDiscoTrasero ?? 0) * 25.4 +
+          2 *
+            (((pinzaMoto.perfilNeumaticoDiscoTrasero ?? 0) *
+              (pinzaMoto.anchoNeumaticoDiscoTrasero ?? 0)) /
+              100)) /
+        2 /
+        1000;
+      console.log('newradioNeumatico', newradioNeumatico);
+
+      const tablaReformado = new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          ['Diámetro exterior (m) ØDET', newDiametroExt + ' m'],
+          ['Diámetro interior (m) ØDIT', newDiametroInt + ' m'],
+          ['Radio exterior (m) RDET', newRadioExt + ' m'],
+          ['Radio interior (m) RDIT', newRadioInt + ' m'],
+          ['Diámetro bomba', newDiametroBomba + 'm'],
+          ['Diámetro pistón', newDimensionPiston + 'm'],
+          ['Número de pistones por pinza', newNumPistones.toString()],
+          ['Nº de pinzas por rueda', newNumPinzas.toString()],
+          ['Nº de discos por rueda', newNumDiscos.toString()],
+        ].map(
+          ([label, val]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ text: label })],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: val,
+                      alignment: AlignmentType.RIGHT,
+                    }),
+                  ],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+              ],
+            }),
+        ),
+      });
+
+      out.push(tablaReformado);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para la realización del cálculo, aplicamos una fuerza de 50 kg en el pedal de freno. Del manual del vehículo obtenemos los siguientes datos:',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const tablaDatosManualReformado = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza ejercida en el pedal (Fep)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${fuerzaPedalKg} Kg -> ${fuerzaPedalN.toFixed(1).replace('.', ',')} N`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Relación de desmultiplicación (Rp)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `1:${relacionPedal}`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'coeficiente de fricción (µF)' }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: coefFriccion.toString().replace('.', ','),
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: 'Radio del neumático',
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text:
+                      newradioNeumatico
+                        .toFixed(5)
+                        .toString()
+                        .replace('.', ',') + ' m',
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaDatosManualReformado);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Se ha mantenido original todo el circuito del líquido de frenos',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocidos todos los datos, empezamos a realizar los cálculos.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para conocer la influencia del pedal de freno sobre el sistema, cabe resaltar que el pedal es un elemento amplificador de la fuerza que ejerce el conductor. Las ecuaciones que se muestran a continuación son para un sistema de frenado sin servofreno. Por lo tanto, para conocer el valor de la fuerza que se ejerce sobre el sistema se emplea la siguiente expresión, donde se puede apreciar como la fuerza aplicada por el conductor (',
+            }),
+            new TextRun({ text: 'Fep', italics: true }),
+            new TextRun({
+              text: ') se multiplica por la relación del pedal (',
+            }),
+            new TextRun({ text: 'Rp', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'SP', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'ep', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'p', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Lo primero que calculamos, es la fuerza de salida del pedal (',
+            }),
+            new TextRun({ text: 'FSP', italics: true }),
+            new TextRun({ text: ') con la aplicación de la fuerza de ' }),
+            new TextRun({
+              text: fuerzaPedalN.toFixed(1).replace('.', ',') + ' N.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Nota: fuerzaSalidaFsp ya se calculó arriba (490.5 * 5 = 2452.5), se reutiliza
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'sp', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaSalidaFsp.toFixed(1).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza, calculamos la presión teórica de la bomba (',
+            }),
+            new TextRun({ text: 'PB', italics: true }),
+            new TextRun({
+              text: '). Suponemos que el líquido que se utiliza en el sistema de frenado es totalmente incompresible, y que los conductos del circuito hidráulico son totalmente rígidos.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Cálculos específicos para el SISTEMA REFORMADO
+      const newRadioBombaFrenos = newDiametroBomba / 2;
+      const newAreaBombaFrenos = Math.PI * Math.pow(newRadioBombaFrenos, 2);
+      const newPresionBombaFrenos = fuerzaSalidaFsp / newAreaBombaFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true, bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'SP', subScript: true }),
+            new TextRun({ text: ' / A', italics: true }),
+            new TextRun({ text: 'b', subScript: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newPresionBombaFrenos.toFixed(2).replace('.', ',') +
+                ' N/m²',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'Ab', italics: true }),
+            new TextRun({ text: ' el área del cilindro hidráulico.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Suponiendo que durante todo el recorrido del circuito hidráulico no existen perdidas, se extrae que la presión será igual en todos los puntos de este. Por ello, podemos afirmar que la presión de la salida del bombín de frenado es la misma que llega al pistón de pinza de frenos (PPF).',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true }),
+            new TextRun({ text: 'B', subScript: true, italics: true }),
+            new TextRun({ text: ' = P', italics: true }),
+            new TextRun({ text: 'PF', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'En el final del recorrido del circuito hidráulico, el líquido de frenos ejerce una presión sobre los pistones de la pinza de freno. Este último elemento es el encargado de generar y transformar esa presión hidráulica en fuerza mecánica lineal, que posteriormente se aplicará sobre las pastillas de freno.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocemos la presión que ejerce la pinza de frenos, podemos calcular la fuerza que se ejerce sobre la pastilla de frenos (',
+            }),
+            new TextRun({ text: 'FP', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' = Nº', bold: true }),
+            new TextRun({ text: 'PISTONES', subScript: true, bold: true }),
+            new TextRun({ text: ' * P', italics: true, bold: true }),
+            new TextRun({ text: 'PF', subScript: true, bold: true }),
+            new TextRun({ text: ' * A', italics: true, bold: true }),
+            new TextRun({ text: 'PP', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'APP', italics: true }),
+            new TextRun({ text: ' el área del pistón de la pinza.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Cálculos fuerza pistón REFORMADO
+      const newRadioPistonFrenos = newDimensionPiston / 2;
+      const newAreaPistonFrenos = Math.PI * Math.pow(newRadioPistonFrenos, 2);
+      const newFuerzaPistonFrenos =
+        newNumPistones * newPresionBombaFrenos * newAreaPistonFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newFuerzaPistonFrenos.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza generada por la presión hidráulica, la multiplicamos por el coeficiente de fricción que hay entre el disco y la pastilla (',
+            }),
+            new TextRun({ text: 'μF', italics: true }),
+            new TextRun({
+              text: '), y así conoceremos cual es la fuerza de fricción (',
+            }),
+            new TextRun({ text: 'FFF', italics: true }),
+            new TextRun({
+              text: ') que tenemos entre el disco y la pastilla.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las condiciones que tomamos para la realización de estos cálculos para un ',
+            }),
+            new TextRun({ text: 'μF=0,4', italics: true }),
+            new TextRun({
+              text: ' que pertenece al coeficiente de fricción entre un disco de acero y un juego de pastillas de compuesto orgánico.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' * μ', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaFriccionFrenos = newFuerzaPistonFrenos * coefFriccion;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newFuerzaFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Calculamos la fuerza total que generemos con la fuerza de fricción.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ` = ${(newNumDiscos ?? 0) * 1} * F`,
+              italics: true,
+              bold: true,
+            }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaTotalFriccionFrenos =
+        (newNumDiscos ?? 0) * 1 * newFuerzaFriccionFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newFuerzaTotalFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocida la fuerza de rozamiento, el siguiente paso es conocer los pares de frenado producidos por el contacto entre el disco y las pastillas.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({ text: ' = M * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'E', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'M', italics: true }),
+            new TextRun({ text: ' el número de pastillas en cada disco y ' }),
+            new TextRun({ text: 'RE', italics: true }),
+            new TextRun({ text: ' el radio efectivo del disco.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Par de frenado en una rueda trasera:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newRadioEfectivo = newRadioExt + (newRadioInt - newRadioExt) / 2;
+      console.log('newRadioEfectivo', newRadioEfectivo);
+      const newParFrenado = 1 * newFuerzaFriccionFrenos * newRadioEfectivo;
+      console.log('newParFrenado', newParFrenado);
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newParFrenado.toFixed(4).replace('.', ',') + ' Nm',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Al considerar que tanto el neumático como el disco de frenos están anclados al buje, que es el elemento del eje que permite el giro; el par en ambos será constante en todo momento. Por lo tanto, suponiendo que el par producido en el disco es el mismo que en los neumáticos, se crea una fuerza de reacción (fuerza de frenado (FFR)) que se genera en la calzada, producida por el contacto entre el neumático y el asfalto.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'FR', subScript: true, italics: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'N', italics: true }),
+            new TextRun({ text: 'F', subScript: true, italics: true }),
+            new TextRun({ text: ' / R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Donde ' }),
+            new TextRun({ text: 'R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+            new TextRun({ text: ' es el radio del neumático' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const newFuerzaReaccionFfr = newParFrenado / newradioNeumatico;
+
+      out.push(
+        new Paragraph({
+          text: 'Fuerza de frenado en una pinza:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FR', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newFuerzaReaccionFfr.toFixed(3).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado en las ruedas traseras (${pinzaMoto.numPinzasTraseras ?? 0 * 1} pinzas):`,
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaTotalFrenadoFtf =
+        (pinzaMoto.numPinzasTraseras ?? 0) * 1 * newFuerzaReaccionFfr;
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado (FTF) = ${(pinzaMoto.numPinzasTraseras ?? 0) * 1}*FFR`,
           alignment: AlignmentType.CENTER,
         }),
       );
@@ -2465,6 +6967,323 @@ export async function buildCalculos(
       out.push(tablaComprobacion);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+    }
+
+    const bombaFreno = modificaciones.find(
+      (m) => m.nombre === 'SUSTITUCIÓN DE BOMBA DE FRENO' && m.seleccionado,
+    );
+
+    if (bombaFreno) {
+      const procesarBomba = (tipo: string) => {
+        const isDelan = tipo === 'delantera';
+        const sufijo = isDelan ? 'Del' : 'Tras';
+        const etiqueta = isDelan ? 'Delantera' : 'Trasera';
+
+        const diametroNuevoMm =
+          Number((bombaFreno as any)[`diametroPistonBombaFreno${sufijo}`]) || 0;
+        const carreraNuevaMm =
+          Number((bombaFreno as any)[`carreraPistonBombaFreno${sufijo}`]) || 0;
+
+        const esIgualOriginal = (bombaFreno as any)[
+          `pistonIgualOriginalBombaFreno${sufijo}`
+        ];
+
+        let diametroOriginalMm = 0;
+        let carreraOriginalMm = 0;
+
+        if (esIgualOriginal) {
+          diametroOriginalMm = diametroNuevoMm;
+          carreraOriginalMm = carreraNuevaMm;
+        } else {
+          diametroOriginalMm =
+            Number(
+              (bombaFreno as any)[`ant_diametroPistonBombaFreno${sufijo}`],
+            ) || 0;
+          carreraOriginalMm =
+            Number(
+              (bombaFreno as any)[`ant_carreraPistonBombaFreno${sufijo}`],
+            ) || 0;
+        }
+
+        const dOrigCm = diametroOriginalMm / 10;
+        const lOrigCm = carreraOriginalMm / 10;
+        const dNewCm = diametroNuevoMm / 10;
+        const lNewCm = carreraNuevaMm / 10;
+
+        const volOrig = Math.PI * Math.pow(dOrigCm / 2, 2) * lOrigCm;
+        const volNew = Math.PI * Math.pow(dNewCm / 2, 2) * lNewCm;
+
+        out.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `2.3.${contador} Sustitución de Bomba de Freno ${etiqueta}`,
+                bold: true,
+                size: 24,
+              }),
+            ],
+          }),
+        );
+        contador++;
+
+        out.push(new Paragraph({ text: '' }));
+
+        out.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Procederemos a continuación al cálculo del volumen de líquido de freno desplazado por el pistón de la bomba nueva respecto a la de origen.',
+              }),
+            ],
+            alignment: AlignmentType.JUSTIFIED,
+          }),
+        );
+
+        out.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Para ello aplicaremos la siguiente fórmula:',
+              }),
+            ],
+          }),
+        );
+
+        out.push(new Paragraph({ text: '' }));
+
+        out.push(
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: 'V = π × ',
+                italics: true,
+                size: 24,
+              }),
+              new TextRun({
+                text: '(',
+                size: 28,
+              }),
+              new TextRun({
+                text: 'd',
+                italics: true,
+                size: 24,
+              }),
+              new TextRun({
+                text: '/2',
+                size: 24,
+              }),
+              new TextRun({
+                text: ')',
+                size: 28,
+              }),
+              new TextRun({
+                text: '2',
+                superScript: true,
+                size: 18,
+              }),
+              new TextRun({
+                text: ' × L',
+                italics: true,
+                size: 24,
+              }),
+            ],
+          }),
+        );
+
+        out.push(new Paragraph({ text: '' }));
+
+        out.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Donde:',
+                bold: true,
+              }),
+            ],
+          }),
+        );
+
+        out.push(
+          new Paragraph({
+            bullet: { level: 0 },
+            children: [
+              new TextRun({
+                text: 'd es el diámetro del pistón de la bomba (en cm).',
+              }),
+            ],
+          }),
+        );
+        out.push(
+          new Paragraph({
+            bullet: { level: 0 },
+            children: [
+              new TextRun({
+                text: 'L es la carrera del pistón (en cm).',
+              }),
+            ],
+          }),
+        );
+
+        out.push(new Paragraph({ text: '' }));
+
+        out.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Teniendo en cuenta los datos obtenidos de cada una de las bombas:',
+              }),
+            ],
+          }),
+        );
+
+        out.push(new Paragraph({ text: '' }));
+
+        const tablaCalculos = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({
+                  shading: { fill: 'D9D9D9' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'ESTADO', bold: true })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  shading: { fill: 'D9D9D9' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'D (cm)', bold: true })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  shading: { fill: 'D9D9D9' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'L (cm)', bold: true })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  shading: { fill: 'D9D9D9' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'V (cm³)', bold: true })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'ORIGINAL' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: dOrigCm.toFixed(2) })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: lOrigCm.toFixed(2) })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: volOrig.toFixed(2) })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'REFORMADO' })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: dNewCm.toFixed(2) })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: lNewCm.toFixed(2) })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: volNew.toFixed(2) })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        });
+
+        out.push(tablaCalculos);
+        out.push(new Paragraph({ text: '' }));
+
+        out.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Podemos asegurar que el sistema instalado es capaz de desplazar más volumen de líquido de freno en cada acción, por lo que se ha mejorado el sistema de freno del vehículo.',
+              }),
+            ],
+            alignment: AlignmentType.JUSTIFIED,
+          }),
+        );
+
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+      };
+
+      const ubicacion = bombaFreno.ubicacionBombaFreno;
+
+      if (ubicacion === 'delantera' || ubicacion === 'ambas') {
+        procesarBomba('delantera');
+      }
+
+      if (ubicacion === 'trasera' || ubicacion === 'ambas') {
+        procesarBomba('trasera');
+      }
     }
 
     const cabrestante = modificaciones.find(

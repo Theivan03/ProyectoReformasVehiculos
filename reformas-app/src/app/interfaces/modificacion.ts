@@ -895,4 +895,9 @@ export interface Modificacion {
   perfilNeumaticoDiscos?: number;
   anchoNeumaticoDiscos?: number;
   radioNeumaticoDiscos?: number;
+  diametroExteriorDiscoDelantero?: number;
+  diametroInteriorDiscoDelantero?: number;
+  diametroBombaDelantera?: number;
+  dimensionPistonDelantera?: number;
+  numPistonesDelantero?: number;
 }

@@ -515,9 +515,45 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
   onContinuar(form: NgForm): void {
     this.formSubmitted = true;
+
     if (form.invalid || this.formularioInvalido()) {
       return;
     }
+
+    // --- CORRECCIÓN: Mapeo de datos si es SOLO TRASEROS ---
+    this.modificacionesSeleccionadas.forEach((mod) => {
+      if (
+        mod.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO' &&
+        mod.ubicacionDiscos === 'traseros'
+      ) {
+        // Pasamos los datos que el usuario escribió en los campos "generales"
+        // a las variables "traseras" que espera el sistema.
+
+        // 1. Datos Identificativos
+        mod.marcaDiscoTrasero = mod.marcaDiscos;
+        mod.modeloDiscoTrasero = mod.modeloDiscos;
+        mod.referenciaDiscoTrasero = mod.referenciaDiscos;
+        mod.diametroDiscoTrasero = mod.diametroDiscos;
+        mod.espesorDiscoTrasero = mod.espesorDiscos;
+
+        // 2. Datos Técnicos
+        mod.numDiscosTrasero = mod.numDiscosDelantero;
+        mod.numPinzasTraseras = mod.numPinzasDelanteras;
+        mod.diametroExteriorDiscoTrasero = mod.diametroExteriorDiscos;
+        mod.diametroInteriorDiscoTrasero = mod.diametroInteriorDiscos;
+        mod.diametroBombaDiscoTrasero = mod.diametroBombaDiscos;
+        mod.dimensionPistonDiscoTrasero = mod.dimensionPistonDiscos;
+        mod.numPistonesDiscoTrasero = mod.numPistonesDiscos;
+        mod.anguloContactoDiscoTrasero = mod.anguloContactoDiscos;
+
+        // 3. Datos Neumáticos (Campos Extra)
+        mod.radioNeumaticoDiscoTrasero = mod.radioNeumaticoDiscos;
+        mod.anchoNeumaticoDiscoTrasero = mod.anchoNeumaticoDiscos;
+        mod.perfilNeumaticoDiscoTrasero = mod.perfilNeumaticoDiscos;
+      }
+    });
+    // ------------------------------------------------------
+
     this.continuar.emit(this.datosEntrada);
   }
 }

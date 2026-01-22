@@ -10200,6 +10200,83 @@
                         </div>
 
                         <div class="col-12">
+                          <h6
+                            class="text-secondary border-bottom pb-1 mb-2 small fw-bold"
+                          >
+                            DATOS PISTÓN NUEVO
+                          </h6>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Diámetro Pistón Nuevo"
+                              [(ngModel)]="mod.diametroPistonBombaFrenoDel"
+                              name="diametroPistonBombaFrenoDel{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                !mod.diametroPistonBombaFrenoDel
+                              "
+                            />
+                            <label>DIÁMETRO PISTÓN EN mm (NUEVO)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Carrera Pistón Nuevo"
+                              [(ngModel)]="mod.carreraPistonBombaFrenoDel"
+                              name="carreraPistonBombaFrenoDel{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !mod.carreraPistonBombaFrenoDel
+                              "
+                            />
+                            <label>CARRERA PISTÓN EN mm (NUEVO)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
+                          <h6
+                            class="text-secondary border-bottom pb-1 mb-2 small fw-bold"
+                          >
+                            DATOS PISTÓN ORIGINAL
+                          </h6>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Diámetro Pistón Original"
+                              [(ngModel)]="mod.ant_diametroPistonBombaFrenoDel"
+                              name="ant_diametroPistonBombaFrenoDel{{ i }}"
+                            />
+                            <label>DIÁMETRO PISTÓN EN mm (ORIGINAL)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Carrera Pistón Original"
+                              [(ngModel)]="mod.ant_carreraPistonBombaFrenoDel"
+                              name="ant_carreraPistonBombaFrenoDel{{ i }}"
+                            />
+                            <label>CARRERA PISTÓN EN mm (ORIGINAL)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
                           <div class="form-check form-switch">
                             <input
                               class="form-check-input"
@@ -10207,11 +10284,6 @@
                               id="pistonIgualDel{{ i }}"
                               [(ngModel)]="mod.pistonIgualOriginalBombaFrenoDel"
                               name="pistonIgualOriginalBombaFrenoDel{{ i }}"
-                              required
-                              [class.is-invalid]="
-                                formSubmitted &&
-                                !mod.pistonIgualOriginalBombaFrenoDel
-                              "
                             />
                             <label
                               class="form-check-label small"
@@ -10292,6 +10364,84 @@
                         </div>
 
                         <div class="col-12">
+                          <h6
+                            class="text-secondary border-bottom pb-1 mb-2 small fw-bold"
+                          >
+                            DATOS PISTÓN NUEVO
+                          </h6>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Diámetro Pistón Nuevo"
+                              [(ngModel)]="mod.diametroPistonBombaFrenoTras"
+                              name="diametroPistonBombaFrenoTras{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                !mod.diametroPistonBombaFrenoTras
+                              "
+                            />
+                            <label>DIÁMETRO PISTÓN EN mm (NUEVO)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Carrera Pistón Nuevo"
+                              [(ngModel)]="mod.carreraPistonBombaFrenoTras"
+                              name="carreraPistonBombaFrenoTras{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                !mod.carreraPistonBombaFrenoTras
+                              "
+                            />
+                            <label>CARRERA PISTÓN EN mm (NUEVO)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
+                          <h6
+                            class="text-secondary border-bottom pb-1 mb-2 small fw-bold"
+                          >
+                            DATOS PISTÓN ORIGINAL
+                          </h6>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Diámetro Pistón Original"
+                              [(ngModel)]="mod.ant_diametroPistonBombaFrenoTras"
+                              name="ant_diametroPistonBombaFrenoTras{{ i }}"
+                            />
+                            <label>DIÁMETRO PISTÓN EN mm (ORIGINAL)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Carrera Pistón Original"
+                              [(ngModel)]="mod.ant_carreraPistonBombaFrenoTras"
+                              name="ant_carreraPistonBombaFrenoTras{{ i }}"
+                            />
+                            <label>CARRERA PISTÓN EN mm (ORIGINAL)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
                           <div class="form-check form-switch">
                             <input
                               class="form-check-input"
@@ -10301,11 +10451,6 @@
                                 mod.pistonIgualOriginalBombaFrenoTras
                               "
                               name="pistonIgualOriginalBombaFrenoTras{{ i }}"
-                              required
-                              [class.is-invalid]="
-                                formSubmitted &&
-                                !mod.pistonIgualOriginalBombaFrenoTras
-                              "
                             />
                             <label
                               class="form-check-label small"
@@ -12361,6 +12506,48 @@
                                     <label class="small">ÁNGULO CONTACTO</label>
                                   </div>
                                 </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      placeholder="Radio Neumático"
+                                      [(ngModel)]="mod.radioNeumaticoDiscos"
+                                      name="radioNeumaticoDiscos{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >RADIO NEUMÁTICO (R)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Ancho Neumático"
+                                      [(ngModel)]="mod.anchoNeumaticoDiscos"
+                                      name="anchoNeumaticoDiscos{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >ANCHO NEUMÁTICO (mm)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Perfil Neumático"
+                                      [(ngModel)]="mod.perfilNeumaticoDiscos"
+                                      name="perfilNeumaticoDiscos{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >PERFIL NEUMÁTICO (%)</label
+                                    >
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -12382,9 +12569,6 @@
                                   [(ngModel)]="mod.marcaPastillaTrasera"
                                   name="marcaPastillaTrasera{{ i }}"
                                   required
-                                  [class.is-invalid]="
-                                    formSubmitted && !mod.marcaPastillaTrasera
-                                  "
                                 />
                                 <label>MARCA</label>
                               </div>
@@ -12396,10 +12580,6 @@
                                   [(ngModel)]="mod.referenciaPastillaTrasera"
                                   name="referenciaPastillaTrasera{{ i }}"
                                   required
-                                  [class.is-invalid]="
-                                    formSubmitted &&
-                                    !mod.referenciaPastillaTrasera
-                                  "
                                 />
                                 <label>REFERENCIA</label>
                               </div>
@@ -12493,8 +12673,10 @@
                                       type="number"
                                       class="form-control"
                                       placeholder="D. Bomba"
-                                      [(ngModel)]="mod.diametroBombaTrasera"
-                                      name="diametroBombaTrasera{{ i }}"
+                                      [(ngModel)]="
+                                        mod.diametroBombaDiscoTrasero
+                                      "
+                                      name="diametroBombaDiscoTrasero{{ i }}"
                                     />
                                     <label class="small">DIÁM. BOMBA</label>
                                   </div>
@@ -12505,8 +12687,10 @@
                                       type="number"
                                       class="form-control"
                                       placeholder="Dim. Pistón"
-                                      [(ngModel)]="mod.dimensionPistonTrasera"
-                                      name="dimensionPistonTrasera{{ i }}"
+                                      [(ngModel)]="
+                                        mod.dimensionPistonDiscoTrasero
+                                      "
+                                      name="dimensionPistonDiscoTrasero{{ i }}"
                                     />
                                     <label class="small">DIM. PISTÓN (m)</label>
                                   </div>
@@ -12517,8 +12701,8 @@
                                       type="number"
                                       class="form-control"
                                       placeholder="Nº Pist"
-                                      [(ngModel)]="mod.numPistonesTrasero"
-                                      name="numPistonesTrasero{{ i }}"
+                                      [(ngModel)]="mod.numPistonesDiscoTrasero"
+                                      name="numPistonesDiscoTrasero{{ i }}"
                                     />
                                     <label class="small"
                                       >Nº PIST. (x PINZA)</label
@@ -12539,311 +12723,419 @@
                                     <label class="small">ÁNGULO CONTACTO</label>
                                   </div>
                                 </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      placeholder="Radio Neumático"
+                                      [(ngModel)]="
+                                        mod.radioNeumaticoDiscoTrasero
+                                      "
+                                      name="radioNeumaticoDiscoTrasero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >RADIO NEUMÁTICO (R)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Ancho Neumático"
+                                      [(ngModel)]="
+                                        mod.anchoNeumaticoDiscoTrasero
+                                      "
+                                      name="anchoNeumaticoDiscoTrasero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >ANCHO NEUMÁTICO (mm)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Perfil Neumático"
+                                      [(ngModel)]="
+                                        mod.perfilNeumaticoDiscoTrasero
+                                      "
+                                      name="perfilNeumaticoDiscoTrasero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >PERFIL NEUMÁTICO (%)</label
+                                    >
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
                         }
                       </div>
+                    </div>
+                  }
 
-                      @if (mod.pastillaDelantera || mod.pastillaTrasera) {
-                        <div class="col-12 mt-4">
-                          <hr class="mod-sep mb-4" />
-                          <h5
-                            class="mb-3 fw-bold text-uppercase text-secondary"
-                          >
-                            Datos Técnicos Sistema Anterior
-                          </h5>
-                          <div class="row g-3">
-                            @if (mod.pastillaDelantera) {
-                              <div class="col-12 col-lg-6">
-                                <div class="p-3 border bg-light h-100">
-                                  <h6
-                                    class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
-                                  >
-                                    Eje Delantero (Original)
-                                  </h6>
-                                  <div class="row g-2">
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Nº Discos"
-                                          [(ngModel)]="
-                                            mod.ant_numDiscosDelantero
-                                          "
-                                          name="ant_numDiscosDelantero{{ i }}"
-                                        />
-                                        <label class="small">Nº DISCOS</label>
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Nº Pinzas"
-                                          [(ngModel)]="
-                                            mod.ant_numPinzasDelanteras
-                                          "
-                                          name="ant_numPinzasDelanteras{{ i }}"
-                                        />
-                                        <label class="small">Nº PINZAS</label>
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="D. Ext"
-                                          [(ngModel)]="
-                                            mod.ant_diametroExteriorDiscoDelantero
-                                          "
-                                          name="ant_diametroExteriorDiscoDelantero{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small"
-                                          >D.EXT DISCO (m)</label
-                                        >
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="D. Int"
-                                          [(ngModel)]="
-                                            mod.ant_diametroInteriorDiscoDelantero
-                                          "
-                                          name="ant_diametroInteriorDiscoDelantero{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small"
-                                          >D.INT DISCO (m)</label
-                                        >
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="D. Bomba"
-                                          [(ngModel)]="
-                                            mod.ant_diametroBombaDelantera
-                                          "
-                                          name="ant_diametroBombaDelantera{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small">DIÁM. BOMBA</label>
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Dim. Pistón"
-                                          [(ngModel)]="
-                                            mod.ant_dimensionPistonDelantera
-                                          "
-                                          name="ant_dimensionPistonDelantera{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small"
-                                          >DIM. PISTÓN (m)</label
-                                        >
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Nº Pist"
-                                          [(ngModel)]="
-                                            mod.ant_numPistonesDelantero
-                                          "
-                                          name="ant_numPistonesDelantero{{ i }}"
-                                        />
-                                        <label class="small"
-                                          >Nº PIST. (x PINZA)</label
-                                        >
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Ángulo"
-                                          [(ngModel)]="
-                                            mod.ant_anguloContactoDiscoDelantero
-                                          "
-                                          name="ant_anguloContactoDiscoDelantero{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small"
-                                          >ÁNGULO CONTACTO</label
-                                        >
-                                      </div>
-                                    </div>
+                  @if (mod.pastillaDelantera || mod.pastillaTrasera) {
+                    <div class="col-12 mt-4">
+                      <hr class="mod-sep mb-4" />
+                      <h5 class="mb-3 fw-bold text-uppercase text-secondary">
+                        Datos Técnicos Sistema Anterior
+                      </h5>
+                      <div class="row g-3">
+                        @if (mod.pastillaDelantera) {
+                          <div class="col-12 col-lg-6">
+                            <div class="p-3 border bg-light h-100">
+                              <h6
+                                class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                              >
+                                Eje Delantero (Original)
+                              </h6>
+                              <div class="row g-2">
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Nº Discos"
+                                      [(ngModel)]="mod.ant_numDiscosDelantero"
+                                      name="ant_numDiscosDelantero{{ i }}"
+                                    />
+                                    <label class="small">Nº DISCOS</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Nº Pinzas"
+                                      [(ngModel)]="mod.ant_numPinzasDelanteras"
+                                      name="ant_numPinzasDelanteras{{ i }}"
+                                    />
+                                    <label class="small">Nº PINZAS</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="D. Ext"
+                                      [(ngModel)]="
+                                        mod.ant_diametroExteriorDiscoDelantero
+                                      "
+                                      name="ant_diametroExteriorDiscoDelantero{{
+                                        i
+                                      }}"
+                                    />
+                                    <label class="small">D.EXT DISCO (m)</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="D. Int"
+                                      [(ngModel)]="
+                                        mod.ant_diametroInteriorDiscoDelantero
+                                      "
+                                      name="ant_diametroInteriorDiscoDelantero{{
+                                        i
+                                      }}"
+                                    />
+                                    <label class="small">D.INT DISCO (m)</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="D. Bomba"
+                                      [(ngModel)]="
+                                        mod.ant_diametroBombaDelantera
+                                      "
+                                      name="ant_diametroBombaDelantera{{ i }}"
+                                    />
+                                    <label class="small">DIÁM. BOMBA</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Dim. Pistón"
+                                      [(ngModel)]="
+                                        mod.ant_dimensionPistonDelantera
+                                      "
+                                      name="ant_dimensionPistonDelantera{{ i }}"
+                                    />
+                                    <label class="small">DIM. PISTÓN (m)</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Nº Pist"
+                                      [(ngModel)]="mod.ant_numPistonesDelantero"
+                                      name="ant_numPistonesDelantero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >Nº PIST. (x PINZA)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Ángulo"
+                                      [(ngModel)]="
+                                        mod.ant_anguloContactoDiscoDelantero
+                                      "
+                                      name="ant_anguloContactoDiscoDelantero{{
+                                        i
+                                      }}"
+                                    />
+                                    <label class="small">ÁNGULO CONTACTO</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      placeholder="Radio Neumático"
+                                      [(ngModel)]="
+                                        mod.ant_radioNeumaticoDelantero
+                                      "
+                                      name="ant_radioNeumaticoDelantero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >RADIO NEUMÁTICO (R)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Ancho Neumático"
+                                      [(ngModel)]="
+                                        mod.ant_anchoNeumaticoDelantero
+                                      "
+                                      name="ant_anchoNeumaticoDelantero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >ANCHO NEUMÁTICO (mm)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Perfil Neumático"
+                                      [(ngModel)]="
+                                        mod.ant_perfilNeumaticoDelantero
+                                      "
+                                      name="ant_perfilNeumaticoDelantero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >PERFIL NEUMÁTICO (%)</label
+                                    >
                                   </div>
                                 </div>
                               </div>
-                            }
-
-                            @if (mod.pastillaTrasera) {
-                              <div class="col-12 col-lg-6">
-                                <div class="p-3 border bg-light h-100">
-                                  <h6
-                                    class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
-                                  >
-                                    Eje Trasero (Original)
-                                  </h6>
-                                  <div class="row g-2">
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Nº Discos"
-                                          [(ngModel)]="mod.ant_numDiscosTrasero"
-                                          name="ant_numDiscosTrasero{{ i }}"
-                                        />
-                                        <label class="small">Nº DISCOS</label>
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Nº Pinzas"
-                                          [(ngModel)]="
-                                            mod.ant_numPinzasTraseras
-                                          "
-                                          name="ant_numPinzasTraseras{{ i }}"
-                                        />
-                                        <label class="small">Nº PINZAS</label>
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="D. Ext"
-                                          [(ngModel)]="
-                                            mod.ant_diametroExteriorDiscoTrasero
-                                          "
-                                          name="ant_diametroExteriorDiscoTrasero{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small"
-                                          >D.EXT DISCO (m)</label
-                                        >
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="D. Int"
-                                          [(ngModel)]="
-                                            mod.ant_diametroInteriorDiscoTrasero
-                                          "
-                                          name="ant_diametroInteriorDiscoTrasero{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small"
-                                          >D.INT DISCO (m)</label
-                                        >
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="D. Bomba"
-                                          [(ngModel)]="
-                                            mod.ant_diametroBombaTrasera
-                                          "
-                                          name="ant_diametroBombaTrasera{{ i }}"
-                                        />
-                                        <label class="small">DIÁM. BOMBA</label>
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Dim. Pistón"
-                                          [(ngModel)]="
-                                            mod.ant_dimensionPistonTrasera
-                                          "
-                                          name="ant_dimensionPistonTrasera{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small"
-                                          >DIM. PISTÓN (m)</label
-                                        >
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Nº Pist"
-                                          [(ngModel)]="
-                                            mod.ant_numPistonesTrasero
-                                          "
-                                          name="ant_numPistonesTrasero{{ i }}"
-                                        />
-                                        <label class="small"
-                                          >Nº PIST. (x PINZA)</label
-                                        >
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <div class="form-floating">
-                                        <input
-                                          type="number"
-                                          class="form-control"
-                                          placeholder="Ángulo"
-                                          [(ngModel)]="
-                                            mod.ant_anguloContactoDiscoTrasero
-                                          "
-                                          name="ant_anguloContactoDiscoTrasero{{
-                                            i
-                                          }}"
-                                        />
-                                        <label class="small"
-                                          >ÁNGULO CONTACTO</label
-                                        >
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            }
+                            </div>
                           </div>
-                        </div>
-                      }
+                        }
+
+                        @if (mod.pastillaTrasera) {
+                          <div class="col-12 col-lg-6">
+                            <div class="p-3 border bg-light h-100">
+                              <h6
+                                class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                              >
+                                Eje Trasero (Original)
+                              </h6>
+                              <div class="row g-2">
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Nº Discos"
+                                      [(ngModel)]="mod.ant_numDiscosTrasero"
+                                      name="ant_numDiscosTrasero{{ i }}"
+                                    />
+                                    <label class="small">Nº DISCOS</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Nº Pinzas"
+                                      [(ngModel)]="mod.ant_numPinzasTraseras"
+                                      name="ant_numPinzasTraseras{{ i }}"
+                                    />
+                                    <label class="small">Nº PINZAS</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="D. Ext"
+                                      [(ngModel)]="
+                                        mod.ant_diametroExteriorDiscoTrasero
+                                      "
+                                      name="ant_diametroExteriorDiscoTrasero{{
+                                        i
+                                      }}"
+                                    />
+                                    <label class="small">D.EXT DISCO (m)</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="D. Int"
+                                      [(ngModel)]="
+                                        mod.ant_diametroInteriorDiscoTrasero
+                                      "
+                                      name="ant_diametroInteriorDiscoTrasero{{
+                                        i
+                                      }}"
+                                    />
+                                    <label class="small">D.INT DISCO (m)</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="D. Bomba"
+                                      [(ngModel)]="mod.ant_diametroBombaTrasera"
+                                      name="ant_diametroBombaTrasera{{ i }}"
+                                    />
+                                    <label class="small">DIÁM. BOMBA</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Dim. Pistón"
+                                      [(ngModel)]="
+                                        mod.ant_dimensionPistonTrasera
+                                      "
+                                      name="ant_dimensionPistonTrasera{{ i }}"
+                                    />
+                                    <label class="small">DIM. PISTÓN (m)</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Nº Pist"
+                                      [(ngModel)]="mod.ant_numPistonesTrasero"
+                                      name="ant_numPistonesTrasero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >Nº PIST. (x PINZA)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Ángulo"
+                                      [(ngModel)]="
+                                        mod.ant_anguloContactoDiscoTrasero
+                                      "
+                                      name="ant_anguloContactoDiscoTrasero{{
+                                        i
+                                      }}"
+                                    />
+                                    <label class="small">ÁNGULO CONTACTO</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      placeholder="Radio Neumático"
+                                      [(ngModel)]="
+                                        mod.ant_radioNeumaticoTrasero
+                                      "
+                                      name="ant_radioNeumaticoTrasero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >RADIO NEUMÁTICO (R)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Ancho Neumático"
+                                      [(ngModel)]="
+                                        mod.ant_anchoNeumaticoTrasero
+                                      "
+                                      name="ant_anchoNeumaticoTrasero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >ANCHO NEUMÁTICO (mm)</label
+                                    >
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-floating">
+                                    <input
+                                      type="number"
+                                      class="form-control"
+                                      placeholder="Perfil Neumático"
+                                      [(ngModel)]="
+                                        mod.ant_perfilNeumaticoTrasero
+                                      "
+                                      name="ant_perfilNeumaticoTrasero{{ i }}"
+                                    />
+                                    <label class="small"
+                                      >PERFIL NEUMÁTICO (%)</label
+                                    >
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
                     </div>
                   }
                 </div>
