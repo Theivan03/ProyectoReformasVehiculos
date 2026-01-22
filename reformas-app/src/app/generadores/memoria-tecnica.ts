@@ -283,7 +283,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                 }),
               ],
               margins: { top: 150, bottom: 150, left: 150, right: 150 },
-            })
+            }),
         ),
       }),
       ...[
@@ -330,7 +330,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                 margins: { top: 150, bottom: 150, left: 150, right: 150 },
               }),
             ],
-          })
+          }),
       ),
     ],
   });
@@ -812,7 +812,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
     bold = false,
     widthPercent = 33,
     columnSpan?: number,
-    center?: boolean
+    center?: boolean,
   ): TableCell {
     if (center) {
       return new TableCell({
@@ -905,7 +905,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
             createCell(
               `${data.tipo} / ${data.variante} / ${data.version}`,
               false,
-              33
+              33,
             ),
           ],
         }),
@@ -944,11 +944,11 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
-                    }
+                    },
                   )
                 : '',
               false,
-              33
+              33,
             ),
           ],
         }),
@@ -1133,7 +1133,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
         spacing: { after: 240 },
         children: [
           new TextRun(
-            'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el MMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.'
+            'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el MMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.',
           ),
         ],
       }),
@@ -1317,7 +1317,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                   new Paragraph(
                     limpiarYParsear(data.masaRealDespues) !== null
                       ? (limpiarYParsear(data.masaRealDespues)! + 75).toString()
-                      : ''
+                      : '',
                   ),
                 ],
                 verticalAlign: AlignmentType.CENTER,
@@ -2366,7 +2366,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
         spacing: { before: 120, after: 120 },
         children: [
           new TextRun(
-            'A continuación realizaremos de nuevo el reparto de cargas teniendo en cuenta una carga vertical en el punto de acoplamiento de '
+            'A continuación realizaremos de nuevo el reparto de cargas teniendo en cuenta una carga vertical en el punto de acoplamiento de ',
           ),
           new TextRun({
             text: 'LO QUE MARQUE LA HOMOLOGACIÓN O 4% DE LA MMR',
@@ -3013,7 +3013,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
         spacing: { after: 240 },
         children: [
           new TextRun(
-            'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el PMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.'
+            'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el PMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.',
           ),
         ],
       }),
@@ -3045,7 +3045,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
           height: img.naturalHeight,
           mimeType: blob.type,
         };
-      })
+      }),
     );
 
     // 3) Párrafos iniciales
@@ -3108,9 +3108,9 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                       ],
                     }),
                   ],
-                })
+                }),
             ),
-          })
+          }),
         );
       }
 
@@ -3145,7 +3145,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                 ],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -3180,7 +3180,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                 ],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -3208,7 +3208,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
     // 1️⃣ Normalizas los File a Blob rotados
     const rawFiles = data.postImages as File[];
     const orientedBlobs = await Promise.all(
-      rawFiles.map((f) => normalizeOrientation(f))
+      rawFiles.map((f) => normalizeOrientation(f)),
     );
 
     // 2️⃣ Lees el arrayBuffer y guardas también el mimeType
@@ -3229,7 +3229,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
           height: img.naturalHeight,
           mimeType: blob.type,
         };
-      })
+      }),
     );
 
     // 3️⃣ Construye tabla con imágenes
@@ -3245,7 +3245,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
         const scaleL = Math.min(
           maxCellWidth / left.width,
           maxCellHeight / left.height,
-          1
+          1,
         );
         const wL = Math.round(left.width * scaleL);
         const hL = Math.round(left.height * scaleL);
@@ -3256,7 +3256,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
           const scaleR = Math.min(
             maxCellWidth / right.width,
             maxCellHeight / right.height,
-            1
+            1,
           );
           wR = Math.round(right.width * scaleR);
           hR = Math.round(right.height * scaleR);
@@ -3314,7 +3314,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                   : [new Paragraph('')],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -3383,7 +3383,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
             else reject('No se pudo generar Blob');
           }, file.type);
         },
-        { canvas: true, orientation: true }
+        { canvas: true, orientation: true },
       );
     });
   }
@@ -3396,7 +3396,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
     footers: { default: makeFooter() },
     children: [
       ...punto1_1MemoriaDescriptiva,
-      ...buildModificacionesParagraphs(modificaciones, data),
+      ...buildModificacionesParagraphs(modificaciones, data, false),
       ...punto1_2DatosVehiculo,
       ...parte2CalculosJustificativos,
       ...(await buildCalculos(data.modificaciones, data)),
@@ -3427,6 +3427,6 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
     blob,
     `${data.referenciaProyecto.replace('PTRV', 'MT') || ''} MEMORIA TECNICA ${
       data.marca
-    } ${data.modelo} ${data.matricula}.docx`
+    } ${data.modelo} ${data.matricula}.docx`,
   );
 }

@@ -135,7 +135,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     console.log(
       '--- DEBUG: ngOnInit disparado ---  datosEntrada en resumen modificaciones:',
-      this.datosEntrada
+      this.datosEntrada,
     );
     this.rebuild();
   }
@@ -155,7 +155,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (!Array.isArray(this.datosEntrada.modificaciones)) {
       console.error(
         'ERROR: datosEntrada.modificaciones NO es un array',
-        this.datosEntrada.modificaciones
+        this.datosEntrada.modificaciones,
       );
       this.modificacionesSeleccionadas = [];
       console.groupEnd();
@@ -171,19 +171,21 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m?.seleccionado === true || m?.seleccionado === 'true';
         if (isSelected) console.log('Elemento aceptado:', m.nombre);
         return isSelected;
-      }
+      },
     );
 
     console.log(
       'LONGITUD FINAL modificacionesSeleccionadas:',
-      this.modificacionesSeleccionadas.length
+      this.modificacionesSeleccionadas.length,
     );
 
     if (this.modificacionesSeleccionadas.length === 0) {
       console.warn('ALERTA: El array final está vacío.');
     }
 
+    // --- AQUÍ EMPIEZA LA INICIALIZACIÓN DE VARIABLES ---
     this.modificacionesSeleccionadas.forEach((m) => {
+      // 1. Lógica existente de Mobiliario
       if (m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
         if (m.diametroTornilloSeleccionado === undefined) {
           m.diametroTornilloSeleccionado = null;
@@ -193,16 +195,185 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         }
         if (m.diametroTornilloSeleccionado !== null) {
           const t = this.tornillosDB.find(
-            (x) => x.diametro === m.diametroTornilloSeleccionado
+            (x) => x.diametro === m.diametroTornilloSeleccionado,
           );
           if (t) m.areaResistenteTornilloSeleccionado = t.areaResistente;
         }
       }
 
+      // 2. Lógica existente de Instalación Eléctrica
       if (m.nombre === 'INSTALACIÓN ELÉCTRICA') {
         if (!Array.isArray(m.placasSolares)) {
           m.placasSolares = [];
         }
+      }
+
+      if (m.nombre === 'ALETINES Y SOBREALETINES') {
+        if (m.velocidadAireV2msAletines == null) {
+          m.velocidadAireV2msAletines = 38.89;
+        }
+        if (m.densidadAireKgM3Aletines == null) {
+          m.densidadAireKgM3Aletines = 1.29;
+        }
+        if (m.radioCurvaRAletines == null) {
+          m.radioCurvaRAletines = 800;
+        }
+        if (m.coefSeguridadKAletines == null) {
+          m.coefSeguridadKAletines = 3;
+        }
+        if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+          m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        }
+        if (m.seccionResistenteAsAletines == null) {
+          m.seccionResistenteAsAletines = 36.64;
+        }
+        if (!m.detalle) {
+          m.detalle = { aletines: false, sobrealetines: false };
+        }
+      }
+      if (m.nombre === 'CABRESTANTE') {
+        if (m.metricaCabrestante == null) {
+          m.metricaCabrestante = 80;
+        }
+        if (m.tensionMinCortanteKgCm2Cabrestante == null) {
+          m.tensionMinCortanteKgCm2Cabrestante = 3100;
+        }
+        if (m.tensionMinCortanteChasisKgCm2Cabrestante == null) {
+          m.tensionMinCortanteChasisKgCm2Cabrestante = 1948.06;
+        }
+        if (!m.detalle) {
+          m.detalle = { aletines: false, sobrealetines: false };
+        }
+      }
+      if (m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO') {
+        if (m.calidadTornilloLucesEspecificas == null) {
+          m.calidadTornilloLucesEspecificas = 8.8;
+        }
+        if (m.seccionResistenteAsLucesEspecificas == null) {
+          m.seccionResistenteAsLucesEspecificas = 36.64;
+        }
+        if (m.resTraccionMinTornillo88Kgmm2LucesEspecificas == null) {
+          m.resTraccionMinTornillo88Kgmm2LucesEspecificas = 80;
+        }
+        if (m.cwCoefAerodinamicoLucesEspecificas == null) {
+          m.cwCoefAerodinamicoLucesEspecificas = 0.82;
+        }
+        if (m.densidadAireKgM3LucesEspecificas == null) {
+          m.densidadAireKgM3LucesEspecificas = 1.29;
+        }
+        if (m.velocidadAireV2msLucesEspecificas == null) {
+          m.velocidadAireV2msLucesEspecificas = 38.89;
+        }
+        if (m.radioCurvaRLucesEspecificas == null) {
+          m.radioCurvaRLucesEspecificas = 800;
+        }
+        if (m.coefSeguridadKLucesEspecificas == null) {
+          m.coefSeguridadKLucesEspecificas = 3;
+        }
+        if (!m.detalle) {
+          m.detalle = { aletines: false, sobrealetines: false };
+        }
+      }
+
+      if (m.nombre === 'PARAGOLPES DELANTERO') {
+        m.seccionResistenteAsParagolpesDelantero = 36.64;
+
+        if (m.resTraccionMinTornillo88Kgmm2ParagolpesDelantero == null) {
+          m.resTraccionMinTornillo88Kgmm2ParagolpesDelantero = 80;
+        }
+        if (m.cwCoefAerodinamicoParagolpesDelantero == null) {
+          m.cwCoefAerodinamicoParagolpesDelantero = 0.82;
+        }
+        if (m.densidadAireKgM3ParagolpesDelantero == null) {
+          m.densidadAireKgM3ParagolpesDelantero = 1.29;
+        }
+        if (m.velocidadAireV2msParagolpesDelantero == null) {
+          m.velocidadAireV2msParagolpesDelantero = 38.89;
+        }
+        if (m.radioCurvaRParagolpesDelantero == null) {
+          m.radioCurvaRParagolpesDelantero = 800;
+        }
+        if (m.coefSeguridadKParagolpesDelantero == null) {
+          m.coefSeguridadKParagolpesDelantero = 3;
+        }
+        if (!m.detalle) {
+          m.detalle = { aletines: false, sobrealetines: false };
+        }
+      }
+
+      if (m.nombre === 'PARAGOLPES TRASERO') {
+        if (m.calidadTornilloParagolpesTrasero == null) {
+          m.calidadTornilloParagolpesTrasero = 8.8;
+        }
+        if (m.seccionResistenteAsParagolpesTrasero == null) {
+          m.seccionResistenteAsParagolpesTrasero = 36.64;
+        }
+        if (m.resTraccionMinTornillo88Kgmm2ParagolpesTrasero == null) {
+          m.resTraccionMinTornillo88Kgmm2ParagolpesTrasero = 80;
+        }
+        if (m.coefAerodinamicoParagolpesTrasero == null) {
+          m.coefAerodinamicoParagolpesTrasero = 0.82;
+        }
+        if (m.densidadAireKgM3ParagolpesTrasero == null) {
+          m.densidadAireKgM3ParagolpesTrasero = 1.29;
+        }
+        if (m.velocidadAireV2msParagolpesTrasero == null) {
+          m.velocidadAireV2msParagolpesTrasero = 38.89;
+        }
+        if (m.radioCurvaRParagolpesTrasero == null) {
+          m.radioCurvaRParagolpesTrasero = 800;
+        }
+        if (m.coefSeguridadKParagolpesTrasero == null) {
+          m.coefSeguridadKParagolpesTrasero = 3;
+        }
+        if (!m.detalle) {
+          m.detalle = { aletines: false, sobrealetines: false };
+        }
+      }
+
+      if (m.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
+        if (m.coefAerodinamicoEstribos == null) {
+          m.coefAerodinamicoEstribos = 0.82;
+        }
+        if (m.calidadTornilloEstribos == null) {
+          m.calidadTornilloEstribos = 8.8;
+        }
+        if (m.seccionResistenteAsEstribos == null) {
+          m.seccionResistenteAsEstribos = 36.64;
+        }
+        if (m.resTraccionMinTornillo88Kgmm2Estribos == null) {
+          m.resTraccionMinTornillo88Kgmm2Estribos = 80;
+        }
+        if (m.densidadAireKgM3Estribos == null) {
+          m.densidadAireKgM3Estribos = 1.29;
+        }
+        if (m.velocidadAireV2msEstribos == null) {
+          m.velocidadAireV2msEstribos = 38.89;
+        }
+        if (m.radioCurvaREstribos == null) {
+          m.radioCurvaREstribos = 800;
+        }
+        if (m.coefSeguridadKEstribos == null) {
+          m.coefSeguridadKEstribos = 3;
+        }
+        if (!m.detalle) {
+          m.detalle = { aletines: false, sobrealetines: false };
+        }
+      }
+
+      if (m.nombre === 'ALERÓN') {
+        if (!m.coefAerodinamicoCwAleron) m.coefAerodinamicoCwAleron = 0.82;
+        if (!m.velocidadAireV2msAleron) m.velocidadAireV2msAleron = 38.89;
+        if (!m.densidadAireKgM3Aleron) m.densidadAireKgM3Aleron = 1.29;
+        if (!m.coefSeguridadKAleron) m.coefSeguridadKAleron = 3;
+        if (m.curvaturaAleron == null) {
+          m.curvaturaAleron = 800;
+        }
+        if (!m.calidadTornilloAleron) m.calidadTornilloAleron = 8.8;
+        if (!m.resTraccionMinTornillo88Kgmm2Aleron)
+          m.resTraccionMinTornillo88Kgmm2Aleron = 80;
+        if (!m.seccionResistenteAsAleron) m.seccionResistenteAsAleron = 11.33;
+        if (!m.metricaAleron) m.metricaAleron = 4;
       }
     });
 
@@ -212,29 +383,48 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   getTornilloActivo(mod: any) {
     if (!mod?.diametroTornilloSeleccionado) return null;
     return this.tornillosDB.find(
-      (t) => t.diametro === mod.diametroTornilloSeleccionado
+      (t) => t.diametro === mod.diametroTornilloSeleccionado,
     );
   }
 
+  onFrenosChange(mod: any) {
+    if (mod.sonIguales) {
+      // Datos básicos
+      mod.marcaDiscoTrasero = mod.marcaDiscos;
+      mod.modeloDiscoTrasero = mod.modeloDiscos;
+      mod.referenciaDiscoTrasero = mod.referenciaDiscos;
+      mod.diametroDiscoTrasero = mod.diametroDiscos;
+      mod.espesorDiscoTrasero = mod.espesorDiscos;
+
+      // Datos de cálculo (Técnicos)
+      mod.numDiscosTrasero = mod.numDiscosDelantero; // NUEVO
+      mod.numPinzasTraseras = mod.numPinzasDelanteras; // NUEVO
+      mod.diametroExteriorDiscoTrasero = mod.diametroExteriorDiscos;
+      mod.diametroInteriorDiscoTrasero = mod.diametroInteriorDiscos;
+      mod.diametroBombaDiscoTrasero = mod.diametroBombaDiscos;
+      mod.dimensionPistonDiscoTrasero = mod.dimensionPistonDiscos;
+      mod.numPistonesDiscoTrasero = mod.numPistonesDiscos;
+      mod.anguloContactoDiscoTrasero = mod.anguloContactoDiscos;
+      mod.perfilNeumaticoDiscoTrasero = mod.perfilNeumaticoDiscos;
+      mod.anchoNeumaticoDiscoTrasero = mod.anchoNeumaticoDiscos;
+      mod.radioEfectivoDiscoTrasero = mod.radioEfectivoDiscos;
+    }
+  }
+
   onMetricaChange(mod: any) {
-    let as;
-    as = this.metricasAs[mod.metricaTalonera];
-    mod.seccionResistenteAsEstribos = as || null;
-
-    as = this.metricasAs[mod.metricaParaTrasero];
-    mod.seccionResistenteAsParagolpesTrasero = as || null;
-
-    as = this.metricasAs[mod.metricaLucesEspecificas];
-    mod.seccionResistenteAsLucesEspecificas = as || null;
-
-    as = this.metricasAs[mod.metricaSnorkel];
-    mod.seccionResistenteAsSnorkel = as || null;
-
-    as = this.metricasAs[mod.metricaParaDelantero];
-    mod.seccionResistenteAsParagolpesDelantero = as || null;
-
-    as = this.metricasAs[mod.metricaAletines];
-    mod.seccionResistenteAsAletines = as || null;
+    // let as;
+    // as = this.metricasAs[mod.metricaTalonera];
+    // mod.seccionResistenteAsEstribos = as || null;
+    // as = this.metricasAs[mod.metricaParaTrasero];
+    // mod.seccionResistenteAsParagolpesTrasero = as || null;
+    // as = this.metricasAs[mod.metricaLucesEspecificas];
+    // mod.seccionResistenteAsLucesEspecificas = as || null;
+    // as = this.metricasAs[mod.metricaSnorkel];
+    // mod.seccionResistenteAsSnorkel = as || null;
+    // as = this.metricasAs[mod.metricaParaDelantero];
+    // mod.seccionResistenteAsParagolpesDelantero = as || null;
+    // as = this.metricasAs[mod.metricaAletines];
+    // mod.seccionResistenteAsAletines = as || null;
   }
 
   getTornilloSeleccionado(diametro: number | null) {
@@ -259,7 +449,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     mod: any,
     sourceKey: string,
     targetWidthKey: string,
-    targetHeightKey: string
+    targetHeightKey: string,
   ) {
     const rawValue = mod[sourceKey];
     if (!rawValue || rawValue.trim() === '') {

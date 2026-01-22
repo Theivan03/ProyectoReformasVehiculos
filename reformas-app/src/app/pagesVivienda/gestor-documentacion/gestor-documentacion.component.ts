@@ -69,17 +69,17 @@ export class GestorDocumentacionComponent implements OnInit {
     check_requiere_representacion: false,
     check_firma_digital_disponible: false,
 
-    titular_nombre: 'Ivan',
-    titular_apellidos: 'Cabrera Reig',
-    titular_dni_nif: '74018543N',
-    titular_tipo_via: 'avenida',
-    titular_nombre_via: 'Mediterráneo',
-    titular_numero: '2',
-    titular_piso: '1',
-    titular_puerta: 'B',
-    titular_codigo_postal: '03725',
-    titular_poblacion: 'Teulada',
-    titular_provincia: 'Alicante',
+    titular_nombre: '',
+    titular_apellidos: '',
+    titular_dni_nif: '',
+    titular_tipo_via: '',
+    titular_nombre_via: '',
+    titular_numero: '',
+    titular_piso: '',
+    titular_puerta: '',
+    titular_codigo_postal: '',
+    titular_poblacion: '',
+    titular_provincia: 'Alcante',
 
     existe_interesado_representante: false,
     interesada_nombre: '',
@@ -87,17 +87,17 @@ export class GestorDocumentacionComponent implements OnInit {
     interesada_dni_nif: '',
 
     vivienda_direccion_completa: '',
-    vivienda_referencia_catastral: '123456789',
-    vivienda_tipo_via: 'avenida',
-    vivienda_nombre_via: 'Mediterráneo',
-    vivienda_numero: '2',
-    vivienda_piso: '1',
-    vivienda_puerta: 'B',
-    vivienda_codigo_postal: '03725',
-    vivienda_poblacion: 'Teulada',
-    vivienda_provincia: 'Alicante',
-    vivienda_tipo_suelo: 'urbano',
-    vivienda_ano_construccion: 1990,
+    vivienda_referencia_catastral: '',
+    vivienda_tipo_via: '',
+    vivienda_nombre_via: '',
+    vivienda_numero: '',
+    vivienda_piso: '',
+    vivienda_puerta: '',
+    vivienda_codigo_postal: '',
+    vivienda_poblacion: '',
+    vivienda_provincia: '',
+    vivienda_tipo_suelo: '',
+    vivienda_ano_construccion: 0,
     vivienda_superficie_total: 0,
     vivienda_superficie_construida: 0,
     vivienda_superficie_util: 0,
@@ -106,21 +106,21 @@ export class GestorDocumentacionComponent implements OnInit {
     vivienda_empresa_agua: 'Ayuntamiento',
     vivienda_empresa_luz: 'Iberdrola',
     vivienda_empresa_basura: 'Ayuntamiento',
-    vivienda_lindero_frente: 'Vivienda',
-    vivienda_lindero_fondo: 'Vivienda',
-    vivienda_lindero_derecha: 'Vivienda',
-    vivienda_lindero_izquierda: 'Vivienda',
-    vivienda_lindero_arriba: 'Vivienda',
-    vivienda_lindero_abajo: 'Vivienda',
-    vivienda_num_arrendatarios: 2,
-    vivienda_nombre_registro_propiedad: 'Jávea 2',
-    vivienda_cru: '12345',
-    vivienda_fecha_ultima_compra: '20/10/2000',
-    vivienda_codigo_seguridad_icu: '123456789',
-    vivienda_fecha_emision_icu: '11/12/2025',
+    vivienda_lindero_frente: '',
+    vivienda_lindero_fondo: '',
+    vivienda_lindero_derecha: '',
+    vivienda_lindero_izquierda: '',
+    vivienda_lindero_arriba: '',
+    vivienda_lindero_abajo: '',
+    vivienda_num_arrendatarios: 0,
+    vivienda_nombre_registro_propiedad: '',
+    vivienda_cru: '',
+    vivienda_fecha_ultima_compra: '',
+    vivienda_codigo_seguridad_icu: '',
+    vivienda_fecha_emision_icu: '',
     vivienda_es_estudio: false,
-    vivienda_cantidad_dormitorios: 1,
-    vivienda_numero_vt: '123',
+    vivienda_cantidad_dormitorios: 0,
+    vivienda_numero_vt: '',
 
     tecnico_arquitecto_seleccionado: null as any,
     tecnico_ingeniero_seleccionado: null as any,
@@ -138,7 +138,7 @@ export class GestorDocumentacionComponent implements OnInit {
 
     firma_cliente_imagen: '',
 
-    estado_general_expediente: 'empezado',
+    estado_general_expediente: 'sin empezar',
 
     estado_fase_ccu: 'sin empezar',
     estado_fase_segunda_ocupacion: 'sin empezar',
@@ -517,6 +517,38 @@ export class GestorDocumentacionComponent implements OnInit {
       await this.documentoService.generarRepresentacionCCU2ocu(
         this.datosGlobales_gestor,
         frase
+      );
+      this.isLoading = false;
+    } catch (err) {
+      console.error(err);
+      alert('Error al generar archivo.');
+      this.isLoading = false;
+    }
+  }
+
+  async generarCertificadoSegundaOcupacion() {
+    this.isLoading = true;
+    try {
+      await this.documentoService.generarCertificadoSegundaOcupacion(
+        this.datosGlobales_gestor
+      );
+      this.isLoading = false;
+    } catch (err) {
+      console.error(err);
+      alert('Error al generar archivo.');
+      this.isLoading = false;
+    }
+  }
+
+  async generarCertificadoSegundaOcupacionV2() {
+    console.log(
+      'Generando certificado segunda ocupacion V2',
+      this.datosGlobales_gestor
+    );
+    this.isLoading = true;
+    try {
+      await this.documentoService.generarCertificadoSegundaOcupacionV2(
+        this.datosGlobales_gestor
       );
       this.isLoading = false;
     } catch (err) {

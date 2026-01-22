@@ -23,6 +23,7 @@ export class GeneradorDocumentosComponent implements OnInit {
 
   progreso: number = -1;
   isLoading = false;
+  tallerConProyecto: boolean | null = null;
 
   @Input() reformaData: any;
   @Output() volverAlFormulario = new EventEmitter<void>();
@@ -31,11 +32,12 @@ export class GeneradorDocumentosComponent implements OnInit {
     console.log('Modificaciones:', this.reformaData);
     buildModificacionesParagraphs(
       this.reformaData.modificaciones,
-      this.reformaData
+      this.reformaData,
+      true,
     );
   }
 
-  async generar(tipo: string): Promise<void> {
+  async generar(tipo: string, proyecto?: any): Promise<void> {
     switch (tipo) {
       case 'proyecto':
         this.isLoading = true;
@@ -43,7 +45,7 @@ export class GeneradorDocumentosComponent implements OnInit {
 
         try {
           const blobDocx: Blob = await generarDocumentoProyecto(
-            this.reformaData
+            this.reformaData,
           );
           const nombreBase =
             `${this.reformaData.referenciaProyecto} PROYECTO ` +
@@ -63,7 +65,7 @@ export class GeneradorDocumentosComponent implements OnInit {
         break;
 
       case 'certificado-taller':
-        generarDocumentoTaller(this.reformaData);
+        generarDocumentoTaller(this.reformaData, proyecto);
         break;
 
       case 'memoria-tecnica':
@@ -154,7 +156,7 @@ export class GeneradorDocumentosComponent implements OnInit {
           console.error('Error guardando proyecto:', err);
           alert('Ha ocurrido un error al guardar el proyecto.');
           this.progreso = -1;
-        }
+        },
       );
   }
 

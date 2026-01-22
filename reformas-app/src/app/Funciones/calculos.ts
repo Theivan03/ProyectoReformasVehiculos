@@ -26,7 +26,7 @@ const CELL_MARGINS = {
 export async function buildCalculos(
   modificaciones: Modificacion[],
   data: any,
-  memoria?: boolean
+  memoria?: boolean,
 ): Promise<(Paragraph | Table)[]> {
   const out: (Paragraph | Table)[] = [];
 
@@ -45,7 +45,7 @@ export async function buildCalculos(
             bold: true,
           }),
         ],
-      })
+      }),
     );
 
     let contador = 1;
@@ -54,7 +54,7 @@ export async function buildCalculos(
       (m) =>
         m.nombre === 'ALETINES Y SOBREALETINES' &&
         m.seleccionado &&
-        m.detalle?.aletines
+        m.detalle?.aletines,
     );
     if (aletines) {
       out.push(new Paragraph({ text: '' }));
@@ -66,7 +66,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       contador++;
@@ -114,27 +114,30 @@ export async function buildCalculos(
           ...[
             [
               'Cw=Coef. Aerodinámico',
-              aletines.coefAerodinamicoCwAletines?.toString() ?? '---',
+              aletines.coefAerodinamicoCwAletines?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'A =área de la pieza (m²)',
-              aletines.superficieFrontalM2Aletines?.toString() ?? '---',
+              aletines.superficieFrontalM2Aletines?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'ρ (densidad del aire (Kg/m³)',
-              aletines.densidadAireKgM3Aletines?.toString() ?? '---',
+              aletines.densidadAireKgM3Aletines?.toFixed(2).toString() ?? '---',
             ],
             [
               'V² = velocidad del aire 140Km/h (m/s)',
-              aletines.velocidadAireV2msAletines?.toString() ?? '---',
+              aletines.velocidadAireV2msAletines?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'R (radio de curva) m',
-              aletines.radioCurvaRAletines?.toString() ?? '---',
+              aletines.radioCurvaRAletines?.toFixed(2).toString() ?? '---',
             ],
             [
               'K (coeficiente de seguridad)',
-              aletines.coefSeguridadKAletines?.toString() ?? '---',
+              aletines.coefSeguridadKAletines?.toFixed(2).toString() ?? '---',
             ],
           ].map(
             ([desc, val]) =>
@@ -155,7 +158,7 @@ export async function buildCalculos(
                     children: [new Paragraph(val)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -178,7 +181,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -200,17 +203,17 @@ export async function buildCalculos(
                       children: [new TextRun({ text: t })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              peso.toString() ?? '---',
-              fuerzafrenado.toString() ?? '---',
-              resistenciaaerodinamica.toString() ?? '---',
-              fuerzacentrifuga.toString() ?? '---',
-              sumadelasfuerzas.toString() ?? '---',
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
             ].map(
               (v) =>
                 new TableCell({
@@ -221,7 +224,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: v })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -268,17 +271,17 @@ export async function buildCalculos(
                       children: [new TextRun({ text: t, bold: true })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           // Data row: solo índices > 0 pintan verde, todos centrados
           new TableRow({
             cantSplit: true,
             children: [
-              fuerzadediseno.toString() ?? '---',
-              fuerzamaximatornillostraccion.toString() ?? '---',
-              fuerzamaximatornilloscortante.toString() ?? '---',
-              comprobacion.toString() ?? '---',
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
             ].map(
               (v, i) =>
                 new TableCell({
@@ -295,7 +298,1762 @@ export async function buildCalculos(
                       children: [new TextRun({ text: v })],
                     }),
                   ],
-                })
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
+    const frenos = modificaciones.find(
+      (m) => m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO' && m.seleccionado,
+    );
+
+    if (
+      frenos &&
+      (frenos.ubicacionDiscos === 'delanteros' ||
+        frenos.ubicacionDiscos === 'ambos')
+    ) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Frenos Delanteros',
+              bold: true,
+              size: 24,
+            }),
+          ],
+        }),
+      );
+      contador++;
+
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Sistema original (FRENOS DE DISCO)',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const diametroExt = frenos.ant_diametroExteriorDiscoDelantero ?? 0;
+      const diametroInt = frenos.ant_diametroInteriorDiscoDelantero ?? 0;
+      const radioExt = diametroExt / 2;
+      const radioInt = diametroInt / 2;
+      const diametroBomba = frenos.ant_diametroBombaDelantera ?? 0;
+      const diametroPiston = frenos.ant_dimensionPistonDelantera ?? 0;
+      const numPistones = frenos.ant_numPistonesDelantero ?? 0;
+      const numPinzas = frenos.ant_numPinzasDelanteras ?? 0;
+      const numDiscos = frenos.ant_numDiscosDelantero ?? 0;
+
+      const tablaDimensiones = new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          ['Diámetro exterior (m) ØDET', diametroExt + ' m'],
+          ['Diámetro interior (m) ØDIT', diametroInt + ' m'],
+          ['Radio exterior (m) RDET', radioExt + ' m'],
+          ['Radio interior (m) RDIT', radioInt + ' m'],
+          ['Diámetro bomba', diametroBomba + 'm'],
+          ['Diámetro pistón', diametroPiston + 'm'],
+          ['Número de pistones por pinza', numPistones.toString()],
+          ['Nº de pinzas por rueda', numPinzas.toString()],
+          ['Nº de discos por rueda', numDiscos.toString()],
+        ].map(
+          ([label, val]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ text: label })],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: val,
+                      alignment: AlignmentType.RIGHT,
+                    }),
+                  ],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+              ],
+            }),
+        ),
+      });
+
+      out.push(tablaDimensiones);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para la realización del cálculo, aplicamos una fuerza de 50 kg en el pedal de freno. Del manual del vehículo obtenemos los siguientes datos:',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaPedalKg = 50;
+      const fuerzaPedalN = 490.5;
+      const relacionPedal = 5;
+      const coefFriccion = 0.4;
+      const radioNeumatico =
+        ((frenos.ant_radioNeumaticoDelantero ?? 0) * 25.4 +
+          2 *
+            (((frenos.ant_perfilNeumaticoDelantero ?? 0) *
+              (frenos.ant_anchoNeumaticoDelantero ?? 0)) /
+              100)) /
+        2 /
+        1000;
+      console.log('radioNeumatico', radioNeumatico);
+
+      const tablaDatosManual = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza ejercida en el pedal (Fep)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${fuerzaPedalKg} Kg -> ${fuerzaPedalN.toFixed(1).replace('.', ',')} N`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Relación de desmultiplicación (Rp)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `1:${relacionPedal}`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'coeficiente de fricción (µF)' }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: coefFriccion.toString().replace('.', ','),
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: 'Radio del neumático',
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: radioNeumatico.toString().replace('.', ',') + ' m',
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaDatosManual);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Se ha mantenido original todo el circuito del líquido de frenos',
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocidos todos los datos, empezamos a realizar los cálculos.',
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para conocer la influencia del pedal de freno sobre el sistema, cabe resaltar que el pedal es un elemento amplificador de la fuerza que ejerce el conductor. Las ecuaciones que se muestran a continuación son para un sistema de frenado sin servofreno. Por lo tanto, para conocer el valor de la fuerza que se ejerce sobre el sistema se emplea la siguiente expresión, donde se puede apreciar como la fuerza aplicada por el conductor (',
+            }),
+            new TextRun({ text: 'Fep', italics: true }),
+            new TextRun({
+              text: ') se multiplica por la relación del pedal (',
+            }),
+            new TextRun({ text: 'Rp', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'SP', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'ep', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'p', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Lo primero que calculamos, es la fuerza de salida de la maneta (',
+            }),
+            new TextRun({ text: 'FSP', italics: true }),
+            new TextRun({ text: ') con la aplicación de la fuerza de ' }),
+            new TextRun({
+              text: fuerzaPedalN.toFixed(1).replace('.', ',') + ' N.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaSalidaFsp = fuerzaPedalN * relacionPedal;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'sp', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaSalidaFsp.toFixed(1).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza, calculamos la presión teórica de la bomba (',
+            }),
+            new TextRun({ text: 'PB', italics: true }),
+            new TextRun({
+              text: '). Suponemos que el líquido que se utiliza en el sistema de frenado es totalmente incompresible, y que los conductos del circuito hidráulico son totalmente rígidos.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const radioBombaFrenos = diametroBomba / 2;
+      const areaBombaFrenos = Math.PI * Math.pow(radioBombaFrenos, 2);
+
+      const presionBombaFrenos =
+        areaBombaFrenos > 0 ? fuerzaSalidaFsp / areaBombaFrenos : 0;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true, bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'SP', subScript: true }),
+            new TextRun({ text: ' / A', italics: true }),
+            new TextRun({ text: 'b', subScript: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                presionBombaFrenos.toFixed(2).replace('.', ',') +
+                ' N/m²',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'Ab', italics: true }),
+            new TextRun({ text: ' el área del cilindro hidráulico.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Suponiendo que durante todo el recorrido del circuito hidráulico no existen perdidas, se extrae que la presión será igual en todos los puntos de este. Por ello, podemos afirmar que la presión de la salida del bombín de frenado es la misma que llega al pistón de pinza de frenos (PPF).',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true }),
+            new TextRun({ text: 'B', subScript: true, italics: true }),
+            new TextRun({ text: ' = P', italics: true }),
+            new TextRun({ text: 'PF', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'En el final del recorrido del circuito hidráulico, el líquido de frenos ejerce una presión sobre los pistones de la pinza de freno. Este último elemento es el encargado de generar y transformar esa presión hidráulica en fuerza mecánica lineal, que posteriormente se aplicará sobre las pastillas de freno.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocemos la presión que ejerce la pinza de frenos, podemos calcular la fuerza que se ejerce sobre la pastilla de frenos (',
+            }),
+            new TextRun({ text: 'FP', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' = Nº', bold: true }),
+            new TextRun({ text: 'PISTONES', subScript: true, bold: true }),
+            new TextRun({ text: ' * P', italics: true, bold: true }),
+            new TextRun({ text: 'PF', subScript: true, bold: true }),
+            new TextRun({ text: ' * A', italics: true, bold: true }),
+            new TextRun({ text: 'PP', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'APP', italics: true }),
+            new TextRun({ text: ' el área del pistón de la pinza.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const radioPistonFrenos = diametroPiston / 2;
+      const areaPistonFrenos = Math.PI * Math.pow(radioPistonFrenos, 2);
+      const fuerzaPistonFrenos =
+        numPistones * presionBombaFrenos * areaPistonFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaPistonFrenos.toFixed(2) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza generada por la presión hidráulica, la multiplicamos por el coeficiente de fricción que hay entre el disco y la pastilla (',
+            }),
+            new TextRun({ text: 'μF', italics: true }),
+            new TextRun({
+              text: '), y así conoceremos cual es la fuerza de fricción (',
+            }),
+            new TextRun({ text: 'FFF', italics: true }),
+            new TextRun({
+              text: ') que tenemos entre el disco y la pastilla.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las condiciones que tomamos para la realización de estos cálculos para un ',
+            }),
+            new TextRun({ text: 'μF=0,4', italics: true }),
+            new TextRun({
+              text: ' que pertenece al coeficiente de fricción entre un disco de acero y un juego de pastillas de compuesto orgánico.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' * μ', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaFriccionFrenos = fuerzaPistonFrenos * coefFriccion;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Calculamos la fuerza total que generemos con la fuerza de fricción.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({ text: ' = 2 * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaTotalFriccionFrenos = 2 * fuerzaFriccionFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaTotalFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocida la fuerza de rozamiento, el siguiente paso es conocer los pares de frenado producidos por el contacto entre el disco y las pastillas.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({ text: ' = M * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'E', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'M', italics: true }),
+            new TextRun({ text: ' el número de pastillas en cada disco y ' }),
+            new TextRun({ text: 'RE', italics: true }),
+            new TextRun({ text: ' el radio efectivo del disco.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Par de frenado en una rueda delantera:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const radioEfectivo = radioInt + (radioExt - radioInt) / 2;
+      console.log('radioEfectivo revisar', radioEfectivo);
+      // Nota: En la imagen anterior Ftff = 2 * Fff. Y Nf se calcula usando esa fuerza total por el radio.
+      // Basado en los números: 29317 * 0.11425 = ~3349
+      const parFrenado = 2 * fuerzaFriccionFrenos * radioEfectivo;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + parFrenado.toFixed(4).replace('.', ',') + ' Nm',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Al considerar que tanto el neumático como el disco de frenos están anclados al buje, que es el elemento del eje que permite el giro; el par en ambos será constante en todo momento. Por lo tanto, suponiendo que el par producido en el disco es el mismo que en los neumáticos, se crea una fuerza de reacción (fuerza de frenado (FFR)) que se genera en la calzada, producida por el contacto entre el neumático y el asfalto.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'FR', subScript: true, italics: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'N', italics: true }),
+            new TextRun({ text: 'F', subScript: true, italics: true }),
+            new TextRun({ text: ' / R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Donde ' }),
+            new TextRun({ text: 'R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+            new TextRun({ text: ' es el radio del neumático' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const fuerzaReaccionFfr = parFrenado / radioNeumatico;
+
+      out.push(
+        new Paragraph({
+          text: 'Fuerza de frenado en una pinza:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FR', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' + fuerzaReaccionFfr.toFixed(4).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado en las ruedas delanteras (${(frenos.ant_numPinzasDelanteras ?? 0) * 2} pinzas):`,
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const fuerzaTotalFrenadoFtf =
+        (frenos.ant_numPinzasDelanteras ?? 0) * 2 * fuerzaReaccionFfr;
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado (FTF) = ${(frenos.ant_numPinzasDelanteras ?? 0) * 2}*FFR`,
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text:
+                'FTF = ' +
+                fuerzaTotalFrenadoFtf.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Sistema reformado (FRENOS DE DISCO)',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newDiametroExt = frenos.diametroExteriorDiscos ?? 0;
+      const newDiametroInt = frenos.diametroInteriorDiscos ?? 0;
+      const newRadioExt = newDiametroExt / 2;
+      const newRadioInt = newDiametroInt / 2;
+      const newDiametroBomba = frenos.diametroBombaDiscos ?? 0;
+      const newDimensionPiston = frenos.dimensionPistonDiscos ?? 0;
+      const newNumPistones = frenos.numPistonesDiscos ?? 0;
+      const newNumPinzas = frenos.numPinzasDelanteras ?? 0;
+      const newNumDiscos = frenos.numDiscosDelantero ?? 0;
+
+      const newradioNeumatico =
+        ((frenos.radioNeumaticoDiscos ?? 0) * 25.4 +
+          2 *
+            (((frenos.perfilNeumaticoDiscos ?? 0) *
+              (frenos.anchoNeumaticoDiscos ?? 0)) /
+              100)) /
+        2 /
+        1000;
+      console.log('newradioNeumatico', newradioNeumatico);
+
+      const tablaReformado = new Table({
+        width: { size: 60, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          ['Diámetro exterior (m) ØDET', newDiametroExt + ' m'],
+          ['Diámetro interior (m) ØDIT', newDiametroInt + ' m'],
+          ['Radio exterior (m) RDET', newRadioExt + ' m'],
+          ['Radio interior (m) RDIT', newRadioInt + ' m'],
+          ['Diámetro bomba', newDiametroBomba + 'm'],
+          ['Diámetro pistón', newDimensionPiston + 'm'],
+          ['Número de pistones por pinza', newNumPistones.toString()],
+          ['Nº de pinzas por rueda', newNumPinzas.toString()],
+          ['Nº de discos por rueda', newNumDiscos.toString()],
+        ].map(
+          ([label, val]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ text: label })],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      text: val,
+                      alignment: AlignmentType.RIGHT,
+                    }),
+                  ],
+                  borders: {
+                    top: { style: BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: BorderStyle.SINGLE, size: 1 },
+                    left: { style: BorderStyle.SINGLE, size: 1 },
+                    right: { style: BorderStyle.SINGLE, size: 1 },
+                  },
+                }),
+              ],
+            }),
+        ),
+      });
+
+      out.push(tablaReformado);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para la realización del cálculo, aplicamos una fuerza de 50 kg en el pedal de freno. Del manual del vehículo obtenemos los siguientes datos:',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const tablaDatosManualReformado = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        alignment: AlignmentType.CENTER,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza ejercida en el pedal (Fep)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${fuerzaPedalKg} Kg -> ${fuerzaPedalN.toFixed(1).replace('.', ',')} N`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: 'Relación de desmultiplicación (Rp)',
+                        italics: true,
+                      }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `1:${relacionPedal}`,
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'coeficiente de fricción (µF)' }),
+                    ],
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: coefFriccion.toString().replace('.', ','),
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: 'Radio del neumático',
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: newradioNeumatico.toString().replace('.', ',') + ' m',
+                    alignment: AlignmentType.RIGHT,
+                  }),
+                ],
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 1 },
+                  bottom: { style: BorderStyle.SINGLE, size: 1 },
+                  left: { style: BorderStyle.SINGLE, size: 1 },
+                  right: { style: BorderStyle.SINGLE, size: 1 },
+                },
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaDatosManualReformado);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Se ha mantenido original todo el circuito del líquido de frenos',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocidos todos los datos, empezamos a realizar los cálculos.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Para conocer la influencia del pedal de freno sobre el sistema, cabe resaltar que el pedal es un elemento amplificador de la fuerza que ejerce el conductor. Las ecuaciones que se muestran a continuación son para un sistema de frenado sin servofreno. Por lo tanto, para conocer el valor de la fuerza que se ejerce sobre el sistema se emplea la siguiente expresión, donde se puede apreciar como la fuerza aplicada por el conductor (',
+            }),
+            new TextRun({ text: 'Fep', italics: true }),
+            new TextRun({
+              text: ') se multiplica por la relación del pedal (',
+            }),
+            new TextRun({ text: 'Rp', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'SP', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'ep', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'p', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Lo primero que calculamos, es la fuerza de salida de la maneta (',
+            }),
+            new TextRun({ text: 'FSP', italics: true }),
+            new TextRun({ text: ') con la aplicación de la fuerza de ' }),
+            new TextRun({
+              text: fuerzaPedalN.toFixed(1).replace('.', ',') + ' N.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Nota: fuerzaSalidaFsp ya se calculó arriba (490.5 * 5 = 2452.5), se reutiliza
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'sp', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + fuerzaSalidaFsp.toFixed(1).replace('.', ',') + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza, calculamos la presión teórica de la bomba (',
+            }),
+            new TextRun({ text: 'PB', italics: true }),
+            new TextRun({
+              text: '). Suponemos que el líquido que se utiliza en el sistema de frenado es totalmente incompresible, y que los conductos del circuito hidráulico son totalmente rígidos.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Cálculos específicos para el SISTEMA REFORMADO
+      const newRadioBombaFrenos = newDiametroBomba / 2;
+      const newAreaBombaFrenos = Math.PI * Math.pow(newRadioBombaFrenos, 2);
+      const newPresionBombaFrenos = fuerzaSalidaFsp / newAreaBombaFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true, bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'SP', subScript: true }),
+            new TextRun({ text: ' / A', italics: true }),
+            new TextRun({ text: 'b', subScript: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', bold: true }),
+            new TextRun({ text: 'B', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newPresionBombaFrenos.toFixed(2).replace('.', ',') +
+                ' N/m²',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'Ab', italics: true }),
+            new TextRun({ text: ' el área del cilindro hidráulico.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Suponiendo que durante todo el recorrido del circuito hidráulico no existen perdidas, se extrae que la presión será igual en todos los puntos de este. Por ello, podemos afirmar que la presión de la salida del bombín de frenado es la misma que llega al pistón de pinza de frenos (PPF).',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'P', italics: true }),
+            new TextRun({ text: 'B', subScript: true, italics: true }),
+            new TextRun({ text: ' = P', italics: true }),
+            new TextRun({ text: 'PF', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'En el final del recorrido del circuito hidráulico, el líquido de frenos ejerce una presión sobre los pistones de la pinza de freno. Este último elemento es el encargado de generar y transformar esa presión hidráulica en fuerza mecánica lineal, que posteriormente se aplicará sobre las pastillas de freno.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocemos la presión que ejerce la pinza de frenos, podemos calcular la fuerza que se ejerce sobre la pastilla de frenos (',
+            }),
+            new TextRun({ text: 'FP', italics: true }),
+            new TextRun({ text: ').' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' = Nº', bold: true }),
+            new TextRun({ text: 'PISTONES', subScript: true, bold: true }),
+            new TextRun({ text: ' * P', italics: true, bold: true }),
+            new TextRun({ text: 'PF', subScript: true, bold: true }),
+            new TextRun({ text: ' * A', italics: true, bold: true }),
+            new TextRun({ text: 'PP', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'APP', italics: true }),
+            new TextRun({ text: ' el área del pistón de la pinza.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      // Cálculos fuerza pistón REFORMADO
+      const newRadioPistonFrenos = newDimensionPiston / 2;
+      const newAreaPistonFrenos = Math.PI * Math.pow(newRadioPistonFrenos, 2);
+      const newFuerzaPistonFrenos =
+        newNumPistones * newPresionBombaFrenos * newAreaPistonFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newFuerzaPistonFrenos.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Una vez conocida la fuerza generada por la presión hidráulica, la multiplicamos por el coeficiente de fricción que hay entre el disco y la pastilla (',
+            }),
+            new TextRun({ text: 'μF', italics: true }),
+            new TextRun({
+              text: '), y así conoceremos cual es la fuerza de fricción (',
+            }),
+            new TextRun({ text: 'FFF', italics: true }),
+            new TextRun({
+              text: ') que tenemos entre el disco y la pastilla.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Las condiciones que tomamos para la realización de estos cálculos para un ',
+            }),
+            new TextRun({ text: 'μF=0,4', italics: true }),
+            new TextRun({
+              text: ' que pertenece al coeficiente de fricción entre un disco de acero y un juego de pastillas de compuesto orgánico.',
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' = F', italics: true, bold: true }),
+            new TextRun({ text: 'P', subScript: true, bold: true }),
+            new TextRun({ text: ' * μ', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaFriccionFrenos = newFuerzaPistonFrenos * coefFriccion;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newFuerzaFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Calculamos la fuerza total que generemos con la fuerza de fricción.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true, bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ` = ${(newNumDiscos ?? 0) * 2} * F`,
+              italics: true,
+              bold: true,
+            }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaTotalFriccionFrenos =
+        (newNumDiscos ?? 0) * 2 * newFuerzaFriccionFrenos;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'TFF', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newFuerzaTotalFriccionFrenos.toFixed(0) + ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Una vez conocida la fuerza de rozamiento, el siguiente paso es conocer los pares de frenado producidos por el contacto entre el disco y las pastillas.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', italics: true, bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({ text: ' = M * F', italics: true, bold: true }),
+            new TextRun({ text: 'FF', subScript: true, bold: true }),
+            new TextRun({ text: ' * R', italics: true, bold: true }),
+            new TextRun({ text: 'E', subScript: true, bold: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Siendo ' }),
+            new TextRun({ text: 'M', italics: true }),
+            new TextRun({ text: ' el número de pastillas en cada disco y ' }),
+            new TextRun({ text: 'RE', italics: true }),
+            new TextRun({ text: ' el radio efectivo del disco.' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          text: 'Par de frenado en una rueda delantera:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newRadioEfectivo = newRadioExt + (newRadioInt - newRadioExt) / 2;
+      console.log('newRadioEfectivo', newRadioEfectivo);
+      const newParFrenado = 2 * newFuerzaFriccionFrenos * newRadioEfectivo;
+      console.log('newParFrenado', newParFrenado);
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N', bold: true }),
+            new TextRun({ text: 'F', subScript: true, bold: true }),
+            new TextRun({
+              text: ' = ' + newParFrenado.toFixed(4).replace('.', ',') + ' Nm',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: 'Al considerar que tanto el neumático como el disco de frenos están anclados al buje, que es el elemento del eje que permite el giro; el par en ambos será constante en todo momento. Por lo tanto, suponiendo que el par producido en el disco es el mismo que en los neumáticos, se crea una fuerza de reacción (fuerza de frenado (FFR)) que se genera en la calzada, producida por el contacto entre el neumático y el asfalto.',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', italics: true }),
+            new TextRun({ text: 'FR', subScript: true, italics: true }),
+            new TextRun({ text: ' = ' }),
+            new TextRun({ text: 'N', italics: true }),
+            new TextRun({ text: 'F', subScript: true, italics: true }),
+            new TextRun({ text: ' / R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Donde ' }),
+            new TextRun({ text: 'R', italics: true }),
+            new TextRun({ text: 'N', subScript: true, italics: true }),
+            new TextRun({ text: ' es el radio del neumático' }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+
+      const newFuerzaReaccionFfr = newParFrenado / newradioNeumatico;
+
+      out.push(
+        new Paragraph({
+          text: 'Fuerza de frenado en una pinza:',
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'F', bold: true }),
+            new TextRun({ text: 'FR', subScript: true, bold: true }),
+            new TextRun({
+              text:
+                ' = ' +
+                newFuerzaReaccionFfr.toFixed(3).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado en las ruedas delanteras (${frenos.numPinzasDelanteras ?? 0 * 2} pinzas):`,
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      const newFuerzaTotalFrenadoFtf =
+        (frenos.numPinzasDelanteras ?? 0) * 2 * newFuerzaReaccionFfr;
+
+      out.push(
+        new Paragraph({
+          text: `Fuerza total de frenado (FTF) = ${(frenos.numPinzasDelanteras ?? 0) * 2}*FFR`,
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text:
+                'FTF = ' +
+                newFuerzaTotalFrenadoFtf.toFixed(2).replace('.', ',') +
+                ' N',
+              bold: true,
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Podemos concluir que el sistema de frenado instalado es más eficaz que el que montaba el vehículo en origen ya que la Fuerza total de frenado es superior, por lo tanto ',
+            }),
+            new TextRun({
+              text: 'ES VÁLIDO.',
+              bold: true,
+              italics: true,
+              underline: {
+                type: UnderlineType.SINGLE,
+              },
+            }),
+          ],
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      );
+    }
+
+    const aleron = modificaciones.find(
+      (m) => m.nombre === 'ALERÓN' && m.seleccionado,
+    );
+    if (aleron) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Alerón',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      const superficiefrontal =
+        (aleron.alturaAleron ?? 0) * (aleron.anchuraAleron ?? 0);
+
+      const peso = 9.81 * (aleron.pesoAleron ?? 0);
+      const fuerzafrenado = (aleron.pesoAleron ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (aleron.coefAerodinamicoCwAleron ?? 0) *
+        (superficiefrontal ?? 0) *
+        (aleron.densidadAireKgM3Aleron ?? 0) *
+        (aleron.velocidadAireV2msAleron ?? 0) *
+        (aleron.velocidadAireV2msAleron ?? 0);
+      const fuerzacentrifuga =
+        (aleron.pesoAleron ?? 0) *
+        (((aleron.velocidadAireV2msAleron ?? 0) *
+          (aleron.velocidadAireV2msAleron ?? 0)) /
+          (aleron.curvaturaAleron ?? 0));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              aleron.coefAerodinamicoCwAleron?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              aleron.densidadAireKgM3Aleron?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              aleron.velocidadAireV2msAleron?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'R (radio de curva) m',
+              aleron.curvaturaAleron?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              aleron.coefSeguridadKAleron?.toFixed(2).toString() ?? '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (aleron.coefSeguridadKAleron ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (aleron.resTraccionMinTornillo88Kgmm2Aleron ?? 0) *
+          (aleron.seccionResistenteAsAleron ?? 0)) /
+          1.25) *
+        (aleron.numTornillosAletines ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (aleron.resTraccionMinTornillo88Kgmm2Aleron ?? 0) *
+          (aleron.seccionResistenteAsAleron ?? 0)) /
+          1.25) *
+        (aleron.numTornillosAletines ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          // Header row, con texto centrado
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          // Data row: solo índices > 0 pintan verde, todos centrados
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  // solo las celdas 1,2,3 llevan el fondo verde
+                  shading:
+                    i === 0
+                      ? undefined
+                      : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
             ),
           }),
         ],
@@ -309,7 +2067,7 @@ export async function buildCalculos(
     }
 
     const snorkel = modificaciones.find(
-      (m) => m.nombre === 'SNORKEL' && m.seleccionado
+      (m) => m.nombre === 'SNORKEL' && m.seleccionado,
     );
     if (snorkel) {
       out.push(new Paragraph({ text: '' }));
@@ -324,7 +2082,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       out.push(new Paragraph({ text: '' }));
@@ -379,33 +2137,36 @@ export async function buildCalculos(
           ...[
             [
               'Peso de la pieza en Kg',
-              snorkel.pesoPiezaKgSnorkel?.toString() ?? '---',
+              snorkel.pesoPiezaKgSnorkel?.toFixed(2).toString() ?? '---',
               'nº tornillos',
-              snorkel.nTornillosSnorkel?.toString() ?? '---',
+              snorkel.nTornillosSnorkel?.toFixed(2).toString() ?? '---',
             ],
             [
               'Anchura de la pieza en m',
-              snorkel.anchuraPiezaMSnorkel?.toString() ?? '---',
+              snorkel.anchuraPiezaMSnorkel?.toFixed(2).toString() ?? '---',
               'Métrica',
-              snorkel.metricaSnorkel?.toString() ?? '---',
+              snorkel.metricaSnorkel?.toFixed(2).toString() ?? '---',
             ],
             [
               'Altura de la pieza en m',
-              snorkel.alturaPiezaMSnorkel?.toString() ?? '---',
+              snorkel.alturaPiezaMSnorkel?.toFixed(2).toString() ?? '---',
               'Calidad',
-              snorkel.calidadTornilloSnorkel?.toString() ?? '---',
+              snorkel.calidadTornilloSnorkel?.toFixed(2).toString() ?? '---',
             ],
             [
               'Superficie frontal m²',
               superficiefrontal.toString() ?? '---',
               'As (Sección resistente)',
-              snorkel.seccionResistenteAsSnorkel?.toString() ?? '---',
+              snorkel.seccionResistenteAsSnorkel?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'Coef. aerodinámico',
-              snorkel.cwCoefAerodinamicoSnorkel?.toString() ?? '---',
+              snorkel.cwCoefAerodinamicoSnorkel?.toFixed(2).toString() ?? '---',
               'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              snorkel.resTraccionMinTornillo88Kgmm2Snorkel?.toString() ?? '---',
+              snorkel.resTraccionMinTornillo88Kgmm2Snorkel
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
           ].map(
             ([d1, v1, d2, v2]) =>
@@ -448,7 +2209,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -484,24 +2245,27 @@ export async function buildCalculos(
           ...[
             [
               'Cw=Coef. Aerodinámico',
-              snorkel.cwCoefAerodinamicoSnorkel?.toString() ?? '---',
+              snorkel.cwCoefAerodinamicoSnorkel?.toFixed(2).toString() ?? '---',
             ],
-            ['A =área de la pieza (m²)', superficiefrontal.toString() ?? '---'],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal.toFixed(2).toString() ?? '---',
+            ],
             [
               'ρ (densidad del aire (Kg/m³))',
-              snorkel.densidadAireKgM3Snorkel?.toString() ?? '---',
+              snorkel.densidadAireKgM3Snorkel?.toFixed(2).toString() ?? '---',
             ],
             [
               'V² = velocidad del aire 140Km/h (m/s)',
-              snorkel.velocidadAireV2msSnorkel?.toString() ?? '---',
+              snorkel.velocidadAireV2msSnorkel?.toFixed(2).toString() ?? '---',
             ],
             [
               'R (radio de curva) m',
-              snorkel.curvaturaSnorkel?.toString() ?? '---',
+              snorkel.curvaturaSnorkel?.toFixed(2).toString() ?? '---',
             ],
             [
               'K (coeficiente de seguridad)',
-              snorkel.coefSeguridadKSnorkel?.toString() ?? '---',
+              snorkel.coefSeguridadKSnorkel?.toFixed(2).toString() ?? '---',
             ],
           ].map(
             ([desc, val]) =>
@@ -527,7 +2291,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -572,7 +2336,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -594,17 +2358,17 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              peso.toString() ?? '---',
-              fuerzafrenado.toString() ?? '---',
-              resistenciaaerodinamica.toString() ?? '---',
-              fuerzacentrifuga.toString() ?? '---',
-              sumadelasfuerzas.toString() ?? '---',
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
@@ -615,7 +2379,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -666,17 +2430,17 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading, bold: true })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
 
           new TableRow({
             cantSplit: true,
             children: [
-              fuerzadediseno.toString() ?? '---',
-              fuerzamaximatornillostraccion.toString() ?? '---',
-              fuerzamaximatornilloscortante.toString() ?? '---',
-              comprobacion.toString() ?? '---',
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
             ].map(
               (val, i) =>
                 new TableCell({
@@ -692,7 +2456,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -704,7 +2468,7 @@ export async function buildCalculos(
     }
 
     const cabrestante = modificaciones.find(
-      (m) => m.nombre === 'CABRESTANTE' && m.seleccionado
+      (m) => m.nombre === 'CABRESTANTE' && m.seleccionado,
     );
     if (cabrestante) {
       // 1) Título de sección
@@ -717,7 +2481,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       out.push(new Paragraph({ text: '' }));
@@ -754,11 +2518,13 @@ export async function buildCalculos(
           ...[
             [
               'Tiro máx. del cabrestante (Kg)',
-              cabrestante.capacidadCabrestanteKg?.toString() ?? '---',
+              cabrestante.capacidadCabrestanteKg?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'Diámetro de cada perno (cm)',
-              cabrestante.diametroPernoCmCabrestante?.toString() ?? '---',
+              cabrestante.diametroPernoCmCabrestante?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'Material del perno',
@@ -766,8 +2532,9 @@ export async function buildCalculos(
             ],
             [
               'Tensión mín., rotura cortante acero (Kg/cm²)',
-              cabrestante.tensionMinCortanteKgCm2Cabrestante?.toString() ??
-                '---',
+              cabrestante.tensionMinCortanteKgCm2Cabrestante
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
           ].map(
             ([desc, val]) =>
@@ -791,7 +2558,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -837,11 +2604,14 @@ export async function buildCalculos(
           ...[
             [
               'Número de pernos',
-              cabrestante.nPernosChasisCabrestante?.toString() ?? '---',
+              cabrestante.nPernosChasisCabrestante?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'Diámetro de cada perno',
-              cabrestante.diametroPernoChasisMmCabrestante?.toString() ?? '---',
+              cabrestante.diametroPernoChasisMmCabrestante
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Material del perno',
@@ -849,8 +2619,9 @@ export async function buildCalculos(
             ],
             [
               'Tensión mín., rotura cortante acero',
-              cabrestante.tensionMinCortanteChasisKgCm2Cabrestante?.toString() ??
-                '---',
+              cabrestante.tensionMinCortanteChasisKgCm2Cabrestante
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Tensión cortante ejercida por el tiro del cabrestante sobre los pernos de unión a la estructura de soporte de éste (Kg/cm2)',
@@ -880,7 +2651,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -930,7 +2701,7 @@ export async function buildCalculos(
               text: 'La tensión cortante de rotura es inferior a la mínima tensión cortante de los pernos, por lo que el técnico que suscribe considera suficiente los anclajes elegidos para la aplicación de cargas a realizar.',
             }),
           ],
-        })
+        }),
       );
     }
 
@@ -939,7 +2710,7 @@ export async function buildCalculos(
 
     const soporteslucesespecificas = modificaciones.find(
       (m) =>
-        m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado
+        m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado,
     );
     if (soporteslucesespecificas) {
       // 1) Título dinámico basado en contador
@@ -951,7 +2722,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       out.push(new Paragraph({ text: '' }));
       contador++;
@@ -999,42 +2770,51 @@ export async function buildCalculos(
           ...[
             [
               'Peso de la pieza en Kg',
-              soporteslucesespecificas.pesoPiezaKgLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.pesoPiezaKgLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
               'nº tornillos',
-              soporteslucesespecificas.nTornillosLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.nTornillosLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Anchura de la pieza en m',
-              soporteslucesespecificas.anchuraPiezaMLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.anchuraPiezaMLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
               'Métrica',
-              soporteslucesespecificas.metricaLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.metricaLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Altura de la pieza en m',
-              soporteslucesespecificas.alturaPiezaMLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.alturaPiezaMLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
               'Calidad',
-              soporteslucesespecificas.calidadTornilloLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.calidadTornilloLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Superficie frontal m²',
-              superficiefrontal.toString() ?? '---',
+              superficiefrontal.toFixed(2).toString() ?? '---',
               'As (Sección resistente)',
-              soporteslucesespecificas.seccionResistenteAsLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.seccionResistenteAsLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Coef. aerodinámico',
-              soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
               'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
           ].map(
             ([d1, v1, d2, v2]) =>
@@ -1078,7 +2858,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1113,29 +2893,37 @@ export async function buildCalculos(
           ...[
             [
               'Cw=Coef. Aerodinámico',
-              soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
-            ['A =área de la pieza (m²)', superficiefrontal.toString() ?? '---'],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal.toFixed(2).toString() ?? '---',
+            ],
             [
               'ρ (densidad del aire (Kg/m³))',
-              soporteslucesespecificas.densidadAireKgM3LucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.densidadAireKgM3LucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'V² = velocidad del aire 140Km/h (m/s)',
-              soporteslucesespecificas.velocidadAireV2msLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.velocidadAireV2msLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'R (radio de curva) m',
-              soporteslucesespecificas.radioCurvaRLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.radioCurvaRLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'K (coeficiente de seguridad)',
-              soporteslucesespecificas.coefSeguridadKLucesEspecificas?.toString() ??
-                '---',
+              soporteslucesespecificas.coefSeguridadKLucesEspecificas
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
           ].map(
             ([desc, val]) =>
@@ -1161,7 +2949,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1211,17 +2999,17 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              peso.toString() ?? '---',
-              fuerzafrenado.toString() ?? '---',
-              resistenciaaerodinamica.toString() ?? '---',
-              fuerzacentrifuga.toString() ?? '---',
-              sumadelasfuerzas.toString() ?? '---',
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
@@ -1232,7 +3020,7 @@ export async function buildCalculos(
                       text: val,
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -1284,16 +3072,16 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              fuerzadediseno.toString() ?? '---',
-              fuerzamaximatornillostraccion.toString() ?? '---',
-              fuerzamaximatornilloscortante.toString() ?? '---',
-              comprobacion.toString() ?? '---',
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
@@ -1305,7 +3093,7 @@ export async function buildCalculos(
                       text: val,
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -1316,7 +3104,7 @@ export async function buildCalculos(
     }
 
     const paradelante = modificaciones.find(
-      (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado
+      (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado,
     );
     if (paradelante) {
       // 1) Título dinámico
@@ -1328,7 +3116,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       out.push(new Paragraph({ text: '' }));
       contador++;
@@ -1360,32 +3148,39 @@ export async function buildCalculos(
           ...[
             [
               'Cw=Coef. Aerodinámico',
-              paradelante.cwCoefAerodinamicoParagolpesDelantero?.toString() ??
-                '---',
+              paradelante.cwCoefAerodinamicoParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'A =área de la pieza (m²)',
-              paradelante.superficieFrontalM2ParagolpesDelantero?.toString() ??
-                '---',
+              paradelante.superficieFrontalM2ParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'ρ (densidad del aire (Kg/m³))',
-              paradelante.densidadAireKgM3ParagolpesDelantero?.toString() ??
-                '---',
+              paradelante.densidadAireKgM3ParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'V² = velocidad del aire 140Km/h (m/s)',
-              paradelante.velocidadAireV2msParagolpesDelantero?.toString() ??
-                '---',
+              paradelante.velocidadAireV2msParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'R (radio de curva) m',
-              paradelante.radioCurvaRParagolpesDelantero?.toString() ?? '---',
+              paradelante.radioCurvaRParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'K (coeficiente de seguridad)',
-              paradelante.coefSeguridadKParagolpesDelantero?.toString() ??
-                '---',
+              paradelante.coefSeguridadKParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
           ].map(
             ([desc, val]) =>
@@ -1411,7 +3206,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1458,23 +3253,23 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              peso.toString() ?? '---',
-              fuerzafrenado.toString() ?? '---',
-              resistenciaaerodinamica.toString() ?? '---',
-              fuerzacentrifuga.toString() ?? '---',
-              sumadelasfuerzas.toString() ?? '---',
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
                   margins: CELL_MARGINS,
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -1522,23 +3317,23 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              fuerzadediseno.toString() ?? '---',
-              fuerzamaximatornillostraccion.toString() ?? '---',
-              fuerzamaximatornilloscortante.toString() ?? '---',
-              comprobacion.toString() ?? '---',
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -1549,7 +3344,7 @@ export async function buildCalculos(
     }
 
     const paratras = modificaciones.find(
-      (m) => m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado
+      (m) => m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado,
     );
     if (paratras) {
       // 1) Título dinámico
@@ -1561,7 +3356,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       out.push(new Paragraph({ text: '' }));
       contador++;
@@ -1607,35 +3402,44 @@ export async function buildCalculos(
           ...[
             [
               'Peso de la pieza en Kg',
-              paratras.pesoPiezaKgParagolpesTrasero?.toString() ?? '---',
+              paratras.pesoPiezaKgParagolpesTrasero?.toFixed(2).toString() ??
+                '---',
               'nº tornillos',
-              paratras.nTornillosParagolpesTrasero?.toString() ?? '---',
+              paratras.nTornillosParagolpesTrasero?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'Anchura de la pieza en m',
-              paratras.anchuraMParagolpesTrasero?.toString() ?? '---',
+              paratras.anchuraMParagolpesTrasero?.toFixed(2).toString() ??
+                '---',
               'Métrica',
-              paratras.metricaParaTrasero?.toString() ?? '---',
+              paratras.metricaParaTrasero?.toFixed(2).toString() ?? '---',
             ],
             [
               'Altura de la pieza en m',
-              paratras.alturaMParagolpesTrasero?.toString() ?? '---',
+              paratras.alturaMParagolpesTrasero?.toFixed(2).toString() ?? '---',
               'Calidad',
-              paratras.calidadTornilloParagolpesTrasero?.toString() ?? '---',
+              paratras.calidadTornilloParagolpesTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Superficie frontal m²',
-              superficiefrontal.toString() ?? '---',
+              superficiefrontal.toFixed(2).toString() ?? '---',
               'As (Sección resistente)',
-              paratras.seccionResistenteAsParagolpesTrasero?.toString() ??
-                '---',
+              paratras.seccionResistenteAsParagolpesTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Coef. aerodinámico',
-              paratras.coefAerodinamicoParagolpesTrasero?.toString() ?? '---',
+              paratras.coefAerodinamicoParagolpesTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
               'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero?.toString() ??
-                '---',
+              paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
           ].map(
             ([d1, v1, d2, v2]) =>
@@ -1659,7 +3463,7 @@ export async function buildCalculos(
                     children: [new Paragraph(v2)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1693,24 +3497,35 @@ export async function buildCalculos(
           ...[
             [
               'Cw=Coef. Aerodinámico',
-              paratras.coefAerodinamicoParagolpesTrasero?.toString() ?? '---',
+              paratras.coefAerodinamicoParagolpesTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
-            ['A =área de la pieza (m²)', superficiefrontal.toString() ?? '---'],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal.toFixed(2).toString() ?? '---',
+            ],
             [
               'ρ (densidad del aire (Kg/m³))',
-              paratras.densidadAireKgM3ParagolpesTrasero?.toString() ?? '---',
+              paratras.densidadAireKgM3ParagolpesTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'V² = velocidad del aire 140Km/h (m/s)',
-              paratras.velocidadAireV2msParagolpesTrasero?.toString() ?? '---',
+              paratras.velocidadAireV2msParagolpesTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'R (radio de curva) m',
-              paratras.radioCurvaRParagolpesTrasero?.toString() ?? '---',
+              paratras.radioCurvaRParagolpesTrasero?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'K (coeficiente de seguridad)',
-              paratras.coefSeguridadKParagolpesTrasero?.toString() ?? '---',
+              paratras.coefSeguridadKParagolpesTrasero?.toFixed(2).toString() ??
+                '---',
             ],
           ].map(
             ([desc, val]) =>
@@ -1726,7 +3541,7 @@ export async function buildCalculos(
                     children: [new Paragraph(val)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1773,23 +3588,23 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading, bold: true })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              peso.toString() ?? '---',
-              fuerzafrenado.toString() ?? '---',
-              resistenciaaerodinamica.toString() ?? '---',
-              fuerzacentrifuga.toString() ?? '---',
-              sumadelasfuerzas.toString() ?? '---',
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
                   margins: CELL_MARGINS,
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -1837,23 +3652,23 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              fuerzadediseno.toString() ?? '---',
-              fuerzamaximatornillostraccion.toString() ?? '---',
-              fuerzamaximatornilloscortante.toString() ?? '---',
-              comprobacion.toString() ?? '---',
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -1864,7 +3679,7 @@ export async function buildCalculos(
     }
 
     const estribostaloneras = modificaciones.find(
-      (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado
+      (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado,
     );
     if (estribostaloneras) {
       // 1) Título dinámico
@@ -1876,7 +3691,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       out.push(new Paragraph({ text: '' }));
       contador++;
@@ -1923,35 +3738,44 @@ export async function buildCalculos(
           ...[
             [
               'Peso de la pieza en Kg',
-              estribostaloneras.pesoPiezaKgEstribos?.toString() ?? '---',
+              estribostaloneras.pesoPiezaKgEstribos?.toFixed(2).toString() ??
+                '---',
               'nº tornillos',
-              estribostaloneras.nTornillosEstribos?.toString() ?? '---',
+              estribostaloneras.nTornillosEstribos?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'Anchura de la pieza en m',
-              estribostaloneras.anchuraMEstribos?.toString() ?? '---',
+              estribostaloneras.anchuraMEstribos?.toFixed(2).toString() ??
+                '---',
               'Métrica',
-              estribostaloneras.metricaTalonera?.toString() ?? '---',
+              estribostaloneras.metricaTalonera?.toFixed(2).toString() ?? '---',
             ],
             [
               'Altura de la pieza en m',
-              estribostaloneras.alturaMEstribos?.toString() ?? '---',
+              estribostaloneras.alturaMEstribos?.toFixed(2).toString() ?? '---',
               'Calidad',
-              estribostaloneras.calidadTornilloEstribos?.toString() ?? '---',
+              estribostaloneras.calidadTornilloEstribos
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Superficie frontal m²',
-              superficiefrontal.toString() ?? '---',
+              superficiefrontal.toFixed(2).toString() ?? '---',
               'As (Sección resistente)',
-              estribostaloneras.seccionResistenteAsEstribos?.toString() ??
-                '---',
+              estribostaloneras.seccionResistenteAsEstribos
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Coef. aerodinámico',
-              estribostaloneras.coefAerodinamicoEstribos?.toString() ?? '---',
+              estribostaloneras.coefAerodinamicoEstribos
+                ?.toFixed(2)
+                .toString() ?? '---',
               'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos?.toString() ??
-                '---',
+              estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
           ].map(
             ([d1, v1, d2, v2]) =>
@@ -1975,7 +3799,7 @@ export async function buildCalculos(
                     children: [new Paragraph(v2)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -2009,24 +3833,35 @@ export async function buildCalculos(
           ...[
             [
               'Cw=Coef. Aerodinámico',
-              estribostaloneras.coefAerodinamicoEstribos?.toString() ?? '---',
+              estribostaloneras.coefAerodinamicoEstribos
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
-            ['A =área de la pieza (m²)', superficiefrontal.toString() ?? '---'],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal.toFixed(2).toString() ?? '---',
+            ],
             [
               'ρ (densidad del aire (Kg/m³))',
-              estribostaloneras.densidadAireKgM3Estribos?.toString() ?? '---',
+              estribostaloneras.densidadAireKgM3Estribos
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'V² = velocidad del aire 140Km/h (m/s)',
-              estribostaloneras.velocidadAireV2msEstribos?.toString() ?? '---',
+              estribostaloneras.velocidadAireV2msEstribos
+                ?.toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'R (radio de curva) m',
-              estribostaloneras.radioCurvaREstribos?.toString() ?? '---',
+              estribostaloneras.radioCurvaREstribos?.toFixed(2).toString() ??
+                '---',
             ],
             [
               'K (coeficiente de seguridad)',
-              estribostaloneras.coefSeguridadKEstribos?.toString() ?? '---',
+              estribostaloneras.coefSeguridadKEstribos?.toFixed(2).toString() ??
+                '---',
             ],
           ].map(
             ([desc, val]) =>
@@ -2042,7 +3877,7 @@ export async function buildCalculos(
                     children: [new Paragraph(val)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -2087,23 +3922,23 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              peso.toString() ?? '---',
-              fuerzafrenado.toString() ?? '---',
-              resistenciaaerodinamica.toString() ?? '---',
-              fuerzacentrifuga.toString() ?? '---',
-              sumadelasfuerzas.toString() ?? '---',
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
                   margins: CELL_MARGINS,
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -2151,23 +3986,23 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
             cantSplit: true,
             children: [
-              fuerzadediseno.toString() ?? '---',
-              fuerzamaximatornillostraccion.toString() ?? '---',
-              fuerzamaximatornilloscortante.toString() ?? '---',
-              comprobacion.toString() ?? '---',
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -2181,7 +4016,7 @@ export async function buildCalculos(
       (m) =>
         m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
         m.seleccionado &&
-        data.tipoVehiculo === 'camper'
+        data.tipoVehiculo === 'camper',
     );
     if (mobil) {
       // 1) Título centrado
@@ -2197,7 +4032,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       contador++;
 
@@ -2227,12 +4062,12 @@ export async function buildCalculos(
           }),
           // Filas de datos
           ...[
-            ['M.T.M.A. (Kg)', data.mmaAntes.toString() ?? '---'],
+            ['M.T.M.A. (Kg)', data.mmaAntes.toFixed(2).toString() ?? '---'],
             ['Velocidad máxima (Km/h)', '148'],
             ['Coeficiente de rozamiento', '0.6'],
             ['Aceleración de la gravedad (m/s²)', '9.8'],
             ['Deceleración ar = μ * g (m/s²)', '5.88'],
-            ['Tr = μ * Mt (Kg)', Tr.toString() ?? '---'],
+            ['Tr = μ * Mt (Kg)', Tr.toFixed(2).toString() ?? '---'],
           ].map(
             ([desc, val]) =>
               new TableRow({
@@ -2259,7 +4094,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -2278,7 +4113,7 @@ export async function buildCalculos(
 
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (modMobiliario) {
@@ -2337,7 +4172,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h, bold: true })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
 
@@ -2362,9 +4197,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text: val })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -2392,7 +4227,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: h })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           // Filas de propiedades
@@ -2421,9 +4256,9 @@ export async function buildCalculos(
                           children: [new TextRun({ text: val })],
                         }),
                       ],
-                    })
+                    }),
                 ),
-              })
+              }),
           ),
         ],
       });
@@ -2435,7 +4270,7 @@ export async function buildCalculos(
       function generarTablaNumTornillos(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -2459,7 +4294,7 @@ export async function buildCalculos(
         // Muebles bajos
         (modMobiliario.mueblesBajo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble bajo ${m.medidas}`,
+            desc: `Mueble bajo ${m.medidas.toFixed(2)}`,
             cantidad: m.tornillosMuebleBajo || '0',
           });
         });
@@ -2467,7 +4302,7 @@ export async function buildCalculos(
         // Muebles altos
         (modMobiliario.mueblesAlto || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble alto ${m.medidas}`,
+            desc: `Mueble alto ${m.medidas.toFixed(2)}`,
             cantidad: m.tornillosMuebleAlto || '0',
           });
         });
@@ -2475,7 +4310,7 @@ export async function buildCalculos(
         // Aseos
         (modMobiliario.mueblesAseo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Aseo ${m.medidas}`,
+            desc: `Aseo ${m.medidas.toFixed(2)}`,
             cantidad: m.tornillosMuebleAseo || '0',
           });
         });
@@ -2502,7 +4337,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -2528,7 +4363,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -2546,7 +4381,7 @@ export async function buildCalculos(
       function generarTablaPropsTornillo(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario || !modMobiliario.diametroTornilloSeleccionado) {
@@ -2593,9 +4428,9 @@ export async function buildCalculos(
                         children: [new TextRun({ text })],
                       }),
                     ],
-                  })
+                  }),
               ),
-            })
+            }),
         );
 
         return new Table({
@@ -2614,7 +4449,7 @@ export async function buildCalculos(
       function generarTablaFuerzaInercia(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -2689,7 +4524,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -2722,7 +4557,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -2743,7 +4578,7 @@ export async function buildCalculos(
       function generarTablaVerticales(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -2801,7 +4636,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -2821,8 +4656,8 @@ export async function buildCalculos(
             mueble.peso.toFixed(2), // Peso (kg)
             mueble.tornillos.toString(), // Nº tornillos
             pesoPorTornillo.toFixed(2), // Peso por tornillo
-            resistenciaCortadura.toString(), // Resistencia cortadura
-            resultado.toFixed(4), // Resultado
+            resistenciaCortadura.toFixed(2).toString(), // Resistencia cortadura
+            resultado.toFixed(2), // Resultado
           ];
 
           return new TableRow({
@@ -2838,7 +4673,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -2864,7 +4699,7 @@ export async function buildCalculos(
             bold: true,
           }),
         ],
-      })
+      }),
     );
     contador++;
 
@@ -2876,7 +4711,7 @@ export async function buildCalculos(
             text: 'Debido a los elementos sustituidos en la parte frontal del vehículo, no se produce variación alguna en la refrigeración del radiador ni en las condiciones termodinámicas del motor.',
           }),
         ],
-      })
+      }),
     );
 
     out.push(
@@ -2886,14 +4721,14 @@ export async function buildCalculos(
             text: 'Como podemos observar, podemos certificar que quedan libres las áreas de refrigeración del vehículo pudiendo afirmar que no habrá ningún problema en el rendimiento termodinámico del vehículo.',
           }),
         ],
-      })
+      }),
     );
 
     const mod = modificaciones.find(
       (m) =>
         m.nombre ===
           'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR' &&
-        m.seleccionado
+        m.seleccionado,
     )!;
 
     // 1) Muelles delanteros con referencia
@@ -2910,7 +4745,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       contador = 1;
@@ -2931,7 +4766,7 @@ export async function buildCalculos(
                 bold: true,
               }),
             ],
-          })
+          }),
         );
         contador++;
 
@@ -2962,9 +4797,9 @@ export async function buildCalculos(
             }),
             // Filas de datos
             ...[
-              ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
-              ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
-              ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
+              ['MMTA/MMA (Kg)', mod.mmtaTotalSuspension?.toString() ?? '---'],
+              ['MMTA/MMA eje 1', mod.mmta1EjeSuspension?.toString() ?? '---'],
+              ['MMTA/MMA eje 2', mod.mmta2EjeSuspension?.toString() ?? '---'],
             ].map(
               ([desc, val]) =>
                 new TableRow({
@@ -2991,7 +4826,7 @@ export async function buildCalculos(
                       ],
                     }),
                   ],
-                })
+                }),
             ),
           ],
         });
@@ -3022,7 +4857,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Filas
@@ -3051,9 +4886,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -3123,31 +4958,35 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Filas
             ...[
               [
                 'Diámetro exterior (Dext)',
-                mod.diametroExteriorDelanteroRef?.toString() ?? '---',
+                mod.diametroExteriorDelanteroRef?.toFixed(2).toString() ??
+                  '---',
               ],
               [
                 'Diámetro interior (Dint)',
-                diametrointerior.toString() ?? '---',
+                diametrointerior.toFixed(2).toString() ?? '---',
               ],
-              ['Diámetro medio (Dm)', diametromedio.toString() ?? '---'],
+              [
+                'Diámetro medio (Dm)',
+                diametromedio.toFixed(2).toString() ?? '---',
+              ],
               [
                 'Diámetro de espira (De)',
-                mod.diametroEspiraDelanteroRef?.toString() ?? '---',
+                mod.diametroEspiraDelanteroRef?.toFixed(2).toString() ?? '---',
               ],
               [
                 'Longitud libre (L0)',
-                mod.longitudLibreDelanteroRef?.toString() ?? '---',
+                mod.longitudLibreDelanteroRef?.toFixed(2).toString() ?? '---',
               ],
               [
                 'Número de espiras (n)',
-                mod.numeroEspirasDelanteroRef?.toString() ?? '---',
+                mod.numeroEspirasDelanteroRef?.toFixed(2).toString() ?? '---',
               ],
               ['Curvatura (C)', curvatura.toFixed(2).toString() ?? '---'],
               ['Rigidez (K) N/mm', K.toFixed(2).toString() ?? '---'],
@@ -3166,9 +5005,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -3188,7 +5027,8 @@ export async function buildCalculos(
                 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteDelantero = maxCortante * 2;
-          coefSeguridad = maxCortanteDelantero / (data.mmaEje1Despues * 9.81);
+          coefSeguridad =
+            maxCortanteDelantero / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
         }
 
         if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
@@ -3199,7 +5039,8 @@ export async function buildCalculos(
                 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteDelantero = maxCortante * 2;
-          coefSeguridad = maxCortanteDelantero / (data.mmaEje1Despues * 9.81);
+          coefSeguridad =
+            maxCortanteDelantero / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
         }
 
         // 5) Cálculo del esfuerzo máximo cortante (EMC) delanteros
@@ -3247,16 +5088,16 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
             new TableRow({
               cantSplit: true,
               children: [
-                maxCortante.toString() ?? '---',
-                maxCortanteDelantero.toString() ?? '---',
-                coefSeguridad.toString() ?? '---',
+                maxCortante.toFixed(2).toString() ?? '---',
+                maxCortanteDelantero.toFixed(2).toString() ?? '---',
+                coefSeguridad.toFixed(2).toString() ?? '---',
               ].map(
                 (v, i) =>
                   new TableCell({
@@ -3272,7 +5113,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3301,7 +5142,8 @@ export async function buildCalculos(
               (mod.numeroEspirasDelanteroRef ?? 0) *
               (diametromedio / 1000 / 2) ** 3);
           cargaMaxEje1Q = cargaMaxQ * 2;
-          coefSeguridadK = cargaMaxEje1Q / (data.mmaEje1Despues * 9.81);
+          coefSeguridadK =
+            cargaMaxEje1Q / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
         }
 
         if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
@@ -3319,7 +5161,8 @@ export async function buildCalculos(
               (mod.numeroEspirasDelanteroSinRef ?? 0) *
               (diametromedio / 1000 / 2) ** 3);
           cargaMaxEje1Q = cargaMaxQ * 2;
-          coefSeguridadK = cargaMaxEje1Q / (data.mmaEje1Despues * 9.81);
+          coefSeguridadK =
+            cargaMaxEje1Q / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
         }
 
         // 6) Cálculo carga máx (Q) flecha delanteros
@@ -3369,7 +5212,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3396,7 +5239,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3411,7 +5254,7 @@ export async function buildCalculos(
         let coefSeguridadFinalK = 0;
 
         if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
-          fuerzaMaxEjeDelantero = (data.mmaEje1Despues * 9.81) / 2;
+          fuerzaMaxEjeDelantero = ((mod.mmta1EjeSuspension ?? 0) * 9.81) / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
@@ -3420,7 +5263,7 @@ export async function buildCalculos(
         }
 
         if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
-          fuerzaMaxEjeDelantero = (data.mmaEje1Despues * 9.81) / 2;
+          fuerzaMaxEjeDelantero = ((mod.mmta1EjeSuspension ?? 0) * 9.81) / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
@@ -3452,7 +5295,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3478,7 +5321,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3544,7 +5387,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Filas
@@ -3572,9 +5415,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -3594,7 +5437,8 @@ export async function buildCalculos(
                 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteDelantero = maxCortante * 2;
-          coefSeguridad = maxCortanteDelantero / (data.mmaEje2Despues * 9.81);
+          coefSeguridad =
+            maxCortanteDelantero / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
         }
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
@@ -3605,7 +5449,8 @@ export async function buildCalculos(
                 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteDelantero = maxCortante * 2;
-          coefSeguridad = maxCortanteDelantero / (data.mmaEje2Despues * 9.81);
+          coefSeguridad =
+            maxCortanteDelantero / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
         }
 
         // 9) EMC traseros
@@ -3653,7 +5498,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3678,7 +5523,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3707,7 +5552,8 @@ export async function buildCalculos(
               (mod.numeroEspirasTraseroRef ?? 0) *
               (diametromedio / 1000 / 2) ** 3);
           cargaMaxEje1Q = cargaMaxQ * 2;
-          coefSeguridadK = cargaMaxEje1Q / (data.mmaEje2Despues * 9.81);
+          coefSeguridadK =
+            cargaMaxEje1Q / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
         }
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
@@ -3725,7 +5571,8 @@ export async function buildCalculos(
               (mod.numeroEspirasDelanteroSinRef ?? 0) *
               (diametromedio / 1000 / 2) ** 3);
           cargaMaxEje1Q = cargaMaxQ * 2;
-          coefSeguridadK = cargaMaxEje1Q / (data.mmaEje2Despues * 9.81);
+          coefSeguridadK =
+            cargaMaxEje1Q / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
         }
 
         // 10) Q traseros
@@ -3775,7 +5622,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3802,7 +5649,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3817,7 +5664,7 @@ export async function buildCalculos(
         let coefSeguridadFinalK = 0;
 
         if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
-          fuerzaMaxEjeDelantero = (data.mmaEje1Despues * 9.81) / 2;
+          fuerzaMaxEjeDelantero = ((mod.mmta1EjeSuspension ?? 0) * 9.81) / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
@@ -3826,7 +5673,7 @@ export async function buildCalculos(
         }
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
-          fuerzaMaxEjeDelantero = (data.mmaEje1Despues * 9.81) / 2;
+          fuerzaMaxEjeDelantero = ((mod.mmta1EjeSuspension ?? 0) * 9.81) / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
@@ -3858,7 +5705,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3884,7 +5731,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3910,7 +5757,7 @@ export async function buildCalculos(
                 bold: true,
               }),
             ],
-          })
+          }),
         );
         contador++;
 
@@ -3923,7 +5770,7 @@ export async function buildCalculos(
                 text: 'Las MMA a considerar en los cálculos son las siguientes:',
               }),
             ],
-          })
+          }),
         );
 
         // 2) Tabla: CARACTERÍSTICAS DEL VEHÍCULO
@@ -3952,9 +5799,18 @@ export async function buildCalculos(
               ],
             }),
             ...[
-              ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
-              ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
-              ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
+              [
+                'MMTA/MMA (Kg)',
+                mod.mmtaTotalSuspension?.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'MMTA/MMA eje 1',
+                mod.mmta1EjeSuspension?.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'MMTA/MMA eje 2',
+                mod.mmta2EjeSuspension?.toFixed(2).toString() ?? '---',
+              ],
             ].map(
               ([d, v]) =>
                 new TableRow({
@@ -3970,9 +5826,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text: txt })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -3986,7 +5842,7 @@ export async function buildCalculos(
                 text: 'Para calcular la carga que puede ser soportada por una ballesta, se emplea la siguiente formulación por flexión:',
               }),
             ],
-          })
+          }),
         );
 
         out.push(new Paragraph({ text: '' }));
@@ -4010,7 +5866,7 @@ export async function buildCalculos(
                 },
               }),
             ],
-          })
+          }),
         );
 
         out.push(new Paragraph({ text: '' }));
@@ -4026,19 +5882,21 @@ export async function buildCalculos(
                 [' ', ' '],
                 [
                   'Número de hojas N=',
-                  mod.numHojasBallestaDelantera?.toString() ?? '---',
+                  mod.numHojasBallestaDelantera?.toFixed(2).toString() ?? '---',
                 ],
                 [
                   'Ancho de la hoja b=',
-                  mod.anchoHojaBallestaDelantera?.toString() ?? '---',
+                  mod.anchoHojaBallestaDelantera?.toFixed(2).toString() ??
+                    '---',
                 ],
                 [
                   'Espesor de la hoja e=',
-                  mod.espesorHojaBallestaDelantera?.toString() ?? '---',
+                  mod.espesorHojaBallestaDelantera?.toFixed(2).toString() ??
+                    '---',
                 ],
                 [
                   'Longitud total ballesta 2L=',
-                  mod.longitudBallestaDelantera?.toString() ?? '---',
+                  mod.longitudBallestaDelantera?.toFixed(2).toString() ?? '---',
                 ],
                 ['Esfuerzo de la flexión σ=', '60 Kg/mm²'],
               ].map(
@@ -4056,9 +5914,9 @@ export async function buildCalculos(
                               children: [new TextRun({ text: txt })],
                             }),
                           ],
-                        })
+                        }),
                     ),
-                  })
+                  }),
               ),
             ],
           });
@@ -4079,7 +5937,7 @@ export async function buildCalculos(
             rows: [
               new TableRow({
                 cantSplit: true,
-                children: ['F=', f.toString() ?? '---', 'Kg'].map(
+                children: ['F=', f.toFixed(2).toString() ?? '---', 'Kg'].map(
                   (txt, i) =>
                     new TableCell({
                       margins: CELL_MARGINS,
@@ -4098,7 +5956,7 @@ export async function buildCalculos(
                           ],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
             ],
@@ -4114,7 +5972,7 @@ export async function buildCalculos(
             rows: [
               new TableRow({
                 cantSplit: true,
-                children: ['2F=', f2.toString() ?? '---', 'Kg'].map(
+                children: ['2F=', f2.toFixed(2).toString() ?? '---', 'Kg'].map(
                   (txt, i) =>
                     new TableCell({
                       margins: CELL_MARGINS,
@@ -4129,7 +5987,7 @@ export async function buildCalculos(
                           children: [new TextRun({ text: txt })],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
             ],
@@ -4153,19 +6011,20 @@ export async function buildCalculos(
                 [' ', ' '],
                 [
                   'Número de hojas N=',
-                  mod.numHojasBallestaTrasera?.toString() ?? '---',
+                  mod.numHojasBallestaTrasera?.toFixed(2).toString() ?? '---',
                 ],
                 [
                   'Ancho de la hoja b=',
-                  mod.anchoHojaBallestaTrasera?.toString() ?? '---',
+                  mod.anchoHojaBallestaTrasera?.toFixed(2).toString() ?? '---',
                 ],
                 [
                   'Espesor de la hoja e=',
-                  mod.espesorHojaBallestaTrasera?.toString() ?? '---',
+                  mod.espesorHojaBallestaTrasera?.toFixed(2).toString() ??
+                    '---',
                 ],
                 [
                   'Longitud total ballesta 2L=',
-                  mod.longitudBallestaTrasera?.toString() ?? '---',
+                  mod.longitudBallestaTrasera?.toFixed(2).toString() ?? '---',
                 ],
                 ['Esfuerzo de la flexión σ=', '60 Kg/mm²'],
               ].map(
@@ -4183,9 +6042,9 @@ export async function buildCalculos(
                               children: [new TextRun({ text: txt })],
                             }),
                           ],
-                        })
+                        }),
                     ),
-                  })
+                  }),
               ),
             ],
           });
@@ -4208,7 +6067,7 @@ export async function buildCalculos(
             rows: [
               new TableRow({
                 cantSplit: true,
-                children: ['2F=', f.toString() ?? '---', 'Kg'].map(
+                children: ['2F=', f.toFixed(2).toString() ?? '---', 'Kg'].map(
                   (txt, i) =>
                     new TableCell({
                       margins: CELL_MARGINS,
@@ -4223,7 +6082,7 @@ export async function buildCalculos(
                           children: [new TextRun({ text: txt })],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
             ],
@@ -4236,7 +6095,7 @@ export async function buildCalculos(
           out.push(
             new Paragraph({
               text: 'Por lo tanto, la carga total que puede soportar la ballesta de la suspensión trasera será igual a:',
-            })
+            }),
           );
           // 8) Tabla: F eje 2
           const tablaFEje2 = new Table({
@@ -4244,7 +6103,7 @@ export async function buildCalculos(
             rows: [
               new TableRow({
                 cantSplit: true,
-                children: ['F=', f2.toString() ?? '---', 'Kg'].map(
+                children: ['F=', f2.toFixed(2).toString() ?? '---', 'Kg'].map(
                   (txt, i) =>
                     new TableCell({
                       margins: CELL_MARGINS,
@@ -4255,7 +6114,7 @@ export async function buildCalculos(
                           children: [new TextRun({ text: txt })],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
             ],
@@ -4276,7 +6135,7 @@ export async function buildCalculos(
                 bold: true,
               }),
             ],
-          })
+          }),
         );
         out.push(new Paragraph({ text: '' }));
         contador++;
@@ -4307,9 +6166,18 @@ export async function buildCalculos(
               ],
             }),
             ...[
-              ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
-              ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
-              ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
+              [
+                'MMTA/MMA (Kg)',
+                mod.mmtaTotalSuspension?.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'MMTA/MMA eje 1',
+                mod.mmta1EjeSuspension?.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'MMTA/MMA eje 2',
+                mod.mmta2EjeSuspension?.toFixed(2).toString() ?? '---',
+              ],
               ['PUNTOS DE APOYO', '2'],
               ['Resistencia a compresión del nylon (Kg/cm²)', '917'],
             ].map(
@@ -4327,9 +6195,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text: txt })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -4348,7 +6216,7 @@ export async function buildCalculos(
                 text: ' Los tacos instalados deberán estar diseñados para soportar las masas máximas en cada eje.',
               }),
             ],
-          })
+          }),
         );
         out.push(new Paragraph({ text: '' }));
 
@@ -4362,11 +6230,11 @@ export async function buildCalculos(
                   text: ' Peso a soportar por cada taco de goma en el eje delantero:',
                 }),
               ],
-            })
+            }),
           );
           // 4) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 1
 
-          let resultadoEje1 = data.mmaEje1Despues / 2;
+          let resultadoEje1 = (mod.mmta1EjeSuspension ?? 0) / 2;
 
           const tablaPesoPorTaco = new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
@@ -4475,12 +6343,14 @@ export async function buildCalculos(
               ...[
                 [
                   'Diámetro (cm)',
-                  (mod.diametroTacoDelantero ?? 0).toString() ?? '---',
+                  (mod.diametroTacoDelantero ?? 0).toFixed(2).toString() ??
+                    '---',
                 ],
-                ['Radio (cm)', radio.toString() ?? '---'],
+                ['Radio (cm)', radio.toFixed(2).toString() ?? '---'],
                 [
                   'Espesor (cm)',
-                  (mod.espesorTacoDelantero ?? 0).toString() ?? '---',
+                  (mod.espesorTacoDelantero ?? 0).toFixed(2).toString() ??
+                    '---',
                 ],
                 [
                   'Superficie (cm²)',
@@ -4505,9 +6375,9 @@ export async function buildCalculos(
                               children: [new TextRun({ text: txt })],
                             }),
                           ],
-                        })
+                        }),
                     ),
-                  })
+                  }),
               ),
             ],
           });
@@ -4524,12 +6394,12 @@ export async function buildCalculos(
                   text: ' Peso a soportar por cada taco de goma en el eje trasero:',
                 }),
               ],
-            })
+            }),
           );
 
           out.push(new Paragraph({ text: '' }));
 
-          let resultadoEje2 = data.mmaEje2Despues / 2;
+          let resultadoEje2 = (mod.mmta2EjeSuspension ?? 0) / 2;
 
           // 6) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 2
           const tablaPesoEje2 = new Table({
@@ -4638,17 +6508,17 @@ export async function buildCalculos(
               ...[
                 [
                   'Diámetro (cm)',
-                  (mod.diametroTacoTrasero ?? 0).toString() ?? '---',
+                  (mod.diametroTacoTrasero ?? 0).toFixed(2).toString() ?? '---',
                 ],
-                ['Radio (cm)', radio.toString() ?? '---'],
+                ['Radio (cm)', radio.toFixed(2).toString() ?? '---'],
                 [
                   'Espesor (cm)',
-                  (mod.espesorTacoTrasero ?? 0).toString() ?? '---',
+                  (mod.espesorTacoTrasero ?? 0).toFixed(2).toString() ?? '---',
                 ],
-                ['Superficie (cm²)', superficie.toString() ?? '---'],
+                ['Superficie (cm²)', superficie.toFixed(2).toString() ?? '---'],
                 [
                   'Res. Máxima a compresión (Kg)',
-                  resistenciaMaxCompresion.toString() ?? '---',
+                  resistenciaMaxCompresion.toFixed(2).toString() ?? '---',
                 ],
               ].map(
                 ([desc, val]) =>
@@ -4665,9 +6535,9 @@ export async function buildCalculos(
                               children: [new TextRun({ text: txt })],
                             }),
                           ],
-                        })
+                        }),
                     ),
-                  })
+                  }),
               ),
             ],
           });
@@ -4689,7 +6559,7 @@ export async function buildCalculos(
             underline: { type: UnderlineType.SINGLE, color: '000000' },
           }),
         ],
-      })
+      }),
     );
 
     out.push(
@@ -4702,14 +6572,14 @@ export async function buildCalculos(
             type: 'png',
           }),
         ],
-      })
+      }),
     );
   } else {
     const mobil = modificaciones.find(
       (m) =>
         m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
         m.seleccionado &&
-        data.tipoVehiculo === 'camper'
+        data.tipoVehiculo === 'camper',
     );
     if (mobil) {
       // 1) Título centrado
@@ -4722,7 +6592,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       let Tr = 0.6 * data.mmaAntes;
@@ -4751,12 +6621,12 @@ export async function buildCalculos(
           }),
           // Filas de datos
           ...[
-            ['M.T.M.A. (Kg)', data.mmaAntes.toString() ?? '---'],
+            ['M.T.M.A. (Kg)', data.mmaAntes.toFixed(2).toString() ?? '---'],
             ['Velocidad máxima (Km/h)', '148'],
             ['Coeficiente de rozamiento', '0.6'],
             ['Aceleración de la gravedad (m/s²)', '9.8'],
             ['Deceleración ar = μ * g (m/s²)', '5.88'],
-            ['Tr = μ * Mt (Kg)', Tr.toString() ?? '---'],
+            ['Tr = μ * Mt (Kg)', Tr.toFixed(2).toString() ?? '---'],
           ].map(
             ([desc, val]) =>
               new TableRow({
@@ -4783,7 +6653,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -4802,7 +6672,7 @@ export async function buildCalculos(
 
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (modMobiliario) {
@@ -4861,7 +6731,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h, bold: true })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
 
@@ -4886,9 +6756,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text: val })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -4916,7 +6786,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: h })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           // Filas de propiedades
@@ -4945,9 +6815,9 @@ export async function buildCalculos(
                           children: [new TextRun({ text: val })],
                         }),
                       ],
-                    })
+                    }),
                 ),
-              })
+              }),
           ),
         ],
       });
@@ -4959,7 +6829,7 @@ export async function buildCalculos(
       function generarTablaNumTornillos(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -5026,7 +6896,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -5052,7 +6922,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -5070,7 +6940,7 @@ export async function buildCalculos(
       function generarTablaPropsTornillo(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario || !modMobiliario.diametroTornilloSeleccionado) {
@@ -5117,9 +6987,9 @@ export async function buildCalculos(
                         children: [new TextRun({ text })],
                       }),
                     ],
-                  })
+                  }),
               ),
-            })
+            }),
         );
 
         return new Table({
@@ -5138,7 +7008,7 @@ export async function buildCalculos(
       function generarTablaFuerzaInercia(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -5213,7 +7083,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -5246,7 +7116,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -5267,7 +7137,7 @@ export async function buildCalculos(
       function generarTablaVerticales(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -5325,7 +7195,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -5345,8 +7215,8 @@ export async function buildCalculos(
             mueble.peso.toFixed(2), // Peso (kg)
             mueble.tornillos.toString(), // Nº tornillos
             pesoPorTornillo.toFixed(2), // Peso por tornillo
-            resistenciaCortadura.toString(), // Resistencia cortadura
-            resultado.toFixed(4), // Resultado
+            resistenciaCortadura.toFixed(2).toString(), // Resistencia cortadura
+            resultado.toFixed(2), // Resultado
           ];
 
           return new TableRow({
@@ -5362,7 +7232,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -5381,7 +7251,7 @@ export async function buildCalculos(
       out.push(
         new Paragraph({
           text: 'Conclusión: Después de haber realizado los cálculos correspondientes, podemos asegurar que el sistema de anclajes elegidos son aptos para garantizar la estabilidad de las reformas instaladas.',
-        })
+        }),
       );
 
       out.push(
@@ -5393,7 +7263,7 @@ export async function buildCalculos(
               underline: { type: UnderlineType.SINGLE },
             }),
           ],
-        })
+        }),
       );
       out.push(
         new Paragraph({
@@ -5405,10 +7275,31 @@ export async function buildCalculos(
               type: 'png',
             }),
           ],
-        })
+        }),
       );
     }
   }
 
   return out;
+}
+
+function cellCentro(text: string): TableCell {
+  return new TableCell({
+    verticalAlign: VerticalAlign.CENTER,
+    margins: CELL_MARGINS,
+    children: [
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun(text)],
+      }),
+    ],
+  });
+}
+
+function rowVacia(span: number): TableRow {
+  return new TableRow({
+    children: Array(span)
+      .fill(null)
+      .map(() => new TableCell({ children: [] })),
+  });
 }

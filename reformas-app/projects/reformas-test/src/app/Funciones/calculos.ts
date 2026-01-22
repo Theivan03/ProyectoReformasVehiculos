@@ -26,7 +26,7 @@ const CELL_MARGINS = {
 export async function buildCalculos(
   modificaciones: Modificacion[],
   data: any,
-  memoria?: boolean
+  memoria?: boolean,
 ): Promise<(Paragraph | Table)[]> {
   const out: (Paragraph | Table)[] = [];
 
@@ -45,7 +45,7 @@ export async function buildCalculos(
             bold: true,
           }),
         ],
-      })
+      }),
     );
 
     let contador = 1;
@@ -54,7 +54,7 @@ export async function buildCalculos(
       (m) =>
         m.nombre === 'ALETINES Y SOBREALETINES' &&
         m.seleccionado &&
-        m.detalle?.aletines
+        m.detalle?.aletines,
     );
     if (aletines) {
       out.push(new Paragraph({ text: '' }));
@@ -66,7 +66,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       contador++;
@@ -155,7 +155,7 @@ export async function buildCalculos(
                     children: [new Paragraph(val)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -178,7 +178,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -200,7 +200,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: t })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -221,7 +221,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: v })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -268,7 +268,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: t, bold: true })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           // Data row: solo índices > 0 pintan verde, todos centrados
@@ -295,7 +295,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: v })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -309,7 +309,7 @@ export async function buildCalculos(
     }
 
     const snorkel = modificaciones.find(
-      (m) => m.nombre === 'SNORKEL' && m.seleccionado
+      (m) => m.nombre === 'SNORKEL' && m.seleccionado,
     );
     if (snorkel) {
       out.push(new Paragraph({ text: '' }));
@@ -324,7 +324,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       out.push(new Paragraph({ text: '' }));
@@ -448,7 +448,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -527,7 +527,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -572,7 +572,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -594,7 +594,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -615,7 +615,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -666,7 +666,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading, bold: true })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
 
@@ -692,7 +692,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -704,7 +704,7 @@ export async function buildCalculos(
     }
 
     const cabrestante = modificaciones.find(
-      (m) => m.nombre === 'CABRESTANTE' && m.seleccionado
+      (m) => m.nombre === 'CABRESTANTE' && m.seleccionado,
     );
     if (cabrestante) {
       // 1) Título de sección
@@ -717,7 +717,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       out.push(new Paragraph({ text: '' }));
@@ -791,7 +791,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -880,7 +880,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -930,7 +930,7 @@ export async function buildCalculos(
               text: 'La tensión cortante de rotura es inferior a la mínima tensión cortante de los pernos, por lo que el técnico que suscribe considera suficiente los anclajes elegidos para la aplicación de cargas a realizar.',
             }),
           ],
-        })
+        }),
       );
     }
 
@@ -939,7 +939,7 @@ export async function buildCalculos(
 
     const soporteslucesespecificas = modificaciones.find(
       (m) =>
-        m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado
+        m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado,
     );
     if (soporteslucesespecificas) {
       // 1) Título dinámico basado en contador
@@ -951,7 +951,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       out.push(new Paragraph({ text: '' }));
       contador++;
@@ -1078,7 +1078,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1161,7 +1161,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1211,7 +1211,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -1232,7 +1232,7 @@ export async function buildCalculos(
                       text: val,
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -1284,7 +1284,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -1305,7 +1305,7 @@ export async function buildCalculos(
                       text: val,
                     }),
                   ],
-                })
+                }),
             ),
           }),
         ],
@@ -1316,7 +1316,7 @@ export async function buildCalculos(
     }
 
     const paradelante = modificaciones.find(
-      (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado
+      (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado,
     );
     if (paradelante) {
       // 1) Título dinámico
@@ -1328,7 +1328,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       out.push(new Paragraph({ text: '' }));
       contador++;
@@ -1411,7 +1411,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1458,7 +1458,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -1474,7 +1474,7 @@ export async function buildCalculos(
                 new TableCell({
                   margins: CELL_MARGINS,
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -1522,7 +1522,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -1538,7 +1538,7 @@ export async function buildCalculos(
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -1549,7 +1549,7 @@ export async function buildCalculos(
     }
 
     const paratras = modificaciones.find(
-      (m) => m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado
+      (m) => m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado,
     );
     if (paratras) {
       // 1) Título dinámico
@@ -1561,7 +1561,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       out.push(new Paragraph({ text: '' }));
       contador++;
@@ -1659,7 +1659,7 @@ export async function buildCalculos(
                     children: [new Paragraph(v2)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1726,7 +1726,7 @@ export async function buildCalculos(
                     children: [new Paragraph(val)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -1773,7 +1773,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading, bold: true })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -1789,7 +1789,7 @@ export async function buildCalculos(
                 new TableCell({
                   margins: CELL_MARGINS,
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -1837,7 +1837,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -1853,7 +1853,7 @@ export async function buildCalculos(
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -1864,7 +1864,7 @@ export async function buildCalculos(
     }
 
     const estribostaloneras = modificaciones.find(
-      (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado
+      (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado,
     );
     if (estribostaloneras) {
       // 1) Título dinámico
@@ -1876,7 +1876,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       out.push(new Paragraph({ text: '' }));
       contador++;
@@ -1973,7 +1973,7 @@ export async function buildCalculos(
                     children: [new Paragraph(v2)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -2040,7 +2040,7 @@ export async function buildCalculos(
                     children: [new Paragraph(val)],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -2085,7 +2085,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -2101,7 +2101,7 @@ export async function buildCalculos(
                 new TableCell({
                   margins: CELL_MARGINS,
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -2149,7 +2149,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: heading })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           new TableRow({
@@ -2165,7 +2165,7 @@ export async function buildCalculos(
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [new Paragraph(val)],
-                })
+                }),
             ),
           }),
         ],
@@ -2179,7 +2179,7 @@ export async function buildCalculos(
       (m) =>
         m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
         m.seleccionado &&
-        data.tipoVehiculo === 'camper'
+        data.tipoVehiculo === 'camper',
     );
     if (mobil) {
       // 1) Título centrado
@@ -2195,7 +2195,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
       contador++;
 
@@ -2257,7 +2257,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -2276,7 +2276,7 @@ export async function buildCalculos(
 
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (modMobiliario) {
@@ -2335,7 +2335,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h, bold: true })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
 
@@ -2360,9 +2360,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text: val })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -2390,7 +2390,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: h })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           // Filas de propiedades
@@ -2419,9 +2419,9 @@ export async function buildCalculos(
                           children: [new TextRun({ text: val })],
                         }),
                       ],
-                    })
+                    }),
                 ),
-              })
+              }),
           ),
         ],
       });
@@ -2433,7 +2433,7 @@ export async function buildCalculos(
       function generarTablaNumTornillos(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -2500,7 +2500,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -2526,7 +2526,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -2544,7 +2544,7 @@ export async function buildCalculos(
       function generarTablaPropsTornillo(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario || !modMobiliario.diametroTornilloSeleccionado) {
@@ -2591,9 +2591,9 @@ export async function buildCalculos(
                         children: [new TextRun({ text })],
                       }),
                     ],
-                  })
+                  }),
               ),
-            })
+            }),
         );
 
         return new Table({
@@ -2612,7 +2612,7 @@ export async function buildCalculos(
       function generarTablaFuerzaInercia(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -2687,7 +2687,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -2720,7 +2720,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -2741,7 +2741,7 @@ export async function buildCalculos(
       function generarTablaVerticales(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -2799,7 +2799,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -2836,7 +2836,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -2862,7 +2862,7 @@ export async function buildCalculos(
             bold: true,
           }),
         ],
-      })
+      }),
     );
     contador++;
 
@@ -2874,7 +2874,7 @@ export async function buildCalculos(
             text: 'Debido a los elementos sustituidos en la parte frontal del vehículo, no se produce variación alguna en la refrigeración del radiador ni en las condiciones termodinámicas del motor.',
           }),
         ],
-      })
+      }),
     );
 
     out.push(
@@ -2884,14 +2884,14 @@ export async function buildCalculos(
             text: 'Como podemos observar, podemos certificar que quedan libres las áreas de refrigeración del vehículo pudiendo afirmar que no habrá ningún problema en el rendimiento termodinámico del vehículo.',
           }),
         ],
-      })
+      }),
     );
 
     const mod = modificaciones.find(
       (m) =>
         m.nombre ===
           'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR' &&
-        m.seleccionado
+        m.seleccionado,
     )!;
 
     // 1) Muelles delanteros con referencia
@@ -2908,7 +2908,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       contador = 1;
@@ -2929,7 +2929,7 @@ export async function buildCalculos(
                 bold: true,
               }),
             ],
-          })
+          }),
         );
         contador++;
 
@@ -2960,9 +2960,9 @@ export async function buildCalculos(
             }),
             // Filas de datos
             ...[
-              ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
-              ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
-              ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
+              ['MMTA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
+              ['MMTA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
+              ['MMTA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
             ].map(
               ([desc, val]) =>
                 new TableRow({
@@ -2989,7 +2989,7 @@ export async function buildCalculos(
                       ],
                     }),
                   ],
-                })
+                }),
             ),
           ],
         });
@@ -3020,7 +3020,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Filas
@@ -3049,9 +3049,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -3121,7 +3121,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Filas
@@ -3164,9 +3164,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -3245,7 +3245,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3270,7 +3270,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3367,7 +3367,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3394,7 +3394,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3451,7 +3451,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3477,7 +3477,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3543,7 +3543,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Filas
@@ -3571,9 +3571,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -3652,7 +3652,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3677,7 +3677,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3774,7 +3774,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3801,7 +3801,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3857,7 +3857,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
             // Valores
@@ -3883,7 +3883,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: v })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
           ],
@@ -3909,7 +3909,7 @@ export async function buildCalculos(
                 bold: true,
               }),
             ],
-          })
+          }),
         );
         contador++;
 
@@ -3922,7 +3922,7 @@ export async function buildCalculos(
                 text: 'Las MMA a considerar en los cálculos son las siguientes:',
               }),
             ],
-          })
+          }),
         );
 
         // 2) Tabla: CARACTERÍSTICAS DEL VEHÍCULO
@@ -3951,9 +3951,9 @@ export async function buildCalculos(
               ],
             }),
             ...[
-              ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
-              ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
-              ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
+              ['MMTA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
+              ['MMTA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
+              ['MMTA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
             ].map(
               ([d, v]) =>
                 new TableRow({
@@ -3969,9 +3969,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text: txt })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -3985,7 +3985,7 @@ export async function buildCalculos(
                 text: 'Para calcular la carga que puede ser soportada por una ballesta, se emplea la siguiente formulación por flexión:',
               }),
             ],
-          })
+          }),
         );
 
         out.push(new Paragraph({ text: '' }));
@@ -4009,7 +4009,7 @@ export async function buildCalculos(
                 },
               }),
             ],
-          })
+          }),
         );
 
         out.push(new Paragraph({ text: '' }));
@@ -4055,9 +4055,9 @@ export async function buildCalculos(
                               children: [new TextRun({ text: txt })],
                             }),
                           ],
-                        })
+                        }),
                     ),
-                  })
+                  }),
               ),
             ],
           });
@@ -4097,7 +4097,7 @@ export async function buildCalculos(
                           ],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
             ],
@@ -4128,7 +4128,7 @@ export async function buildCalculos(
                           children: [new TextRun({ text: txt })],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
             ],
@@ -4182,9 +4182,9 @@ export async function buildCalculos(
                               children: [new TextRun({ text: txt })],
                             }),
                           ],
-                        })
+                        }),
                     ),
-                  })
+                  }),
               ),
             ],
           });
@@ -4222,7 +4222,7 @@ export async function buildCalculos(
                           children: [new TextRun({ text: txt })],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
             ],
@@ -4235,7 +4235,7 @@ export async function buildCalculos(
           out.push(
             new Paragraph({
               text: 'Por lo tanto, la carga total que puede soportar la ballesta de la suspensión trasera será igual a:',
-            })
+            }),
           );
           // 8) Tabla: F eje 2
           const tablaFEje2 = new Table({
@@ -4254,7 +4254,7 @@ export async function buildCalculos(
                           children: [new TextRun({ text: txt })],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
             ],
@@ -4275,7 +4275,7 @@ export async function buildCalculos(
                 bold: true,
               }),
             ],
-          })
+          }),
         );
         out.push(new Paragraph({ text: '' }));
         contador++;
@@ -4306,9 +4306,9 @@ export async function buildCalculos(
               ],
             }),
             ...[
-              ['MTMA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
-              ['MTMA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
-              ['MTMA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
+              ['MMTA/MMA (Kg)', data.mmaDespues.toString() ?? '---'],
+              ['MMTA/MMA eje 1', data.mmaEje1Despues.toString() ?? '---'],
+              ['MMTA/MMA eje 2', data.mmaEje2Despues.toString() ?? '---'],
               ['PUNTOS DE APOYO', '2'],
               ['Resistencia a compresión del nylon (Kg/cm²)', '917'],
             ].map(
@@ -4326,9 +4326,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text: txt })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -4347,7 +4347,7 @@ export async function buildCalculos(
                 text: ' Los tacos instalados deberán estar diseñados para soportar las masas máximas en cada eje.',
               }),
             ],
-          })
+          }),
         );
         out.push(new Paragraph({ text: '' }));
 
@@ -4361,7 +4361,7 @@ export async function buildCalculos(
                   text: ' Peso a soportar por cada taco de goma en el eje delantero:',
                 }),
               ],
-            })
+            }),
           );
           // 4) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 1
 
@@ -4504,9 +4504,9 @@ export async function buildCalculos(
                               children: [new TextRun({ text: txt })],
                             }),
                           ],
-                        })
+                        }),
                     ),
-                  })
+                  }),
               ),
             ],
           });
@@ -4523,7 +4523,7 @@ export async function buildCalculos(
                   text: ' Peso a soportar por cada taco de goma en el eje trasero:',
                 }),
               ],
-            })
+            }),
           );
 
           out.push(new Paragraph({ text: '' }));
@@ -4664,9 +4664,9 @@ export async function buildCalculos(
                               children: [new TextRun({ text: txt })],
                             }),
                           ],
-                        })
+                        }),
                     ),
-                  })
+                  }),
               ),
             ],
           });
@@ -4688,7 +4688,7 @@ export async function buildCalculos(
             underline: { type: UnderlineType.SINGLE, color: '000000' },
           }),
         ],
-      })
+      }),
     );
 
     out.push(
@@ -4701,14 +4701,14 @@ export async function buildCalculos(
             type: 'png',
           }),
         ],
-      })
+      }),
     );
   } else {
     const mobil = modificaciones.find(
       (m) =>
         m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
         m.seleccionado &&
-        data.tipoVehiculo === 'camper'
+        data.tipoVehiculo === 'camper',
     );
     if (mobil) {
       // 1) Título centrado
@@ -4721,7 +4721,7 @@ export async function buildCalculos(
               bold: true,
             }),
           ],
-        })
+        }),
       );
 
       let Tr = 0.6 * data.mmaAntes;
@@ -4782,7 +4782,7 @@ export async function buildCalculos(
                     ],
                   }),
                 ],
-              })
+              }),
           ),
         ],
       });
@@ -4801,7 +4801,7 @@ export async function buildCalculos(
 
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (modMobiliario) {
@@ -4860,7 +4860,7 @@ export async function buildCalculos(
                         children: [new TextRun({ text: h, bold: true })],
                       }),
                     ],
-                  })
+                  }),
               ),
             }),
 
@@ -4885,9 +4885,9 @@ export async function buildCalculos(
                             children: [new TextRun({ text: val })],
                           }),
                         ],
-                      })
+                      }),
                   ),
-                })
+                }),
             ),
           ],
         });
@@ -4915,7 +4915,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: h })],
                     }),
                   ],
-                })
+                }),
             ),
           }),
           // Filas de propiedades
@@ -4944,9 +4944,9 @@ export async function buildCalculos(
                           children: [new TextRun({ text: val })],
                         }),
                       ],
-                    })
+                    }),
                 ),
-              })
+              }),
           ),
         ],
       });
@@ -4958,7 +4958,7 @@ export async function buildCalculos(
       function generarTablaNumTornillos(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -5025,7 +5025,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -5051,7 +5051,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -5069,7 +5069,7 @@ export async function buildCalculos(
       function generarTablaPropsTornillo(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario || !modMobiliario.diametroTornilloSeleccionado) {
@@ -5116,9 +5116,9 @@ export async function buildCalculos(
                         children: [new TextRun({ text })],
                       }),
                     ],
-                  })
+                  }),
               ),
-            })
+            }),
         );
 
         return new Table({
@@ -5137,7 +5137,7 @@ export async function buildCalculos(
       function generarTablaFuerzaInercia(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -5212,7 +5212,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -5245,7 +5245,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -5266,7 +5266,7 @@ export async function buildCalculos(
       function generarTablaVerticales(data: any): Table {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
-            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+            m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
@@ -5324,7 +5324,7 @@ export async function buildCalculos(
                     children: [new TextRun({ text: h, bold: true })],
                   }),
                 ],
-              })
+              }),
           ),
         });
 
@@ -5361,7 +5361,7 @@ export async function buildCalculos(
                       children: [new TextRun({ text: val })],
                     }),
                   ],
-                })
+                }),
             ),
           });
         });
@@ -5380,7 +5380,7 @@ export async function buildCalculos(
       out.push(
         new Paragraph({
           text: 'Conclusión: Después de haber realizado los cálculos correspondientes, podemos asegurar que el sistema de anclajes elegidos son aptos para garantizar la estabilidad de las reformas instaladas.',
-        })
+        }),
       );
 
       out.push(
@@ -5392,7 +5392,7 @@ export async function buildCalculos(
               underline: { type: UnderlineType.SINGLE },
             }),
           ],
-        })
+        }),
       );
       out.push(
         new Paragraph({
@@ -5404,7 +5404,7 @@ export async function buildCalculos(
               type: 'png',
             }),
           ],
-        })
+        }),
       );
     }
   }

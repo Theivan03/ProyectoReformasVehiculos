@@ -12,9 +12,19 @@ import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
 import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
 
-export async function generarDocumentoTaller(data: any): Promise<void> {
+export async function generarDocumentoTaller(
+  data: any,
+  proyecto: any,
+): Promise<void> {
   const ingeniero = data.ingenieroSeleccionado;
   const modificaciones: Modificacion[] = data.modificaciones;
+
+  let fraseProyecto = '';
+  if (proyecto) {
+    fraseProyecto = `- El proyecto técnico REF.: ${data.referenciaProyecto}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. ${ingeniero.nombre}, Colegiado nº ${ingeniero.numero} del ${ingeniero.colegio}.`;
+  } else {
+    fraseProyecto = `El proyecto técnico de la/s reforma/s, adjunto al expediente (en su caso).`;
+  }
 
   const seccion = [
     new Paragraph({
@@ -78,7 +88,7 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
     new Paragraph({
       children: [
         new TextRun({
-          text: `- El proyecto técnico REF.: ${data.referenciaProyecto}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. ${ingeniero.nombre}, Colegiado nº ${ingeniero.numero} del ${ingeniero.colegio}.`,
+          text: `${fraseProyecto}`,
           size: 22,
         }),
       ],
@@ -136,7 +146,7 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
         new TextRun({
           size: 22,
           text: `En ${data.taller.poblacion}, a ${new Date(
-            data.fechaProyecto
+            data.fechaProyecto,
           ).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -182,7 +192,8 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
 
   const modificacionesParagraphs = buildModificacionesParagraphs(
     modificaciones,
-    data
+    data,
+    false,
   );
 
   const section1 = {
@@ -242,6 +253,6 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
   const blob = await Packer.toBlob(doc);
   saveAs(
     blob,
-    `${data.referenciaProyecto} CT ${data.marca} ${data.modelo} ${data.matricula}.docx`
+    `${data.referenciaProyecto} CT ${data.marca} ${data.modelo} ${data.matricula}.docx`,
   );
 }

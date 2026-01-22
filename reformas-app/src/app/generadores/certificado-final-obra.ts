@@ -247,14 +247,14 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     new Paragraph({
       children: [
         new TextRun(
-          'D. LUIS SERRANO ARTESERO con DNI 20.037.410-V, colegiado nº 11.380 del Colegio Oficial'
+          'D. LUIS SERRANO ARTESERO con DNI 20.037.410-V, colegiado nº 11.380 del Colegio Oficial',
         ),
       ],
     }),
     new Paragraph({
       children: [
         new TextRun(
-          'de Peritos e Ingenieros Técnicos Industriales y de Grado de Valencia.'
+          'de Peritos e Ingenieros Técnicos Industriales y de Grado de Valencia.',
         ),
       ],
     }),
@@ -315,7 +315,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 ],
               }),
             ],
-          })
+          }),
       ),
     }),
 
@@ -399,7 +399,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 ],
               }),
             ],
-          })
+          }),
       ),
     }),
 
@@ -430,56 +430,56 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 nombreMod: 'PARAGOLPES DELANTERO',
                 etiqueta: 'Paragolpes delantero',
                 valor: modificaciones.find(
-                  (m) => m.nombre === 'PARAGOLPES DELANTERO'
+                  (m) => m.nombre === 'PARAGOLPES DELANTERO',
                 )!.radioCurvaRParagolpesDelantero!,
               },
               {
                 nombreMod: 'PARAGOLPES TRASERO',
                 etiqueta: 'Paragolpes trasero',
                 valor: modificaciones.find(
-                  (m) => m.nombre === 'PARAGOLPES TRASERO'
+                  (m) => m.nombre === 'PARAGOLPES TRASERO',
                 )!.radioCurvaRParagolpesTrasero!,
               },
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
                 etiqueta: 'Aletines',
                 valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
+                  (m) => m.nombre === 'ALETINES Y SOBREALETINES',
                 )!.radioCurvaRAletines!,
               },
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
                 etiqueta: 'Sobrealetines',
                 valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
+                  (m) => m.nombre === 'ALETINES Y SOBREALETINES',
                 )!.curvaturaSobrealetines!,
               },
               {
                 nombreMod: 'ESTRIBOS LATERALES',
                 etiqueta: 'Estribos laterales',
                 valor: modificaciones.find(
-                  (m) => m.nombre === 'SEPARADORES DE RUEDA'
+                  (m) => m.nombre === 'SEPARADORES DE RUEDA',
                 )!.curvaturaEstribosLaterales!,
               },
               {
                 nombreMod: 'PROTECTORES LATERALES',
                 etiqueta: 'Protectores laterales',
                 valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
+                  (m) => m.nombre === 'ALETINES Y SOBREALETINES',
                 )!.curvaturaProtectoresLaterales!,
               },
               {
                 nombreMod: 'DEFENSA DELANTERA',
                 etiqueta: 'Defensa delantera',
                 valor: modificaciones.find(
-                  (m) => m.nombre === 'DEFENSA DELANTERA'
+                  (m) => m.nombre === 'DEFENSA DELANTERA',
                 )!.curvaturaDefensaDelantera!,
               },
               {
                 nombreMod: 'SOPORTE PARA RUEDA DE REPUESTO',
                 etiqueta: 'Soporte rueda de repuesto',
                 valor: modificaciones.find(
-                  (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO'
+                  (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO',
                 )!.curvaturaSoporteRuedaRepuesto!,
               },
             ];
@@ -487,8 +487,8 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
             const dataRows = elementos
               .filter(({ nombreMod }) =>
                 modificaciones.some(
-                  (m) => m.nombre === nombreMod && m.seleccionado
-                )
+                  (m) => m.nombre === nombreMod && m.seleccionado,
+                ),
               )
               .map(
                 ({ etiqueta, valor }) =>
@@ -525,7 +525,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                         ],
                       }),
                     ],
-                  })
+                  }),
               );
 
             if (dataRows.length === 0) {
@@ -615,7 +615,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                     spacing: { before: 240, after: 120 },
                     children: [new TextRun({ text: txt })],
                   })
-                : null
+                : null,
             )
             .filter((p): p is Paragraph => p != null);
 
@@ -717,7 +717,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           bold: true,
         }),
         new TextRun(
-          ', adjunto al presente certificado y firmado por Ingeniero Técnico Industrial Luis Serrano Artesero, colegiado 11380 COGITI Valencia.'
+          ', adjunto al presente certificado y firmado por Ingeniero Técnico Industrial Luis Serrano Artesero, colegiado 11380 COGITI Valencia.',
         ),
       ],
       spacing: { after: 200 },
@@ -727,7 +727,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       bullet: { level: 0 },
       children: [
         new TextRun(
-          'Los actos reglamentarios aplicables a cada una de ellas y que figuran en el Anexo I del presente certificado y documentación adicional correspondiente.'
+          'Los actos reglamentarios aplicables a cada una de ellas y que figuran en el Anexo I del presente certificado y documentación adicional correspondiente.',
         ),
       ],
       spacing: { after: 200 },
@@ -737,7 +737,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       bullet: { level: 0 },
       children: [
         new TextRun(
-          'La reforma del vehículo se concluye, tomándose las fotografías correspondientes que se aportan como Anexo II a este certificado.	'
+          'La reforma del vehículo se concluye, tomándose las fotografías correspondientes que se aportan como Anexo II a este certificado.	',
         ),
       ],
     }),
@@ -746,7 +746,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       bullet: { level: 0 },
       children: [
         new TextRun(
-          'La presente Certificación se adjuntará a la documentación que debe aportarse para la legalización de dicho vehículo.'
+          'La presente Certificación se adjuntará a la documentación que debe aportarse para la legalización de dicho vehículo.',
         ),
       ],
     }),
@@ -817,7 +817,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     const nombreArchivo = `${nombreBase}.png`;
     const url = `http://192.168.1.41:3000/imgs/${nombreArchivo}`;
     const tamaño = tamaños.find(
-      (img: { nombre: string }) => img.nombre === nombreArchivo
+      (img: { nombre: string }) => img.nombre === nombreArchivo,
     );
 
     if (!tamaño) continue;
@@ -859,7 +859,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
               type: 'png',
             }),
           ],
-        })
+        }),
       );
 
       alturaAcumulada += alturaEscalada + 100; // Añadimos margen entre imágenes
@@ -867,7 +867,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       console.warn(
         `No se pudo cargar la imagen para el código ${
           (codigo as { codigo: string }).codigo
-        }`
+        }`,
       );
     }
   }
@@ -886,7 +886,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
             else reject('No se pudo generar Blob');
           }, file.type);
         },
-        { canvas: true, orientation: true }
+        { canvas: true, orientation: true },
       );
     });
   }
@@ -932,7 +932,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           height: img.naturalHeight,
           mimeType: blob.type,
         };
-      })
+      }),
     );
 
     // 3) Párrafos iniciales
@@ -994,9 +994,9 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                       ],
                     }),
                   ],
-                })
+                }),
             ),
-          })
+          }),
         );
       }
 
@@ -1031,7 +1031,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 ],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -1066,7 +1066,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 ],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -1094,7 +1094,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     // Normalizas los File a Blob rotados
     const rawFiles = data.postImages as File[];
     const orientedBlobs = await Promise.all(
-      rawFiles.map((f) => normalizeOrientation(f))
+      rawFiles.map((f) => normalizeOrientation(f)),
     );
 
     // 2) Aquí lees el arrayBuffer y guardas también el mimeType
@@ -1115,7 +1115,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           height: img.naturalHeight,
           mimeType: blob.type,
         };
-      })
+      }),
     );
 
     const salto = new Paragraph({ pageBreakBefore: true });
@@ -1143,7 +1143,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
         const scaleL = Math.min(
           maxCellWidth / left.width,
           maxCellHeight / left.height,
-          1
+          1,
         );
         const wL = Math.round(left.width * scaleL);
         const hL = Math.round(left.height * scaleL);
@@ -1154,7 +1154,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           const scaleR = Math.min(
             maxCellWidth / right.width,
             maxCellHeight / right.height,
-            1
+            1,
           );
           wR = Math.round(right.width * scaleR);
           hR = Math.round(right.height * scaleR);
@@ -1212,7 +1212,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                   : [new Paragraph('')],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -1242,7 +1242,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     footers: { default: makeFooter() },
     children: [
       ...seccion,
-      ...buildModificacionesParagraphs(modificaciones, data),
+      ...buildModificacionesParagraphs(modificaciones, data, false),
       ...punto1_6Tabla.flat(),
       ...punto1_6Avisos,
       ...bloqueLegal,
@@ -1275,6 +1275,6 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
   const blob = await Packer.toBlob(doc);
   saveAs(
     blob,
-    `${data.referenciaProyecto} CFO ${data.marca} ${data.modelo} ${data.matricula}.docx`
+    `${data.referenciaProyecto} CFO ${data.marca} ${data.modelo} ${data.matricula}.docx`,
   );
 }

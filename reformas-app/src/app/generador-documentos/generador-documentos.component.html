@@ -278,14 +278,14 @@
             </p>
             <button
               class="btn btn-ing-action mt-auto"
-              (click)="generar('certificado-taller')"
+              data-bs-toggle="modal"
+              data-bs-target="#modalCertificadoTaller"
             >
-              <i class="bi bi-tools me-2"></i> Generar
+              <i class="bi bi-tools me-2"></i> Configurar y Generar
             </button>
           </div>
         </div>
       </div>
-
       <div class="col-lg-4 col-md-6">
         <div class="ing-doc-card">
           <div class="ing-card-header">
@@ -435,6 +435,78 @@
           "
           data-bs-dismiss="modal"
           (click)="confirmarDeclaracion()"
+        >
+          GENERAR DOCUMENTO <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="modalCertificadoTaller"
+  tabindex="-1"
+  aria-labelledby="modalCertTallerLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCertTallerLabel">
+          Tipo de Certificado
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <p class="text-muted small text-uppercase fw-bold mb-3">
+          ¿La reforma incluye proyecto técnico?
+        </p>
+
+        <div class="d-flex flex-column gap-2">
+          <button
+            class="btn btn-ing-select"
+            [class.active]="tallerConProyecto === true"
+            (click)="tallerConProyecto = true"
+          >
+            <span>CON PROYECTO</span>
+            <i *ngIf="tallerConProyecto === true" class="bi bi-check-lg"></i>
+          </button>
+
+          <button
+            class="btn btn-ing-select"
+            [class.active]="tallerConProyecto === false"
+            (click)="tallerConProyecto = false"
+          >
+            <span>SIN PROYECTO</span>
+            <i *ngIf="tallerConProyecto === false" class="bi bi-check-lg"></i>
+          </button>
+        </div>
+
+        <div class="mt-3 text-muted" style="font-size: 0.8rem">
+          <i class="bi bi-info-circle me-1"></i>
+          <span *ngIf="tallerConProyecto === true">
+            Se generará el certificado haciendo referencia al proyecto técnico.
+          </span>
+          <span *ngIf="tallerConProyecto === false">
+            Se generará el certificado indicando que no precisa proyecto.
+          </span>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-light">
+        <button
+          type="button"
+          class="btn btn-ing-action w-100"
+          [disabled]="tallerConProyecto === null"
+          data-bs-dismiss="modal"
+          (click)="generar('certificado-taller', tallerConProyecto)"
         >
           GENERAR DOCUMENTO <i class="bi bi-arrow-right ms-2"></i>
         </button>

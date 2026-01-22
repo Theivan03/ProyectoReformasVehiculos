@@ -11,6 +11,7 @@ export interface Modificacion {
   nTornillos?: number;
   anotacion1?: boolean | string;
   anotacion2?: boolean | string;
+  anotacion3?: boolean | string;
   materialEstribos?: string;
   anchoAletines?: number;
   anchoSobrealetines?: number;
@@ -75,6 +76,21 @@ export interface Modificacion {
   marcajesintermitenteTrasero?: string;
   homologacionintermitenteTrasero?: string;
   curvaturaintermitenteTrasero?: number;
+
+  mmtaTotalSuspension?: number;
+  mmta1EjeSuspension?: number;
+  mmta2EjeSuspension?: number;
+
+  checkEje1Neumaticos?: boolean;
+  indiceCargaEje1Neumaticos?: number;
+  cargaEquivalenteEje1Neumaticos?: number;
+  mmaEje1Neumaticos?: number;
+  checkEje2Neumaticos?: boolean;
+  indiceCargaEje2Neumaticos?: number;
+  cargaEquivalenteEje2Neumaticos?: number;
+  mmaEje2Neumaticos?: number;
+  indiceCargaGeneralNeumaticos?: number;
+  cargaEquivalenteGeneralNeumaticos?: number;
 
   ubicacionDiscos?: 'delanteros' | 'traseros' | 'ambos';
   sonIguales?: boolean;
@@ -162,8 +178,30 @@ export interface Modificacion {
   medidaAnchoTorretas?: number;
   medidaAltoTorretas?: number;
 
+  radioCurvaturaEscape?: number;
+
+  pesoAleron?: number;
+  coefAerodinamicoCwAleron?: number;
+  velocidadAireV2msAleron?: number;
+  densidadAireKgM3Aleron?: number;
+  coefSeguridadKAleron?: number;
+  curvaturaAleron?: number;
+  calidadTornilloAleron?: number;
+  resTraccionMinTornillo88Kgmm2Aleron?: number;
+  seccionResistenteAsAleron?: number;
+  metricaAleron?: number;
+  anchuraAleron?: number;
+  alturaAleron?: number;
+
   tipoModificacionSubchasis?: string;
   descripcionCorteSubchasis?: string;
+
+  cambiaSoloSilencioso?: boolean;
+  tipoSalidaOriginalEscape?: string;
+  ubicacionOriginalEscape?: string;
+  tipoSalidaNuevaEscape?: string;
+  ubicacionNuevaEscape?: string;
+  sobresaleEscape?: boolean;
 
   medidaLlantas?: string;
   medidaNeumaticos?: string;
@@ -625,7 +663,7 @@ export interface Modificacion {
   referenciaIntermitente?: string;
   referenciaMarchaAtras?: string;
   referenciaCatadioptrico?: string;
-  curvaturaSnorkel?: string;
+  curvaturaSnorkel?: number;
   curvaturaParagolpesDelantero?: string;
   curvaturaParagolpesTrasero?: string;
   curvaturaAletines?: string;
@@ -806,4 +844,55 @@ export interface Modificacion {
   anchoHojaBallestaTrasera?: number;
   espesorHojaBallestaTrasera?: number;
   longitudBallestaTrasera?: number;
+
+  ant_diametroBombaTrasera?: number;
+  ant_dimensionPistonTrasera?: number;
+  ant_numPistonesTrasero?: number;
+  ant_numPinzasTraseras?: number;
+  ant_numDiscosTrasero?: number;
+
+  ant_diametroBombaDelantera?: number;
+  ant_dimensionPistonDelantera?: number;
+  ant_numPistonesDelantero?: number;
+  ant_numPinzasDelanteras?: number;
+  ant_numDiscosDelantero?: number;
+
+  diametroBombaDiscos?: number;
+  dimensionPistonDiscos?: number;
+  numPistonesDiscos?: number;
+  numPinzasDelanteras?: number;
+  numDiscosDelantero?: number;
+
+  ant_diametroExteriorDiscoDelantero?: number;
+  diametroExteriorDiscos?: number;
+
+  ant_diametroInteriorDiscoDelantero?: number;
+  diametroInteriorDiscos?: number;
+
+  diametroBombaDiscoTrasero?: number;
+  dimensionPistonDiscoTrasero?: number;
+  numPistonesDiscoTrasero?: number;
+  numPinzasTraseras?: number;
+  numDiscosTrasero?: number;
+
+  ant_diametroExteriorDiscoTrasero?: number;
+  diametroExteriorDiscoTrasero?: number;
+  ant_diametroInteriorDiscoTrasero?: number;
+  diametroInteriorDiscoTrasero?: number;
+
+  anguloContactoDiscos?: number;
+  anguloContactoDiscoTrasero?: number;
+
+  ant_radioNeumaticoTrasero?: number;
+  ant_anchoNeumaticoTrasero?: number;
+  ant_perfilNeumaticoTrasero?: number;
+  ant_perfilNeumaticoDelantero?: number;
+  ant_anchoNeumaticoDelantero?: number;
+  ant_radioNeumaticoDelantero?: number;
+  perfilNeumaticoDiscoTrasero?: number;
+  anchoNeumaticoDiscoTrasero?: number;
+  radioNeumaticoDiscoTrasero?: number;
+  perfilNeumaticoDiscos?: number;
+  anchoNeumaticoDiscos?: number;
+  radioNeumaticoDiscos?: number;
 }

@@ -75,5 +75,27 @@
     "responsable": "Antonio Vila Vives",
     "telefono": "965733563",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "Andrés Sabater Collado",
+    "direccion": "Camí Vell de Gandía, 4",
+    "poblacion": "Oliva",
+    "provincia": "Valencia",
+    "registroIndustrial": "46-86673",
+    "registroEspecial": "V-4736",
+    "responsable": "Andrés Sabater Collado",
+    "telefono": "962851937",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "AUTOLOGY MOTORS S.L.",
+    "direccion": " Av. Les Industries 10, ",
+    "poblacion": "Pedreguer",
+    "provincia": "Alicante",
+    "registroIndustrial": "10-A-452-03151058",
+    "registroEspecial": "A-4251",
+    "responsable": "Paul Roman Misencik",
+    "telefono": " 639 57 74 03",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
   }
 ]

@@ -13,7 +13,8 @@ import { Modificacion } from '../interfaces/modificacion';
 
 export function buildModificacionesParagraphs(
   modificaciones: Modificacion[],
-  data: any
+  data: any,
+  suspension: any,
 ): Paragraph[] {
   const out: Paragraph[] = [];
   let mod: Modificacion;
@@ -25,7 +26,7 @@ export function buildModificacionesParagraphs(
   const remolquenohomologado = modificaciones.find(
     (m) =>
       m.nombre === 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO' &&
-      m.seleccionado
+      m.seleccionado,
   );
   if (remolquenohomologado) {
     (remolquenohomologado.acciones || []).forEach((accion: string) => {
@@ -50,7 +51,7 @@ export function buildModificacionesParagraphs(
   const remolquehomologado = modificaciones.find(
     (m) =>
       m.nombre === 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO' &&
-      m.seleccionado
+      m.seleccionado,
   );
   if (remolquehomologado) {
     (remolquehomologado.acciones || []).forEach((accion: string) => {
@@ -71,7 +72,7 @@ export function buildModificacionesParagraphs(
   // 3) REDUCCIÓN DE PLAZAS
   //
   const reduccionplazas = modificaciones.find(
-    (m) => m.nombre === 'REDUCCIÓN DE PLAZAS' && m.seleccionado
+    (m) => m.nombre === 'REDUCCIÓN DE PLAZAS' && m.seleccionado,
   );
   if (reduccionplazas) {
     const raw = `- Desmontaje de plazas de asiento pasando de ${reduccionplazas.plazasAntes} a ${reduccionplazas.plazasDespues} mediante la desinstalación del cinturón de seguridad y el anclaje de la plaza ${reduccionplazas.enclaje}.`;
@@ -94,7 +95,7 @@ export function buildModificacionesParagraphs(
             text: 'En la plaza en la cual se ha desinstalado el cinturón de seguridad, se ha instalado un pictograma con texto el cual indica inequívocamente que dicha plaza no puede utilizarse con el vehículo en circulación.',
           }),
         ],
-      })
+      }),
     );
   }
 
@@ -102,9 +103,11 @@ export function buildModificacionesParagraphs(
   // 4) NEUMÁTICOS
   //
   const neumaticos = modificaciones.find(
-    (m) => m.nombre === 'NEUMÁTICOS' && m.seleccionado
+    (m) => m.nombre === 'NEUMÁTICOS' && m.seleccionado,
   );
+
   if (neumaticos) {
+    // --- PÁRRAFO PRINCIPAL ---
     const medidaNeumatico = neumaticos.medidaNeumaticos || '---';
     const medidaLlantas = neumaticos.medidaLlantas || '---';
     const raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${medidaNeumatico}, montados sobre llantas de medidas ${medidaLlantas}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
@@ -118,13 +121,14 @@ export function buildModificacionesParagraphs(
     (p as any)._rawText = raw;
     out.push(p);
 
+    // --- LÓGICA DE CONTADOR DE NOTAS ---
     const totalNotas =
       (neumaticos.anotacion1 ? 1 : 0) + (neumaticos.anotacion2 ? 1 : 0);
 
-    // 2) Si solo hay una anotación → no numeramos
-    //    Si hay dos → empezamos por 1
+    // Si hay 2 notas, empezamos a contar (Nota 1, Nota 2). Si solo hay 1, se queda vacío.
     let nota = totalNotas === 2 ? 1 : '';
 
+    // --- ANOTACIÓN 1: VELOCÍMETRO ---
     if (neumaticos.anotacion1) {
       out.push(
         new Paragraph({
@@ -138,10 +142,13 @@ export function buildModificacionesParagraphs(
               text: 'Debido a que la diferencia de diámetro entre el neumático original y el nuevo es superior al 8%, se ha procedido al tarado del velocímetro.',
             }),
           ],
-        })
+        }),
       );
+      // Incrementamos el contador para la siguiente nota si es necesario
+      if (typeof nota === 'number') nota++;
     }
 
+    // --- ANOTACIÓN 2: VELOCIDAD MÁXIMA ---
     if (neumaticos.anotacion2) {
       out.push(
         new Paragraph({
@@ -155,8 +162,60 @@ export function buildModificacionesParagraphs(
               text: `Debido a que por su construcción, este vehículo es capaz de alcanzar una velocidad máxima de Vmáx = ${neumaticos.velocidadMaximaAntes} Km/h, superior al índice de velocidad de los neumáticos instalados, se deberá instalar una pegatina limitadora de velocidad de Vmáx = ${neumaticos.velocidadMaximaDespues} Km/h, visible desde el puesto de conducción.`,
             }),
           ],
-        })
+        }),
       );
+    }
+
+    // --- ANOTACIÓN 3: VERIFICACIÓN DE CARGA (Sin etiqueta "NOTA") ---
+    if (neumaticos.anotacion3) {
+      // CASO A: MOTOS (Según tu HTML: datosEntrada.tipoVehiculo === "motos")
+      if (data.tipoVehiculo === 'motos') {
+        // Eje 1 (Delantero)
+        if (neumaticos.checkEje1Neumaticos) {
+          const indice = neumaticos.indiceCargaEje1Neumaticos || '---';
+          const carga = neumaticos.cargaEquivalenteEje1Neumaticos || '---';
+          const mma = neumaticos.mmaEje1Neumaticos || '---';
+
+          const rawMoto1 = `Se comprueba que el nuevo índice de carga de los neumáticos (${indice}, que equivale a ${carga} Kg) es capaz de soportar la MMA del 1er eje (${mma} Kg).`;
+
+          const pMoto1 = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            children: [new TextRun({ text: rawMoto1 })],
+          });
+          (pMoto1 as any)._rawText = rawMoto1;
+          out.push(pMoto1);
+        }
+
+        // Eje 2 (Trasero)
+        if (neumaticos.checkEje2Neumaticos) {
+          const indice = neumaticos.indiceCargaEje2Neumaticos || '---';
+          const carga = neumaticos.cargaEquivalenteEje2Neumaticos || '---';
+          const mma = neumaticos.mmaEje2Neumaticos || '---';
+
+          const rawMoto2 = `Se comprueba que el nuevo índice de carga de los neumáticos (${indice}, que equivale a ${carga} Kg) es capaz de soportar la MMA del 2º eje (${mma} Kg).`;
+
+          const pMoto2 = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            children: [new TextRun({ text: rawMoto2 })],
+          });
+          (pMoto2 as any)._rawText = rawMoto2;
+          out.push(pMoto2);
+        }
+      } else {
+        // CASO B: COCHE / CAMPER (Caso General)
+        const indice = neumaticos.indiceCargaGeneralNeumaticos || '---';
+        const carga = neumaticos.cargaEquivalenteGeneralNeumaticos || '---';
+
+        const rawCoche = `Se comprueba que el nuevo índice de carga de los neumáticos (${indice}, que equivale a ${carga} Kg) es capaz de soportar tanto las MMA/MMTA por ejes como la MMA/MMTA total del vehículo sin remolque y en caso de remolque.`;
+
+        const pCoche = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: rawCoche })],
+        });
+
+        (pCoche as any)._rawText = rawCoche;
+        out.push(pCoche);
+      }
     }
   }
 
@@ -164,7 +223,7 @@ export function buildModificacionesParagraphs(
   // 5) SEPARADORES DE RUEDA
   //
   const separadoresruedas = modificaciones.find(
-    (m) => m.nombre === 'SEPARADORES DE RUEDA' && m.seleccionado
+    (m) => m.nombre === 'SEPARADORES DE RUEDA' && m.seleccionado,
   );
 
   if (separadoresruedas) {
@@ -201,7 +260,7 @@ export function buildModificacionesParagraphs(
     (m) =>
       m.nombre === 'ALETINES Y SOBREALETINES' &&
       m.seleccionado &&
-      m.detalle?.aletines
+      m.detalle?.aletines,
   );
   if (aletines) {
     (aletines.acciones || []).forEach((accion: string) => {
@@ -231,7 +290,7 @@ export function buildModificacionesParagraphs(
     (m) =>
       m.nombre === 'ALETINES Y SOBREALETINES' &&
       m.seleccionado &&
-      m.detalle?.sobrealetines
+      m.detalle?.sobrealetines,
   );
   if (sobrealetines) {
     (sobrealetines.acciones || []).forEach((accion: string) => {
@@ -254,7 +313,7 @@ export function buildModificacionesParagraphs(
   // Buscamos la modificación específica
   const campoLibre = modificaciones.find(
     (m) =>
-      m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' && m.seleccionado
+      m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' && m.seleccionado,
   );
 
   if (campoLibre && campoLibre.reformasAdicionales) {
@@ -288,7 +347,7 @@ export function buildModificacionesParagraphs(
   // 7) SNORKEL
   //
   const snorkel = modificaciones.find(
-    (m) => m.nombre === 'SNORKEL' && m.seleccionado
+    (m) => m.nombre === 'SNORKEL' && m.seleccionado,
   );
   if (snorkel) {
     snorkel.acciones?.forEach((accion: string) => {
@@ -309,7 +368,7 @@ export function buildModificacionesParagraphs(
   // 8) PARAGOLPES DELANTERO
   //
   const paradelante = modificaciones.find(
-    (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado
+    (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado,
   );
   if (paradelante) {
     paradelante.acciones?.forEach((accion: string) => {
@@ -335,7 +394,7 @@ export function buildModificacionesParagraphs(
   // 9) PARAGOLPES TRASERO
   //
   const paratras = modificaciones.find(
-    (m) => m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado
+    (m) => m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado,
   );
   if (paratras) {
     paratras.acciones?.forEach((accion: string) => {
@@ -358,7 +417,7 @@ export function buildModificacionesParagraphs(
   }
 
   const volante = modificaciones.find(
-    (m) => m.nombre === 'SUSTITUCIÓN DE VOLANTE' && m.seleccionado
+    (m) => m.nombre === 'SUSTITUCIÓN DE VOLANTE' && m.seleccionado,
   );
   if (volante) {
     volante.acciones?.forEach((accion: string) => {
@@ -393,23 +452,28 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const escape = modificaciones.find(
-    (m) => m.nombre === 'SUSTITUCIÓN DE SISTEMA DE ESCAPE' && m.seleccionado
+    (m) => m.nombre === 'SUSTITUCIÓN DE SISTEMA DE ESCAPE' && m.seleccionado,
   );
 
+  let fraseEscape = '';
+
   if (escape) {
-    let infoGeometria =
-      ', sin variar el número de salidas ni la ubicación original del mismo';
+    if (escape.cambiaSoloSilencioso) {
+      fraseEscape = `Modificación de las características del sistema de escape mediante la modificación del tramo de salida, cambiando su configuración de salida original compuesta por ${escape.tipoSalidaOriginalEscape} en ${escape.ubicacionOriginalEscape}, a ${escape.tipoSalidaNuevaEscape} ${escape.ubicacionNuevaEscape}. Esta reforma no supone modificación de potencia del vehículo.`;
+    } else {
+      let infoGeometria =
+        ', sin variar el número de salidas ni la ubicación original del mismo';
 
-    if (escape.cambiaNumeroSalidas && !escape.cambiaUbicacion) {
-      infoGeometria = `, modificando el número de salidas a ${escape.numeroSalidasEscape} y manteniendo la ubicación original`;
-    } else if (!escape.cambiaNumeroSalidas && escape.cambiaUbicacion) {
-      infoGeometria = `, manteniendo el número de salidas original y modificando la ubicación a ${escape.descripcionUbicacionEscape}`;
-    } else if (escape.cambiaNumeroSalidas && escape.cambiaUbicacion) {
-      infoGeometria = `, modificando el número de salidas a ${escape.numeroSalidasEscape} y la ubicación a ${escape.descripcionUbicacionEscape}`;
+      if (escape.cambiaNumeroSalidas && !escape.cambiaUbicacion) {
+        infoGeometria = `, modificando el número de salidas a ${escape.numeroSalidasEscape} y manteniendo la ubicación original`;
+      } else if (!escape.cambiaNumeroSalidas && escape.cambiaUbicacion) {
+        infoGeometria = `, manteniendo el número de salidas original y modificando la ubicación a ${escape.descripcionUbicacionEscape}`;
+      } else if (escape.cambiaNumeroSalidas && escape.cambiaUbicacion) {
+        infoGeometria = `, modificando el número de salidas a ${escape.numeroSalidasEscape} y la ubicación a ${escape.descripcionUbicacionEscape}`;
+      }
+
+      fraseEscape = `Sustitución del silencioso final de escape, por otro de la marca ${escape.marcaEscape} con referencia ${escape.referenciaEscape} y contraseña de homologación ${escape.contrasenaHomologacionEscape}${infoGeometria}.`;
     }
-
-    const fraseEscape = `Sustitución del silencioso final de escape, por otro de la marca ${escape.marcaEscape} con referencia ${escape.referenciaEscape} y contraseña de homologación ${escape.contrasenaHomologacionEscape}${infoGeometria}.`;
-
     const raw = `- ${fraseEscape}`;
 
     const p = new Paragraph({
@@ -423,7 +487,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const discos = modificaciones.find(
-    (m) => m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO' && m.seleccionado
+    (m) => m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO' && m.seleccionado,
   );
 
   if (discos) {
@@ -434,7 +498,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       modelo: string,
       ref: string,
       diam: number,
-      espesor: number
+      espesor: number,
     ) => {
       const txtModelo = modelo ? ` modelo ${modelo}` : '';
       return `Instalación de discos de sustitución en el ${eje} marca ${marca}${txtModelo} con referencia ${ref} de ${diam} mm de diámetro y ${espesor} mm de espesor, igual que los que incorpora el vehículo de origen y no modificando ningún otro componente del sistema de frenado.`;
@@ -452,8 +516,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           discos.modeloDiscos ?? '',
           discos.referenciaDiscos ?? '',
           discos.diametroDiscos ?? 0,
-          discos.espesorDiscos ?? 0
-        )
+          discos.espesorDiscos ?? 0,
+        ),
       );
     } else if (discos.ubicacionDiscos === 'traseros') {
       // Caso 2: Solo traseros (usa los inputs generales)
@@ -464,8 +528,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           discos.modeloDiscos ?? '',
           discos.referenciaDiscos ?? '',
           discos.diametroDiscos ?? 0,
-          discos.espesorDiscos ?? 0
-        )
+          discos.espesorDiscos ?? 0,
+        ),
       );
     } else if (discos.ubicacionDiscos === 'ambos') {
       if (discos.sonIguales) {
@@ -477,8 +541,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             discos.modeloDiscos ?? '',
             discos.referenciaDiscos ?? '',
             discos.diametroDiscos ?? 0,
-            discos.espesorDiscos ?? 0
-          )
+            discos.espesorDiscos ?? 0,
+          ),
         );
       } else {
         // Caso 4: Ambos ejes diferentes (Generamos dos frases)
@@ -490,8 +554,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             discos.modeloDiscos ?? '',
             discos.referenciaDiscos ?? '',
             discos.diametroDiscos ?? 0,
-            discos.espesorDiscos ?? 0
-          )
+            discos.espesorDiscos ?? 0,
+          ),
         );
         // Frase Trasera (Usa las variables específicas con sufijo 'Trasero')
         parrafosDiscos.push(
@@ -501,8 +565,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             discos.modeloDiscoTrasero ?? '',
             discos.referenciaDiscoTrasero ?? '',
             discos.diametroDiscoTrasero ?? 0,
-            discos.espesorDiscoTrasero ?? 0
-          )
+            discos.espesorDiscoTrasero ?? 0,
+          ),
         );
       }
     }
@@ -524,7 +588,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 10) CABRESTANTE
   //
   const cabrestante = modificaciones.find(
-    (m) => m.nombre === 'CABRESTANTE' && m.seleccionado
+    (m) => m.nombre === 'CABRESTANTE' && m.seleccionado,
   );
   if (cabrestante) {
     cabrestante.acciones?.forEach((accion: string) => {
@@ -545,7 +609,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 11) ANTIEMPOTRAMIENTO
   //
   const antiempotramiento = modificaciones.find(
-    (m) => m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado
+    (m) => m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado,
   );
   if (antiempotramiento) {
     antiempotramiento.acciones?.forEach((accion: string) => {
@@ -567,7 +631,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   //
   const soporteslucesespecificas = modificaciones.find(
     (m) =>
-      m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado
+      m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado,
   );
   if (soporteslucesespecificas) {
     soporteslucesespecificas.acciones?.forEach((accion: string) => {
@@ -588,7 +652,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 13) SOPORTE PARA RUEDA DE REPUESTO
   //
   const soportesruedarepuesto = modificaciones.find(
-    (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO' && m.seleccionado
+    (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO' && m.seleccionado,
   );
   if (soportesruedarepuesto) {
     soportesruedarepuesto.acciones?.forEach((accion: string) => {
@@ -617,28 +681,30 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre ===
         'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR' &&
-      m.seleccionado
+      m.seleccionado,
   )!;
 
   // 1) Muelles delanteros con referencia
   if (mod) {
-    const frasesBase = [
-      `Instalación - Se instalan los elementos de la suspensión nombrados de características diferentes a los originales.`,
-      `Sustitución - Se sustituyen los elementos de la suspensión que vienen de serie por los siguientes:`,
-      `Desmontaje - Se desmontan los elementos de la suspensión que vienen de serie por otros de características diferentes a los originales.`,
-    ];
+    if (suspension) {
+      const frasesBase = [
+        `Instalación - Se instalan los elementos de la suspensión nombrados de características diferentes a los originales.`,
+        `Desmontaje - Se desmontan los elementos de la suspensión que vienen de serie por otros de características diferentes a los originales.`,
+        `Sustitución - Se sustituyen los elementos de la suspensión que vienen de serie por los siguientes:`,
+      ];
 
-    // Añadir las 3 frases previas siempre que exista cualquier casuística
-    frasesBase.forEach((frase) => {
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 250 },
-        children: [new TextRun({ text: frase })],
+      // Añadir las 3 frases previas siempre que exista cualquier casuística
+      frasesBase.forEach((frase) => {
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 250 },
+          children: [new TextRun({ text: frase })],
+        });
+        (p as any)._rawText = frase;
+        (p as any)._fromCasuistica = true;
+        out.push(p);
       });
-      (p as any)._rawText = frase;
-      (p as any)._fromCasuistica = true;
-      out.push(p);
-    });
+    }
 
     // Párrafo principal
     const p = new Paragraph({
@@ -650,12 +716,25 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (p as any)._fromCasuistica = true; // 👈 marca
     out.push(p);
 
+    const fraseFija = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 250 },
+      children: [
+        new TextRun({
+          text: `Modificación del sistema de suspensión del vehículo instalando:`,
+        }),
+      ],
+    });
+    (p as any)._rawText = raw;
+    (p as any)._fromCasuistica = true; // 👈 marca
+    out.push(fraseFija);
+
     if (mod.detallesMuelles?.['muelleDelanteroConRef']) {
       raw = `- Muelles delanteros marca ${mod.marcaMuelleDelanteroConRef} referencia ${mod.referenciaMuelleDelanteroConRef}.`;
 
       // Párrafo principal
       const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
+        spacing: { line: 260, before: 120, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
@@ -664,7 +743,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       out.push(p);
 
       const indentLeft = 620;
-      const spacing = { line: 260, after: 120 };
+      const spacing = {};
 
       // Subpárrafos (viñetas)
       const p1 = new Paragraph({
@@ -672,13 +751,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`
+            `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`,
           ),
         ],
       });
-      (
-        p1 as any
-      )._rawText = `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`;
+      (p1 as any)._rawText =
+        `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -687,13 +765,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`
+            `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`,
           ),
         ],
       });
-      (
-        p2 as any
-      )._rawText = `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`;
+      (p2 as any)._rawText =
+        `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -702,13 +779,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`
+            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`,
           ),
         ],
       });
-      (
-        p3 as any
-      )._rawText = `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`;
+      (p3 as any)._rawText =
+        `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -719,9 +795,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           new TextRun(`• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`),
         ],
       });
-      (
-        p4 as any
-      )._rawText = `• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`;
+      (p4 as any)._rawText =
+        `• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -732,7 +807,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
 
       // Párrafo principal
       const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
+        spacing: { line: 260, before: 120, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
@@ -741,7 +816,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       out.push(p);
 
       const indentLeft = 620;
-      const spacing = { line: 260, after: 120 };
+      const spacing = {};
 
       // Subpárrafos (viñetas)
       const p1 = new Paragraph({
@@ -749,13 +824,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior: ${mod.diametroExteriorDelanteroSinRef} mm`
+            `• Diámetro exterior: ${mod.diametroExteriorDelanteroSinRef} mm`,
           ),
         ],
       });
-      (
-        p1 as any
-      )._rawText = `• Diámetro exterior: ${mod.diametroExteriorDelanteroSinRef} mm`;
+      (p1 as any)._rawText =
+        `• Diámetro exterior: ${mod.diametroExteriorDelanteroSinRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -764,13 +838,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Longitud de muelle: ${mod.longitudLibreDelanteroSinRef} mm`
+            `• Longitud de muelle: ${mod.longitudLibreDelanteroSinRef} mm`,
           ),
         ],
       });
-      (
-        p2 as any
-      )._rawText = `• Longitud de muelle: ${mod.longitudLibreDelanteroSinRef} mm`;
+      (p2 as any)._rawText =
+        `• Longitud de muelle: ${mod.longitudLibreDelanteroSinRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -779,13 +852,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroSinRef} mm`
+            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroSinRef} mm`,
           ),
         ],
       });
-      (
-        p3 as any
-      )._rawText = `• Diámetro de la espira: ${mod.diametroEspiraDelanteroSinRef} mm`;
+      (p3 as any)._rawText =
+        `• Diámetro de la espira: ${mod.diametroEspiraDelanteroSinRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -794,13 +866,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Número de espiras: ${mod.numeroEspirasDelanteroSinRef}.`
+            `• Número de espiras: ${mod.numeroEspirasDelanteroSinRef}.`,
           ),
         ],
       });
-      (
-        p4 as any
-      )._rawText = `• Número de espiras: ${mod.numeroEspirasDelanteroSinRef}.`;
+      (p4 as any)._rawText =
+        `• Número de espiras: ${mod.numeroEspirasDelanteroSinRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -811,7 +882,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
 
       // Párrafo principal
       const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
+        spacing: { line: 260, before: 120, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
@@ -820,7 +891,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       out.push(p);
 
       const indentLeft = 620;
-      const spacing = { line: 260, after: 120 };
+      const spacing = {};
 
       // Subpárrafos (viñetas)
       const p1 = new Paragraph({
@@ -828,13 +899,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`
+            `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`,
           ),
         ],
       });
-      (
-        p1 as any
-      )._rawText = `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`;
+      (p1 as any)._rawText =
+        `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -843,13 +913,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`
+            `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`,
           ),
         ],
       });
-      (
-        p2 as any
-      )._rawText = `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`;
+      (p2 as any)._rawText =
+        `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -858,13 +927,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`
+            `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`,
           ),
         ],
       });
-      (
-        p3 as any
-      )._rawText = `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`;
+      (p3 as any)._rawText =
+        `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -875,9 +943,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           new TextRun(`• Número de espiras: ${mod.numeroEspirasTraseroRef}.`),
         ],
       });
-      (
-        p4 as any
-      )._rawText = `• Número de espiras: ${mod.numeroEspirasTraseroRef}.`;
+      (p4 as any)._rawText =
+        `• Número de espiras: ${mod.numeroEspirasTraseroRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -888,7 +955,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
 
       // Párrafo principal
       const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
+        spacing: { line: 260, before: 120, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
@@ -897,7 +964,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       out.push(p);
 
       const indentLeft = 620;
-      const spacing = { line: 260, after: 120 };
+      const spacing = {};
 
       // Subpárrafos (viñetas)
       const p1 = new Paragraph({
@@ -907,9 +974,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           new TextRun(`• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`),
         ],
       });
-      (
-        p1 as any
-      )._rawText = `• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`;
+      (p1 as any)._rawText =
+        `• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -929,13 +995,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`
+            `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`,
           ),
         ],
       });
-      (
-        p3 as any
-      )._rawText = `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`;
+      (p3 as any)._rawText =
+        `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -946,9 +1011,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           new TextRun(`• Número de espiras: ${mod.numeroEspirasTrasero}.`),
         ],
       });
-      (
-        p4 as any
-      )._rawText = `• Número de espiras: ${mod.numeroEspirasTrasero}.`;
+      (p4 as any)._rawText =
+        `• Número de espiras: ${mod.numeroEspirasTrasero}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -960,11 +1024,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
-        raw
+        raw,
       );
     }
 
@@ -975,11 +1039,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
-        raw
+        raw,
       );
     }
 
@@ -990,11 +1054,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
-        raw
+        raw,
       );
     }
 
@@ -1005,11 +1069,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
-        raw
+        raw,
       );
     }
 
@@ -1045,11 +1109,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
-        raw
+        raw,
       );
 
       // 2) DETALLE MUELLES DELANTEROS
@@ -1063,11 +1127,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         pushCasuistica(
           out,
           new Paragraph({
-            spacing: { line: 260, after: 120 },
+            spacing: { line: 260, before: 120, after: 120 },
             indent: { left: 400 },
             children: [new TextRun({ text: raw })],
           }),
-          raw
+          raw,
         );
       }
 
@@ -1086,11 +1150,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         pushCasuistica(
           out,
           new Paragraph({
-            spacing: { line: 260, after: 120 },
+            spacing: { line: 260, before: 120, after: 120 },
             indent: { left: 400 },
             children: [new TextRun({ text: raw })],
           }),
-          raw
+          raw,
         );
       }
     }
@@ -1102,11 +1166,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
-        raw
+        raw,
       );
     }
   }
@@ -1115,7 +1179,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 16) MATRÍCULA Y PORTAMATRÍCULA
   //
   mod = modificaciones.find(
-    (m) => m.nombre === 'MATRÍCULA Y PORTAMATRÍCULA' && m.seleccionado
+    (m) => m.nombre === 'MATRÍCULA Y PORTAMATRÍCULA' && m.seleccionado,
   )!;
 
   // 1) Instalación
@@ -1175,7 +1239,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 17) DEFENSA DELANTERA
   //
   const defensadelantera = modificaciones.find(
-    (m) => m.nombre === 'DEFENSA DELANTERA' && m.seleccionado
+    (m) => m.nombre === 'DEFENSA DELANTERA' && m.seleccionado,
   );
   if (defensadelantera) {
     if (Array.isArray(defensadelantera.acciones)) {
@@ -1203,7 +1267,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 18) AMORTIGUADOR DE DIRECCIÓN
   //
   const amortiguadoresdireccion = modificaciones.find(
-    (m) => m.nombre === 'AMORTIGUADOR DE DIRECCIÓN' && m.seleccionado
+    (m) => m.nombre === 'AMORTIGUADOR DE DIRECCIÓN' && m.seleccionado,
   );
   if (amortiguadoresdireccion) {
     raw =
@@ -1226,7 +1290,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 19) BARRA DE DIRECCIÓN
   //
   const barradireeccion = modificaciones.find(
-    (m) => m.nombre === 'BARRA DE DIRECCIÓN' && m.seleccionado
+    (m) => m.nombre === 'BARRA DE DIRECCIÓN' && m.seleccionado,
   );
   if (barradireeccion) {
     if (Array.isArray(barradireeccion.acciones)) {
@@ -1255,7 +1319,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre ===
         'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)' &&
-      m.seleccionado
+      m.seleccionado,
   );
   if (barraalineamiento) {
     if (Array.isArray(barraalineamiento.acciones)) {
@@ -1281,7 +1345,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre ===
         'BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)' &&
-      m.seleccionado
+      m.seleccionado,
   );
   if (barramovimientolateral) {
     if (Array.isArray(barramovimientolateral.acciones)) {
@@ -1309,7 +1373,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 22) FAROS DELANTEROS PRINCIPALES
   //
   const farosdelanterosprincipales = modificaciones.find(
-    (m) => m.nombre === 'FAROS DELANTEROS PRINCIPALES' && m.seleccionado
+    (m) => m.nombre === 'FAROS DELANTEROS PRINCIPALES' && m.seleccionado,
   );
   if (farosdelanterosprincipales) {
     const led =
@@ -1330,7 +1394,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 23) LUZ DE CRUCE
   //
   const luzdecruce = modificaciones.find(
-    (m) => m.nombre === 'LUZ DE CRUCE' && m.seleccionado
+    (m) => m.nombre === 'LUZ DE CRUCE' && m.seleccionado,
   );
   if (luzdecruce) {
     const carretera =
@@ -1353,7 +1417,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 24) LUCES DE LARGO ALCANCE
   //
   const luzdelargo = modificaciones.find(
-    (m) => m.nombre === 'LUCES DE LARGO ALCANCE' && m.seleccionado
+    (m) => m.nombre === 'LUCES DE LARGO ALCANCE' && m.seleccionado,
   );
   if (luzdelargo) {
     if (Array.isArray(luzdelargo.acciones)) {
@@ -1373,7 +1437,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const aleron = modificaciones.find(
-    (m) => m.nombre === 'ALERÓN' && m.seleccionado
+    (m) => m.nombre === 'ALERÓN' && m.seleccionado,
   );
 
   if (aleron) {
@@ -1390,7 +1454,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const lipDelantero = modificaciones.find(
-    (m) => m.nombre === 'LIP DELANTERO' && m.seleccionado
+    (m) => m.nombre === 'LIP DELANTERO' && m.seleccionado,
   );
 
   if (lipDelantero) {
@@ -1413,7 +1477,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const asientos = modificaciones.find(
-    (m) => m.nombre === 'CAMBIO DE ASIENTOS' && m.seleccionado
+    (m) => m.nombre === 'CAMBIO DE ASIENTOS' && m.seleccionado,
   );
 
   if (asientos) {
@@ -1445,7 +1509,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const barras = modificaciones.find(
-    (m) => m.nombre === 'BARRAS ANTIVUELCO' && m.seleccionado
+    (m) => m.nombre === 'BARRAS ANTIVUELCO' && m.seleccionado,
   );
 
   if (barras) {
@@ -1462,7 +1526,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const techoSolar = modificaciones.find(
-    (m) => m.nombre === 'TECHO SOLAR' && m.seleccionado
+    (m) => m.nombre === 'TECHO SOLAR' && m.seleccionado,
   );
 
   if (techoSolar) {
@@ -1479,7 +1543,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const peldanos = modificaciones.find(
-    (m) => m.nombre === 'PELDAÑOS' && m.seleccionado
+    (m) => m.nombre === 'PELDAÑOS' && m.seleccionado,
   );
 
   if (peldanos) {
@@ -1496,7 +1560,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const ventanaAbatible = modificaciones.find(
-    (m) => m.nombre === 'VENTANA ABATIBLE' && m.seleccionado
+    (m) => m.nombre === 'VENTANA ABATIBLE' && m.seleccionado,
   );
 
   if (ventanaAbatible) {
@@ -1526,7 +1590,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const bodyLift = modificaciones.find(
-    (m) => m.nombre === 'BODY LIFT' && m.seleccionado
+    (m) => m.nombre === 'BODY LIFT' && m.seleccionado,
   );
 
   if (bodyLift) {
@@ -1551,7 +1615,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const motor = modificaciones.find(
-    (m) => m.nombre === 'MOTOR' && m.seleccionado
+    (m) => m.nombre === 'MOTOR' && m.seleccionado,
   );
 
   if (motor) {
@@ -1594,7 +1658,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const chasis = modificaciones.find(
-    (m) => m.nombre === 'MODIFICACION DE CHASIS' && m.seleccionado
+    (m) => m.nombre === 'MODIFICACION DE CHASIS' && m.seleccionado,
   );
 
   if (chasis) {
@@ -1614,7 +1678,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 25) LUZ DE POSICIÓN
   //
   const luzdeposicion = modificaciones.find(
-    (m) => m.nombre === 'LUZ DE POSICIÓN' && m.seleccionado
+    (m) => m.nombre === 'LUZ DE POSICIÓN' && m.seleccionado,
   );
   if (luzdeposicion) {
     if (Array.isArray(luzdeposicion?.acciones)) {
@@ -1639,7 +1703,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 26) 3ª LUZ DE FRENO
   //
   const luz3defreno = modificaciones.find(
-    (m) => m.nombre === '3ª LUZ DE FRENO' && m.seleccionado
+    (m) => m.nombre === '3ª LUZ DE FRENO' && m.seleccionado,
   );
   if (luz3defreno) {
     raw = `- Sustitución de la tercera luz de freno por otra marca ${luz3defreno.marca3Freno} con marcaje ${luz3defreno.marcaje3Freno} y homologación ${luz3defreno.homologacion3Freno}, situado ${luz3defreno.situado3Freno} y accionada desde los mandos originales.`;
@@ -1658,7 +1722,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 27) DIURNAS
   //
   const luzdiurna = modificaciones.find(
-    (m) => m.nombre === 'DIURNAS' && m.seleccionado
+    (m) => m.nombre === 'DIURNAS' && m.seleccionado,
   );
   if (luzdiurna) {
     let led = '';
@@ -1682,7 +1746,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const protectores = modificaciones.find(
-    (m) => m.nombre === 'PROTECTORES PARAGOLPES' && m.seleccionado
+    (m) => m.nombre === 'PROTECTORES PARAGOLPES' && m.seleccionado,
   );
 
   if (protectores) {
@@ -1708,7 +1772,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const plancha = modificaciones.find(
-    (m) => m.nombre === 'PLANCHA CAPÓ' && m.seleccionado
+    (m) => m.nombre === 'PLANCHA CAPÓ' && m.seleccionado,
   );
 
   if (plancha) {
@@ -1727,7 +1791,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const calandra = modificaciones.find(
-    (m) => m.nombre === 'CALANDRA' && m.seleccionado
+    (m) => m.nombre === 'CALANDRA' && m.seleccionado,
   );
 
   if (calandra) {
@@ -1746,7 +1810,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const intercooler = modificaciones.find(
-    (m) => m.nombre === 'INTERCOOLER' && m.seleccionado
+    (m) => m.nombre === 'INTERCOOLER' && m.seleccionado,
   );
 
   if (intercooler) {
@@ -1771,7 +1835,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const relojes = modificaciones.find(
-    (m) => m.nombre === 'PANEL RELOJES' && m.seleccionado
+    (m) => m.nombre === 'PANEL RELOJES' && m.seleccionado,
   );
 
   if (relojes) {
@@ -1790,7 +1854,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const refuerzo = modificaciones.find(
-    (m) => m.nombre === 'REFUERZO PARAGOLPES' && m.seleccionado
+    (m) => m.nombre === 'REFUERZO PARAGOLPES' && m.seleccionado,
   );
 
   if (refuerzo) {
@@ -1810,7 +1874,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const difusor = modificaciones.find(
-    (m) => m.nombre === 'DIFUSOR TRASERO' && m.seleccionado
+    (m) => m.nombre === 'DIFUSOR TRASERO' && m.seleccionado,
   );
 
   if (difusor) {
@@ -1829,7 +1893,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const ventanaCoche = modificaciones.find(
-    (m) => m.nombre === 'VENTANA LATERAL' && m.seleccionado
+    (m) => m.nombre === 'VENTANA LATERAL' && m.seleccionado,
   );
 
   if (ventanaCoche) {
@@ -1854,7 +1918,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const disminucionMMA = modificaciones.find(
-    (m) => m.nombre === 'REDUCCIÓN DE MMA' && m.seleccionado
+    (m) => m.nombre === 'REDUCCIÓN DE MMA' && m.seleccionado,
   );
 
   if (disminucionMMA) {
@@ -1873,7 +1937,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const disminucionMMTA = modificaciones.find(
-    (m) => m.nombre === 'REDUCCIÓN DE MMTA' && m.seleccionado
+    (m) => m.nombre === 'REDUCCIÓN DE MMTA' && m.seleccionado,
   );
 
   if (disminucionMMTA) {
@@ -1895,7 +1959,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 28) ANTINIEBLA
   //
   const luzantiniebla = modificaciones.find(
-    (m) => m.nombre === 'ANTINIEBLA' && m.seleccionado
+    (m) => m.nombre === 'ANTINIEBLA' && m.seleccionado,
   );
 
   if (luzantiniebla) {
@@ -1910,7 +1974,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           luzantiniebla.ubicacionAntiniebla === 'ambos'
         ) {
           itemsGenerados.push(
-            `${accion} de luces antiniebla delanteras marca ${luzantiniebla.marcaAntinieblaDel} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaDel}`
+            `${accion} de luces antiniebla delanteras marca ${luzantiniebla.marcaAntinieblaDel} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaDel}`,
           );
         }
 
@@ -1920,7 +1984,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           luzantiniebla.ubicacionAntiniebla === 'ambos'
         ) {
           itemsGenerados.push(
-            `${accion} de luces antiniebla traseras marca ${luzantiniebla.marcaAntinieblaTras} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaTras}`
+            `${accion} de luces antiniebla traseras marca ${luzantiniebla.marcaAntinieblaTras} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaTras}`,
           );
         }
 
@@ -1946,11 +2010,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 29) PILOTO TRASERO
   //
   const luztrasero = modificaciones.find(
-    (m) => m.nombre === 'PILOTO TRASERO' && m.seleccionado
+    (m) => m.nombre === 'PILOTO TRASERO' && m.seleccionado,
   );
   if (luztrasero) {
     mod = modificaciones.find(
-      (m) => m.nombre === 'PILOTO TRASERO' && m.seleccionado
+      (m) => m.nombre === 'PILOTO TRASERO' && m.seleccionado,
     )!;
     // Línea principal
     raw = `- Sustitución de los pilotos traseros por otros marca ${mod.marcaPilotoTrasero} con los siguientes marcajes:`;
@@ -2022,7 +2086,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const luzAtras = modificaciones.find(
-    (m) => m.nombre === 'LUZ MARCHA ATRÁS' && m.seleccionado
+    (m) => m.nombre === 'LUZ MARCHA ATRÁS' && m.seleccionado,
   );
 
   if (luzAtras) {
@@ -2059,7 +2123,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 30) INTERMITENTES
   //
   const intermitentes = modificaciones.find(
-    (m) => m.nombre === 'INTERMITENTES' && m.seleccionado
+    (m) => m.nombre === 'INTERMITENTES' && m.seleccionado,
   );
   if (intermitentes) {
     let posicion = ' ';
@@ -2102,7 +2166,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 31) SUSTITUCIÓN DE EJES
   //
   const sustiejes = modificaciones.find(
-    (m) => m.nombre === 'SUSTITUCIÓN DE EJES' && m.seleccionado
+    (m) => m.nombre === 'SUSTITUCIÓN DE EJES' && m.seleccionado,
   );
   if (sustiejes) {
     let raw = ' ';
@@ -2130,7 +2194,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 32) ESTRIBOS LATERALES O TALONERAS
   //
   const estribostaloneras = modificaciones.find(
-    (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado
+    (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado,
   );
   if (estribostaloneras) {
     if (Array.isArray(estribostaloneras?.acciones)) {
@@ -2160,10 +2224,10 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre === 'REDUCCIÓN MMA Y MMTA' &&
       m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+      data.tipoVehiculo === 'moto',
   );
   if (reduccion) {
-    raw = `- Reducción de MTMA en el eje delantero a ${reduccion.kgReduccionEjeDelantero}Kg, correspondiente a la MTMA del donante de la horquilla.`;
+    raw = `- Reducción de MMTA en el eje delantero a ${reduccion.kgReduccionEjeDelantero}Kg, correspondiente a la MMTA del donante de la horquilla.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -2173,7 +2237,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (p as any)._rawText = raw;
     out.push(p);
 
-    raw = `- Reducción de la MTMA total a ${reduccion.kgReduccionTotal}Kg para no sobrecargar el eje delentero.`;
+    raw = `- Reducción de la MMTA total a ${reduccion.kgReduccionTotal}Kg para no sobrecargar el eje delentero.`;
 
     const pp = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -2185,7 +2249,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const soporte = modificaciones.find(
-    (m) => m.nombre === 'SOPORTE MATRÍCULA' && m.seleccionado
+    (m) => m.nombre === 'SOPORTE MATRÍCULA' && m.seleccionado,
   );
 
   if (soporte) {
@@ -2204,7 +2268,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const estriberas = modificaciones.find(
-    (m) => m.nombre === 'ESTRIBERAS' && m.seleccionado
+    (m) => m.nombre === 'ESTRIBERAS' && m.seleccionado,
   );
 
   if (estriberas) {
@@ -2230,7 +2294,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const deposito = modificaciones.find(
-    (m) => m.nombre === 'SUSTITUCIÓN DE DEPÓSITO' && m.seleccionado
+    (m) => m.nombre === 'SUSTITUCIÓN DE DEPÓSITO' && m.seleccionado,
   );
 
   if (deposito) {
@@ -2254,7 +2318,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const bombaFreno = modificaciones.find(
-    (m) => m.nombre === 'SUSTITUCIÓN DE BOMBA DE FRENO' && m.seleccionado
+    (m) => m.nombre === 'SUSTITUCIÓN DE BOMBA DE FRENO' && m.seleccionado,
   );
 
   if (bombaFreno) {
@@ -2262,7 +2326,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     const generarFraseBomba = (
       ubicacion: string,
       marca: string,
-      referencia: string
+      referencia: string,
     ) => {
       return `Sustitución de la bomba de freno ${ubicacion} original por otra de la marca ${marca}, con referencia ${referencia} con un diámetro y longitud del pistón igual al de la bomba de freno original. La luz de frenado sigue operativa para el freno ${ubicacion}.`;
     };
@@ -2275,8 +2339,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         generarFraseBomba(
           'delantera',
           bombaFreno.marcaBombaFrenoDel ?? '',
-          bombaFreno.referenciaBombaFrenoDel ?? ''
-        )
+          bombaFreno.referenciaBombaFrenoDel ?? '',
+        ),
       );
     }
     // Caso 2: Solo Trasera
@@ -2285,8 +2349,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         generarFraseBomba(
           'trasera',
           bombaFreno.marcaBombaFrenoTras ?? '',
-          bombaFreno.referenciaBombaFrenoTras ?? ''
-        )
+          bombaFreno.referenciaBombaFrenoTras ?? '',
+        ),
       );
     }
     // Caso 3: Ambas
@@ -2296,16 +2360,16 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         generarFraseBomba(
           'delantera',
           bombaFreno.marcaBombaFrenoDel ?? '',
-          bombaFreno.referenciaBombaFrenoDel ?? ''
-        )
+          bombaFreno.referenciaBombaFrenoDel ?? '',
+        ),
       );
       // Luego generamos la trasera
       parrafosBomba.push(
         generarFraseBomba(
           'trasera',
           bombaFreno.marcaBombaFrenoTras ?? '',
-          bombaFreno.referenciaBombaFrenoTras ?? ''
-        )
+          bombaFreno.referenciaBombaFrenoTras ?? '',
+        ),
       );
     }
 
@@ -2323,7 +2387,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const soportes = modificaciones.find(
-    (m) => m.nombre === 'SOPORTES DESPLAZADOS' && m.seleccionado
+    (m) => m.nombre === 'SOPORTES DESPLAZADOS' && m.seleccionado,
   );
 
   if (soportes) {
@@ -2366,7 +2430,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const velocimetroMoto = modificaciones.find(
-    (m) => m.nombre === 'VELOCÍMETRO' && m.seleccionado
+    (m) => m.nombre === 'VELOCÍMETRO' && m.seleccionado,
   );
 
   if (velocimetroMoto) {
@@ -2406,7 +2470,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const subchasis = modificaciones.find(
-    (m) => m.nombre === 'RECORTE SUBCHASIS' && m.seleccionado
+    (m) => m.nombre === 'RECORTE SUBCHASIS' && m.seleccionado,
   );
 
   if (subchasis) {
@@ -2425,7 +2489,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const torretas = modificaciones.find(
-    (m) => m.nombre === 'TORRETAS' && m.seleccionado
+    (m) => m.nombre === 'TORRETAS' && m.seleccionado,
   );
 
   if (torretas) {
@@ -2444,7 +2508,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const acelerador = modificaciones.find(
-    (m) => m.nombre === 'MANDO ACELERADOR' && m.seleccionado
+    (m) => m.nombre === 'MANDO ACELERADOR' && m.seleccionado,
   );
 
   if (acelerador) {
@@ -2468,7 +2532,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const mandos = modificaciones.find(
-    (m) => m.nombre === 'MANDOS LUCES' && m.seleccionado
+    (m) => m.nombre === 'MANDOS LUCES' && m.seleccionado,
   );
 
   if (mandos) {
@@ -2487,7 +2551,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const reduccionMoto = modificaciones.find(
-    (m) => m.nombre === 'REDUCCIÓN DE PLAZAS' && m.seleccionado
+    (m) => m.nombre === 'REDUCCIÓN DE PLAZAS' && m.seleccionado,
   );
 
   if (reduccionMoto) {
@@ -2527,7 +2591,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const asiento = modificaciones.find(
-    (m) => m.nombre === 'ASIENTO' && m.seleccionado
+    (m) => m.nombre === 'ASIENTO' && m.seleccionado,
   );
 
   if (asiento) {
@@ -2555,7 +2619,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const basculante = modificaciones.find(
-    (m) => m.nombre === 'SUSTITUCIÓN DE BASCULANTE' && m.seleccionado
+    (m) => m.nombre === 'SUSTITUCIÓN DE BASCULANTE' && m.seleccionado,
   );
 
   if (basculante) {
@@ -2587,55 +2651,132 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre === 'LLANTAS Y NEUMÁTICOS' &&
       m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+      data.tipoVehiculo === 'moto',
   );
+
   if (llantas) {
+    // 1. GENERACIÓN DEL TEXTO PRINCIPAL
     if (llantas.neumaticosMoto === 'delantero') {
-      if (Array.isArray(llantas?.acciones)) {
-        llantas.acciones.forEach((accion: string) => {
-          const raw = `- ${accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      const raw = `- Instalación de neumático delantero por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-          const p = new Paragraph({
-            spacing: { line: 260, after: 120 },
-            indent: { left: 400 },
-            children: [new TextRun({ text: raw })],
-          });
-
-          (p as any)._rawText = raw;
-          out.push(p);
-        });
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
     }
+
     if (llantas.neumaticosMoto === 'trasero') {
-      if (Array.isArray(llantas?.acciones)) {
-        llantas.acciones.forEach((accion: string) => {
-          const raw = `- ${accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      const raw = `- Instalación de neumático trasero por otro de medidas no equivalentes ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-          const p = new Paragraph({
-            spacing: { line: 260, after: 120 },
-            indent: { left: 400 },
-            children: [new TextRun({ text: raw })],
-          });
-
-          (p as any)._rawText = raw;
-          out.push(p);
-        });
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
     }
+
     if (llantas.neumaticosMoto === 'delantero y trasero') {
-      if (Array.isArray(llantas?.acciones)) {
-        llantas.acciones.forEach((accion: string) => {
-          const raw = `- ${accion} de neumáticos ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantas} en la parte delantera y en la parte trasera ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      const raw = `- Instalación de neumáticos por otros de medidas no equivalentes: delantero ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero} y trasero ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-          const p = new Paragraph({
-            spacing: { line: 260, after: 120 },
-            indent: { left: 400 },
-            children: [new TextRun({ text: raw })],
-          });
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
 
-          (p as any)._rawText = raw;
-          out.push(p);
+    // 2. LÓGICA DE NOTAS (1 y 2)
+    const totalNotas =
+      (llantas.anotacion1 ? 1 : 0) + (llantas.anotacion2 ? 1 : 0);
+
+    let notaCounter = 1;
+    const getNotaLabel = () =>
+      totalNotas > 1 ? `NOTA ${notaCounter++}: ` : `NOTA: `;
+
+    if (llantas.anotacion1) {
+      const label = getNotaLabel();
+      out.push(
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [
+            new TextRun({
+              text: label,
+              bold: true,
+            }),
+            new TextRun({
+              text: 'Debido a que la diferencia de diámetro entre el neumático original y el nuevo es superior al 8%, se ha procedido al tarado del velocímetro.',
+            }),
+          ],
+        }),
+      );
+    }
+
+    if (llantas.anotacion2) {
+      const label = getNotaLabel();
+      const vAntes = llantas.velocidadMaximaAntes || '---';
+      const vDespues = llantas.velocidadMaximaDespues || '---';
+
+      out.push(
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [
+            new TextRun({
+              text: label,
+              bold: true,
+            }),
+            new TextRun({
+              text: `Debido a que por su construcción, este vehículo es capaz de alcanzar una velocidad máxima de Vmáx = ${vAntes} Km/h, superior al índice de velocidad de los neumáticos instalados, se deberá instalar una pegatina limitadora de velocidad de Vmáx = ${vDespues} Km/h, visible desde el puesto de conducción.`,
+            }),
+          ],
+        }),
+      );
+    }
+
+    // 3. ANOTACIÓN 3: JUSTIFICACIÓN DE CARGA (Sin etiqueta 'NOTA')
+    if (llantas.anotacion3) {
+      // Eje 1 (Delantero)
+      if (
+        llantas.neumaticosMoto === 'delantero' ||
+        llantas.neumaticosMoto === 'delantero y trasero'
+      ) {
+        const indice = llantas.indiceCargaEje1Neumaticos || '---';
+        const carga = llantas.cargaEquivalenteEje1Neumaticos || '---';
+        const mma = llantas.mmaEje1Neumaticos || '---';
+
+        const raw = `Se comprueba que el nuevo índice de carga del neumático delantero (${indice}, que equivale a ${carga} Kg) es capaz de soportar la MMA del 1er eje (${mma} Kg).`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: raw })],
         });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      // Eje 2 (Trasero)
+      if (
+        llantas.neumaticosMoto === 'trasero' ||
+        llantas.neumaticosMoto === 'delantero y trasero'
+      ) {
+        const indice = llantas.indiceCargaEje2Neumaticos || '---';
+        const carga = llantas.cargaEquivalenteEje2Neumaticos || '---';
+        const mma = llantas.mmaEje2Neumaticos || '---';
+
+        const raw = `Se comprueba que el nuevo índice de carga del neumático trasero (${indice}, que equivale a ${carga} Kg) es capaz de soportar la MMA del 2º eje (${mma} Kg).`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
       }
     }
   }
@@ -2647,7 +2788,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre === 'SUSPENSIÓN' &&
       m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+      data.tipoVehiculo === 'moto',
   );
   if (suspensionmoto) {
     raw = `- Sustitución del sistema de suspensión instalando amortiguador trasero con botella regulable marca ${suspensionmoto.marca} referencia ${suspensionmoto.referencia}.`;
@@ -2668,7 +2809,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre === 'SUSTITUCIÓN GUARDABARROS' &&
       m.seleccionado &&
-      data.tipoVehiculo === 'moto'
+      data.tipoVehiculo === 'moto',
   );
   if (guarda?.guardabarrosDelantero) {
     if (guarda.tipoFabricacionGuardabarrosDelantero === 'artesanal') {
@@ -2724,7 +2865,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 5) MANILLAR
   //
   const manillar = modificaciones.find(
-    (m) => m.nombre === 'MANILLAR' && m.seleccionado
+    (m) => m.nombre === 'MANILLAR' && m.seleccionado,
   );
   if (manillar) {
     raw = `- Sustitución de manillar por otro marca ${manillar.marca} modelo ${manillar.modelo} y de medidas ${manillar.medidasManillar}.`;
@@ -2746,7 +2887,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             text: 'Se han reubicado los mandos sobre el nuevo manillar en posiciones equivalentes a las originales.',
           }),
         ],
-      })
+      }),
     );
   }
 
@@ -2754,7 +2895,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 6) VELOCÍMETRO
   //
   const velocimetro = modificaciones.find(
-    (m) => m.nombre === 'VELOCÍMETRO' && m.seleccionado
+    (m) => m.nombre === 'VELOCÍMETRO' && m.seleccionado,
   );
   if (velocimetro) {
     raw = `- Sustitución del velocímetro, por otro de la marca ${velocimetro.marca} referencia ${velocimetro.referencia} y contraseña de homologación ${velocimetro.homologacion}. Incorpora los testigos de intermitente derecho e izquierdo, luz larga y neutro.`;
@@ -2772,7 +2913,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 7) LATIGUILLOS
   //
   const latiguillos = modificaciones.find(
-    (m) => m.nombre === 'LATIGUILLOS' && m.seleccionado
+    (m) => m.nombre === 'LATIGUILLOS' && m.seleccionado,
   );
 
   if (latiguillos) {
@@ -2801,7 +2942,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 8) RETROVISORES
   //
   const retrovisores = modificaciones.find(
-    (m) => m.nombre === 'RETROVISORES' && m.seleccionado
+    (m) => m.nombre === 'RETROVISORES' && m.seleccionado,
   );
   if (retrovisores) {
     raw = `- Sustitución y reubicación de espejos retrovisores por otros, marca ${retrovisores.marca}, modelo ${retrovisores.modelo}, con marcaje ${retrovisores.marcaje} y contraseña de homologación ${retrovisores.homologacion}.`;
@@ -2819,7 +2960,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 9) HORQUILLA DELANTERA
   //
   const horquilladelantera = modificaciones.find(
-    (m) => m.nombre === 'HORQUILLA DELANTERA' && m.seleccionado
+    (m) => m.nombre === 'HORQUILLA DELANTERA' && m.seleccionado,
   );
   if (horquilladelantera) {
     raw = `- Sustitución de horquilla delantera por otra procedente de una moto marca ${horquilladelantera.marca}, tipo ${horquilladelantera.tipo}, variante ${horquilladelantera.variante} y denominación comercial ${horquilladelantera.denominacion}.`;
@@ -2837,7 +2978,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 10) DISCO DE FRENO Y PINZA DE FRENO
   //
   const frenos = modificaciones.find(
-    (m) => m.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' && m.seleccionado
+    (m) => m.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' && m.seleccionado,
   );
   if (frenos) {
     if (frenos?.tieneDisco) {
@@ -2899,7 +3040,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   //
   const luces = modificaciones.find(
     (m) =>
-      m.nombre === 'LUCES' && m.seleccionado && data.tipoVehiculo === 'moto'
+      m.nombre === 'LUCES' && m.seleccionado && data.tipoVehiculo === 'moto',
   );
   if (luces) {
     console.log('LUCES:', luces);
@@ -3000,7 +3141,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 1) CAMBIO DE CLASIFICACIÓN
   //
   const cambioclasi = modificaciones.find(
-    (m) => m.nombre === 'CAMBIO DE CLASIFICACIÓN' && m.seleccionado
+    (m) => m.nombre === 'CAMBIO DE CLASIFICACIÓN' && m.seleccionado,
   );
   if (cambioclasi) {
     raw = `- Cambio de clasificación del vehículo de ${data.clasificacionAntes} a ${data.clasificacionDespues}.`;
@@ -3015,7 +3156,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const techo = modificaciones.find(
-    (m) => m.nombre === 'TECHO ELEVABLE' && m.seleccionado
+    (m) => m.nombre === 'TECHO ELEVABLE' && m.seleccionado,
   );
 
   if (techo) {
@@ -3035,7 +3176,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const revestimiento = modificaciones.find(
-    (m) => m.nombre === 'REVESTIMIENTO INTERIOR' && m.seleccionado
+    (m) => m.nombre === 'REVESTIMIENTO INTERIOR' && m.seleccionado,
   );
 
   if (revestimiento) {
@@ -3076,7 +3217,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const termo = modificaciones.find(
-    (m) => m.nombre === 'INSTALACIÓN DE TERMO' && m.seleccionado
+    (m) => m.nombre === 'INSTALACIÓN DE TERMO' && m.seleccionado,
   );
 
   if (termo) {
@@ -3095,7 +3236,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const banqueta2 = modificaciones.find(
-    (m) => m.nombre === 'BANQUETA' && m.seleccionado
+    (m) => m.nombre === 'BANQUETA' && m.seleccionado,
   );
 
   if (banqueta2) {
@@ -3133,7 +3274,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const enganche = modificaciones.find(
-    (m) => m.nombre === 'ENGANCHE REMOLQUE' && m.seleccionado
+    (m) => m.nombre === 'ENGANCHE REMOLQUE' && m.seleccionado,
   );
 
   if (enganche) {
@@ -3157,7 +3298,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const antena = modificaciones.find(
-    (m) => m.nombre === 'ANTENA' && m.seleccionado
+    (m) => m.nombre === 'ANTENA' && m.seleccionado,
   );
 
   if (antena) {
@@ -3187,7 +3328,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre === 'AUMENTO O DISMINUCIÓN DE PLAZAS' &&
       m.seleccionado &&
-      data.tipoVehiculo === 'camper'
+      data.tipoVehiculo === 'camper',
   );
   if (aumentodisminucion) {
     if (aumentodisminucion.tipoCambio === 'aumento') {
@@ -3222,7 +3363,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) =>
       m.nombre ===
         'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL' &&
-      m.seleccionado
+      m.seleccionado,
   );
   if (banqueta) {
     raw = `- Sustitución de asiento delantero biplaza por uno individual procedente de ${banqueta.marcaAsiento}, contraseña de homologación ${banqueta.contrasenaAsiento}, de la variante de ${banqueta.plazasAsiento} plazas ${banqueta.posicionAsiento}, manteniéndose el cinturón de la plaza lateral derecha en anclaje original.`;
@@ -3240,7 +3381,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 4) INSTALACIÓN DE BASES GIRATORIAS
   //
   const giratiorias = modificaciones.find(
-    (m) => m.nombre === 'INSTALACIÓN DE BASES GIRATORIAS' && m.seleccionado
+    (m) => m.nombre === 'INSTALACIÓN DE BASES GIRATORIAS' && m.seleccionado,
   );
   if (giratiorias) {
     raw = `- Instalación de bases giratorias en los asientos delanteros, marca ${giratiorias.marcaBaseGiratoria}, referencia ${giratiorias.referenciaConductor} (conductor) y ${giratiorias.referenciaAcompanante} (acompañante), sobre anclajes originales, con contraseña de homologación ${giratiorias.homologacionBase}. Las bases giratorias se instalan según instrucciones del fabricante y en anclajes originales.`;
@@ -3258,7 +3399,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 5) CALEFACCIÓN ESTACIONARIA
   //
   const calefac = modificaciones.find(
-    (m) => m.nombre === 'CALEFACCIÓN ESTACIONARIA' && m.seleccionado
+    (m) => m.nombre === 'CALEFACCIÓN ESTACIONARIA' && m.seleccionado,
   );
   if (calefac) {
     raw = `- Instalación de sistema de calefacción marca ${calefac.marcaCalefaccion} modelo ${calefac.modeloCalefaccion} contraseña de homologación ${calefac.homologacionCalefaccion}, con salidas al espacio de carga del vehículo. El combustible utilizado es Diésel que se toma del depósito mediante espadín. ${calefac.descripcionCalefaccion}. Se realiza instalación del sistema de alimentación según indicaciones de fabricante y se garantiza la estanqueidad del sistema.`;
@@ -3275,7 +3416,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 6) MOBILIARIO INTERIOR VEHÍCULO
   //
   const mobil = modificaciones.find(
-    (m) => m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado
+    (m) => m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
   );
   if (mobil) {
     raw = `- Instalación de mobiliario para convertir el vehículo en furgón vivienda en la zona de carga del vehículo, compuesto por:`;
@@ -3344,7 +3485,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 7) CLARABOYA
   //
   const claraboya = modificaciones.find(
-    (m) => m.nombre === 'CLARABOYA' && m.seleccionado
+    (m) => m.nombre === 'CLARABOYA' && m.seleccionado,
   );
   if (claraboya) {
     raw = `- Instalación en el techo del vehículo ${claraboya.cantidadClaraboya} claraboyas, marca ${claraboya.marcaClaraboya} modelo ${claraboya.modeloClaraboya} ${claraboya.descripcionClaraboya}, con contraseña de homologación ${claraboya.homologacionClaraboya}, sin afectar a la estructura principal del vehículo.`;
@@ -3362,7 +3503,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 8) VENTANA
   //
   const ventana = modificaciones.find(
-    (m) => m.nombre === 'VENTANA' && m.seleccionado
+    (m) => m.nombre === 'VENTANA' && m.seleccionado,
   );
   if (ventana) {
     raw = `- Instalación de ${ventana.cantidadVentanas} ventanas abatibles/correderas ${ventana.descripcionVentana} marca ${ventana.marcaVentana} modelo ${ventana.modeloVentana} de dimensiones ${ventana.dimensionesVentana}mm y contraseña de homologación ${ventana.homologacionVentana}, sin afectar a la estructura principal del vehículo.`;
@@ -3380,7 +3521,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 9) DEPÓSITO DE AGUA SUCIA
   //
   const aguasucia = modificaciones.find(
-    (m) => m.nombre === 'DEPÓSITO DE AGUA SUCIA' && m.seleccionado
+    (m) => m.nombre === 'DEPÓSITO DE AGUA SUCIA' && m.seleccionado,
   );
   if (aguasucia) {
     raw = `- Instalación de depósito para agua sucia de ${aguasucia.litrosAguaSucia} litros en la parte trasera en los bajos del vehículo. Este depósito se vacía mediante un grifo.`;
@@ -3398,7 +3539,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 10) DEPÓSITO DE AGUA LIMPIA
   //
   const agualimpia = modificaciones.find(
-    (m) => m.nombre === 'DEPÓSITO DE AGUA LIMPIA' && m.seleccionado
+    (m) => m.nombre === 'DEPÓSITO DE AGUA LIMPIA' && m.seleccionado,
   );
   if (agualimpia) {
     raw = `- Instalación de depósito para agua limpia de ${agualimpia.litrosAguaLimpia} litros y medidas ${agualimpia.medidasAguaLimpia}mm en la parte trasera del lateral izquierdo.`;
@@ -3416,7 +3557,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 12) BOMBA DE AGUA
   //
   const bombaagua = modificaciones.find(
-    (m) => m.nombre === 'BOMBA DE AGUA' && m.seleccionado
+    (m) => m.nombre === 'BOMBA DE AGUA' && m.seleccionado,
   );
   if (bombaagua) {
     raw = `- Instalación de bomba de agua de 12V marca ${bombaagua.marcaBombaAgua} modelo ${bombaagua.modeloBombaAgua} ubicada en la parte trasera izquierda del vehículo.`;
@@ -3434,7 +3575,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 13) REGISTRO DE LLENADO DE AGUA
   //
   const llenadoagua = modificaciones.find(
-    (m) => m.nombre === 'REGISTRO DE LLENADO DE AGUA' && m.seleccionado
+    (m) => m.nombre === 'REGISTRO DE LLENADO DE AGUA' && m.seleccionado,
   );
   if (llenadoagua) {
     raw = `- Instalación de registro ${llenadoagua.ubicacionRegistroAgua} para llenado de agua, fabricado en plástico de Ø ${llenadoagua.tamanoRegistroAgua}mm, sin afectar a la estructura del vehículo.`;
@@ -3452,7 +3593,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 14) TOMA EXTERIOR 230V
   //
   const toma230v = modificaciones.find(
-    (m) => m.nombre === 'TOMA EXTERIOR 230V' && m.seleccionado
+    (m) => m.nombre === 'TOMA EXTERIOR 230V' && m.seleccionado,
   );
   if (toma230v) {
     raw = `- Instalación de una toma de corriente exterior de ${toma230v.voltajeTomaExterior}V en la ${toma230v.ubicacionTomaExterior} fabricado en plástico de medidas ${toma230v.medidasTomaExterior}mm, sin afectar a la estructura del vehículo.`;
@@ -3470,7 +3611,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 15) DUCHA EXTERIOR
   //
   const duchaexterior = modificaciones.find(
-    (m) => m.nombre === 'DUCHA EXTERIOR' && m.seleccionado
+    (m) => m.nombre === 'DUCHA EXTERIOR' && m.seleccionado,
   );
   if (duchaexterior) {
     raw = `- Instalación de registro con ducha exterior en la ${duchaexterior.ubicacionDuchaExterior} para llenado de agua, fabricado en plástico, sin afectar a la estructura del vehículo.`;
@@ -3488,7 +3629,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 16) INSTALACIÓN ELÉCTRICA
   //
   const instalacionelectrica = modificaciones.find(
-    (m) => m.nombre === 'INSTALACIÓN ELÉCTRICA' && m.seleccionado
+    (m) => m.nombre === 'INSTALACIÓN ELÉCTRICA' && m.seleccionado,
   );
   if (instalacionelectrica) {
     raw = `- Instalación de sistema solar fotovoltaico compuesto por:`;
@@ -3519,7 +3660,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           });
           (pPlaca as any)._rawText = raw;
           out.push(pPlaca);
-        }
+        },
       );
     }
 
@@ -3562,7 +3703,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             text: 'Estos componentes únicamente podrán funcionar en estacionario, con el vehículo parado, mediante relé. Esta instalación es independiente de la principal y se desconecta automáticamente al arrancar el vehículo mediante relé.',
           }),
         ],
-      })
+      }),
     );
 
     if (instalacionelectrica.instalacionesSecundarias) {
@@ -3587,7 +3728,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   // 17) TOLDO
   //
   const toldo = modificaciones.find(
-    (m) => m.nombre === 'TOLDO' && m.seleccionado
+    (m) => m.nombre === 'TOLDO' && m.seleccionado,
   );
   if (toldo) {
     raw = `- Instalación de toldo marca ${toldo.marcaToldo} de medidas ${toldo.medidasToldo}mm en ${toldo.ubicacionToldo} del vehículo sin afectar a la estructura.`;
@@ -3616,56 +3757,57 @@ export function getFirstWord(p: Paragraph): string {
 
 export function generarDocumentoProyectoParagraphs(
   modificaciones: { modificaciones: Modificacion[] },
-  data: any
+  data: any,
 ): Paragraph[] {
   const all = buildModificacionesParagraphs(
     modificaciones.modificaciones,
-    data
+    data,
+    true,
   );
 
   const first = (p: Paragraph) => getFirstWord(p); // tu helper existente
 
   // Clasificación base
   const casuisticaParas = all.filter(
-    (p: any) => (p as any)._fromCasuistica === true
+    (p: any) => (p as any)._fromCasuistica === true,
   );
 
   const nonCasuisticaParas = all.filter(
-    (p: any) => (p as any)._fromCasuistica !== true
+    (p: any) => (p as any)._fromCasuistica !== true,
   );
 
   let montajesBase = nonCasuisticaParas.filter(
     (p) =>
-      !['Variación', 'Sustitución', 'Desmontaje', '', ' '].includes(first(p))
+      !['Variación', 'Sustitución', 'Desmontaje', '', ' '].includes(first(p)),
   );
   let desmontajesBase = nonCasuisticaParas.filter(
-    (p) => first(p) === 'Desmontaje'
+    (p) => first(p) === 'Desmontaje',
   );
   let variacionesBase = nonCasuisticaParas.filter((p) =>
-    ['Variación', 'Sustitución'].includes(first(p))
+    ['Variación', 'Sustitución'].includes(first(p)),
   );
 
   const casuisticaInstHeader = casuisticaParas.filter(
-    (p) => first(p) === 'Instalación'
+    (p) => first(p) === 'Instalación',
   );
   const casuisticaSustHeader = casuisticaParas.filter(
-    (p) => first(p) === 'Sustitución'
+    (p) => first(p) === 'Sustitución',
   );
   const casuisticaDesmHeader = casuisticaParas.filter(
-    (p) => first(p) === 'Desmontaje'
+    (p) => first(p) === 'Desmontaje',
   );
 
   const casuisticaDetails = casuisticaParas.filter(
     (p) =>
       first(p) !== 'Instalación' &&
       first(p) !== 'Sustitución' &&
-      first(p) !== 'Desmontaje'
+      first(p) !== 'Desmontaje',
   );
 
   const keyOf = (p: any) =>
     (p?._rawText as string) ??
     JSON.stringify(
-      (p?.options?.children ?? []).map((tr: any) => tr?.options?.text ?? '')
+      (p?.options?.children ?? []).map((tr: any) => tr?.options?.text ?? ''),
     );
 
   const uniqueMerge = (base: Paragraph[], extra: Paragraph[]) => {
@@ -3687,7 +3829,7 @@ export function generarDocumentoProyectoParagraphs(
 
   const variacionesYSus = uniqueMerge(
     variacionesBase,
-    uniqueMerge(casuisticaSustHeader, casuisticaDetails)
+    uniqueMerge(casuisticaSustHeader, casuisticaDetails),
   );
 
   // Pintado
@@ -3698,7 +3840,7 @@ export function generarDocumentoProyectoParagraphs(
         heading: HeadingLevel.HEADING_4,
         spacing: { before: 260, after: 120 },
         children: [new TextRun({ text: title, bold: true, color: '000000' })],
-      })
+      }),
     );
     if (paras.length) {
       out.push(...paras);
@@ -3707,7 +3849,7 @@ export function generarDocumentoProyectoParagraphs(
         new Paragraph({
           indent: { left: 400 },
           children: [new TextRun({ text: '- No procede.', italics: true })],
-        })
+        }),
       );
     }
   };
@@ -3777,13 +3919,13 @@ function buildLabelsFromMods(data: any): string[] {
     // 1) MOBILIARIO (igual que en la UI)
     if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
       mod.mueblesBajo?.forEach((m: any) =>
-        labels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`)
+        labels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`),
       );
       mod.mueblesAlto?.forEach((m: any) =>
-        labels.push(`Mueble alto (${m?.medidas || 'sin medidas'})`)
+        labels.push(`Mueble alto (${m?.medidas || 'sin medidas'})`),
       );
       mod.mueblesAseo?.forEach((m: any) =>
-        labels.push(`Aseo (${m?.medidas || 'sin medidas'})`)
+        labels.push(`Aseo (${m?.medidas || 'sin medidas'})`),
       );
       continue;
     }
@@ -3878,7 +4020,7 @@ export function generarTablaLeyenda(data: any): (Table | Paragraph)[] {
               ],
             }),
           ],
-        })
+        }),
     ),
   ];
 

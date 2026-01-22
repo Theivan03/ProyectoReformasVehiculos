@@ -18,6 +18,7 @@ import {
   ShadingType,
   HeightRule,
   VerticalAlign,
+  PageBreakBefore,
 } from 'docx';
 import { saveAs } from 'file-saver';
 import html2pdf from 'html2pdf.js';
@@ -33,6 +34,872 @@ export class DocumentoService {
     const response = await fetch(url);
     const blob = await response.blob();
     return await blob.arrayBuffer();
+  }
+
+  async generarCertificadoSegundaOcupacionV2(datos: any): Promise<void> {
+    const response = await fetch('assets/logo.png');
+    const imageBuffer = await response.arrayBuffer();
+
+    const logoImage = new ImageRun({
+      data: imageBuffer,
+      transformation: {
+        width: 175,
+        height: 75,
+      },
+      type: 'png',
+    });
+    try {
+      // ============================================================
+      // 1. PREPARACIÓN DE DATOS
+      // ============================================================
+
+      // A. Técnico
+      const tecnico =
+        datos.tecnico_arquitecto_seleccionado ||
+        datos.tecnico_ingeniero_seleccionado ||
+        {};
+
+      const ingeniero = datos.tecnico_ingeniero_seleccionado;
+
+      const nombreTecnico = (
+        tecnico.nombre || '................................................'
+      ).toUpperCase();
+      const dniTecnico = tecnico.dni || '...................';
+      let direccionTecnico =
+        tecnico.direccionFiscal ||
+        'C/ ............................................';
+      if (tecnico.localidad) direccionTecnico += ` de ${tecnico.localidad}`;
+
+      const tituloTecnico = tecnico.titulo || 'Arquitecto Técnico';
+      const numColegiado = tecnico.numColegiado || tecnico.numero || '.......';
+      const colegioTecnico =
+        tecnico.colegio ||
+        'Colegio Oficial de Arquitectos Técnicos de Alicante';
+
+      // B. Cliente
+      const nombreCliente =
+        `${datos.titular_nombre} ${datos.titular_apellidos}`.toUpperCase();
+      const dniCliente = datos.titular_dni_nif || '...................';
+
+      // C. Dirección Vivienda
+      let direccionVivienda = '';
+      if (datos.vivienda_nombre_via) {
+        direccionVivienda = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
+        if (datos.vivienda_numero)
+          direccionVivienda += `, Nº ${datos.vivienda_numero}`;
+        if (datos.vivienda_piso)
+          direccionVivienda += `, Piso ${datos.vivienda_piso}`;
+        if (datos.vivienda_puerta)
+          direccionVivienda += `, Pta ${datos.vivienda_puerta}`;
+
+        const cp = datos.vivienda_codigo_postal || '';
+        const pob = datos.vivienda_poblacion || '';
+        const prov = datos.vivienda_provincia || '';
+        if (cp || pob) direccionVivienda += `, ${cp}-${pob}`;
+        if (prov) direccionVivienda += ` (${prov})`;
+      } else {
+        direccionVivienda =
+          datos.vivienda_direccion_completa ||
+          '................................................';
+      }
+      direccionVivienda = direccionVivienda.toUpperCase();
+
+      // D. Datos específicos
+      const refCatastral =
+        datos.vivienda_referencia_catastral || '....................';
+      const supConstruida = datos.vivienda_superficie_construida;
+      const anoConstruccion = datos.vivienda_ano_construccion;
+      let descripcionDistribucion = '';
+      const listaPlantas_vivienda = datos.vivienda_lista_plantas || [];
+
+      if (listaPlantas_vivienda.length > 0) {
+        const textoPlantas = listaPlantas_vivienda
+          .map((planta: any) => `Planta ${planta.tipo}: ${planta.descripcion}`)
+          .join('. ');
+        descripcionDistribucion = `Que la vivienda se distribuye en: ${textoPlantas}.`;
+      } else {
+        const numHabitaciones = datos.vivienda_cantidad_dormitorios || 'varias';
+        descripcionDistribucion = `Que la vivienda consta de: ${numHabitaciones} habitaciones y demás dependencias propias para su uso.`;
+      }
+      const tipoSuelo = datos.vivienda_tipo_suelo
+        ? datos.vivienda_tipo_suelo.toUpperCase()
+        : 'URBANO';
+
+      // E. Fechas y Lugar
+      let fechaRaw = datos.usar_fechas_distintas
+        ? datos.fechas_tramites['servicio_seleccion_segunda_ocupacion']
+        : datos.fecha_global;
+
+      const dateObj = fechaRaw ? new Date(fechaRaw) : new Date();
+      const meses = [
+        'ENERO',
+        'FEBRERO',
+        'MARZO',
+        'ABRIL',
+        'MAYO',
+        'JUNIO',
+        'JULIO',
+        'AGOSTO',
+        'SEPTIEMBRE',
+        'OCTUBRE',
+        'NOVIEMBRE',
+        'DICIEMBRE',
+      ];
+      const municipioFirma = (
+        tecnico.localidad ||
+        datos.vivienda_poblacion ||
+        'Alicante'
+      ).toUpperCase();
+      const fechaTexto = `${dateObj.getDate()} de ${
+        meses[dateObj.getMonth()]
+      } ${dateObj.getFullYear()}`;
+
+      // ============================================================
+      // 2. CONFIGURACIÓN DEL DOCUMENTO
+      // ============================================================
+      const font = 'Arial';
+      const size = 22; // 11pt
+      const lineSpacing = 360; // 1.5 líneas
+
+      // Definición del Header (Logo y contacto)
+      const headerContent = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE },
+          bottom: { style: BorderStyle.NONE },
+          left: { style: BorderStyle.NONE },
+          right: { style: BorderStyle.NONE },
+          insideVertical: { style: BorderStyle.NONE },
+          insideHorizontal: { style: BorderStyle.NONE },
+        },
+        rows: [
+          new TableRow({
+            children: [
+              // Columna 1
+              new TableCell({
+                width: { size: 20, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.tlf,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.correoEmpresa,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new TextRun({
+                        text: ingeniero.web,
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              // Columna 2
+              new TableCell({
+                width: { size: 60, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CERTIFICADO TÉCNICO PARA EXPEDICIÓN DE LICENCIA MUNICIPAL DE SEGUNDA OCUPACIÓN O POSTERIORES',
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              // Columna 3
+              new TableCell({
+                width: { size: 20, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [logoImage],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+
+      const doc = new Document({
+        sections: [
+          {
+            properties: {
+              titlePage: true, // IMPORTANTE: Esto habilita cabeceras distintas para la primera página
+              page: {
+                margin: {
+                  top: 1000,
+                  right: 1440,
+                  bottom: 1440,
+                  left: 1440,
+                },
+              },
+            },
+            headers: {
+              // El header SOLO aparecerá en la primera página
+              first: new Header({
+                children: [headerContent],
+              }),
+              // Dejamos el header por defecto vacío para las siguientes páginas
+              default: new Header({
+                children: [],
+              }),
+            },
+            children: [
+              // --- COMPARECENCIA ---
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, before: 300, after: 300 },
+                children: [
+                  new TextRun({ text: 'D. ', font, size }),
+                  new TextRun({ text: nombreTecnico, font, size }),
+                  new TextRun({
+                    text: ', mayor de edad, provisto de DNI nº ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: dniTecnico, font, size }),
+                  new TextRun({ text: ', con domicilio en ', font, size }),
+                  new TextRun({ text: direccionTecnico, font, size }),
+                  new TextRun({ text: '. ', font, size }),
+                  new TextRun({
+                    text: 'Prestando sus servicios como ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: tituloTecnico, font, size }),
+                  new TextRun({ text: ', colegiado en el ', font, size }),
+                  new TextRun({ text: colegioTecnico, font, size }),
+                  new TextRun({
+                    text: ', con el número de colegiado ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: numColegiado, font, size }),
+                  new TextRun({ text: '.', font, size }),
+                ],
+              }),
+
+              // --- CERTIFICA ---
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 300 },
+                children: [
+                  new TextRun({
+                    text: 'CERTIFICA:',
+                    font,
+                    size: 24,
+                    bold: true,
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 300 },
+                children: [
+                  new TextRun({
+                    text: 'Que a petición de la Sr./Sra. ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: nombreCliente, font, size }),
+                  new TextRun({
+                    text: ', provista de N.I.E/D.N.I nº ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: dniCliente, font, size }),
+                  new TextRun({
+                    text: ', se ha girado visita al inmueble sito en ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({
+                    text: direccionVivienda,
+                    font,
+                    size,
+                  }),
+                  new TextRun({
+                    text: ', con referencia catastral ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: refCatastral, font, size }),
+                  new TextRun({
+                    text: ', y tras inspección ocular del mismo, sin perjuicio de los posibles defectos o vicios ocultos de la construcción, incluso aquellos que puedan afectar a su seguridad o solidez, se ha comprobado lo siguiente:',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // --- LISTA DE PUNTOS (Con sangría francesa para que se vea el punto separado) ---
+
+              // 1. Normativa
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 }, // Sangría para simular lista
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que la vivienda cumple la normativa técnica de habitabilidad (Orden 22 de Abril de 1.991, del Conseller de Obras Públicas, Urbanismo y Transportes, así como con el Decreto 286 del 25 de Noviembre de 1.997, del Gobierno Valenciano), según lo indicado en la Disposición Adicional Segunda del Decreto 151/2009 de la Consellería de Medio ambiente, Agua, Urbanismo y Vivienda de Fecha 2 de Octubre.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // 2. Uso
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que el edificio, o parte del mismo, susceptible de uso individualizado, se ajusta a las condiciones exigibles para el uso al que se destina, que es el de VIVIENDA.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // 3. No nueva planta
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que no se trata de edificación de nueva planta.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // 4. Licencia obras
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que la vivienda se ajusta a la licencia de obras concedida.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // 5. Suelo
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que el inmueble está emplazado en suelo considerado como ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({
+                    text: tipoSuelo + '.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // 6. Superficie
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que tiene una superficie construida, con inclusión de su participación en elementos comunes de ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({
+                    text: supConstruida + ' m².',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // 7. Distribución
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({ text: descripcionDistribucion, font, size }),
+                ],
+              }),
+
+              // 8. Antigüedad y Legalidad
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text:
+                      'Que, según la información obtenida del catastro, la vivienda fue construida en el año ' +
+                      anoConstruccion,
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 400 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que el inmueble no está sujeto a actuación de restablecimiento legalidad urbanística.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // --- PÁRRAFO CIERRE (Puede ir en página 2 si no cabe) ---
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 400 },
+                pageBreakBefore: true,
+                children: [
+                  new TextRun({
+                    text: 'Y para que conste, se firma el presente Certificado Técnico a los efectos de tramitación de la Licencia Municipal de Ocupación, según lo establecido en el artículo 34 de la Ley 3/2004 de 30 de junio, de la Generalitat Valenciana, de Ordenación y Fomento de la Calidad en la Edificación.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              // --- RECUADRO DECLARACIÓN RESPONSABLE (Página 2 forzada o natural) ---
+              // Usamos una Tabla con bordes simples para crear el recuadro
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        borders: {
+                          top: { style: BorderStyle.SINGLE, size: 4 }, // Borde negro estándar
+                          bottom: { style: BorderStyle.SINGLE, size: 4 },
+                          left: { style: BorderStyle.SINGLE, size: 4 },
+                          right: { style: BorderStyle.SINGLE, size: 4 },
+                        },
+                        margins: {
+                          top: 200,
+                          bottom: 200,
+                          left: 200,
+                          right: 200,
+                        },
+                        children: [
+                          new Paragraph({
+                            alignment: AlignmentType.JUSTIFIED,
+                            spacing: { after: 200 },
+                            children: [
+                              new TextRun({
+                                text: 'EL PRESENTE TRABAJO NO ESTÁ INCLUIDO EN NINGUNO DE LOS CASOS DEL ARTÍCULO 2 DEL REAL DECRETO 1000/2010, DE 5 DE AGOSTO, SOBRE VISADO COLEGIAL OBLIGATORIO. ',
+                                font,
+                                size,
+                              }),
+                              new TextRun({
+                                text: 'Declaro bajo mi responsabilidad que:',
+                                font,
+                                size,
+                              }),
+                            ],
+                          }),
+                          // Ítem 1 del recuadro con guion
+                          new Paragraph({
+                            alignment: AlignmentType.JUSTIFIED,
+                            spacing: { after: 100 },
+                            indent: { left: 300, hanging: 300 },
+                            children: [
+                              new TextRun({ text: '-', font, size }),
+                              new TextRun({
+                                text: `Poseo la titulación de ${tituloTecnico}. Estando colegiado con número ${numColegiado} en ${colegioTecnico}`,
+                                font,
+                                size,
+                              }),
+                            ],
+                          }),
+                          // Ítem 2 del recuadro con guion
+                          new Paragraph({
+                            alignment: AlignmentType.JUSTIFIED,
+                            spacing: { after: 100 },
+                            indent: { left: 300, hanging: 300 },
+                            children: [
+                              new TextRun({ text: '-', font, size }),
+                              new TextRun({
+                                text: 'De acuerdo con las atribuciones profesionales de esta titulación, tengo competencia para la redacción y firma de la presente Certificado Técnico.',
+                                font,
+                                size,
+                              }),
+                            ],
+                          }),
+                          // Ítem 3 del recuadro con guion
+                          new Paragraph({
+                            alignment: AlignmentType.JUSTIFIED,
+                            spacing: { after: 100 },
+                            indent: { left: 300, hanging: 300 },
+                            children: [
+                              new TextRun({ text: '-', font, size }),
+                              new TextRun({
+                                text: 'No estoy Inhabilitado, ni administrativamente ni judicialmente, para la redacción/firma/dirección del presente trabajo profesional.',
+                                font,
+                                size,
+                              }),
+                            ],
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+
+              // --- FECHA Y FIRMA (Fuera del recuadro) ---
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { before: 600, after: 1700 },
+                children: [
+                  new TextRun({
+                    text: `En ${municipioFirma}, a ${fechaTexto}`,
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: nombreTecnico, font, size })],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: tituloTecnico, font, size })],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: `Col. ${numColegiado} en ${colegioTecnico}`,
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+            ],
+          },
+        ],
+      });
+
+      // --- 3. DESCARGA ---
+      const blob = await Packer.toBlob(doc);
+      const nombreArchivoClean = nombreCliente.replace(/[^a-zA-Z0-9]/g, '_');
+      saveAs(blob, `Certificado_Segunda_Ocupacion_${nombreArchivoClean}.docx`);
+    } catch (error) {
+      console.error('Error generando Certificado:', error);
+    }
+  }
+
+  async generarCertificadoSegundaOcupacion(datos: any): Promise<void> {
+    try {
+      const tecnico =
+        datos.tecnico_arquitecto_seleccionado ||
+        datos.tecnico_ingeniero_seleccionado ||
+        {};
+
+      const nombreTecnico = (
+        tecnico.nombre || '................................................'
+      ).toUpperCase();
+      const tituloTecnico = tecnico.titulo || 'Arquitecto Técnico';
+      const numColegiado = tecnico.numColegiado || tecnico.numero || '.......';
+      const colegioTecnico = tecnico.universidad;
+
+      const nombreCliente =
+        `${datos.titular_nombre} ${datos.titular_apellidos}`.toUpperCase();
+      const dniCliente = datos.titular_dni_nif || '...................';
+
+      let direccionVivienda = '';
+      if (datos.vivienda_nombre_via) {
+        direccionVivienda = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
+        if (datos.vivienda_numero)
+          direccionVivienda += `, Nº ${datos.vivienda_numero}`;
+        if (datos.vivienda_piso)
+          direccionVivienda += `, Piso ${datos.vivienda_piso}`;
+        if (datos.vivienda_puerta)
+          direccionVivienda += `, Pta ${datos.vivienda_puerta}`;
+
+        const cp = datos.vivienda_codigo_postal || '';
+        const pob = datos.vivienda_poblacion || '';
+        const prov = datos.vivienda_provincia || '';
+
+        if (cp || pob) direccionVivienda += `, ${cp} ${pob}`;
+        if (prov) direccionVivienda += ` (${prov})`;
+      } else {
+        direccionVivienda =
+          datos.vivienda_direccion_completa ||
+          '................................................';
+      }
+      direccionVivienda = direccionVivienda.toUpperCase();
+
+      // D. Datos vivienda
+      const refCatastral =
+        datos.vivienda_referencia_catastral || '....................';
+      const superficieUtil = datos.vivienda_superficie_util
+        ? Number(datos.vivienda_superficie_util).toFixed(2).replace('.', ',')
+        : '.......';
+
+      let fechaRaw = datos.usar_fechas_distintas
+        ? datos.fechas_tramites['servicio_seleccion_segunda_ocupacion']
+        : datos.fecha_global;
+
+      const dateObj = fechaRaw ? new Date(fechaRaw) : new Date();
+      const meses = [
+        'enero',
+        'febrero',
+        'marzo',
+        'abril',
+        'mayo',
+        'junio',
+        'julio',
+        'agosto',
+        'septiembre',
+        'octubre',
+        'noviembre',
+        'diciembre',
+      ];
+
+      const municipioFirma = tecnico.localidad || 'Teulada';
+      const fechaTexto = `${dateObj.getDate()} de ${
+        meses[dateObj.getMonth()]
+      } de ${dateObj.getFullYear()}`;
+
+      const font = 'Arial';
+      const size = 22;
+      const lineSpacing = 360;
+
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 400 },
+                children: [
+                  new TextRun({
+                    text: 'CERTIFICADO TÉCNICO DE HABITABILIDAD PARA EXPEDICIÓN DE',
+                    font,
+                    size: 24,
+                    bold: true,
+                  }),
+                ],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 600 },
+                children: [
+                  new TextRun({
+                    text: 'LICENCIA MUNICIPAL DE OCUPACIÓN',
+                    font,
+                    size: 24,
+                    bold: true,
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 400 },
+                children: [
+                  new TextRun({ text: 'D. ', font, size }),
+                  new TextRun({ text: nombreTecnico, font, size }),
+                  new TextRun({
+                    text: `, ${tituloTecnico}, colegiado nº `,
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: numColegiado, font, size }),
+                  new TextRun({
+                    text: ` del ${colegioTecnico}, a petición de `,
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: nombreCliente, font, size }),
+                  new TextRun({ text: ' con N.I.E./D.N.I. ', font, size }),
+                  new TextRun({ text: dniCliente, font, size }),
+                  new TextRun({
+                    text: ' tras haber realizado visita de inspección a la vivienda situada ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({
+                    text: direccionVivienda,
+                    font,
+                    size,
+                  }),
+                  new TextRun({
+                    text: ' con referencia catastral ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: refCatastral, font, size }),
+                  new TextRun({ text: '.', font, size }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.LEFT,
+                spacing: { after: 300 },
+                children: [new TextRun({ text: 'CERTIFICA:', font, size })],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 300 },
+                children: [
+                  new TextRun({
+                    text: 'Que efectuada inspección ocular, sin perjuicio de los posibles defectos o vicios ocultos de la construcción, incluso aquellos que pueda afectar a seguridad o solidez del inmueble, se ha comprobado lo siguiente:',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '1º. ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que la vivienda se ajusta a las condiciones exigibles para el uso al que se destina,',
+                    font,
+                    size,
+                  }),
+                  new TextRun({
+                    text: ' cumple la normativa técnica de habitabilidad (Orden 22 de Abril de 1.991, del Conseller de Obras Públicas, Urbanismo y Transportes, así como con el Decreto 286 del 25 de Noviembre de 1.997, del Gobierno Valenciano), según lo indicado en la Disposición Adicional Segunda del Decreto 151/2009 de la Conselleria de Medio ambiente, Agua, Urbanismo y Vivienda de Fecha 2 de Octubre.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '2º. ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que no se trata de edificación de nueva planta.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 400 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '3º. ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que tiene una superficie útil de ',
+                    font,
+                    size,
+                  }),
+                  new TextRun({ text: superficieUtil, font, size, bold: true }),
+                  new TextRun({ text: ' m².', font, size }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 800 },
+                children: [
+                  new TextRun({
+                    text: 'Y para que conste, se firma el presente Certificado Técnico a los efectos de tramitación de la Licencia Municipal de Ocupación, según lo establecido en el artículo 34 de la Ley 3/2004 de Ordenación y Fomento de la Calidad en la Edificación.',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 1200 },
+                children: [
+                  new TextRun({
+                    text: `${municipioFirma}, ${fechaTexto}`,
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+            ],
+          },
+        ],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const nombreArchivoClean = nombreCliente.replace(/[^a-zA-Z0-9]/g, '_');
+      saveAs(blob, `Certificado_Segunda_Ocupacion_${nombreArchivoClean}.docx`);
+    } catch (error) {
+      console.error('Error generando Certificado 2ª Ocupación:', error);
+    }
   }
 
   async generarRepresentacionCCU2ocu(datos: any, frase: string): Promise<void> {
