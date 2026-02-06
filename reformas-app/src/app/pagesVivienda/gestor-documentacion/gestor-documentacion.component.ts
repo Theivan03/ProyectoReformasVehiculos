@@ -103,9 +103,9 @@ export class GestorDocumentacionComponent implements OnInit {
     vivienda_superficie_util: 0,
     vivienda_lista_plantas: [] as { tipo: string; descripcion: string }[],
     vivienda_alcantarillado_publico: false,
-    vivienda_empresa_agua: 'Ayuntamiento',
+    vivienda_empresa_agua: 'Aguas Municilapes...',
     vivienda_empresa_luz: 'Iberdrola',
-    vivienda_empresa_basura: 'Ayuntamiento',
+    vivienda_empresa_basura: 'Servicios Municipales',
     vivienda_lindero_frente: '',
     vivienda_lindero_fondo: '',
     vivienda_lindero_derecha: '',
@@ -121,6 +121,7 @@ export class GestorDocumentacionComponent implements OnInit {
     vivienda_es_estudio: false,
     vivienda_cantidad_dormitorios: 0,
     vivienda_numero_vt: '',
+    vivienda_tipo_edificacion: '',
 
     tecnico_arquitecto_seleccionado: null as any,
     tecnico_ingeniero_seleccionado: null as any,
@@ -213,7 +214,7 @@ export class GestorDocumentacionComponent implements OnInit {
     private http: HttpClient,
     private documentoService: DocumentoService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -398,7 +399,7 @@ export class GestorDocumentacionComponent implements OnInit {
     const construida = this.datosGlobales_gestor.vivienda_superficie_construida;
     if (construida && construida > 0) {
       this.datosGlobales_gestor.vivienda_superficie_util = parseFloat(
-        (construida * 0.85).toFixed(2)
+        (construida * 0.85).toFixed(2),
       );
     }
   }
@@ -418,13 +419,13 @@ export class GestorDocumentacionComponent implements OnInit {
     return Object.keys(this.datosGlobales_gestor).some(
       (k) =>
         k.startsWith('servicio') &&
-        (this.datosGlobales_gestor as any)[k] === true
+        (this.datosGlobales_gestor as any)[k] === true,
     );
   }
 
   get serviciosActivosList() {
     return this.serviciosDisponibles_gestor.filter(
-      (s) => (this.datosGlobales_gestor as any)[s.key]
+      (s) => (this.datosGlobales_gestor as any)[s.key],
     );
   }
 
@@ -435,7 +436,7 @@ export class GestorDocumentacionComponent implements OnInit {
       this.http
         .put(
           `http://192.168.1.41:3000/api/viviendas/${this.idViviendaEditar}`,
-          this.datosGlobales_gestor
+          this.datosGlobales_gestor,
         )
         .subscribe({
           next: () => {
@@ -516,7 +517,7 @@ export class GestorDocumentacionComponent implements OnInit {
     try {
       await this.documentoService.generarRepresentacionCCU2ocu(
         this.datosGlobales_gestor,
-        frase
+        frase,
       );
       this.isLoading = false;
     } catch (err) {
@@ -530,7 +531,7 @@ export class GestorDocumentacionComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.documentoService.generarCertificadoSegundaOcupacion(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {
@@ -543,12 +544,12 @@ export class GestorDocumentacionComponent implements OnInit {
   async generarCertificadoSegundaOcupacionV2() {
     console.log(
       'Generando certificado segunda ocupacion V2',
-      this.datosGlobales_gestor
+      this.datosGlobales_gestor,
     );
     this.isLoading = true;
     try {
       await this.documentoService.generarCertificadoSegundaOcupacionV2(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {
@@ -562,7 +563,7 @@ export class GestorDocumentacionComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.documentoService.generarRepresentacionCEE(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {
@@ -588,7 +589,7 @@ export class GestorDocumentacionComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.documentoService.generarDeclaracionResponsableTecnico(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {
@@ -602,7 +603,7 @@ export class GestorDocumentacionComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.documentoService.generarMemoriaTecnica(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {
@@ -616,7 +617,7 @@ export class GestorDocumentacionComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.documentoService.generarAnexoDecretoOcupacion(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {
@@ -630,7 +631,7 @@ export class GestorDocumentacionComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.documentoService.generarRegistroVTPDF(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {
@@ -642,7 +643,7 @@ export class GestorDocumentacionComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.documentoService.generarRegistroVT_SEGUNDA_PARTE(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {
@@ -655,7 +656,7 @@ export class GestorDocumentacionComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.documentoService.generarGuiaPresentacionNRA(
-        this.datosGlobales_gestor
+        this.datosGlobales_gestor,
       );
       this.isLoading = false;
     } catch (err) {

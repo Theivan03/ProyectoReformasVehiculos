@@ -22,7 +22,7 @@ import {
 } from 'docx';
 import { saveAs } from 'file-saver';
 import html2pdf from 'html2pdf.js';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName, StandardFonts } from 'pdf-lib';
 
 @Injectable({
   providedIn: 'root',
@@ -967,8 +967,14 @@ export class DocumentoService {
       }
 
       // --- 4. FECHA ---
+      const esSegundaOcupacion =
+        typeof frase === 'string' &&
+        /segunda\s+ocupaci[oó]n/i.test(frase || '');
+      const fechaKey = esSegundaOcupacion
+        ? 'servicio_seleccion_segunda_ocupacion'
+        : 'servicio_seleccion_ccu';
       let fechaRaw = datos.usar_fechas_distintas
-        ? datos.fechas_tramites['servicio_seleccion_ccu']
+        ? datos.fechas_tramites?.[fechaKey]
         : datos.fecha_global;
 
       const dateObj = fechaRaw ? new Date(fechaRaw) : new Date();
@@ -1632,7 +1638,11 @@ export class DocumentoService {
                 alignment: AlignmentType.RIGHT,
                 spacing: { after: 800 },
                 children: [
-                  new TextRun({ text: `, a fecha ${fechaTexto}`, font, size }),
+                  new TextRun({
+                    text: `${datos.vivienda_poblacion}, a fecha ${fechaTexto}`,
+                    font,
+                    size,
+                  }),
                 ],
               }),
 
@@ -1745,7 +1755,7 @@ export class DocumentoService {
     try {
       // 1. Cargar la plantilla PDF desde assets
       const pdfBytes = await this.loadImage(
-        '/assets/DECLARACION RESPONSABLE TECNICO PROYECTISTA.pdf'
+        '/assets/DECLARACION RESPONSABLE TECNICO PROYECTISTA.pdf',
       );
 
       const pdfDoc = await PDFDocument.load(pdfBytes);
@@ -1784,7 +1794,7 @@ export class DocumentoService {
       if (datos.vivienda_nombre_via) {
         domicilioCompleto = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
         if (datos.vivienda_numero)
-          domicilioVivienda += `, Nº ${datos.vivienda_numero}`;
+          domicilioVivienda += `${domicilioCompleto}, Nº ${datos.vivienda_numero}`;
         // ... (resto de campos)
       } else {
         domicilioVivienda = datos.vivienda_direccion_completa || '';
@@ -2809,7 +2819,7 @@ export class DocumentoService {
                           ],
                         }),
                       ],
-                    })
+                    }),
                 ),
               }),
               new Paragraph({ spacing: { after: 400 } }),
@@ -2831,7 +2841,7 @@ export class DocumentoService {
                 spacing: { line: lineSpacing, after: 200 },
                 children: [
                   new TextRun({
-                    text: `La vivienda sometida a estudio se ubica en un edificio de viviendas con una superficie neta total de ${superficieTotal} m².`,
+                    text: `La vivienda sometida a estudio se ubica en ${datos.vivienda_tipo_edificacion} con una superficie neta total de ${superficieTotal} m².`,
                     font,
                     size: sizeCuerpo,
                   }),
@@ -2881,7 +2891,7 @@ export class DocumentoService {
                         size: sizeCuerpo,
                       }),
                     ],
-                  })
+                  }),
               ),
 
               new Paragraph({
@@ -3372,44 +3382,29 @@ export class DocumentoService {
 
   async generarAnexoDecretoOcupacion(datos: any): Promise<void> {
     try {
-      // 1. CARGAR PLANTILLA ÚNICA
-      const pdfBytes = await this.loadImage(
-        '/assets/ANEXOS DECRETO OCUPACION.pdf'
+      const templateBytes = await this.loadPdfBytes(
+        '/assets/ANEXOS DECRETO OCUPACION.pdf',
       );
-      const pdfDoc = await PDFDocument.load(pdfBytes);
-      const form = pdfDoc.getForm();
 
-      // Función de limpieza
-      const limpiarTexto = (texto: string) => {
-        if (!texto) return '';
-        return texto
-          .replace(/[^\w\s\d.,;:\-\/()áéíóúÁÉÍÓÚñÑüÜ@]/g, '')
-          .trim()
-          .toUpperCase();
-      };
+      const limpiarTexto = (texto: any) =>
+        !texto
+          ? ''
+          : String(texto)
+              .replace(/[^\w\s\d.,;:\-\/()áéíóúÁÉÍÓÚñÑüÜ@]/g, '')
+              .trim()
+              .toUpperCase();
 
-      // --- 2. PREPARACIÓN DE DATOS ---
+      let declNombre = datos.existe_interesado_representante
+        ? `${datos.interesada_nombre} ${datos.interesada_apellidos}`
+        : `${datos.titular_nombre} ${datos.titular_apellidos}`;
 
-      // A) PERSONAS (Declarante vs Representante)
-      let declNombre = '';
-      let declDni = '';
+      let declDni = datos.existe_interesado_representante
+        ? datos.interesada_dni_nif
+        : datos.titular_dni_nif;
 
-      // Si hay un interesado distinto, él es el declarante. Si no, el titular.
-      if (datos.existe_interesado_representante) {
-        declNombre = `${datos.interesada_nombre} ${datos.interesada_apellidos}`;
-        declDni = datos.interesada_dni_nif;
-      } else {
-        declNombre = `${datos.titular_nombre} ${datos.titular_apellidos}`;
-        declDni = datos.titular_dni_nif;
-      }
-
-      // El Ingeniero actúa como REPRESENTANTE en el formulario
       const tecnico = datos.tecnico_ingeniero_seleccionado || {};
       const repNombre = tecnico.nombre || '';
       const repDni = tecnico.dni || '';
-      const repTitulacion = tecnico.titulacion || '';
-
-      // Datos de contacto (Del Ingeniero)
       const contDireccion = tecnico.direccionFiscal || '';
       const contCP = tecnico.codigoPostal || '';
       const contMunicipio = tecnico.localidad || '';
@@ -3418,7 +3413,18 @@ export class DocumentoService {
       const contEmail = tecnico.correoEmpresa || '';
       const contPuerta = tecnico.oficina || '';
 
-      // B) VIVIENDA / EDIFICACIÓN
+      let parteCalle = contDireccion;
+      let parteNumero = '';
+      const splitIndex = contDireccion.indexOf(',');
+      if (splitIndex !== -1) {
+        parteCalle = contDireccion.substring(0, splitIndex).trim();
+        parteNumero = contDireccion.substring(splitIndex + 1).trim();
+      }
+      const contDireccionFinal = parteCalle;
+      const contPuertaFinal = [parteNumero, contPuerta]
+        .filter(Boolean)
+        .join(' ');
+
       let calle = '';
       let numero = '';
       let piso = '';
@@ -3427,7 +3433,7 @@ export class DocumentoService {
       let pobVivienda = (datos.vivienda_poblacion || '').toUpperCase();
       let provVivienda = (datos.vivienda_provincia || '').toUpperCase();
       let direccionCompleta = '';
-      let bloqueDetalle = ''; // Para campos tipo "Nº/Bloque/Escalera"
+      let bloqueDetalle = '';
 
       if (datos.vivienda_nombre_via) {
         calle =
@@ -3436,26 +3442,26 @@ export class DocumentoService {
         piso = datos.vivienda_piso || '';
         puerta = datos.vivienda_puerta || '';
 
-        let detalles = [];
+        const detalles: string[] = [];
         if (numero) detalles.push(`Nº ${numero}`);
         if (piso) detalles.push(`Piso ${piso}`);
         if (puerta) detalles.push(`Pta ${puerta}`);
-        bloqueDetalle = detalles.join(' - ');
 
-        direccionCompleta = `${calle} ${bloqueDetalle}`;
+        bloqueDetalle = detalles.join(' - ');
+        direccionCompleta = `${calle} ${bloqueDetalle}`.trim();
       } else {
         direccionCompleta = (
           datos.vivienda_direccion_completa || ''
         ).toUpperCase();
-        calle = direccionCompleta; // Si no hay desglose, todo a calle
+        calle = direccionCompleta;
       }
 
       const refCatastral = datos.vivienda_referencia_catastral || '';
 
-      // C) FECHA
       let fechaRaw = datos.usar_fechas_distintas
-        ? datos.fechas_tramites['servicio_seleccion_segunda_ocupacion']
+        ? datos.fechas_tramites?.['servicio_seleccion_segunda_ocupacion']
         : datos.fecha_global;
+
       const fechaHoy = fechaRaw ? new Date(fechaRaw) : new Date();
       const meses = [
         'ENERO',
@@ -3471,53 +3477,41 @@ export class DocumentoService {
         'NOVIEMBRE',
         'DICIEMBRE',
       ];
-
-      const diaStr = fechaHoy.getDate().toString();
+      const diaStr = String(fechaHoy.getDate());
       const mesStr = meses[fechaHoy.getMonth()];
-      const anyoStr = fechaHoy.getFullYear().toString(); // Ponemos año completo (ej 2025)
+      const anyoStr = String(fechaHoy.getFullYear());
 
       const arquitecto = datos.tecnico_arquitecto_seleccionado || {};
       const arquitectoNombre = arquitecto.nombre || '';
       const arquitectoTitulacion = arquitecto.titulacion || '';
 
-      // --- 3. MAPEO DE TODOS LOS CAMPOS (Anexo I y Anexo II juntos) ---
-      const campos = {
-        // --- PARTE 1: SOLICITUD / DECLARACIÓN RESPONSABLE ---
-        // Declarante
+      const camposParaRellenar: Record<string, any> = {
         'Apellidos y Nombre  Razón SocialRow1': declNombre,
         DNICIFNIEPASAPORTERow1: declDni,
-
-        // Representante (El Ingeniero)
         'Apellidos y Nombre  Razón SocialRow1_2': repNombre,
         DNICIFNIEPASAPORTERow1_2: repDni,
-
-        // Datos Contacto (Del Ingeniero)
-        Dirección: contDireccion,
-        NBloqueEscaleraPlantaPuerta: contPuerta,
+        Dirección: contDireccionFinal,
+        NBloqueEscaleraPlantaPuerta: contPuertaFinal,
         CP: contCP,
         Municipio: contMunicipio,
         'A Provincia E': contProvincia,
         Teléfono: contTlf,
         'Correo electrónico': contEmail,
-
-        // Emplazamiento Edificación (Parte 1)
         'Emplazamiento de la Edificación  DirecciónRow1': calle,
         NBloqueEscaleraPlantaPuertaRow1: bloqueDetalle,
         'Referencia Catastral de la edificación o de la parcela en caso de obra nuevaRow1':
           refCatastral,
 
-        // --- PARTE 2: CERTIFICADO DE CONFORMIDAD ---
-        // Datos Edificación (Parte 2)
-        'Nombre Edificio': direccionCompleta, // Usamos la dirección como nombre identificativo
+        '2_3': 'NO PROCEDE',
+
+        'Nombre Edificio': direccionCompleta,
         Dirección_2: calle,
-        n: numero,
+        n: numero + ' ' + piso + ' ' + puerta,
         Municipio_2: pobVivienda,
         CP_2: cpVivienda,
         Provincia: provVivienda,
-
-        // Datos Facultativos (Ingeniero)
         'Datos facultativos 1': arquitectoNombre,
-        'en su condición de': arquitectoTitulacion, // Titulación
+        'en su condición de': arquitectoTitulacion,
 
         'Identificación vivienda': direccionCompleta,
         'Referencia catastral': refCatastral,
@@ -3526,147 +3520,153 @@ export class DocumentoService {
         'Identificación vivienda_3': direccionCompleta,
         'Referencia catastral_3': refCatastral,
 
-        // Fecha de firma
         día: diaStr,
         mes: mesStr,
         año: anyoStr,
       };
 
-      // 4. RELLENAR CAMPOS DE TEXTO
-      for (const [key, value] of Object.entries(campos)) {
-        try {
-          const field = form.getTextField(key);
-          if (field) {
-            field.setText(limpiarTexto(value));
-          } else if (key === 'n') {
-            // Intento extra para el campo número que a veces falla por caracteres raros
+      const year = parseInt(datos.vivienda_ano_construccion || '0', 10);
+
+      const crearDocumentoAislado = async (
+        nombreArchivoSalida: string,
+        indicesPaginasMantener: number[],
+        aplanar: boolean = true,
+      ) => {
+        const srcDoc = await PDFDocument.load(templateBytes);
+        const form = srcDoc.getForm();
+
+        for (const [key, value] of Object.entries(camposParaRellenar)) {
+          const txt = limpiarTexto(value);
+          try {
+            const field = form.getTextField(key);
+            field?.setText(txt);
+          } catch {}
+
+          if (key === 'n') {
             try {
-              form.getTextField('n.º')?.setText(limpiarTexto(value));
-            } catch (e) {}
+              form.getTextField('n.º')?.setText(txt);
+            } catch {}
+            try {
+              form.getTextField('nº')?.setText(txt);
+            } catch {}
           }
-        } catch (e) {
-          // Campo no encontrado (puede variar según versión del PDF)
         }
-      }
 
-      // 5. CHECKBOXES
+        if (contEmail) {
+          try {
+            const check =
+              safeGetCheckBox(form, 'Si') ||
+              safeGetCheckBox(form, 'C sí') ||
+              safeGetCheckBox(form, 'C si') ||
+              safeGetCheckBox(form, 'Check Box1');
+            check?.check();
+          } catch {}
+        }
 
-      // A) Notificación Electrónica (Parte 1)
-      if (contEmail) {
+        if (year > 0) {
+          try {
+            const check34 = safeGetCheckBox(form, 'Check Box34');
+            const check35 = safeGetCheckBox(form, 'Check Box35');
+            const check36 = safeGetCheckBox(form, 'Check Box36');
+
+            check34?.uncheck();
+            check35?.uncheck();
+            check36?.uncheck();
+
+            if (year < 1989) check34?.check();
+            else if (year >= 1989 && year <= 2010) check35?.check();
+            else if (year > 2010) check36?.check();
+          } catch {}
+        }
+
         try {
-          // Intenta nombres comunes, ajusta si ves el nombre exacto en otra captura
-          const check =
-            form.getCheckBox('Si') ||
-            form.getCheckBox('C sí') ||
-            form.getCheckBox('Check Box1');
-          if (check) check.check();
-        } catch (e) {}
-      }
+          const font = await srcDoc.embedFont(StandardFonts.Helvetica);
+          form.updateFieldAppearances(font);
+        } catch {}
 
-      // B) Antigüedad Vivienda (Fichas 2.1, 2.2, 2.3)
-      // B) Antigüedad Vivienda (Fichas 2.1, 2.2, 2.3)
-      const year = parseInt(datos.vivienda_ano_construccion || '0');
+        if (aplanar) {
+          try {
+            form.flatten({ updateFieldAppearances: false });
+          } catch {}
+
+          try {
+            srcDoc.getPages().forEach((page) => {
+              page.node.delete(PDFName.of('Annots'));
+            });
+          } catch {}
+
+          try {
+            srcDoc.catalog.delete(PDFName.of('AcroForm'));
+          } catch {}
+        }
+
+        const total = srcDoc.getPageCount();
+        const indicesOk = indicesPaginasMantener.filter(
+          (i) => Number.isInteger(i) && i >= 0 && i < total,
+        );
+        const keepSet = new Set(indicesOk);
+        if (keepSet.size === 0) return;
+
+        for (let i = total - 1; i >= 0; i--) {
+          if (!keepSet.has(i)) {
+            srcDoc.removePage(i);
+          }
+        }
+
+        const pdfFinalBytes = await srcDoc.save({
+          useObjectStreams: false,
+          updateFieldAppearances: false,
+        });
+        saveAs(
+          new Blob([pdfFinalBytes as any], { type: 'application/pdf' }),
+          nombreArchivoSalida,
+        );
+      };
+
+      await crearDocumentoAislado('ANEXO_I.pdf', [0, 1, 2, 3, 4], true);
+      await crearDocumentoAislado('ANEXO_II.pdf', [5, 6], true);
 
       if (year > 0) {
-        try {
-          // PASO CLAVE: Desmarcar TODOS primero para limpiar la plantilla
-          // (Esto evita que si la plantilla trae uno marcado, se queden dos marcados)
-          const check34 = form.getCheckBox('Check Box34');
-          const check35 = form.getCheckBox('Check Box35');
-          const check36 = form.getCheckBox('Check Box36');
+        let indicesFicha: number[] = [];
+        let nombreFicha = '';
 
-          if (check34) check34.uncheck();
-          if (check35) check35.uncheck();
-          if (check36) check36.uncheck();
-
-          // PASO 2: Marcar el correcto según la fecha
-          // Nota: Al tener solo el año, aproximamos 1989 y 2010 a los grupos intermedios.
-
-          if (year < 1989) {
-            // Antes de 1989 -> Ficha 2.1
-            if (check34) check34.check();
-          } else if (year >= 1989 && year <= 2010) {
-            // Entre 1989 y 2010 -> Ficha 2.2
-            if (check35) check35.check();
-          } else if (year > 2010) {
-            // Después de 2010 -> Ficha 2.3
-            if (check36) check36.check();
-          }
-        } catch (e) {
-          console.warn(
-            'No se encontraron los checkboxes de año o hubo un error al marcarlos.',
-            e
-          );
-        }
-      }
-
-      // 6. GUARDAR Y DESCARGAR
-      form.flatten();
-      const nombreLimpio = declNombre.replace(/[^a-zA-Z0-9]/g, '_');
-
-      // --- DOCUMENTO 1: ANEXO I (Páginas 1 a 5) ---
-      // Índices: 0, 1, 2, 3, 4
-      const docAnexo1 = await PDFDocument.create();
-      // Copiamos las páginas del documento original ya relleno (pdfDoc)
-      const paginasAnexo1 = await docAnexo1.copyPages(pdfDoc, [0, 1, 2, 3, 4]);
-      paginasAnexo1.forEach((page) => docAnexo1.addPage(page));
-
-      const pdfBytes1 = await docAnexo1.save();
-      saveAs(
-        new Blob([pdfBytes1 as any], { type: 'application/pdf' }),
-        `ANEXO_I.pdf`
-      );
-
-      // --- DOCUMENTO 2: ANEXO II (Páginas 6 y 7) ---
-      // Índices: 5, 6
-      const docAnexo2 = await PDFDocument.create();
-      const paginasAnexo2 = await docAnexo2.copyPages(pdfDoc, [5, 6]);
-      paginasAnexo2.forEach((page) => docAnexo2.addPage(page));
-
-      const pdfBytes2 = await docAnexo2.save();
-      saveAs(
-        new Blob([pdfBytes2 as any], { type: 'application/pdf' }),
-        `ANEXO_II.pdf`
-      );
-
-      // --- DOCUMENTO 3: FICHA TÉCNICA (Según Año) ---
-      let indicesFicha: number[] = [];
-      let nombreFicha = '';
-
-      if (year > 0) {
         if (year < 1989) {
-          // FICHA 2.1: Páginas 17 y 18 (Índices 16, 17)
           indicesFicha = [16, 17];
-          nombreFicha = 'FICHA2_1';
+          nombreFicha = 'FICHA2_1.pdf';
         } else if (year >= 1989 && year <= 2010) {
-          // FICHA 2.2: Páginas 19 a 22 (Índices 18, 19, 20, 21)
           indicesFicha = [18, 19, 20, 21];
-          nombreFicha = 'FICHA2_2';
+          nombreFicha = 'FICHA2_2.pdf';
         } else if (year > 2010) {
-          // FICHA 2.3: Páginas 23 a 26 (Índices 22, 23, 24, 25)
           indicesFicha = [22, 23, 24, 25];
-          nombreFicha = 'FICHA2_3';
+          nombreFicha = 'FICHA2_3.pdf';
         }
 
-        // Si hemos encontrado rango de fecha, creamos el PDF de la ficha
         if (indicesFicha.length > 0) {
-          const docFicha = await PDFDocument.create();
-          const paginasFicha = await docFicha.copyPages(pdfDoc, indicesFicha);
-          paginasFicha.forEach((page) => docFicha.addPage(page));
+          await crearDocumentoAislado(nombreFicha, indicesFicha, false);
+        }
+      }
 
-          const pdfBytesFicha = await docFicha.save();
-          saveAs(
-            new Blob([pdfBytesFicha as any], { type: 'application/pdf' }),
-            `${nombreFicha}.pdf`
-          );
+      function safeGetCheckBox(form: any, name: string) {
+        try {
+          return form.getCheckBox(name);
+        } catch {
+          return null;
         }
       }
     } catch (error) {
-      console.error('Error generando Anexo Decreto Completo:', error);
-      alert(
-        'Error al generar el PDF. Verifica que "ANEXOS DECRETO OCUPACION.pdf" está en assets.'
-      );
+      console.error('Error crítico generando PDFs:', error);
+      alert('Error generando la documentación. Por favor revise la consola.');
     }
+  }
+
+  private async loadPdfBytes(url: string): Promise<Uint8Array> {
+    const res = await fetch(url);
+    if (!res.ok)
+      throw new Error(
+        `No se pudo cargar el PDF: ${res.status} ${res.statusText}`,
+      );
+    const ab = await res.arrayBuffer();
+    return new Uint8Array(ab);
   }
 
   async generarRegistroVTCoselleria(datos: any): Promise<void> {
@@ -3834,7 +3834,7 @@ export class DocumentoService {
         widthPct: number,
         required: boolean = false,
         isSelect: boolean = false,
-        noCaps: boolean = false
+        noCaps: boolean = false,
       ) => {
         const valFinal = noCaps ? value || '' : (value || '').toUpperCase();
 
@@ -3949,7 +3949,7 @@ export class DocumentoService {
       /** Crea bloque de texto gris (A y G) */
       const crearBloqueTextoGris = (
         texto: string,
-        conCheck: boolean = false
+        conCheck: boolean = false,
       ) => {
         return new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
@@ -4006,7 +4006,7 @@ export class DocumentoService {
               crearHeaderSeccion('A', 'PROCEDIMIENTO'),
               new Paragraph({ spacing: { before: 100 } }),
               crearBloqueTextoGris(
-                'AUTOREGISTRO DE VIVIENDAS DE USO TURÍSTICO. DECLARACIÓN RESPONSABLE referente al ALTA/INICIO DE ACTIVIDAD...'
+                'AUTOREGISTRO DE VIVIENDAS DE USO TURÍSTICO. DECLARACIÓN RESPONSABLE referente al ALTA/INICIO DE ACTIVIDAD...',
               ),
               new Paragraph({ spacing: { after: 200 } }),
 
@@ -4018,7 +4018,7 @@ export class DocumentoService {
                   'Expedientes Inscripción Viviendas de uso turístico',
                   100,
                   true,
-                  true
+                  true,
                 ),
               ]),
               new Paragraph({ spacing: { after: 200 } }),
@@ -4026,7 +4026,7 @@ export class DocumentoService {
               // ================= SECCIÓN C =================
               crearHeaderSeccion(
                 'C',
-                'DATOS DE LA PERSONA O ENTIDAD INTERESADA'
+                'DATOS DE LA PERSONA O ENTIDAD INTERESADA',
               ),
 
               // Fila 1: DNI (20) | Apell1 (35) | Apell2 (20) | Nombre (25)
@@ -4036,7 +4036,7 @@ export class DocumentoService {
                   'PRIMER APELLIDO O RAZÓN SOCIAL',
                   intApellido1,
                   35,
-                  true
+                  true,
                 ),
                 crearInput('SEGUNDO APELLIDO', intApellido2, 20),
                 crearInput('NOMBRE', dInteresado.nombre, 25), // Nombre solo si es persona física
@@ -4049,7 +4049,7 @@ export class DocumentoService {
                   'NOMBRE DE LA VÍA PÚBLICA',
                   dInteresado.nombreVia,
                   80,
-                  true
+                  true,
                 ),
               ]),
 
@@ -4086,7 +4086,7 @@ export class DocumentoService {
                   'PRIMER APELLIDO O RAZÓN SOCIAL',
                   repApellido1,
                   30,
-                  true
+                  true,
                 ),
                 crearInput('SEGUNDO APELLIDO', repApellido2, 20),
                 crearInput('NOMBRE', repNombreReal, 20),
@@ -4099,7 +4099,7 @@ export class DocumentoService {
               // ================= SECCIÓN E (Notificaciones) =================
               crearHeaderSeccion(
                 'E',
-                'NOTIFICACIONES (SI ES PERSONA FÍSICA...)'
+                'NOTIFICACIONES (SI ES PERSONA FÍSICA...)',
               ),
 
               // Dirección notificación (Usamos datos interesado por defecto)
@@ -4108,7 +4108,7 @@ export class DocumentoService {
                 crearInput(
                   'NOMBRE DE LA VÍA PÚBLICA',
                   dInteresado.nombreVia,
-                  75
+                  75,
                 ),
               ]),
 
@@ -4135,7 +4135,7 @@ export class DocumentoService {
                   75,
                   true,
                   false,
-                  true
+                  true,
                 ), // noCaps
               ]),
 
@@ -4165,7 +4165,7 @@ export class DocumentoService {
               crearHeaderSeccion('G', 'DECLARACIÓN RESPONSABLE'),
               crearBloqueTextoGris(
                 'La persona que firma declara, bajo su responsabilidad, que los datos reseñados...',
-                true
+                true,
               ), // true = Check verde
               new Paragraph({ spacing: { after: 200 } }),
 
@@ -4420,6 +4420,23 @@ export class DocumentoService {
         }
       : { ...dTitular };
 
+    const dViviendaDireccion = {
+      tipoVia: toUpper(datos.vivienda_tipo_via || dInteresado.tipoVia || ''),
+      nombreVia: toUpper(
+        datos.vivienda_nombre_via || dInteresado.nombreVia || '',
+      ),
+      numero: toUpper(datos.vivienda_numero || dInteresado.numero || ''),
+      piso: toUpper(datos.vivienda_piso || dInteresado.piso || ''),
+      puerta: toUpper(datos.vivienda_puerta || dInteresado.puerta || ''),
+      cp: toUpper(datos.vivienda_codigo_postal || dInteresado.cp || ''),
+      poblacion: toUpper(
+        datos.vivienda_poblacion || dInteresado.poblacion || '',
+      ),
+      provincia: toUpper(
+        datos.vivienda_provincia || dInteresado.provincia || '',
+      ),
+    };
+
     // Gestión de nombres compuestos
     const intApellidos = dInteresado.apellidos || '';
     // Si hay apellidos, intentamos separar el primero del resto. Si no, lo dejamos todo en el primero.
@@ -4564,18 +4581,18 @@ export class DocumentoService {
       <div class="row">
         <div class="col" style="width: 20%">
           <div class="label"><span class="req">*</span> Tipo de vía</div>
-          <div class="input-box is-select">${dInteresado.tipoVia}</div>
+          <div class="input-box is-select">${dViviendaDireccion.tipoVia}</div>
         </div>
         <div class="col" style="width: 80%">
           <div class="label"><span class="req">*</span> Nombre de la vía pública</div>
-          <div class="input-box">${dInteresado.nombreVia}</div>
+          <div class="input-box">${dViviendaDireccion.nombreVia}</div>
         </div>
       </div>
 
       <div class="row">
         <div class="col" style="width: 15%">
           <div class="label"><span class="req">*</span> Número</div>
-          <div class="input-box">${dInteresado.numero}</div>
+          <div class="input-box">${dViviendaDireccion.numero}</div>
         </div>
         <div class="col" style="width: 15%">
           <div class="label">Letra</div>
@@ -4587,26 +4604,26 @@ export class DocumentoService {
         </div>
         <div class="col" style="width: 25%">
           <div class="label">Piso</div>
-          <div class="input-box">${dInteresado.piso}</div>
+          <div class="input-box">${dViviendaDireccion.piso}</div>
         </div>
         <div class="col" style="width: 25%">
           <div class="label">Puerta</div>
-          <div class="input-box">${dInteresado.puerta}</div>
+          <div class="input-box">${dViviendaDireccion.puerta}</div>
         </div>
       </div>
 
       <div class="row">
         <div class="col" style="width: 18%">
           <div class="label"><span class="req">*</span> CP</div>
-          <div class="input-box">${dInteresado.cp}</div>
+          <div class="input-box">${dViviendaDireccion.cp}</div>
         </div>
         <div class="col" style="width: 41%">
           <div class="label"><span class="req">*</span> Provincia</div>
-          <div class="input-box is-select">${dInteresado.provincia}</div>
+          <div class="input-box is-select">${dViviendaDireccion.provincia}</div>
         </div>
         <div class="col" style="width: 41%">
           <div class="label"><span class="req">*</span> Municipio</div>
-          <div class="input-box is-select">${dInteresado.poblacion}</div>
+          <div class="input-box is-select">${dViviendaDireccion.poblacion}</div>
         </div>
       </div>
 
@@ -4854,14 +4871,25 @@ export class DocumentoService {
       dJ2.email = cleanEmail;
     }
 
+    const dViviendaDireccion = {
+      tipoVia: toUpper(datos.vivienda_tipo_via || dTitular.tipoVia || ''),
+      nombreVia: toUpper(datos.vivienda_nombre_via || dTitular.nombreVia || ''),
+      numero: toUpper(datos.vivienda_numero || dTitular.numero || ''),
+      piso: toUpper(datos.vivienda_piso || dTitular.piso || ''),
+      puerta: toUpper(datos.vivienda_puerta || dTitular.puerta || ''),
+      cp: toUpper(datos.vivienda_codigo_postal || dTitular.cp || ''),
+      provincia: toUpper(datos.vivienda_provincia || dTitular.provincia || ''),
+      poblacion: toUpper(datos.vivienda_poblacion || dTitular.poblacion || ''),
+    };
+
     // VIVIENDA (Apartado M extendido)
     // Construimos la dirección completa para el campo "DIRECCIÓN" del apartado M
     const direccionVivienda = `${toUpper(
-      datos.vivienda_tipo_via || ''
+      datos.vivienda_tipo_via || '',
     )} ${toUpper(datos.vivienda_nombre_via || '')} ${toUpper(
-      datos.vivienda_numero || ''
+      datos.vivienda_numero || '',
     )} ${toUpper(datos.vivienda_piso || '')} ${toUpper(
-      datos.vivienda_puerta || ''
+      datos.vivienda_puerta || '',
     )}`.trim();
 
     const dVivienda = {
@@ -4874,7 +4902,7 @@ export class DocumentoService {
       direccion:
         direccionVivienda ||
         toUpper(
-          dTitular.tipoVia + ' ' + dTitular.nombreVia + ' ' + dTitular.numero
+          dTitular.tipoVia + ' ' + dTitular.nombreVia + ' ' + dTitular.numero,
         ),
       cp: datos.vivienda_codigo_postal || dTitular.cp,
       provincia: toUpper(datos.vivienda_provincia || dTitular.provincia),
@@ -5058,34 +5086,34 @@ export class DocumentoService {
       </div>
       <div class="row">
         <div class="col" style="width: 20%"><div class="label"><span class="req">*</span> TIPO VIA</div><div class="input-box relative is-select">${
-          dTitular.tipoVia
+          dViviendaDireccion.tipoVia
         }</div></div>
         <div class="col" style="width: 80%"><div class="label"><span class="req">*</span> NOMBRE VIA</div><div class="input-box">${
-          dTitular.nombreVia
+          dViviendaDireccion.nombreVia
         }</div></div>
       </div>
       <div class="row">
         <div class="col" style="width: 15%"><div class="label"><span class="req">*</span> NUMERO</div><div class="input-box">${
-          dTitular.numero
+          dViviendaDireccion.numero
         }</div></div>
         <div class="col" style="width: 10%"><div class="label">LETRA</div><div class="input-box"></div></div>
         <div class="col" style="width: 10%"><div class="label">ESCALERA</div><div class="input-box"></div></div>
         <div class="col" style="width: 10%"><div class="label">PISO</div><div class="input-box">${
-          dTitular.piso
+          dViviendaDireccion.piso
         }</div></div>
         <div class="col" style="width: 10%"><div class="label">PUERTA</div><div class="input-box">${
-          dTitular.puerta
+          dViviendaDireccion.puerta
         }</div></div>
         <div class="col" style="width: 15%"><div class="label"><span class="req">*</span> CP</div><div class="input-box">${
-          dTitular.cp
+          dViviendaDireccion.cp
         }</div></div>
         <div class="col" style="width: 30%"><div class="label"><span class="req">*</span> PROVINCIA</div><div class="input-box relative is-select">${
-          dTitular.provincia
+          dViviendaDireccion.provincia
         }</div></div>
       </div>
       <div class="row">
         <div class="col" style="width: 30%"><div class="label"><span class="req">*</span> LOCALIDAD</div><div class="input-box relative is-select">${
-          dTitular.poblacion
+          dViviendaDireccion.poblacion
         }</div></div>
         <div class="col" style="width: 20%"><div class="label"><span class="req">*</span> TELÉFONO</div><div class="input-box">${cleanTlf}</div></div>
         <div class="col" style="width: 50%"><div class="label"><span class="req">*</span> E-MAIL</div><div class="input-box" style="text-transform: lowercase !important;">${cleanEmail}</div></div>
@@ -5097,7 +5125,7 @@ export class DocumentoService {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
          <div class="check-row" style="margin:0;">
             ${checkHtml(
-              true
+              true,
             )} <span class="check-label">DISPONIBILIDAD INDEFINIDA</span>
          </div>
          <div style="text-align: right;">
@@ -5168,13 +5196,13 @@ export class DocumentoService {
       <div class="header-section"><div class="header-letter">N</div><div class="header-title">Periodo de funcionamiento</div></div>
       <div style="display: flex; gap: 15px; margin-bottom: 5px;">
          <div class="check-row">${checkHtml(
-           true
+           true,
          )} <span class="check-label">ANUAL</span></div>
          <div class="check-row">${checkHtml(
-           false
+           false,
          )} <span class="check-label-black" style="color:#AAA">VERANO</span></div>
          <div class="check-row">${checkHtml(
-           false
+           false,
          )} <span class="check-label-black" style="color:#AAA">OTROS...</span></div>
       </div>
       <div class="label">OTROS PERIODOS DE FUNCIONAMIENTO (máximo 99 elementos)</div>
@@ -5204,10 +5232,10 @@ export class DocumentoService {
             <div class="label"><span class="req">*</span> ESTUDIO</div>
             <div class="radio-container" style="margin-top: 5px;">
                 <div class="radio-option">${radioHtml(
-                  dVivienda.esEstudio
+                  dVivienda.esEstudio,
                 )} SÍ</div>
                 <div class="radio-option">${radioHtml(
-                  !dVivienda.esEstudio
+                  !dVivienda.esEstudio,
                 )} NO</div>
             </div>
          </div>
@@ -5266,97 +5294,97 @@ export class DocumentoService {
 
       <div class="label" style="font-weight: bold; margin-bottom: 3px;">ACCESOS Y COMUNICACIONES</div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Plano de evacuación del edificio en la puerta de las viviendas o, en su defecto, instrucciones de emergencia en varios idiomas.</span></div>
       <div class="check-row">${checkHtml(
-        datos.check_ascensor
+        datos.check_ascensor,
       )} <span class="check-label-black">Ascensor</span></div>
       <div class="check-row">${checkHtml(
-        !datos.check_ascensor
+        !datos.check_ascensor,
       )} <span class="check-label">No dispone de ascensor y está en un piso inferior al cuarto (planta baja+4 está exentos de ascensor)</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Entrada de clientes, en el caso de viviendas situados en bajos.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Teléfono de atención 24 horas.</span></div>
 
       <div class="label" style="font-weight: bold; margin-top: 8px;">INSTALACIONES Y SERVICIOS</div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Tomas de corriente en todas las habitaciones con indicador de voltaje junto a las tomas de corriente o general situado en lugar bien visible.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Agua caliente</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Plano de evacuación situado en la puerta de la vivienda</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Listado de teléfonos de urgencia y de interés situado en lugar visible.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Refrigeración al menos en sala de estar-comedor o sala de estar-comedor-cocina</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Calefacción al menos en sala de estar-comedor o sala de estar-comedor-cocina</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Conexión a internet, salvo que la vivienda se ubique en zona geográfica sin cobertura.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Botiquín primeros auxilios</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Información detallada del centro médico más próximo.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Listado de teléfonos de urgencia y de interés.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Servicio de recepción. No se entregan las llaves a través de cajetines ubicados en la vía pública.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Servicio de limpieza</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Cambio de lencería</span></div>
 
       <div class="label" style="font-weight: bold; margin-top: 8px;">DIMENSIONES</div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Dimensiones sujetas a las que establece la normativa correspondiente al uso residencial de las mismas.</span></div>
 
       <div class="label" style="font-weight: bold; margin-top: 8px;">DOTACIÓN</div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Mobiliario, cubertería, menaje, lencería y demás utensilios y accesorios necesarios para atender las necesidades de los clientes conforme a su capacidad.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Todos los dormitorios están dotados de armario, dentro o fuera del mismo.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Conexión a internet, salvo zonas sin cobertura, y televisor.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Lavadora automática o lavandería común que incluya lavadoras y secadoras a disposición de los clientes en el propio recinto.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Frigorífico.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Plancha eléctrica</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Horno / microondas</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Extractor de humos, campana, etc.</span></div>
       <div class="check-row">${checkHtml(
-        false
+        false,
       )} <span class="check-label-black" style="color:#BBB;">Al menos dos fogones eléctricos.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Tres fogones o más</span></div>
 
       <div class="header-section"><div class="header-letter">Q</div><div class="header-title">Información de la Administración</div></div>
@@ -5390,37 +5418,37 @@ export class DocumentoService {
       </div>
 
       <div class="check-row mt-10">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que ostenta la disponibilidad de la vivienda para su dedicación al uso turístico y la documentación que lo acredita según el caso (escritura de propiedad del inmueble, contrato de arrendamiento, autorización para la gestión entre persona propietaria y empresa, u otro título válido a estos efectos).</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que la vivienda dispone de los requisitos exigidos por la normativa para su inscripción en el Registro con la capacidad comunicada, y que tales requisitos se mantendrán durante la vigencia de la actividad.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que dispone del informe municipal de compatibilidad urbanística para uso turístico favorable, o documento equivalente previsto en este reglamento.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que la referencia catastral consignada es única e individualizada y responde a la realidad física, económica y jurídica actual del inmueble o que, en su defecto, se hace constar el código registral único del inmueble de forma provisional hasta la obtención, en menos de un año, de la referencia catastral única e individualizada correspondiente.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que dispone de un seguro de responsabilidad civil u otra garantía equivalente para cubrir los daños y perjuicios que puedan provocarse en el desarrollo de la actividad en los términos previstos en el artículo 26 de este decreto.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que la vivienda cuenta con las licencias, certificados o autorizaciones exigidas por otros departamentos o administraciones públicas, especialmente urbanísticas, ambientales, de propiedad horizontal, sanitarias y de apertura, en el caso de resultar exigibles, y que cumple con toda la normativa sectorial aplicable.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que la vivienda se comercializará turísticamente únicamente en los periodos indicados.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que cumple con las disposiciones legales relativas a las obligaciones fiscales, tributarias, de seguridad social y, en caso de tener personas empleadas a cargo, que se rigen por el convenio colectivo que resulta de aplicación, correspondientes a esta actividad económica.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que dispone de certificación registral que acredita que ni el título constitutivo o los estatutos de la comunidad de propietarios, o algún acuerdo de ésta, oponible a terceros, determinan la imposibilidad de uso para finalidades diferentes a las de vivienda como residencia habitual, o que dispone de certificado expedido por la administración de la comunidad de propietarios en el mismo sentido.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que se cumple con las obligaciones del Real Decreto 933/2021, de 26 de octubre por el que se establecen las obligaciones de registro documental e información de las personas físicas o jurídicas que ejercen actividades de hospedaje y alquiler de vehículos a motor o norma que lo sustituya.</span></div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que dispone del certificado energético del inmueble.</span></div>
 
       <div class="info-warning mt-10">
@@ -5433,7 +5461,7 @@ export class DocumentoService {
         <span class="info-text">Solo obligatorio en el caso de las viviendas que se implanten en edificaciones cuyo uso principal sea residencial vivienda (no aplicable a viviendas ubicadas en locales de uso terciario):</span>
       </div>
       <div class="check-row">${checkHtml(
-        true
+        true,
       )} <span class="check-label">Que dispone de licencia de primera o segunda ocupación de la vivienda o del título habilitante equivalente previsto en el Decreto 12/2021, de 22 de enero, del Consell de regulación de la declaración responsable para la primera ocupación y sucesivas de viviendas, así como, en su caso, el título habilitante municipal exigible para su destino al uso de alojamiento turístico, cuando de conformidad con el planeamiento municipal el uso vivienda turística sea residencial. Excepcionalmente, en casos de imposibilidad acreditada, se admitirá informe municipal equivalente.</span></div>
 
       <div class="info-blue">
@@ -5441,7 +5469,7 @@ export class DocumentoService {
         <span class="info-text">Solo obligatorio para viviendas turísticas que se implanten en locales de uso terciario:</span>
       </div>
       <div class="check-row">${checkHtml(
-        false
+        false,
       )} <span class="check-label-black" style="color:#888;">Que en la vivienda turística se cumplen las condiciones de diseño, calidad, accesibilidad y seguridad establecidas en el 49.2, 3 y 4 del Decreto 10/2021 de alojamiento de la CV, y que dispone de las licencias, autorizaciones, títulos habilitantes o cualesquiera otros instrumentos de intervención urbanística, ambiental o de apertura municipales preceptivos para su destino al uso turístico, cuando de conformidad con el planeamiento municipal el uso vivienda turística sea considerado terciario.</span></div>
 
       <div class="info-blue">
@@ -5449,7 +5477,7 @@ export class DocumentoService {
         <span class="info-text">Marcar en el caso de viviendas turísticas que se implanten en locales de uso terciario existentes y que se acojan a los criterios de flexibilidad establecidos en el decreto 10/2021 de alojamiento de la CV respecto de la normativa de calidad y diseño:</span>
       </div>
       <div class="check-row">${checkHtml(
-        false
+        false,
       )} <span class="check-label-black" style="color:#888;">En el caso de viviendas de uso turístico que se implanten en locales de uso terciario de edificaciones existentes, que se dispone de la memoria técnica descriptiva recogida en el artículo 49.3 del decreto 10/2021 de alojamiento de la CV.</span></div>
 
       <div class="info-warning mt-10">
@@ -5462,7 +5490,7 @@ export class DocumentoService {
         <span class="info-text">SOLO MARCAR EN LOS CASOS DE SOLICITAR LA ESPECIALIDAD RURAL Y CONTAR CON EL CERTIFICADO ACREDITATIVO Y RESTO REQUISITOS DEL ARTÍCULO 68 DEL DECRETO 10/21. RESULTA OBLIGATORIO ADJUNTAR EL CORRESPONDIENTE CERTIFICADO ACREDITATIVO EN EL PASO 3 DOCUMENTAR.</span>
       </div>
       <div class="check-row">${checkHtml(
-        false
+        false,
       )} <span class="check-label-black" style="color:#888;">En el caso de ostentar la especialidad rural, que cumple con las prescripciones previstas en el artículo 68 del Decreto 10/2021, de 22 de enero, del Consell, por el que se regula el alojamiento turístico en la Comunidad Valenciana.</span></div>
 
       <div class="info-blue">
@@ -5470,7 +5498,7 @@ export class DocumentoService {
         <span class="info-text">SOLO MARCAR EN CASOS DE VIVIENDAS DE USO TURÍSTICO UBICADAS EN SUELO NO URBANIZABLE</span>
       </div>
       <div class="check-row">${checkHtml(
-        false
+        false,
       )} <span class="check-label-black" style="color:#888;">Si el establecimiento está ubicado en suelo no urbanizable común, que se ha obtenido la declaración de interés comunitario que atribuye el correspondiente uso y aprovechamiento turístico o, en su caso, que se ha tramitado su exención conforme a la legislación urbanística vigente.</span></div>
 
       <div class="firma-section">
@@ -5492,7 +5520,7 @@ export class DocumentoService {
       margin: [10, 10],
       filename: `REGISTRO_VT_SEGUNDA_PARTE_${dTitular.nombre.replace(
         /[^a-zA-Z0-9]/g,
-        '_'
+        '_',
       )}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
@@ -5515,7 +5543,7 @@ export class DocumentoService {
     const contactEmail = (ingeniero.correoEmpresa || '').toLowerCase().trim();
     const lugarFirma = toUpper(ingeniero.poblacion || 'Valencia');
     const nombreIngeniero = toUpper(
-      ingeniero.nombre || 'LUIS SERRANO ARTESERO'
+      ingeniero.nombre || 'LUIS SERRANO ARTESERO',
     ); // Fallback visual
     const dniIngeniero = toUpper(ingeniero.dni || '20037410V'); // Fallback visual
 
@@ -5531,7 +5559,7 @@ export class DocumentoService {
     const dVivienda = {
       direccion: toUpper(
         datos.vivienda_direccion_completa ||
-          `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via} ${datos.vivienda_numero}`
+          `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via} ${datos.vivienda_numero} ${datos.vivienda_piso} ${datos.vivienda_puerta}`,
       ),
       cp: datos.vivienda_codigo_postal || '',
       provincia: toUpper(datos.vivienda_provincia || ''),
@@ -5550,7 +5578,7 @@ export class DocumentoService {
     // Registro de Destino
     const registroDestino = toUpper(
       datos.vivienda_nombre_registro_propiedad ||
-        `REGISTRO DE LA PROPIEDAD DE ${dVivienda.municipio}`
+        `REGISTRO DE LA PROPIEDAD DE ${dVivienda.municipio}`,
     );
 
     // NUEVO DATO: Referencia del documento dinámica
@@ -5571,7 +5599,7 @@ export class DocumentoService {
     <meta charset="UTF-8">
     <style>
         @page { margin: 0; size: A4; }
-        body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #333; margin: 0; padding: 25px; background-color: #FFF; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #333; margin: 0; padding: 40px; background-color: #FFF; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         * { box-sizing: border-box; }
 
         /* HEADER & NAV */
@@ -5581,7 +5609,7 @@ export class DocumentoService {
         .reg_form_menu_nav { background: #F5F5F5; padding: 10px 30px; border-bottom: 1px solid #DDD; font-weight: bold; font-size: 11px; color: #555; display: flex; gap: 20px; margin-bottom: 20px; }
 
         /* STEPS 1-4 CARDS */
-        .reg_form_step_card { border: 1px solid #CCC; background: #FAFAFA; padding: 15px; margin-bottom: 15px; border-radius: 4px; page-break-inside: avoid; }
+        .reg_form_step_card { border: 1px solid #CCC; background: #FAFAFA; padding: 15px; margin-bottom: 15px; border-radius: 4px; page-break-inside: auto; break-inside: auto; }
         .reg_form_step_title { color: #A30014; font-weight: bold; font-size: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .reg_form_step_circle { border: 2px solid #A30014; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #A30014; background: #FFF; }
 
@@ -5601,7 +5629,7 @@ export class DocumentoService {
         .reg_form_section_header { font-size: 14px; font-weight: bold; color: #222; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #DDD; padding-bottom: 5px; page-break-after: avoid; }
 
         /* FORM INPUT STRUCTURE */
-        .reg_form_group_container { border: 1px solid #DDD; padding: 15px; background-color: #FDFDFD; border-radius: 4px; margin-bottom: 15px; page-break-inside: avoid; }
+        .reg_form_group_container { border: 1px solid #DDD; padding: 15px; background-color: #FDFDFD; border-radius: 4px; margin-bottom: 15px; page-break-inside: auto; break-inside: auto; }
         .reg_form_row_wrapper { display: flex; gap: 15px; margin-bottom: 10px; align-items: flex-end; }
         .reg_form_col_container { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
@@ -5621,12 +5649,12 @@ export class DocumentoService {
         .reg_form_units_question { margin-top: 15px; font-size: 10px; font-weight: bold; color: #222; margin-bottom: 5px; }
         .reg_form_units_desc { font-size: 10px; color: #555; text-align: justify; line-height: 1.3; margin-bottom: 10px; }
 
-        .reg_form_block_nontourist { border: 2px dashed #4CAF50; padding: 10px; margin-top: 15px; background: #F1F8E9; page-break-inside: avoid; }
-        .reg_form_block_tourist { border: 2px dashed #E91E63; padding: 10px; margin-top: 15px; background: #FFF0F5; page-break-inside: avoid; }
+        .reg_form_block_nontourist { border: 2px dashed #4CAF50; padding: 10px; margin-top: 15px; background: #F1F8E9; page-break-inside: auto; break-inside: auto; }
+        .reg_form_block_tourist { border: 2px dashed #E91E63; padding: 10px; margin-top: 15px; background: #FFF0F5; page-break-inside: auto; break-inside: auto; }
         .reg_form_block_title { font-weight: bold; font-size: 11px; margin-bottom: 10px; text-transform: uppercase; }
 
         /* STEP 5 & 6 & 7 SPECIFICS */
-        .reg_form_doc_section { margin-top: 20px; border-top: 1px dashed #CCC; padding-top: 15px; page-break-inside: avoid; }
+        .reg_form_doc_section { margin-top: 20px; border-top: 1px dashed #CCC; padding-top: 15px; page-break-inside: auto; break-inside: auto; }
         .reg_form_step_badge { color: #A30014; font-weight: bold; font-size: 14px; border: 2px solid #A30014; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; background: #FFF; }
         .reg_form_section_title_lg { font-size: 14px; font-weight: bold; color: #333; display: flex; align-items: center; margin-bottom: 15px; }
 
@@ -5635,15 +5663,15 @@ export class DocumentoService {
 
         .reg_form_bienes_box { background: #FAFAFA; border: 1px solid #EEE; padding: 15px; margin-top: 15px; }
 
-        .reg_form_upload_container { margin-top: 20px; padding: 15px; border: 1px solid #DDD; background: #FFF; box-shadow: 0 1px 3px rgba(0,0,0,0.1); page-break-inside: avoid; }
+        .reg_form_upload_container { margin-top: 20px; padding: 15px; border: 1px solid #DDD; background: #FFF; box-shadow: 0 1px 3px rgba(0,0,0,0.1); page-break-inside: auto; break-inside: auto; }
         .reg_form_warning_yellow { background-color: #FFF3CD; color: #856404; padding: 10px; border-left: 4px solid #FFC107; font-size: 10px; margin-bottom: 10px; }
         .reg_form_warning_red { background-color: #F8D7DA; color: #721C24; padding: 10px; border-left: 4px solid #D32F2F; font-size: 10px; margin-bottom: 15px; }
         .reg_form_dropzone { border: 1px dashed #999; padding: 25px; text-align: center; border-radius: 4px; background: #FAFAFA; color: #777; font-size: 11px; cursor: pointer; margin-bottom: 5px; }
 
-        .reg_form_presenter_box { margin-top: 20px; padding: 15px; border: 1px solid #DDD; background: #FFF; page-break-inside: avoid; }
+        .reg_form_presenter_box { margin-top: 20px; padding: 15px; border: 1px solid #DDD; background: #FFF; page-break-inside: auto; break-inside: auto; }
 
-        .reg_form_footer_actions { margin-top: 30px; border-top: 2px solid #000; padding-top: 20px; display: flex; justify-content: space-between; align-items: center; page-break-inside: avoid; }
-        .reg_form_footer_legal { margin-top: 20px; padding: 15px; background-color: #E3F2FD; border: 1px solid #2196F3; text-align: center; color: #0D47A1; font-weight: bold; font-size: 11px; page-break-inside: avoid; }
+        .reg_form_footer_actions { margin-top: 30px; border-top: 2px solid #000; padding-top: 20px; display: flex; justify-content: space-between; align-items: center; page-break-inside: auto; break-inside: auto; }
+        .reg_form_footer_legal { margin-top: 20px; padding: 15px; background-color: #E3F2FD; border: 1px solid #2196F3; text-align: center; color: #0D47A1; font-weight: bold; font-size: 11px; page-break-inside: auto; break-inside: auto; }
 
         /* UTILS */
         .reg_form_pink_dot { color: #E91E63; font-size: 14px; font-weight: bold; margin-right: 3px; }
@@ -5717,7 +5745,7 @@ export class DocumentoService {
         </div>
         <div class="reg_form_row_wrapper">
             <div class="reg_form_col_container">
-                <div class="reg_form_label_text">DIRECCIÓN</div>
+                <div class="reg_form_label_text">${dVivienda.direccion}</div>
                 <div class="reg_form_input_field reg_form_input_gray"></div>
             </div>
         </div>
@@ -5954,7 +5982,7 @@ export class DocumentoService {
     </div>
 
     <div class="reg_form_warning_yellow" style="text-align:center; color:#F57F17; background:#FFF8E1; border:1px solid #FFECB3; margin-top:20px;">
-        ⚠️ IMPORTANTE: ESTE DOCUMENTO ES UNA GUÍA. AL FINALIZAR EL TRÁMITE ONLINE, DEBE FIRMARSE CON EL CERTIFICADO DIGITAL DEL CLIENTE.
+        ⚠️ IMPORTANTE: ESTE DOCUMENTO DESCARGADO DEBE FIRMARSE CON EL CERTIFICADO DIGITAL DEL CLIENTE.
     </div>
 
     <div class="reg_form_doc_section">
@@ -6136,7 +6164,7 @@ export class DocumentoService {
     const nombreLimpio = dTitular.nombre.replace(/[^a-zA-Z0-9]/g, '_');
 
     const opt: any = {
-      margin: 0,
+      margin: [12, 12, 12, 12],
       filename: `${tipoNombre}_${nombreLimpio}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
