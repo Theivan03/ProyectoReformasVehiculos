@@ -147,9 +147,48 @@ export class MemoriaTecnicaDisenoComponent {
 
   private extraerSoloCalle(direccionCompleta: string): string {
     if (!direccionCompleta) return '';
-    const match = direccionCompleta.match(/^(.*?)\s+(\d+|s\/n|nº\d+)/i);
-    return match && match[1] ? match[1].trim() : direccionCompleta;
+    const trimmed = direccionCompleta.trim();
+    const commaSplit = trimmed.split(',');
+    if (commaSplit.length > 1) return commaSplit[0].trim();
+    const match = trimmed.match(
+      /^(.*?)\s+(?:\d+|s\/n|n(?:\u00BA|\u00B0|o)?\s*\d+)\b/i
+    );
+    return match && match[1] ? match[1].trim() : trimmed;
   }
+
+  private extraerNumeroEdificio(direccionCompleta: string): string {
+    if (!direccionCompleta) return '';
+    const upper = direccionCompleta.toUpperCase();
+
+    if (/\bS\s*\/\s*N\b/.test(upper)) return 'S/N';
+
+    const parts = direccionCompleta
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length >= 2) {
+      const numMatch = parts[1].match(/\d+/);
+      if (numMatch) return numMatch[0];
+    }
+
+    const marcado = upper.match(/\bN[\u00BA\u00B0O]?\s*\.?\s*(\d+)\b/);
+    if (marcado && marcado[1]) return marcado[1];
+
+    let base = upper.split(',')[0];
+    base = base.split(
+      /\b(PISO|PTA|PUERTA|PLANTA|ESC|ESCALERA|BLOQUE|BAJO)\b/i
+    )[0];
+
+    const ordinalIndex = base.search(/\d+\s*[\u00BA\u00AA]/);
+    if (ordinalIndex !== -1) {
+      base = base.slice(0, ordinalIndex);
+    }
+
+    const nums = base.match(/\d+/g);
+    if (!nums || nums.length === 0) return '';
+    return nums[nums.length - 1];
+  }
+
 
   guardarEnServidor() {
     this.isSaving = true;
@@ -367,10 +406,9 @@ export class MemoriaTecnicaDisenoComponent {
 
       // --- TEXTOS SOBRE LA IMAGEN ---
 
-      // Número de la casa
-      let numeroCasa = '7';
-      const matchNum = this.datos.emplazamiento.direccion.match(/\d+$/);
-      if (matchNum) numeroCasa = matchNum[0];
+      // N?mero de la casa (edificio)
+      let numeroCasa =
+        this.extraerNumeroEdificio(this.datos.emplazamiento.direccion) || '7';
 
       page5.drawText(numeroCasa, {
         x: iX + planoDims.width / 2 - 25, // 🔥 Más a la izquierda (-35)
@@ -405,3 +443,5 @@ export class MemoriaTecnicaDisenoComponent {
     }
   }
 }
+
+

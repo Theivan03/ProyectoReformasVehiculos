@@ -23,6 +23,7 @@ import {
 import { saveAs } from 'file-saver';
 import html2pdf from 'html2pdf.js';
 import { PDFDocument, PDFName, StandardFonts } from 'pdf-lib';
+import * as pdfjsLib from 'pdfjs-dist';
 
 @Injectable({
   providedIn: 'root',
@@ -3530,7 +3531,7 @@ export class DocumentoService {
       const crearDocumentoAislado = async (
         nombreArchivoSalida: string,
         indicesPaginasMantener: number[],
-        aplanar: boolean = true,
+        modoSalida: 'flatten' | 'editable' | 'raster' = 'flatten',
       ) => {
         const srcDoc = await PDFDocument.load(templateBytes);
         const form = srcDoc.getForm();
@@ -3584,7 +3585,29 @@ export class DocumentoService {
           form.updateFieldAppearances(font);
         } catch {}
 
-        if (aplanar) {
+        const total = srcDoc.getPageCount();
+        const indicesOk = indicesPaginasMantener.filter(
+          (i) => Number.isInteger(i) && i >= 0 && i < total,
+        );
+        if (indicesOk.length === 0) return;
+
+        if (modoSalida === 'raster') {
+          const pdfBytesConDatos = await srcDoc.save({
+            useObjectStreams: false,
+            updateFieldAppearances: false,
+          });
+          const pdfRasterBytes = await this.rasterizarPdfPaginas(
+            pdfBytesConDatos,
+            indicesOk,
+          );
+          saveAs(
+            new Blob([pdfRasterBytes as any], { type: 'application/pdf' }),
+            nombreArchivoSalida,
+          );
+          return;
+        }
+
+        if (modoSalida === 'flatten') {
           try {
             form.flatten({ updateFieldAppearances: false });
           } catch {}
@@ -3600,12 +3623,7 @@ export class DocumentoService {
           } catch {}
         }
 
-        const total = srcDoc.getPageCount();
-        const indicesOk = indicesPaginasMantener.filter(
-          (i) => Number.isInteger(i) && i >= 0 && i < total,
-        );
         const keepSet = new Set(indicesOk);
-        if (keepSet.size === 0) return;
 
         for (let i = total - 1; i >= 0; i--) {
           if (!keepSet.has(i)) {
@@ -3623,8 +3641,8 @@ export class DocumentoService {
         );
       };
 
-      await crearDocumentoAislado('ANEXO_I.pdf', [0, 1, 2, 3, 4], true);
-      await crearDocumentoAislado('ANEXO_II.pdf', [5, 6], true);
+      await crearDocumentoAislado('ANEXO_I.pdf', [0, 1, 2, 3, 4], 'flatten');
+      await crearDocumentoAislado('ANEXO_II.pdf', [5, 6], 'flatten');
 
       if (year > 0) {
         let indicesFicha: number[] = [];
@@ -3642,7 +3660,7 @@ export class DocumentoService {
         }
 
         if (indicesFicha.length > 0) {
-          await crearDocumentoAislado(nombreFicha, indicesFicha, false);
+          await crearDocumentoAislado(nombreFicha, indicesFicha, 'raster');
         }
       }
 
@@ -3667,6 +3685,66 @@ export class DocumentoService {
       );
     const ab = await res.arrayBuffer();
     return new Uint8Array(ab);
+  }
+
+  private dataUrlToUint8Array(dataUrl: string): Uint8Array {
+    const base64 = dataUrl.split(',')[1] || '';
+    const binary = atob(base64);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  private async rasterizarPdfPaginas(
+    pdfBytes: Uint8Array,
+    indicesPaginas: number[],
+  ): Promise<Uint8Array> {
+    const pdfjsLib: any = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    if (!pdfjsLib.GlobalWorkerOptions?.workerSrc) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+        'pdfjs-dist/legacy/build/pdf.worker.mjs',
+        import.meta.url,
+      ).toString();
+    }
+    const loadingTask = pdfjsLib.getDocument({
+      data: pdfBytes,
+      disableWorker: true,
+    });
+    const pdf = await loadingTask.promise;
+
+    const outDoc = await PDFDocument.create();
+    const escala = 2;
+
+    for (const index of indicesPaginas) {
+      const page = await pdf.getPage(index + 1);
+      const viewport = page.getViewport({ scale: escala });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) continue;
+      await page.render({
+        canvasContext: ctx,
+        viewport,
+        renderInteractiveForms: true,
+      }).promise;
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const imgBytes = this.dataUrlToUint8Array(dataUrl);
+      const img = await outDoc.embedJpg(imgBytes);
+      const pdfPage = outDoc.addPage([canvas.width, canvas.height]);
+      pdfPage.drawImage(img, {
+        x: 0,
+        y: 0,
+        width: canvas.width,
+        height: canvas.height,
+      });
+    }
+
+    return await outDoc.save({ useObjectStreams: false });
   }
 
   async generarRegistroVTCoselleria(datos: any): Promise<void> {

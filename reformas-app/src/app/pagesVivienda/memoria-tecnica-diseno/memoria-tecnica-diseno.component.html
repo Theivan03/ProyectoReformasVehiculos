@@ -382,6 +382,14 @@
                 <option value="Local Comercial">Local Comercial</option>
               </select>
             </div>
+            <div class="col-md-3" *ngIf="!datos.mismaDireccion">
+              <label class="form-label">Superficie (mÂ²)</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.superficie"
+              />
+            </div>
           </div>
         </div>
       </div>

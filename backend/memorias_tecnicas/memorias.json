@@ -56,5 +56,39 @@
       "lugar": "5"
     },
     "fechaCreacion": "2025-12-29T12:52:48.498Z"
+  },
+  {
+    "id": 1770387534299,
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "RAUL SALAS BAIDAL",
+      "nif": "74018020H",
+      "domicilio": "AVDA. LAS PALMAS 33 P01",
+      "cp": "03725",
+      "poblacion": "TEULADA",
+      "provincia": "ALICANTE",
+      "telefono": "618622012",
+      "correo": "hablamos@projectes.es"
+    },
+    "emplazamiento": {
+      "direccion": "Ctra TEULADA-BENIMARCO, 26, 1",
+      "poblacion": "TEULADA",
+      "provincia": "ALICANTE",
+      "cp": "03725",
+      "refCatastral": "CUPS: ES 0021 0000 0150 8057 LJ",
+      "uso": "Vivienda",
+      "superficie": 327,
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": 9.2
+    },
+    "fechaFirma": {
+      "dia": "25",
+      "mes": "Septiembre",
+      "anyo": "2025",
+      "lugar": "Teulada"
+    },
+    "fechaCreacion": "2026-02-06T14:18:54.299Z"
   }
 ]

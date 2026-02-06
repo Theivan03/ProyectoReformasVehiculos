@@ -7,8 +7,14 @@
   },
   {
     "id": 2,
-    "usuario": "ivan",
-    "password": "$2b$10$XFFBlNS7l9GdUD2YV4GUXOFkPUQYVtcilHlCtyMjbUz5J1N5gE.ma",
+    "usuario": "Ivan",
+    "password": "$2b$10$q1.Wb4mBuH5iKlP01h10X.xxbozbe3Qsx8fp.U6WjfupFn/ljniKK",
+    "rol": "vivienda"
+  },
+  {
+    "id": 3,
+    "usuario": "David",
+    "password": "$2b$10$aRYsxZvWSRWN4apJfiYVT.OOgcfjlL2MMp2NCxD1ALTuaeGorpWxC",
     "rol": "coche"
   }
 ]
