@@ -405,7 +405,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
     new Paragraph({ text: '', spacing: { after: 200 } }),
     new Paragraph({
-      text: 'La reforma realizada en el vehículo ha consistido en:',
+      text: `La reforma realizada en el vehículo en fecha ${data.fechaProyecto.split('-').reverse().join('/')} ha consistido en:`,
       spacing: { after: 200 },
     }),
   ];

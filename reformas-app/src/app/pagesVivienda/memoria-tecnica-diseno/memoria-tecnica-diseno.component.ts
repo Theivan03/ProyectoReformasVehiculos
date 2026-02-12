@@ -96,7 +96,7 @@ export class MemoriaTecnicaDisenoComponent {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -151,7 +151,7 @@ export class MemoriaTecnicaDisenoComponent {
     const commaSplit = trimmed.split(',');
     if (commaSplit.length > 1) return commaSplit[0].trim();
     const match = trimmed.match(
-      /^(.*?)\s+(?:\d+|s\/n|n(?:\u00BA|\u00B0|o)?\s*\d+)\b/i
+      /^(.*?)\s+(?:\d+|s\/n|n(?:\u00BA|\u00B0|o)?\s*\d+)\b/i,
     );
     return match && match[1] ? match[1].trim() : trimmed;
   }
@@ -176,7 +176,7 @@ export class MemoriaTecnicaDisenoComponent {
 
     let base = upper.split(',')[0];
     base = base.split(
-      /\b(PISO|PTA|PUERTA|PLANTA|ESC|ESCALERA|BLOQUE|BAJO)\b/i
+      /\b(PISO|PTA|PUERTA|PLANTA|ESC|ESCALERA|BLOQUE|BAJO)\b/i,
     )[0];
 
     const ordinalIndex = base.search(/\d+\s*[\u00BA\u00AA]/);
@@ -188,7 +188,6 @@ export class MemoriaTecnicaDisenoComponent {
     if (!nums || nums.length === 0) return '';
     return nums[nums.length - 1];
   }
-
 
   guardarEnServidor() {
     this.isSaving = true;
@@ -208,7 +207,7 @@ export class MemoriaTecnicaDisenoComponent {
         this.isSaving = false;
         console.error('Error al guardar:', error);
         alert(
-          '❌ Error al conectar con el servidor. Revisa que esté encendido.'
+          '❌ Error al conectar con el servidor. Revisa que esté encendido.',
         );
       },
     });
@@ -269,105 +268,95 @@ export class MemoriaTecnicaDisenoComponent {
       // ... (Resto de asignaciones de campos A, B, C igual que antes) ...
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_NOM[0]',
-        this.datos.titular.nombre
+        this.datos.titular.nombre,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_DNI[0]',
-        this.datos.titular.nif
+        this.datos.titular.nif,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_DOM[0]',
-        this.datos.titular.domicilio
+        this.datos.titular.domicilio,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_CP[0]',
-        this.datos.titular.cp
+        this.datos.titular.cp,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_LOC[0]',
-        this.datos.titular.poblacion
+        this.datos.titular.poblacion,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_PRO[0]',
-        this.datos.titular.provincia
+        this.datos.titular.provincia,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_TEL[0]',
-        this.datos.titular.telefono
+        this.datos.titular.telefono,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_CORREO[0]',
-        this.datos.titular.correo
+        this.datos.titular.correo,
       );
 
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_EMPL[0]',
-        this.datos.emplazamiento.direccion
+        this.datos.emplazamiento.direccion,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_LOC[0]',
-        this.datos.emplazamiento.poblacion
+        this.datos.emplazamiento.poblacion,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_PROV[0]',
-        this.datos.emplazamiento.provincia
+        this.datos.emplazamiento.provincia,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_CP[0]',
-        this.datos.emplazamiento.cp
+        this.datos.emplazamiento.cp,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_REFCAD[0]',
-        this.datos.emplazamiento.refCatastral
+        this.datos.emplazamiento.refCatastral,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_Uso[0]',
-        this.datos.emplazamiento.uso
+        this.datos.emplazamiento.uso,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_Superficie[0]',
-        this.datos.emplazamiento.superficie
+        this.datos.emplazamiento.superficie,
       );
 
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_P_Instalada[0]',
-        this.datos.caracteristicas.potenciaInstalada
+        this.datos.caracteristicas.potenciaInstalada,
       );
 
       const nombreCalleSolo = this.extraerSoloCalle(
-        this.datos.emplazamiento.direccion
+        this.datos.emplazamiento.direccion,
       );
-      setField('form1[0].Pagina1[0].seccion\\.c[0].C_EMPL[0]', nombreCalleSolo);
-
-      // setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV2[0]', true);
-      // setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV4[0]', true);
-      // setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV1[0]', false);
-      // setCheck('form1[0].Pagina1[0].seccion\\.c[0].C1_CV3[0]', false);
 
       setField(
         'form1[0].Pagina6[0].seccion\\.K[0].FI_DIA[0]',
-        this.datos.fechaFirma.dia
+        this.datos.fechaFirma.dia,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_Superficie[0]',
-        this.datos.emplazamiento.superficie
+        this.datos.emplazamiento.superficie,
       );
       setField(
         'form1[0].Pagina6[0].seccion\\.K[0].FI_MES[0]',
-        this.datos.fechaFirma.mes
+        this.datos.fechaFirma.mes,
       );
       setField(
         'form1[0].Pagina6[0].seccion\\.K[0].FI_ANY[0]',
-        this.datos.fechaFirma.anyo
+        this.datos.fechaFirma.anyo,
       );
       setField(
         'form1[0].Pagina6[0].seccion\\.K[0].FI_LLOC[0]',
-        this.datos.fechaFirma.lugar
+        this.datos.fechaFirma.lugar,
       );
-
-      // ===========================================================================
-      // 🔥 PÁGINA 5: DIBUJOS
-      // ===========================================================================
 
       const pages = pdfDoc.getPages();
       const page5 = pages[4];
@@ -394,7 +383,7 @@ export class MemoriaTecnicaDisenoComponent {
       // 3. PLANO EMPLAZAMIENTO (Sección I - Imagen PNG + Texto Superpuesto)
       const planoDims = planoImageI.scaleToFit(350, 150);
       const iX = width / 2 - planoDims.width / 2;
-      const iY = 75; // Posición base de la imagen (más alta para que no choque con el pie)
+      const iY = 75;
 
       // Dibujamos la imagen de fondo
       page5.drawImage(planoImageI, {
@@ -404,15 +393,13 @@ export class MemoriaTecnicaDisenoComponent {
         height: planoDims.height,
       });
 
-      // --- TEXTOS SOBRE LA IMAGEN ---
-
       // N?mero de la casa (edificio)
       let numeroCasa =
         this.extraerNumeroEdificio(this.datos.emplazamiento.direccion) || '7';
 
       page5.drawText(numeroCasa, {
-        x: iX + planoDims.width / 2 - 25, // 🔥 Más a la izquierda (-35)
-        y: iY + planoDims.height / 2, // 🔥 Más abajo (-10 desde el centro)
+        x: iX + planoDims.width / 2 - 25,
+        y: iY + planoDims.height / 2,
         size: 14,
         font: fontHand,
         color: colorBoli,
@@ -424,7 +411,7 @@ export class MemoriaTecnicaDisenoComponent {
 
       page5.drawText(textCalle, {
         x: width / 2 - textWidth / 2,
-        y: iY + 50, // 🔥 Más arriba (+50, pegado a la línea de la imagen)
+        y: iY + 50,
         size: 18,
         font: fontHand,
         color: colorBoli,
@@ -443,5 +430,3 @@ export class MemoriaTecnicaDisenoComponent {
     }
   }
 }
-
-
