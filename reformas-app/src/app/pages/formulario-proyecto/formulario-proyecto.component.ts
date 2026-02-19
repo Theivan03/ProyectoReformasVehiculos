@@ -66,43 +66,43 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     propietario: '---',
     categoria: '---',
     clasificacion: '---',
-    longitudAntes: '---',
-    anchuraAntes: '---',
-    alturaAntes: '---',
-    voladizoAntes: '---',
-    viaDelanteraAntes: '---',
-    viaTraseraAntes: '---',
+    longitudAntes: 0,
+    anchuraAntes: 0,
+    alturaAntes: 0,
+    voladizoAntes: 0,
+    viaDelanteraAntes: 0,
+    viaTraseraAntes: 0,
     neumaticoAntes: '---',
-    momAntes: '---',
-    mmaAntes: '---',
-    mmaEje1Antes: '---',
-    mmaEje2Antes: '---',
-    mmaConjuntoAntes: '---',
-    mmrbarradetraccion: '---',
-    mmrejecentral: '---',
-    mmrsinfrenos: '---',
-    cargavertical: '---',
+    momAntes: 0,
+    mmaAntes: 0,
+    mmaEje1Antes: 0,
+    mmaEje2Antes: 0,
+    mmaConjuntoAntes: 0,
+    mmrbarradetraccion: 0,
+    mmrejecentral: 0,
+    mmrsinfrenos: 0,
+    cargavertical: 0,
     clasificacionAntes: '---',
-    plazasDespues: '---',
-    plazasAntes: '---',
-    longitudDespues: '---',
-    anchuraDespues: '---',
-    alturaDespues: '---',
-    voladizoDespues: '---',
-    viaDelanteraDespues: '---',
-    viaTraseraDespues: '---',
+    plazasDespues: 0,
+    plazasAntes: 0,
+    longitudDespues: 0,
+    anchuraDespues: 0,
+    alturaDespues: 0,
+    voladizoDespues: 0,
+    viaDelanteraDespues: 0,
+    viaTraseraDespues: 0,
     neumaticoDespues: '---',
-    masaRealDespues: '---',
-    mmaDespues: '---',
-    mmaEje1Despues: '---',
-    mmaEje2Despues: '---',
-    mmaConjuntoDespues: '---',
+    masaRealDespues: 0,
+    mmaDespues: 0,
+    mmaEje1Despues: 0,
+    mmaEje2Despues: 0,
+    mmaConjuntoDespues: 0,
     clasificacionDespues: '---',
-    mmrbarradetraccionDespues: '---',
-    mmrejecentralDespues: '---',
-    mmrsinfrenosDespues: '---',
-    cargaverticalDespues: '---',
-    velocidadMaxima: '---',
+    mmrbarradetraccionDespues: 0,
+    mmrejecentralDespues: 0,
+    mmrsinfrenosDespues: 0,
+    cargaverticalDespues: 0,
+    velocidadMaxima: 0,
     materialesUsados: 0,
     manoDeObra: 0,
     totalPresupuesto: 0,
@@ -230,9 +230,10 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     // Carga número de proyecto / referencias si no es edición
     if (!this.esEdicion) {
       this.http
-        .get<{ siguiente: number; año: string }>(
-          'http://192.168.1.41:3000/ultimo-proyecto'
-        )
+        .get<{
+          siguiente: number;
+          año: string;
+        }>('http://192.168.1.41:3000/ultimo-proyecto')
         .subscribe({
           next: (data) => {
             this.año = data.año;
@@ -259,7 +260,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     // Normalizar Taller
     if (this.talleres?.length && this.datos.tallerSeleccionado) {
       const encontrado = this.talleres.find(
-        (t) => t.nombre === this.datos.tallerSeleccionado.nombre
+        (t) => t.nombre === this.datos.tallerSeleccionado.nombre,
       );
       if (encontrado) {
         this.datos.tallerSeleccionado = encontrado;
@@ -271,7 +272,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     // Normalizar Ingeniero
     if (this.ingenieros?.length && this.datos.ingenieroSeleccionado) {
       const encontrado = this.ingenieros.find(
-        (i) => i.nombre === this.datos.ingenieroSeleccionado.nombre
+        (i) => i.nombre === this.datos.ingenieroSeleccionado.nombre,
       );
       if (encontrado) {
         this.datos.ingenieroSeleccionado = encontrado;
@@ -332,12 +333,12 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     };
 
     const masaRealDel = Math.round(
-      this.datos.masaRealTotal * reparto.masaReal.del
+      this.datos.masaRealTotal * reparto.masaReal.del,
     );
     const masaRealTras = this.datos.masaRealTotal - masaRealDel;
 
     const ocupDelDel = Math.round(
-      this.datos.ocupDelTotal * reparto.ocupDel.del
+      this.datos.ocupDelTotal * reparto.ocupDel.del,
     );
     const ocupDelTras = this.datos.ocupDelTotal - ocupDelDel;
 
@@ -348,7 +349,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     const ocup3Tras = this.datos.ocup3Total - ocup3Del;
 
     const cargaUtilDel = Math.round(
-      this.datos.cargaUtilTotal * reparto.cargaUtil.del
+      this.datos.cargaUtilTotal * reparto.cargaUtil.del,
     );
     const cargaUtilTras = this.datos.cargaUtilTotal - cargaUtilDel;
 
@@ -373,22 +374,22 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     if (superaEje2)
       problemas.push(
         `La carga sobre el eje trasero (${sumaTras.toFixed(
-          0
+          0,
         )} kg) supera en más del 15 % la MMA del eje (${mmaEje2.toFixed(
-          0
-        )} kg).`
+          0,
+        )} kg).`,
       );
     if (superaTotal10)
       problemas.push(
         `La masa total (${masaTotal.toFixed(
-          0
-        )} kg) supera el 110 % de la MMA del vehículo (${mma.toFixed(0)} kg).`
+          0,
+        )} kg) supera el 110 % de la MMA del vehículo (${mma.toFixed(0)} kg).`,
       );
     if (superaTotal100)
       problemas.push(
         `La masa total excede la MMA en más de 100 kg (diferencia de ${(
           masaTotal - mma
-        ).toFixed(0)} kg).`
+        ).toFixed(0)} kg).`,
       );
 
     if (problemas.length > 0) {
@@ -442,7 +443,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   validarPaginaActual(): boolean {
     if (!this.formulario) return false;
     Object.values(this.formulario.controls).forEach((control) =>
-      control.markAsTouched()
+      control.markAsTouched(),
     );
     return !!this.formulario.valid;
   }

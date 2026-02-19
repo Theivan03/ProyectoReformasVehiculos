@@ -108,5 +108,16 @@
     "responsable": "ANTONIO MARTINEZ RIUTORT",
     "telefono": "965787725",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "Parking Santa Ana, S.L.",
+    "direccion": "Pol. Ind. La Via - C/ Elche 20",
+    "poblacion": "El Verger",
+    "provincia": "Alicante",
+    "registroIndustrial": "03-100077",
+    "registroEspecial": "A-3711",
+    "responsable": "Julián Pinar Lopez",
+    "telefono": "965750301",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
   }
 ]
