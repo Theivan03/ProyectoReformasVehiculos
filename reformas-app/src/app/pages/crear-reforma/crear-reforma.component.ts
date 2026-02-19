@@ -1025,7 +1025,26 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     }
     this.persist();
     const tipo = (this.datosGenerales?.tipoVehiculo || '').toLowerCase();
-    this.navigate(tipo === 'coche' ? 'coche-o-no' : 'formulario');
+    const tieneReformasPrevias =
+      this.datosGenerales?.reformasPrevias === true ||
+      this.datosFormularioGuardados?.reformasPrevias === true;
+
+    if (tipo === 'coche') {
+      this.navigate('coche-o-no');
+      return;
+    }
+
+    if (tieneReformasPrevias) {
+      this.navigate('reformas-previas');
+      return;
+    }
+
+    this.datosFormularioGuardados = {
+      ...(this.datosFormularioGuardados || {}),
+      paginaActual: Number.MAX_SAFE_INTEGER,
+    };
+    this.persist();
+    this.navigate('formulario');
   }
   onContinuarDesdeCanva(event: any) {
     if (event) {
