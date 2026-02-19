@@ -17796,6 +17796,19 @@
                             <input
                               type="text"
                               class="form-control"
+                              id="ubicacionBajo-{{ j }}"
+                              [(ngModel)]="mueble.ubicacionMuebleBajo"
+                              name="ubicacionMuebleBajo{{ j }}"
+                              placeholder="parte media del lateral izquierdo"
+                            />
+                            <label for="ubicacionBajo-{{ j }}">UBICACIÓN</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
                               id="pesoBajo-{{ j }}"
                               [(ngModel)]="mueble.pesoMuebleBajo"
                               name="pesoMuebleBajo{{ j }}"
@@ -17927,7 +17940,22 @@
                               name="medidasAlto{{ j }}"
                               placeholder="Ej: 1250x405x325"
                             />
-                            <label for="medidasAlto-{{ j }}">MEDIDAS</label>
+                            <label for="medidasAlto-{{ j }}"
+                              >MEDIDAS(mm) EJ: 1250x405x325</label
+                            >
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="ubicacionAlto-{{ j }}"
+                              [(ngModel)]="mueble.ubicacionMuebleAlto"
+                              name="ubicacionMuebleAlto{{ j }}"
+                              placeholder="parte media del lateral izquierdo"
+                            />
+                            <label for="ubicacionAlto-{{ j }}">UBICACIÃ“N</label>
                           </div>
                         </div>
                         <div class="col-md-4">

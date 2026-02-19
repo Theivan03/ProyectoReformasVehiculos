@@ -3435,7 +3435,22 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       Array.isArray((mobil as any).mueblesAlto)
     ) {
       (mobil as any).mueblesAlto.forEach((mueble: any) => {
-        const raw = `o Instalación de un mueble alto situado en el lateral derecho fabricado en madera de forma artesanal de medidas ${mueble.medidas} con puerta abatible.`;
+        const ubicacionMuebleAlto =
+          typeof mueble.ubicacionMuebleAlto === 'string' &&
+          mueble.ubicacionMuebleAlto.trim()
+            ? mueble.ubicacionMuebleAlto.trim()
+            : 'el lateral derecho';
+
+            let fabricacion = '';
+            if (mueble.tipoFabricacionMuebleAlto === 'maderaArtesanal') {
+              fabricacion = 'fabricado en madera de forma artesanal';
+            } else if (mueble.tipoFabricacionMuebleAlto === 'comercial') {
+              fabricacion = `de la marca ${mueble.marcaMuebleAlto} modelo ${mueble.modeloMuebleAlto}`;
+            }
+             else if (mueble.tipoFabricacionMuebleAlto === 'aceroArtesanal') {
+              fabricacion = 'fabricado en acero de forma artesanal';
+            }
+        const raw = `o Instalación de un mueble alto situado en ${ubicacionMuebleAlto} ${fabricacion} de medidas ${mueble.medidas} con puerta abatible.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -3453,7 +3468,21 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       Array.isArray((mobil as any).mueblesBajo)
     ) {
       (mobil as any).mueblesBajo.forEach((mueble: any) => {
-        const raw = `o Instalación de mueble bajo situado en la parte media del lateral izquierdo, fabricado en madera de forma artesanal, de medidas ${mueble.medidas} con ${mueble.cajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo.`;
+        const ubicacionMuebleBajo =
+          typeof mueble.ubicacionMuebleBajo === 'string' &&
+          mueble.ubicacionMuebleBajo.trim()
+            ? mueble.ubicacionMuebleBajo.trim()
+            : 'la parte media del lateral izquierdo';
+
+            let fabricacion = '';
+            if (mueble.tipoFabricacionMuebleBajo === 'maderaArtesanal') {
+              fabricacion = 'fabricado en madera de forma artesanal';
+            }else if (mueble.tipoFabricacionMuebleBajo === 'aceroArtesanal') {
+              fabricacion = 'fabricado en acero de forma artesanal';
+            }else if (mueble.tipoFabricacionMuebleBajo === 'comercial') {
+              fabricacion = `de la marca ${mueble.marcaMuebleBajo} modelo ${mueble.modeloMuebleBajo}`;
+            }
+        const raw = `o Instalación de mueble bajo situado en ${ubicacionMuebleBajo} ${fabricacion} de medidas ${mueble.medidas} con ${mueble.cajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -3468,7 +3497,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     // Aseos
     if (mobil.opcionesMueble?.aseo && Array.isArray((mobil as any).aseo)) {
       (mobil as any).aseo.forEach((aseo: any) => {
-        const raw = `o Instalación de aseo con persiana de medidas ${aseo.medidas} en su interior se ubica un ${aseo.descripcion}.`;
+        let descripcion;
+        if (aseo.descripcion) {
+          descripcion = `en su interior se ubica ${aseo.descripcion}`;
+        }
+        const raw = `o Instalación de aseo de medidas ${aseo.medidas} ${descripcion}.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },

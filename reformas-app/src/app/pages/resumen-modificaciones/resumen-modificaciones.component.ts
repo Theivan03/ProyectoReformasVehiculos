@@ -472,11 +472,15 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   anadirMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {
     if (tipo === 'bajo') {
       mod.mueblesBajo = mod.mueblesBajo || [];
-      mod.mueblesBajo.push({ medidas: '', cajones: 0 });
+      mod.mueblesBajo.push({
+        medidas: '',
+        cajones: 0,
+        ubicacionMuebleBajo: '',
+      });
     }
     if (tipo === 'alto') {
       mod.mueblesAlto = mod.mueblesAlto || [];
-      mod.mueblesAlto.push({ medidas: '' });
+      mod.mueblesAlto.push({ medidas: '', ubicacionMuebleAlto: '' });
     }
     if (tipo === 'aseo') {
       mod.mueblesAseo = mod.mueblesAseo || [];

@@ -23,6 +23,29 @@ const CELL_MARGINS = {
   right: 100,
 };
 
+function formatMedidasMueble(medidas: unknown): string {
+  if (medidas === null || medidas === undefined) {
+    return 'sin medidas';
+  }
+
+  if (typeof medidas === 'number') {
+    return Number.isFinite(medidas) ? medidas.toString() : 'sin medidas';
+  }
+
+  const raw = String(medidas).trim();
+  if (!raw) {
+    return 'sin medidas';
+  }
+
+  const normalized = raw.toLowerCase().replace(/mm/g, '').replace(/\s+/g, '');
+  const parts = normalized.split('x').map((part) => part.replace(',', '.'));
+  const esFormatoDimensiones =
+    parts.length >= 2 &&
+    parts.every((part) => part !== '' && !Number.isNaN(Number(part)));
+
+  return esFormatoDimensiones ? parts.join('x') : raw;
+}
+
 export async function buildCalculos(
   modificaciones: Modificacion[],
   data: any,
@@ -8926,7 +8949,7 @@ export async function buildCalculos(
         const muebles: {
           desc: string;
           peso: string;
-          medidas: number;
+          medidas: string;
           tornillos: number;
         }[] = [];
 
@@ -8939,9 +8962,9 @@ export async function buildCalculos(
           // Muebles bajos
           (modMobiliario.mueblesBajo || []).forEach((m: any) => {
             muebles.push({
-              desc: `Mueble bajo ${m.medidas}`,
+              desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
               peso: m.pesoMuebleBajo || '---',
-              medidas: m.medidas || 0,
+              medidas: formatMedidasMueble(m.medidas),
               tornillos: m.tornillos || 0,
             });
           });
@@ -8949,9 +8972,9 @@ export async function buildCalculos(
           // Muebles altos
           (modMobiliario.mueblesAlto || []).forEach((m: any) => {
             muebles.push({
-              desc: `Mueble alto ${m.medidas}`,
+              desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
               peso: m.pesoMuebleAlto || '---',
-              medidas: m.medidas || 0,
+              medidas: formatMedidasMueble(m.medidas),
               tornillos: m.tornillos || 0,
             });
           });
@@ -8959,9 +8982,9 @@ export async function buildCalculos(
           // Aseos
           (modMobiliario.mueblesAseo || []).forEach((m: any) => {
             muebles.push({
-              desc: `Aseo ${m.medidas}`,
+              desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
               peso: m.pesoMuebleAseo || '---',
-              medidas: m.medidas || 0,
+              medidas: formatMedidasMueble(m.medidas),
               tornillos: m.tornillos || 0,
             });
           });
@@ -9113,7 +9136,7 @@ export async function buildCalculos(
         // Muebles bajos
         (modMobiliario.mueblesBajo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble bajo ${m.medidas.toFixed(2)}`,
+            desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
             cantidad: m.tornillosMuebleBajo || '0',
           });
         });
@@ -9121,7 +9144,7 @@ export async function buildCalculos(
         // Muebles altos
         (modMobiliario.mueblesAlto || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble alto ${m.medidas.toFixed(2)}`,
+            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
             cantidad: m.tornillosMuebleAlto || '0',
           });
         });
@@ -9129,7 +9152,7 @@ export async function buildCalculos(
         // Aseos
         (modMobiliario.mueblesAseo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Aseo ${m.medidas.toFixed(2)}`,
+            desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
             cantidad: m.tornillosMuebleAseo || '0',
           });
         });
@@ -9297,7 +9320,7 @@ export async function buildCalculos(
         // Muebles bajos
         (modMobiliario.mueblesBajo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble bajo ${m.medidas}`,
+            desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
             peso: parseFloat(m.pesoMuebleBajo) || 0,
             tornillos: parseInt(m.tornillosMuebleBajo) || 0,
           });
@@ -9306,7 +9329,7 @@ export async function buildCalculos(
         // Muebles altos
         (modMobiliario.mueblesAlto || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble alto ${m.medidas}`,
+            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
             peso: parseFloat(m.pesoMuebleAlto) || 0,
             tornillos: parseInt(m.tornillosMuebleAlto) || 0,
           });
@@ -9315,7 +9338,7 @@ export async function buildCalculos(
         // Aseos
         (modMobiliario.mueblesAseo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Aseo ${m.medidas}`,
+            desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
             peso: parseFloat(m.pesoMuebleAseo) || 0,
             tornillos: parseInt(m.tornillosMuebleAseo) || 0,
           });
@@ -9425,7 +9448,7 @@ export async function buildCalculos(
 
         (modMobiliario.mueblesAlto || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble alto ${m.medidas}`,
+            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
             peso: parseFloat(m.pesoMuebleAlto) || 0,
             tornillos: parseInt(m.tornillosMuebleAlto) || 0,
           });
@@ -11485,7 +11508,7 @@ export async function buildCalculos(
         const muebles: {
           desc: string;
           peso: string;
-          medidas: number;
+          medidas: string;
           tornillos: number;
         }[] = [];
 
@@ -11498,9 +11521,9 @@ export async function buildCalculos(
           // Muebles bajos
           (modMobiliario.mueblesBajo || []).forEach((m: any) => {
             muebles.push({
-              desc: `Mueble bajo ${m.medidas}`,
+              desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
               peso: m.pesoMuebleBajo || '---',
-              medidas: m.medidas || 0,
+              medidas: formatMedidasMueble(m.medidas),
               tornillos: m.tornillos || 0,
             });
           });
@@ -11508,9 +11531,9 @@ export async function buildCalculos(
           // Muebles altos
           (modMobiliario.mueblesAlto || []).forEach((m: any) => {
             muebles.push({
-              desc: `Mueble alto ${m.medidas}`,
+              desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
               peso: m.pesoMuebleAlto || '---',
-              medidas: m.medidas || 0,
+              medidas: formatMedidasMueble(m.medidas),
               tornillos: m.tornillos || 0,
             });
           });
@@ -11518,9 +11541,9 @@ export async function buildCalculos(
           // Aseos
           (modMobiliario.mueblesAseo || []).forEach((m: any) => {
             muebles.push({
-              desc: `Aseo ${m.medidas}`,
+              desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
               peso: m.pesoMuebleAseo || '---',
-              medidas: m.medidas || 0,
+              medidas: formatMedidasMueble(m.medidas),
               tornillos: m.tornillos || 0,
             });
           });
@@ -11672,7 +11695,7 @@ export async function buildCalculos(
         // Muebles bajos
         (modMobiliario.mueblesBajo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble bajo ${m.medidas}`,
+            desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
             cantidad: m.tornillosMuebleBajo || '0',
           });
         });
@@ -11680,7 +11703,7 @@ export async function buildCalculos(
         // Muebles altos
         (modMobiliario.mueblesAlto || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble alto ${m.medidas}`,
+            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
             cantidad: m.tornillosMuebleAlto || '0',
           });
         });
@@ -11688,7 +11711,7 @@ export async function buildCalculos(
         // Aseos
         (modMobiliario.mueblesAseo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Aseo ${m.medidas}`,
+            desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
             cantidad: m.tornillosMuebleAseo || '0',
           });
         });
@@ -11856,7 +11879,7 @@ export async function buildCalculos(
         // Muebles bajos
         (modMobiliario.mueblesBajo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble bajo ${m.medidas}`,
+            desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
             peso: parseFloat(m.pesoMuebleBajo) || 0,
             tornillos: parseInt(m.tornillosMuebleBajo) || 0,
           });
@@ -11865,7 +11888,7 @@ export async function buildCalculos(
         // Muebles altos
         (modMobiliario.mueblesAlto || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble alto ${m.medidas}`,
+            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
             peso: parseFloat(m.pesoMuebleAlto) || 0,
             tornillos: parseInt(m.tornillosMuebleAlto) || 0,
           });
@@ -11874,7 +11897,7 @@ export async function buildCalculos(
         // Aseos
         (modMobiliario.mueblesAseo || []).forEach((m: any) => {
           muebles.push({
-            desc: `Aseo ${m.medidas}`,
+            desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
             peso: parseFloat(m.pesoMuebleAseo) || 0,
             tornillos: parseInt(m.tornillosMuebleAseo) || 0,
           });
@@ -11984,7 +12007,7 @@ export async function buildCalculos(
 
         (modMobiliario.mueblesAlto || []).forEach((m: any) => {
           muebles.push({
-            desc: `Mueble alto ${m.medidas}`,
+            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
             peso: parseFloat(m.pesoMuebleAlto) || 0,
             tornillos: parseInt(m.tornillosMuebleAlto) || 0,
           });
