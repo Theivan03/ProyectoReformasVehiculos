@@ -941,15 +941,16 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   }
   onAutosaveCocheONo(event: any) {
     if (!event) return;
-    this.mergeGenerales(event.datos);
+    const data = event?.datos ?? event;
+    this.mergeGenerales(data);
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
-        event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
+        data.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
       modificaciones:
-        event.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
+        data.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
       opcionesCoche:
-        event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
+        data.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
     };
     this.persist();
   }
@@ -1001,17 +1002,18 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   }
   onAutosaveCanva(event: any) {
     if (!event) return;
-    this.mergeGenerales(event.datos);
+    const data = event?.datos ?? event;
+    this.mergeGenerales(data);
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
-        event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
+        data.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
       modificaciones:
-        event.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
+        data.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
       opcionesCoche:
-        event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
+        data.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
       marcadores:
-        event.marcadores ?? this.datosGuardadosTipoVehiculo?.marcadores,
+        data.marcadores ?? this.datosGuardadosTipoVehiculo?.marcadores,
     };
     this.persist();
   }
@@ -1074,10 +1076,11 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   }
   onAutosaveImagenes(event: any) {
     if (!event) return;
-    this.mergeGenerales(event.datos);
+    const data = event?.datos ?? event;
+    this.mergeGenerales(data);
     this.datosResumenModificaciones = {
       ...(this.datosResumenModificaciones || {}),
-      ...event,
+      ...data,
     };
     this.persist();
   }

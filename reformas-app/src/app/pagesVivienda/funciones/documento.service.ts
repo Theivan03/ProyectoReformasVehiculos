@@ -88,6 +88,8 @@ export class DocumentoService {
         direccionVivienda = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
         if (datos.vivienda_numero)
           direccionVivienda += `, Nº ${datos.vivienda_numero}`;
+        if (datos.vivienda_escalera)
+          direccionVivienda += `, Esc. ${datos.vivienda_escalera}`;
         if (datos.vivienda_piso)
           direccionVivienda += `, Piso ${datos.vivienda_piso}`;
         if (datos.vivienda_puerta)
@@ -250,6 +252,15 @@ export class DocumentoService {
           }),
         ],
       });
+
+      let alcantarillado = '';
+      if (datos.vivienda_alcantarillado_publico) {
+        alcantarillado =
+          'Que las aguas residuales vierten a alcantarillado publico.';
+      } else if (datos.vivienda_dispone_depuradora_oxidacion_total) {
+        alcantarillado =
+          'Que las aguas residuales vierten a una depuradora de oxidación total.';
+      }
 
       const doc = new Document({
         sections: [
@@ -508,6 +519,20 @@ export class DocumentoService {
                 ],
               }),
 
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 400 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: `${alcantarillado}`,
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+
               // --- PÁRRAFO CIERRE (Puede ir en página 2 si no cabe) ---
               new Paragraph({
                 alignment: AlignmentType.JUSTIFIED,
@@ -676,6 +701,8 @@ export class DocumentoService {
         direccionVivienda = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
         if (datos.vivienda_numero)
           direccionVivienda += `, Nº ${datos.vivienda_numero}`;
+        if (datos.vivienda_escalera)
+          direccionVivienda += `, Esc. ${datos.vivienda_escalera}`;
         if (datos.vivienda_piso)
           direccionVivienda += `, Piso ${datos.vivienda_piso}`;
         if (datos.vivienda_puerta)
@@ -929,6 +956,8 @@ export class DocumentoService {
         domicilioCompleto = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
         if (datos.vivienda_numero)
           domicilioCompleto += `, Nº ${datos.vivienda_numero}`;
+        if (datos.vivienda_escalera)
+          domicilioCompleto += `, Esc. ${datos.vivienda_escalera}`;
         if (datos.vivienda_piso)
           domicilioCompleto += `, Piso ${datos.vivienda_piso}`;
         if (datos.vivienda_puerta)
@@ -1202,6 +1231,8 @@ export class DocumentoService {
         domicilioCompleto = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
         if (datos.vivienda_numero)
           domicilioCompleto += `, Nº ${datos.vivienda_numero}`;
+        if (datos.vivienda_escalera)
+          domicilioCompleto += `, Esc. ${datos.vivienda_escalera}`;
         if (datos.vivienda_piso)
           domicilioCompleto += `, Piso ${datos.vivienda_piso}`;
         if (datos.vivienda_puerta)
@@ -1409,6 +1440,8 @@ export class DocumentoService {
         domicilioCompleto = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
         if (datos.vivienda_numero)
           domicilioCompleto += `, Nº ${datos.vivienda_numero}`;
+        if (datos.vivienda_escalera)
+          domicilioCompleto += `, Esc. ${datos.vivienda_escalera}`;
         if (datos.vivienda_piso)
           domicilioCompleto += `, Piso ${datos.vivienda_piso}`;
         if (datos.vivienda_puerta)
@@ -1794,9 +1827,15 @@ export class DocumentoService {
       let domicilioCompleto = '';
       if (datos.vivienda_nombre_via) {
         domicilioCompleto = `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`;
+        domicilioVivienda = domicilioCompleto;
         if (datos.vivienda_numero)
-          domicilioVivienda += `${domicilioCompleto}, Nº ${datos.vivienda_numero}`;
-        // ... (resto de campos)
+          domicilioVivienda += `, Nº ${datos.vivienda_numero}`;
+        if (datos.vivienda_escalera)
+          domicilioVivienda += `, Esc. ${datos.vivienda_escalera}`;
+        if (datos.vivienda_piso)
+          domicilioVivienda += `, Piso ${datos.vivienda_piso}`;
+        if (datos.vivienda_puerta)
+          domicilioVivienda += `, Pta ${datos.vivienda_puerta}`;
       } else {
         domicilioVivienda = datos.vivienda_direccion_completa || '';
       }
@@ -1889,10 +1928,23 @@ export class DocumentoService {
       // -- Vivienda --
       const calle = (datos.vivienda_nombre_via || '').toUpperCase();
       const numero = datos.vivienda_numero || '';
+      const escalera = datos.vivienda_escalera || '';
+      const piso = datos.vivienda_piso || '';
+      const puerta = datos.vivienda_puerta || '';
       const cp = datos.vivienda_codigo_postal || '';
       const poblacion = (datos.vivienda_poblacion || '').toUpperCase();
       const provincia = (datos.vivienda_provincia || '').toUpperCase();
-      const direccionCorta = `C/ ${calle} ${numero}`;
+      const detalleDireccion = [
+        numero,
+        escalera ? `Esc. ${escalera}` : '',
+        piso ? `Piso ${piso}` : '',
+        puerta ? `Pta ${puerta}` : '',
+      ]
+        .filter(Boolean)
+        .join(', ');
+      const direccionCorta = `C/ ${calle}${
+        detalleDireccion ? ` ${detalleDireccion}` : ''
+      }`;
       const direccionLarga = `${direccionCorta}, en el término municipal de ${poblacion}, provincia de ${provincia}.`;
       const direccionCompletaPortada = `${direccionCorta}\n${cp} - ${poblacion} (${provincia})`;
       const refCatastral = datos.vivienda_referencia_catastral || '';
@@ -2087,7 +2139,7 @@ export class DocumentoService {
                         color: '808080',
                       }),
                       new TextRun({
-                        text: `\nC/ ${calle} ${numero} – ${cp} – ${poblacion} (${provincia})`,
+                        text: `\n${direccionCorta} – ${cp} – ${poblacion} (${provincia})`,
                         font: 'Arial',
                         size: 12,
                         bold: true,
@@ -2518,7 +2570,7 @@ export class DocumentoService {
                     underline: { type: UnderlineType.SINGLE },
                   }),
                   new TextRun({
-                    text: ` en C/ ${calle} ${numero}, en el término municipal de ${poblacion}, provincia de ${provincia}.`,
+                    text: ` en ${direccionCorta}, en el término municipal de ${poblacion}, provincia de ${provincia}.`,
                     font,
                     size: sizeCuerpo,
                   }),
@@ -3428,6 +3480,7 @@ export class DocumentoService {
 
       let calle = '';
       let numero = '';
+      let escalera = '';
       let piso = '';
       let puerta = '';
       let cpVivienda = datos.vivienda_codigo_postal || '';
@@ -3440,11 +3493,13 @@ export class DocumentoService {
         calle =
           `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via}`.toUpperCase();
         numero = datos.vivienda_numero || '';
+        escalera = datos.vivienda_escalera || '';
         piso = datos.vivienda_piso || '';
         puerta = datos.vivienda_puerta || '';
 
         const detalles: string[] = [];
         if (numero) detalles.push(`Nº ${numero}`);
+        if (escalera) detalles.push(`Esc. ${escalera}`);
         if (piso) detalles.push(`Piso ${piso}`);
         if (puerta) detalles.push(`Pta ${puerta}`);
 
@@ -3507,7 +3562,7 @@ export class DocumentoService {
 
         'Nombre Edificio': direccionCompleta,
         Dirección_2: calle,
-        n: numero + ' ' + piso + ' ' + puerta,
+        n: numero + ' ' + escalera + ' ' + piso + ' ' + puerta,
         Municipio_2: pobVivienda,
         CP_2: cpVivienda,
         Provincia: provVivienda,
@@ -3521,6 +3576,9 @@ export class DocumentoService {
         'Identificación vivienda_3': direccionCompleta,
         'Referencia catastral_3': refCatastral,
 
+        DDa: declNombre,
+        NIFCIF: declDni,
+        Municipio3: arquitecto.localidad || '',
         día: diaStr,
         mes: mesStr,
         año: anyoStr,
@@ -4504,6 +4562,7 @@ export class DocumentoService {
         datos.vivienda_nombre_via || dInteresado.nombreVia || '',
       ),
       numero: toUpper(datos.vivienda_numero || dInteresado.numero || ''),
+      escalera: toUpper(datos.vivienda_escalera || ''),
       piso: toUpper(datos.vivienda_piso || dInteresado.piso || ''),
       puerta: toUpper(datos.vivienda_puerta || dInteresado.puerta || ''),
       cp: toUpper(datos.vivienda_codigo_postal || dInteresado.cp || ''),
@@ -4678,7 +4737,7 @@ export class DocumentoService {
         </div>
         <div class="col" style="width: 20%">
           <div class="label">Escalera</div>
-          <div class="input-box"></div>
+          <div class="input-box">${dViviendaDireccion.escalera}</div>
         </div>
         <div class="col" style="width: 25%">
           <div class="label">Piso</div>
@@ -4953,6 +5012,7 @@ export class DocumentoService {
       tipoVia: toUpper(datos.vivienda_tipo_via || dTitular.tipoVia || ''),
       nombreVia: toUpper(datos.vivienda_nombre_via || dTitular.nombreVia || ''),
       numero: toUpper(datos.vivienda_numero || dTitular.numero || ''),
+      escalera: toUpper(datos.vivienda_escalera || ''),
       piso: toUpper(datos.vivienda_piso || dTitular.piso || ''),
       puerta: toUpper(datos.vivienda_puerta || dTitular.puerta || ''),
       cp: toUpper(datos.vivienda_codigo_postal || dTitular.cp || ''),
@@ -4966,6 +5026,8 @@ export class DocumentoService {
       datos.vivienda_tipo_via || '',
     )} ${toUpper(datos.vivienda_nombre_via || '')} ${toUpper(
       datos.vivienda_numero || '',
+    )} ${toUpper(
+      datos.vivienda_escalera ? `Esc. ${datos.vivienda_escalera}` : '',
     )} ${toUpper(datos.vivienda_piso || '')} ${toUpper(
       datos.vivienda_puerta || '',
     )}`.trim();
@@ -5175,7 +5237,9 @@ export class DocumentoService {
           dViviendaDireccion.numero
         }</div></div>
         <div class="col" style="width: 10%"><div class="label">LETRA</div><div class="input-box"></div></div>
-        <div class="col" style="width: 10%"><div class="label">ESCALERA</div><div class="input-box"></div></div>
+        <div class="col" style="width: 10%"><div class="label">ESCALERA</div><div class="input-box">${
+          dViviendaDireccion.escalera
+        }</div></div>
         <div class="col" style="width: 10%"><div class="label">PISO</div><div class="input-box">${
           dViviendaDireccion.piso
         }</div></div>
@@ -5637,7 +5701,7 @@ export class DocumentoService {
     const dVivienda = {
       direccion: toUpper(
         datos.vivienda_direccion_completa ||
-          `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via} ${datos.vivienda_numero} ${datos.vivienda_piso} ${datos.vivienda_puerta}`,
+          `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via} ${datos.vivienda_numero} ${datos.vivienda_escalera ? `Esc. ${datos.vivienda_escalera}` : ''} ${datos.vivienda_piso} ${datos.vivienda_puerta}`,
       ),
       cp: datos.vivienda_codigo_postal || '',
       provincia: toUpper(datos.vivienda_provincia || ''),

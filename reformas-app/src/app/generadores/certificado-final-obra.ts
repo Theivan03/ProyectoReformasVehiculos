@@ -411,128 +411,132 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
   ];
 
   const punto1_6Tabla = [
-    ...(data.tipoVehiculo === 'coche'
+    // --------------------------------------------------------------------------------
+    // BLOQUE 1: COCHES Y CAMPERS
+    // --------------------------------------------------------------------------------
+    ...(data.tipoVehiculo === 'coche' || data.tipoVehiculo === 'camper'
       ? [
           (() => {
-            // 1) Define un array con las claves de modificación, su etiqueta y la propiedad donde guardas el valor
+            // 1) Definición de elementos (Datos del código 2)
             const elementos: Array<{
               nombreMod: string;
               etiqueta: string;
-              valor: string | number;
+              key: string; // Usamos string para evitar problemas de tipado estricto en el snippet
+              condition?: (m: any) => boolean;
             }> = [
               {
                 nombreMod: 'SNORKEL',
                 etiqueta: 'Snorkel',
-                valor: modificaciones.find((m) => m.nombre === 'SNORKEL')!
-                  .curvaturaSnorkel!,
+                key: 'curvaturaSnorkel',
               },
               {
                 nombreMod: 'PARAGOLPES DELANTERO',
                 etiqueta: 'Paragolpes delantero',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'PARAGOLPES DELANTERO',
-                )!.radioCurvaRParagolpesDelantero!,
+                key: 'radioCurvaRParagolpesDelantero',
               },
               {
                 nombreMod: 'PARAGOLPES TRASERO',
                 etiqueta: 'Paragolpes trasero',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'PARAGOLPES TRASERO',
-                )!.radioCurvaRParagolpesTrasero!,
-              },
-              {
-                nombreMod: 'ALETINES Y SOBREALETINES',
-                etiqueta: 'Aletines',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES',
-                )!.radioCurvaRAletines!,
-              },
-              {
-                nombreMod: 'ALETINES Y SOBREALETINES',
-                etiqueta: 'Sobrealetines',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES',
-                )!.curvaturaSobrealetines!,
+                key: 'radioCurvaRParagolpesTrasero',
               },
               {
                 nombreMod: 'ESTRIBOS LATERALES',
                 etiqueta: 'Estribos laterales',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'SEPARADORES DE RUEDA',
-                )!.curvaturaEstribosLaterales!,
+                key: 'curvaturaEstribosLaterales',
               },
               {
                 nombreMod: 'PROTECTORES LATERALES',
                 etiqueta: 'Protectores laterales',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES',
-                )!.curvaturaProtectoresLaterales!,
+                key: 'curvaturaProtectoresLaterales',
               },
               {
                 nombreMod: 'DEFENSA DELANTERA',
                 etiqueta: 'Defensa delantera',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'DEFENSA DELANTERA',
-                )!.curvaturaDefensaDelantera!,
+                key: 'curvaturaDefensaDelantera',
               },
               {
                 nombreMod: 'SOPORTE PARA RUEDA DE REPUESTO',
                 etiqueta: 'Soporte rueda de repuesto',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO',
-                )!.curvaturaSoporteRuedaRepuesto!,
+                key: 'curvaturaSoporteRuedaRepuesto',
+              },
+              {
+                nombreMod: 'ALERÓN',
+                etiqueta: 'Alerón',
+                key: 'curvaturaAleron',
+              },
+              {
+                nombreMod: 'ALETINES Y SOBREALETINES',
+                etiqueta: 'Aletines',
+                key: 'radioCurvaRAletines',
+                condition: (m) => m.detalle?.aletines === true,
+              },
+              {
+                nombreMod: 'ALETINES Y SOBREALETINES',
+                etiqueta: 'Sobrealetines',
+                key: 'curvaturaSobrealetines', // Ojo: en tu código 2 tenías 'radioCurvaRAletines' repetido, he puesto 'curvaturaSobrealetines' deduciendo del primer código
+                condition: (m) => m.detalle?.sobrealetines === true,
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN DE SISTEMA DE ESCAPE',
+                etiqueta: 'Escape',
+                key: 'radioCurvaturaEscape',
+                condition: (m) => m.sobresaleEscape === true,
               },
             ];
 
+            // 2) Construcción de filas (Lógica del código 1 adaptada para ser dinámica)
             const dataRows = elementos
-              .filter(({ nombreMod }) =>
-                modificaciones.some(
+              .map(({ nombreMod, etiqueta, key, condition }) => {
+                const mod = modificaciones.find(
                   (m) => m.nombre === nombreMod && m.seleccionado,
-                ),
-              )
-              .map(
-                ({ etiqueta, valor }) =>
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        verticalAlign: VerticalAlign.CENTER,
-                        margins: {
-                          top: 200,
-                          bottom: 200,
-                          left: 200,
-                          right: 200,
-                        },
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.CENTER,
-                            children: [new TextRun(etiqueta)],
-                          }),
-                        ],
-                      }),
-                      new TableCell({
-                        verticalAlign: VerticalAlign.CENTER,
-                        margins: {
-                          top: 200,
-                          bottom: 200,
-                          left: 200,
-                          right: 200,
-                        },
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.CENTER,
-                            children: [new TextRun(String(valor))],
-                          }),
-                        ],
-                      }),
-                    ],
-                  }),
-              );
+                );
 
+                // Si no existe la modificación o no cumple la condición extra, devolvemos null
+                if (!mod) return null;
+                if (condition && !condition(mod)) return null;
+
+                // Acceso seguro a la propiedad dinámicamente
+                const valor = (mod as any)[key];
+
+                // Si el valor no es válido, ignoramos la fila
+                if (valor === undefined || valor === null || valor === '')
+                  return null;
+
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(valor))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null); // Eliminamos los nulls
+
+            // Si no hay filas, devolvemos array vacío (no se pinta tabla)
             if (dataRows.length === 0) {
               return [];
             }
 
+            // 3) Construcción de la tabla (Estructura del código 1)
             const headerRow = new TableRow({
+              tableHeader: true,
               children: [
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
@@ -568,7 +572,166 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
             const spacer = new Paragraph({ spacing: { before: 400 } });
 
-            // 4) Construye y devuelve la tabla completa
+            const table = new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              borders: {
+                top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                insideHorizontal: {
+                  style: BorderStyle.SINGLE,
+                  size: 1,
+                  color: '000000',
+                },
+                insideVertical: {
+                  style: BorderStyle.SINGLE,
+                  size: 1,
+                  color: '000000',
+                },
+              },
+              rows: [headerRow, ...dataRows],
+            });
+
+            return [spacer, table];
+          })(),
+        ]
+      : []),
+
+    // --------------------------------------------------------------------------------
+    // BLOQUE 2: MOTOS
+    // --------------------------------------------------------------------------------
+    ...(data.tipoVehiculo === 'moto'
+      ? [
+          (() => {
+            const elementos: Array<{
+              nombreMod: string;
+              etiqueta: string;
+              key: string;
+            }> = [
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Intermitentes delanteros',
+                key: 'curvaturaintermitenteDelantero',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Intermitentes traseros',
+                key: 'curvaturaintermitenteTrasero',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Catadioptrico',
+                key: 'curvaturacatadioptrico',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Luces antiniebla',
+                key: 'curvaturaluzAntinieblas',
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
+                etiqueta: 'Guardabarros trasero',
+                key: 'curvaturaGuardaTrasMoto',
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
+                etiqueta: 'Guardabarros delantero',
+                key: 'curvaturaGuardaDelantMoto',
+              },
+            ];
+
+            const dataRows = elementos
+              .map(({ nombreMod, etiqueta, key }) => {
+                const mod = modificaciones.find(
+                  (m) => m.nombre === nombreMod && m.seleccionado,
+                );
+
+                // Acceso seguro
+                const valor = mod ? (mod as any)[key] : null;
+
+                if (
+                  !mod ||
+                  valor === undefined ||
+                  valor === null ||
+                  valor === ''
+                ) {
+                  return null;
+                }
+
+                // Lógica de cálculo segura para evitar NaN
+                // Si valor no es un número válido, usará 0 y se convertirá a string
+                const valorCalculado = (Number(valor) || 0) / 100;
+
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(valorCalculado))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null);
+
+            if (dataRows.length === 0) {
+              return [];
+            }
+
+            // Cabecera idéntica
+            const headerRow = new TableRow({
+              tableHeader: true,
+              children: [
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  width: { size: 70, type: WidthType.PERCENTAGE },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Elemento instalado', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  width: { size: 30, type: WidthType.PERCENTAGE },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Radio de curvatura más desfavorable en mm',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            });
+
+            const spacer = new Paragraph({ spacing: { before: 400 } });
+
             const table = new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
               borders: {

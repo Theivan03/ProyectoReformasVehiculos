@@ -193,12 +193,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (m.areaResistenteTornilloSeleccionado === undefined) {
           m.areaResistenteTornilloSeleccionado = null;
         }
-        if (m.diametroTornilloSeleccionado !== null) {
-          const t = this.tornillosDB.find(
-            (x) => x.diametro === m.diametroTornilloSeleccionado,
-          );
-          if (t) m.areaResistenteTornilloSeleccionado = t.areaResistente;
-        }
+        this.onDiametroTornilloChange(m);
       }
 
       // 2. Lógica existente de Instalación Eléctrica
@@ -225,7 +220,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.resTraccionMinTornillo88Kgmm2Aletines = 80;
         }
         if (m.seccionResistenteAsAletines == null) {
-          m.seccionResistenteAsAletines = 36.64;
+          m.seccionResistenteAsAletines =
+            this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
         }
         if (!m.detalle) {
           m.detalle = { aletines: false, sobrealetines: false };
@@ -250,7 +246,9 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.calidadTornilloLucesEspecificas = 8.8;
         }
         if (m.seccionResistenteAsLucesEspecificas == null) {
-          m.seccionResistenteAsLucesEspecificas = 36.64;
+          m.seccionResistenteAsLucesEspecificas =
+            this.getAreaResistenteByMetrica(m.metricaLucesEspecificas) ??
+            36.64;
         }
         if (m.resTraccionMinTornillo88Kgmm2LucesEspecificas == null) {
           m.resTraccionMinTornillo88Kgmm2LucesEspecificas = 80;
@@ -276,7 +274,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
 
       if (m.nombre === 'PARAGOLPES DELANTERO') {
-        m.seccionResistenteAsParagolpesDelantero = 36.64;
+        if (m.seccionResistenteAsParagolpesDelantero == null) {
+          m.seccionResistenteAsParagolpesDelantero =
+            this.getAreaResistenteByMetrica(m.metricaParaDelantero) ?? 36.64;
+        }
 
         if (m.resTraccionMinTornillo88Kgmm2ParagolpesDelantero == null) {
           m.resTraccionMinTornillo88Kgmm2ParagolpesDelantero = 80;
@@ -306,7 +307,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.calidadTornilloParagolpesTrasero = 8.8;
         }
         if (m.seccionResistenteAsParagolpesTrasero == null) {
-          m.seccionResistenteAsParagolpesTrasero = 36.64;
+          m.seccionResistenteAsParagolpesTrasero =
+            this.getAreaResistenteByMetrica(m.metricaParaTrasero) ?? 36.64;
         }
         if (m.resTraccionMinTornillo88Kgmm2ParagolpesTrasero == null) {
           m.resTraccionMinTornillo88Kgmm2ParagolpesTrasero = 80;
@@ -339,7 +341,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.calidadTornilloEstribos = 8.8;
         }
         if (m.seccionResistenteAsEstribos == null) {
-          m.seccionResistenteAsEstribos = 36.64;
+          m.seccionResistenteAsEstribos =
+            this.getAreaResistenteByMetrica(m.metricaTalonera) ?? 36.64;
         }
         if (m.resTraccionMinTornillo88Kgmm2Estribos == null) {
           m.resTraccionMinTornillo88Kgmm2Estribos = 80;
@@ -372,9 +375,14 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (!m.calidadTornilloAleron) m.calidadTornilloAleron = 8.8;
         if (!m.resTraccionMinTornillo88Kgmm2Aleron)
           m.resTraccionMinTornillo88Kgmm2Aleron = 80;
-        if (!m.seccionResistenteAsAleron) m.seccionResistenteAsAleron = 11.33;
         if (!m.metricaAleron) m.metricaAleron = 4;
+        if (!m.seccionResistenteAsAleron) {
+          m.seccionResistenteAsAleron =
+            this.getAreaResistenteByMetrica(m.metricaAleron) ?? 11.33;
+        }
       }
+
+      this.syncAreaResistenteByMetrica(m);
     });
 
     console.groupEnd();
@@ -412,19 +420,42 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   onMetricaChange(mod: any) {
-    // let as;
-    // as = this.metricasAs[mod.metricaTalonera];
-    // mod.seccionResistenteAsEstribos = as || null;
-    // as = this.metricasAs[mod.metricaParaTrasero];
-    // mod.seccionResistenteAsParagolpesTrasero = as || null;
-    // as = this.metricasAs[mod.metricaLucesEspecificas];
-    // mod.seccionResistenteAsLucesEspecificas = as || null;
-    // as = this.metricasAs[mod.metricaSnorkel];
-    // mod.seccionResistenteAsSnorkel = as || null;
-    // as = this.metricasAs[mod.metricaParaDelantero];
-    // mod.seccionResistenteAsParagolpesDelantero = as || null;
-    // as = this.metricasAs[mod.metricaAletines];
-    // mod.seccionResistenteAsAletines = as || null;
+    this.syncAreaResistenteByMetrica(mod);
+  }
+
+  onDiametroTornilloChange(mod: any) {
+    if (!mod) return;
+    const tornillo = this.getTornilloSeleccionado(mod.diametroTornilloSeleccionado);
+    mod.areaResistenteTornilloSeleccionado = tornillo?.areaResistente ?? null;
+  }
+
+  private getAreaResistenteByMetrica(metrica: any): number | null {
+    if (metrica === null || metrica === undefined || metrica === '') return null;
+    const metricaNum = Number(metrica);
+    if (Number.isNaN(metricaNum)) return null;
+    const area = this.metricasAs[metricaNum];
+    return typeof area === 'number' ? area : null;
+  }
+
+  private syncAreaResistenteByMetrica(mod: any) {
+    if (!mod) return;
+
+    const metricToAreaMap: Array<{ metricaKey: string; areaKey: string }> = [
+      { metricaKey: 'metricaTalonera', areaKey: 'seccionResistenteAsEstribos' },
+      { metricaKey: 'metricaParaTrasero', areaKey: 'seccionResistenteAsParagolpesTrasero' },
+      { metricaKey: 'metricaLucesEspecificas', areaKey: 'seccionResistenteAsLucesEspecificas' },
+      { metricaKey: 'metricaSnorkel', areaKey: 'seccionResistenteAsSnorkel' },
+      { metricaKey: 'metricaParaDelantero', areaKey: 'seccionResistenteAsParagolpesDelantero' },
+      { metricaKey: 'metricaAletines', areaKey: 'seccionResistenteAsAletines' },
+      { metricaKey: 'metricaAleron', areaKey: 'seccionResistenteAsAleron' },
+    ];
+
+    metricToAreaMap.forEach(({ metricaKey, areaKey }) => {
+      const area = this.getAreaResistenteByMetrica(mod[metricaKey]);
+      if (area != null) {
+        mod[areaKey] = area;
+      }
+    });
   }
 
   getTornilloSeleccionado(diametro: number | null) {

@@ -119,5 +119,16 @@
     "responsable": "Julián Pinar Lopez",
     "telefono": "965750301",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "Talleres Torres i Fons C.B.",
+    "direccion": "Ctra de Jávea, 38, local 4º",
+    "poblacion": "Gata de Gorgos",
+    "provincia": "Alicante",
+    "registroIndustrial": "10-A-452-03055098",
+    "registroEspecial": "A-2229",
+    "responsable": "Juan Bautista Torres Bañuls",
+    "telefono": "965 75 75 38",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
   }
 ]

@@ -452,7 +452,7 @@
               { label: 'MMA eje 2', model: 'mmaEje2Despues' },
               { label: 'MMA conjunto', model: 'mmaConjuntoDespues' },
               { label: 'Clasificación', model: 'clasificacionDespues' },
-              { label: 'Carga vertical', model: 'cargaverticalDespues' },
+              { label: 'Carga vert. Acopl.', model: 'cargaverticalDespues' },
               {
                 label: 'MMR remolque con barra de tracción',
                 model: 'mmrbarradetraccionDespues'
@@ -521,7 +521,7 @@
           <input
             type="number"
             class="form-control"
-            [(ngModel)]="datos.masaRealDespues"
+            [(ngModel)]="datos.taraTotal"
             name="masaRealDespues"
             #masaRealDespuesField="ngModel"
             required
@@ -535,7 +535,7 @@
           <input
             type="number"
             class="form-control"
-            [(ngModel)]="datos.mmaEje1Despues"
+            [(ngModel)]="datos.taraDelante"
             name="mmaEje1Despues"
             #mmaEje1DespuesField="ngModel"
             required
@@ -549,7 +549,7 @@
           <input
             type="number"
             class="form-control"
-            [(ngModel)]="datos.mmaEje2Despues"
+            [(ngModel)]="datos.taraDetras"
             name="mmaEje2Despues"
             #mmaEje2DespuesField="ngModel"
             required

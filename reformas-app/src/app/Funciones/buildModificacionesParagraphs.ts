@@ -3428,7 +3428,6 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     });
     (p as any)._rawText = raw;
     out.push(p);
-
     // Muebles Altos
     if (
       mobil.opcionesMueble?.muebleAlto &&
@@ -3441,16 +3440,23 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             ? mueble.ubicacionMuebleAlto.trim()
             : 'el lateral derecho';
 
-            let fabricacion = '';
-            if (mueble.tipoFabricacionMuebleAlto === 'maderaArtesanal') {
-              fabricacion = 'fabricado en madera de forma artesanal';
-            } else if (mueble.tipoFabricacionMuebleAlto === 'comercial') {
-              fabricacion = `de la marca ${mueble.marcaMuebleAlto} modelo ${mueble.modeloMuebleAlto}`;
-            }
-             else if (mueble.tipoFabricacionMuebleAlto === 'aceroArtesanal') {
-              fabricacion = 'fabricado en acero de forma artesanal';
-            }
-        const raw = `o Instalación de un mueble alto situado en ${ubicacionMuebleAlto} ${fabricacion} de medidas ${mueble.medidas} con puerta abatible.`;
+        let fabricacion = '';
+        if (mueble.tipoFabricacionMuebleAlto === 'maderaArtesanal') {
+          fabricacion = 'fabricado en madera de forma artesanal';
+        } else if (mueble.tipoFabricacionMuebleAlto === 'aceroArtesanal') {
+          fabricacion = 'fabricado en acero de forma artesanal';
+        } else if (mueble.tipoFabricacionMuebleAlto === 'comercial') {
+          const marca = mueble.marcaMuebleAlto
+            ? `la marca ${mueble.marcaMuebleAlto}`
+            : '';
+          const referencia = mueble.referenciaMuebleAlto
+            ? `con referencia ${mueble.referenciaMuebleAlto}`
+            : '';
+          const detalle = [marca, referencia].filter(Boolean).join(' ');
+          fabricacion = detalle ? `de ${detalle}` : '';
+        }
+        const fabricacionTexto = fabricacion ? ` ${fabricacion}` : '';
+        const raw = `o Instalación de un mueble alto situado en ${ubicacionMuebleAlto}${fabricacionTexto} de medidas ${mueble.medidas} con puerta abatible.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -3474,15 +3480,23 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             ? mueble.ubicacionMuebleBajo.trim()
             : 'la parte media del lateral izquierdo';
 
-            let fabricacion = '';
-            if (mueble.tipoFabricacionMuebleBajo === 'maderaArtesanal') {
-              fabricacion = 'fabricado en madera de forma artesanal';
-            }else if (mueble.tipoFabricacionMuebleBajo === 'aceroArtesanal') {
-              fabricacion = 'fabricado en acero de forma artesanal';
-            }else if (mueble.tipoFabricacionMuebleBajo === 'comercial') {
-              fabricacion = `de la marca ${mueble.marcaMuebleBajo} modelo ${mueble.modeloMuebleBajo}`;
-            }
-        const raw = `o Instalación de mueble bajo situado en ${ubicacionMuebleBajo} ${fabricacion} de medidas ${mueble.medidas} con ${mueble.cajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo.`;
+        let fabricacion = '';
+        if (mueble.tipoFabricacionMuebleBajo === 'maderaArtesanal') {
+          fabricacion = 'fabricado en madera de forma artesanal';
+        } else if (mueble.tipoFabricacionMuebleBajo === 'aceroArtesanal') {
+          fabricacion = 'fabricado en acero de forma artesanal';
+        } else if (mueble.tipoFabricacionMuebleBajo === 'comercial') {
+          const marca = mueble.marcaMuebleBajo
+            ? `la marca ${mueble.marcaMuebleBajo}`
+            : '';
+          const referencia = mueble.referenciaMuebleBajo
+            ? `con referencia ${mueble.referenciaMuebleBajo}`
+            : '';
+          const detalle = [marca, referencia].filter(Boolean).join(' ');
+          fabricacion = detalle ? `de ${detalle}` : '';
+        }
+        const fabricacionTexto = fabricacion ? ` ${fabricacion}` : '';
+        const raw = `o Instalación de mueble bajo situado en ${ubicacionMuebleBajo}${fabricacionTexto} de medidas ${mueble.medidas} con ${mueble.cajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -3495,13 +3509,15 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     }
 
     // Aseos
-    if (mobil.opcionesMueble?.aseo && Array.isArray((mobil as any).aseo)) {
-      (mobil as any).aseo.forEach((aseo: any) => {
-        let descripcion;
-        if (aseo.descripcion) {
-          descripcion = `en su interior se ubica ${aseo.descripcion}`;
-        }
-        const raw = `o Instalación de aseo de medidas ${aseo.medidas} ${descripcion}.`;
+    if (
+      mobil.opcionesMueble?.aseo &&
+      Array.isArray((mobil as any).mueblesAseo)
+    ) {
+      (mobil as any).mueblesAseo.forEach((aseo: any) => {
+        const descripcion = aseo.descripcion
+          ? ` en su interior se ubica ${aseo.descripcion}`
+          : '';
+        const raw = `o Instalación de aseo de medidas ${aseo.medidas}${descripcion}.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },

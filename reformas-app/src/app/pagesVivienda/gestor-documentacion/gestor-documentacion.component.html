@@ -582,9 +582,12 @@
                         Vivienda en bloque
                       </option>
                       <option value="una parcela">Vivienda individual</option>
+                      <option value="un edificio de viviendas">
+                        Vivienda unifamiliar
+                      </option>
                     </select>
                   </div>
-                  <div class="col-12">
+                  <div class="col-12" style="display: none">
                     <label class="form-label small fw-bold text-secondary">
                       Dirección completa
                     </label>
@@ -621,7 +624,7 @@
                   </div>
                   <div class="col-md-2">
                     <label class="form-label small fw-bold text-secondary">
-                      Núm. (Opcional)
+                      Núm.
                     </label>
                     <input
                       type="text"
@@ -631,6 +634,16 @@
                   </div>
                   <div class="col-md-2">
                     <label class="form-label small fw-bold text-secondary">
+                      Esc.
+                    </label>
+                    <input
+                      type="text"
+                      [(ngModel)]="datosGlobales_gestor.vivienda_escalera"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="col-md-1">
+                    <label class="form-label small fw-bold text-secondary">
                       Piso
                     </label>
                     <input
@@ -639,9 +652,9 @@
                       class="form-control"
                     />
                   </div>
-                  <div class="col-md-2">
+                  <div class="col-md-1">
                     <label class="form-label small fw-bold text-secondary">
-                      Pta. (Opcional)
+                      Pta.
                     </label>
                     <input
                       type="text"
@@ -1026,11 +1039,30 @@
                             [(ngModel)]="
                               datosGlobales_gestor.vivienda_alcantarillado_publico
                             "
+                            (ngModelChange)="onCambioAlcantarilladoPublico()"
                           />
                           <label
                             class="form-check-label small fw-bold ms-2"
                             for="alcantarillado"
                             >Dispone de Alcantarillado Público</label
+                          >
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <div class="form-check form-switch">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="depuradoraOxidacionTotal"
+                            [(ngModel)]="
+                              datosGlobales_gestor.vivienda_dispone_depuradora_oxidacion_total
+                            "
+                            (ngModelChange)="onCambioDepuradoraOxidacionTotal()"
+                          />
+                          <label
+                            class="form-check-label small fw-bold ms-2"
+                            for="depuradoraOxidacionTotal"
+                            >Dispone de depuradora de oxidación total</label
                           >
                         </div>
                       </div>

@@ -91,6 +91,7 @@ export class GestorDocumentacionComponent implements OnInit {
     vivienda_tipo_via: '',
     vivienda_nombre_via: '',
     vivienda_numero: '',
+    vivienda_escalera: '',
     vivienda_piso: '',
     vivienda_puerta: '',
     vivienda_codigo_postal: '',
@@ -103,6 +104,7 @@ export class GestorDocumentacionComponent implements OnInit {
     vivienda_superficie_util: 0,
     vivienda_lista_plantas: [] as { tipo: string; descripcion: string }[],
     vivienda_alcantarillado_publico: false,
+    vivienda_dispone_depuradora_oxidacion_total: false,
     vivienda_empresa_agua: 'Aguas Municilapes...',
     vivienda_empresa_luz: 'Iberdrola',
     vivienda_empresa_basura: 'Servicios Municipales',
@@ -176,6 +178,7 @@ export class GestorDocumentacionComponent implements OnInit {
     'Cuarta',
     'Ático',
     'Buhardilla',
+    'Piso',
   ];
   listaArquitectos_gestor: any[] = [];
   listaIngenieros_gestor: any[] = [];
@@ -220,6 +223,7 @@ export class GestorDocumentacionComponent implements OnInit {
   ngOnInit(): void {
     this.cargarIngenieros();
     this.cargarArquitectos();
+    this.normalizarSaneamientoSeleccion();
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -243,6 +247,7 @@ export class GestorDocumentacionComponent implements OnInit {
             ...this.datosGlobales_gestor,
             ...vivienda,
           };
+          this.normalizarSaneamientoSeleccion();
         }
         this.isLoading = false;
       },
@@ -280,6 +285,41 @@ export class GestorDocumentacionComponent implements OnInit {
   toggleServicio_gestor(key: string) {
     const datos = this.datosGlobales_gestor as any;
     datos[key] = !datos[key];
+  }
+
+  onCambioAlcantarilladoPublico() {
+    const datos = this.datosGlobales_gestor;
+    if (datos.vivienda_alcantarillado_publico) {
+      datos.vivienda_dispone_depuradora_oxidacion_total = false;
+    } else if (!datos.vivienda_dispone_depuradora_oxidacion_total) {
+      // Siempre debe haber una opciÃ³n activa
+      datos.vivienda_alcantarillado_publico = true;
+    }
+  }
+
+  onCambioDepuradoraOxidacionTotal() {
+    const datos = this.datosGlobales_gestor;
+    if (datos.vivienda_dispone_depuradora_oxidacion_total) {
+      datos.vivienda_alcantarillado_publico = false;
+    } else if (!datos.vivienda_alcantarillado_publico) {
+      // Siempre debe haber una opciÃ³n activa
+      datos.vivienda_dispone_depuradora_oxidacion_total = true;
+    }
+  }
+
+  private normalizarSaneamientoSeleccion() {
+    const datos = this.datosGlobales_gestor;
+    if (
+      datos.vivienda_alcantarillado_publico &&
+      datos.vivienda_dispone_depuradora_oxidacion_total
+    ) {
+      datos.vivienda_dispone_depuradora_oxidacion_total = false;
+    } else if (
+      !datos.vivienda_alcantarillado_publico &&
+      !datos.vivienda_dispone_depuradora_oxidacion_total
+    ) {
+      datos.vivienda_alcantarillado_publico = true;
+    }
   }
 
   avanzarFase_gestor() {

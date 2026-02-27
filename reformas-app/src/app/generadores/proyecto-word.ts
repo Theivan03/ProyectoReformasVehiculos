@@ -1290,6 +1290,35 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     }
   }
 
+  function valorATabla(value: unknown): string {
+    if (value === null || value === undefined) {
+      return '---';
+    }
+
+    if (typeof value === 'number') {
+      return value === 0 ? '---' : value.toString();
+    }
+
+    const valueText = String(value).trim();
+    if (!valueText) {
+      return '---';
+    }
+
+    const normalizedValue = valueText.replace(',', '.');
+    if (
+      !Number.isNaN(Number(normalizedValue)) &&
+      Number(normalizedValue) === 0
+    ) {
+      return '---';
+    }
+
+    return valueText;
+  }
+
+  function valorEjesATabla(eje1: unknown, eje2: unknown): string {
+    return `1º ${valorATabla(eje1)} - 2º ${valorATabla(eje2)}`;
+  }
+
   // 1.3 - DATOS DEL VEHÍCULO
   const punto1_3DatosVehiculo = [
     new Paragraph({
@@ -1419,37 +1448,40 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       alignment: AlignmentType.CENTER,
       width: { size: 75, type: WidthType.PERCENTAGE },
       rows: [
-        ['Longitud total (mm)', data.longitudAntes],
-        ['Anchura (mm)', data.anchuraAntes],
-        ['Altura total (mm)', data.alturaAntes],
-        ['Voladizo trasero (mm)', data.voladizoAntes],
-        ['Ancho de vía anterior', data.viaDelanteraAntes],
-        ['Ancho de vía posterior', data.viaTraseraAntes],
-        ['Neumáticos', data.neumaticoAntes, ''],
-        ['Masa del vehículo en Orden de Marcha', data.momAntes],
-        ['Masa máxima en carga técnicamente admisible (MMTA)', data.mmaAntes],
+        ['Longitud total (mm)', valorATabla(data.longitudAntes)],
+        ['Anchura (mm)', valorATabla(data.anchuraAntes)],
+        ['Altura total (mm)', valorATabla(data.alturaAntes)],
+        ['Voladizo trasero (mm)', valorATabla(data.voladizoAntes)],
+        ['Ancho de vía anterior', valorATabla(data.viaDelanteraAntes)],
+        ['Ancho de vía posterior', valorATabla(data.viaTraseraAntes)],
+        ['Neumáticos', valorATabla(data.neumaticoAntes), ''],
+        ['Masa del vehículo en Orden de Marcha', valorATabla(data.momAntes)],
+        [
+          'Masa máxima en carga técnicamente admisible (MMTA)',
+          valorATabla(data.mmaAntes),
+        ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación (MMA)',
-          data.mmaAntes,
+          valorATabla(data.mmaAntes),
         ],
         [
           'Masa máxima en carga técnicamente admisible en cada eje (MMTA 1°, 2° ...)',
-          '1º ' + data.mmaEje1Antes + ' - 2º ' + data.mmaEje2Antes,
+          valorEjesATabla(data.mmaEje1Antes, data.mmaEje2Antes),
         ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación en cada eje (MMA 1°, 2° ...)',
-          '1º ' + data.mmaEje1Antes + ' - 2º ' + data.mmaEje2Antes,
+          valorEjesATabla(data.mmaEje1Antes, data.mmaEje2Antes),
         ],
         [
           'Masa máxima técnicamente admisible del conjunto (MMTC)',
-          data.mmaConjuntoAntes,
+          valorATabla(data.mmaConjuntoAntes),
         ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación del conjunto (MMAC)',
-          data.mmaConjuntoAntes,
+          valorATabla(data.mmaConjuntoAntes),
         ],
-        ['Clasificación', data.clasificacionAntes, ''],
-        ['Nº de plazas de asiento', data.plazasAntes, ''],
+        ['Clasificación', valorATabla(data.clasificacionAntes), ''],
+        ['Nº de plazas de asiento', valorATabla(data.plazasAntes), ''],
       ].map(([label, value, unit], i) => {
         const isTwoColumnRow = !unit;
         return new TableRow({
@@ -1488,37 +1520,43 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       alignment: AlignmentType.CENTER,
       width: { size: 75, type: WidthType.PERCENTAGE },
       rows: [
-        ['Longitud total (mm)', data.longitudDespues],
-        ['Anchura (mm)', data.anchuraDespues],
-        ['Altura total (mm)', data.alturaDespues],
-        ['Voladizo trasero (mm)', data.voladizoDespues],
-        ['Ancho de vía anterior', data.viaDelanteraDespues],
-        ['Ancho de vías posterior', data.viaTraseraDespues],
-        ['Neumáticos', data.neumaticoDespues],
-        ['Masa del vehículo en Orden de Marcha', data.masaRealDespues],
-        ['Masa máxima en carga técnicamente admisible (MMTA)', data.mmaDespues],
+        ['Longitud total (mm)', valorATabla(data.longitudDespues)],
+        ['Anchura (mm)', valorATabla(data.anchuraDespues)],
+        ['Altura total (mm)', valorATabla(data.alturaDespues)],
+        ['Voladizo trasero (mm)', valorATabla(data.voladizoDespues)],
+        ['Ancho de vía anterior', valorATabla(data.viaDelanteraDespues)],
+        ['Ancho de vías posterior', valorATabla(data.viaTraseraDespues)],
+        ['Neumáticos', valorATabla(data.neumaticoDespues)],
+        [
+          'Masa del vehículo en Orden de Marcha',
+          valorATabla(data.masaRealDespues),
+        ],
+        [
+          'Masa máxima en carga técnicamente admisible (MMTA)',
+          valorATabla(data.mmaDespues),
+        ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación (MMA)',
-          data.mmaDespues,
+          valorATabla(data.mmaDespues),
         ],
         [
           'Masa máxima en carga técnicamente admisible en cada eje (MMTA 1°, 2° ...)',
-          '1º ' + data.mmaEje1Despues + ' - 2º ' + data.mmaEje2Despues,
+          valorEjesATabla(data.mmaEje1Despues, data.mmaEje2Despues),
         ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación en cada eje (MMA 1°, 2° ...)',
-          '1º ' + data.mmaEje1Despues + ' - 2º ' + data.mmaEje2Despues,
+          valorEjesATabla(data.mmaEje1Despues, data.mmaEje2Despues),
         ],
         [
           'Masa máxima técnicamente admisible del conjunto (MMTC)',
-          data.mmaConjuntoDespues,
+          valorATabla(data.mmaConjuntoDespues),
         ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación del conjunto (MMAC)',
-          data.mmaConjuntoDespues,
+          valorATabla(data.mmaConjuntoDespues),
         ],
-        ['Clasificación', data.clasificacionDespues],
-        ['Nº de plazas de asiento', data.plazasDespues],
+        ['Clasificación', valorATabla(data.clasificacionDespues)],
+        ['Nº de plazas de asiento', valorATabla(data.plazasDespues)],
       ].map(([label, value, unit]) => {
         const isTwoColumnRow = !unit;
         return new TableRow({
@@ -1734,14 +1772,17 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   ];
 
   const punto1_6Tabla = [
+    // --------------------------------------------------------------------------------
+    // BLOQUE 1: COCHES Y CAMPERS
+    // --------------------------------------------------------------------------------
     ...(data.tipoVehiculo === 'coche' || data.tipoVehiculo === 'camper'
       ? [
           (() => {
-            // 1) Definimos los elementos con la clave exacta del campo que queremos mostrar
+            // 1) Definición de elementos (Datos del código 2)
             const elementos: Array<{
               nombreMod: string;
               etiqueta: string;
-              key: keyof Modificacion;
+              key: string; // Usamos string para evitar problemas de tipado estricto en el snippet
               condition?: (m: any) => boolean;
             }> = [
               {
@@ -1757,7 +1798,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               {
                 nombreMod: 'PARAGOLPES TRASERO',
                 etiqueta: 'Paragolpes trasero',
-                key: 'curvaturaParagolpesTrasero',
+                key: 'radioCurvaRParagolpesTrasero',
               },
               {
                 nombreMod: 'ESTRIBOS LATERALES',
@@ -1788,13 +1829,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 nombreMod: 'ALETINES Y SOBREALETINES',
                 etiqueta: 'Aletines',
                 key: 'radioCurvaRAletines',
-                condition: (m) => m.detalle.aletines === true,
+                condition: (m) => m.detalle?.aletines === true,
               },
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
                 etiqueta: 'Sobrealetines',
-                key: 'radioCurvaRAletines',
-                condition: (m) => m.detalle.sobrealetines === true,
+                key: 'curvaturaSobrealetines', // Ojo: en tu código 2 tenías 'radioCurvaRAletines' repetido, he puesto 'curvaturaSobrealetines' deduciendo del primer código
+                condition: (m) => m.detalle?.sobrealetines === true,
               },
               {
                 nombreMod: 'SUSTITUCIÓN DE SISTEMA DE ESCAPE',
@@ -1804,39 +1845,29 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               },
             ];
 
-            // 2) Construcción dinámica de filas solo si la mod está seleccionada y el valor existe
+            // 2) Construcción de filas (Lógica del código 1 adaptada para ser dinámica)
             const dataRows = elementos
               .map(({ nombreMod, etiqueta, key, condition }) => {
-                // Desestructuramos 'condition'
                 const mod = modificaciones.find(
                   (m) => m.nombre === nombreMod && m.seleccionado,
                 );
 
-                // SI NO EXISTE LA MODIFICACIÓN, SALIMOS
+                // Si no existe la modificación o no cumple la condición extra, devolvemos null
                 if (!mod) return null;
+                if (condition && !condition(mod)) return null;
 
-                // NUEVO: SI EXISTE UNA CONDICIÓN Y NO SE CUMPLE, SALIMOS
-                // (Sustituye 'tipoAletin' por el nombre real de tu variable interna)
-                if (condition && !condition(mod)) {
+                // Acceso seguro a la propiedad dinámicamente
+                const valor = (mod as any)[key];
+
+                // Si el valor no es válido, ignoramos la fila
+                if (valor === undefined || valor === null || valor === '')
                   return null;
-                }
-
-                const valor = mod[key];
-
-                if (valor === undefined || valor === null || valor === '') {
-                  return null;
-                }
 
                 return new TableRow({
                   children: [
                     new TableCell({
                       verticalAlign: VerticalAlign.CENTER,
-                      margins: {
-                        top: 200,
-                        bottom: 200,
-                        left: 200,
-                        right: 200,
-                      },
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
                       children: [
                         new Paragraph({
                           alignment: AlignmentType.CENTER,
@@ -1846,188 +1877,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     }),
                     new TableCell({
                       verticalAlign: VerticalAlign.CENTER,
-                      margins: {
-                        top: 200,
-                        bottom: 200,
-                        left: 200,
-                        right: 200,
-                      },
-                      children: [
-                        new Paragraph({
-                          alignment: AlignmentType.CENTER,
-                          children: [new TextRun(String(Number(valor) / 100))],
-                        }),
-                      ],
-                    }),
-                  ],
-                });
-              })
-              .filter((row): row is TableRow => row !== null);
-
-            if (dataRows.length === 0) {
-              return [];
-            }
-
-            // 3) Cabecera (El resto sigue igual...)
-            const headerRow = new TableRow({
-              tableHeader: true, // Importante para que se repita si la tabla salta de página
-              children: [
-                // --- COLUMNA 1: Elemento (60%) ---
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: { top: 100, bottom: 100, left: 100, right: 100 }, // Márgenes un poco más finos
-                  width: { size: 50, type: WidthType.PERCENTAGE }, // Aumentamos espacio para equilibrar
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      spacing: { after: 0, before: 0 }, // Elimina espacios extra para centrado vertical perfecto
-                      children: [
-                        new TextRun({
-                          text: 'ELEMENTO INSTALADO', // Sugerencia: Mayúsculas suele quedar mejor en cabeceras
-                          bold: true,
-                          size: 20, // Tamaño 10pt (20 mediopuntos) -> Más pequeño
-                          font: 'Calibri', // Opcional: fuerza una fuente limpia
-                        }),
-                      ],
-                    }),
-                  ],
-                }),
-
-                // --- COLUMNA 2: Radio (40%) ---
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                  width: { size: 30, type: WidthType.PERCENTAGE }, // Más ancho para que quepa el texto largo
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      spacing: { after: 0, before: 0 },
-                      children: [
-                        new TextRun({
-                          text: 'RADIO DE CURVATURA MÁS DESFAVORABLE (mm)', // Texto ligeramente acortado y en mayúsculas
-                          bold: true,
-                          size: 20, // Tamaño 10pt
-                          font: 'Calibri',
-                        }),
-                      ],
-                    }),
-                  ],
-                }),
-              ],
-            });
-
-            const spacer = new Paragraph({ spacing: { before: 400 } });
-
-            // 4) Construye y devuelve la tabla completa
-            const table = new Table({
-              width: { size: 100, type: WidthType.PERCENTAGE },
-              borders: {
-                top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-                bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-                left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-                right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
-                insideHorizontal: {
-                  style: BorderStyle.SINGLE,
-                  size: 1,
-                  color: '000000',
-                },
-                insideVertical: {
-                  style: BorderStyle.SINGLE,
-                  size: 1,
-                  color: '000000',
-                },
-              },
-              rows: [headerRow, ...dataRows],
-            });
-
-            return [spacer, table];
-          })(),
-        ]
-      : []),
-
-    ...(data.tipoVehiculo === 'moto'
-      ? [
-          (() => {
-            // 1) Definimos los elementos con la clave exacta del campo que queremos mostrar
-            const elementos: Array<{
-              nombreMod: string;
-              etiqueta: string;
-              key: keyof Modificacion;
-            }> = [
-              {
-                nombreMod: 'LUCES',
-                etiqueta: 'Intermitentes delanteros',
-                key: 'curvaturaintermitenteDelantero',
-              },
-              {
-                nombreMod: 'LUCES',
-                etiqueta: 'Intermitentes traseros',
-                key: 'curvaturaintermitenteTrasero',
-              },
-              {
-                nombreMod: 'LUCES',
-                etiqueta: 'Catadioptrico',
-                key: 'curvaturacatadioptrico',
-              },
-              {
-                nombreMod: 'LUCES',
-                etiqueta: 'Luces antiniebla',
-                key: 'curvaturaluzAntinieblas',
-              },
-              {
-                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
-                etiqueta: 'Guardabarros trasero',
-                key: 'curvaturaGuardaTrasMoto',
-              },
-              {
-                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
-                etiqueta: 'Guardabarros delantero',
-                key: 'curvaturaGuardaDelantMoto',
-              },
-            ];
-
-            // 2) Construcción dinámica de filas solo si la mod está seleccionada y el valor existe
-            const dataRows = elementos
-              .map(({ nombreMod, etiqueta, key }) => {
-                const mod = modificaciones.find(
-                  (m) => m.nombre === nombreMod && m.seleccionado,
-                );
-                const valor = mod ? mod[key] : null;
-
-                if (
-                  !mod ||
-                  valor === undefined ||
-                  valor === null ||
-                  valor === ''
-                ) {
-                  return null;
-                }
-
-                return new TableRow({
-                  children: [
-                    new TableCell({
-                      verticalAlign: VerticalAlign.CENTER,
-                      margins: {
-                        top: 200,
-                        bottom: 200,
-                        left: 200,
-                        right: 200,
-                      },
-                      children: [
-                        new Paragraph({
-                          alignment: AlignmentType.CENTER,
-                          children: [new TextRun(etiqueta)],
-                        }),
-                      ],
-                    }),
-                    new TableCell({
-                      verticalAlign: VerticalAlign.CENTER,
-                      margins: {
-                        top: 200,
-                        bottom: 200,
-                        left: 200,
-                        right: 200,
-                      },
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
                       children: [
                         new Paragraph({
                           alignment: AlignmentType.CENTER,
@@ -2038,14 +1888,16 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 });
               })
-              .filter((row): row is TableRow => row !== null);
+              .filter((row): row is TableRow => row !== null); // Eliminamos los nulls
 
+            // Si no hay filas, devolvemos array vacío (no se pinta tabla)
             if (dataRows.length === 0) {
               return [];
             }
 
-            // 3) Cabecera
+            // 3) Construcción de la tabla (Estructura del código 1)
             const headerRow = new TableRow({
+              tableHeader: true,
               children: [
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
@@ -2081,7 +1933,166 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
             const spacer = new Paragraph({ spacing: { before: 400 } });
 
-            // 4) Construye y devuelve la tabla completa
+            const table = new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              borders: {
+                top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                insideHorizontal: {
+                  style: BorderStyle.SINGLE,
+                  size: 1,
+                  color: '000000',
+                },
+                insideVertical: {
+                  style: BorderStyle.SINGLE,
+                  size: 1,
+                  color: '000000',
+                },
+              },
+              rows: [headerRow, ...dataRows],
+            });
+
+            return [spacer, table];
+          })(),
+        ]
+      : []),
+
+    // --------------------------------------------------------------------------------
+    // BLOQUE 2: MOTOS
+    // --------------------------------------------------------------------------------
+    ...(data.tipoVehiculo === 'moto'
+      ? [
+          (() => {
+            const elementos: Array<{
+              nombreMod: string;
+              etiqueta: string;
+              key: string;
+            }> = [
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Intermitentes delanteros',
+                key: 'curvaturaintermitenteDelantero',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Intermitentes traseros',
+                key: 'curvaturaintermitenteTrasero',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Catadioptrico',
+                key: 'curvaturacatadioptrico',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Luces antiniebla',
+                key: 'curvaturaluzAntinieblas',
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
+                etiqueta: 'Guardabarros trasero',
+                key: 'curvaturaGuardaTrasMoto',
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
+                etiqueta: 'Guardabarros delantero',
+                key: 'curvaturaGuardaDelantMoto',
+              },
+            ];
+
+            const dataRows = elementos
+              .map(({ nombreMod, etiqueta, key }) => {
+                const mod = modificaciones.find(
+                  (m) => m.nombre === nombreMod && m.seleccionado,
+                );
+
+                // Acceso seguro
+                const valor = mod ? (mod as any)[key] : null;
+
+                if (
+                  !mod ||
+                  valor === undefined ||
+                  valor === null ||
+                  valor === ''
+                ) {
+                  return null;
+                }
+
+                // Lógica de cálculo segura para evitar NaN
+                // Si valor no es un número válido, usará 0 y se convertirá a string
+                const valorCalculado = (Number(valor) || 0) / 100;
+
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(valorCalculado))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null);
+
+            if (dataRows.length === 0) {
+              return [];
+            }
+
+            // Cabecera idéntica
+            const headerRow = new TableRow({
+              tableHeader: true,
+              children: [
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  width: { size: 70, type: WidthType.PERCENTAGE },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Elemento instalado', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  width: { size: 30, type: WidthType.PERCENTAGE },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Radio de curvatura más desfavorable en mm',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            });
+
+            const spacer = new Paragraph({ spacing: { before: 400 } });
+
             const table = new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
               borders: {
@@ -2109,6 +2120,25 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       : []),
   ];
 
+  const avisosCondicionalesPorModificacion: Array<{
+    nombreModificacion: string;
+    texto: string;
+  }> = [
+    {
+      nombreModificacion: 'PARAGOLPES DELANTERO',
+      texto:
+        'Ninguna de las piezas instaladas entorpece la entrada del flujo de aire al motor para su respectiva refrigeración.',
+    },
+  ];
+
+  const textosAvisosCondicionales = avisosCondicionalesPorModificacion
+    .filter(({ nombreModificacion }) =>
+      modificaciones.some(
+        (m) => m.nombre === nombreModificacion && m.seleccionado,
+      ),
+    )
+    .map(({ texto }) => texto);
+
   const punto1_6Avisos = [
     ...(data.tipoVehiculo === 'coche'
       ? (() => {
@@ -2132,37 +2162,35 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
             )
             .filter((p): p is Paragraph => p != null);
 
-          const fraseFinal = new Paragraph({
-            spacing: { before: 240, after: 120 },
-            children: [
-              new TextRun({
-                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo de aire al motor para su respectiva refrigeración.',
+          const avisosCondicionales = textosAvisosCondicionales.map(
+            (texto) =>
+              new Paragraph({
+                spacing: { before: 240, after: 120 },
+                children: [new TextRun({ text: texto })],
               }),
-            ],
-          });
+          );
 
-          return [...bullets, fraseFinal];
+          return [...bullets, ...avisosCondicionales];
         })()
       : []),
 
     ...(data.tipoVehiculo === 'camper'
       ? (() => {
+          const textosFinales = [
+            'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
+            ...textosAvisosCondicionales,
+            'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
+          ];
+
           const fraseFinal = new Paragraph({
             spacing: { before: 240, after: 120 },
-            children: [
-              new TextRun({
-                text: 'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
-                break: 1,
-              }),
-              new TextRun({
-                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo del aire al motor para su respectiva refrigeración.',
-                break: 1,
-              }),
-              new TextRun({
-                text: 'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
-                break: 1,
-              }),
-            ],
+            children: textosFinales.map(
+              (texto) =>
+                new TextRun({
+                  text: texto,
+                  break: 1,
+                }),
+            ),
           });
 
           return [fraseFinal];
@@ -2171,22 +2199,21 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
     ...(data.tipoVehiculo === 'moto'
       ? (() => {
+          const textosFinales = [
+            'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
+            ...textosAvisosCondicionales,
+            'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
+          ];
+
           const fraseFinal = new Paragraph({
             spacing: { before: 240, after: 120 },
-            children: [
-              new TextRun({
-                text: 'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
-                break: 1,
-              }),
-              new TextRun({
-                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo del aire al motor para su respectiva refrigeración.',
-                break: 1,
-              }),
-              new TextRun({
-                text: 'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
-                break: 1,
-              }),
-            ],
+            children: textosFinales.map(
+              (texto) =>
+                new TextRun({
+                  text: texto,
+                  break: 1,
+                }),
+            ),
           });
 
           return [fraseFinal];
@@ -2404,6 +2431,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const sumaTras =
     masaRealTras + ocupDelTras + ocup2Tras + ocup3Tras + cargaUtilTras;
 
+  const verttras = (data.cargavertical * 4220) / data.distanciaEntreEjes;
+  const vertdel = data.cargavertical - verttras;
+
   function limpiarYParsear(valor: any): number | null {
     if (valor === null || valor === undefined) return null;
 
@@ -2598,7 +2628,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.taraTotal?.toString() ?? '-',
+                      text: data.taraTotal?.toString() ?? '---',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2608,7 +2638,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.taraDelante?.toString() ?? '-',
+                      text: data.taraDelante?.toString() ?? '---',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2618,7 +2648,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.taraDetras?.toString() ?? '-',
+                      text: data.taraDetras?.toString() ?? '---',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2800,7 +2830,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaDespues,
+                      text: data.mmaDespues.toString() ?? '---',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2841,7 +2871,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje1Despues,
+                      text: data.mmaEje1Despues.toString() ?? '---',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2882,7 +2912,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje2Despues,
+                      text: data.mmaEje2Despues.toString() ?? '---',
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3100,7 +3130,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.mmaDespues?.toString() ?? '-',
+                          text: data.taraTotal?.toString() ?? '-',
                           bold: true,
                         }),
                       ],
@@ -3114,7 +3144,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.mmaEje1Despues?.toString() ?? '-',
+                          text: data.taraDelante?.toString() ?? '-',
                           bold: true,
                         }),
                       ],
@@ -3128,7 +3158,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.mmaEje2Despues?.toString() ?? '-',
+                          text: data.taraDetras?.toString() ?? '-',
                           bold: true,
                         }),
                       ],
@@ -3179,7 +3209,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '58',
+                          text: (
+                            75 -
+                            (75 * data.cdgconductor!) / data.distanciaEntreEjes!
+                          )
+                            .toFixed(2)
+                            .toString(),
                         }),
                       ],
                     }),
@@ -3192,7 +3227,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '17',
+                          text: (
+                            (75 * data.cdgconductor!) /
+                            data.distanciaEntreEjes!
+                          )
+                            .toFixed(2)
+                            .toString(),
                         }),
                       ],
                     }),
@@ -3233,12 +3273,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            limpiarYParsear(data.masaRealDespues) !== null
-                              ? (
-                                  limpiarYParsear(data.masaRealDespues)! + 75
-                                ).toString()
-                              : '',
+                          text: (data.taraTotal + 75).toFixed(2).toString(),
                         }),
                       ],
                     }),
@@ -3251,7 +3286,14 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: masaRealDel.toString(),
+                          text: (
+                            75 -
+                            (75 * data.cdgconductor!) /
+                              data.distanciaEntreEjes! +
+                            data.taraDetras
+                          )
+                            .toFixed(2)
+                            .toString(),
                         }),
                       ],
                     }),
@@ -3264,7 +3306,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: masaRealTras.toString(),
+                          text: (
+                            (75 * data.cdgconductor!) /
+                              data.distanciaEntreEjes! +
+                            data.taraTrasera
+                          )
+                            .toFixed(2)
+                            .toString(),
                         }),
                       ],
                     }),
@@ -3311,7 +3359,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       children: [
                         new TextRun({
                           text:
-                            (data.asientosDelanteros * 75)?.toString() ?? '-',
+                            (data.asientosDelanteros * 75)
+                              ?.toFixed(2)
+                              .toString() ?? '-',
                         }),
                       ],
                     }),
@@ -3324,7 +3374,16 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: ocupDelDel.toString() ?? '-',
+                          text:
+                            (
+                              data.asientosDelanteros * 75 -
+                              (data.asientosDelanteros *
+                                75 *
+                                data.cdgconductor) /
+                                data.distanciaEntreEjes!
+                            )
+                              .toFixed(2)
+                              .toString() ?? '-',
                         }),
                       ],
                     }),
@@ -3337,7 +3396,15 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: ocupDelTras.toString() ?? '-',
+                          text:
+                            (
+                              (data.asientosDelanteros *
+                                75 *
+                                data.cdgconductor) /
+                              data.distanciaEntreEjes!
+                            )
+                              .toFixed(2)
+                              .toString() ?? '-',
                         }),
                       ],
                     }),
@@ -3646,56 +3713,57 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               cantSplit: true,
               children: [
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      text: '',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: 'MMA', bold: true })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: String(data.mmaDespues ?? '-') }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: '',
+                          text: String(data.mmaEje1Despues ?? '-'),
                         }),
                       ],
                     }),
                   ],
                 }),
                 new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: 'MMA',
-                          bold: true,
+                          text: String(data.mmaEje2Despues ?? '-'),
                         }),
                       ],
-                    }),
-                  ],
-                }),
-                new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: data.mmaDespues })],
-                    }),
-                  ],
-                }),
-                new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: data.mmaEje1Despues })],
-                    }),
-                  ],
-                }),
-                new TableCell({
-                  margins: { top: 40, bottom: 40, left: 40, right: 40 },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: data.mmaEje2Despues })],
                     }),
                   ],
                 }),
@@ -3772,7 +3840,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.mmaDespues ?? '-'),
+                          text: String(data.taraTotal ?? '-'),
                         }),
                       ],
                     }),
@@ -3785,7 +3853,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.mmaEje1Despues ?? '-'),
+                          text: String(data.taraDelante ?? '-'),
                         }),
                       ],
                     }),
@@ -3798,7 +3866,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.mmaEje2Despues ?? '-'),
+                          text: String(data.taraDetras ?? '-'),
                         }),
                       ],
                     }),
@@ -3847,7 +3915,16 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '58' })],
+                      children: [
+                        new TextRun({
+                          text: (
+                            75 -
+                            (75 * data.cdgconductor!) / data.distanciaEntreEjes!
+                          )
+                            .toFixed(2)
+                            .toString(),
+                        }),
+                      ],
                     }),
                   ],
                 }),
@@ -3856,7 +3933,16 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: '17' })],
+                      children: [
+                        new TextRun({
+                          text: (
+                            (75 * data.cdgconductor!) /
+                            data.distanciaEntreEjes!
+                          )
+                            .toFixed(2)
+                            .toString(),
+                        }),
+                      ],
                     }),
                   ],
                 }),
@@ -3894,12 +3980,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            limpiarYParsear(data.masaRealDespues) !== null
-                              ? (
-                                  limpiarYParsear(data.masaRealDespues)! + 75
-                                ).toString()
-                              : '-',
+                          text: (data.taraTotal + 75).toFixed(2).toString(),
                         }),
                       ],
                     }),
@@ -3911,7 +3992,16 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(masaRealDel ?? '-') }),
+                        new TextRun({
+                          text: (
+                            75 -
+                            (75 * data.cdgconductor!) /
+                              data.distanciaEntreEjes! +
+                            data.taraDetras
+                          )
+                            .toFixed(2)
+                            .toString(),
+                        }),
                       ],
                     }),
                   ],
@@ -3922,7 +4012,15 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(masaRealTras ?? '-') }),
+                        new TextRun({
+                          text: (
+                            (75 * data.cdgconductor!) /
+                              data.distanciaEntreEjes! +
+                            data.taraTrasera
+                          )
+                            .toFixed(2)
+                            .toString(),
+                        }),
                       ],
                     }),
                   ],
@@ -3975,7 +4073,18 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(ocupDelDel ?? '-') }),
+                        new TextRun({
+                          text:
+                            (
+                              data.asientosDelanteros * 75 -
+                              (data.asientosDelanteros *
+                                75 *
+                                data.cdgconductor) /
+                                data.distanciaEntreEjes!
+                            )
+                              .toFixed(2)
+                              .toString() ?? '-',
+                        }),
                       ],
                     }),
                   ],
@@ -3986,7 +4095,17 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(ocupDelTras ?? '-') }),
+                        new TextRun({
+                          text:
+                            (
+                              (data.asientosDelanteros *
+                                75 *
+                                data.cdgconductor) /
+                              data.distanciaEntreEjes!
+                            )
+                              .toFixed(2)
+                              .toString() ?? '-',
+                        }),
                       ],
                     }),
                   ],
@@ -4182,6 +4301,68 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               ],
             }),
 
+            //Tabla de carga vertical
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      text: '4220',
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Carga vert. Acopl.', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: data.cargaverticalDespues.toString() ?? '---',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER, //continuar
+                      children: [
+                        new TextRun({ text: vertdel.toString() ?? '-' }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: verttras.toString() ?? '-' }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+
             // SUMA DE CARGAS
             new TableRow({
               cantSplit: true,
@@ -4329,24 +4510,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         }),
 
         new Paragraph({
-          spacing: { after: 120 },
-          children: [
-            new TextRun({
-              text: '3.- Se comprueba que no se supera más del 15% la carga máxima técnicamente admisible en el eje trasero ni más del 10% o 100 Kg la masa máxima técnicamente admisible en carga.',
-              color: 'FF0000',
-            }),
-          ],
-        }),
-        new Paragraph({
-          spacing: { after: 120 },
-          children: [
-            new TextRun({
-              text: '4.- El vehículo no podrá superar la velocidad de 100Km/h cuando lleve instalado el remolque.',
-              color: 'FF0000',
-            }),
-          ],
-        }),
-        new Paragraph({
           spacing: { before: 240, after: 120 },
           children: [
             new TextRun({
@@ -4406,28 +4569,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         ];
       }
       punto2_2 = punto2_2.concat(punto2_2_adicional);
-
-      const punto2_2_adicional_2 = [
-        new Paragraph({
-          spacing: { before: 240, after: 120 },
-          children: [
-            new TextRun({
-              text: 'd) Cálculo de la resistencia del bastidor',
-              bold: true,
-              underline: {},
-            }),
-          ],
-        }),
-        new Paragraph({
-          spacing: { after: 240 },
-          children: [
-            new TextRun(
-              'No se modifica ni el chasis ni el bastidor, tampoco modificaremos el PMA total del vehículo ni por eje por lo que por lo tanto la resistencia se considera que es suficiente la que trae de serie el vehículo.',
-            ),
-          ],
-        }),
-      ];
-      punto2_2 = punto2_2.concat(punto2_2_adicional_2);
     } else {
       punto2_2 = [
         new Paragraph({
@@ -5058,37 +5199,40 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       alignment: AlignmentType.CENTER,
       width: { size: 85, type: WidthType.PERCENTAGE },
       rows: [
-        ['Longitud total (mm)', data.longitudAntes],
-        ['Anchura (mm)', data.anchuraAntes],
-        ['Altura total (mm)', data.alturaAntes],
-        ['Voladizo trasero (mm)', data.voladizoAntes],
-        ['Ancho de vía anterior', data.viaDelanteraAntes],
-        ['Ancho de vía posterior', data.viaTraseraAntes],
-        ['Neumáticos', data.neumaticoAntes, ''],
-        ['Masa del vehículo en Orden de Marcha', data.momAntes],
-        ['Masa máxima en carga técnicamente admisible (MMTA)', data.mmaAntes],
+        ['Longitud total (mm)', valorATabla(data.longitudAntes)],
+        ['Anchura (mm)', valorATabla(data.anchuraAntes)],
+        ['Altura total (mm)', valorATabla(data.alturaAntes)],
+        ['Voladizo trasero (mm)', valorATabla(data.voladizoAntes)],
+        ['Ancho de vía anterior', valorATabla(data.viaDelanteraAntes)],
+        ['Ancho de vía posterior', valorATabla(data.viaTraseraAntes)],
+        ['Neumáticos', valorATabla(data.neumaticoAntes), ''],
+        ['Masa del vehículo en Orden de Marcha', valorATabla(data.momAntes)],
+        [
+          'Masa máxima en carga técnicamente admisible (MMTA)',
+          valorATabla(data.mmaAntes),
+        ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación (MMA)',
-          data.mmaAntes,
+          valorATabla(data.mmaAntes),
         ],
         [
           'Masa máxima en carga técnicamente admisible en cada eje (MMTA 1°, 2° ...)',
-          '1º ' + data.mmaEje1Antes + ' - 2º ' + data.mmaEje2Antes,
+          valorEjesATabla(data.mmaEje1Antes, data.mmaEje2Antes),
         ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación en cada eje (MMA 1°, 2° ...)',
-          '1º ' + data.mmaEje1Antes + ' - 2º ' + data.mmaEje2Antes,
+          valorEjesATabla(data.mmaEje1Antes, data.mmaEje2Antes),
         ],
         [
           'Masa máxima técnicamente admisible del conjunto (MMTC)',
-          data.mmaConjuntoAntes,
+          valorATabla(data.mmaConjuntoAntes),
         ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación del conjunto (MMAC)',
-          data.mmaConjuntoAntes,
+          valorATabla(data.mmaConjuntoAntes),
         ],
-        ['Clasificación', data.clasificacionAntes, ''],
-        ['Nº de plazas de asiento', data.plazasAntes, ''],
+        ['Clasificación', valorATabla(data.clasificacionAntes), ''],
+        ['Nº de plazas de asiento', valorATabla(data.plazasAntes), ''],
       ].map(([label, value, unit], i) => {
         const isTwoColumnRow = !unit;
         return new TableRow({
@@ -5139,37 +5283,43 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       alignment: AlignmentType.CENTER,
       width: { size: 85, type: WidthType.PERCENTAGE },
       rows: [
-        ['Longitud total (mm)', data.longitudDespues],
-        ['Anchura (mm)', data.anchuraDespues],
-        ['Altura total (mm)', data.alturaDespues],
-        ['Voladizo trasero (mm)', data.voladizoDespues],
-        ['Ancho de vía anterior', data.viaDelanteraDespues],
-        ['Ancho de vías posterior', data.viaTraseraDespues],
-        ['Neumáticos', data.neumaticoDespues],
-        ['Masa del vehículo en Orden de Marcha', data.masaRealDespues],
-        ['Masa máxima en carga técnicamente admisible (MMTA)', data.mmaDespues],
+        ['Longitud total (mm)', valorATabla(data.longitudDespues)],
+        ['Anchura (mm)', valorATabla(data.anchuraDespues)],
+        ['Altura total (mm)', valorATabla(data.alturaDespues)],
+        ['Voladizo trasero (mm)', valorATabla(data.voladizoDespues)],
+        ['Ancho de vía anterior', valorATabla(data.viaDelanteraDespues)],
+        ['Ancho de vías posterior', valorATabla(data.viaTraseraDespues)],
+        ['Neumáticos', valorATabla(data.neumaticoDespues)],
+        [
+          'Masa del vehículo en Orden de Marcha',
+          valorATabla(data.masaRealDespues),
+        ],
+        [
+          'Masa máxima en carga técnicamente admisible (MMTA)',
+          valorATabla(data.mmaDespues),
+        ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación (MMA)',
-          data.mmaDespues,
+          valorATabla(data.mmaDespues),
         ],
         [
           'Masa máxima en carga técnicamente admisible en cada eje (MMTA 1°, 2° ...)',
-          '1º ' + data.mmaEje1Despues + ' - 2º ' + data.mmaEje2Despues,
+          valorEjesATabla(data.mmaEje1Despues, data.mmaEje2Despues),
         ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación en cada eje (MMA 1°, 2° ...)',
-          '1º ' + data.mmaEje1Despues + ' - 2º ' + data.mmaEje2Despues,
+          valorEjesATabla(data.mmaEje1Despues, data.mmaEje2Despues),
         ],
         [
           'Masa máxima técnicamente admisible del conjunto (MMTC)',
-          data.mmaConjuntoDespues,
+          valorATabla(data.mmaConjuntoDespues),
         ],
         [
           'Masa máxima en carga admisible prevista para matriculación/circulación del conjunto (MMAC)',
-          data.mmaConjuntoDespues,
+          valorATabla(data.mmaConjuntoDespues),
         ],
-        ['Clasificación', data.clasificacionDespues],
-        ['Nº de plazas de asiento', data.plazasDespues],
+        ['Clasificación', valorATabla(data.clasificacionDespues)],
+        ['Nº de plazas de asiento', valorATabla(data.plazasDespues)],
       ].map(([label, value, unit]) => {
         const isTwoColumnRow = !unit;
         return new TableRow({
@@ -5434,7 +5584,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       ...punto1_3DatosVehiculo,
       ...punto1_4Normativa,
       ...punto1_5Consideraciones,
-      ...buildModificacionesParagraphs(modificaciones, data, true),
+      ...buildModificacionesParagraphs(modificaciones, data, false),
       ...punto1_6Tabla,
       ...punto1_6Avisos,
       ...generarDocumentoProyectoParagraphs({ modificaciones }, data),

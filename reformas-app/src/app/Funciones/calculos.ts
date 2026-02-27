@@ -8204,7 +8204,8 @@ export async function buildCalculos(
       contador++;
 
       let superficiefrontal =
-        data.anchuraMParagolpesTrasero * data.alturaMParagolpesTrasero;
+        (paratras.anchuraMParagolpesTrasero ?? 0) *
+        (paratras.alturaMParagolpesTrasero ?? 0);
 
       // 2) Tabla de características de la pieza y sujeción
       const tablaParagolpesTrasero = new Table({
@@ -8255,7 +8256,7 @@ export async function buildCalculos(
               paratras.anchuraMParagolpesTrasero?.toFixed(2).toString() ??
                 '---',
               'Métrica',
-              paratras.metricaParaTrasero?.toFixed(2).toString() ?? '---',
+              paratras.metricaParaTrasero?.toString() ?? '---',
             ],
             [
               'Altura de la pieza en m',
@@ -8503,7 +8504,7 @@ export async function buildCalculos(
               fuerzadediseno.toFixed(2).toString() ?? '---',
               fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
               fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(3).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
@@ -8524,12 +8525,17 @@ export async function buildCalculos(
       (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado,
     );
     if (estribostaloneras) {
+      const tipo = estribostaloneras.detalle
+        ?.estribosotaloneras as unknown as string;
+      const isTaloneras = tipo === 'taloneras';
       // 1) Título dinámico
       out.push(
         new Paragraph({
           children: [
             new TextRun({
-              text: '2.3.' + contador + ' Estribos laterales',
+              text: isTaloneras
+                ? '2.3.' + contador + ' Taloneras'
+                : '2.3.' + contador + ' Estribos laterales',
               bold: true,
             }),
           ],
@@ -8591,7 +8597,7 @@ export async function buildCalculos(
               estribostaloneras.anchuraMEstribos?.toFixed(2).toString() ??
                 '---',
               'Métrica',
-              estribostaloneras.metricaTalonera?.toFixed(2).toString() ?? '---',
+              estribostaloneras.metricaTalonera?.toString() ?? '---',
             ],
             [
               'Altura de la pieza en m',
@@ -8729,6 +8735,7 @@ export async function buildCalculos(
       let peso = 9.81 * (estribostaloneras.pesoPiezaKgEstribos ?? 0);
       let fuerzafrenado = (estribostaloneras.pesoPiezaKgEstribos ?? 0) * 10;
       let resistenciaaerodinamica =
+        0.5 *
         (estribostaloneras.coefAerodinamicoEstribos ?? 0) *
         superficiefrontal *
         (estribostaloneras.densidadAireKgM3Estribos ?? 0) *
@@ -8837,7 +8844,7 @@ export async function buildCalculos(
               fuerzadediseno.toFixed(2).toString() ?? '---',
               fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
               fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(3).toString() ?? '---',
             ].map(
               (val) =>
                 new TableCell({
@@ -8878,7 +8885,7 @@ export async function buildCalculos(
       );
       contador++;
 
-      let Tr = 0.6 * data.mmaAntes;
+      let Tr = 0.6 * data.mmaDespues;
 
       // 2) Tabla: DATOS DE PARTIDA
       const tablaDatosPartida = new Table({
@@ -8904,8 +8911,11 @@ export async function buildCalculos(
           }),
           // Filas de datos
           ...[
-            ['M.T.M.A. (Kg)', data.mmaAntes.toFixed(2).toString() ?? '---'],
-            ['Velocidad máxima (Km/h)', '148'],
+            ['M.T.M.A. (Kg)', data.mmaDespues.toFixed(2).toString() ?? '---'],
+            [
+              'Velocidad máxima (Km/h)',
+              data.velocidadMaxima.toString() ?? '---',
+            ],
             ['Coeficiente de rozamiento', '0.6'],
             ['Aceleración de la gravedad (m/s²)', '9.8'],
             ['Deceleración ar = μ * g (m/s²)', '5.88'],
@@ -9372,7 +9382,7 @@ export async function buildCalculos(
 
         // Filas dinámicas
         const filas = muebles.map((mueble, idx) => {
-          const fuerzaInercia = mueble.peso * (9.8 / 5.88);
+          const fuerzaInercia = (mueble.peso * 5.88) / 9.8;
           const resistenciaCortante =
             (0.6 * 80 * areaResistente * mueble.tornillos) / 1.25;
           const coefSeguridad = resistenciaCortante / fuerzaInercia;
@@ -9380,7 +9390,7 @@ export async function buildCalculos(
           const valores = [
             (idx + 1).toString(),
             mueble.desc,
-            mueble.peso.toFixed(2),
+            'Q' + (idx + 1).toString(),
             fuerzaInercia.toFixed(2),
             resistenciaCortante.toFixed(2),
             coefSeguridad.toFixed(2),
@@ -9486,10 +9496,7 @@ export async function buildCalculos(
         const filas = muebles.map((mueble, idx) => {
           const pesoPorTornillo =
             mueble.tornillos > 0 ? mueble.peso / mueble.tornillos : 0;
-          const resultado =
-            resistenciaCortadura > 0
-              ? pesoPorTornillo / resistenciaCortadura
-              : 0;
+          const resultado = resistenciaCortadura / pesoPorTornillo;
 
           const valores = [
             (idx + 1).toString(), // Nº
@@ -9752,10 +9759,12 @@ export async function buildCalculos(
           ((mod.diametroExteriorDelanteroRef ?? 0) + diametrointerior) / 2;
         curvatura = diametromedio / (mod.diametroEspiraDelanteroRef ?? 0);
         K =
-          (Math.pow(mod.diametroEspiraDelanteroRef ?? 0, 4) * 8104 * 1000) /
+          (Math.pow((mod.diametroEspiraDelanteroRef ?? 0) / 1000, 4) *
+            79500.24 *
+            1000000) /
           (8 *
-            Math.pow(diametromedio, 3) *
-            (mod.numeroEspirasDelanteroRef ?? 0)) /
+            (Math.pow((diametromedio ?? 0) / 1000, 3) *
+              (mod.numeroEspirasDelanteroRef ?? 0))) /
           1000;
       }
 
@@ -9767,10 +9776,12 @@ export async function buildCalculos(
           ((mod.diametroExteriorDelanteroSinRef ?? 0) + diametrointerior) / 2;
         curvatura = diametromedio / (mod.diametroEspiraDelanteroSinRef ?? 0);
         K =
-          (((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000) ** 4 * 79500, 24) /
+          (Math.pow((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000, 4) *
+            79500.24 *
+            1000000) /
           (8 *
-            (diametromedio / 1000) ** 3 *
-            (mod.numeroEspirasDelanteroSinRef ?? 0)) /
+            (Math.pow((diametromedio ?? 0) / 1000, 3) *
+              (mod.numeroEspirasDelanteroSinRef ?? 0))) /
           1000;
       }
 
@@ -9976,13 +9987,13 @@ export async function buildCalculos(
             (mod.diametroEspiraDelanteroRef ?? 0);
           flechaResorte = (mod.longitudLibreDelanteroRef ?? 0) - longMinMuelle;
           cargaMaxQ =
-            ((longMinMuelle / 1000) *
+            ((flechaResorte / 1000) *
               79500.24 *
               1000000 *
-              ((mod.diametroEspiraDelanteroRef ?? 0) / 1000) ** 4) /
+              Math.pow((mod.diametroEspiraDelanteroRef ?? 0) / 1000, 4)) /
             (64 *
               (mod.numeroEspirasDelanteroRef ?? 0) *
-              (diametromedio / 1000 / 2) ** 3);
+              Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje1Q = cargaMaxQ * 2;
           coefSeguridadK =
             cargaMaxEje1Q / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
@@ -9995,13 +10006,13 @@ export async function buildCalculos(
           flechaResorte =
             (mod.longitudLibreDelanteroSinRef ?? 0) - longMinMuelle;
           cargaMaxQ =
-            ((longMinMuelle / 1000) *
+            ((flechaResorte / 1000) *
               79500.24 *
               1000000 *
-              ((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000) ** 4) /
+              Math.pow((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000, 4)) /
             (64 *
               (mod.numeroEspirasDelanteroSinRef ?? 0) *
-              (diametromedio / 1000 / 2) ** 3);
+              Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje1Q = cargaMaxQ * 2;
           coefSeguridadK =
             cargaMaxEje1Q / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
@@ -10181,10 +10192,12 @@ export async function buildCalculos(
           ((mod.diametroExteriorTraseroRef ?? 0) + diametrointerior) / 2;
         curvatura = diametromedio / (mod.diametroEspiraTraseroRef ?? 0);
         K =
-          (Math.pow(mod.diametroEspiraTraseroRef ?? 0, 4) * 8104 * 1000) /
+          (Math.pow((mod.diametroEspiraTraseroRef ?? 0) / 1000, 4) *
+            79500.24 *
+            1000000) /
           (8 *
-            Math.pow(diametromedio, 3) *
-            (mod.numeroEspirasTraseroRef ?? 0)) /
+            (Math.pow(diametromedio / 1000, 3) *
+              (mod.numeroEspirasTraseroRef ?? 0))) /
           1000;
       }
 
@@ -10196,10 +10209,12 @@ export async function buildCalculos(
           ((mod.diametroExteriorTraseroSinRef ?? 0) + diametrointerior) / 2;
         curvatura = diametromedio / (mod.diametroEspiraTraseroSinRef ?? 0);
         K =
-          (((mod.diametroEspiraTraseroSinRef ?? 0) / 1000) ** 4 * 79500, 24) /
+          (Math.pow((mod.diametroEspiraTraseroRef ?? 0) / 1000, 4) *
+            79500.24 *
+            1000000) /
           (8 *
-            (diametromedio / 1000) ** 3 *
-            (mod.numeroEspirasTraseroSinRef ?? 0)) /
+            (Math.pow(diametromedio / 1000, 3) *
+              (mod.numeroEspirasTraseroRef ?? 0))) /
           1000;
       }
 
@@ -10234,14 +10249,32 @@ export async function buildCalculos(
             }),
             // Filas
             ...[
-              ['Diámetro exterior (Dext)', '106,00'],
-              ['Diámetro interior (Dint)', '68,00'],
-              ['Diámetro medio (Dm)', '87,00'],
-              ['Diámetro de espira (De)', '19,00'],
-              ['Longitud libre (L0)', '465,00'],
-              ['Número de espiras (n)', '8,00'],
-              ['Curvatura (C)', '4,58'],
-              ['Rigidez (K) N/mm', '245,84'],
+              [
+                'Diámetro exterior (Dext)',
+                mod.diametroExteriorTraseroRef?.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'Diámetro interior (Dint)',
+                diametrointerior.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'Diámetro medio (Dm)',
+                diametromedio.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'Diámetro de espira (De)',
+                mod.diametroEspiraTraseroRef?.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'Longitud libre (L0)',
+                mod.longitudLibreTraseroRef?.toFixed(2).toString() ?? '---',
+              ],
+              [
+                'Número de espiras (n)',
+                mod.numeroEspirasTraseroRef?.toFixed(2).toString() ?? '---',
+              ],
+              ['Curvatura (C)', curvatura.toFixed(2).toString() ?? '---'],
+              ['Rigidez (K) N/mm', K.toFixed(2).toString() ?? '---'],
             ].map(
               ([d, v]) =>
                 new TableRow({
@@ -10268,7 +10301,7 @@ export async function buildCalculos(
         out.push(new Paragraph({ text: '' }));
 
         let maxCortante = 0;
-        let maxCortanteDelantero = 0;
+        let maxCortanteTrasero = 0;
         let coefSeguridad = 0;
 
         if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
@@ -10278,9 +10311,9 @@ export async function buildCalculos(
                 1118.34 *
                 1000000)) /
             (8 * (diametromedio / 1000));
-          maxCortanteDelantero = maxCortante * 2;
+          maxCortanteTrasero = maxCortante * 2;
           coefSeguridad =
-            maxCortanteDelantero / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
+            maxCortanteTrasero / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
         }
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
@@ -10290,10 +10323,12 @@ export async function buildCalculos(
                 1118.34 *
                 1000000)) /
             (8 * (diametromedio / 1000));
-          maxCortanteDelantero = maxCortante * 2;
+          maxCortanteTrasero = maxCortante * 2;
           coefSeguridad =
-            maxCortanteDelantero / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
+            maxCortanteTrasero / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
         }
+        console.log('maxCortanteTrasero:', maxCortanteTrasero);
+        console.log('maxCortanteTrasero:', mod.mmta2EjeSuspension);
 
         // 9) EMC traseros
         const tablaEMCTraseros = new Table({
@@ -10326,7 +10361,7 @@ export async function buildCalculos(
               cantSplit: true,
               children: [
                 'Esf. Máx. Cortante 1 muelle (N)',
-                'Esf. Máx. Cortante eje delantero (N)',
+                'Esf. Máx. Cortante eje tresero (N)',
                 'Coeficiente de seguridad K>1',
               ].map(
                 (h) =>
@@ -10348,7 +10383,7 @@ export async function buildCalculos(
               cantSplit: true,
               children: [
                 maxCortante.toFixed(2).toString() ?? '---',
-                maxCortanteDelantero.toFixed(2).toString() ?? '---',
+                maxCortanteTrasero.toFixed(2).toString() ?? '---',
                 coefSeguridad.toFixed(2).toString() ?? '---',
               ].map(
                 (v, i) =>
@@ -10386,13 +10421,13 @@ export async function buildCalculos(
             (mod.diametroEspiraTraseroRef ?? 0);
           flechaResorte = (mod.longitudLibreTraseroRef ?? 0) - longMinMuelle;
           cargaMaxQ =
-            ((longMinMuelle / 1000) *
+            ((flechaResorte / 1000) *
               79500.24 *
               1000000 *
-              ((mod.diametroEspiraTraseroRef ?? 0) / 1000) ** 4) /
+              Math.pow((mod.diametroEspiraTraseroRef ?? 0) / 1000, 4)) /
             (64 *
               (mod.numeroEspirasTraseroRef ?? 0) *
-              (diametromedio / 1000 / 2) ** 3);
+              Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje1Q = cargaMaxQ * 2;
           coefSeguridadK =
             cargaMaxEje1Q / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
@@ -10400,18 +10435,17 @@ export async function buildCalculos(
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
           longMinMuelle =
-            (mod.numeroEspirasDelanteroSinRef ?? 0) *
-            (mod.diametroEspiraDelanteroSinRef ?? 0);
-          flechaResorte =
-            (mod.longitudLibreDelanteroSinRef ?? 0) - longMinMuelle;
+            (mod.numeroEspirasTraseroSinRef ?? 0) *
+            (mod.diametroEspiraTraseroSinRef ?? 0);
+          flechaResorte = (mod.longitudLibreTraseroSinRef ?? 0) - longMinMuelle;
           cargaMaxQ =
-            ((longMinMuelle / 1000) *
+            ((flechaResorte / 1000) *
               79500.24 *
               1000000 *
-              ((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000) ** 4) /
+              Math.pow((mod.diametroEspiraTraseroSinRef ?? 0) / 1000, 4)) /
             (64 *
-              (mod.numeroEspirasDelanteroSinRef ?? 0) *
-              (diametromedio / 1000 / 2) ** 3);
+              (mod.numeroEspirasTraseroSinRef ?? 0) *
+              Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje1Q = cargaMaxQ * 2;
           coefSeguridadK =
             cargaMaxEje1Q / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
@@ -10506,7 +10540,7 @@ export async function buildCalculos(
         let coefSeguridadFinalK = 0;
 
         if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
-          fuerzaMaxEjeDelantero = ((mod.mmta1EjeSuspension ?? 0) * 9.81) / 2;
+          fuerzaMaxEjeDelantero = ((mod.mmta2EjeSuspension ?? 0) * 9.81) / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
@@ -10515,7 +10549,7 @@ export async function buildCalculos(
         }
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
-          fuerzaMaxEjeDelantero = ((mod.mmta1EjeSuspension ?? 0) * 9.81) / 2;
+          fuerzaMaxEjeDelantero = ((mod.mmta2EjeSuspension ?? 0) * 9.81) / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
@@ -11437,7 +11471,7 @@ export async function buildCalculos(
         }),
       );
 
-      let Tr = 0.6 * data.mmaAntes;
+      let Tr = 0.6 * data.mmaDespues;
 
       // 2) Tabla: DATOS DE PARTIDA
       const tablaDatosPartida = new Table({
@@ -11463,8 +11497,11 @@ export async function buildCalculos(
           }),
           // Filas de datos
           ...[
-            ['M.T.M.A. (Kg)', data.mmaAntes.toFixed(2).toString() ?? '---'],
-            ['Velocidad máxima (Km/h)', '148'],
+            ['M.T.M.A. (Kg)', data.mmaDespues.toFixed(2).toString() ?? '---'],
+            [
+              'Velocidad máxima (Km/h)',
+              data.velocidadMaxima.toFixed(2).toString() ?? '---',
+            ],
             ['Coeficiente de rozamiento', '0.6'],
             ['Aceleración de la gravedad (m/s²)', '9.8'],
             ['Deceleración ar = μ * g (m/s²)', '5.88'],
@@ -11931,7 +11968,7 @@ export async function buildCalculos(
 
         // Filas dinámicas
         const filas = muebles.map((mueble, idx) => {
-          const fuerzaInercia = mueble.peso * (9.8 / 5.88);
+          const fuerzaInercia = (mueble.peso * 5.88) / 9.8;
           const resistenciaCortante =
             (0.6 * 80 * areaResistente * mueble.tornillos) / 1.25;
           const coefSeguridad = resistenciaCortante / fuerzaInercia;
@@ -11939,7 +11976,7 @@ export async function buildCalculos(
           const valores = [
             (idx + 1).toString(),
             mueble.desc,
-            mueble.peso.toFixed(2),
+            'Q' + (idx + 1).toString(),
             fuerzaInercia.toFixed(2),
             resistenciaCortante.toFixed(2),
             coefSeguridad.toFixed(2),
@@ -12045,10 +12082,7 @@ export async function buildCalculos(
         const filas = muebles.map((mueble, idx) => {
           const pesoPorTornillo =
             mueble.tornillos > 0 ? mueble.peso / mueble.tornillos : 0;
-          const resultado =
-            resistenciaCortadura > 0
-              ? pesoPorTornillo / resistenciaCortadura
-              : 0;
+          const resultado = resistenciaCortadura / pesoPorTornillo;
 
           const valores = [
             (idx + 1).toString(), // Nº

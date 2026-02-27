@@ -104,7 +104,7 @@ export class CanvaComponent implements OnInit {
     (Object.keys(this.SUSP_LABELS) as Array<keyof DetallesMuelles>).forEach(
       (k) => {
         if (det[k]) out.push(this.SUSP_LABELS[k]); // prefijo para reconocer subapartados
-      }
+      },
     );
     return out;
   }
@@ -164,13 +164,13 @@ export class CanvaComponent implements OnInit {
       // 1) MOBILIARIO (como lo tenías)
       if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
         mod.mueblesBajo?.forEach((m: any) =>
-          nuevasLabels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`)
+          nuevasLabels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`),
         );
         mod.mueblesAlto?.forEach((m: any) =>
-          nuevasLabels.push(`Mueble alto (${m?.medidas || 'sin medidas'})`)
+          nuevasLabels.push(`Mueble alto (${m?.medidas || 'sin medidas'})`),
         );
         mod.mueblesAseo?.forEach((m: any) =>
-          nuevasLabels.push(`Aseo (${m?.medidas || 'sin medidas'})`)
+          nuevasLabels.push(`Aseo (${m?.medidas || 'sin medidas'})`),
         );
         continue;
       }
@@ -226,7 +226,7 @@ export class CanvaComponent implements OnInit {
     let url = '';
     switch (tipoActual) {
       case 'camper':
-        url = 'http://192.168.1.41:3000/imgs/camper.png';
+        url = 'http://192.168.1.41:3000/imgs/camper2.png';
         break;
       case 'moto':
         url = 'http://192.168.1.41:3000/imgs/moto.png';
@@ -250,7 +250,7 @@ export class CanvaComponent implements OnInit {
         out.push(
           `Placa solar ${i + 1} (${placa.marcaPlacaSolar || ''} ${
             placa.modeloPlacaSolar || ''
-          })`
+          })`,
         );
       });
     }

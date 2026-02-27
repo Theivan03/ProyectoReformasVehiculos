@@ -1,0 +1,75 @@
+Date : 2026-02-20 10:58:06
+Directory : c:\ProyectoVehiculos\ProyectoReformasVehiculos
+Total : 24 files,  7335 codes, -28 comments, 389 blanks, all 7696 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| TypeScript |         10 |      4,787 |        -28 |        378 |      5,137 |
+| JSON       |         11 |      1,928 |          0 |          0 |      1,928 |
+| HTML       |          3 |        620 |          0 |         11 |        631 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                           | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                              |         24 |      7,335 |        -28 |        389 |      7,696 |
+| backend                                                                                                                                        |          9 |      1,652 |          0 |          0 |      1,652 |
+| backend (Files)                                                                                                                                |          2 |         28 |          0 |          0 |         28 |
+| backend\memorias_tecnicas                                                                                                                      |          1 |         34 |          0 |          0 |         34 |
+| backend\proyectos                                                                                                                              |          5 |      1,463 |          0 |          0 |      1,463 |
+| backend\proyectos\03_2026                                                                                                                      |          1 |       -138 |          0 |          0 |       -138 |
+| backend\proyectos\14_2026                                                                                                                      |          1 |        487 |          0 |          0 |        487 |
+| backend\proyectos\154_2026                                                                                                                     |          1 |         18 |          0 |          0 |         18 |
+| backend\proyectos\19_2026                                                                                                                      |          1 |        526 |          0 |          0 |        526 |
+| backend\proyectos\20_2026                                                                                                                      |          1 |        570 |          0 |          0 |        570 |
+| backend\viviendas                                                                                                                              |          1 |        127 |          0 |          0 |        127 |
+| reformas-app                                                                                                                                   |         15 |      5,683 |        -28 |        389 |      6,044 |
+| reformas-app (Files)                                                                                                                           |          2 |        276 |          0 |          0 |        276 |
+| reformas-app\src                                                                                                                               |         13 |      5,407 |        -28 |        389 |      5,768 |
+| reformas-app\src (Files)                                                                                                                       |          1 |          4 |          0 |          1 |          5 |
+| reformas-app\src\app                                                                                                                           |         12 |      5,403 |        -28 |        388 |      5,763 |
+| reformas-app\src\app\Funciones                                                                                                                 |          2 |      4,545 |         18 |        353 |      4,916 |
+| reformas-app\src\app\interfaces                                                                                                                |          1 |         17 |          0 |          1 |         18 |
+| reformas-app\src\app\pages                                                                                                                     |          4 |        535 |          7 |         21 |        563 |
+| reformas-app\src\app\pagesVivienda                                                                                                             |          5 |        306 |        -53 |         13 |        266 |
+| reformas-app\src\app\pagesVivienda\funciones                                                                                                   |          1 |        141 |        -45 |         10 |        106 |
+| reformas-app\src\app\pagesVivienda\gestor-documentacion                                                                                        |          2 |        127 |          0 |         -1 |        126 |
+| reformas-app\src\app\pagesVivienda\memoria-tecnica-diseno                                                                                      |          2 |         38 |         -8 |          4 |         34 |
+| reformas-app\src\app\pages\crear-reforma                                                                                                       |          1 |         19 |          0 |          3 |         22 |
+| reformas-app\src\app\pages\formulario-proyecto                                                                                                 |          1 |          1 |          0 |          0 |          1 |
+| reformas-app\src\app\pages\resumen-modificaciones                                                                                              |          2 |        515 |          7 |         18 |        540 |
++------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                                                       | language   | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\memorias_tecnicas\memorias.json                                                         | JSON       |         34 |          0 |          0 |         34 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\03_2026\proyecto.json                                                         | JSON       |       -138 |          0 |          0 |       -138 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\14_2026\proyecto.json                                                         | JSON       |        487 |          0 |          0 |        487 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\154_2026\proyecto.json                                                        | JSON       |         18 |          0 |          0 |         18 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\19_2026\proyecto.json                                                         | JSON       |        526 |          0 |          0 |        526 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\proyectos\20_2026\proyecto.json                                                         | JSON       |        570 |          0 |          0 |        570 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\talleres.json                                                                           | JSON       |         22 |          0 |          0 |         22 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\usuarios.json                                                                           | JSON       |          6 |          0 |          0 |          6 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\backend\viviendas\viviendas.json                                                                | JSON       |        127 |          0 |          0 |        127 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\package-lock.json                                                                  | JSON       |        274 |          0 |          0 |        274 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\package.json                                                                       | JSON       |          2 |          0 |          0 |          2 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\Funciones\buildModificacionesParagraphs.ts                                 | TypeScript |         48 |          0 |          1 |         49 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\Funciones\calculos.ts                                                      | TypeScript |      4,497 |         18 |        352 |      4,867 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\interfaces\modificacion.ts                                                 | TypeScript |         17 |          0 |          1 |         18 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pagesVivienda\funciones\documento.service.ts                               | TypeScript |        141 |        -45 |         10 |        106 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pagesVivienda\gestor-documentacion\gestor-documentacion.component.html     | HTML       |        126 |          0 |         -1 |        125 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pagesVivienda\gestor-documentacion\gestor-documentacion.component.ts       | TypeScript |          1 |          0 |          0 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pagesVivienda\memoria-tecnica-diseno\memoria-tecnica-diseno.component.html | HTML       |          9 |          0 |          0 |          9 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pagesVivienda\memoria-tecnica-diseno\memoria-tecnica-diseno.component.ts   | TypeScript |         29 |         -8 |          4 |         25 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\crear-reforma\crear-reforma.component.ts                             | TypeScript |         19 |          0 |          3 |         22 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\formulario-proyecto\formulario-proyecto.component.ts                 | TypeScript |          1 |          0 |          0 |          1 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\resumen-modificaciones\resumen-modificaciones.component.html         | HTML       |        485 |          0 |         12 |        497 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\app\pages\resumen-modificaciones\resumen-modificaciones.component.ts           | TypeScript |         30 |          7 |          6 |         43 |
+| c:\ProyectoVehiculos\ProyectoReformasVehiculos\reformas-app\src\typings.d.ts                                                                   | TypeScript |          4 |          0 |          1 |          5 |
+| Total                                                                                                                                          |            |      7,335 |        -28 |        389 |      7,696 |
++------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
