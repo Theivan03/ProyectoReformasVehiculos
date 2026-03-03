@@ -397,6 +397,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         }
       }
 
+      if (m.nombre === 'SNORKEL') {
+        this.ensureSnorkelDefaults(m);
+      }
+
       if (m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO') {
         this.ensureAngulosContactoSustitucionDiscos(m);
       }
@@ -507,6 +511,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
   onMetricaChange(mod: any) {
     this.syncAreaResistenteByMetrica(mod);
+    this.syncSnorkelCalidadByMetrica(mod);
   }
 
   onDiametroTornilloChange(mod: any) {
@@ -554,6 +559,69 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         mod[areaKey] = area;
       }
     });
+  }
+
+  private ensureSnorkelDefaults(mod: any): void {
+    if (!mod) return;
+
+    if (mod.curvaturaSnorkel == null) mod.curvaturaSnorkel = 800;
+    if (mod.cwCoefAerodinamicoSnorkel == null)
+      mod.cwCoefAerodinamicoSnorkel = 0.82;
+    if (mod.densidadAireKgM3Snorkel == null) mod.densidadAireKgM3Snorkel = 1.29;
+    if (mod.velocidadAireV2msSnorkel == null) mod.velocidadAireV2msSnorkel = 38.89;
+    if (mod.coefSeguridadKSnorkel == null) mod.coefSeguridadKSnorkel = 3;
+
+    if (mod.resTraccionMinTornillo88Kgmm2Snorkel == null) {
+      mod.resTraccionMinTornillo88Kgmm2Snorkel = 80;
+    }
+
+    if (mod.seccionResistenteAsSnorkel == null) {
+      mod.seccionResistenteAsSnorkel =
+        this.getAreaResistenteByMetrica(mod.metricaSnorkel) ?? 36.64;
+    }
+
+    if (
+      mod.medidasSnorkel &&
+      (mod.anchuraPiezaMSnorkel == null || mod.alturaPiezaMSnorkel == null)
+    ) {
+      this.onDimensionesChange(
+        mod,
+        'medidasSnorkel',
+        'anchuraPiezaMSnorkel',
+        'alturaPiezaMSnorkel',
+      );
+    }
+
+    this.syncSnorkelCalidadByMetrica(mod);
+  }
+
+  private syncSnorkelCalidadByMetrica(mod: any): void {
+    if (!mod || mod.nombre !== 'SNORKEL') return;
+
+    const metrica = mod.metricaSnorkel;
+    if (metrica === undefined || metrica === null || metrica === '') {
+      if (mod.calidadTornilloSnorkel == null) {
+        mod.calidadTornilloSnorkel = 8.8;
+      }
+      return;
+    }
+
+    const calidad = this.getCalidadTornilloByMetrica(metrica);
+    mod.calidadTornilloSnorkel = calidad ?? 8.8;
+  }
+
+  private getCalidadTornilloByMetrica(metrica: any): number | null {
+    const metricaNum = Number(metrica);
+    if (Number.isNaN(metricaNum)) return null;
+
+    const tornillo = this.getTornilloSeleccionado(metricaNum);
+    if (!tornillo?.calidad) return null;
+
+    const parsed = Number.parseFloat(
+      String(tornillo.calidad).replace(/[^0-9.]/g, ''),
+    );
+
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   getTornilloSeleccionado(diametro: number | null) {

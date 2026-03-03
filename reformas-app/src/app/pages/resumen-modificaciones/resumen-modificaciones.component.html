@@ -959,7 +959,8 @@
                             readonly
                             [class.is-invalid]="
                               formSubmitted &&
-                              (mod.ancho == null || mod.alto == null)
+                              (mod.anchoAletines == null ||
+                                mod.altoAletines == null)
                             "
                           />
                           <label>SUPERFICIE FRONTAL (m²)</label>
@@ -1912,15 +1913,17 @@
                     <div class="col-md-4">
                       <div class="form-floating">
                         <input
-                          type="text"
+                          type="number"
+                          step="0.1"
                           class="form-control"
                           placeholder="Calidad"
-                          [ngModel]="mod.calidadTornilloSnorkel ?? 8.8"
-                          (ngModelChange)="mod.calidadTornilloSnorkel = $event"
+                          [(ngModel)]="mod.calidadTornilloSnorkel"
                           name="calidadTornilloSnorkel{{ i }}"
                           required
+                          readonly
                           [class.is-invalid]="
-                            formSubmitted && !mod.calidadTornilloSnorkel
+                            formSubmitted &&
+                            mod.calidadTornilloSnorkel == null
                           "
                         />
                         <label>CALIDAD TORNILLO</label>
@@ -2144,7 +2147,9 @@
                         [(ngModel)]="mod.medidaLargoPLANCHA"
                         name="medidaLargo{{ i }}"
                         required
-                        [class.is-invalid]="formSubmitted && !mod.medidaLargo"
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaLargoPLANCHA
+                        "
                       />
                       <label>LARGO (mm)</label>
                     </div>
@@ -2159,7 +2164,9 @@
                         [(ngModel)]="mod.medidaAnchoPLANCHA"
                         name="medidaAncho{{ i }}"
                         required
-                        [class.is-invalid]="formSubmitted && !mod.medidaAncho"
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaAnchoPLANCHA
+                        "
                       />
                       <label>ANCHO (mm)</label>
                     </div>
@@ -14971,7 +14978,9 @@
                         [(ngModel)]="mod.medidaLargoCALANDRA"
                         name="medidaLargo{{ i }}"
                         required
-                        [class.is-invalid]="formSubmitted && !mod.medidaLargo"
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaLargoCALANDRA
+                        "
                       />
                       <label>ANCHO / LARGO (mm)</label>
                     </div>
@@ -14986,7 +14995,9 @@
                         [(ngModel)]="mod.medidaAltoCALANDRA"
                         name="medidaAlto{{ i }}"
                         required
-                        [class.is-invalid]="formSubmitted && !mod.medidaAlto"
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaAltoCALANDRA
+                        "
                       />
                       <label>ALTO (mm)</label>
                     </div>
@@ -17230,7 +17241,9 @@
                         name="ubicacionPanel{{ i }}"
                         required
                         [class.is-invalid]="
-                          formSubmitted && !mod.ubicacionPanel
+                          formSubmitted &&
+                          (!mod.ubicacionPanelRelojes ||
+                            mod.ubicacionPanelRelojes.trim() === '')
                         "
                       />
                       <label>UBICACIÓN EN EL VEHÍCULO</label>
@@ -17268,7 +17281,9 @@
                             name="medidaAncho{{ i }}"
                             required
                             [class.is-invalid]="
-                              formSubmitted && !mod.medidaAncho
+                              formSubmitted &&
+                              (mod.medidaAnchoRelojes == null ||
+                                mod.medidaAnchoRelojes === '')
                             "
                           />
                           <label>ANCHO (mm)</label>
@@ -17284,7 +17299,9 @@
                             name="medidaAlto{{ i }}"
                             required
                             [class.is-invalid]="
-                              formSubmitted && !mod.medidaAlto
+                              formSubmitted &&
+                              (mod.medidaAltoRelojes == null ||
+                                mod.medidaAltoRelojes === '')
                             "
                           />
                           <label>ALTO (mm)</label>
