@@ -1858,19 +1858,88 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   );
 
   if (refuerzo) {
-    // Construimos la frase concatenando las dimensiones con 'x'
-    const fraseRefuerzo = `Instalación de refuerzo de paragolpes ${refuerzo.ubicacionRefuerzo} fabricado en ${refuerzo.materialRefuerzo}, de la marca ${refuerzo.marcaRefuerzo} con referencia ${refuerzo.referenciaRefuerzo} y medidas ${refuerzo.largoRefuerzo}x${refuerzo.altoRefuerzo}x${refuerzo.fondoRefuerzo}mm.`;
+    const { hasDelantero, hasTrasero } = getRefuerzoUbicaciones(
+      refuerzo.ubicacionRefuerzo,
+    );
 
-    const raw = `- ${fraseRefuerzo}`;
+    const pickFirst = (...values: any[]) =>
+      values.find((v) => v !== undefined && v !== null && v !== '');
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
+    const pushRefuerzoParagraph = (ubicacion: 'delantero' | 'trasero') => {
+      const isDelantero = ubicacion === 'delantero';
 
-    (p as any)._rawText = raw;
-    out.push(p);
+      const material = pickFirst(
+        isDelantero
+          ? refuerzo.materialRefuerzoDelantero
+          : refuerzo.materialRefuerzoTrasero,
+        refuerzo.materialRefuerzo,
+      );
+      const marca = pickFirst(
+        isDelantero
+          ? refuerzo.marcaRefuerzoDelantero
+          : refuerzo.marcaRefuerzoTrasero,
+        refuerzo.marcaRefuerzo,
+      );
+      const referencia = pickFirst(
+        isDelantero
+          ? refuerzo.referenciaRefuerzoDelantero
+          : refuerzo.referenciaRefuerzoTrasero,
+        refuerzo.referenciaRefuerzo,
+      );
+      const largo = pickFirst(
+        isDelantero
+          ? refuerzo.largoRefuerzoDelantero
+          : refuerzo.largoRefuerzoTrasero,
+        refuerzo.largoRefuerzo,
+      );
+      const alto = pickFirst(
+        isDelantero ? refuerzo.altoRefuerzoDelantero : refuerzo.altoRefuerzoTrasero,
+        refuerzo.altoRefuerzo,
+      );
+      const fondo = pickFirst(
+        isDelantero
+          ? refuerzo.fondoRefuerzoDelantero
+          : refuerzo.fondoRefuerzoTrasero,
+        refuerzo.fondoRefuerzo,
+      );
+
+      const fraseRefuerzo = `Instalación de refuerzo de paragolpes ${ubicacion} fabricado en ${material}, de la marca ${marca} con referencia ${referencia} y medidas ${largo}x${alto}x${fondo}mm.`;
+      const raw = `- ${fraseRefuerzo}`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
+    };
+
+    if (hasDelantero) {
+      pushRefuerzoParagraph('delantero');
+    }
+
+    if (hasTrasero) {
+      pushRefuerzoParagraph('trasero');
+    }
+
+    if (!hasDelantero && !hasTrasero) {
+      const ubicacionRefuerzoTexto = resolveUbicacionRefuerzoTexto(
+        refuerzo.ubicacionRefuerzo,
+      );
+      const fraseRefuerzo = `Instalación de refuerzo de paragolpes ${ubicacionRefuerzoTexto} fabricado en ${refuerzo.materialRefuerzo}, de la marca ${refuerzo.marcaRefuerzo} con referencia ${refuerzo.referenciaRefuerzo} y medidas ${refuerzo.largoRefuerzo}x${refuerzo.altoRefuerzo}x${refuerzo.fondoRefuerzo}mm.`;
+      const raw = `- ${fraseRefuerzo}`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
   }
 
   const difusor = modificaciones.find(
@@ -3917,6 +3986,28 @@ function pushCasuistica(out: Paragraph[], p: Paragraph, raw?: string) {
   out.push(p);
 }
 
+function getRefuerzoUbicaciones(ubicacionRefuerzo?: string): {
+  hasDelantero: boolean;
+  hasTrasero: boolean;
+} {
+  const normalized = (ubicacionRefuerzo || '').toLowerCase();
+  return {
+    hasDelantero: normalized.includes('delanter'),
+    hasTrasero: normalized.includes('traser') || normalized.includes('detr'),
+  };
+}
+
+function resolveUbicacionRefuerzoTexto(ubicacionRefuerzo?: string): string {
+  const { hasDelantero, hasTrasero } =
+    getRefuerzoUbicaciones(ubicacionRefuerzo);
+
+  if (hasDelantero && hasTrasero) return 'delantero y trasero';
+  if (hasDelantero) return 'delantero';
+  if (hasTrasero) return 'trasero';
+
+  return ubicacionRefuerzo || '';
+}
+
 type DetallesMuelles = {
   muelleDelanteroConRef?: boolean;
   muelleDelanteroSinRef?: boolean;
@@ -4157,3 +4248,4 @@ export async function generarDocumentoConWordArt(ingeniero: {
   const imgData = await renderWordArtBrowser(ingeniero.web.toUpperCase());
   return imgData;
 }
+

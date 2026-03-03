@@ -20,6 +20,7 @@ export interface Modificacion {
   capacidadLb?: number;
   carreteraDesactivada?: boolean;
   clase?: string;
+  superficieFrontalM2Aleron?: number;
   claseBarra?: string;
   cdgconductor?: number;
   cdgocu2?: number;
@@ -307,13 +308,25 @@ export interface Modificacion {
   largoVentana?: number;
   altoVentana?: number;
 
-  ubicacionRefuerzo?: string;
+  ubicacionRefuerzo?: 'delantero' | 'trasero' | 'delantero y trasero';
   materialRefuerzo?: string;
   marcaRefuerzo?: string;
   referenciaRefuerzo?: string;
   largoRefuerzo?: number;
   altoRefuerzo?: number;
   fondoRefuerzo?: number;
+  materialRefuerzoDelantero?: string;
+  marcaRefuerzoDelantero?: string;
+  referenciaRefuerzoDelantero?: string;
+  largoRefuerzoDelantero?: number;
+  altoRefuerzoDelantero?: number;
+  fondoRefuerzoDelantero?: number;
+  materialRefuerzoTrasero?: string;
+  marcaRefuerzoTrasero?: string;
+  referenciaRefuerzoTrasero?: string;
+  largoRefuerzoTrasero?: number;
+  altoRefuerzoTrasero?: number;
+  fondoRefuerzoTrasero?: number;
 
   marcacatadioptrico?: string;
   referenciacatadioptrico?: string;

@@ -1083,11 +1083,10 @@ export async function buildCalculos(
       const newradioNeumatico =
         ((frenos.radioNeumaticoDiscos ?? 0) * 25.4 +
           2 *
-            (((frenos.perfilNeumaticoDiscos ?? 0) *
-              (frenos.anchoNeumaticoDiscos ?? 0)) /
+            ((frenos.anchoNeumaticoDiscos ?? 0) *
+              (frenos.perfilNeumaticoDiscos ?? 0) /
               100)) /
-        2 /
-        1000;
+        2;
       console.log('newradioNeumatico', newradioNeumatico);
 
       const tablaReformado = new Table({
@@ -6351,8 +6350,7 @@ export async function buildCalculos(
 
       contador++;
 
-      const superficiefrontal =
-        (aleron.alturaAleron ?? 0) * (aleron.anchuraAleron ?? 0);
+      const superficiefrontal = aleron.superficieFrontalM2Aleron;
 
       const peso = 9.81 * (aleron.pesoAleron ?? 0);
       const fuerzafrenado = (aleron.pesoAleron ?? 0) * 10;
@@ -6670,13 +6668,14 @@ export async function buildCalculos(
               'Anchura de la pieza en m',
               snorkel.anchuraPiezaMSnorkel?.toFixed(2).toString() ?? '---',
               'Métrica',
-              snorkel.metricaSnorkel?.toFixed(2).toString() ?? '---',
+              Number(snorkel.metricaSnorkel)?.toFixed(2).toString() ?? '---',
             ],
             [
               'Altura de la pieza en m',
               snorkel.alturaPiezaMSnorkel?.toFixed(2).toString() ?? '---',
               'Calidad',
-              snorkel.calidadTornilloSnorkel?.toFixed(2).toString() ?? '---',
+              Number(snorkel.calidadTornilloSnorkel).toFixed(2).toString() ??
+                '---',
             ],
             [
               'Superficie frontal m²',
@@ -7626,9 +7625,10 @@ export async function buildCalculos(
                 ?.toFixed(2)
                 .toString() ?? '---',
               'Métrica',
-              soporteslucesespecificas.metricaLucesEspecificas
+              Number(soporteslucesespecificas.metricaLucesEspecificas)
                 ?.toFixed(2)
                 .toString() ?? '---',
+              '---',
             ],
             [
               'Altura de la pieza en m',

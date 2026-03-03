@@ -255,7 +255,7 @@
     </button>
     <button
       class="btn btn-ing-next"
-      [disabled]="markers.length === 0"
+      [disabled]="labels.length > 0 && markers.length === 0"
       (click)="onContinue()"
     >
       CONTINUAR <i class="bi bi-arrow-right"></i>

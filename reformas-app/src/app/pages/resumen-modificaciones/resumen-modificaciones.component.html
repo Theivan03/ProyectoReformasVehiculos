@@ -949,7 +949,12 @@
                             step="0.0001"
                             class="form-control"
                             placeholder="Superficie"
-                            [ngModel]="mod.anchoAletines * mod.altoAletines"
+                            [ngModel]="
+                              (
+                                (mod.anchoAletines / 1000) *
+                                (mod.altoAletines / 1000)
+                              ).toFixed(4)
+                            "
                             name="superficieFrontalM2Aletines{{ i }}"
                             readonly
                             [class.is-invalid]="
@@ -2236,7 +2241,9 @@
                         [(ngModel)]="mod.medidaLargoINTERCOOLER"
                         name="medidaLargo{{ i }}"
                         required
-                        [class.is-invalid]="formSubmitted && !mod.medidaLargo"
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaLargoINTERCOOLER
+                        "
                       />
                       <label>LARGO (mm)</label>
                     </div>
@@ -2251,7 +2258,9 @@
                         [(ngModel)]="mod.medidaAltoINTERCOOLER"
                         name="medidaAlto{{ i }}"
                         required
-                        [class.is-invalid]="formSubmitted && !mod.medidaAlto"
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaAltoINTERCOOLER
+                        "
                       />
                       <label>ALTO (mm)</label>
                     </div>
@@ -2266,7 +2275,9 @@
                         [(ngModel)]="mod.medidaEspesorINTERCOOLER"
                         name="medidaEspesor{{ i }}"
                         required
-                        [class.is-invalid]="formSubmitted && !mod.medidaEspesor"
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaEspesorINTERCOOLER
+                        "
                       />
                       <label>ESPESOR (mm)</label>
                     </div>
@@ -2291,7 +2302,7 @@
                           </label>
                         </div>
 
-                        @if (!mod.usAnclajesOriginales) {
+                        @if (!mod.usAnclajesOriginalesINTERCOOLER) {
                           <div class="form-floating mb-3 bg-white">
                             <input
                               type="text"
@@ -2302,8 +2313,8 @@
                               required
                               [class.is-invalid]="
                                 formSubmitted &&
-                                !mod.usAnclajesOriginales &&
-                                !mod.descSoportes
+                                !mod.usAnclajesOriginalesINTERCOOLER &&
+                                !mod.descSoportesINTERCOOLER
                               "
                             />
                             <label
@@ -2339,11 +2350,15 @@
                       <div class="form-check">
                         <input
                           class="form-check-input"
-                          type="radio"
-                          name="ubicacionRefuerzo{{ i }}"
+                          type="checkbox"
+                          name="ubicacionRefuerzoTras{{ i }}"
                           id="ubiRefuerzoTras{{ i }}"
-                          value="trasero"
-                          [(ngModel)]="mod.ubicacionRefuerzo"
+                          [ngModel]="
+                            isRefuerzoUbicacionSelected(mod, 'trasero')
+                          "
+                          (ngModelChange)="
+                            onRefuerzoUbicacionToggle(mod, 'trasero', $event)
+                          "
                         />
                         <label
                           class="form-check-label"
@@ -2355,11 +2370,15 @@
                       <div class="form-check">
                         <input
                           class="form-check-input"
-                          type="radio"
-                          name="ubicacionRefuerzo{{ i }}"
+                          type="checkbox"
+                          name="ubicacionRefuerzoDel{{ i }}"
                           id="ubiRefuerzoDel{{ i }}"
-                          value="delantero"
-                          [(ngModel)]="mod.ubicacionRefuerzo"
+                          [ngModel]="
+                            isRefuerzoUbicacionSelected(mod, 'delantero')
+                          "
+                          (ngModelChange)="
+                            onRefuerzoUbicacionToggle(mod, 'delantero', $event)
+                          "
                         />
                         <label
                           class="form-check-label"
@@ -2369,232 +2388,253 @@
                         </label>
                       </div>
                     </div>
-                  </div>
-
-                  <div class="col-md-4">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Marca"
-                        [(ngModel)]="mod.marcaRefuerzo"
-                        name="marcaRefuerzo{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.marcaRefuerzo"
-                      />
-                      <label>MARCA</label>
-                    </div>
-                  </div>
-
-                  <div class="col-md-4">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Referencia"
-                        [(ngModel)]="mod.referenciaRefuerzo"
-                        name="referenciaRefuerzo{{ i }}"
-                        required
-                        [class.is-invalid]="
-                          formSubmitted && !mod.referenciaRefuerzo
-                        "
-                      />
-                      <label>REFERENCIA</label>
-                    </div>
-                  </div>
-
-                  <div class="col-md-4">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Material (ej. Acero)"
-                        [(ngModel)]="mod.materialRefuerzo"
-                        name="materialRefuerzo{{ i }}"
-                        required
-                        [class.is-invalid]="
-                          formSubmitted && !mod.materialRefuerzo
-                        "
-                      />
-                      <label>MATERIAL</label>
-                    </div>
-                  </div>
-
-                  <div class="col-12">
-                    <hr class="text-muted my-1" />
-                    <label class="form-label text-muted small mt-2"
-                      >DIMENSIONES (mm)</label
+                    <small class="text-muted"
+                      >Puedes marcar una o ambas ubicaciones.</small
                     >
-                  </div>
-
-                  <div class="col-md-4">
-                    <div class="form-floating">
-                      <input
-                        type="number"
-                        class="form-control"
-                        placeholder="Largo (mm)"
-                        [(ngModel)]="mod.largoRefuerzo"
-                        name="largoRefuerzo{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.largoRefuerzo"
-                      />
-                      <label>LARGO (mm)</label>
-                    </div>
-                  </div>
-
-                  <div class="col-md-4">
-                    <div class="form-floating">
-                      <input
-                        type="number"
-                        class="form-control"
-                        placeholder="Alto (mm)"
-                        [(ngModel)]="mod.altoRefuerzo"
-                        name="altoRefuerzo{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.altoRefuerzo"
-                      />
-                      <label>ALTO (mm)</label>
-                    </div>
-                  </div>
-
-                  <div class="col-md-4">
-                    <div class="form-floating">
-                      <input
-                        type="number"
-                        class="form-control"
-                        placeholder="Fondo/Profundidad (mm)"
-                        [(ngModel)]="mod.fondoRefuerzo"
-                        name="fondoRefuerzo{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.fondoRefuerzo"
-                      />
-                      <label>FONDO (mm)</label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-        }
-        @if (mod.nombre === "VENTANA LATERAL" && mod.seleccionado) {
-          <div class="mb-3">
-            <section class="mod-card instalacion-ventana">
-              <div class="mod-card__header">
-                <h4 class="mod-card__title">
-                  Instalación de Ventana Lateral Abatible
-                </h4>
-              </div>
-
-              <div class="card-body">
-                <div class="row g-3">
-                  <div class="col-12">
-                    <label class="form-label text-muted small"
-                      >UBICACIÓN EN EL VEHÍCULO</label
-                    >
-                    <div class="d-flex gap-4 mb-3">
-                      <div class="form-check">
-                        <input
-                          class="form-check-input"
-                          type="radio"
-                          name="ubicacionVentana{{ i }}"
-                          id="ubiVentanaIzq{{ i }}"
-                          value="izquierdo"
-                          [(ngModel)]="mod.ubicacionVentana"
-                        />
-                        <label
-                          class="form-check-label"
-                          for="ubiVentanaIzq{{ i }}"
-                        >
-                          Lateral Izquierdo
-                        </label>
+                    @if (
+                      formSubmitted &&
+                      !isRefuerzoUbicacionSelected(mod, "delantero") &&
+                      !isRefuerzoUbicacionSelected(mod, "trasero")
+                    ) {
+                      <div class="text-danger small mt-1">
+                        Debes seleccionar al menos una ubicaciÃ³n.
                       </div>
-                      <div class="form-check">
+                    }
+                  </div>
+
+                  @if (isRefuerzoUbicacionSelected(mod, "delantero")) {
+                    <div class="col-12">
+                      <hr class="text-muted my-1" />
+                      <label class="form-label text-muted small mt-2"
+                        >DATOS PARAGOLPES DELANTERO</label
+                      >
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
                         <input
-                          class="form-check-input"
-                          type="radio"
-                          name="ubicacionVentana{{ i }}"
-                          id="ubiVentanaDer{{ i }}"
-                          value="derecho"
-                          [(ngModel)]="mod.ubicacionVentana"
+                          type="text"
+                          class="form-control"
+                          placeholder="Marca delantero"
+                          [(ngModel)]="mod.marcaRefuerzoDelantero"
+                          name="marcaRefuerzoDelantero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.marcaRefuerzoDelantero
+                          "
                         />
-                        <label
-                          class="form-check-label"
-                          for="ubiVentanaDer{{ i }}"
-                        >
-                          Lateral Derecho
-                        </label>
+                        <label>MARCA</label>
                       </div>
                     </div>
-                  </div>
 
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Marca"
-                        [(ngModel)]="mod.marcaVentana"
-                        name="marcaVentana{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.marcaVentana"
-                      />
-                      <label>MARCA</label>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Referencia delantero"
+                          [(ngModel)]="mod.referenciaRefuerzoDelantero"
+                          name="referenciaRefuerzoDelantero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.referenciaRefuerzoDelantero
+                          "
+                        />
+                        <label>REFERENCIA</label>
+                      </div>
                     </div>
-                  </div>
 
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Material (ej. Acero / Vidrio)"
-                        [(ngModel)]="mod.materialVentana"
-                        name="materialVentana{{ i }}"
-                        required
-                        [class.is-invalid]="
-                          formSubmitted && !mod.materialVentana
-                        "
-                      />
-                      <label>MATERIAL</label>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Material delantero"
+                          [(ngModel)]="mod.materialRefuerzoDelantero"
+                          name="materialRefuerzoDelantero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.materialRefuerzoDelantero
+                          "
+                        />
+                        <label>MATERIAL</label>
+                      </div>
                     </div>
-                  </div>
 
-                  <div class="col-12">
-                    <hr class="text-muted my-1" />
-                    <label class="form-label text-muted small mt-2"
-                      >DIMENSIONES (mm)</label
-                    >
-                  </div>
-
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="number"
-                        class="form-control"
-                        placeholder="Largo (mm)"
-                        [(ngModel)]="mod.largoVentana"
-                        name="largoVentana{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.largoVentana"
-                      />
-                      <label>LARGO (mm)</label>
+                    <div class="col-12">
+                      <label class="form-label text-muted small mt-2"
+                        >DIMENSIONES DELANTERO (mm)</label
+                      >
                     </div>
-                  </div>
 
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="number"
-                        class="form-control"
-                        placeholder="Alto (mm)"
-                        [(ngModel)]="mod.altoVentana"
-                        name="altoVentana{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.altoVentana"
-                      />
-                      <label>ALTO (mm)</label>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Largo delantero"
+                          [(ngModel)]="mod.largoRefuerzoDelantero"
+                          name="largoRefuerzoDelantero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.largoRefuerzoDelantero == null
+                          "
+                        />
+                        <label>LARGO (mm)</label>
+                      </div>
                     </div>
-                  </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Alto delantero"
+                          [(ngModel)]="mod.altoRefuerzoDelantero"
+                          name="altoRefuerzoDelantero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.altoRefuerzoDelantero == null
+                          "
+                        />
+                        <label>ALTO (mm)</label>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Fondo delantero"
+                          [(ngModel)]="mod.fondoRefuerzoDelantero"
+                          name="fondoRefuerzoDelantero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.fondoRefuerzoDelantero == null
+                          "
+                        />
+                        <label>FONDO (mm)</label>
+                      </div>
+                    </div>
+                  }
+
+                  @if (isRefuerzoUbicacionSelected(mod, "trasero")) {
+                    <div class="col-12">
+                      <hr class="text-muted my-1" />
+                      <label class="form-label text-muted small mt-2"
+                        >DATOS PARAGOLPES TRASERO</label
+                      >
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Marca trasero"
+                          [(ngModel)]="mod.marcaRefuerzoTrasero"
+                          name="marcaRefuerzoTrasero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.marcaRefuerzoTrasero
+                          "
+                        />
+                        <label>MARCA</label>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Referencia trasero"
+                          [(ngModel)]="mod.referenciaRefuerzoTrasero"
+                          name="referenciaRefuerzoTrasero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.referenciaRefuerzoTrasero
+                          "
+                        />
+                        <label>REFERENCIA</label>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Material trasero"
+                          [(ngModel)]="mod.materialRefuerzoTrasero"
+                          name="materialRefuerzoTrasero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.materialRefuerzoTrasero
+                          "
+                        />
+                        <label>MATERIAL</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <label class="form-label text-muted small mt-2"
+                        >DIMENSIONES TRASERO (mm)</label
+                      >
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Largo trasero"
+                          [(ngModel)]="mod.largoRefuerzoTrasero"
+                          name="largoRefuerzoTrasero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.largoRefuerzoTrasero == null
+                          "
+                        />
+                        <label>LARGO (mm)</label>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Alto trasero"
+                          [(ngModel)]="mod.altoRefuerzoTrasero"
+                          name="altoRefuerzoTrasero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.altoRefuerzoTrasero == null
+                          "
+                        />
+                        <label>ALTO (mm)</label>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          class="form-control"
+                          placeholder="Fondo trasero"
+                          [(ngModel)]="mod.fondoRefuerzoTrasero"
+                          name="fondoRefuerzoTrasero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.fondoRefuerzoTrasero == null
+                          "
+                        />
+                        <label>FONDO (mm)</label>
+                      </div>
+                    </div>
+                  }
                 </div>
               </div>
             </section>
@@ -2891,7 +2931,7 @@
                           [(ngModel)]="mod.materialPernoChasisCabrestante"
                           name="materialPernoChasisCabrestante{{ i }}"
                         />
-                        <label>MATERIAL</label>
+                        <label>MATERIAL EN CHASIS</label>
                       </div>
                     </div>
                     <div class="col-md-3">
@@ -5961,6 +6001,7 @@
                           id="ubiDel{{ i }}"
                           value="delanteros"
                           [(ngModel)]="mod.ubicacionDiscos"
+                          (ngModelChange)="onFrenosChange(mod)"
                         />
                         <label class="form-check-label" for="ubiDel{{ i }}"
                           >Delanteros</label
@@ -5974,6 +6015,7 @@
                           id="ubiTras{{ i }}"
                           value="traseros"
                           [(ngModel)]="mod.ubicacionDiscos"
+                          (ngModelChange)="onFrenosChange(mod)"
                         />
                         <label class="form-check-label" for="ubiTras{{ i }}"
                           >Traseros</label
@@ -5987,6 +6029,7 @@
                           id="ubiAmbos{{ i }}"
                           value="ambos"
                           [(ngModel)]="mod.ubicacionDiscos"
+                          (ngModelChange)="onFrenosChange(mod)"
                         />
                         <label class="form-check-label" for="ubiAmbos{{ i }}"
                           >Delanteros y Traseros</label
@@ -5994,30 +6037,6 @@
                       </div>
                     </div>
                   </div>
-
-                  @if (mod.ubicacionDiscos === "ambos") {
-                    <div class="col-12 mt-3">
-                      <div class="form-check form-switch bg-light p-2 rounded">
-                        <input
-                          class="form-check-input ms-0 me-2"
-                          type="checkbox"
-                          id="discosIguales{{ i }}"
-                          name="sonIguales{{ i }}"
-                          [ngModel]="mod.sonIguales"
-                          (ngModelChange)="
-                            mod.sonIguales = $event; onFrenosChange(mod)
-                          "
-                        />
-                        <label
-                          class="form-check-label fw-bold"
-                          for="discosIguales{{ i }}"
-                        >
-                          ¿Los discos delanteros y traseros son idénticos (misma
-                          marca/medidas)?
-                        </label>
-                      </div>
-                    </div>
-                  }
                 </div>
 
                 @if (mod.ubicacionDiscos) {
@@ -6266,7 +6285,7 @@
                               "
                               name="radioNeumaticoDiscos{{ i }}"
                             />
-                            <label>RADIO NEUMÁTICO (R)</label>
+                            <label>RADIO NEUMÁTICO (mm)</label>
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -6520,7 +6539,7 @@
                                   name="radioNeumaticoDiscoTrasero{{ i }}"
                                   [readonly]="mod.sonIguales"
                                 />
-                                <label>RADIO NEUMÁTICO (R)</label>
+                                <label>RADIO NEUMÁTICO (mm)</label>
                               </div>
                             </div>
                             <div class="col-md-4">
@@ -6697,7 +6716,7 @@
                                     name="ant_radioNeumaticoDelantero{{ i }}"
                                   />
                                   <label class="small"
-                                    >RADIO NEUMÁTICO (R)</label
+                                    >RADIO NEUMÁTICO (mm)</label
                                   >
                                 </div>
                               </div>
@@ -6868,7 +6887,7 @@
                                     name="ant_radioNeumaticoTrasero{{ i }}"
                                   />
                                   <label class="small"
-                                    >RADIO NEUMÁTICO (R)</label
+                                    >RADIO NEUMÁTICO (mm)</label
                                   >
                                 </div>
                               </div>
@@ -7011,39 +7030,12 @@
                         class="form-control"
                         placeholder="Medidas"
                         [(ngModel)]="mod.medidasAleron"
+                        (ngModelChange)="calcularSuperficieAleron(mod)"
                         name="medidasAleron{{ i }}"
                         required
                         [class.is-invalid]="formSubmitted && !mod.medidasAleron"
                       />
                       <label>MEDIDAS (mm)</label>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Anchura"
-                        [(ngModel)]="mod.anchuraAleron"
-                        name="anchuraAleron{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.anchuraAleron"
-                      />
-                      <label>ANCHURA (mm)</label>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Altura"
-                        [(ngModel)]="mod.alturaAleron"
-                        name="alturaAleron{{ i }}"
-                        required
-                        [class.is-invalid]="formSubmitted && !mod.alturaAleron"
-                      />
-                      <label>ALTURA (mm)</label>
                     </div>
                   </div>
 
@@ -12516,7 +12508,7 @@
                                       name="radioNeumaticoDiscos{{ i }}"
                                     />
                                     <label class="small"
-                                      >RADIO NEUMÁTICO (R)</label
+                                      >RADIO NEUMÁTICO (mm)</label
                                     >
                                   </div>
                                 </div>
@@ -12735,7 +12727,7 @@
                                       name="radioNeumaticoDiscoTrasero{{ i }}"
                                     />
                                     <label class="small"
-                                      >RADIO NEUMÁTICO (R)</label
+                                      >RADIO NEUMÁTICO (mm)</label
                                     >
                                   </div>
                                 </div>
@@ -12921,7 +12913,7 @@
                                       name="ant_radioNeumaticoDelantero{{ i }}"
                                     />
                                     <label class="small"
-                                      >RADIO NEUMÁTICO (R)</label
+                                      >RADIO NEUMÁTICO (mm)</label
                                     >
                                   </div>
                                 </div>
@@ -13095,7 +13087,7 @@
                                       name="ant_radioNeumaticoTrasero{{ i }}"
                                     />
                                     <label class="small"
-                                      >RADIO NEUMÁTICO (R)</label
+                                      >RADIO NEUMÁTICO (mm)</label
                                     >
                                   </div>
                                 </div>
@@ -14250,54 +14242,6 @@
             </section>
           </div>
         }
-        @if (mod.nombre === "AMORTIGUADOR DE DIRECCIÓN" && mod.seleccionado) {
-          <div class="mb-3">
-            <section class="mod-card amortiguador-direccion">
-              <div class="mod-card__header">
-                <h4 class="mod-card__title">Amortiguador de Dirección</h4>
-                <span class="mod-card__hint"
-                  >Datos de identificación del componente</span
-                >
-              </div>
-
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Marca"
-                      [(ngModel)]="mod.marcaAmortiguador"
-                      name="marcaAmortiguador{{ i }}"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.marcaAmortiguador
-                      "
-                    />
-                    <label>MARCA</label>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Referencia"
-                      [(ngModel)]="mod.referenciaAmortiguador"
-                      name="referenciaAmortiguador{{ i }}"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.referenciaAmortiguador
-                      "
-                    />
-                    <label>REFERENCIA</label>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-        }
 
         <!-- Barra para Regular la Convergencia (regulable) -->
         @if (mod.nombre === BARRA_MOV_LATERAL && mod.seleccionado) {
@@ -14703,6 +14647,9 @@
                           class="form-control"
                           placeholder="Medidas"
                           [(ngModel)]="mod.medidasParagolpesDelantero"
+                          (ngModelChange)="
+                            calcularSuperficieParagolpesDelantero(mod)
+                          "
                           name="medidasParagolpesDelantero{{ i }}"
                           required
                           [class.is-invalid]="

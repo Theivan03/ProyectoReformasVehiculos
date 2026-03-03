@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   ElementRef,
   EventEmitter,
@@ -66,7 +66,6 @@ export class CanvaComponent implements OnInit {
 
   constructor(private http: HttpClient) {}
 
-  // ---------- Helpers para casuística de suspensión ----------
   private readonly SUSP_LABELS: Record<keyof DetallesMuelles, string> = {
     muelleDelanteroConRef: 'Muelle delantero (con referencia)',
     muelleDelanteroSinRef: 'Muelle delantero (sin referencia)',
@@ -77,38 +76,73 @@ export class CanvaComponent implements OnInit {
     ballestaTrasera: 'Ballesta trasera',
     amortiguadorTrasero: 'Amortiguador trasero',
     tacosDeGoma: 'Tacos de goma / suplementos',
-    kitElevacion: 'Kit de elevación',
+    kitElevacion: 'Kit de elevaciÃ³n',
   };
 
   private readonly LUCES_LABELS: Record<string, string> = {
-    luzGrupoOptico: 'Grupo óptico delantero',
+    luzGrupoOptico: 'Grupo Ã³ptico delantero',
     intermitenteDelantero: 'Intermitente delantero',
     intermitenteTrasero: 'Intermitente trasero',
-    catadioptrico: 'Catadióptrico',
-    luzMatricula: 'Luz de matrícula',
+    catadioptrico: 'CatadiÃ³ptrico',
+    luzMatricula: 'Luz de matrÃ­cula',
     luzAntinieblas: 'Luz antinieblas',
     luzFreno: 'Luz de freno',
   };
 
+  /**
+   * Modificaciones que no deben mostrarse en el canva (tabla y numeracion).
+   * Para ampliar en el futuro, anade nombres o reglas en CANVAS_HIDDEN_MOD_RULES.
+   */
+  private readonly CANVAS_HIDDEN_MOD_NAMES = [
+    'AUMENTO DE PLAZAS',
+    'REDUCCION DE PLAZAS',
+    'REDUCCION DE MMA',
+    'REDUCCION DE MMTA',
+  ];
+
+  private readonly CANVAS_HIDDEN_MOD_NAMES_NORMALIZED = new Set<string>(
+    this.CANVAS_HIDDEN_MOD_NAMES.map((name) => this.normalizeText(name)),
+  );
+  private readonly CANVAS_HIDDEN_MOD_RULES: Array<(mod: any) => boolean> = [
+    (mod) =>
+      this.CANVAS_HIDDEN_MOD_NAMES_NORMALIZED.has(
+        this.normalizeText(mod?.nombre),
+      ),
+    (mod) =>
+      this.normalizeText(mod?.nombre) === 'AUMENTO O DISMINUCION DE PLAZAS' &&
+      (mod?.tipoCambio || '').toString().trim().toLowerCase() === 'aumento',
+  ];
+
+  private normalizeText(value: unknown): string {
+    return (value ?? '')
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toUpperCase();
+  }
+
+  private shouldHideModInCanvas(mod: any): boolean {
+    return this.CANVAS_HIDDEN_MOD_RULES.some((rule) => rule(mod));
+  }
+
   private isCasuisticaSuspension(nombre: string | undefined): boolean {
     return (
       (nombre || '').trim().toUpperCase() ===
-      'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
+      'TODA LA CASUÃSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
     );
   }
 
-  /** Convierte detallesMuelles (true/false) en etiquetas planas para la lista principal */
   private expandSuspensionToLabels(det: DetallesMuelles | undefined): string[] {
     if (!det) return [];
     const out: string[] = [];
     (Object.keys(this.SUSP_LABELS) as Array<keyof DetallesMuelles>).forEach(
       (k) => {
-        if (det[k]) out.push(this.SUSP_LABELS[k]); // prefijo para reconocer subapartados
+        if (det[k]) out.push(this.SUSP_LABELS[k]);
       },
     );
     return out;
   }
-  // -----------------------------------------------------------
 
   private snapshot(): any {
     return {
@@ -126,13 +160,11 @@ export class CanvaComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('CanvaComponent ngOnInit - datosEntrada:', this.datosEntrada);
-    // ====== FECHA / FIRMA inicial ======
     this.fechaFirma = this.calcularFechaHoy();
     this.firmaUrl =
       this.datosEntrada?.firmaUrl ||
       'http://192.168.1.41:3000/imgs/firma-generada.png';
 
-    // ====== Tipo / reset marcadores si cambió el tipo ======
     const tipoActual = (this.datosEntrada?.tipoVehiculo || '')
       .toString()
       .trim()
@@ -141,7 +173,7 @@ export class CanvaComponent implements OnInit {
     const ingeniero = this.datosEntrada?.ingeniero || {};
 
     this.nombreIngeniero = ingeniero.nombre;
-    this.numColegiado = 'Col nº ' + ingeniero.numero + ' ' + ingeniero.colegio;
+    this.numColegiado = 'Col nÂº ' + ingeniero.numero + ' ' + ingeniero.colegio;
     this.tituloIngeniero = 'EL ' + ingeniero.titulacion;
 
     if (this.tipoVehiculoAnterior && tipoActual !== this.tipoVehiculoAnterior) {
@@ -149,20 +181,21 @@ export class CanvaComponent implements OnInit {
     }
     this.tipoVehiculoAnterior = tipoActual;
 
-    // ====== Restaurar marcadores si vienen del padre ======
     if (Array.isArray(this.datosEntrada?.marcadores)) {
       this.markers = [...this.datosEntrada.marcadores];
     }
 
-    // ====== Construir labels a partir de las modificaciones ======
     const nuevasLabels: string[] = [];
     const mods = Array.isArray(this.datosEntrada?.modificaciones)
       ? this.datosEntrada.modificaciones
       : [];
 
     for (const mod of mods) {
-      // 1) MOBILIARIO (como lo tenías)
-      if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
+      if (mod?.seleccionado && this.shouldHideModInCanvas(mod)) {
+        continue;
+      }
+
+      if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÃCULO') {
         mod.mueblesBajo?.forEach((m: any) =>
           nuevasLabels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`),
         );
@@ -175,18 +208,15 @@ export class CanvaComponent implements OnInit {
         continue;
       }
 
-      // 2) CASUÍSTICA SUSPENSIÓN → sustituimos el ítem por sus subapartados (solo los true)
       if (this.isCasuisticaSuspension(mod?.nombre)) {
         const sublabels = this.expandSuspensionToLabels(mod?.detallesMuelles);
-        if (sublabels.length > 0 /* || mod?.seleccionado */) {
+        if (sublabels.length > 0) {
           nuevasLabels.push(...sublabels);
         }
-        // No añadimos el nombre "TODA LA CASUÍSTICA..." para que la lista tenga *solo* subapartados.
         continue;
       }
 
-      // 3) INSTALACIÓN ELÉCTRICA
-      if (mod?.seleccionado && mod?.nombre === 'INSTALACIÓN ELÉCTRICA') {
+      if (mod?.seleccionado && mod?.nombre === 'INSTALACIÃ“N ELÃ‰CTRICA') {
         const sublabels = this.expandInstalacionElectrica(mod);
         if (sublabels.length > 0) nuevasLabels.push(...sublabels);
         continue;
@@ -198,18 +228,14 @@ export class CanvaComponent implements OnInit {
         continue;
       }
 
-      // 4) Resto (solo si están seleccionadas)
       if (mod?.seleccionado) {
         nuevasLabels.push(mod.nombre);
       }
     }
 
-    // Reasignar números de marcadores según su etiqueta
     if (this.markers.length > 0) {
       this.markers = this.markers
         .map((m) => {
-          // Si venimos de una sesión anterior, puede que el marcador apunte al nombre "TODA LA CASUÍSTICA..."
-          // En ese caso, ya no existirá en nuevasLabels y lo descartamos.
           const newIndex = nuevasLabels.indexOf(m.etiqueta);
           if (newIndex !== -1) {
             return { ...m, label: (newIndex + 1).toString() };
@@ -222,7 +248,6 @@ export class CanvaComponent implements OnInit {
     this.labels = nuevasLabels;
     this.etiquetasAnteriores = [...nuevasLabels];
 
-    // ====== Imagen de fondo por tipo ======
     let url = '';
     switch (tipoActual) {
       case 'camper':
@@ -236,15 +261,12 @@ export class CanvaComponent implements OnInit {
     }
     this.cargarImagenComoBase64(url).then((base64) => (this.imageSrc = base64));
 
-    // Primer autosave al entrar (estado restaurado o en blanco)
     this.emitAutosave();
   }
 
-  // ---------- Helpers para instalación eléctrica ----------
   private expandInstalacionElectrica(mod: any): string[] {
     const out: string[] = [];
 
-    // Placas solares
     if (Array.isArray(mod.placasSolares)) {
       mod.placasSolares.forEach((placa: any, i: number) => {
         out.push(
@@ -255,22 +277,18 @@ export class CanvaComponent implements OnInit {
       });
     }
 
-    // Baterías
     if (mod.cantidadBaterias && mod.potenciaBaterias) {
-      out.push(`Batería ${mod.potenciaBaterias}V`);
+      out.push(`BaterÃ­a ${mod.potenciaBaterias}V`);
     }
 
-    // Inversor
     if (mod.marcaInversor || mod.potenciaInversor) {
       out.push(`Inversor ${mod.marcaInversor || ''}`);
     }
 
-    // Controlador
     if (mod.marcaControlador || mod.modeloControlador) {
       out.push(`Controlador ${mod.modeloControlador || ''}`);
     }
 
-    // Instalaciones secundarias (si vienen en texto)
     if (mod.instalacionesSecundarias) {
       out.push(`Instalaciones secundarias`);
     }
@@ -298,15 +316,12 @@ export class CanvaComponent implements OnInit {
       return '';
     }
 
-    // Descomponemos el string "YYYY-MM-DD"
     const [year, month, day] = this.datosEntrada.fechaProyecto
       .split('-')
       .map(Number);
 
-    // Creamos un objeto Date en la zona local (mes empieza en 0)
     const fecha = new Date(year, month - 1, day);
 
-    // Formateamos en español
     return `Teulada, ${fecha.toLocaleDateString('es-ES', {
       day: 'numeric',
       month: 'long',
@@ -348,7 +363,7 @@ export class CanvaComponent implements OnInit {
       x: Math.max(0, Math.min(1, x)),
       y: Math.max(0, Math.min(1, y)),
       label: (this.selectedIndex + 1).toString(),
-      etiqueta: this.labels[this.selectedIndex], // etiqueta visible en la tabla
+      etiqueta: this.labels[this.selectedIndex],
     });
 
     this.emitAutosave();
@@ -400,7 +415,7 @@ export class CanvaComponent implements OnInit {
     const el = this.firmaRef.nativeElement;
 
     html2canvas(el, {
-      scale: 2, // 👈 ajusta aquí el zoom (2 suele bastar)
+      scale: 2,
       useCORS: true,
       backgroundColor: null,
     }).then((canvas) => {
@@ -415,3 +430,4 @@ export class CanvaComponent implements OnInit {
     });
   }
 }
+

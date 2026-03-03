@@ -203,6 +203,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         }
       }
 
+      if (m.nombre === 'REFUERZO PARAGOLPES') {
+        this.syncRefuerzoLegacyData(m);
+      }
+
       if (m.nombre === 'ALETINES Y SOBREALETINES') {
         if (m.velocidadAireV2msAletines == null) {
           m.velocidadAireV2msAletines = 38.89;
@@ -213,8 +217,14 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (m.radioCurvaRAletines == null) {
           m.radioCurvaRAletines = 800;
         }
+        if (m.curvaturaSobrealetines == null) {
+          m.curvaturaSobrealetines = 800;
+        }
         if (m.coefSeguridadKAletines == null) {
           m.coefSeguridadKAletines = 3;
+        }
+        if (m.coefAerodinamicoCwAletines == null) {
+          m.coefAerodinamicoCwAletines = 0.82;
         }
         if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
           m.resTraccionMinTornillo88Kgmm2Aletines = 80;
@@ -237,6 +247,12 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (m.tensionMinCortanteChasisKgCm2Cabrestante == null) {
           m.tensionMinCortanteChasisKgCm2Cabrestante = 1948.06;
         }
+        if (m.materialPernoCabrestante == null) {
+          m.materialPernoCabrestante = 'Acero 8.8';
+        }
+        if (m.materialPernoChasisCabrestante == null) {
+          m.materialPernoChasisCabrestante = 'Acero 8.8';
+        }
         if (!m.detalle) {
           m.detalle = { aletines: false, sobrealetines: false };
         }
@@ -247,8 +263,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         }
         if (m.seccionResistenteAsLucesEspecificas == null) {
           m.seccionResistenteAsLucesEspecificas =
-            this.getAreaResistenteByMetrica(m.metricaLucesEspecificas) ??
-            36.64;
+            this.getAreaResistenteByMetrica(m.metricaLucesEspecificas) ?? 36.64;
         }
         if (m.resTraccionMinTornillo88Kgmm2LucesEspecificas == null) {
           m.resTraccionMinTornillo88Kgmm2LucesEspecificas = 80;
@@ -382,6 +397,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         }
       }
 
+      if (m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO') {
+        this.ensureAngulosContactoSustitucionDiscos(m);
+      }
+
       this.syncAreaResistenteByMetrica(m);
     });
 
@@ -396,6 +415,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   onFrenosChange(mod: any) {
+    this.ensureAngulosContactoSustitucionDiscos(mod);
+
     if (mod.sonIguales) {
       // Datos básicos
       mod.marcaDiscoTrasero = mod.marcaDiscos;
@@ -419,18 +440,86 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
   }
 
+  private ensureAngulosContactoSustitucionDiscos(mod: any): void {
+    if (!mod) return;
+
+    const keys = [
+      'anguloContactoDiscos',
+      'anguloContactoDiscoTrasero',
+      'ant_anguloContactoDiscoDelantero',
+      'ant_anguloContactoDiscoTrasero',
+    ] as const;
+
+    keys.forEach((key) => {
+      if (mod[key] === undefined || mod[key] === null || mod[key] === '') {
+        mod[key] = 0.7;
+      }
+    });
+  }
+
+  calcularSuperficieAleron(mod: any) {
+    if (!mod.medidasAleron) {
+      return;
+    }
+
+    const valorLimpio = mod.medidasAleron
+      .toString()
+      .toLowerCase()
+      .replace(/mm/g, '')
+      .replace(/\s/g, '');
+
+    if (valorLimpio.includes('x')) {
+      const partes = valorLimpio.split('x');
+      const largo = parseFloat(partes[0]);
+      const ancho = parseFloat(partes[1]);
+
+      if (!isNaN(largo) && !isNaN(ancho)) {
+        const areaM2 = (largo * ancho) / 1000000;
+        mod.superficieFrontalM2Aleron = parseFloat(areaM2.toFixed(4));
+      }
+    }
+  }
+
+  calcularSuperficieParagolpesDelantero(mod: any) {
+    if (!mod.medidasParagolpesDelantero) {
+      return;
+    }
+
+    const valorLimpio = mod.medidasParagolpesDelantero
+      .toString()
+      .toLowerCase()
+      .replace(/mm/g, '')
+      .replace(/\s/g, '');
+
+    if (valorLimpio.includes('x')) {
+      const partes = valorLimpio.split('x');
+      const largo = parseFloat(partes[0]);
+      const ancho = parseFloat(partes[1]);
+
+      if (!isNaN(largo) && !isNaN(ancho)) {
+        const areaM2 = (largo * ancho) / 1000000;
+        mod.superficieFrontalM2ParagolpesDelantero = parseFloat(
+          areaM2.toFixed(4),
+        );
+      }
+    }
+  }
+
   onMetricaChange(mod: any) {
     this.syncAreaResistenteByMetrica(mod);
   }
 
   onDiametroTornilloChange(mod: any) {
     if (!mod) return;
-    const tornillo = this.getTornilloSeleccionado(mod.diametroTornilloSeleccionado);
+    const tornillo = this.getTornilloSeleccionado(
+      mod.diametroTornilloSeleccionado,
+    );
     mod.areaResistenteTornilloSeleccionado = tornillo?.areaResistente ?? null;
   }
 
   private getAreaResistenteByMetrica(metrica: any): number | null {
-    if (metrica === null || metrica === undefined || metrica === '') return null;
+    if (metrica === null || metrica === undefined || metrica === '')
+      return null;
     const metricaNum = Number(metrica);
     if (Number.isNaN(metricaNum)) return null;
     const area = this.metricasAs[metricaNum];
@@ -442,10 +531,19 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     const metricToAreaMap: Array<{ metricaKey: string; areaKey: string }> = [
       { metricaKey: 'metricaTalonera', areaKey: 'seccionResistenteAsEstribos' },
-      { metricaKey: 'metricaParaTrasero', areaKey: 'seccionResistenteAsParagolpesTrasero' },
-      { metricaKey: 'metricaLucesEspecificas', areaKey: 'seccionResistenteAsLucesEspecificas' },
+      {
+        metricaKey: 'metricaParaTrasero',
+        areaKey: 'seccionResistenteAsParagolpesTrasero',
+      },
+      {
+        metricaKey: 'metricaLucesEspecificas',
+        areaKey: 'seccionResistenteAsLucesEspecificas',
+      },
       { metricaKey: 'metricaSnorkel', areaKey: 'seccionResistenteAsSnorkel' },
-      { metricaKey: 'metricaParaDelantero', areaKey: 'seccionResistenteAsParagolpesDelantero' },
+      {
+        metricaKey: 'metricaParaDelantero',
+        areaKey: 'seccionResistenteAsParagolpesDelantero',
+      },
       { metricaKey: 'metricaAletines', areaKey: 'seccionResistenteAsAletines' },
       { metricaKey: 'metricaAleron', areaKey: 'seccionResistenteAsAleron' },
     ];
@@ -500,6 +598,104 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
   }
 
+  private parseRefuerzoUbicaciones(
+    ubicacionRefuerzo: unknown,
+  ): Set<'delantero' | 'trasero'> {
+    const normalized =
+      typeof ubicacionRefuerzo === 'string'
+        ? ubicacionRefuerzo.toLowerCase()
+        : '';
+
+    const ubicaciones = new Set<'delantero' | 'trasero'>();
+
+    if (normalized.includes('delanter')) {
+      ubicaciones.add('delantero');
+    }
+
+    if (normalized.includes('traser') || normalized.includes('detr')) {
+      ubicaciones.add('trasero');
+    }
+
+    return ubicaciones;
+  }
+
+  private syncRefuerzoLegacyData(mod: any): void {
+    const hasDelantero = this.isRefuerzoUbicacionSelected(mod, 'delantero');
+    const hasTrasero = this.isRefuerzoUbicacionSelected(mod, 'trasero');
+
+    if (hasDelantero) {
+      this.copyRefuerzoLegacyFields(mod, 'delantero');
+    }
+
+    if (hasTrasero) {
+      this.copyRefuerzoLegacyFields(mod, 'trasero');
+    }
+  }
+
+  private copyRefuerzoLegacyFields(
+    mod: any,
+    ubicacion: 'delantero' | 'trasero',
+  ): void {
+    const suffix = ubicacion === 'delantero' ? 'Delantero' : 'Trasero';
+    const map = [
+      ['marcaRefuerzo', `marcaRefuerzo${suffix}`],
+      ['referenciaRefuerzo', `referenciaRefuerzo${suffix}`],
+      ['materialRefuerzo', `materialRefuerzo${suffix}`],
+      ['largoRefuerzo', `largoRefuerzo${suffix}`],
+      ['altoRefuerzo', `altoRefuerzo${suffix}`],
+      ['fondoRefuerzo', `fondoRefuerzo${suffix}`],
+    ] as const;
+
+    map.forEach(([legacyKey, targetKey]) => {
+      const targetValue = mod?.[targetKey];
+      const isTargetEmpty =
+        targetValue === undefined || targetValue === null || targetValue === '';
+
+      if (isTargetEmpty) {
+        mod[targetKey] = mod?.[legacyKey];
+      }
+    });
+  }
+
+  isRefuerzoUbicacionSelected(
+    mod: any,
+    ubicacion: 'delantero' | 'trasero',
+  ): boolean {
+    return this.parseRefuerzoUbicaciones(mod?.ubicacionRefuerzo).has(ubicacion);
+  }
+
+  onRefuerzoUbicacionToggle(
+    mod: any,
+    ubicacion: 'delantero' | 'trasero',
+    checked: boolean,
+  ): void {
+    const ubicaciones = this.parseRefuerzoUbicaciones(mod?.ubicacionRefuerzo);
+
+    if (checked) {
+      ubicaciones.add(ubicacion);
+      this.copyRefuerzoLegacyFields(mod, ubicacion);
+    } else {
+      ubicaciones.delete(ubicacion);
+    }
+
+    if (ubicaciones.size === 2) {
+      mod.ubicacionRefuerzo = 'delantero y trasero';
+      return;
+    }
+
+    if (ubicaciones.has('delantero')) {
+      mod.ubicacionRefuerzo = 'delantero';
+      return;
+    }
+
+    if (ubicaciones.has('trasero')) {
+      mod.ubicacionRefuerzo = 'trasero';
+      return;
+    }
+
+    mod.ubicacionRefuerzo = undefined;
+  }
+
   anadirMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {
     if (tipo === 'bajo') {
       mod.mueblesBajo = mod.mueblesBajo || [];
@@ -540,6 +736,40 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       ) {
         return !mod.tieneDisco && !mod.tienePastilla;
       }
+
+      if (mod.nombre === 'REFUERZO PARAGOLPES' && mod.seleccionado) {
+        const hasDelantero = this.isRefuerzoUbicacionSelected(mod, 'delantero');
+        const hasTrasero = this.isRefuerzoUbicacionSelected(mod, 'trasero');
+
+        if (!hasDelantero && !hasTrasero) {
+          return true;
+        }
+
+        if (
+          hasDelantero &&
+          (!mod.marcaRefuerzoDelantero ||
+            !mod.referenciaRefuerzoDelantero ||
+            !mod.materialRefuerzoDelantero ||
+            mod.largoRefuerzoDelantero == null ||
+            mod.altoRefuerzoDelantero == null ||
+            mod.fondoRefuerzoDelantero == null)
+        ) {
+          return true;
+        }
+
+        if (
+          hasTrasero &&
+          (!mod.marcaRefuerzoTrasero ||
+            !mod.referenciaRefuerzoTrasero ||
+            !mod.materialRefuerzoTrasero ||
+            mod.largoRefuerzoTrasero == null ||
+            mod.altoRefuerzoTrasero == null ||
+            mod.fondoRefuerzoTrasero == null)
+        ) {
+          return true;
+        }
+      }
+
       return false;
     });
   }

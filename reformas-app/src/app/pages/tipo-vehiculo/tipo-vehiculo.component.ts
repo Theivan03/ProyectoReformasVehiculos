@@ -85,7 +85,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     if (this.datosPrevios?.tipoVehiculo) {
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
       this.modificaciones = this.obtenerModificacionesPorTipo(
-        this.tipoVehiculo
+        this.tipoVehiculo,
       ).map((m) => this.normalizarModificacion(m));
     } else {
       // Si no hay tipo, empezamos vacío
@@ -102,7 +102,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
   // Carga todas las opciones disponibles para el tipo y marca las que venían guardadas
   private cargarYFusionarModificaciones(
     tipo: string,
-    guardadas: any[]
+    guardadas: any[],
   ): Modificacion[] {
     // 1. Obtenemos la plantilla completa (todas las opciones posibles para este vehículo)
     const plantillaCompleta = this.obtenerModificacionesPorTipo(tipo);
@@ -136,7 +136,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
       this.modificaciones = this.cargarYFusionarModificaciones(
         this.tipoVehiculo,
-        this.datosPrevios.modificaciones || []
+        this.datosPrevios.modificaciones || [],
       );
     } else if (!this.esCliente) {
       // Proyecto nuevo del admin
@@ -169,12 +169,12 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       if (this.tipoVehiculo && Array.isArray(nuevos.modificaciones)) {
         this.modificaciones = this.cargarYFusionarModificaciones(
           this.tipoVehiculo,
-          nuevos.modificaciones
+          nuevos.modificaciones,
         );
       } else if (Array.isArray(nuevos.modificaciones)) {
         // Fallback por si no hay tipo definido aún (raro, pero posible)
         this.modificaciones = nuevos.modificaciones.map((mod: any) =>
-          this.normalizarModificacion(mod)
+          this.normalizarModificacion(mod),
         );
       }
       this.refreshSnapshot();
@@ -364,7 +364,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
 
   onTipoCambio(): void {
     this.modificaciones = this.obtenerModificacionesPorTipo(
-      this.tipoVehiculo
+      this.tipoVehiculo,
     ).map((mod) => this.normalizarModificacion(mod));
 
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
@@ -1146,7 +1146,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       seleccionado: false,
       items: [
         'VENTANA',
-        'VENTANA LATERAL',
         'CLARABOYA',
         'MODIFICACION DE CHASIS',
         'AUMENTO DE PLAZAS',
@@ -1186,7 +1185,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
   getModsSinGrupo() {
     const todosLosItemsAgrupados = this.grupos.flatMap((g) => g.items);
     return this.modificaciones.filter(
-      (m) => !todosLosItemsAgrupados.includes(m.nombre)
+      (m) => !todosLosItemsAgrupados.includes(m.nombre),
     );
   }
 
@@ -1318,7 +1317,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
 
     this.grupos.forEach((grupo) => {
       const hayHijaSeleccionada = this.modificaciones.some(
-        (mod) => mod.seleccionado && grupo.items.includes(mod.nombre)
+        (mod) => mod.seleccionado && grupo.items.includes(mod.nombre),
       );
 
       if (hayHijaSeleccionada) {

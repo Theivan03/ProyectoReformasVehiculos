@@ -5423,7 +5423,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         alignment: AlignmentType.CENTER,
         children: [
           new TextRun({
-            text: '6. IMAGENES POSTERIORES A LA REFORMA',
+            text: '6. DETALLES CONSTRUCTIVOS',
             color: '000000',
             bold: true,
             size: 32,
