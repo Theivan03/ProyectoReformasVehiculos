@@ -2970,7 +2970,9 @@
             <section class="mod-card antiempotramiento">
               <div class="mod-card__header">
                 <h4 class="mod-card__title">Antiempotramiento</h4>
-                <span class="mod-card__hint">Barra de protección trasera</span>
+                <span class="mod-card__hint"
+                  >Datos técnicos, fabricación y sujeción</span
+                >
               </div>
 
               <div class="row g-4">
@@ -3051,13 +3053,14 @@
 
                 <div class="col-12 col-md-8">
                   <div class="row g-3">
-                    <div class="col-md-8">
+                    <div class="col-12">
                       <div class="form-floating">
                         <input
                           type="text"
                           class="form-control"
                           placeholder="Medidas"
                           [(ngModel)]="mod.medidasAntiempotramiento"
+                          (ngModelChange)="calcularSuperficieAntiempotramiento(mod)"
                           name="medidasAntiempotramiento{{ i }}"
                           required
                           [class.is-invalid]="
@@ -3068,6 +3071,47 @@
                       </div>
                     </div>
 
+                    <div class="col-12"><hr class="mod-sep" /></div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <select
+                          class="form-select"
+                          id="anti-metrica-{{ i }}"
+                          [(ngModel)]="mod.metricaAntiempotramiento"
+                          (ngModelChange)="
+                            onMetricaAntiempotramientoChange(mod, $event)
+                          "
+                          name="metricaAntiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.metricaAntiempotramiento == null
+                          "
+                        >
+                          <option [ngValue]="null" disabled>
+                            -- SELECCIONAR --
+                          </option>
+                          @for (num of metricasTornillos; track num) {
+                            <option [ngValue]="num">{{ num }}</option>
+                          }
+                        </select>
+                        <label>MÉTRICA TORNILLOS</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.1"
+                          class="form-control"
+                          placeholder="Calidad"
+                          [(ngModel)]="mod.calidadTornilloAntiempotramiento"
+                          name="calidadTornilloAntiempotramiento{{ i }}"
+                          readonly
+                        />
+                        <label>CALIDAD TORNILLO</label>
+                      </div>
+                    </div>
                     <div class="col-md-4">
                       <div class="form-floating">
                         <input
@@ -3075,12 +3119,192 @@
                           min="0"
                           class="form-control"
                           placeholder="Nº"
-                          [(ngModel)]="mod.nTornillos"
-                          name="nTornillos"
+                          [(ngModel)]="mod.nTornillosAntiempotramiento"
+                          name="nTornillosAntiempotramiento{{ i }}"
                           required
-                          [class.is-invalid]="formSubmitted && !mod.nTornillos"
+                          [class.is-invalid]="
+                            formSubmitted && mod.nTornillosAntiempotramiento == null
+                          "
                         />
                         <label>Nº TORNILLOS</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12"><hr class="mod-sep" /></div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Peso"
+                          [(ngModel)]="mod.pesoPiezaKgAntiempotramiento"
+                          name="pesoPiezaKgAntiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.pesoPiezaKgAntiempotramiento == null
+                          "
+                        />
+                        <label>PESO (Kg)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.0001"
+                          min="0"
+                          class="form-control"
+                          placeholder="Superficie"
+                          [(ngModel)]="mod.superficieFrontalM2Antiempotramiento"
+                          name="superficieFrontalM2Antiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.superficieFrontalM2Antiempotramiento == null
+                          "
+                        />
+                        <label>SUPERFICIE (m²)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="As"
+                          [(ngModel)]="mod.seccionResistenteAsAntiempotramiento"
+                          name="seccionResistenteAsAntiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.seccionResistenteAsAntiempotramiento == null
+                          "
+                        />
+                        <label>As (SECCIÓN)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <select
+                          class="form-select"
+                          id="anti-rest-{{ i }}"
+                          [(ngModel)]="
+                            mod.resTraccionMinTornillo88Kgmm2Antiempotramiento
+                          "
+                          name="resTraccionMinTornillo88Kgmm2Antiempotramiento{{
+                            i
+                          }}"
+                          required
+                        >
+                          <option [ngValue]="null" disabled>
+                            -- SELECCIONAR --
+                          </option>
+                          <option [ngValue]="80">80</option>
+                          <option [ngValue]="25">25</option>
+                        </select>
+                        <label>RES. TRACCIÓN MÍN. (Kg/mm²)</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12"><hr class="mod-sep" /></div>
+
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Cw"
+                          [(ngModel)]="mod.cwCoefAerodinamicoAntiempotramiento"
+                          name="cwCoefAerodinamicoAntiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.cwCoefAerodinamicoAntiempotramiento == null
+                          "
+                        />
+                        <label>Cw (COEF.)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.0001"
+                          min="0"
+                          class="form-control"
+                          placeholder="Densidad"
+                          [(ngModel)]="mod.densidadAireKgM3Antiempotramiento"
+                          name="densidadAireKgM3Antiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.densidadAireKgM3Antiempotramiento == null
+                          "
+                        />
+                        <label>p (DENSIDAD)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="V2"
+                          [(ngModel)]="mod.velocidadAireV2msAntiempotramiento"
+                          name="velocidadAireV2msAntiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.velocidadAireV2msAntiempotramiento == null
+                          "
+                        />
+                        <label>V2 (m/s)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.001"
+                          min="0"
+                          class="form-control"
+                          placeholder="R"
+                          [(ngModel)]="mod.radioCurvaRAntiempotramiento"
+                          name="radioCurvaRAntiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.radioCurvaRAntiempotramiento == null
+                          "
+                        />
+                        <label>R (m)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="K"
+                          [(ngModel)]="mod.coefSeguridadKAntiempotramiento"
+                          name="coefSeguridadKAntiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.coefSeguridadKAntiempotramiento == null
+                          "
+                        />
+                        <label>K (SEGURIDAD)</label>
                       </div>
                     </div>
                   </div>
@@ -14669,13 +14893,15 @@
 
                     <div class="col-12"><hr class="mod-sep" /></div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                       <div class="form-floating">
                         <select
                           class="form-select"
                           id="pgd-metricaParaDelantero-{{ i }}"
                           [(ngModel)]="mod.metricaParaDelantero"
-                          (ngModelChange)="onMetricaChange(mod)"
+                          (ngModelChange)="
+                            onMetricaParagolpesDelanteroChange(mod, $event)
+                          "
                           name="metricaParaDelantero{{ i }}"
                           required
                           [class.is-invalid]="
@@ -14686,13 +14912,27 @@
                             -- SELECCIONAR --
                           </option>
                           @for (num of metricasTornillos; track num) {
-                            <option [value]="num">{{ num }}</option>
+                            <option [ngValue]="num">{{ num }}</option>
                           }
                         </select>
                         <label>MÉTRICA TORNILLOS</label>
                       </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.1"
+                          class="form-control"
+                          placeholder="Calidad"
+                          [(ngModel)]="mod.calidadTornilloParagolpesDelantero"
+                          name="calidadTornilloParagolpesDelantero{{ i }}"
+                          readonly
+                        />
+                        <label>CALIDAD TORNILLO</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
                       <div class="form-floating">
                         <input
                           type="number"

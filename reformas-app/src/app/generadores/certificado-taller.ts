@@ -18,10 +18,16 @@ export async function generarDocumentoTaller(
 ): Promise<void> {
   const ingeniero = data.ingenieroSeleccionado;
   const modificaciones: Modificacion[] = data.modificaciones;
+  const revCabecera =
+    data?.revision !== undefined &&
+    data?.revision !== null &&
+    String(data.revision).trim() !== ''
+      ? `REV ${data.revision}`
+      : '';
 
   let fraseProyecto = '';
   if (proyecto) {
-    fraseProyecto = `- El proyecto técnico REF.: ${data.referenciaProyecto}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. ${ingeniero.nombre}, Colegiado nº ${ingeniero.numero} del ${ingeniero.colegio}.`;
+    fraseProyecto = `- El proyecto técnico REF.: ${data.referenciaProyecto} ${revCabecera}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. ${ingeniero.nombre}, Colegiado nº ${ingeniero.numero} del ${ingeniero.colegio}.`;
   } else {
     fraseProyecto = `El proyecto técnico de la/s reforma/s, adjunto al expediente (en su caso).`;
   }

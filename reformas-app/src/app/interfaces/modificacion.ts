@@ -787,11 +787,25 @@ export interface Modificacion {
   radioCurvaRLucesEspecificas?: number;
   coefSeguridadKLucesEspecificas?: number;
 
+  pesoPiezaKgAntiempotramiento?: number;
+  superficieFrontalM2Antiempotramiento?: number;
+  seccionResistenteAsAntiempotramiento?: number;
+  resTraccionMinTornillo88Kgmm2Antiempotramiento?: number;
+  metricaAntiempotramiento?: number;
+  calidadTornilloAntiempotramiento?: number;
+  nTornillosAntiempotramiento?: number;
+  cwCoefAerodinamicoAntiempotramiento?: number;
+  densidadAireKgM3Antiempotramiento?: number;
+  velocidadAireV2msAntiempotramiento?: number;
+  radioCurvaRAntiempotramiento?: number;
+  coefSeguridadKAntiempotramiento?: number;
+
   pesoPiezaKgParagolpesDelantero?: number;
   superficieFrontalM2ParagolpesDelantero?: number;
   seccionResistenteAsParagolpesDelantero?: number;
   resTraccionMinTornillo88Kgmm2ParagolpesDelantero?: number;
   metricaParaDelantero?: number;
+  calidadTornilloParagolpesDelantero?: number;
   ntornillosParaDelantero?: number;
   cwCoefAerodinamicoParagolpesDelantero?: number;
   densidadAireKgM3ParagolpesDelantero?: number;

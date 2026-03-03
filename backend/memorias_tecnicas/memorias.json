@@ -81,7 +81,10 @@
       "planoImagen": null
     },
     "caracteristicas": {
-      "potenciaInstalada": 9.2
+      "potenciaInstalada": 9.2,
+      "tipoCableMm2": "16",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "50"
     },
     "fechaFirma": {
       "dia": "25",
@@ -89,6 +92,7 @@
       "anyo": "2025",
       "lugar": "Teulada"
     },
-    "fechaCreacion": "2026-02-06T14:18:54.299Z"
+    "fechaCreacion": "2026-02-06T14:18:54.299Z",
+    "fechaEdicion": "2026-03-03T14:39:02.657Z"
   }
 ]

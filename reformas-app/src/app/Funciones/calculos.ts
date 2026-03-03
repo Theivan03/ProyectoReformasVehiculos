@@ -1083,8 +1083,8 @@ export async function buildCalculos(
       const newradioNeumatico =
         ((frenos.radioNeumaticoDiscos ?? 0) * 25.4 +
           2 *
-            ((frenos.anchoNeumaticoDiscos ?? 0) *
-              (frenos.perfilNeumaticoDiscos ?? 0) /
+            (((frenos.anchoNeumaticoDiscos ?? 0) *
+              (frenos.perfilNeumaticoDiscos ?? 0)) /
               100)) /
         2;
       console.log('newradioNeumatico', newradioNeumatico);
@@ -7945,6 +7945,402 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
     }
 
+    const antiempotramiento = modificaciones.find(
+      (m) => m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado,
+    );
+    if (antiempotramiento) {
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Antiempotramiento',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+      out.push(new Paragraph({ text: '' }));
+      contador++;
+
+      const numeroTornillosAntiempotramientoRaw =
+        antiempotramiento.nTornillosAntiempotramiento ??
+        antiempotramiento.nTornillos;
+      const metricaAntiempotramientoRaw =
+        antiempotramiento.metricaAntiempotramiento;
+      const medidasAnti = String(
+        antiempotramiento.medidasAntiempotramiento ?? '',
+      )
+        .toLowerCase()
+        .replace(/mm/g, '')
+        .replace(/\s/g, '');
+      const partesMedidasAnti = medidasAnti.split('x');
+      const anchuraAntiM = Number.parseFloat(partesMedidasAnti[0]) / 1000;
+      const alturaAntiM =
+        partesMedidasAnti.length > 1
+          ? Number.parseFloat(partesMedidasAnti[1]) / 1000
+          : Number.NaN;
+      const superficiefrontalAntiempotramiento =
+        antiempotramiento.superficieFrontalM2Antiempotramiento ??
+        (Number.isFinite(anchuraAntiM) && Number.isFinite(alturaAntiM)
+          ? anchuraAntiM * alturaAntiM
+          : undefined);
+      const numeroTornillosAntiempotramiento =
+        numeroTornillosAntiempotramientoRaw ?? 0;
+
+      const tablaAntiempotramiento = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                columnSpan: 2,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS DE LA PIEZA',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                margins: CELL_MARGINS,
+                columnSpan: 2,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: 'SUJECIÓN' })],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Peso de la pieza en Kg',
+              antiempotramiento.pesoPiezaKgAntiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+              'nº tornillos',
+              numeroTornillosAntiempotramientoRaw?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'Anchura de la pieza en m',
+              Number.isFinite(anchuraAntiM)
+                ? anchuraAntiM.toFixed(2).toString()
+                : '---',
+              'Métrica',
+              metricaAntiempotramientoRaw?.toString() ?? '---',
+            ],
+            [
+              'Altura de la pieza en m',
+              Number.isFinite(alturaAntiM)
+                ? alturaAntiM.toFixed(2).toString()
+                : '---',
+              'Calidad',
+              antiempotramiento.calidadTornilloAntiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'Superficie frontal m²',
+              superficiefrontalAntiempotramiento?.toFixed(2).toString() ??
+                '---',
+              'As (Sección resistente)',
+              antiempotramiento.seccionResistenteAsAntiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'Coef. aerodinámico',
+              antiempotramiento.cwCoefAerodinamicoAntiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+              'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
+              antiempotramiento.resTraccionMinTornillo88Kgmm2Antiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+          ].map(
+            ([d1, v1, d2, v2]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        text: d1,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        text: v1,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        text: d2,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        text: v2,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+      out.push(tablaAntiempotramiento);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      const tablaAireAntiempotramiento = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                columnSpan: 2,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERISTICAS PARA FUERZA PRODUCIDA POR PRESION DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinamico',
+              antiempotramiento.cwCoefAerodinamicoAntiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'A =area de la pieza (m2)',
+              antiempotramiento.superficieFrontalM2Antiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'p (densidad del aire (Kg/m3))',
+              antiempotramiento.densidadAireKgM3Antiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'V2 = velocidad del aire 140Km/h (m/s)',
+              antiempotramiento.velocidadAireV2msAntiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'R (radio de curva) m',
+              antiempotramiento.radioCurvaRAntiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              antiempotramiento.coefSeguridadKAntiempotramiento
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        text: desc,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        text: val,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+      out.push(tablaAireAntiempotramiento);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      let peso = 9.81 * (antiempotramiento.pesoPiezaKgAntiempotramiento ?? 0);
+      let fuerzafrenado =
+        (antiempotramiento.pesoPiezaKgAntiempotramiento ?? 0) * 10;
+      let resistenciaaerodinamica =
+        0.5 *
+        (antiempotramiento.cwCoefAerodinamicoAntiempotramiento ?? 0) *
+        (antiempotramiento.superficieFrontalM2Antiempotramiento ?? 0) *
+        (antiempotramiento.densidadAireKgM3Antiempotramiento ?? 0) *
+        (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0) *
+        (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0);
+      let fuerzacentrifuga =
+        (antiempotramiento.pesoPiezaKgAntiempotramiento ?? 0) *
+        (((antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0) *
+          (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0)) /
+          (antiempotramiento.radioCurvaRAntiempotramiento ?? 0));
+      let sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaFuerzasAntiempotramiento = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinamica',
+              'Fuerza centrifuga',
+              'Suma de fuerzas',
+            ].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (val) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [new Paragraph(val)],
+                }),
+            ),
+          }),
+        ],
+      });
+      out.push(tablaFuerzasAntiempotramiento);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      let fuerzadediseno =
+        sumadelasfuerzas *
+        (antiempotramiento.coefSeguridadKAntiempotramiento ?? 0);
+      let fuerzamaximatornillostraccion =
+        ((0.9 *
+          (antiempotramiento.resTraccionMinTornillo88Kgmm2Antiempotramiento ??
+            0) *
+          (antiempotramiento.seccionResistenteAsAntiempotramiento ?? 0)) /
+          1.25) *
+        numeroTornillosAntiempotramiento;
+      let fuerzamaximatornilloscortante =
+        ((0.5 *
+          (antiempotramiento.resTraccionMinTornillo88Kgmm2Antiempotramiento ??
+            0) *
+          (antiempotramiento.seccionResistenteAsAntiempotramiento ?? 0)) /
+          1.25) *
+        numeroTornillosAntiempotramiento;
+      let comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacionAntiempotramiento = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza maxima que soportan los tornillos a traccion (N)',
+              'Fuerza maxima que soportan los tornillos a cortante (N)',
+              '',
+            ].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (val) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [new Paragraph(val)],
+                }),
+            ),
+          }),
+        ],
+      });
+      out.push(tablaComprobacionAntiempotramiento);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+    }
+
     const paradelante = modificaciones.find(
       (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado,
     );
@@ -7964,6 +8360,136 @@ export async function buildCalculos(
       contador++;
 
       // 2) Tabla de características para presión del aire
+      const numeroTornillosParagolpesDelanteroRaw =
+        paradelante.ntornillosParaDelantero;
+      const metricaParagolpesDelanteroRaw = paradelante.metricaParaDelantero;
+      const medidasParagolpesDelantero = String(
+        paradelante.medidasParagolpesDelantero ?? '',
+      )
+        .toLowerCase()
+        .replace(/mm/g, '')
+        .replace(/\s/g, '');
+      const partesMedidasParagolpesDelantero =
+        medidasParagolpesDelantero.split('x');
+      const anchuraParagolpesDelanteroM =
+        Number.parseFloat(partesMedidasParagolpesDelantero[0]) / 1000;
+      const alturaParagolpesDelanteroM =
+        partesMedidasParagolpesDelantero.length > 1
+          ? Number.parseFloat(partesMedidasParagolpesDelantero[1]) / 1000
+          : Number.NaN;
+      const superficiefrontalParagolpesDelantero =
+        paradelante.superficieFrontalM2ParagolpesDelantero ??
+        (Number.isFinite(anchuraParagolpesDelanteroM) &&
+        Number.isFinite(alturaParagolpesDelanteroM)
+          ? anchuraParagolpesDelanteroM * alturaParagolpesDelanteroM
+          : undefined);
+
+      const tablaParagolpesDelantero = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                columnSpan: 2,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'CARACTERÍSTICAS DE LA PIEZA' }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                margins: CELL_MARGINS,
+                columnSpan: 2,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    children: [new TextRun({ text: 'SUJECIÓN' })],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Peso de la pieza en Kg',
+              paradelante.pesoPiezaKgParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+              'nº tornillos',
+              numeroTornillosParagolpesDelanteroRaw?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'Anchura de la pieza en m',
+              Number.isFinite(anchuraParagolpesDelanteroM)
+                ? anchuraParagolpesDelanteroM.toFixed(2).toString()
+                : '---',
+              'Métrica',
+              metricaParagolpesDelanteroRaw?.toString() ?? '---',
+            ],
+            [
+              'Altura de la pieza en m',
+              Number.isFinite(alturaParagolpesDelanteroM)
+                ? alturaParagolpesDelanteroM.toFixed(2).toString()
+                : '---',
+              'Calidad',
+              paradelante.calidadTornilloParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'Superficie frontal m²',
+              superficiefrontalParagolpesDelantero?.toFixed(2).toString() ??
+                '---',
+              'As (Sección resistente)',
+              paradelante.seccionResistenteAsParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'Coef. aerodinámico',
+              paradelante.cwCoefAerodinamicoParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+              'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
+              paradelante.resTraccionMinTornillo88Kgmm2ParagolpesDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+          ].map(
+            ([d1, v1, d2, v2]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [new Paragraph(d1)],
+                  }),
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [new Paragraph(v1)],
+                  }),
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [new Paragraph(d2)],
+                  }),
+                  new TableCell({
+                    margins: CELL_MARGINS,
+                    children: [new Paragraph(v2)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+      out.push(tablaParagolpesDelantero);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
       const tablaAireParagolpes = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
@@ -8060,6 +8586,7 @@ export async function buildCalculos(
       let fuerzafrenado =
         (paradelante.pesoPiezaKgParagolpesDelantero ?? 0) * 10;
       let resistenciaaerodinamica =
+        0.5 *
         (paradelante.cwCoefAerodinamicoParagolpesDelantero ?? 0) *
         (paradelante.superficieFrontalM2ParagolpesDelantero ?? 0) *
         (paradelante.densidadAireKgM3ParagolpesDelantero ?? 0) *

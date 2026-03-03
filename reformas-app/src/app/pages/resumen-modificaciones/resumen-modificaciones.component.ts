@@ -257,6 +257,46 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.detalle = { aletines: false, sobrealetines: false };
         }
       }
+      if (m.nombre === 'ANTIEMPOTRAMIENTO') {
+        if (m.nTornillosAntiempotramiento == null && m.nTornillos != null) {
+          m.nTornillosAntiempotramiento = m.nTornillos;
+        }
+        if (m.nTornillos == null && m.nTornillosAntiempotramiento != null) {
+          m.nTornillos = m.nTornillosAntiempotramiento;
+        }
+        if (m.seccionResistenteAsAntiempotramiento == null) {
+          m.seccionResistenteAsAntiempotramiento =
+            this.getAreaResistenteByMetrica(m.metricaAntiempotramiento) ??
+            36.64;
+        }
+        if (m.resTraccionMinTornillo88Kgmm2Antiempotramiento == null) {
+          m.resTraccionMinTornillo88Kgmm2Antiempotramiento = 80;
+        }
+        if (m.cwCoefAerodinamicoAntiempotramiento == null) {
+          m.cwCoefAerodinamicoAntiempotramiento = 0.82;
+        }
+        if (m.densidadAireKgM3Antiempotramiento == null) {
+          m.densidadAireKgM3Antiempotramiento = 1.29;
+        }
+        if (m.velocidadAireV2msAntiempotramiento == null) {
+          m.velocidadAireV2msAntiempotramiento = 38.89;
+        }
+        if (m.radioCurvaRAntiempotramiento == null) {
+          m.radioCurvaRAntiempotramiento = 800;
+        }
+        if (m.coefSeguridadKAntiempotramiento == null) {
+          m.coefSeguridadKAntiempotramiento = 3;
+        }
+        if (
+          m.medidasAntiempotramiento &&
+          m.superficieFrontalM2Antiempotramiento == null
+        ) {
+          this.calcularSuperficieAntiempotramiento(m);
+        }
+        if (!m.detalle) {
+          m.detalle = { aletines: false, sobrealetines: false };
+        }
+      }
       if (m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO') {
         if (m.calidadTornilloLucesEspecificas == null) {
           m.calidadTornilloLucesEspecificas = 8.8;
@@ -406,6 +446,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
 
       this.syncAreaResistenteByMetrica(m);
+      this.syncCalidadByMetrica(m);
     });
 
     console.groupEnd();
@@ -509,9 +550,32 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
   }
 
+  calcularSuperficieAntiempotramiento(mod: any) {
+    if (!mod.medidasAntiempotramiento) {
+      return;
+    }
+
+    const valorLimpio = mod.medidasAntiempotramiento
+      .toString()
+      .toLowerCase()
+      .replace(/mm/g, '')
+      .replace(/\s/g, '');
+
+    if (valorLimpio.includes('x')) {
+      const partes = valorLimpio.split('x');
+      const largo = parseFloat(partes[0]);
+      const ancho = parseFloat(partes[1]);
+
+      if (!isNaN(largo) && !isNaN(ancho)) {
+        const areaM2 = (largo * ancho) / 1000000;
+        mod.superficieFrontalM2Antiempotramiento = parseFloat(areaM2.toFixed(4));
+      }
+    }
+  }
+
   onMetricaChange(mod: any) {
     this.syncAreaResistenteByMetrica(mod);
-    this.syncSnorkelCalidadByMetrica(mod);
+    this.syncCalidadByMetrica(mod);
   }
 
   onDiametroTornilloChange(mod: any) {
@@ -548,6 +612,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       {
         metricaKey: 'metricaParaDelantero',
         areaKey: 'seccionResistenteAsParagolpesDelantero',
+      },
+      {
+        metricaKey: 'metricaAntiempotramiento',
+        areaKey: 'seccionResistenteAsAntiempotramiento',
       },
       { metricaKey: 'metricaAletines', areaKey: 'seccionResistenteAsAletines' },
       { metricaKey: 'metricaAleron', areaKey: 'seccionResistenteAsAleron' },
@@ -592,22 +660,47 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       );
     }
 
-    this.syncSnorkelCalidadByMetrica(mod);
+    this.syncCalidadByMetrica(mod);
   }
 
-  private syncSnorkelCalidadByMetrica(mod: any): void {
-    if (!mod || mod.nombre !== 'SNORKEL') return;
+  private syncCalidadByMetrica(mod: any): void {
+    if (!mod) return;
 
-    const metrica = mod.metricaSnorkel;
+    const configs: Array<{
+      nombre: string;
+      metricaKey: string;
+      calidadKey: string;
+    }> = [
+      {
+        nombre: 'SNORKEL',
+        metricaKey: 'metricaSnorkel',
+        calidadKey: 'calidadTornilloSnorkel',
+      },
+      {
+        nombre: 'PARAGOLPES DELANTERO',
+        metricaKey: 'metricaParaDelantero',
+        calidadKey: 'calidadTornilloParagolpesDelantero',
+      },
+      {
+        nombre: 'ANTIEMPOTRAMIENTO',
+        metricaKey: 'metricaAntiempotramiento',
+        calidadKey: 'calidadTornilloAntiempotramiento',
+      },
+    ];
+
+    const config = configs.find((item) => item.nombre === mod.nombre);
+    if (!config) return;
+
+    const metrica = mod[config.metricaKey];
     if (metrica === undefined || metrica === null || metrica === '') {
-      if (mod.calidadTornilloSnorkel == null) {
-        mod.calidadTornilloSnorkel = 8.8;
+      if (mod[config.calidadKey] == null) {
+        mod[config.calidadKey] = 8.8;
       }
       return;
     }
 
     const calidad = this.getCalidadTornilloByMetrica(metrica);
-    mod.calidadTornilloSnorkel = calidad ?? 8.8;
+    mod[config.calidadKey] = calidad ?? 8.8;
   }
 
   private getCalidadTornilloByMetrica(metrica: any): number | null {
@@ -615,13 +708,37 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (Number.isNaN(metricaNum)) return null;
 
     const tornillo = this.getTornilloSeleccionado(metricaNum);
-    if (!tornillo?.calidad) return null;
+    if (tornillo?.calidad) {
+      const parsed = Number.parseFloat(
+        String(tornillo.calidad).replace(/[^0-9.]/g, ''),
+      );
 
-    const parsed = Number.parseFloat(
-      String(tornillo.calidad).replace(/[^0-9.]/g, ''),
-    );
+      if (Number.isFinite(parsed)) return parsed;
+    }
 
+    // Fallback por rango para métricas no incluidas en tornillosDB.
+    // Así el campo "calidad" cambia al seleccionar otra métrica.
+    if (metricaNum <= 8) return 8.8;
+    if (metricaNum <= 16) return 10.9;
+    return 12.9;
+  }
+
+  private toNumberOrNull(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') return null;
+    const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  onMetricaParagolpesDelanteroChange(mod: any, value: unknown): void {
+    if (!mod) return;
+    mod.metricaParaDelantero = this.toNumberOrNull(value);
+    this.onMetricaChange(mod);
+  }
+
+  onMetricaAntiempotramientoChange(mod: any, value: unknown): void {
+    if (!mod) return;
+    mod.metricaAntiempotramiento = this.toNumberOrNull(value);
+    this.onMetricaChange(mod);
   }
 
   getTornilloSeleccionado(diametro: number | null) {
@@ -855,6 +972,13 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     // --- CORRECCIÓN: Mapeo de datos si es SOLO TRASEROS ---
     this.modificacionesSeleccionadas.forEach((mod) => {
+      if (
+        mod.nombre === 'ANTIEMPOTRAMIENTO' &&
+        mod.nTornillosAntiempotramiento != null
+      ) {
+        mod.nTornillos = mod.nTornillosAntiempotramiento;
+      }
+
       if (
         mod.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO' &&
         mod.ubicacionDiscos === 'traseros'
