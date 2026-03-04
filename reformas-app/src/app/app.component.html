@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -30,8 +30,13 @@
       body {
         background-color: var(--tech-bg);
         color: var(--tech-text);
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, sans-serif;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -237,6 +242,14 @@
                     <span class="me-2">🏗️</span> Arquitectos
                   </a>
                 </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link sidebar-link nav-link-admin d-flex align-items-center"
+                    routerLink="/instaladores"
+                  >
+                    <span class="me-2">🧰</span> Instaladores
+                  </a>
+                </li>
               </ul>
             </ng-container>
 
@@ -259,8 +272,7 @@
                     class="nav-link sidebar-link nav-link-vivienda d-flex align-items-center"
                     routerLink="/gestion-viviendas"
                   >
-                    <span class="me-2">📝</span> Gestión expedientes de
-                    viviendas
+                    <span class="me-2">📝</span> Edición y descarga
                   </a>
                 </li>
                 <li class="nav-item">
@@ -305,7 +317,7 @@
           class="px-md-4 py-4 main-content h-100"
           [ngClass]="{
             'col-md-9 ms-sm-auto col-lg-10': usuarioLogueado,
-            'col-12': !usuarioLogueado
+            'col-12': !usuarioLogueado,
           }"
         >
           <div

@@ -62,6 +62,7 @@
     "mismaDireccion": false,
     "titular": {
       "nombre": "RAUL SALAS BAIDAL",
+      "apellidos": "",
       "nif": "74018020H",
       "domicilio": "AVDA. LAS PALMAS 33 P01",
       "cp": "03725",
@@ -84,7 +85,8 @@
       "potenciaInstalada": 9.2,
       "tipoCableMm2": "16",
       "tipoInstalacion": "monofasica",
-      "diametroTuboMm": "50"
+      "diametroTuboMm": "50",
+      "esquemaUnifilar": "2"
     },
     "fechaFirma": {
       "dia": "25",
@@ -93,6 +95,117 @@
       "lugar": "Teulada"
     },
     "fechaCreacion": "2026-02-06T14:18:54.299Z",
-    "fechaEdicion": "2026-03-03T14:39:02.657Z"
+    "fechaEdicion": "2026-03-04T13:59:53.224Z"
+  },
+  {
+    "id": 1772621314751,
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "VIA SOCIAL VICTORIA SL",
+      "nif": "B24648057",
+      "domicilio": "PLAZA DE LA INMACULADA, NUM 3, PLANTA 11, PUERTA D",
+      "cp": "24001",
+      "poblacion": "LEÓN",
+      "provincia": "LEÓN",
+      "telefono": "618622012",
+      "correo": "hablamos@projectes.es"
+    },
+    "emplazamiento": {
+      "direccion": "CARRER DEL BRUC, 78, 2",
+      "poblacion": "GANDIA",
+      "provincia": "VALENCIA",
+      "cp": "46728",
+      "refCatastral": "7582805YJ3178S0001TM",
+      "uso": "Vivienda",
+      "superficie": 277,
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": 14.4,
+      "tipoCableMm2": "10",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32"
+    },
+    "fechaFirma": {
+      "dia": "4",
+      "mes": "Marzo",
+      "anyo": "2026",
+      "lugar": "TEULADA"
+    },
+    "fechaCreacion": "2026-03-04T10:48:34.751Z"
+  },
+  {
+    "id": 1772623101655,
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "ZWERING RENE",
+      "nif": "Y5509054Q",
+      "domicilio": "PTDA FAVARA, 185",
+      "cp": "03780",
+      "poblacion": "PEGO",
+      "provincia": "ALICANTE",
+      "telefono": "676875461 ",
+      "correo": "facturacio@electricitativan.com"
+    },
+    "emplazamiento": {
+      "direccion": "CAMINO PLATJA DEVESA, 139, BAJO",
+      "poblacion": "OLIVA",
+      "provincia": "VALENCIA",
+      "cp": "46780",
+      "refCatastral": "6884507YJ5068S0001UG",
+      "uso": "Vivienda",
+      "superficie": 110,
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": 7.3,
+      "tipoCableMm2": "6",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32"
+    },
+    "fechaFirma": {
+      "dia": "4",
+      "mes": "Marzo",
+      "anyo": "2026",
+      "lugar": "OLIVA "
+    },
+    "fechaCreacion": "2026-03-04T11:18:21.655Z"
+  },
+  {
+    "id": 1772628211644,
+    "mismaDireccion": true,
+    "titular": {
+      "nombre": "TROTONDA GARCIA DANIEL ",
+      "nif": "20049251J",
+      "domicilio": "C/ SALVADOR SOLER Y SOLER, 16",
+      "cp": "46780",
+      "poblacion": "OLIVA",
+      "provincia": "VALENCIA",
+      "telefono": "676875461",
+      "correo": "facturacio@electricitativan.com"
+    },
+    "emplazamiento": {
+      "direccion": "",
+      "poblacion": "",
+      "provincia": "",
+      "cp": "",
+      "refCatastral": "9822214YJ4192S0001AP",
+      "uso": "Vivienda",
+      "superficie": 161,
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": 5.75,
+      "tipoCableMm2": "6",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32"
+    },
+    "fechaFirma": {
+      "dia": "4",
+      "mes": "Marzo",
+      "anyo": "2026",
+      "lugar": "OLIVA"
+    },
+    "fechaCreacion": "2026-03-04T12:43:31.644Z"
   }
 ]

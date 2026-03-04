@@ -43,6 +43,7 @@ export class MemoriaTecnicaDisenoComponent {
   isGenerating = false;
   isSaving = false;
   isLoadingData = false;
+  private readonly apiBaseUrl = `http://${window.location.hostname || 'localhost'}:3000`;
 
   icons = {
     FileText,
@@ -69,6 +70,7 @@ export class MemoriaTecnicaDisenoComponent {
 
     titular: {
       nombre: '',
+      apellidos: '',
       nif: '',
       domicilio: '',
       cp: '',
@@ -89,6 +91,10 @@ export class MemoriaTecnicaDisenoComponent {
     },
     caracteristicas: {
       potenciaInstalada: '',
+      tipoCableMm2: '6',
+      tipoInstalacion: 'monofasica',
+      diametroTuboMm: '32',
+      esquemaUnifilar: '1',
     },
     fechaFirma: { dia: '', mes: '', anyo: '', lugar: '' },
   };
@@ -103,15 +109,31 @@ export class MemoriaTecnicaDisenoComponent {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.cargarDatosDelServidor(id);
+      return;
     }
+    this.actualizarDiametroTubo();
   }
 
   cargarDatosDelServidor(id: string) {
     this.isLoadingData = true;
-    this.http.get(`http://localhost:3000/api/memorias/${id}`).subscribe({
+    this.http.get(`${this.apiBaseUrl}/api/memorias/${id}`).subscribe({
       next: (data: any) => {
-        // Mezclamos los datos recibidos con la estructura base para no perder campos
-        this.datos = { ...this.datos, ...data };
+        // Mezcla profunda para mantener defaults de nuevas propiedades
+        this.datos = {
+          ...this.datos,
+          ...data,
+          titular: { ...this.datos.titular, ...(data?.titular || {}) },
+          emplazamiento: {
+            ...this.datos.emplazamiento,
+            ...(data?.emplazamiento || {}),
+          },
+          caracteristicas: {
+            ...this.datos.caracteristicas,
+            ...(data?.caracteristicas || {}),
+          },
+          fechaFirma: { ...this.datos.fechaFirma, ...(data?.fechaFirma || {}) },
+        };
+        this.actualizarDiametroTubo();
         this.isLoadingData = false;
       },
       error: (err) => {
@@ -190,10 +212,10 @@ export class MemoriaTecnicaDisenoComponent {
   }
 
   guardarEnServidor() {
+    this.actualizarDiametroTubo();
     this.isSaving = true;
 
-    // URL de tu servidor (ajusta el puerto si es diferente)
-    const url = 'http://localhost:3000/api/memorias';
+    const url = `${this.apiBaseUrl}/api/memorias`;
 
     this.http.post(url, this.datos).subscribe({
       next: (response: any) => {
@@ -216,9 +238,17 @@ export class MemoriaTecnicaDisenoComponent {
   async generarPDF() {
     this.isGenerating = true;
     try {
+      this.actualizarDiametroTubo();
       // 1. CARGA DE RECURSOS
       const urlPdf = '/assets/MEMORIA TECNICA DE DISEÑO.pdf';
-      const urlEsquemaF = '/assets/PLANTILLA PER A VIVIENDES.png';
+      const esquemaSeleccionado =
+        this.datos.caracteristicas.esquemaUnifilar || '1';
+      const esquemaUnifilarMap: Record<string, string> = {
+        '1': '/assets/ESQUEMA VIVIENDA ELECTRIFICACION BASICA.png',
+        '2': '/assets/GRADO DE ELETRIFICACION ELEVADA.png',
+      };
+      const urlEsquemaF =
+        esquemaUnifilarMap[esquemaSeleccionado] || esquemaUnifilarMap['1'];
       const urlCuadroH = '/assets/cuadro.jpg';
       const urlPlanoI = '/assets/plano emplazamiento.png'; // 🔥 IMAGEN SECCIÓN I
 
@@ -237,7 +267,12 @@ export class MemoriaTecnicaDisenoComponent {
       const fontHand = await pdfDoc.embedFont(StandardFonts.CourierBoldOblique);
 
       // Incrustar imágenes
-      const esquemaImageF = await pdfDoc.embedPng(esquemaFBytes);
+      let esquemaImageF;
+      try {
+        esquemaImageF = await pdfDoc.embedPng(esquemaFBytes);
+      } catch {
+        esquemaImageF = await pdfDoc.embedJpg(esquemaFBytes);
+      }
       const cuadroImageH = await pdfDoc.embedJpg(cuadroHBytes);
       const planoImageI = await pdfDoc.embedPng(planoIBytes);
 
@@ -248,7 +283,9 @@ export class MemoriaTecnicaDisenoComponent {
         try {
           const f = form.getTextField(name);
           if (f) f.setText(value?.toString().toUpperCase() || '');
-        } catch (e) {}
+        } catch (e) {
+          console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
+        }
       };
       const setCheck = (name: string, c: boolean) => {
         try {
@@ -266,9 +303,10 @@ export class MemoriaTecnicaDisenoComponent {
       }
 
       // ... (Resto de asignaciones de campos A, B, C igual que antes) ...
+      const titularNombreDocumento = this.construirNombreTitularParaDocumento();
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_NOM[0]',
-        this.datos.titular.nombre,
+        titularNombreDocumento,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_DNI[0]',
@@ -332,6 +370,12 @@ export class MemoriaTecnicaDisenoComponent {
         'form1[0].Pagina1[0].seccion\\.b[0].B_P_Instalada[0]',
         this.datos.caracteristicas.potenciaInstalada,
       );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_SISTI[0]',
+        this.datos.caracteristicas.tipoInstalacion === 'trifasica'
+          ? '3x400/230V'
+          : '1x230V',
+      );
 
       const nombreCalleSolo = this.extraerSoloCalle(
         this.datos.emplazamiento.direccion,
@@ -356,6 +400,19 @@ export class MemoriaTecnicaDisenoComponent {
       setField(
         'form1[0].Pagina6[0].seccion\\.K[0].FI_LLOC[0]',
         this.datos.fechaFirma.lugar,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C4_DIM[0]',
+        `TUBO DE ${this.datos.caracteristicas.diametroTuboMm} mm`,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_T1[0].Fila6[0].C4_F6_C3[0]',
+        `H07Z1(AS)CU, ${this.datos.caracteristicas.tipoCableMm2} m`,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_T1[0].Fila6[0].C4_F6_C4[0]',
+        `H07Z1(AS)CU, ${this.datos.caracteristicas.tipoCableMm2} mm2`,
       );
 
       const pages = pdfDoc.getPages();
@@ -421,12 +478,57 @@ export class MemoriaTecnicaDisenoComponent {
       form.flatten();
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
-      saveAs(blob, `MTD_${this.datos.titular.nombre || 'Documento'}.pdf`);
+      saveAs(blob, `MTD_${titularNombreDocumento || 'Documento'}.pdf`);
     } catch (error) {
       console.error('Error generando PDF:', error);
       alert('Error al generar el PDF. Revisa la consola.');
     } finally {
       this.isGenerating = false;
     }
+  }
+
+  private construirNombreTitularParaDocumento(): string {
+    const apellidos = (this.datos.titular.apellidos || '').trim();
+    const nombre = (this.datos.titular.nombre || '').trim();
+
+    return [apellidos, nombre].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+  }
+
+  actualizarDiametroTubo() {
+    const tipoInstalacionNormalizado =
+      this.datos.caracteristicas.tipoInstalacion === 'trifasica'
+        ? 'trifasica'
+        : 'monofasica';
+    this.datos.caracteristicas.tipoInstalacion = tipoInstalacionNormalizado;
+
+    const tipoCableNormalizado = Number(
+      this.datos.caracteristicas.tipoCableMm2,
+    );
+    const tipoCable = [6, 10, 16].includes(tipoCableNormalizado)
+      ? tipoCableNormalizado
+      : 6;
+    this.datos.caracteristicas.tipoCableMm2 = String(tipoCable);
+
+    const esquemaNormalizado = String(
+      this.datos.caracteristicas.esquemaUnifilar || '1',
+    );
+    this.datos.caracteristicas.esquemaUnifilar = ['1', '2', '3'].includes(
+      esquemaNormalizado,
+    )
+      ? esquemaNormalizado
+      : '1';
+
+    if (tipoCable === 16) {
+      this.datos.caracteristicas.diametroTuboMm = '50';
+      return;
+    }
+
+    if (tipoCable === 6 || tipoCable === 10) {
+      this.datos.caracteristicas.diametroTuboMm =
+        tipoInstalacionNormalizado === 'trifasica' ? '40' : '32';
+      return;
+    }
+
+    this.datos.caracteristicas.diametroTuboMm = '';
   }
 }

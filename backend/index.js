@@ -493,7 +493,7 @@ app.use(
   })
 );
 
-// --- INGENIEROS & ARQUITECTOS ---
+// --- INGENIEROS, ARQUITECTOS E INSTALADORES ---
 app.get('/ingenieros', (req, res) => {
   try {
     if (!fs.existsSync('./ingenieros.json')) {
@@ -526,6 +526,22 @@ app.get('/arquitectos', (req, res) => {
   }
 });
 
+app.get('/instaladores', (req, res) => {
+  try {
+    if (!fs.existsSync('./instaladores.json')) {
+        return res.json([]);
+    }
+    const raw = fs.readFileSync('./instaladores.json', 'utf-8');
+    const data = JSON.parse(raw);
+
+    const lista = Array.isArray(data) ? data : [data];
+    res.json(lista);
+  } catch (err) {
+    console.error('Error al leer instaladores.json:', err);
+    res.status(500).json([]);
+  }
+});
+
 app.post('/ingenieros', (req, res) => {
   try {
     fs.writeFileSync('./ingenieros.json', JSON.stringify(req.body, null, 2));
@@ -543,6 +559,16 @@ app.post('/arquitectos', (req, res) => {
   } catch (err) {
     console.error('Error guardando arquitectos:', err);
     res.status(500).send({ message: 'Error al guardar arquitectos' });
+  }
+});
+
+app.post('/instaladores', (req, res) => {
+  try {
+    fs.writeFileSync('./instaladores.json', JSON.stringify(req.body, null, 2));
+    res.status(200).send({ message: 'Instaladores actualizados' });
+  } catch (err) {
+    console.error('Error guardando instaladores:', err);
+    res.status(500).send({ message: 'Error al guardar instaladores' });
   }
 });
 
@@ -587,6 +613,35 @@ app.delete('/arquitectos/:nombre', (req, res) => {
   } catch (err) {
     console.error('Error al eliminar arquitecto:', err);
     res.status(500).send({ message: 'Error al eliminar arquitecto' });
+  }
+});
+
+app.delete('/instaladores/:nombre', (req, res) => {
+  try {
+    const nombreAEliminar = decodeURIComponent(req.params.nombre)
+      .trim()
+      .toLowerCase();
+
+    if (!fs.existsSync('./instaladores.json')) {
+      return res.status(200).send({ message: 'No hay instaladores guardados' });
+    }
+
+    const raw = fs.readFileSync('./instaladores.json', 'utf-8');
+    let instaladores = JSON.parse(raw);
+    if (!Array.isArray(instaladores)) instaladores = [instaladores];
+
+    const filtrados = instaladores.filter(
+      (i) =>
+        String(i.empresaInstaladoraOInstalador || '')
+          .trim()
+          .toLowerCase() !== nombreAEliminar
+    );
+
+    fs.writeFileSync('./instaladores.json', JSON.stringify(filtrados, null, 2));
+    res.status(200).send({ message: 'Instalador eliminado correctamente' });
+  } catch (err) {
+    console.error('Error al eliminar instalador:', err);
+    res.status(500).send({ message: 'Error al eliminar instalador' });
   }
 });
 

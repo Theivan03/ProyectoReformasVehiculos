@@ -13,8 +13,11 @@ import { AdminGestionUsuariosComponent } from './pages/admin-gestion-usuarios/ad
 import { GestorDocumentacionComponent } from './pagesVivienda/gestor-documentacion/gestor-documentacion.component';
 import { GestorTrelloComponent } from './pagesVivienda/gestor-trello/gestor-trello.component';
 import { GestionarArquitectosComponent } from './gestionar-arquitectos/gestionar-arquitectos.component';
+import { GestionarInstaladoresComponent } from './gestionar-instaladores/gestionar-instaladores.component';
 import { MemoriaTecnicaDisenoComponent } from './pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component';
 import { MemoriasListaComponent } from './pagesVivienda/memorias-lista/memorias-lista.component';
+import { MemoriaTecnicaSelectorComponent } from './pagesVivienda/memoria-tecnica-selector/memoria-tecnica-selector.component';
+import { MemoriaTecnicaAutoconsumoComponent } from './pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component';
 
 export const routes: Routes = [
   {
@@ -33,6 +36,7 @@ export const routes: Routes = [
       { path: 'taller', component: GestionarTallerComponent },
       { path: 'ingenieros', component: GestionarIngenieroComponent },
       { path: 'arquitectos', component: GestionarArquitectosComponent },
+      { path: 'instaladores', component: GestionarInstaladoresComponent },
       { path: 'reforma/:step', component: CrearReformaComponent },
       { path: 'reforma', redirectTo: 'reforma/seleccion', pathMatch: 'full' },
       { path: 'admin', component: AdminGestionUsuariosComponent },
@@ -44,7 +48,15 @@ export const routes: Routes = [
       { path: 'gestion-viviendas', component: GestorTrelloComponent },
       {
         path: 'memoria-tecnica-diseno',
+        component: MemoriaTecnicaSelectorComponent,
+      },
+      {
+        path: 'memoria-tecnica-diseno/consumo',
         component: MemoriaTecnicaDisenoComponent,
+      },
+      {
+        path: 'memoria-tecnica-diseno/autoconsumo',
+        component: MemoriaTecnicaAutoconsumoComponent,
       },
       {
         path: 'memorias',

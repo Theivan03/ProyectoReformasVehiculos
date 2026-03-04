@@ -149,6 +149,7 @@ import {
 export class MemoriasListaComponent implements OnInit {
   memorias: any[] = [];
   cargando = true;
+  private readonly apiBaseUrl = `http://${window.location.hostname || 'localhost'}:3000`;
   icons = { FileText, Plus, Pencil, Trash2, Search };
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -159,7 +160,7 @@ export class MemoriasListaComponent implements OnInit {
 
   cargarMemorias() {
     this.cargando = true;
-    this.http.get<any[]>('http://localhost:3000/api/memorias').subscribe({
+    this.http.get<any[]>(`${this.apiBaseUrl}/api/memorias`).subscribe({
       next: (data) => {
         this.memorias = data.reverse(); // Mostrar las más recientes primero
         this.cargando = false;

@@ -176,8 +176,8 @@
         </p>
 
         <div class="row g-3">
-          <div class="col-md-8">
-            <label class="form-label">Nombre Completo / Razón Social</label>
+          <div class="col-md-4">
+            <label class="form-label">Nombre / Razon Social</label>
             <div class="input-group">
               <span class="input-group-text bg-white"
                 ><lucide-icon [img]="icons.User" size="18"></lucide-icon
@@ -186,9 +186,18 @@
                 type="text"
                 class="form-control"
                 [(ngModel)]="datos.titular.nombre"
-                placeholder="Ej: Juan Pérez"
+                placeholder="Ej: Juan"
               />
             </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Apellidos</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.apellidos"
+              placeholder="Ej: Perez Garcia"
+            />
           </div>
           <div class="col-md-4">
             <label class="form-label">NIF / CIF</label>
@@ -416,6 +425,50 @@
                     type="number"
                     class="form-control"
                     [(ngModel)]="datos.caracteristicas.potenciaInstalada"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Tipo de Cable (mm2)</label>
+                  <select
+                    class="form-select"
+                    [(ngModel)]="datos.caracteristicas.tipoCableMm2"
+                    (ngModelChange)="actualizarDiametroTubo()"
+                  >
+                    <option value="6">6</option>
+                    <option value="10">10</option>
+                    <option value="16">16</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Tipo de Instalación</label>
+                  <select
+                    class="form-select"
+                    [(ngModel)]="datos.caracteristicas.tipoInstalacion"
+                    (ngModelChange)="actualizarDiametroTubo()"
+                  >
+                    <option value="monofasica">Monofásica</option>
+                    <option value="trifasica">Trifásica</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Esquema Unifilar</label>
+                  <select
+                    class="form-select"
+                    [(ngModel)]="datos.caracteristicas.esquemaUnifilar"
+                  >
+                    <option value="1">
+                      ESQUEMA VIVIENDA ELECTRIFICACION BASICA
+                    </option>
+                    <option value="2">GRADO DE ELETRIFICACION ELEVADA</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Diámetro de Tubo (mm)</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="datos.caracteristicas.diametroTuboMm"
+                    readonly
                   />
                 </div>
               </div>
