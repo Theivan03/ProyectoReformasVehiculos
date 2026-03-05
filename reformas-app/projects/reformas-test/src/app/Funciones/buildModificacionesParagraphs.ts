@@ -14,6 +14,7 @@ import { Modificacion } from '../interfaces/modificacion';
 export function buildModificacionesParagraphs(
   modificaciones: Modificacion[],
   data: any,
+  suspension: any,
 ): Paragraph[] {
   const out: Paragraph[] = [];
   let mod: Modificacion;
@@ -104,9 +105,11 @@ export function buildModificacionesParagraphs(
   const neumaticos = modificaciones.find(
     (m) => m.nombre === 'NEUMÁTICOS' && m.seleccionado,
   );
+
   if (neumaticos) {
-    const medidaNeumatico = data.neumaticoDespues || '---';
-    const medidaLlantas = neumaticos.medidas || '---';
+    // --- PÁRRAFO PRINCIPAL ---
+    const medidaNeumatico = neumaticos.medidaNeumaticos || '---';
+    const medidaLlantas = neumaticos.medidaLlantas || '---';
     const raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${medidaNeumatico}, montados sobre llantas de medidas ${medidaLlantas}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
 
     const p = new Paragraph({
@@ -118,13 +121,21 @@ export function buildModificacionesParagraphs(
     (p as any)._rawText = raw;
     out.push(p);
 
+    // --- LÓGICA DE CONTADOR DE NOTAS ---
+    const totalNotas =
+      (neumaticos.anotacion1 ? 1 : 0) + (neumaticos.anotacion2 ? 1 : 0);
+
+    // Si hay 2 notas, empezamos a contar (Nota 1, Nota 2). Si solo hay 1, se queda vacío.
+    let nota = totalNotas === 2 ? 1 : '';
+
+    // --- ANOTACIÓN 1: VELOCÍMETRO ---
     if (neumaticos.anotacion1) {
       out.push(
         new Paragraph({
           spacing: { line: 260, after: 120 },
           children: [
             new TextRun({
-              text: 'NOTA 1: ',
+              text: `NOTA ${nota}: `,
               bold: true,
             }),
             new TextRun({
@@ -133,15 +144,18 @@ export function buildModificacionesParagraphs(
           ],
         }),
       );
+      // Incrementamos el contador para la siguiente nota si es necesario
+      if (typeof nota === 'number') nota++;
     }
 
+    // --- ANOTACIÓN 2: VELOCIDAD MÁXIMA ---
     if (neumaticos.anotacion2) {
       out.push(
         new Paragraph({
           spacing: { line: 260, after: 120 },
           children: [
             new TextRun({
-              text: 'NOTA 2: ',
+              text: `NOTA ${nota}: `,
               bold: true,
             }),
             new TextRun({
@@ -151,6 +165,58 @@ export function buildModificacionesParagraphs(
         }),
       );
     }
+
+    // --- ANOTACIÓN 3: VERIFICACIÓN DE CARGA (Sin etiqueta "NOTA") ---
+    if (neumaticos.anotacion3) {
+      // CASO A: MOTOS (Según tu HTML: datosEntrada.tipoVehiculo === "motos")
+      if (data.tipoVehiculo === 'motos') {
+        // Eje 1 (Delantero)
+        if (neumaticos.checkEje1Neumaticos) {
+          const indice = neumaticos.indiceCargaEje1Neumaticos || '---';
+          const carga = neumaticos.cargaEquivalenteEje1Neumaticos || '---';
+          const mma = neumaticos.mmaEje1Neumaticos || '---';
+
+          const rawMoto1 = `Se comprueba que el nuevo índice de carga de los neumáticos (${indice}, que equivale a ${carga} Kg) es capaz de soportar la MMA del 1er eje (${mma} Kg).`;
+
+          const pMoto1 = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            children: [new TextRun({ text: rawMoto1 })],
+          });
+          (pMoto1 as any)._rawText = rawMoto1;
+          out.push(pMoto1);
+        }
+
+        // Eje 2 (Trasero)
+        if (neumaticos.checkEje2Neumaticos) {
+          const indice = neumaticos.indiceCargaEje2Neumaticos || '---';
+          const carga = neumaticos.cargaEquivalenteEje2Neumaticos || '---';
+          const mma = neumaticos.mmaEje2Neumaticos || '---';
+
+          const rawMoto2 = `Se comprueba que el nuevo índice de carga de los neumáticos (${indice}, que equivale a ${carga} Kg) es capaz de soportar la MMA del 2º eje (${mma} Kg).`;
+
+          const pMoto2 = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            children: [new TextRun({ text: rawMoto2 })],
+          });
+          (pMoto2 as any)._rawText = rawMoto2;
+          out.push(pMoto2);
+        }
+      } else {
+        // CASO B: COCHE / CAMPER (Caso General)
+        const indice = neumaticos.indiceCargaGeneralNeumaticos || '---';
+        const carga = neumaticos.cargaEquivalenteGeneralNeumaticos || '---';
+
+        const rawCoche = `Se comprueba que el nuevo índice de carga de los neumáticos (${indice}, que equivale a ${carga} Kg) es capaz de soportar tanto las MMA/MMTA por ejes como la MMA/MMTA total del vehículo sin remolque y en caso de remolque.`;
+
+        const pCoche = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: rawCoche })],
+        });
+
+        (pCoche as any)._rawText = rawCoche;
+        out.push(pCoche);
+      }
+    }
   }
 
   //
@@ -159,19 +225,32 @@ export function buildModificacionesParagraphs(
   const separadoresruedas = modificaciones.find(
     (m) => m.nombre === 'SEPARADORES DE RUEDA' && m.seleccionado,
   );
+
   if (separadoresruedas) {
-    separadoresruedas.acciones?.forEach((accion: string) => {
-      const raw = `- ${accion} de separadores de rueda en eje trasero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores} de espesor fabricados en duraluminio, asegurando la no interferencia entre la rueda y ningún punto de la carrocería.`;
+    let descripcion = '';
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
+    if (separadoresruedas.ubicacionSeparadores === 'delanteros') {
+      descripcion = `en eje delantero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores}mm de espesor`;
+    } else if (separadoresruedas.ubicacionSeparadores === 'traseros') {
+      descripcion = `en eje trasero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores}mm de espesor`;
+    } else if (separadoresruedas.ubicacionSeparadores === 'ambos') {
+      if (separadoresruedas.separadoresIguales) {
+        descripcion = `en ambos ejes marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores}mm de espesor`;
+      } else {
+        descripcion = `en ambos ejes. En el eje delantero marca ${separadoresruedas.marcaSeparadores}, referencia ${separadoresruedas.referenciaSeparadores}, de ${separadoresruedas.grosorSeparadores}mm de espesor, y en el eje trasero marca ${separadoresruedas.marcaSeparadoresTraseros}, referencia ${separadoresruedas.referenciaSeparadoresTraseros}, de ${separadoresruedas.grosorSeparadoresTraseros}mm de espesor`;
+      }
+    }
 
-      (p as any)._rawText = raw;
-      out.push(p);
+    const raw = `- Instalación de separadores de rueda ${descripcion} fabricados en duraluminio, asegurando la no interferencia entre la rueda y ningún punto de la carrocería.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
     });
+
+    (p as any)._rawText = raw;
+    out.push(p);
   }
 
   //
@@ -228,6 +307,39 @@ export function buildModificacionesParagraphs(
 
       (p as any)._rawText = raw;
       out.push(p);
+    });
+  }
+
+  // Buscamos la modificación específica
+  const campoLibre = modificaciones.find(
+    (m) =>
+      m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' && m.seleccionado,
+  );
+
+  if (campoLibre && campoLibre.reformasAdicionales) {
+    const lineas = campoLibre.reformasAdicionales.split('\n');
+
+    // 2. Iteramos sobre cada línea
+    lineas.forEach((linea: string) => {
+      const lineaLimpia = linea.trim();
+
+      if (lineaLimpia.length > 0) {
+        const raw = `- ${lineaLimpia}`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [
+            new TextRun({
+              text: raw,
+            }),
+          ],
+        });
+
+        (p as any)._rawText = raw;
+
+        out.push(p);
+      }
     });
   }
 
@@ -299,6 +411,174 @@ export function buildModificacionesParagraphs(
         children: [new TextRun({ text: raw })],
       });
 
+      (p as any)._rawText = raw;
+      out.push(p);
+    });
+  }
+
+  const volante = modificaciones.find(
+    (m) => m.nombre === 'SUSTITUCIÓN DE VOLANTE' && m.seleccionado,
+  );
+  if (volante) {
+    volante.acciones?.forEach((accion: string) => {
+      let espaciador = '';
+      let airbagoriginal = 'El volante original del vehículo no llevaba airbag';
+      let airbagnuevo = 'el nuevo instalado no lleva airbag';
+      if (volante.llevaEspaciador) {
+        espaciador = `marca ${volante.marcaEspaciador} de espesor ${volante.espesorEspaciador}mm`;
+      }
+      if (volante.tieneAirbagOriginal) {
+        airbagoriginal = `El volante
+original del vehículo llevaba airbag`;
+      }
+      if (volante.tieneAirbagNuevo) {
+        airbagnuevo = `el nuevo instalado lleva airbag`;
+      }
+      const fraseVolante = `Sustitución del volante original, por otro de la marca ${volante.marcaEspaciador} con un diámetro de ${volante.marcaEspaciador}
+mm montado sobre un espaciador ${espaciador}. ${airbagoriginal}, ${airbagnuevo}. Se garantiza que
+el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
+
+      const raw = `- ${fraseVolante}`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
+    });
+  }
+
+  const escape = modificaciones.find(
+    (m) => m.nombre === 'SUSTITUCIÓN DE SISTEMA DE ESCAPE' && m.seleccionado,
+  );
+
+  let fraseEscape = '';
+
+  if (escape) {
+    if (escape.cambiaSoloSilencioso) {
+      fraseEscape = `Modificación de las características del sistema de escape mediante la modificación del tramo de salida, cambiando su configuración de salida original compuesta por ${escape.tipoSalidaOriginalEscape} en ${escape.ubicacionOriginalEscape}, a ${escape.tipoSalidaNuevaEscape} ${escape.ubicacionNuevaEscape}. Esta reforma no supone modificación de potencia del vehículo.`;
+    } else {
+      let infoGeometria =
+        ', sin variar el número de salidas ni la ubicación original del mismo';
+
+      if (escape.cambiaNumeroSalidas && !escape.cambiaUbicacion) {
+        infoGeometria = `, modificando el número de salidas a ${escape.numeroSalidasEscape} y manteniendo la ubicación original`;
+      } else if (!escape.cambiaNumeroSalidas && escape.cambiaUbicacion) {
+        infoGeometria = `, manteniendo el número de salidas original y modificando la ubicación a ${escape.descripcionUbicacionEscape}`;
+      } else if (escape.cambiaNumeroSalidas && escape.cambiaUbicacion) {
+        infoGeometria = `, modificando el número de salidas a ${escape.numeroSalidasEscape} y la ubicación a ${escape.descripcionUbicacionEscape}`;
+      }
+
+      fraseEscape = `Sustitución del silencioso final de escape, por otro de la marca ${escape.marcaEscape} con referencia ${escape.referenciaEscape} y contraseña de homologación ${escape.contrasenaHomologacionEscape}${infoGeometria}.`;
+    }
+    const raw = `- ${fraseEscape}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const discos = modificaciones.find(
+    (m) => m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO' && m.seleccionado,
+  );
+
+  if (discos) {
+    // Función auxiliar para construir la frase patrón
+    const generarFrase = (
+      eje: string,
+      marca: string,
+      modelo: string,
+      ref: string,
+      diam: number,
+      espesor: number,
+    ) => {
+      const txtModelo = modelo ? ` modelo ${modelo}` : '';
+      return `Instalación de discos de sustitución en el ${eje} marca ${marca}${txtModelo} con referencia ${ref} de ${diam} mm de diámetro y ${espesor} mm de espesor, igual que los que incorpora el vehículo de origen y no modificando ningún otro componente del sistema de frenado.`;
+    };
+
+    const parrafosDiscos: string[] = [];
+
+    // Lógica según ubicación
+    if (discos.ubicacionDiscos === 'delanteros') {
+      // Caso 1: Solo delanteros
+      parrafosDiscos.push(
+        generarFrase(
+          'eje delantero',
+          discos.marcaDiscos ?? '',
+          discos.modeloDiscos ?? '',
+          discos.referenciaDiscos ?? '',
+          discos.diametroDiscos ?? 0,
+          discos.espesorDiscos ?? 0,
+        ),
+      );
+    } else if (discos.ubicacionDiscos === 'traseros') {
+      // Caso 2: Solo traseros (usa los inputs generales)
+      parrafosDiscos.push(
+        generarFrase(
+          'eje trasero',
+          discos.marcaDiscos ?? '',
+          discos.modeloDiscos ?? '',
+          discos.referenciaDiscos ?? '',
+          discos.diametroDiscos ?? 0,
+          discos.espesorDiscos ?? 0,
+        ),
+      );
+    } else if (discos.ubicacionDiscos === 'ambos') {
+      if (discos.sonIguales) {
+        // Caso 3: Ambos ejes idénticos
+        parrafosDiscos.push(
+          generarFrase(
+            'eje delantero y trasero',
+            discos.marcaDiscos ?? '',
+            discos.modeloDiscos ?? '',
+            discos.referenciaDiscos ?? '',
+            discos.diametroDiscos ?? 0,
+            discos.espesorDiscos ?? 0,
+          ),
+        );
+      } else {
+        // Caso 4: Ambos ejes diferentes (Generamos dos frases)
+        // Frase Delantera
+        parrafosDiscos.push(
+          generarFrase(
+            'eje delantero',
+            discos.marcaDiscos ?? '',
+            discos.modeloDiscos ?? '',
+            discos.referenciaDiscos ?? '',
+            discos.diametroDiscos ?? 0,
+            discos.espesorDiscos ?? 0,
+          ),
+        );
+        // Frase Trasera (Usa las variables específicas con sufijo 'Trasero')
+        parrafosDiscos.push(
+          generarFrase(
+            'eje trasero',
+            discos.marcaDiscoTrasero ?? '',
+            discos.modeloDiscoTrasero ?? '',
+            discos.referenciaDiscoTrasero ?? '',
+            discos.diametroDiscoTrasero ?? 0,
+            discos.espesorDiscoTrasero ?? 0,
+          ),
+        );
+      }
+    }
+
+    // Generación de los párrafos en el documento
+    parrafosDiscos.forEach((texto) => {
+      const raw = `- ${texto}`;
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
       (p as any)._rawText = raw;
       out.push(p);
     });
@@ -395,27 +675,6 @@ export function buildModificacionesParagraphs(
   }
 
   //
-  // 14) SUSPENSIÓN
-  //
-  const suspension = modificaciones.find(
-    (m) => m.nombre === 'SUSPENSIÓN' && m.seleccionado,
-  );
-  if (suspension) {
-    suspension.acciones?.forEach((accion: string) => {
-      const raw = `- ${accion} del sistema de suspensión del vehículo instalando: ${suspension.descripcionSuspensionDelantera}.`;
-
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-
-      (p as any)._rawText = raw;
-      out.push(p);
-    });
-  }
-
-  //
   // 15) TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR
   //
   mod = modificaciones.find(
@@ -427,12 +686,55 @@ export function buildModificacionesParagraphs(
 
   // 1) Muelles delanteros con referencia
   if (mod) {
+    if (suspension) {
+      const frasesBase = [
+        `Instalación - Se instalan los elementos de la suspensión nombrados de características diferentes a los originales.`,
+        `Desmontaje - Se desmontan los elementos de la suspensión que vienen de serie por otros de características diferentes a los originales.`,
+        `Sustitución - Se sustituyen los elementos de la suspensión que vienen de serie por los siguientes:`,
+      ];
+
+      // Añadir las 3 frases previas siempre que exista cualquier casuística
+      frasesBase.forEach((frase) => {
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 250 },
+          children: [new TextRun({ text: frase })],
+        });
+        (p as any)._rawText = frase;
+        (p as any)._fromCasuistica = true;
+        out.push(p);
+      });
+    }
+
+    // Párrafo principal
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 250 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    (p as any)._fromCasuistica = true; // 👈 marca
+    out.push(p);
+
+    const fraseFija = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 250 },
+      children: [
+        new TextRun({
+          text: `Modificación del sistema de suspensión del vehículo instalando:`,
+        }),
+      ],
+    });
+    (p as any)._rawText = raw;
+    (p as any)._fromCasuistica = true; // 👈 marca
+    out.push(fraseFija);
+
     if (mod.detallesMuelles?.['muelleDelanteroConRef']) {
       raw = `- Muelles delanteros marca ${mod.marcaMuelleDelanteroConRef} referencia ${mod.referenciaMuelleDelanteroConRef}.`;
 
       // Párrafo principal
       const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
+        spacing: { line: 260, before: 120, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
@@ -441,7 +743,7 @@ export function buildModificacionesParagraphs(
       out.push(p);
 
       const indentLeft = 620;
-      const spacing = { line: 260, after: 120 };
+      const spacing = {};
 
       // Subpárrafos (viñetas)
       const p1 = new Paragraph({
@@ -449,12 +751,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior ${mod.diametroExteriorDelanteroRef} mm`,
+            `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`,
           ),
         ],
       });
       (p1 as any)._rawText =
-        `• Diámetro exterior ${mod.diametroExteriorDelanteroRef} mm`;
+        `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -463,12 +765,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Longitud de muelle ${mod.longitudLibreDelanteroRef} mm`,
+            `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`,
           ),
         ],
       });
       (p2 as any)._rawText =
-        `• Longitud de muelle ${mod.longitudLibreDelanteroRef} mm`;
+        `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -477,12 +779,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira ${mod.diametroEspiraDelanteroRef} mm`,
+            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`,
           ),
         ],
       });
       (p3 as any)._rawText =
-        `• Diámetro de la espira ${mod.diametroEspiraDelanteroRef} mm`;
+        `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -490,11 +792,11 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Número de espiras ${mod.numeroEspirasDelanteroRef}.`),
+          new TextRun(`• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`),
         ],
       });
       (p4 as any)._rawText =
-        `• Número de espiras ${mod.numeroEspirasDelanteroRef}.`;
+        `• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -505,7 +807,7 @@ export function buildModificacionesParagraphs(
 
       // Párrafo principal
       const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
+        spacing: { line: 260, before: 120, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
@@ -514,7 +816,7 @@ export function buildModificacionesParagraphs(
       out.push(p);
 
       const indentLeft = 620;
-      const spacing = { line: 260, after: 120 };
+      const spacing = {};
 
       // Subpárrafos (viñetas)
       const p1 = new Paragraph({
@@ -522,12 +824,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior ${mod.diametroExteriorDelanteroSinRef} mm`,
+            `• Diámetro exterior: ${mod.diametroExteriorDelanteroSinRef} mm`,
           ),
         ],
       });
       (p1 as any)._rawText =
-        `• Diámetro exterior ${mod.diametroExteriorDelanteroSinRef} mm`;
+        `• Diámetro exterior: ${mod.diametroExteriorDelanteroSinRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -536,12 +838,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Longitud de muelle ${mod.longitudLibreDelanteroSinRef} mm`,
+            `• Longitud de muelle: ${mod.longitudLibreDelanteroSinRef} mm`,
           ),
         ],
       });
       (p2 as any)._rawText =
-        `• Longitud de muelle ${mod.longitudLibreDelanteroSinRef} mm`;
+        `• Longitud de muelle: ${mod.longitudLibreDelanteroSinRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -550,12 +852,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira ${mod.diametroEspiraDelanteroSinRef} mm`,
+            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroSinRef} mm`,
           ),
         ],
       });
       (p3 as any)._rawText =
-        `• Diámetro de la espira ${mod.diametroEspiraDelanteroSinRef} mm`;
+        `• Diámetro de la espira: ${mod.diametroEspiraDelanteroSinRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -564,12 +866,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Número de espiras ${mod.numeroEspirasDelanteroSinRef}.`,
+            `• Número de espiras: ${mod.numeroEspirasDelanteroSinRef}.`,
           ),
         ],
       });
       (p4 as any)._rawText =
-        `• Número de espiras ${mod.numeroEspirasDelanteroSinRef}.`;
+        `• Número de espiras: ${mod.numeroEspirasDelanteroSinRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -580,7 +882,7 @@ export function buildModificacionesParagraphs(
 
       // Párrafo principal
       const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
+        spacing: { line: 260, before: 120, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
@@ -589,7 +891,7 @@ export function buildModificacionesParagraphs(
       out.push(p);
 
       const indentLeft = 620;
-      const spacing = { line: 260, after: 120 };
+      const spacing = {};
 
       // Subpárrafos (viñetas)
       const p1 = new Paragraph({
@@ -597,12 +899,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro exterior ${mod.diametroExteriorTraseroRef} mm`,
+            `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`,
           ),
         ],
       });
       (p1 as any)._rawText =
-        `• Diámetro exterior ${mod.diametroExteriorTraseroRef} mm`;
+        `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -610,11 +912,13 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Longitud de muelle ${mod.longitudLibreTraseroRef} mm`),
+          new TextRun(
+            `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`,
+          ),
         ],
       });
       (p2 as any)._rawText =
-        `• Longitud de muelle ${mod.longitudLibreTraseroRef} mm`;
+        `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -623,12 +927,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira ${mod.diametroEspiraTraseroRef} mm`,
+            `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`,
           ),
         ],
       });
       (p3 as any)._rawText =
-        `• Diámetro de la espira ${mod.diametroEspiraTraseroRef} mm`;
+        `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -636,11 +940,11 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Número de espiras ${mod.numeroEspirasTraseroRef}.`),
+          new TextRun(`• Número de espiras: ${mod.numeroEspirasTraseroRef}.`),
         ],
       });
       (p4 as any)._rawText =
-        `• Número de espiras ${mod.numeroEspirasTraseroRef}.`;
+        `• Número de espiras: ${mod.numeroEspirasTraseroRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -651,7 +955,7 @@ export function buildModificacionesParagraphs(
 
       // Párrafo principal
       const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
+        spacing: { line: 260, before: 120, after: 120 },
         indent: { left: 400 },
         children: [new TextRun({ text: raw })],
       });
@@ -660,18 +964,18 @@ export function buildModificacionesParagraphs(
       out.push(p);
 
       const indentLeft = 620;
-      const spacing = { line: 260, after: 120 };
+      const spacing = {};
 
       // Subpárrafos (viñetas)
       const p1 = new Paragraph({
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Diámetro exterior ${mod.diametroExteriorTrasero} mm`),
+          new TextRun(`• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`),
         ],
       });
       (p1 as any)._rawText =
-        `• Diámetro exterior ${mod.diametroExteriorTrasero} mm`;
+        `• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -679,10 +983,10 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Longitud de muelle ${mod.longitudTrasero} mm`),
+          new TextRun(`• Longitud de muelle: ${mod.longitudTrasero} mm`),
         ],
       });
-      (p2 as any)._rawText = `• Longitud de muelle ${mod.longitudTrasero} mm`;
+      (p2 as any)._rawText = `• Longitud de muelle: ${mod.longitudTrasero} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -691,12 +995,12 @@ export function buildModificacionesParagraphs(
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira ${mod.diametroEspiraTrasero} mm`,
+            `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`,
           ),
         ],
       });
       (p3 as any)._rawText =
-        `• Diámetro de la espira ${mod.diametroEspiraTrasero} mm`;
+        `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -704,10 +1008,11 @@ export function buildModificacionesParagraphs(
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Número de espiras ${mod.numeroEspirasTrasero}.`),
+          new TextRun(`• Número de espiras: ${mod.numeroEspirasTrasero}.`),
         ],
       });
-      (p4 as any)._rawText = `• Número de espiras ${mod.numeroEspirasTrasero}.`;
+      (p4 as any)._rawText =
+        `• Número de espiras: ${mod.numeroEspirasTrasero}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -719,7 +1024,7 @@ export function buildModificacionesParagraphs(
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
@@ -734,7 +1039,7 @@ export function buildModificacionesParagraphs(
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
@@ -749,7 +1054,7 @@ export function buildModificacionesParagraphs(
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
@@ -764,7 +1069,7 @@ export function buildModificacionesParagraphs(
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
@@ -804,7 +1109,7 @@ export function buildModificacionesParagraphs(
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
@@ -822,7 +1127,7 @@ export function buildModificacionesParagraphs(
         pushCasuistica(
           out,
           new Paragraph({
-            spacing: { line: 260, after: 120 },
+            spacing: { line: 260, before: 120, after: 120 },
             indent: { left: 400 },
             children: [new TextRun({ text: raw })],
           }),
@@ -845,7 +1150,7 @@ export function buildModificacionesParagraphs(
         pushCasuistica(
           out,
           new Paragraph({
-            spacing: { line: 260, after: 120 },
+            spacing: { line: 260, before: 120, after: 120 },
             indent: { left: 400 },
             children: [new TextRun({ text: raw })],
           }),
@@ -861,7 +1166,7 @@ export function buildModificacionesParagraphs(
       pushCasuistica(
         out,
         new Paragraph({
-          spacing: { line: 260, after: 120 },
+          spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
           children: [new TextRun({ text: raw })],
         }),
@@ -1131,6 +1436,244 @@ export function buildModificacionesParagraphs(
     }
   }
 
+  const aleron = modificaciones.find(
+    (m) => m.nombre === 'ALERÓN' && m.seleccionado,
+  );
+
+  if (aleron) {
+    const raw = `- Instalación de alerón ${aleron.ubicacionAleron}, fabricado en ${aleron.materialAleron}, de la marca ${aleron.marcaAleron}, con referencia ${aleron.referenciaAleron} y medidas ${aleron.medidasAleron}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const lipDelantero = modificaciones.find(
+    (m) => m.nombre === 'LIP DELANTERO' && m.seleccionado,
+  );
+
+  if (lipDelantero) {
+    let raw = '';
+
+    if (lipDelantero.tipoFabricacionLip === 'artesanal') {
+      raw = `- Instalación de lip delantero fabricado en ${lipDelantero.materialLipDelantero} de forma artesanal, de medidas ${lipDelantero.medidasLipDelantero}.`;
+    } else if (lipDelantero.tipoFabricacionLip === 'marca') {
+      raw = `- Instalación de lip delantero de la marca ${lipDelantero.marcaLipDelantero}, con referencia ${lipDelantero.referenciaLipDelantero} y medidas ${lipDelantero.medidasLipDelantero}.`;
+    }
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const asientos = modificaciones.find(
+    (m) => m.nombre === 'CAMBIO DE ASIENTOS' && m.seleccionado,
+  );
+
+  if (asientos) {
+    let ubicacionTexto = '';
+    let referenciasTexto = '';
+
+    // 1. Definir texto de ubicación y referencias según selección
+    if (asientos.ubicacionAsientos === 'delanteros') {
+      ubicacionTexto = 'delanteros';
+      referenciasTexto = `La referencia de los asientos es ${asientos.refAsientoConductor} (piloto) y ${asientos.refAsientoCopiloto} (copiloto).`;
+    } else if (asientos.ubicacionAsientos === 'traseros') {
+      ubicacionTexto = 'traseros';
+      referenciasTexto = `La referencia de los asientos es ${asientos.refAsientosTraseros}.`;
+    } else if (asientos.ubicacionAsientos === 'ambos') {
+      ubicacionTexto = 'delanteros y traseros';
+      referenciasTexto = `La referencia de los asientos delanteros es ${asientos.refAsientoConductor} (piloto) y ${asientos.refAsientoCopiloto} (copiloto), y la de los traseros es ${asientos.refAsientosTraseros}.`;
+    }
+
+    const raw = `- Sustitución de los asientos ${ubicacionTexto} originales por otros procedentes del vehículo ${asientos.procedenciaAsientos}, del año ${asientos.anoProcedenciaAsientos} con el mismo chasis e instalados en anclajes originales, sin afectar al correcto funcionamiento de los airbags. Se mantienen los cinturones de seguridad originales. ${referenciasTexto}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const barras = modificaciones.find(
+    (m) => m.nombre === 'BARRAS ANTIVUELCO' && m.seleccionado,
+  );
+
+  if (barras) {
+    const raw = `- Instalación de barras antivuelco ${barras.ubicacionBarras} marca ${barras.marcaBarras} modelo ${barras.modeloBarras}, fabricadas en tubo de ${barras.materialBarras} de ${barras.diametroTuboBarras}mm y dimensiones ${barras.medidasBarras}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const techoSolar = modificaciones.find(
+    (m) => m.nombre === 'TECHO SOLAR' && m.seleccionado,
+  );
+
+  if (techoSolar) {
+    const raw = `- Instalación en el techo del vehículo de un techo solar, de la marca ${techoSolar.marcaTecho} ${techoSolar.ubicacionTecho}, de medidas ${techoSolar.medidasTecho} mm, con contraseña de homologación ${techoSolar.homologacionTecho}, sin afectar a la estructura principal del vehículo.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const peldanos = modificaciones.find(
+    (m) => m.nombre === 'PELDAÑOS' && m.seleccionado,
+  );
+
+  if (peldanos) {
+    const raw = `- Instalación de peldaño en ${peldanos.zonaPeldano}, de la marca ${peldanos.marcaPeldano}, fabricado en ${peldanos.materialPeldano}, de medidas ${peldanos.medidasPeldano}mm.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const ventanaAbatible = modificaciones.find(
+    (m) => m.nombre === 'VENTANA ABATIBLE' && m.seleccionado,
+  );
+
+  if (ventanaAbatible) {
+    let ubicacionTexto = '';
+
+    // Ajustamos el texto gramaticalmente según la selección
+    if (ventanaAbatible.ladoVentana === 'izquierdo') {
+      ubicacionTexto = 'en el lateral izquierdo';
+    } else if (ventanaAbatible.ladoVentana === 'derecho') {
+      ubicacionTexto = 'en el lateral derecho';
+    } else if (ventanaAbatible.ladoVentana === 'ambos') {
+      ubicacionTexto = 'en ambos laterales';
+    }
+
+    // Frase: Instalación de ventana trasera abatible en el lateral izquierdo, de la marca Malaika,
+    // fabricada en acero, de dimensiones 110 x 475mm.
+    const raw = `- Instalación de ventana trasera abatible ${ubicacionTexto}, de la marca ${ventanaAbatible.marcaVentana}, fabricada en ${ventanaAbatible.materialVentana}, de dimensiones ${ventanaAbatible.medidasVentana}mm.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const bodyLift = modificaciones.find(
+    (m) => m.nombre === 'BODY LIFT' && m.seleccionado,
+  );
+
+  if (bodyLift) {
+    let origenTexto = '';
+
+    if (bodyLift.tipoFabricacionBodyLift === 'artesanal') {
+      origenTexto = 'fabricados de forma artesanal';
+    } else if (bodyLift.tipoFabricacionBodyLift === 'marca') {
+      origenTexto = `de la marca ${bodyLift.marcaBodyLift} con referencia ${bodyLift.referenciaBodyLift}`;
+    }
+
+    const raw = `- Instalación de ${bodyLift.cantidadTacosBodyLift} tacos de ${bodyLift.materialBodyLift} ${origenTexto} ubicados entre el chasis y la carrocería, de ${bodyLift.diametroBodyLift}mm de diámetro y ${bodyLift.alturaBodyLift}mm de espesor.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const motor = modificaciones.find(
+    (m) => m.nombre === 'MOTOR' && m.seleccionado,
+  );
+
+  if (motor) {
+    const introRaw = `- Sustitución del motor original por otro usado, procedente de vehículo marca ${motor.marcaVehiculoDonanteMotor}, modelo ${motor.modeloVehiculoDonanteMotor}, con las siguientes características:`;
+
+    const pIntro = new Paragraph({
+      spacing: { line: 260, after: 0 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: introRaw })],
+    });
+    (pIntro as any)._rawText = introRaw;
+    out.push(pIntro);
+
+    const caracteristicas = [
+      `Motor: Marca: ${motor.marcaMotor}`,
+      `Tipo: ${motor.tipoMotor}`,
+      `Nº Cilindros/Cilindrada: ${motor.numCilindrosMotor}/${motor.cilindradaMotor}`,
+      `Potencia Fiscal/Real (C.V.F./kW): ${motor.potenciaFiscalMotor}/${motor.potenciaRealMotor}`,
+    ];
+
+    caracteristicas.forEach((item) => {
+      const itemRaw = `o   ${item}`;
+      const pItem = new Paragraph({
+        spacing: { line: 260, after: 0 },
+        indent: { left: 1200 },
+        children: [new TextRun({ text: itemRaw })],
+      });
+      (pItem as any)._rawText = itemRaw;
+      out.push(pItem);
+    });
+
+    const taraRaw = `Tara= ${motor.nuevaTaraMotor} kg.`;
+    const pTara = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: taraRaw })],
+    });
+    (pTara as any)._rawText = taraRaw;
+    out.push(pTara);
+  }
+
+  const chasis = modificaciones.find(
+    (m) => m.nombre === 'MODIFICACION DE CHASIS' && m.seleccionado,
+  );
+
+  if (chasis) {
+    const raw = `- Modificación de ${chasis.ubicacionChasis} ${chasis.descripcionOperacionChasis} con ${chasis.elementoUnionChasis} de ${chasis.medidasChasis}, fabricado en ${chasis.materialChasis}.`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
   //
   // 25) LUZ DE POSICIÓN
   //
@@ -1202,25 +1745,332 @@ export function buildModificacionesParagraphs(
     }
   }
 
+  const protectores = modificaciones.find(
+    (m) => m.nombre === 'PROTECTORES PARAGOLPES' && m.seleccionado,
+  );
+
+  if (protectores) {
+    // Determinamos el texto de la ubicación
+    const ubicacionTexto =
+      protectores.ubicacionPROTECTORES === 'delantero'
+        ? 'delantero'
+        : 'trasero';
+
+    // Construimos la frase
+    const fraseProtectores = `Instalación de protectores sobre paragolpes ${ubicacionTexto}, fabricados en ${protectores.materialProtectorPROTECTORES}, de medidas ${protectores.medidaLargoPROTECTORES} x ${protectores.medidaAltoPROTECTORES} mm.`;
+
+    const raw = `- ${fraseProtectores}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const plancha = modificaciones.find(
+    (m) => m.nombre === 'PLANCHA CAPÓ' && m.seleccionado,
+  );
+
+  if (plancha) {
+    const frasePlancha = `Instalación de plancha de ${plancha.materialPlancha} en ${plancha.ubicacionPlancha}, de medidas ${plancha.medidaLargoPLANCHA} x ${plancha.medidaAnchoPLANCHA} mm.`;
+
+    const raw = `- ${frasePlancha}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const calandra = modificaciones.find(
+    (m) => m.nombre === 'CALANDRA' && m.seleccionado,
+  );
+
+  if (calandra) {
+    const fraseCalandra = `Sustitución de calandra por otra de la marca ${calandra.marcaCalandra}, referencia ${calandra.referenciaCalandra}, fabricada en ${calandra.materialCalandra} de medidas ${calandra.medidaLargoCALANDRA} x ${calandra.medidaAltoCALANDRA}mm.`;
+
+    const raw = `- ${fraseCalandra}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const intercooler = modificaciones.find(
+    (m) => m.nombre === 'INTERCOOLER' && m.seleccionado,
+  );
+
+  if (intercooler) {
+    // Lógica para la sujeción
+    const textoSujecion = intercooler.usAnclajesOriginalesINTERCOOLER
+      ? 'sujeto sobre los anclajes originales'
+      : `sujeto mediante ${intercooler.descSoportesINTERCOOLER}`;
+
+    // Construimos la frase completa
+    const fraseIntercooler = `Sustitución de intercooler original, por otro de la marca ${intercooler.marcaIntercooler}, con referencia ${intercooler.refIntercooler}, de dimensiones ${intercooler.medidaLargoINTERCOOLER} x ${intercooler.medidaAltoINTERCOOLER} x ${intercooler.medidaEspesorINTERCOOLER}mm y ${textoSujecion}. Se garantiza que el nuevo intercooler dispone de una sección de paso igual o superior al original.`;
+
+    const raw = `- ${fraseIntercooler}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const relojes = modificaciones.find(
+    (m) => m.nombre === 'PANEL RELOJES' && m.seleccionado,
+  );
+
+  if (relojes) {
+    const fraseRelojes = `Instalación de panel de relojes de control en ${relojes.ubicacionPanelRelojes}, de medidas ${relojes.medidaAnchoRelojes} x ${relojes.medidaAltoRelojes} mm, con ${relojes.numeroRelojes} relojes instalados, ${relojes.descripcionRelojes}. Se garantiza que el mencionado panel no interfiere en la visión del conductor durante la conducción, además, se garantiza la no interferencia en el normal funcionamiento de los sistemas de airbag y pretensores del vehículo después de la transformación.`;
+
+    const raw = `- ${fraseRelojes}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const refuerzo = modificaciones.find(
+    (m) => m.nombre === 'REFUERZO PARAGOLPES' && m.seleccionado,
+  );
+
+  if (refuerzo) {
+    const { hasDelantero, hasTrasero } = getRefuerzoUbicaciones(
+      refuerzo.ubicacionRefuerzo,
+    );
+
+    const pickFirst = (...values: any[]) =>
+      values.find((v) => v !== undefined && v !== null && v !== '');
+
+    const pushRefuerzoParagraph = (ubicacion: 'delantero' | 'trasero') => {
+      const isDelantero = ubicacion === 'delantero';
+
+      const material = pickFirst(
+        isDelantero
+          ? refuerzo.materialRefuerzoDelantero
+          : refuerzo.materialRefuerzoTrasero,
+        refuerzo.materialRefuerzo,
+      );
+      const marca = pickFirst(
+        isDelantero
+          ? refuerzo.marcaRefuerzoDelantero
+          : refuerzo.marcaRefuerzoTrasero,
+        refuerzo.marcaRefuerzo,
+      );
+      const referencia = pickFirst(
+        isDelantero
+          ? refuerzo.referenciaRefuerzoDelantero
+          : refuerzo.referenciaRefuerzoTrasero,
+        refuerzo.referenciaRefuerzo,
+      );
+      const largo = pickFirst(
+        isDelantero
+          ? refuerzo.largoRefuerzoDelantero
+          : refuerzo.largoRefuerzoTrasero,
+        refuerzo.largoRefuerzo,
+      );
+      const alto = pickFirst(
+        isDelantero ? refuerzo.altoRefuerzoDelantero : refuerzo.altoRefuerzoTrasero,
+        refuerzo.altoRefuerzo,
+      );
+      const fondo = pickFirst(
+        isDelantero
+          ? refuerzo.fondoRefuerzoDelantero
+          : refuerzo.fondoRefuerzoTrasero,
+        refuerzo.fondoRefuerzo,
+      );
+
+      const fraseRefuerzo = `Instalación de refuerzo de paragolpes ${ubicacion} fabricado en ${material}, de la marca ${marca} con referencia ${referencia} y medidas ${largo}x${alto}x${fondo}mm.`;
+      const raw = `- ${fraseRefuerzo}`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
+    };
+
+    if (hasDelantero) {
+      pushRefuerzoParagraph('delantero');
+    }
+
+    if (hasTrasero) {
+      pushRefuerzoParagraph('trasero');
+    }
+
+    if (!hasDelantero && !hasTrasero) {
+      const ubicacionRefuerzoTexto = resolveUbicacionRefuerzoTexto(
+        refuerzo.ubicacionRefuerzo,
+      );
+      const fraseRefuerzo = `Instalación de refuerzo de paragolpes ${ubicacionRefuerzoTexto} fabricado en ${refuerzo.materialRefuerzo}, de la marca ${refuerzo.marcaRefuerzo} con referencia ${refuerzo.referenciaRefuerzo} y medidas ${refuerzo.largoRefuerzo}x${refuerzo.altoRefuerzo}x${refuerzo.fondoRefuerzo}mm.`;
+      const raw = `- ${fraseRefuerzo}`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+  }
+
+  const difusor = modificaciones.find(
+    (m) => m.nombre === 'DIFUSOR TRASERO' && m.seleccionado,
+  );
+
+  if (difusor) {
+    const fraseDifusor = `Instalación de difusor trasero bajo el paragolpes, fabricado en ${difusor.materialDifusor}, de la marca ${difusor.marcaDifusor}, modelo ${difusor.modeloDifusor} de medidas ${difusor.largoDifusor}x${difusor.altoDifusor}mm.`;
+
+    const raw = `- ${fraseDifusor}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const ventanaCoche = modificaciones.find(
+    (m) => m.nombre === 'VENTANA LATERAL' && m.seleccionado,
+  );
+
+  if (ventanaCoche) {
+    // Convertimos el valor del radio button ('izquierdo'/'derecho') en texto legible
+    const ubicacionTexto =
+      ventanaCoche.ubicacionVentana === 'izquierdo'
+        ? 'el lateral izquierdo'
+        : 'el lateral derecho';
+
+    const fraseVentana = `Instalación de ventana trasera abatible en ${ubicacionTexto}, de la marca ${ventanaCoche.marcaVentana}, fabricada en ${ventanaCoche.materialVentana}, de dimensiones ${ventanaCoche.largoVentana} x ${ventanaCoche.altoVentana}mm.`;
+
+    const raw = `- ${fraseVentana}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const disminucionMMA = modificaciones.find(
+    (m) => m.nombre === 'REDUCCIÓN DE MMA' && m.seleccionado,
+  );
+
+  if (disminucionMMA) {
+    const frasedisminucionMMA = `Disminución de la Masa Máxima Admisible MMA total del vehículo a ${data.mmaDespues}Kg`;
+
+    const raw = `- ${frasedisminucionMMA}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const disminucionMMTA = modificaciones.find(
+    (m) => m.nombre === 'REDUCCIÓN DE MMTA' && m.seleccionado,
+  );
+
+  if (disminucionMMTA) {
+    const frasedisminucionMMTA = `Disminución de la Masa Máxima Técnicamente Admisible MMTA total del vehículo a ${data.mmaDespues}Kg.`;
+
+    const raw = `- ${frasedisminucionMMTA}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
   //
   // 28) ANTINIEBLA
   //
   const luzantiniebla = modificaciones.find(
     (m) => m.nombre === 'ANTINIEBLA' && m.seleccionado,
   );
+
   if (luzantiniebla) {
     if (Array.isArray(luzantiniebla?.acciones)) {
       luzantiniebla.acciones.forEach((accion: string) => {
-        const raw = `- ${accion} de luces antiniebla marca ${luzantiniebla.marcaAntiniebla} con contraseña de homologación ${luzantiniebla.homologacionAntiniebla}.`;
+        // Creamos un array para guardar las frases que generaremos en esta vuelta del bucle
+        const itemsGenerados: string[] = [];
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
+        // 1. CASO DELANTEROS (Si es 'delanteros' o 'ambos')
+        if (
+          luzantiniebla.ubicacionAntiniebla === 'delanteros' ||
+          luzantiniebla.ubicacionAntiniebla === 'ambos'
+        ) {
+          itemsGenerados.push(
+            `${accion} de luces antiniebla delanteras marca ${luzantiniebla.marcaAntinieblaDel} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaDel}`,
+          );
+        }
+
+        // 2. CASO TRASEROS (Si es 'traseros' o 'ambos')
+        if (
+          luzantiniebla.ubicacionAntiniebla === 'traseros' ||
+          luzantiniebla.ubicacionAntiniebla === 'ambos'
+        ) {
+          itemsGenerados.push(
+            `${accion} de luces antiniebla traseras marca ${luzantiniebla.marcaAntinieblaTras} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaTras}`,
+          );
+        }
+
+        // 3. Renderizamos los párrafos
+        // Si seleccionó "Ambos", esto generará dos líneas separadas (una para delantera, una para trasera)
+        itemsGenerados.forEach((texto) => {
+          const raw = `- ${texto}.`;
+
+          const p = new Paragraph({
+            spacing: { line: 260, after: 120 },
+            indent: { left: 400 },
+            children: [new TextRun({ text: raw })],
+          });
+
+          (p as any)._rawText = raw;
+          out.push(p);
         });
-
-        (p as any)._rawText = raw;
-        out.push(p);
       });
     }
   }
@@ -1270,17 +2120,6 @@ export function buildModificacionesParagraphs(
       (p as any)._rawText = raw;
       out.push(p);
     }
-    if (mod.detalle?.marchaAtras) {
-      raw = `• Marcha atrás ${mod.referenciaMarchaAtras}`;
-
-      const p = new Paragraph({
-        spacing: { line: 260, after: 60 },
-        indent: { left: 620 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      out.push(p);
-    }
     if (mod.detalle?.catadioptrico) {
       raw = `• Catadióptrico ${mod.referenciaCatadioptrico}`;
 
@@ -1292,6 +2131,61 @@ export function buildModificacionesParagraphs(
       (p as any)._rawText = raw;
       out.push(p);
     }
+    if (mod.detalle?.luzMatricula) {
+      const marca = mod.marcaluzMatricula || '';
+      const referencia = mod.referencialuzMatricula || '';
+      const homologacion = mod.homologacionluzMatricula || '';
+
+      // Construimos la frase.
+      // Nota: He incluido marca y referencia porque las pides en el HTML,
+      // aunque en tu frase de ejemplo no aparecían explícitamente, son necesarias para identificar la pieza.
+      const fraseMatricula = `Sustitución de luz de matrícula marca ${marca} con referencia ${referencia}, con sistema LED con marcaje L y contraseña de homologación ${homologacion}, accionada desde los mandos originales.`;
+
+      const raw = `- ${fraseMatricula}`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+  }
+
+  const luzAtras = modificaciones.find(
+    (m) => m.nombre === 'LUZ MARCHA ATRÁS' && m.seleccionado,
+  );
+
+  if (luzAtras) {
+    // Gestión del accionamiento
+    let textoAccionamiento = '';
+    if (luzAtras.mandosOriginalesLuzMarchaAtras) {
+      textoAccionamiento = 'accionada desde los mandos originales';
+    } else {
+      // Si es manual, asumimos que el usuario escribe algo como "mediante interruptor adicional..."
+      // Ajustamos la gramática para que fluya
+      textoAccionamiento = `accionada ${luzAtras.descripcionAccionamientoLuzMarchaAtras}`;
+    }
+
+    // Gestión de la referencia (opcional)
+    const textoReferencia = luzAtras.referenciaLuzMarchaAtras
+      ? ` con referencia ${luzAtras.referenciaLuzMarchaAtras}`
+      : '';
+
+    const fraseLuzAtras = `Sustitución de luz de marcha atrás con sistema ${luzAtras.tecnologiaLuzMarchaAtras} marca ${luzAtras.marcaLuzMarchaAtras}${textoReferencia} con marcaje ${luzAtras.marcajeLuzMarchaAtras} y contraseña de homologación ${luzAtras.contrasenaLuzMarchaAtras}, ${textoAccionamiento}.`;
+
+    const raw = `- ${fraseLuzAtras}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
   }
 
   //
@@ -1423,6 +2317,402 @@ export function buildModificacionesParagraphs(
     out.push(pp);
   }
 
+  const soporte = modificaciones.find(
+    (m) => m.nombre === 'SOPORTE MATRÍCULA' && m.seleccionado,
+  );
+
+  if (soporte) {
+    const fraseSoporte = `Sustitución del soporte para matrícula por otro fabricado en ${soporte.materialSoporteMatricula}, de  forma artesanal de medidas ${soporte.medidaAnchoSoporteMatricula} x ${soporte.medidaAltoSoporteMatricula} mm.`;
+
+    const raw = `- ${fraseSoporte}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const estriberas = modificaciones.find(
+    (m) => m.nombre === 'ESTRIBERAS' && m.seleccionado,
+  );
+
+  if (estriberas) {
+    let cumpleSalientesEstriberas = '';
+
+    if (estriberas.cumpleSalientesEstriberas) {
+      cumpleSalientesEstriberas =
+        'Se garantiza que se cumple en todo caso con normativa de salientes exteriores.';
+    }
+
+    const fraseEstriberas = `Instalación de estriberas de la marca ${estriberas.marcaEstriberas}, con referencia ${estriberas.refSoporteEstriberas} para el soporte y con referencia ${estriberas.refPisanteEstriberas} para las estriberas. ${cumpleSalientesEstriberas}`;
+
+    const raw = `- ${fraseEstriberas}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const deposito = modificaciones.find(
+    (m) => m.nombre === 'SUSTITUCIÓN DE DEPÓSITO' && m.seleccionado,
+  );
+
+  if (deposito) {
+    // Lógica de ubicación
+    const ubicacionTexto = deposito.anclajesOriginalesDeposito
+      ? 'ubicado sobre anclajes originales'
+      : `ubicado ${deposito.descripcionUbicacionDeposito}`;
+
+    const fraseDeposito = `Sustitución del depósito de combustible original por otro proveniente de la moto marca ${deposito.marcaDeposito} modelo ${deposito.modeloDeposito} con contraseña de homologación ${deposito.contrasenaDeposito}, con ${deposito.capacidadDeposito} litros de capacidad, ${ubicacionTexto}.`;
+
+    const raw = `- ${fraseDeposito}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const bombaFreno = modificaciones.find(
+    (m) => m.nombre === 'SUSTITUCIÓN DE BOMBA DE FRENO' && m.seleccionado,
+  );
+
+  if (bombaFreno) {
+    // Función auxiliar para construir la frase patrón
+    const generarFraseBomba = (
+      ubicacion: string,
+      marca: string,
+      referencia: string,
+    ) => {
+      return `Sustitución de la bomba de freno ${ubicacion} original por otra de la marca ${marca}, con referencia ${referencia} con un diámetro y longitud del pistón igual al de la bomba de freno original. La luz de frenado sigue operativa para el freno ${ubicacion}.`;
+    };
+
+    const parrafosBomba: string[] = [];
+
+    // Caso 1: Solo Delantera
+    if (bombaFreno.ubicacionBombaFreno === 'delantera') {
+      parrafosBomba.push(
+        generarFraseBomba(
+          'delantera',
+          bombaFreno.marcaBombaFrenoDel ?? '',
+          bombaFreno.referenciaBombaFrenoDel ?? '',
+        ),
+      );
+    }
+    // Caso 2: Solo Trasera
+    else if (bombaFreno.ubicacionBombaFreno === 'trasera') {
+      parrafosBomba.push(
+        generarFraseBomba(
+          'trasera',
+          bombaFreno.marcaBombaFrenoTras ?? '',
+          bombaFreno.referenciaBombaFrenoTras ?? '',
+        ),
+      );
+    }
+    // Caso 3: Ambas
+    else if (bombaFreno.ubicacionBombaFreno === 'ambas') {
+      // Generamos primero la delantera
+      parrafosBomba.push(
+        generarFraseBomba(
+          'delantera',
+          bombaFreno.marcaBombaFrenoDel ?? '',
+          bombaFreno.referenciaBombaFrenoDel ?? '',
+        ),
+      );
+      // Luego generamos la trasera
+      parrafosBomba.push(
+        generarFraseBomba(
+          'trasera',
+          bombaFreno.marcaBombaFrenoTras ?? '',
+          bombaFreno.referenciaBombaFrenoTras ?? '',
+        ),
+      );
+    }
+
+    // Renderizado de los párrafos generados
+    parrafosBomba.forEach((texto) => {
+      const raw = `- ${texto}`;
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    });
+  }
+
+  const soportes = modificaciones.find(
+    (m) => m.nombre === 'SOPORTES DESPLAZADOS' && m.seleccionado,
+  );
+
+  if (soportes) {
+    let descripcionReubicacion = '';
+
+    // Construimos la parte de reubicación dinámicamente
+    if (
+      soportes.reubicaFrenoSoportesDesplazados &&
+      !soportes.reubicaCambioSoportesDesplazados
+    ) {
+      descripcionReubicacion =
+        ', reubicando sobre el soporte del lateral derecho el pedal y la bomba de freno posterior';
+    } else if (
+      !soportes.reubicaFrenoSoportesDesplazados &&
+      soportes.reubicaCambioSoportesDesplazados
+    ) {
+      descripcionReubicacion =
+        ', reubicando sobre el soporte del lateral izquierdo la palanca de cambios';
+    } else if (
+      soportes.reubicaFrenoSoportesDesplazados &&
+      soportes.reubicaCambioSoportesDesplazados
+    ) {
+      descripcionReubicacion =
+        ', reubicando sobre el soporte del lateral derecho el pedal y la bomba de freno posterior y reubicando sobre el soporte del lateral izquierdo la palanca de cambios';
+    }
+
+    // Construimos la frase completa
+    const fraseSoportes = `Instalación en ambos laterales de la motocicleta de soportes desplazados de la marca ${soportes.marcaSoportesDesplazados} referencia ${soportes.referenciaSoportesDesplazados}${descripcionReubicacion}. Estos soportes desplazados están equipados con un muelle que garantiza el retorno de los mismos a la posición original y la modificación no afecta a las características de frenado originales del vehículo.`;
+
+    const raw = `- ${fraseSoportes}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const velocimetroMoto = modificaciones.find(
+    (m) => m.nombre === 'VELOCÍMETRO' && m.seleccionado,
+  );
+
+  if (velocimetroMoto) {
+    // Definimos si es solo sustitución o también reubicación
+    const accion = velocimetroMoto.esReubicadoVelocimetro
+      ? 'Sustitución y reubicación'
+      : 'Sustitución';
+
+    // Gestionamos las observaciones de los testigos (opcional)
+    const textoObservaciones = velocimetroMoto.observacionesTestigosVelocimetro
+      ? ` ${velocimetroMoto.observacionesTestigosVelocimetro}.`
+      : '';
+
+    // Gestionamos el texto del calibrado
+    const textoCalibrado = velocimetroMoto.estaCalibradoVelocimetro
+      ? ' Se ha procedido al calibrado del velocímetro para la motocicleta.'
+      : '';
+
+    // Gestionamos la velocidad máxima (si el usuario la ha introducido, aunque no estaba en el último HTML, es necesaria para la frase ejemplo)
+    // Si no existe la variable en el modelo, puedes eliminar esta línea o añadir el campo al HTML.
+    const textoVelocidad = data.velocidadMaxima
+      ? ` La velocidad máxima de la motocicleta es de ${data.velocidadMaxima} Km/h.`
+      : '';
+
+    const fraseVelocimetro = `${accion} del velocímetro por otro ${velocimetroMoto.tipoVelocimetro} proveniente de una moto marca ${velocimetroMoto.marcaVelocimetro}, modelo ${velocimetroMoto.modeloVelocimetro}. Incorpora los testigos de ${velocimetroMoto.listaTestigosVelocimetro}.${textoObservaciones}${textoCalibrado}${textoVelocidad}`;
+
+    const raw = `- ${fraseVelocimetro}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const subchasis = modificaciones.find(
+    (m) => m.nombre === 'RECORTE SUBCHASIS' && m.seleccionado,
+  );
+
+  if (subchasis) {
+    const fraseSubchasis = `Modificación del subchasis original ${subchasis.tipoModificacionSubchasis}, ${subchasis.descripcionCorteSubchasis}.`;
+
+    const raw = `- ${fraseSubchasis}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const torretas = modificaciones.find(
+    (m) => m.nombre === 'TORRETAS' && m.seleccionado,
+  );
+
+  if (torretas) {
+    const fraseTorretas = `Sustitución de las torretas de manillar por otras de la marca ${torretas.marcaTorretas} de dimensiones ${torretas.medidaLargoTorretas}x${torretas.medidaAnchoTorretas}x${torretas.medidaAltoTorretas}mm.`;
+
+    const raw = `- ${fraseTorretas}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const acelerador = modificaciones.find(
+    (m) => m.nombre === 'MANDO ACELERADOR' && m.seleccionado,
+  );
+
+  if (acelerador) {
+    // Texto de seguridad condicionado al check (aunque es obligatorio en el form)
+    const textoRetorno = acelerador.retornoAutomaticoAcelerador
+      ? ' Se comprobará que dispone de un retorno automático a la posición de reposo.'
+      : '';
+
+    const fraseAcelerador = `Sustitución del mando de acelerador por otro marca ${acelerador.marcaAcelerador} modelo ${acelerador.modeloAcelerador}.${textoRetorno}`;
+
+    const raw = `- ${fraseAcelerador}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const mandos = modificaciones.find(
+    (m) => m.nombre === 'MANDOS LUCES' && m.seleccionado,
+  );
+
+  if (mandos) {
+    const fraseMandos = `Sustitución de el mando izquierdo y derecho (botoneras) por otros marca ${mandos.marcaMandoLuces}, modelo ${mandos.modeloMandoLuces}, incorporando ${mandos.funcionesIzquierdoMandoLuces} mando IZQUIERDO // ${mandos.funcionesDerechoMandoLuces}, mando DERECHO.`;
+
+    const raw = `- ${fraseMandos}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const reduccionMoto = modificaciones.find(
+    (m) => m.nombre === 'REDUCCIÓN DE PLAZAS' && m.seleccionado,
+  );
+
+  if (reduccionMoto) {
+    // Frase base
+    let fraseReduccion = `Reducción de plazas de asiento pasando de tener ${reduccionMoto.plazasAntesReduccion} a ${reduccionMoto.plazasDespuesReduccion}`;
+
+    // Si el resultado es 1 plaza, añadimos las acciones mecánicas realizadas
+    if (Number(reduccionMoto.plazasDespuesReduccion) === 1) {
+      const acciones: string[] = [];
+
+      if (reduccionMoto.desinstalacionAsideroReduccion) {
+        acciones.push('del asidero');
+      }
+
+      if (reduccionMoto.desinstalacionEstriberasReduccion) {
+        acciones.push('de las estriberas del pasajero');
+      }
+
+      if (acciones.length > 0) {
+        // Unimos las acciones con " y " (ej: "del asidero y de las estriberas...")
+        fraseReduccion += ` mediante la desinstalación ${acciones.join(' y ')}`;
+      }
+    }
+
+    fraseReduccion += '.';
+
+    const raw = `- ${fraseReduccion}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const asiento = modificaciones.find(
+    (m) => m.nombre === 'ASIENTO' && m.seleccionado,
+  );
+
+  if (asiento) {
+    let descripcionAsiento = '';
+
+    if (asiento.tipoOrigenAsiento === 'artesanal') {
+      descripcionAsiento = 'hecho de forma artesanal';
+    } else {
+      // Si es comercial, usamos la marca y referencia
+      descripcionAsiento = `de la marca ${asiento.marcaAsiento} con referencia ${asiento.referenciaAsiento}`;
+    }
+
+    const fraseAsiento = `Sustitución del sillín original por otro ${descripcionAsiento}.`;
+
+    const raw = `- ${fraseAsiento}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const basculante = modificaciones.find(
+    (m) => m.nombre === 'SUSTITUCIÓN DE BASCULANTE' && m.seleccionado,
+  );
+
+  if (basculante) {
+    // Texto base de la modificación
+    let fraseBasculante = `Modificación del sistema de suspensión mediante la sustitución del basculante por otro procedente de una motocicleta marca ${basculante.marcaBasculante}, denominación comercial ${basculante.modeloBasculante}, con contraseña de homologación de tipo ${basculante.contrasenaBasculante}.`;
+
+    // Lógica para añadir la nota opcional
+    if (basculante.incluirNotaIntegridadBasculante) {
+      fraseBasculante +=
+        ' Nota: El chasis y subchasis son los mismos que montaba el vehículo de serie. Se asegura la integridad estructural del bastidor tras la reforma, debido a que la modificación del subchasis no disminuye su resistencia y el basculante instalado pertenece a una motocicleta de la misma marca que el vehículo objeto de la reforma y misma contraseña de homologación.';
+    }
+
+    const raw = `- ${fraseBasculante}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
   //
   // 2) LLANTAS Y NEUMÁTICOS
   //
@@ -1432,53 +2722,130 @@ export function buildModificacionesParagraphs(
       m.seleccionado &&
       data.tipoVehiculo === 'moto',
   );
+
   if (llantas) {
+    // 1. GENERACIÓN DEL TEXTO PRINCIPAL
     if (llantas.neumaticosMoto === 'delantero') {
-      if (Array.isArray(llantas?.acciones)) {
-        llantas.acciones.forEach((accion: string) => {
-          const raw = `- ${accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      const raw = `- Instalación de neumático delantero por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-          const p = new Paragraph({
-            spacing: { line: 260, after: 120 },
-            indent: { left: 400 },
-            children: [new TextRun({ text: raw })],
-          });
-
-          (p as any)._rawText = raw;
-          out.push(p);
-        });
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
     }
+
     if (llantas.neumaticosMoto === 'trasero') {
-      if (Array.isArray(llantas?.acciones)) {
-        llantas.acciones.forEach((accion: string) => {
-          const raw = `- ${accion} de neumático ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      const raw = `- Instalación de neumático trasero por otro de medidas no equivalentes ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-          const p = new Paragraph({
-            spacing: { line: 260, after: 120 },
-            indent: { left: 400 },
-            children: [new TextRun({ text: raw })],
-          });
-
-          (p as any)._rawText = raw;
-          out.push(p);
-        });
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
     }
+
     if (llantas.neumaticosMoto === 'delantero y trasero') {
-      if (Array.isArray(llantas?.acciones)) {
-        llantas.acciones.forEach((accion: string) => {
-          const raw = `- ${accion} de neumáticos ${llantas.neumaticosMoto} por otro de medidas no equivalentes ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantas} en la parte delantera y en la parte trasera ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      const raw = `- Instalación de neumáticos por otros de medidas no equivalentes: delantero ${llantas.neumaticoDelantero} sobre llanta de medidas ${llantas.medidasLlantaDelantero} y trasero ${llantas.neumaticoTrasero} sobre llanta de medidas ${llantas.medidasLlantaTrasero}. Asegurando la compatibilidad entre llanta y neumático y la no interferencia entre el neumático y cualquier punto de la carrocería.`;
 
-          const p = new Paragraph({
-            spacing: { line: 260, after: 120 },
-            indent: { left: 400 },
-            children: [new TextRun({ text: raw })],
-          });
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
 
-          (p as any)._rawText = raw;
-          out.push(p);
+    // 2. LÓGICA DE NOTAS (1 y 2)
+    const totalNotas =
+      (llantas.anotacion1 ? 1 : 0) + (llantas.anotacion2 ? 1 : 0);
+
+    let notaCounter = 1;
+    const getNotaLabel = () =>
+      totalNotas > 1 ? `NOTA ${notaCounter++}: ` : `NOTA: `;
+
+    if (llantas.anotacion1) {
+      const label = getNotaLabel();
+      out.push(
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [
+            new TextRun({
+              text: label,
+              bold: true,
+            }),
+            new TextRun({
+              text: 'Debido a que la diferencia de diámetro entre el neumático original y el nuevo es superior al 8%, se ha procedido al tarado del velocímetro.',
+            }),
+          ],
+        }),
+      );
+    }
+
+    if (llantas.anotacion2) {
+      const label = getNotaLabel();
+      const vAntes = llantas.velocidadMaximaAntes || '---';
+      const vDespues = llantas.velocidadMaximaDespues || '---';
+
+      out.push(
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [
+            new TextRun({
+              text: label,
+              bold: true,
+            }),
+            new TextRun({
+              text: `Debido a que por su construcción, este vehículo es capaz de alcanzar una velocidad máxima de Vmáx = ${vAntes} Km/h, superior al índice de velocidad de los neumáticos instalados, se deberá instalar una pegatina limitadora de velocidad de Vmáx = ${vDespues} Km/h, visible desde el puesto de conducción.`,
+            }),
+          ],
+        }),
+      );
+    }
+
+    // 3. ANOTACIÓN 3: JUSTIFICACIÓN DE CARGA (Sin etiqueta 'NOTA')
+    if (llantas.anotacion3) {
+      // Eje 1 (Delantero)
+      if (
+        llantas.neumaticosMoto === 'delantero' ||
+        llantas.neumaticosMoto === 'delantero y trasero'
+      ) {
+        const indice = llantas.indiceCargaEje1Neumaticos || '---';
+        const carga = llantas.cargaEquivalenteEje1Neumaticos || '---';
+        const mma = llantas.mmaEje1Neumaticos || '---';
+
+        const raw = `Se comprueba que el nuevo índice de carga del neumático delantero (${indice}, que equivale a ${carga} Kg) es capaz de soportar la MMA del 1er eje (${mma} Kg).`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: raw })],
         });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      // Eje 2 (Trasero)
+      if (
+        llantas.neumaticosMoto === 'trasero' ||
+        llantas.neumaticosMoto === 'delantero y trasero'
+      ) {
+        const indice = llantas.indiceCargaEje2Neumaticos || '---';
+        const carga = llantas.cargaEquivalenteEje2Neumaticos || '---';
+        const mma = llantas.mmaEje2Neumaticos || '---';
+
+        const raw = `Se comprueba que el nuevo índice de carga del neumático trasero (${indice}, que equivale a ${carga} Kg) es capaz de soportar la MMA del 2º eje (${mma} Kg).`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
       }
     }
   }
@@ -1567,11 +2934,10 @@ export function buildModificacionesParagraphs(
   // 5) MANILLAR
   //
   const manillar = modificaciones.find(
-    (m) =>
-      m.nombre === 'MANILLAR' && m.seleccionado && data.tipoVehiculo === 'moto',
+    (m) => m.nombre === 'MANILLAR' && m.seleccionado,
   );
   if (manillar) {
-    raw = `- Sustitución de manillar por otro marca ${manillar.marca} modelo ${manillar.modelo}.`;
+    raw = `- Sustitución de manillar por otro marca ${manillar.marca} modelo ${manillar.modelo} y de medidas ${manillar.medidasManillar}.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -1580,16 +2946,25 @@ export function buildModificacionesParagraphs(
     });
     (p as any)._rawText = raw;
     out.push(p);
+
+    out.push(
+      new Paragraph({
+        spacing: { line: 260, after: 120 },
+        children: [
+          new TextRun({ text: 'NOTA: ', bold: true }),
+          new TextRun({
+            text: 'Se han reubicado los mandos sobre el nuevo manillar en posiciones equivalentes a las originales.',
+          }),
+        ],
+      }),
+    );
   }
 
   //
   // 6) VELOCÍMETRO
   //
   const velocimetro = modificaciones.find(
-    (m) =>
-      m.nombre === 'VELOCÍMETRO' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto',
+    (m) => m.nombre === 'VELOCÍMETRO' && m.seleccionado,
   );
   if (velocimetro) {
     raw = `- Sustitución del velocímetro, por otro de la marca ${velocimetro.marca} referencia ${velocimetro.referencia} y contraseña de homologación ${velocimetro.homologacion}. Incorpora los testigos de intermitente derecho e izquierdo, luz larga y neutro.`;
@@ -1607,13 +2982,21 @@ export function buildModificacionesParagraphs(
   // 7) LATIGUILLOS
   //
   const latiguillos = modificaciones.find(
-    (m) =>
-      m.nombre === 'LATIGUILLOS' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto',
+    (m) => m.nombre === 'LATIGUILLOS' && m.seleccionado,
   );
+
   if (latiguillos) {
-    raw = `- Sustitución de los latiguillos de freno por unos metálicos en los dos ejes. En el eje delantero se han instalado unos latiguillos metálicos marca ${latiguillos.marcaDelanteros} ref. ${latiguillos.referenciaDelanteros} y en el eje trasero unos latiguillos metálicos marca ${latiguillos.marcaTraseros} ref. ${latiguillos.referenciaTraseros}. Ambos son de la misma longitud y sección que los originales y van instalados en la misma ubicación y utilizan los anclajes originales.`;
+    let detalleUbicacion = '';
+
+    if (latiguillos.ubicacionLatiguillos === 'delanteros') {
+      detalleUbicacion = `en el eje delantero. Se han instalado unos latiguillos metálicos marca ${latiguillos.marcaDelanteros} ref. ${latiguillos.referenciaDelanteros}`;
+    } else if (latiguillos.ubicacionLatiguillos === 'traseros') {
+      detalleUbicacion = `en el eje trasero. Se han instalado unos latiguillos metálicos marca ${latiguillos.marcaTraseros} ref. ${latiguillos.referenciaTraseros}`;
+    } else {
+      detalleUbicacion = `en los dos ejes. En el eje delantero se han instalado unos latiguillos metálicos marca ${latiguillos.marcaDelanteros} ref. ${latiguillos.referenciaDelanteros} y en el eje trasero unos latiguillos metálicos marca ${latiguillos.marcaTraseros} ref. ${latiguillos.referenciaTraseros}`;
+    }
+
+    const raw = `- Sustitución de los latiguillos de freno por unos metálicos ${detalleUbicacion}. Estos son de la misma longitud y sección que los originales y van instalados en la misma ubicación y utilizan los anclajes originales.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -1628,10 +3011,7 @@ export function buildModificacionesParagraphs(
   // 8) RETROVISORES
   //
   const retrovisores = modificaciones.find(
-    (m) =>
-      m.nombre === 'RETROVISORES' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto',
+    (m) => m.nombre === 'RETROVISORES' && m.seleccionado,
   );
   if (retrovisores) {
     raw = `- Sustitución y reubicación de espejos retrovisores por otros, marca ${retrovisores.marca}, modelo ${retrovisores.modelo}, con marcaje ${retrovisores.marcaje} y contraseña de homologación ${retrovisores.homologacion}.`;
@@ -1649,10 +3029,7 @@ export function buildModificacionesParagraphs(
   // 9) HORQUILLA DELANTERA
   //
   const horquilladelantera = modificaciones.find(
-    (m) =>
-      m.nombre === 'HORQUILLA DELANTERA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto',
+    (m) => m.nombre === 'HORQUILLA DELANTERA' && m.seleccionado,
   );
   if (horquilladelantera) {
     raw = `- Sustitución de horquilla delantera por otra procedente de una moto marca ${horquilladelantera.marca}, tipo ${horquilladelantera.tipo}, variante ${horquilladelantera.variante} y denominación comercial ${horquilladelantera.denominacion}.`;
@@ -1670,10 +3047,7 @@ export function buildModificacionesParagraphs(
   // 10) DISCO DE FRENO Y PINZA DE FRENO
   //
   const frenos = modificaciones.find(
-    (m) =>
-      m.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'moto',
+    (m) => m.nombre === 'DISCO DE FRENO Y PINZA DE FRENO' && m.seleccionado,
   );
   if (frenos) {
     if (frenos?.tieneDisco) {
@@ -1728,74 +3102,103 @@ export function buildModificacionesParagraphs(
         }
       }
     }
+  }
 
-    //
-    // 11) LUCES
-    //
-    const luces = modificaciones.find(
-      (m) =>
-        m.nombre === 'LUCES' && m.seleccionado && data.tipoVehiculo === 'moto',
-    );
-    if (luces) {
-      if (data.luzGrupoOptico) {
-        raw = `- Sustitución y reubicación de grupo óptico delantero por otro marca ${frenos.marca} modelo ${frenos.modelo} con luz de posición, cruce y carretera con los marcajes ${frenos.marcajes} y contraseña de homologación ${frenos.homologacion}.`;
+  //
+  // 11) LUCES
+  //
+  const luces = modificaciones.find(
+    (m) =>
+      m.nombre === 'LUCES' && m.seleccionado && data.tipoVehiculo === 'moto',
+  );
+  if (luces) {
+    console.log('LUCES:', luces);
+    if (luces.descripcionLuces?.['luzGrupoOptico']) {
+      raw = `- Sustitución y reubicación de grupo óptico delantero por otro marca ${luces.marcaluzGrupoOptico} modelo ${luces.modeloluzGrupoOptico} con luz de posición, cruce y carretera con los marcajes ${luces.marcajesluzGrupoOptico} y contraseña de homologación ${luces.homologacionluzGrupoOptico}.`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (luces.descripcionLuces?.['intermitenteDelantero']) {
+      raw = `- Sustitución y reubicación de intermitentes anteriores en laterales de la horquilla, por otros marca ${luces.marcaintermitenteDelantero}, referencia ${luces.referenciaintermitenteDelantero} con marcaje ${luces.marcajesintermitenteDelantero} y con contraseña de homologación ${luces.homologacionintermitenteDelantero}.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (luces.descripcionLuces?.['intermitenteTrasero']) {
+      raw = `- Sustitución y reubicación de intermitentes posteriores en laterales del portamatrícula, por otros marca ${luces.marcaintermitenteTrasero}, referencia ${luces.referenciaintermitenteTrasero} con marcaje ${luces.marcajesintermitenteTrasero} y con contraseña de homologación ${luces.homologacionintermitenteTrasero}.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (luces.descripcionLuces?.['catadioptrico']) {
+      raw = `- Sustitución y reubicación de catadióptrico posterior en parte inferior de emplazamiento de placa de matrícula posterior, por otro marca ${luces.marcacatadioptrico} con marcaje ${luces.referenciacatadioptrico} y con contraseña de homologación ${luces.homologacioncatadioptrico}.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (luces.descripcionLuces?.['luzMatricula']) {
+      raw = `- Sustitución y reubicación de luz de matrícula en parte superior de emplazamiento de placa matrícula, por otra marca ${luces.marcaluzMatricula} referencia ${luces.referencialuzMatricula} con contraseña de homologación ${luces.homologacionluzMatricula}.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (luces.descripcionLuces?.['luzAntinieblas']) {
+      raw = `- Instalación de faros antiniebla en los laterales del piloto delantero, de la marca ${luces.marcaluzAntinieblas}, con marcado ${luces.marcajesluzAntinieblas} y contraseña ${luces.homologacionluzAntinieblas}, con encendido desde nuevo mando normalizado e independiente ubicado en la parte derecha del carenado. Estos dispositivos funcionan independientemente del encendido de las luces de carretera o cruce.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    }
+
+    if (luces.descripcionLuces?.['luzFreno']) {
+      let led = '';
+      if (luces.luzMatriculaIntegradaLuzFreno === true) {
+        led = 'con luz de matrícula integrada';
       }
+      raw = `- Sustitución del piloto trasero original por otro con sistema led de la marca ${luces.marcaluzAntinieblas} con referencia ${luces.marcaluzAntinieblas} ${led} y con contraseña de homologación ${luces.marcaluzAntinieblas}.`;
 
-      if (data.intermitenteDelantero) {
-        raw = `- Sustitución y reubicación de intermitentes anteriores en laterales de la horquilla, por otros marca ${frenos.marca}, referencia ${frenos.referencia} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
-
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
-
-      if (data.intermitenteTrasero) {
-        raw = `- Sustitución y reubicación de intermitentes posteriores en laterales del portamatrícula, por otros marca ${frenos.marca}, referencia ${frenos.referencia} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
-
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
-
-      if (data.catadioptrico) {
-        raw = `- Sustitución y reubicación de catadióptrico posterior en parte inferior de emplazamiento de placa de matrícula posterior, por otro marca ${frenos.marca} con marcaje ${frenos.marcajes} y con contraseña de homologación ${frenos.homologacion}.`;
-
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
-
-      if (data.luzMatricula) {
-        raw = `- Sustitución y reubicación de luz de matrícula en parte superior de emplazamiento de placa matrícula, por otra marca ${frenos.marca} referencia ${frenos.marcaPastillaTrasera} con contraseña de homologación ${frenos.homologacion}.`;
-
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
-        (p as any)._rawText = raw;
-        out.push(p);
-      }
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
     }
   }
 
@@ -1807,10 +3210,7 @@ export function buildModificacionesParagraphs(
   // 1) CAMBIO DE CLASIFICACIÓN
   //
   const cambioclasi = modificaciones.find(
-    (m) =>
-      m.nombre === 'CAMBIO DE CLASIFICACIÓN' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'CAMBIO DE CLASIFICACIÓN' && m.seleccionado,
   );
   if (cambioclasi) {
     raw = `- Cambio de clasificación del vehículo de ${data.clasificacionAntes} a ${data.clasificacionDespues}.`;
@@ -1820,6 +3220,172 @@ export function buildModificacionesParagraphs(
       indent: { left: 400 },
       children: [new TextRun({ text: raw })],
     });
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const techo = modificaciones.find(
+    (m) => m.nombre === 'TECHO ELEVABLE' && m.seleccionado,
+  );
+
+  if (techo) {
+    // Construcción de la frase
+    const fraseTecho = `Instalación de techo elevable de la marca ${techo.marcaTecho} referencia ${techo.referenciaTecho}, de dimensiones ${techo.anchoTecho} x ${techo.largoTecho} x ${techo.altoTecho} mm. ${techo.materialEstructuraTecho}. Abatible de forma ${techo.tipoAccionamientoTecho}. Se comprueba que la distancia desde la base de los asientos a la carretera es de ${techo.distanciaAsientosSueloTecho}mm.`;
+
+    const raw = `- ${fraseTecho}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const revestimiento = modificaciones.find(
+    (m) => m.nombre === 'REVESTIMIENTO INTERIOR' && m.seleccionado,
+  );
+
+  if (revestimiento) {
+    // 1. Construimos el array de zonas seleccionadas
+    const zonas: string[] = [];
+    if (revestimiento.zonaLateralesRevestimiento) zonas.push('laterales');
+    if (revestimiento.zonaSueloRevestimiento) zonas.push('suelo');
+    if (revestimiento.zonaTechoRevestimiento) zonas.push('techo');
+
+    // 2. Formateamos las zonas gramaticalmente (A, B y C)
+    let textoZonas = '';
+    if (zonas.length === 1) {
+      textoZonas = zonas[0];
+    } else if (zonas.length > 1) {
+      const ultimo = zonas.pop(); // Sacamos el último para ponerle 'y'
+      textoZonas = `${zonas.join(', ')} y ${ultimo}`;
+    }
+
+    // 3. Construimos la frase principal
+    let fraseRevestimiento = `Revestimiento interior de aislamiento y panelado, realizado en ${revestimiento.materialPaneladoRevestimiento}, ubicado en ${textoZonas}.`;
+
+    // 4. Añadimos la tarima si está seleccionada
+    if (revestimiento.instalaTarimaRevestimiento) {
+      // Añadimos el material de la tarima para ser precisos, aunque la frase ejemplo sea genérica
+      fraseRevestimiento += ` Instalación de tarima de ${revestimiento.materialTarimaRevestimiento} sobre el suelo.`;
+    }
+
+    const raw = `- ${fraseRevestimiento}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const termo = modificaciones.find(
+    (m) => m.nombre === 'INSTALACIÓN DE TERMO' && m.seleccionado,
+  );
+
+  if (termo) {
+    const fraseTermo = `Instalación de termo de la marca ${termo.marcaTermo} modelo ${termo.modeloTermo} con una capacidad de ${termo.capacidadTermo}L situado en ${termo.ubicacionTermo}.`;
+
+    const raw = `- ${fraseTermo}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const banqueta2 = modificaciones.find(
+    (m) => m.nombre === 'BANQUETA' && m.seleccionado,
+  );
+
+  if (banqueta2) {
+    // Lógica para convertir el número de plazas en texto (ej. 2 -> biplaza)
+    let textoPlazas = `de ${banqueta2.numeroPlazasBanqueta} plazas`;
+    if (Number(banqueta2.numeroPlazasBanqueta) === 1) {
+      textoPlazas = 'monoplaza';
+    } else if (Number(banqueta2.numeroPlazasBanqueta) === 2) {
+      textoPlazas = 'biplaza';
+    }
+
+    // Lógica para el sufijo de seguridad/uso
+    let textoSeguridad = '';
+    if (banqueta2.esUsoEstacionarioBanqueta) {
+      textoSeguridad =
+        ', sin cinturones instalados, únicamente habilitada para uso en estacionario';
+    } else {
+      // En caso de que NO sea estacionario (opcional, por si acaso)
+      textoSeguridad =
+        ', dotada de los correspondientes cinturones de seguridad';
+    }
+
+    const fraseBanqueta = `Instalación de banqueta de asiento ${textoPlazas} fabricada en ${banqueta2.materialBanqueta}, ubicada en ${banqueta2.ubicacionBanqueta}, de la marca ${banqueta2.marcaBanqueta}, modelo ${banqueta2.modeloBanqueta}${textoSeguridad}.`;
+
+    const raw = `- ${fraseBanqueta}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const enganche = modificaciones.find(
+    (m) => m.nombre === 'ENGANCHE REMOLQUE' && m.seleccionado,
+  );
+
+  if (enganche) {
+    // Definimos el texto de ubicación según el checkbox
+    const ubicacionTexto = enganche.enEmplazamientoOriginalEnganche
+      ? 'en emplazamiento de homologación'
+      : 'en la parte trasera'; // Texto por defecto si no se marca el check
+
+    const fraseEnganche = `Instalación de enganche de remolque ${ubicacionTexto}, consistente en: barra y bola marca ${enganche.marcaEnganche}, clase ${enganche.claseEnganche}, contraseña de homologación ${enganche.contrasenaEnganche}, para una MMR en remolques de eje central ${enganche.mmrEnganche}Kg.`;
+
+    const raw = `- ${fraseEnganche}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
+    (p as any)._rawText = raw;
+    out.push(p);
+  }
+
+  const antena = modificaciones.find(
+    (m) => m.nombre === 'ANTENA' && m.seleccionado,
+  );
+
+  if (antena) {
+    // Lógica para la afectación estructural
+    const textoEstructura = antena.sinAfectacionEstructuralAntena
+      ? ', no afectando a la estructura del vehículo'
+      : '';
+
+    const fraseAntena = `Instalación de ${antena.tipoAntena} en ${antena.ubicacionAntena}, de la marca ${antena.marcaAntena}, modelo ${antena.modeloAntena}${textoEstructura}.`;
+
+    const raw = `- ${fraseAntena}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+
     (p as any)._rawText = raw;
     out.push(p);
   }
@@ -1866,8 +3432,7 @@ export function buildModificacionesParagraphs(
     (m) =>
       m.nombre ===
         'SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+      m.seleccionado,
   );
   if (banqueta) {
     raw = `- Sustitución de asiento delantero biplaza por uno individual procedente de ${banqueta.marcaAsiento}, contraseña de homologación ${banqueta.contrasenaAsiento}, de la variante de ${banqueta.plazasAsiento} plazas ${banqueta.posicionAsiento}, manteniéndose el cinturón de la plaza lateral derecha en anclaje original.`;
@@ -1885,10 +3450,7 @@ export function buildModificacionesParagraphs(
   // 4) INSTALACIÓN DE BASES GIRATORIAS
   //
   const giratiorias = modificaciones.find(
-    (m) =>
-      m.nombre === 'INSTALACIÓN DE BASES GIRATORIAS' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'INSTALACIÓN DE BASES GIRATORIAS' && m.seleccionado,
   );
   if (giratiorias) {
     raw = `- Instalación de bases giratorias en los asientos delanteros, marca ${giratiorias.marcaBaseGiratoria}, referencia ${giratiorias.referenciaConductor} (conductor) y ${giratiorias.referenciaAcompanante} (acompañante), sobre anclajes originales, con contraseña de homologación ${giratiorias.homologacionBase}. Las bases giratorias se instalan según instrucciones del fabricante y en anclajes originales.`;
@@ -1906,10 +3468,7 @@ export function buildModificacionesParagraphs(
   // 5) CALEFACCIÓN ESTACIONARIA
   //
   const calefac = modificaciones.find(
-    (m) =>
-      m.nombre === 'CALEFACCIÓN ESTACIONARIA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'CALEFACCIÓN ESTACIONARIA' && m.seleccionado,
   );
   if (calefac) {
     raw = `- Instalación de sistema de calefacción marca ${calefac.marcaCalefaccion} modelo ${calefac.modeloCalefaccion} contraseña de homologación ${calefac.homologacionCalefaccion}, con salidas al espacio de carga del vehículo. El combustible utilizado es Diésel que se toma del depósito mediante espadín. ${calefac.descripcionCalefaccion}. Se realiza instalación del sistema de alimentación según indicaciones de fabricante y se garantiza la estanqueidad del sistema.`;
@@ -1926,10 +3485,7 @@ export function buildModificacionesParagraphs(
   // 6) MOBILIARIO INTERIOR VEHÍCULO
   //
   const mobil = modificaciones.find(
-    (m) =>
-      m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
   );
   if (mobil) {
     raw = `- Instalación de mobiliario para convertir el vehículo en furgón vivienda en la zona de carga del vehículo, compuesto por:`;
@@ -1941,14 +3497,35 @@ export function buildModificacionesParagraphs(
     });
     (p as any)._rawText = raw;
     out.push(p);
-
     // Muebles Altos
     if (
       mobil.opcionesMueble?.muebleAlto &&
       Array.isArray((mobil as any).mueblesAlto)
     ) {
       (mobil as any).mueblesAlto.forEach((mueble: any) => {
-        const raw = `o Instalación de un mueble alto situado en el lateral derecho fabricado en madera de forma artesanal de medidas ${mueble.medidas} con puerta abatible.`;
+        const ubicacionMuebleAlto =
+          typeof mueble.ubicacionMuebleAlto === 'string' &&
+          mueble.ubicacionMuebleAlto.trim()
+            ? mueble.ubicacionMuebleAlto.trim()
+            : 'el lateral derecho';
+
+        let fabricacion = '';
+        if (mueble.tipoFabricacionMuebleAlto === 'maderaArtesanal') {
+          fabricacion = 'fabricado en madera de forma artesanal';
+        } else if (mueble.tipoFabricacionMuebleAlto === 'aceroArtesanal') {
+          fabricacion = 'fabricado en acero de forma artesanal';
+        } else if (mueble.tipoFabricacionMuebleAlto === 'comercial') {
+          const marca = mueble.marcaMuebleAlto
+            ? `la marca ${mueble.marcaMuebleAlto}`
+            : '';
+          const referencia = mueble.referenciaMuebleAlto
+            ? `con referencia ${mueble.referenciaMuebleAlto}`
+            : '';
+          const detalle = [marca, referencia].filter(Boolean).join(' ');
+          fabricacion = detalle ? `de ${detalle}` : '';
+        }
+        const fabricacionTexto = fabricacion ? ` ${fabricacion}` : '';
+        const raw = `o Instalación de un mueble alto situado en ${ubicacionMuebleAlto}${fabricacionTexto} de medidas ${mueble.medidas} con puerta abatible.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -1966,7 +3543,29 @@ export function buildModificacionesParagraphs(
       Array.isArray((mobil as any).mueblesBajo)
     ) {
       (mobil as any).mueblesBajo.forEach((mueble: any) => {
-        const raw = `o Instalación de mueble bajo situado en la parte media del lateral izquierdo, fabricado en madera de forma artesanal, de medidas ${mueble.medidas} con ${mueble.cajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo.`;
+        const ubicacionMuebleBajo =
+          typeof mueble.ubicacionMuebleBajo === 'string' &&
+          mueble.ubicacionMuebleBajo.trim()
+            ? mueble.ubicacionMuebleBajo.trim()
+            : 'la parte media del lateral izquierdo';
+
+        let fabricacion = '';
+        if (mueble.tipoFabricacionMuebleBajo === 'maderaArtesanal') {
+          fabricacion = 'fabricado en madera de forma artesanal';
+        } else if (mueble.tipoFabricacionMuebleBajo === 'aceroArtesanal') {
+          fabricacion = 'fabricado en acero de forma artesanal';
+        } else if (mueble.tipoFabricacionMuebleBajo === 'comercial') {
+          const marca = mueble.marcaMuebleBajo
+            ? `la marca ${mueble.marcaMuebleBajo}`
+            : '';
+          const referencia = mueble.referenciaMuebleBajo
+            ? `con referencia ${mueble.referenciaMuebleBajo}`
+            : '';
+          const detalle = [marca, referencia].filter(Boolean).join(' ');
+          fabricacion = detalle ? `de ${detalle}` : '';
+        }
+        const fabricacionTexto = fabricacion ? ` ${fabricacion}` : '';
+        const raw = `o Instalación de mueble bajo situado en ${ubicacionMuebleBajo}${fabricacionTexto} de medidas ${mueble.medidas} con ${mueble.cajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -1979,9 +3578,15 @@ export function buildModificacionesParagraphs(
     }
 
     // Aseos
-    if (mobil.opcionesMueble?.aseo && Array.isArray((mobil as any).aseo)) {
-      (mobil as any).aseo.forEach((aseo: any) => {
-        const raw = `o Instalación de aseo con persiana de medidas ${aseo.medidas} en su interior se ubica un ${aseo.descripcion}.`;
+    if (
+      mobil.opcionesMueble?.aseo &&
+      Array.isArray((mobil as any).mueblesAseo)
+    ) {
+      (mobil as any).mueblesAseo.forEach((aseo: any) => {
+        const descripcion = aseo.descripcion
+          ? ` en su interior se ubica ${aseo.descripcion}`
+          : '';
+        const raw = `o Instalación de aseo de medidas ${aseo.medidas}${descripcion}.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -1998,10 +3603,7 @@ export function buildModificacionesParagraphs(
   // 7) CLARABOYA
   //
   const claraboya = modificaciones.find(
-    (m) =>
-      m.nombre === 'CLARABOYA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'CLARABOYA' && m.seleccionado,
   );
   if (claraboya) {
     raw = `- Instalación en el techo del vehículo ${claraboya.cantidadClaraboya} claraboyas, marca ${claraboya.marcaClaraboya} modelo ${claraboya.modeloClaraboya} ${claraboya.descripcionClaraboya}, con contraseña de homologación ${claraboya.homologacionClaraboya}, sin afectar a la estructura principal del vehículo.`;
@@ -2019,10 +3621,7 @@ export function buildModificacionesParagraphs(
   // 8) VENTANA
   //
   const ventana = modificaciones.find(
-    (m) =>
-      m.nombre === 'VENTANA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'VENTANA' && m.seleccionado,
   );
   if (ventana) {
     raw = `- Instalación de ${ventana.cantidadVentanas} ventanas abatibles/correderas ${ventana.descripcionVentana} marca ${ventana.marcaVentana} modelo ${ventana.modeloVentana} de dimensiones ${ventana.dimensionesVentana}mm y contraseña de homologación ${ventana.homologacionVentana}, sin afectar a la estructura principal del vehículo.`;
@@ -2040,10 +3639,7 @@ export function buildModificacionesParagraphs(
   // 9) DEPÓSITO DE AGUA SUCIA
   //
   const aguasucia = modificaciones.find(
-    (m) =>
-      m.nombre === 'DEPÓSITO DE AGUA SUCIA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'DEPÓSITO DE AGUA SUCIA' && m.seleccionado,
   );
   if (aguasucia) {
     raw = `- Instalación de depósito para agua sucia de ${aguasucia.litrosAguaSucia} litros en la parte trasera en los bajos del vehículo. Este depósito se vacía mediante un grifo.`;
@@ -2061,10 +3657,7 @@ export function buildModificacionesParagraphs(
   // 10) DEPÓSITO DE AGUA LIMPIA
   //
   const agualimpia = modificaciones.find(
-    (m) =>
-      m.nombre === 'DEPÓSITO DE AGUA LIMPIA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'DEPÓSITO DE AGUA LIMPIA' && m.seleccionado,
   );
   if (agualimpia) {
     raw = `- Instalación de depósito para agua limpia de ${agualimpia.litrosAguaLimpia} litros y medidas ${agualimpia.medidasAguaLimpia}mm en la parte trasera del lateral izquierdo.`;
@@ -2082,10 +3675,7 @@ export function buildModificacionesParagraphs(
   // 12) BOMBA DE AGUA
   //
   const bombaagua = modificaciones.find(
-    (m) =>
-      m.nombre === 'BOMBA DE AGUA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'BOMBA DE AGUA' && m.seleccionado,
   );
   if (bombaagua) {
     raw = `- Instalación de bomba de agua de 12V marca ${bombaagua.marcaBombaAgua} modelo ${bombaagua.modeloBombaAgua} ubicada en la parte trasera izquierda del vehículo.`;
@@ -2103,10 +3693,7 @@ export function buildModificacionesParagraphs(
   // 13) REGISTRO DE LLENADO DE AGUA
   //
   const llenadoagua = modificaciones.find(
-    (m) =>
-      m.nombre === 'REGISTRO DE LLENADO DE AGUA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'REGISTRO DE LLENADO DE AGUA' && m.seleccionado,
   );
   if (llenadoagua) {
     raw = `- Instalación de registro ${llenadoagua.ubicacionRegistroAgua} para llenado de agua, fabricado en plástico de Ø ${llenadoagua.tamanoRegistroAgua}mm, sin afectar a la estructura del vehículo.`;
@@ -2124,10 +3711,7 @@ export function buildModificacionesParagraphs(
   // 14) TOMA EXTERIOR 230V
   //
   const toma230v = modificaciones.find(
-    (m) =>
-      m.nombre === 'TOMA EXTERIOR 230V' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'TOMA EXTERIOR 230V' && m.seleccionado,
   );
   if (toma230v) {
     raw = `- Instalación de una toma de corriente exterior de ${toma230v.voltajeTomaExterior}V en la ${toma230v.ubicacionTomaExterior} fabricado en plástico de medidas ${toma230v.medidasTomaExterior}mm, sin afectar a la estructura del vehículo.`;
@@ -2145,10 +3729,7 @@ export function buildModificacionesParagraphs(
   // 15) DUCHA EXTERIOR
   //
   const duchaexterior = modificaciones.find(
-    (m) =>
-      m.nombre === 'DUCHA EXTERIOR' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'DUCHA EXTERIOR' && m.seleccionado,
   );
   if (duchaexterior) {
     raw = `- Instalación de registro con ducha exterior en la ${duchaexterior.ubicacionDuchaExterior} para llenado de agua, fabricado en plástico, sin afectar a la estructura del vehículo.`;
@@ -2166,10 +3747,7 @@ export function buildModificacionesParagraphs(
   // 16) INSTALACIÓN ELÉCTRICA
   //
   const instalacionelectrica = modificaciones.find(
-    (m) =>
-      m.nombre === 'INSTALACIÓN ELÉCTRICA' &&
-      m.seleccionado &&
-      data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'INSTALACIÓN ELÉCTRICA' && m.seleccionado,
   );
   if (instalacionelectrica) {
     raw = `- Instalación de sistema solar fotovoltaico compuesto por:`;
@@ -2268,8 +3846,7 @@ export function buildModificacionesParagraphs(
   // 17) TOLDO
   //
   const toldo = modificaciones.find(
-    (m) =>
-      m.nombre === 'TOLDO' && m.seleccionado && data.tipoVehiculo === 'camper',
+    (m) => m.nombre === 'TOLDO' && m.seleccionado,
   );
   if (toldo) {
     raw = `- Instalación de toldo marca ${toldo.marcaToldo} de medidas ${toldo.medidasToldo}mm en ${toldo.ubicacionToldo} del vehículo sin afectar a la estructura.`;
@@ -2288,8 +3865,12 @@ export function buildModificacionesParagraphs(
 
 export function getFirstWord(p: Paragraph): string {
   const raw: string = (p as any)._rawText ?? '';
-  const sliced = raw.length > 2 ? raw.slice(2).trim() : raw.trim();
-  return sliced.split(/\s+/)[0] || '';
+
+  // 1) Quitar guión inicial si existe
+  const clean = raw.trim().replace(/^-+\s*/, '');
+
+  // 2) Primera palabra
+  return clean.split(/\s+/)[0] || '';
 }
 
 export function generarDocumentoProyectoParagraphs(
@@ -2299,26 +3880,48 @@ export function generarDocumentoProyectoParagraphs(
   const all = buildModificacionesParagraphs(
     modificaciones.modificaciones,
     data,
+    true,
   );
 
   const first = (p: Paragraph) => getFirstWord(p); // tu helper existente
 
   // Clasificación base
-  let montajesBase = all.filter(
-    (p) =>
-      !['Variación', 'Sustitucion', 'Desmontaje', '', ' '].includes(first(p)),
-  );
-  let desmontajesBase = all.filter((p) => first(p) === 'Desmontaje');
-  let variacionesBase = all.filter((p) =>
-    ['Variación', 'Sustitucion'].includes(first(p)),
-  );
-
-  // Párrafos de casuística (solo existen cuando la principal y la subopción están seleccionadas)
   const casuisticaParas = all.filter(
     (p: any) => (p as any)._fromCasuistica === true,
   );
 
-  // Deduplicación por _rawText (si no existe, usa una firma rápida del contenido)
+  const nonCasuisticaParas = all.filter(
+    (p: any) => (p as any)._fromCasuistica !== true,
+  );
+
+  let montajesBase = nonCasuisticaParas.filter(
+    (p) =>
+      !['Variación', 'Sustitución', 'Desmontaje', '', ' '].includes(first(p)),
+  );
+  let desmontajesBase = nonCasuisticaParas.filter(
+    (p) => first(p) === 'Desmontaje',
+  );
+  let variacionesBase = nonCasuisticaParas.filter((p) =>
+    ['Variación', 'Sustitución'].includes(first(p)),
+  );
+
+  const casuisticaInstHeader = casuisticaParas.filter(
+    (p) => first(p) === 'Instalación',
+  );
+  const casuisticaSustHeader = casuisticaParas.filter(
+    (p) => first(p) === 'Sustitución',
+  );
+  const casuisticaDesmHeader = casuisticaParas.filter(
+    (p) => first(p) === 'Desmontaje',
+  );
+
+  const casuisticaDetails = casuisticaParas.filter(
+    (p) =>
+      first(p) !== 'Instalación' &&
+      first(p) !== 'Sustitución' &&
+      first(p) !== 'Desmontaje',
+  );
+
   const keyOf = (p: any) =>
     (p?._rawText as string) ??
     JSON.stringify(
@@ -2338,10 +3941,14 @@ export function generarDocumentoProyectoParagraphs(
     return out;
   };
 
-  // Añade casuística a los tres grupos
-  const montajes = uniqueMerge(montajesBase, casuisticaParas);
-  const desmontajes = uniqueMerge(desmontajesBase, casuisticaParas);
-  const variacionesYSus = uniqueMerge(variacionesBase, casuisticaParas);
+  const montajes = uniqueMerge(montajesBase, casuisticaInstHeader);
+
+  const desmontajes = uniqueMerge(desmontajesBase, casuisticaDesmHeader);
+
+  const variacionesYSus = uniqueMerge(
+    variacionesBase,
+    uniqueMerge(casuisticaSustHeader, casuisticaDetails),
+  );
 
   // Pintado
   const out: Paragraph[] = [];
@@ -2377,6 +3984,28 @@ function pushCasuistica(out: Paragraph[], p: Paragraph, raw?: string) {
   (p as any)._fromCasuistica = true; // ← marca inequívoca
   if (raw) (p as any)._rawText = raw; // si ya usas _rawText, lo mantenemos
   out.push(p);
+}
+
+function getRefuerzoUbicaciones(ubicacionRefuerzo?: string): {
+  hasDelantero: boolean;
+  hasTrasero: boolean;
+} {
+  const normalized = (ubicacionRefuerzo || '').toLowerCase();
+  return {
+    hasDelantero: normalized.includes('delanter'),
+    hasTrasero: normalized.includes('traser') || normalized.includes('detr'),
+  };
+}
+
+function resolveUbicacionRefuerzoTexto(ubicacionRefuerzo?: string): string {
+  const { hasDelantero, hasTrasero } =
+    getRefuerzoUbicaciones(ubicacionRefuerzo);
+
+  if (hasDelantero && hasTrasero) return 'delantero y trasero';
+  if (hasDelantero) return 'delantero';
+  if (hasTrasero) return 'trasero';
+
+  return ubicacionRefuerzo || '';
 }
 
 type DetallesMuelles = {
@@ -2457,17 +4086,14 @@ function buildLabelsFromMods(data: any): string[] {
   return labels;
 }
 
-export function generarTablaLeyenda(data: any): Table {
-  // 1) Reconstruir la lista igual que en la UI
-  const labels = buildLabelsFromMods(data); // ← aquí está la clave
+export function generarTablaLeyenda(data: any): (Table | Paragraph)[] {
+  const labels = buildLabelsFromMods(data);
 
-  // 2) Crear pares { numero, nombre } ya numerados
   const seleccionadas = labels.map((nombre: string, i: number) => ({
     numero: i + 1,
-    nombre, // en minúsculas/mixto aquí; lo convertimos a MAYÚSCULAS al pintar
+    nombre,
   }));
 
-  // 3) Dividir en dos columnas equilibradas
   const mitad = Math.ceil(seleccionadas.length / 2);
   const col1 = seleccionadas.slice(0, mitad);
   const col2 = seleccionadas.slice(mitad);
@@ -2476,7 +4102,6 @@ export function generarTablaLeyenda(data: any): Table {
     col2.push({ numero: 0, nombre: '' });
   }
 
-  // 4) Construir filas (con cabecera “LEYENDA”)
   const filas = [
     new TableRow({
       cantSplit: true,
@@ -2539,11 +4164,23 @@ export function generarTablaLeyenda(data: any): Table {
     ),
   ];
 
-  return new Table({
+  const tabla = new Table({
     alignment: AlignmentType.CENTER,
     width: { size: 85, type: WidthType.PERCENTAGE },
     rows: filas,
   });
+
+  return [
+    new Paragraph({
+      children: [],
+      spacing: { after: 25 },
+    }),
+    tabla,
+    new Paragraph({
+      children: [],
+      spacing: { before: 25 },
+    }),
+  ];
 }
 
 function renderWordArtBrowser(text: string): Promise<Uint8Array> {
@@ -2611,3 +4248,4 @@ export async function generarDocumentoConWordArt(ingeniero: {
   const imgData = await renderWordArtBrowser(ingeniero.web.toUpperCase());
   return imgData;
 }
+

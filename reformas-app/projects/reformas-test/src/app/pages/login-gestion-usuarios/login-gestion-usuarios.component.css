@@ -1,0 +1,89 @@
+.contenedor-login-gestion-usuarios {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* CAMBIO IMPORTANTE: */
+  /* Quitamos 100vh para que no empuje hacia abajo creando scroll */
+  width: 100%;
+  height: 100%;       /* Ocupa todo el alto disponible en el contenedor padre */
+  min-height: 70vh;   /* Asegura altura mínima para centrado vertical, pero sin pasarse */
+
+  background-color: #f0f2f5;
+  border-radius: 8px; /* Un toque estético ya que está dentro de otro cuadro */
+}
+
+.tarjeta-login-gestion-usuarios {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  /* TAMAÑO COMPACTO */
+  width: 100%;         /* Se adapta al ancho... */
+  max-width: 320px;    /* ...pero nunca pasa de 320px (tamaño móvil estándar) */
+  margin: 0 auto;      /* Centrado horizontal de seguridad */
+}
+
+.titulo-login {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.campo-formulario-gestion-usuarios {
+  margin-bottom: 1rem;
+}
+
+.campo-formulario-gestion-usuarios label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.campo-formulario-gestion-usuarios input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.campo-formulario-gestion-usuarios input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.boton-entrar-gestion-usuarios {
+  width: 100%;
+  padding: 0.7rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.boton-entrar-gestion-usuarios:hover {
+  background-color: #0056b3;
+}
+
+.mensaje-error-gestion-usuarios {
+  color: #dc3545;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  background-color: #ffe6e6;
+  padding: 0.5rem;
+  border-radius: 4px;
+}

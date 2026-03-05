@@ -1,0 +1,148 @@
+<div class="contenedor-admin-panel">
+  <h2>Panel de Administración de Usuarios</h2>
+
+  <div class="tarjeta-crear-usuario-admin">
+    <h3>Crear Nuevo Usuario</h3>
+
+    <div class="fila-formulario-admin">
+      <input
+        type="text"
+        [(ngModel)]="nuevoUsuarioAdminPanel.usuarioRegistroApp"
+        placeholder="Nombre de usuario"
+      />
+      <input
+        type="password"
+        [(ngModel)]="nuevoUsuarioAdminPanel.passwordRegistroApp"
+        placeholder="Contraseña"
+      />
+
+      <select [(ngModel)]="nuevoUsuarioAdminPanel.tipoUsuarioApp">
+        <option value="coche">Coche</option>
+        <option value="vivienda">Vivienda</option>
+      </select>
+
+      <button (click)="crearUsuarioAdminPanel()">Añadir Usuario</button>
+    </div>
+
+    <p *ngIf="mensajeAdminPanel" class="mensaje-alerta-admin">
+      {{ mensajeAdminPanel }}
+    </p>
+  </div>
+
+  <div class="lista-usuarios-admin">
+    <h3>Usuarios Existentes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let usuario of listaUsuariosAdminPanel">
+          <td>{{ usuario.id }}</td>
+          <td>{{ usuario.usuario }}</td>
+          <td>
+            <span [class]="'etiqueta-rol-' + usuario.rol">{{
+              usuario.rol
+            }}</span>
+          </td>
+          <td>
+            <button
+              class="boton-eliminar-admin"
+              (click)="eliminarUsuarioAdminPanel(usuario.id)"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .contenedor-admin-panel {
+    padding: 2rem;
+    font-family: sans-serif;
+  }
+  .tarjeta-crear-usuario-admin {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+  .fila-formulario-admin {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .fila-formulario-admin input,
+  .fila-formulario-admin select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+  }
+  .fila-formulario-admin button {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+
+  .boton-eliminar-admin {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .mensaje-alerta-admin {
+    color: blue;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  .etiqueta-rol-coche {
+    background: #e3f2fd;
+    color: #0d47a1;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+  }
+  .etiqueta-rol-vivienda {
+    background: #e8f5e9;
+    color: #1b5e20;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+  }
+  .etiqueta-rol-administrador {
+    background: #fff3e0;
+    color: #e65100;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+  }
+</style>

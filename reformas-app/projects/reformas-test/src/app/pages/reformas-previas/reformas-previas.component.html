@@ -1,30 +1,154 @@
-<div class="container mt-3">
+<style>
+  #ing-reformas-previas {
+    font-family: "Roboto", sans-serif;
+    background-color: #ffffff;
+    padding: 2rem;
+    border: 1px solid #ced4da;
+    max-width: 100%;
+  }
+
+  #ing-reformas-previas * {
+    border-radius: 0 !important;
+  }
+
+  #ing-reformas-previas h4 {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #000;
+    border-bottom: 3px solid #000;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  .ing-info-box {
+    background-color: #f8f9fa;
+    border-left: 5px solid #6c757d;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    color: #495057;
+  }
+
+  #ing-reformas-previas .form-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  #ing-reformas-previas .form-control {
+    border: 1px solid #adb5bd;
+    font-size: 0.95rem;
+    color: #000;
+    padding: 1rem;
+    transition: all 0.2s;
+    background-color: #fff;
+  }
+
+  #ing-reformas-previas .form-control:focus {
+    border-color: #000;
+    box-shadow: none;
+    outline: 1px solid #000;
+  }
+
+  #ing-reformas-previas .form-control::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  .ing-nav-container {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-ing-prev {
+    background-color: #fff;
+    border: 1px solid #adb5bd;
+    color: #6c757d;
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-ing-prev:hover {
+    border-color: #000;
+    color: #000;
+    background-color: #f8f9fa;
+  }
+
+  .btn-ing-next {
+    background-color: #0066ff;
+    border: 1px solid #0066ff;
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 0.6rem 2rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
+  }
+
+  .btn-ing-next:hover {
+    background-color: #0052cc;
+    border-color: #0052cc;
+    box-shadow: 0 4px 8px rgba(0, 102, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn:hover {
+    color: white;
+  }
+</style>
+
+<div id="ing-reformas-previas" class="container mt-4">
   <h4 class="mb-3">Reformas Previas del Vehículo</h4>
 
-  <p class="text-muted">
-    En este apartado, describe cualquier reforma anterior realizada en el
-    vehículo que consideres relevante para el presente proyecto. Esta
-    información se incluirá en el documento final.
-  </p>
+  <div class="ing-info-box">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    <strong>NOTA TÉCNICA:</strong> Describa cualquier reforma anterior realizada
+    en el vehículo relevante para el presente proyecto. Esta información
+    constará en la documentación técnica final.
+  </div>
 
   <div class="mb-3">
-    <label class="form-label">Descripción de las reformas previas:</label>
+    <label class="form-label">DETALLE TÉCNICO DE REFORMAS ANTERIORES</label>
     <textarea
       class="form-control"
       [(ngModel)]="datos.descripcionReformas"
       (ngModelChange)="onChange()"
       name="descripcionReformas"
       rows="8"
-      placeholder="Escriba aquí los detalles de las reformas previas..."
+      placeholder="// Escriba aquí los detalles técnicos..."
     ></textarea>
   </div>
 
-  <div class="d-flex justify-content-between">
-    <button class="btn btn-outline-secondary" (click)="volver()">
-      ← Volver al formulario
+  <div class="ing-nav-container">
+    <button class="btn btn-ing-prev" (click)="volver()">
+      <i class="bi bi-arrow-left"></i> VOLVER AL FORMULARIO
     </button>
-    <button class="btn btn-primary" (click)="continuarConGenerador()">
-      Continuar con el generador →
+    <button class="btn btn-ing-next" (click)="continuarConGenerador()">
+      CONTINUAR <i class="bi bi-arrow-right"></i>
     </button>
   </div>
 </div>

@@ -7,8 +7,9 @@ import {
   NavigationStart,
 } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import LZString, { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 
-// Hijos standalone (ajusta paths si difieren)
 import { SeleccionSeccionesComponent } from '../seleccion-secciones/seleccion-secciones.component';
 import { MostrarSeccionesComponent } from '../mostrar-secciones/mostrar-secciones.component';
 import { FormularioProyectoComponent } from '../formulario-proyecto/formulario-proyecto.component';
@@ -19,8 +20,6 @@ import { CocheonoComponent } from '../cocheono/cocheono.component';
 import { CanvaComponent } from '../canva/canva.component';
 import { ImagenesComponent } from '../imagenes/imagenes.component';
 import { GeneradorDocumentosComponent } from '../../generador-documentos/generador-documentos.component';
-import { HttpClient } from '@angular/common/http';
-import LZString, { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 
 type Step =
   | 'seleccion'
@@ -45,6 +44,7 @@ interface SavedState {
   datosGenerales?: any;
   datosGuardadosTipoVehiculo?: any;
   datosResumenModificaciones?: any;
+  codigosDetallados?: any;
 }
 
 @Component({
@@ -66,16 +66,24 @@ interface SavedState {
   templateUrl: './crear-reforma.component.html',
 })
 export class CrearReformaComponent implements OnInit, OnDestroy {
-  step: Step = 'seleccion';
+  // 🔥 PUENTE DE DATOS (Sobrevive a la recarga del componente)
+  public static bridgePayload: any = null;
 
-  // Estado compartido con hijos
+  step: Step = 'tipo-vehiculo';
+
   codigosPreseleccionados: any = undefined;
   seccionesSeleccionadas: any = undefined;
   respuestasGuardadas: any = undefined;
   datosFormularioGuardados: any = undefined;
   datosGenerales: any = undefined;
-  datosGuardadosTipoVehiculo: any = undefined;
+  datosGuardadosTipoVehiculo: any = {
+    tipoVehiculo: '',
+    modificaciones: [],
+  };
   datosResumenModificaciones: any = undefined;
+  proyectoCargado = false;
+
+  payloadResumen: any = {};
 
   origenImagenes: 'anterior' | 'siguiente' = 'anterior';
 
@@ -89,6 +97,8 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
 
   private editId: string | null = null;
   private storageKey = STORAGE_PREFIX;
+
+  private editNavDone = false;
 
   private beforeUnloadHandler = (_e: BeforeUnloadEvent) => {
     try {
@@ -112,6 +122,29 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
   }
 
+  private generarPayloadResumenActualizado() {
+    const base = this.datosGenerales || {};
+
+    let mods = this.datosGuardadosTipoVehiculo?.modificaciones;
+    if (!mods || mods.length === 0) {
+      mods = this.datosGenerales?.modificaciones;
+    }
+    if (!mods || mods.length === 0) {
+      mods = this.datosProyecto?.modificaciones;
+    }
+    mods = Array.isArray(mods) ? mods : [];
+
+    let tipo = this.datosGuardadosTipoVehiculo?.tipoVehiculo;
+    if (!tipo) tipo = this.datosGenerales?.tipoVehiculo;
+    if (!tipo) tipo = this.datosProyecto?.tipoVehiculo;
+
+    return {
+      ...base,
+      tipoVehiculo: tipo || '',
+      modificaciones: [...mods],
+    };
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -119,28 +152,59 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
+  private clearWizardStorage() {
+    try {
+      const toDelete: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i) || '';
+        if (k.startsWith(STORAGE_PREFIX)) toDelete.push(k);
+      }
+      toDelete.push(STORAGE_PREFIX, `${STORAGE_PREFIX}-nueva`);
+      Array.from(new Set(toDelete)).forEach((k) => localStorage.removeItem(k));
+    } catch (e) {
+      console.warn('No se pudo limpiar localStorage completamente:', e);
+    }
+  }
+
   resetReforma() {
     try {
-      localStorage.removeItem(this.storageKey);
+      this.clearWizardStorage();
       sessionStorage.clear();
+      CrearReformaComponent.bridgePayload = null; // Limpiar puente
 
-      this.step = 'seleccion';
-      this.codigosPreseleccionados = undefined;
-      this.seccionesSeleccionadas = undefined;
-      this.respuestasGuardadas = undefined;
-      this.datosFormularioGuardados = undefined;
-      this.datosGenerales = undefined;
-      this.datosGuardadosTipoVehiculo = undefined;
-      this.datosResumenModificaciones = undefined;
+      this.step = 'tipo-vehiculo';
+      this.codigosPreseleccionados = [];
+      this.seccionesSeleccionadas = [];
+      this.respuestasGuardadas = {};
+      this.datosFormularioGuardados = {};
+      this.datosGenerales = {};
+      this.datosGuardadosTipoVehiculo = {
+        tipoVehiculo: '',
+        modificaciones: [],
+      };
+      this.datosResumenModificaciones = {};
+      this.datosProyecto = {};
+      this.origenImagenes = 'anterior';
       this.vieneDePosterior = false;
+      this.payloadResumen = {};
+      this.editNavDone = false;
 
-      this.router.navigate(['/reforma', 'seleccion']);
+      this.editMode = false;
+      this.editId = null;
+      this.storageKey = `${STORAGE_PREFIX}-nueva`;
+
+      (this as any).goToLastSignal = 0;
+
+      this.persist();
+      this.router.navigate(['/reforma', 'tipo-vehiculo'], {
+        replaceUrl: true,
+        queryParams: { fresh: 1 },
+      });
     } catch (e) {
       console.error('Error al reiniciar la reforma:', e);
     }
   }
 
-  // Getters para el template
   get mostrarSeleccion() {
     return this.step === 'seleccion';
   }
@@ -160,7 +224,12 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     return this.step === 'resumen';
   }
   get mostrarCocheOno() {
-    return this.step === 'coche-o-no';
+    const tipo = (
+      this.datosGenerales?.tipoVehiculo ||
+      this.datosGuardadosTipoVehiculo?.tipoVehiculo ||
+      ''
+    ).toLowerCase();
+    return this.step === 'coche-o-no' && tipo === 'coche';
   }
   get mostrarCanva() {
     return this.step === 'canva';
@@ -172,37 +241,32 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     return this.step === 'generador';
   }
 
-  // -------- resolución de paso (evita bucles) --------
   private resolveStep(desired: Step): Step {
     switch (desired) {
       case 'subseleccion':
         return this.seccionesSeleccionadas?.length
           ? 'subseleccion'
           : 'seleccion';
-
       case 'formulario':
         return this.respuestasGuardadas &&
           Object.keys(this.respuestasGuardadas).length
           ? 'formulario'
           : this.resolveStep('subseleccion');
-
       default:
-        return desired; // 'seleccion' y los demás por defecto
+        return desired;
     }
   }
 
-  // -------- ciclo de vida --------
   ngOnInit(): void {
+    this.proyectoCargado = true;
     this.editId = this.route.snapshot.queryParamMap.get('editId');
     this.editMode = !!this.editId;
     this.storageKey = this.editId
       ? `${STORAGE_PREFIX}-${this.editId}`
       : `${STORAGE_PREFIX}-nueva`;
 
-    // 2) migrar sesiones antiguas (solo afecta a “nueva”)
     if (!this.editId) this.migrateLegacyKey();
 
-    // Detectar navegación de historial (Atrás/Adelante)
     this.routerSub = this.router.events.subscribe((e) => {
       if (e instanceof NavigationStart) {
         this.isPopstate = !!e.restoredState;
@@ -210,30 +274,27 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     });
 
     if (this.editId) {
-      // Modo editar: traer datos del servidor
       this.cargarProyectoDesdeServidor(this.editId);
+      this.editNavDone = false;
     } else {
-      // Modo crear nuevo: restaurar de localStorage
       this.migrateLegacyKey();
       this.restore();
-      this.step = 'seleccion';
+      this.step = 'tipo-vehiculo';
     }
 
     this.routeSub = this.route.paramMap.subscribe((p: ParamMap) => {
-      const requested = (p.get('step') as Step | null) ?? 'seleccion';
+      const requested = (p.get('step') as Step | null) ?? 'tipo-vehiculo';
       const saved = this.readStorage();
       const fresh = this.route.snapshot.queryParamMap.get('fresh');
 
-      // Auto-resume SOLO si no venimos de popstate (para no romper el botón Atrás)
       if (
         !this.isPopstate &&
-        requested === 'seleccion' &&
+        requested === 'tipo-vehiculo' &&
         saved?.step &&
-        saved.step !== 'seleccion' &&
+        saved.step !== 'tipo-vehiculo' &&
         !fresh
       ) {
         const target = this.resolveStep(saved.step);
-        // Recoloca a último paso, pero reemplazando URL solo esta vez
         this.step = target;
         this.persist();
         this.router.navigate(['/reforma', target], {
@@ -243,52 +304,57 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // En el resto de casos, respeta lo que hay en la URL (con saneo)
       const target = this.resolveStep(requested);
       this.step = target;
+
+      // 🔥🔥 SOLUCIÓN DEL PUENTE 🔥🔥
+      if (this.step === 'resumen') {
+        // 1. Primero miramos si el componente estático tiene los datos "en la nevera"
+        if (CrearReformaComponent.bridgePayload) {
+          console.log('🌉 [INIT] Recuperando datos desde el PUENTE ESTÁTICO.');
+          this.payloadResumen = CrearReformaComponent.bridgePayload;
+
+          // Opcional: Limpiar el puente si quieres, o dejarlo por seguridad
+          CrearReformaComponent.bridgePayload = null;
+        } else {
+          // 2. Si no hay puente (ej: recarga F5), intentamos regenerar desde memoria/storage
+          console.log(
+            '🔄 [INIT] No hay puente. Regenerando desde memoria local...'
+          );
+          this.payloadResumen = this.generarPayloadResumenActualizado();
+        }
+      }
+
       this.persist();
-      // No navegamos si la URL ya es correcta; evitar “parpadeos”
-      // (Si quisieras normalizar, podrías navegar cuando target !== requested)
     });
 
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
   }
 
+  // ... [Tus métodos privados migrateLegacyKey, stripHeavy, buildSnapshotLight... igual que antes] ...
   private migrateLegacyKey() {
-    const legacy = localStorage.getItem(STORAGE_PREFIX); // versión vieja
+    const legacy = localStorage.getItem(STORAGE_PREFIX);
     const nueva = `${STORAGE_PREFIX}-nueva`;
     if (legacy && !localStorage.getItem(nueva)) {
       localStorage.setItem(nueva, legacy);
       localStorage.removeItem(STORAGE_PREFIX);
     }
   }
-
   private static readonly HEAVY_KEYS = [
     'prevImagesB64',
     'postImagesB64',
     'prevImages',
     'postImages',
   ];
-
-  // Quita campos pesados de un objeto (no muta el original)
   private stripHeavy = (obj: any) => {
     if (!obj || typeof obj !== 'object') return obj;
-    // clonado superficial para no mutar
     const copy: any = Array.isArray(obj)
       ? obj.map((x) => ({ ...(x || {}) }))
       : { ...obj };
-
-    // borra claves pesadas si existen
-    for (const k of CrearReformaComponent.HEAVY_KEYS) {
+    for (const k of CrearReformaComponent.HEAVY_KEYS)
       if (k in copy) delete copy[k];
-    }
-
-    // OJO: no tocamos 'modificaciones' ni 'detalle' para no perder lógica,
-    // el mayor problema suelen ser las imágenes/base64.
     return copy;
   };
-
-  // Construye un snapshot "normal" pero ya compactado
   private buildSnapshotLight(): SavedState {
     return {
       step: this.step,
@@ -305,48 +371,64 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       ),
     };
   }
-
-  // Snapshot mínimo de supervivencia si todo falla (para reanudar)
   private buildSnapshotUltraLite(): SavedState {
-    // Reducimos respuestasGuardadas a solo códigos, por si fuera enorme
     const respuestasMin: any = {};
     Object.entries(this.respuestasGuardadas || {}).forEach(([k, arr]: any) => {
       respuestasMin[k] = Array.isArray(arr)
         ? arr.map((x) => ({ codigo: x.codigo }))
         : [];
     });
-
     return {
       step: this.step,
       codigosPreseleccionados: (this.codigosPreseleccionados || []).slice(
         0,
         50
-      ), // recorte defensivo
+      ),
       seccionesSeleccionadas: (this.seccionesSeleccionadas || []).map(
         (s: any) => ({ codigo: s?.codigo, descripcion: s?.descripcion })
       ),
       respuestasGuardadas: respuestasMin,
-      // el resto lo omitimos para no romper el límite
     } as SavedState;
   }
 
   private cargarProyectoDesdeServidor(id: string) {
+    this.proyectoCargado = false;
     this.http
-      .get(`http://192.168.1.41:3000/proyectos/${id}/proyecto.json`)
+      .get(
+        `http://192.168.1.41:3000/proyectos/${id}/proyecto.json?cache_bust=${new Date().getTime()}`
+      )
       .subscribe({
         next: (data: any) => {
-          // Guardamos el proyecto completo en memoria
           this.datosProyecto = { ...data };
 
-          // Restauramos estado en base a datosProyecto + localStorage
+          // Guardamos el paso actual antes de que restore() lo reinicie
+          // Si el usuario ya navegó (ej: a 'resumen'), esto lo capturará.
+          // También miramos la URL por seguridad.
+          const pasoYaNavegado = this.step;
+          const pasoEnUrl = this.route.snapshot.paramMap.get('step') as Step;
+
+          // restore() reinicia internamente this.step a 'tipo-vehiculo',
+          // por eso debemos proteger el paso real después de llamarlo.
           this.restore();
 
-          // Forzamos al primer paso
-          this.step = 'seleccion';
+          // 🔥 CORRECCIÓN DEL BUG:
+          // Si ya estamos en un paso distinto a 'tipo-vehiculo' (porque el usuario avanzó
+          // mientras cargaba o porque recargó la página en el paso 3), RESPETA ESE PASO.
+          if (pasoEnUrl && pasoEnUrl !== 'tipo-vehiculo') {
+            this.step = this.resolveStep(pasoEnUrl);
+          } else if (pasoYaNavegado && pasoYaNavegado !== 'tipo-vehiculo') {
+            this.step = pasoYaNavegado;
+          } else {
+            // Solo si no hay indicación contraria, vamos al inicio
+            this.step = 'tipo-vehiculo';
+          }
+
+          this.proyectoCargado = true;
           this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Error al cargar proyecto desde servidor:', err);
+          console.error('Error al cargar proyecto:', err);
+          this.proyectoCargado = true;
         },
       });
   }
@@ -357,43 +439,58 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     window.removeEventListener('beforeunload', this.beforeUnloadHandler);
   }
 
-  // -------- navegación de botones --------
   navigate(next: Step) {
+    const tipo = (
+      this.datosGenerales?.tipoVehiculo ||
+      this.datosGuardadosTipoVehiculo?.tipoVehiculo ||
+      ''
+    ).toLowerCase();
+
+    const navigationExtras = {
+      queryParams: { editId: this.editId }, // <--- ESTA ES LA CLAVE
+      queryParamsHandling: 'merge' as const, // Mantiene otros parámetros si los hubiera
+    };
+
+    if (next === 'coche-o-no' && tipo !== 'coche') {
+      this.step = 'canva';
+      this.persist();
+      this.router.navigate(['/reforma', 'canva'], navigationExtras);
+      return;
+    }
+    if (this.step === 'canva' && next === 'coche-o-no' && tipo !== 'coche') {
+      this.step = 'formulario';
+      this.persist();
+      this.router.navigate(['/reforma', 'formulario'], navigationExtras);
+      return;
+    }
     this.step = this.resolveStep(next);
     this.persist();
-    // Aquí SÍ añadimos al historial para que Atrás vaya paso a paso
-    this.router.navigate(['/reforma', this.step]);
+    this.router.navigate(['/reforma', this.step], navigationExtras);
   }
 
-  // -------- persistencia --------
-
   private persist() {
+    // 🔥 PROTECCIÓN CRÍTICA:
+    // Si estamos editando un proyecto y aún no ha terminado de cargar (proyectoCargado es false),
+    // PROHIBIDO guardar, porque sobrescribiríamos los datos buenos con el estado vacío inicial.
+    if (this.editId && !this.proyectoCargado) {
+      console.warn('⛔ [PERSIST] Bloqueado: El proyecto aún está cargando.');
+      return;
+    }
+
     try {
-      // 1) intento con snapshot ya "light" + comprimido
       const light = this.buildSnapshotLight();
       const compressed = compressToUTF16(JSON.stringify(light));
       localStorage.setItem(this.storageKey, compressed);
       return;
     } catch (e1) {
-      console.warn(
-        '[persist] QuotaExceeded con snapshot light. Probando ultra-lite…',
-        e1
-      );
+      console.warn('[persist] QuotaExceeded', e1);
     }
-
     try {
-      // 2) si falla, guardamos un snapshot ultra-ligero
       const ultraLite = this.buildSnapshotUltraLite();
       const compressedUltra = compressToUTF16(JSON.stringify(ultraLite));
       localStorage.setItem(this.storageKey, compressedUltra);
-      console.warn(
-        '[persist] Se guardó snapshot ULTRA-LITE. Estado completo sólo en memoria/servidor.'
-      );
     } catch (e2) {
-      console.error(
-        '[persist] No se pudo guardar ni el ultra-lite en localStorage.',
-        e2
-      );
+      console.error('[persist] Error fatal', e2);
     }
   }
 
@@ -401,18 +498,15 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     try {
       const raw = localStorage.getItem(this.storageKey);
       if (!raw) return null;
-
-      // Primero intento descomprimir; si no, asumo que está en claro (compatibilidad)
       let parsed: any = null;
       try {
-        const decompressed = decompressFromUTF16(raw);
-        parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(raw);
+        const d = decompressFromUTF16(raw);
+        parsed = d ? JSON.parse(d) : JSON.parse(raw);
       } catch {
         parsed = JSON.parse(raw);
       }
       return parsed as SavedState;
     } catch (e) {
-      console.error('Error leyendo storage:', e);
       return null;
     }
   }
@@ -424,27 +518,44 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         ? this.datosProyecto
         : {};
 
-    if (!saved && !base) return;
+    if (!saved && Object.keys(base).length === 0) return;
 
-    this.step = 'seleccion';
+    this.step = 'tipo-vehiculo';
 
-    // ---- 1) Intentar leer "códigos detallados" de donde estén
-    const codigosDetalladosRoot =
-      (base as any)?.codigosDetallados || (saved as any)?.codigosDetallados;
-    const codigosDetalladosDG =
-      (base as any)?.datosGenerales?.codigosDetallados ||
-      (saved as any)?.datosGenerales?.codigosDetallados;
+    let codigosEncontrados: string[] = [];
 
-    const esBloqueTipoVehiculo = (obj: any) =>
-      obj &&
-      typeof obj === 'object' &&
-      (typeof obj.tipoVehiculo === 'string' ||
-        Array.isArray(obj.modificaciones));
+    if (
+      Array.isArray(saved?.codigosPreseleccionados) &&
+      saved.codigosPreseleccionados.length > 0
+    ) {
+      codigosEncontrados = saved.codigosPreseleccionados.map(String);
+    } else if (
+      base.codigosDetallados &&
+      Object.keys(base.codigosDetallados).length > 0
+    ) {
+      codigosEncontrados = Object.keys(base.codigosDetallados).filter((key) => {
+        return Array.isArray(base.codigosDetallados[key]);
+      });
+    } else if (
+      base.datosGenerales?.codigosDetallados &&
+      Object.keys(base.datosGenerales.codigosDetallados).length > 0
+    ) {
+      codigosEncontrados = Object.keys(
+        base.datosGenerales.codigosDetallados
+      ).filter((key) => {
+        return Array.isArray(base.datosGenerales.codigosDetallados[key]);
+      });
+    } else if (Array.isArray(base.seccionesSeleccionadas)) {
+      codigosEncontrados = base.seccionesSeleccionadas.map((s: any) =>
+        String(s?.codigo)
+      );
+    }
+
+    this.codigosPreseleccionados = codigosEncontrados;
 
     const normalizarRespuestas = (src: any) =>
       Object.fromEntries(
         Object.entries(src)
-          // solo entradas cuyo valor sea array
           .filter(([, v]) => Array.isArray(v))
           .map(([codigo, lista]) => [
             String(codigo),
@@ -455,64 +566,70 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
           ])
       );
 
-    if (codigosDetalladosRoot && typeof codigosDetalladosRoot === 'object') {
-      if (esBloqueTipoVehiculo(codigosDetalladosRoot)) {
-        // Caso "proyecto enviado por cliente": esto en realidad es tipo-vehículo
-        this.datosGuardadosTipoVehiculo = {
-          ...(this.datosGuardadosTipoVehiculo || {}),
-          tipoVehiculo: codigosDetalladosRoot.tipoVehiculo ?? '',
-          modificaciones: Array.isArray(codigosDetalladosRoot.modificaciones)
-            ? codigosDetalladosRoot.modificaciones
-            : this.datosGuardadosTipoVehiculo?.modificaciones || [],
-        };
-        // No hay códigos detallados que preseleccionar en este caso
-        this.codigosPreseleccionados = saved?.codigosPreseleccionados
-          ? saved.codigosPreseleccionados.map(String)
-          : [];
-        this.respuestasGuardadas = {};
-      } else {
-        // Caso clásico (proyecto 20): mapas de arrays {codigo, descripcion}
-        this.codigosPreseleccionados = Object.keys(codigosDetalladosRoot)
-          .filter((k) => Array.isArray((codigosDetalladosRoot as any)[k]))
-          .map(String);
-        this.respuestasGuardadas = normalizarRespuestas(codigosDetalladosRoot);
-      }
-    } else if (codigosDetalladosDG && typeof codigosDetalladosDG === 'object') {
-      this.codigosPreseleccionados = Object.keys(codigosDetalladosDG)
-        .filter((k) => Array.isArray((codigosDetalladosDG as any)[k]))
-        .map(String);
-      this.respuestasGuardadas = normalizarRespuestas(codigosDetalladosDG);
-    } else if (Array.isArray(saved?.codigosPreseleccionados)) {
-      this.codigosPreseleccionados = saved.codigosPreseleccionados.map(String);
-    } else if (Array.isArray(saved?.seccionesSeleccionadas)) {
-      this.codigosPreseleccionados = saved.seccionesSeleccionadas.map(
-        (s: any) => String(s?.codigo)
-      );
-    } else {
-      this.codigosPreseleccionados = [];
-      this.respuestasGuardadas = {};
+    let origenDatos = '';
+    if (base.codigosDetallados || base.datosGenerales?.codigosDetallados) {
+      origenDatos = 'codigosDetallados';
     }
 
-    // ---- 2) Resto de estado (con fallback al top-level del proyecto)
-    this.seccionesSeleccionadas =
-      base.seccionesSeleccionadas || saved?.seccionesSeleccionadas || [];
+    if (origenDatos.includes('codigosDetallados')) {
+      const fuente =
+        base.codigosDetallados || base.datosGenerales?.codigosDetallados;
+      this.respuestasGuardadas = normalizarRespuestas(fuente);
+    } else {
+      this.respuestasGuardadas =
+        saved?.respuestasGuardadas || base.respuestasGuardadas || {};
+    }
 
-    this.respuestasGuardadas =
-      base.respuestasGuardadas ||
-      this.respuestasGuardadas ||
-      saved?.respuestasGuardadas ||
-      {};
+    this.seccionesSeleccionadas =
+      saved?.seccionesSeleccionadas ||
+      base.seccionesSeleccionadas ||
+      base.datosGenerales?.seccionesSeleccionadas ||
+      [];
 
     this.datosFormularioGuardados =
-      base.datosFormularioGuardados || saved?.datosFormularioGuardados || base;
+      saved?.datosFormularioGuardados || base.datosFormularioGuardados || base;
 
-    this.datosGenerales = base.datosGenerales || saved?.datosGenerales || base;
+    this.datosGenerales = {
+      ...base,
+      ...(base.datosGenerales || {}),
+      ...(saved?.datosGenerales || {}),
+    };
 
-    this.datosGuardadosTipoVehiculo =
-      base.datosGuardadosTipoVehiculo ||
-      this.datosGuardadosTipoVehiculo ||
-      saved?.datosGuardadosTipoVehiculo ||
-      {};
+    if (this.datosFormularioGuardados) {
+      this.datosGenerales = {
+        ...this.datosGenerales,
+        ...this.datosFormularioGuardados,
+      };
+    }
+
+    this.datosGuardadosTipoVehiculo = {
+      ...this.datosGuardadosTipoVehiculo,
+      ...(base.datosGuardadosTipoVehiculo || {}),
+      ...(saved?.datosGuardadosTipoVehiculo || {}),
+    };
+
+    if (!this.datosGuardadosTipoVehiculo.tipoVehiculo) {
+      this.datosGuardadosTipoVehiculo.tipoVehiculo =
+        saved?.datosGenerales?.tipoVehiculo ||
+        base.tipoVehiculo ||
+        this.datosGenerales?.tipoVehiculo ||
+        '';
+    }
+
+    if (
+      !this.datosGuardadosTipoVehiculo.modificaciones ||
+      this.datosGuardadosTipoVehiculo.modificaciones.length === 0
+    ) {
+      if (
+        Array.isArray(base.modificaciones) &&
+        base.modificaciones.length > 0
+      ) {
+        this.datosGuardadosTipoVehiculo.modificaciones = base.modificaciones;
+      } else if (Array.isArray(saved?.datosGenerales?.modificaciones)) {
+        this.datosGuardadosTipoVehiculo.modificaciones =
+          saved.datosGenerales.modificaciones;
+      }
+    }
 
     this.datosResumenModificaciones =
       base.datosResumenModificaciones ||
@@ -520,39 +637,123 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       {};
   }
 
-  // -------- handlers de hijos --------
+  // ... [Métodos de navegación (onContinuar, onVolverDesdeSeleccion...) se mantienen igual] ...
   onContinuar(secciones: { codigo: string; descripcion: string }[]) {
-    this.vieneDePosterior = false; // 👈 entra por el principio
+    this.vieneDePosterior = false;
     this.seccionesSeleccionadas = Array.isArray(secciones) ? secciones : [];
-    this.codigosPreseleccionados = this.seccionesSeleccionadas.map(
+
+    // Obtenemos los códigos válidos (ej: ['4'])
+    const codigosValidos = this.seccionesSeleccionadas.map(
       (s: { codigo: any }) => s.codigo
     );
+    this.codigosPreseleccionados = codigosValidos;
+
+    // 🔥 LIMPIEZA DE HUÉRFANOS 🔥
+    // Si teníamos guardado algo de la sección '3' y esta ya no está en codigosValidos,
+    // creamos un nuevo objeto solo con las respuestas de las secciones que SÍ siguen activas.
+    if (this.respuestasGuardadas) {
+      const respuestasLimpias: any = {};
+
+      codigosValidos.forEach((codigo: string) => {
+        // Si existían respuestas para este código, las conservamos.
+        if (this.respuestasGuardadas[codigo]) {
+          respuestasLimpias[codigo] = this.respuestasGuardadas[codigo];
+        }
+      });
+
+      this.respuestasGuardadas = respuestasLimpias;
+    }
+
+    this.persist();
     this.navigate('subseleccion');
   }
 
-  volverASeleccionDesdeSubseleccion() {
+  onVolverDesdeSeleccion(event?: {
+    secciones?: { codigo: string; descripcion: string }[];
+    codigos?: string[];
+    extra?: any;
+  }) {
+    if (event?.secciones && Array.isArray(event.secciones)) {
+      this.seccionesSeleccionadas = [...event.secciones];
+    }
+    if (event?.codigos && Array.isArray(event.codigos)) {
+      this.codigosPreseleccionados = [...event.codigos];
+    } else if (!this.codigosPreseleccionados && this.seccionesSeleccionadas) {
+      this.codigosPreseleccionados = this.seccionesSeleccionadas.map(
+        (s: any) => s.codigo
+      );
+    }
+
+    // 🔥 CORRECCIÓN: Usar el PUENTE también al volver 🔥
+    if (
+      this.datosResumenModificaciones &&
+      Array.isArray(this.datosResumenModificaciones.modificaciones) &&
+      this.datosResumenModificaciones.modificaciones.length > 0
+    ) {
+      console.log(
+        '🔙 [VOLVER] Recuperando datos detallados y cargando el PUENTE.'
+      );
+
+      const payloadRecuperado = { ...this.datosResumenModificaciones };
+
+      // 1. Asignamos localmente (por si acaso)
+      this.payloadResumen = payloadRecuperado;
+
+      // 2. IMPORTANTE: Llenamos el puente para que el ngOnInit lo encuentre
+      // y NO regenere los datos desde cero.
+      CrearReformaComponent.bridgePayload = payloadRecuperado;
+    } else {
+      console.log('⚠️ [VOLVER] No hay datos previos, regenerando...');
+      this.payloadResumen = this.generarPayloadResumenActualizado();
+      // Si regeneramos, no hace falta puente, porque la regeneración es lo correcto aquí
+    }
+
+    this.persist();
+    this.navigate('resumen');
+  }
+
+  volverASeleccionDesdeSubseleccion(event?: any) {
+    // 🔥 CAMBIO CLAVE: Si vienen datos del hijo, los guardamos antes de salir
+    if (event && typeof event === 'object') {
+      this.respuestasGuardadas = event;
+      this.persist(); // Guardar en localStorage
+    }
+
     this.vieneDePosterior = false;
     this.navigate('seleccion');
   }
-
   onFinalizarRecoleccion(event: any) {
     this.respuestasGuardadas = event || {};
+
+    const TIPO_ACTUAL =
+      this.datosGenerales?.tipoVehiculo ||
+      this.datosGuardadosTipoVehiculo?.tipoVehiculo;
+
+    const MODIFICACIONES_ACTUALES =
+      this.datosResumenModificaciones?.modificaciones ||
+      this.datosGenerales?.modificaciones ||
+      this.datosGuardadosTipoVehiculo?.modificaciones ||
+      [];
+
+    this.datosFormularioGuardados = {
+      ...(this.datosFormularioGuardados || {}),
+      paginaActual: 1,
+      tipoVehiculo: TIPO_ACTUAL || null,
+      modificaciones: MODIFICACIONES_ACTUALES,
+    };
+
+    this.persist();
     this.navigate('formulario');
   }
-
   onAutosaveFormulario(event: { datos: any; paginaActual: number }) {
     if (!event) return;
-
-    // guardamos todo, incluido paginaActual
+    this.mergeGenerales(event.datos);
     this.datosFormularioGuardados = {
       ...event.datos,
       paginaActual: event.paginaActual ?? event.datos?.paginaActual ?? 1,
     };
-
-    // importante: persistir para no perderlo
     this.persist();
   }
-
   onVolverDesdeFormulario(event?: any) {
     const datos = event?.datosFormulario ?? event?.datos ?? event ?? null;
     this.vieneDePosterior = true;
@@ -563,13 +764,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('subseleccion');
   }
-
   onFinalizarFormulario(event: any) {
     if (event) {
       this.datosFormularioGuardados = { ...event, paginaActual: 1 };
-      this.datosGenerales = event;
-
-      // ⚡ Inicializar también aquí datosGuardadosTipoVehiculo
+      this.mergeGenerales(event);
       if (!this.datosGuardadosTipoVehiculo) {
         this.datosGuardadosTipoVehiculo = {
           tipoVehiculo: '',
@@ -577,22 +775,24 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         };
       }
     }
-    const reformas =
-      event?.reformasPrevias ??
-      event?.datos?.reformasPrevias ??
-      this.datosFormularioGuardados?.reformasPrevias ??
-      false;
 
-    this.persist();
-    this.navigate(reformas ? 'reformas-previas' : 'tipo-vehiculo');
+    // ACTUALIZACIÓN CRÍTICA: Sincronizar payloadResumen con los datos nuevos del formulario
+    this.payloadResumen = { ...(this.datosGenerales || {}) };
+
+    if (this.datosFormularioGuardados.reformasPrevias === true) {
+      this.persist();
+      this.navigate('reformas-previas');
+    } else {
+      this.persist();
+      const tipo = (this.datosGenerales?.tipoVehiculo || '').toLowerCase();
+      this.navigate(tipo === 'coche' ? 'coche-o-no' : 'canva');
+    }
   }
-
   onAutosaveReformasPrevias(data: any) {
-    this.datosGenerales = { ...(this.datosGenerales || {}), ...(data || {}) };
+    this.mergeGenerales(data);
     this.datosProyecto = { ...(this.datosProyecto || {}), ...data };
     this.persist();
   }
-
   onVolverDesdeReformasPrevias(event?: any) {
     if (event)
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
@@ -608,27 +808,35 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('formulario');
   }
-
   onContinuarDesdeReformasPrevias(event: any) {
     if (event) {
       this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
 
-      // 👇 inicializamos también datosGuardadosTipoVehiculo
+      if (this.datosFormularioGuardados) {
+        this.datosGenerales = {
+          ...this.datosGenerales,
+          ...this.datosFormularioGuardados,
+        };
+      }
+
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
         ...(this.datosGenerales || {}),
       };
     }
 
-    this.persist();
-    this.navigate('tipo-vehiculo');
-  }
+    // ACTUALIZACIÓN CRÍTICA: Sincronizar payloadResumen antes de ir a coche-o-no
+    this.payloadResumen = { ...(this.datosGenerales || {}) };
 
+    this.persist();
+    this.navigate('coche-o-no');
+  }
   onAutosaveTipoVehiculo(event: {
     tipoVehiculo: string;
     modificaciones: any[];
   }) {
     if (!event) return;
+    if (!Array.isArray(event.modificaciones)) return;
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       ...event,
@@ -641,59 +849,71 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
     this.persist();
   }
-
   onVolverDesdeTipoVehiculo(event?: any) {
     if (event?.datos) this.datosGuardadosTipoVehiculo = event.datos;
     else if (event) this.datosGuardadosTipoVehiculo = event;
-
     this.persist();
-
     if (this.datosGenerales?.reformasPrevias === true) {
       this.navigate('reformas-previas');
       return;
     }
-    this.datosFormularioGuardados = {
-      ...(this.datosFormularioGuardados || {}),
-      paginaActual: 999,
-    };
-    this.persist();
-    this.navigate('formulario');
+    this.navigate('tipo-vehiculo');
   }
 
+  cargandoResumen = false;
+
+  // 🔥🔥 AQUÍ USAMOS EL PUENTE ESTÁTICO PARA GUARDAR LOS DATOS ANTES DE MORIR 🔥🔥
   onContinuarTipoVehiculo(event: any) {
-    if (event) {
+    this.proyectoCargado = true;
+    const datosEntrantes = event && event.datos ? event.datos : event;
+
+    console.log('🔥 [ON-CONTINUAR] Datos:', datosEntrantes);
+
+    if (datosEntrantes) {
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
-        ...event,
+        ...datosEntrantes,
       };
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
-
-      // 🚨 Forzar a que ya no sea tratado como cliente
-      if (this.datosProyecto) {
-        this.datosProyecto = {
-          ...(this.datosProyecto || {}),
-          ...event,
-          enviadoPorCliente: false,
-        };
+      if (Array.isArray(datosEntrantes.modificaciones)) {
+        this.datosGuardadosTipoVehiculo.modificaciones = [
+          ...datosEntrantes.modificaciones,
+        ];
       }
+      this.datosGenerales = {
+        ...(this.datosGenerales || {}),
+        ...datosEntrantes,
+      };
+      this.datosProyecto = {
+        ...(this.datosProyecto || {}),
+        ...datosEntrantes,
+        enviadoPorCliente: false,
+      };
     }
+
+    const modsReales = Array.isArray(datosEntrantes.modificaciones)
+      ? [...datosEntrantes.modificaciones]
+      : [];
+
+    // Creamos el payload
+    const payloadFinal = {
+      ...(this.datosGenerales || {}),
+      tipoVehiculo: datosEntrantes.tipoVehiculo || '',
+      modificaciones: modsReales,
+    };
+
+    this.payloadResumen = payloadFinal;
+
+    // GUARDAR EN EL PUENTE ESTÁTICO (Esto sobrevive a la destrucción del componente)
+    CrearReformaComponent.bridgePayload = payloadFinal;
+    console.log('🌉 [ON-CONTINUAR] Datos guardados en el PUENTE ESTÁTICO.');
+
     this.persist();
     this.navigate('resumen');
-  }
-
-  get datosParaResumen(): any {
-    const base = this.datosGenerales || {};
-    const mods =
-      this.datosGuardadosTipoVehiculo?.modificaciones ??
-      this.datosGenerales?.modificaciones ??
-      [];
-    return { ...base, modificaciones: mods };
   }
 
   onVolverDesdeResumenModificaciones(event?: any) {
     if (event?.datos) this.datosResumenModificaciones = event.datos;
     else if (event) this.datosResumenModificaciones = event;
-
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
@@ -705,52 +925,39 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         this.datosResumenModificaciones?.modificaciones ??
         this.datosGuardadosTipoVehiculo?.modificaciones,
     };
-
     this.persist();
     this.navigate('tipo-vehiculo');
   }
-
   onContinuarDesdeResumenModificaciones(event: any) {
     if (event) {
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
       };
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+      this.mergeGenerales(event);
     }
-
-    const tipo = (
-      event?.tipoVehiculo ??
-      this.datosGuardadosTipoVehiculo?.tipoVehiculo ??
-      this.datosGenerales?.tipoVehiculo ??
-      ''
-    )
-      .toString()
-      .trim()
-      .toLowerCase();
-
     this.persist();
-    this.navigate(tipo === 'coche' ? 'coche-o-no' : 'canva');
+    this.navigate('seleccion');
   }
-
   onAutosaveCocheONo(event: any) {
     if (!event) return;
-    this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+    const data = event?.datos ?? event;
+    this.mergeGenerales(data);
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
-        event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
+        data.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
       modificaciones:
-        event.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
+        data.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
       opcionesCoche:
-        event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
+        data.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
     };
     this.persist();
   }
-
+  goToLastSignal = 0;
   onVolverDesdeCocheONo(event?: any) {
     if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+      this.mergeGenerales(event);
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
         tipoVehiculo:
@@ -762,13 +969,23 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
           event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
       };
     }
-    this.persist();
-    this.navigate('resumen');
+    this.goToLastSignal++;
+    this.datosFormularioGuardados = {
+      ...(this.datosFormularioGuardados || {}),
+      paginaActual: Number.MAX_SAFE_INTEGER,
+    };
+    if (this.datosFormularioGuardados.reformasPrevias === true) {
+      this.persist();
+      this.navigate('reformas-previas');
+      return;
+    } else {
+      this.persist();
+      this.navigate('formulario');
+    }
   }
-
   onContinuarDesdeCocheONo(event: any) {
     if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+      this.mergeGenerales(event);
       this.datosGuardadosTipoVehiculo = {
         ...(this.datosGuardadosTipoVehiculo || {}),
         tipoVehiculo:
@@ -783,56 +1000,58 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('canva');
   }
-
   onAutosaveCanva(event: any) {
     if (!event) return;
-    this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+    const data = event?.datos ?? event;
+    this.mergeGenerales(data);
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
-        event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
+        data.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
       modificaciones:
-        event.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
+        data.modificaciones ?? this.datosGuardadosTipoVehiculo?.modificaciones,
       opcionesCoche:
-        event.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
+        data.opcionesCoche ?? this.datosGuardadosTipoVehiculo?.opcionesCoche,
       marcadores:
-        event.marcadores ?? this.datosGuardadosTipoVehiculo?.marcadores,
+        data.marcadores ?? this.datosGuardadosTipoVehiculo?.marcadores,
     };
     this.persist();
   }
-
   onVolverDesdeCanva(event?: any) {
-    // 1) mergea lo que venga del Canva
     if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+      this.mergeGenerales(event);
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
       };
     }
-
-    // 2) detecta el tipo desde cualquier fuente fiable
-    const tipo = (
-      this.datosGuardadosTipoVehiculo?.tipoVehiculo ??
-      this.datosGenerales?.tipoVehiculo ??
-      ''
-    )
-      .toString()
-      .trim()
-      .toLowerCase();
-
-    // 3) persiste y navega al paso correcto
     this.persist();
-    if (tipo === 'coche') {
-      this.navigate('coche-o-no'); // si es coche, vuelve al paso “coche-o-no”
-    } else {
-      this.navigate('resumen'); // si NO es coche, vuelve a “resumen-modificaciones”
-    }
-  }
+    const tipo = (this.datosGenerales?.tipoVehiculo || '').toLowerCase();
+    const tieneReformasPrevias =
+      this.datosGenerales?.reformasPrevias === true ||
+      this.datosFormularioGuardados?.reformasPrevias === true;
 
+    if (tipo === 'coche') {
+      this.navigate('coche-o-no');
+      return;
+    }
+
+    if (tieneReformasPrevias) {
+      this.navigate('reformas-previas');
+      return;
+    }
+
+    this.datosFormularioGuardados = {
+      ...(this.datosFormularioGuardados || {}),
+      paginaActual: Number.MAX_SAFE_INTEGER,
+    };
+    this.persist();
+    this.navigate('formulario');
+  }
   onContinuarDesdeCanva(event: any) {
     if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+      this.mergeGenerales(event);
+      // Guardamos los datos del canva en la variable maestra
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
@@ -840,22 +1059,34 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     }
     this.persist();
     this.origenImagenes = 'anterior';
+
+    // 🔥 CORRECCIÓN: Actualizar el payload que se enviará al componente de imágenes
+    this.payloadResumen = { ...(this.datosResumenModificaciones || {}) };
+
     this.navigate('imagenes');
   }
-
+  private mergeGenerales(event: any) {
+    const TIPO_ACTUAL =
+      this.datosGenerales?.tipoVehiculo ||
+      this.datosGuardadosTipoVehiculo?.tipoVehiculo;
+    this.datosGenerales = { ...this.datosGenerales, ...event };
+    if (!this.datosGenerales.tipoVehiculo && TIPO_ACTUAL) {
+      this.datosGenerales.tipoVehiculo = TIPO_ACTUAL;
+    }
+  }
   onAutosaveImagenes(event: any) {
     if (!event) return;
-    this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+    const data = event?.datos ?? event;
+    this.mergeGenerales(data);
     this.datosResumenModificaciones = {
       ...(this.datosResumenModificaciones || {}),
-      ...event,
+      ...data,
     };
     this.persist();
   }
-
   onVolverDesdeImagenes(event?: any) {
     if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+      this.mergeGenerales(event);
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
@@ -864,10 +1095,9 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('canva');
   }
-
   onContinuarDesdeImagenes(event: any) {
     if (event) {
-      this.datosGenerales = { ...(this.datosGenerales || {}), ...event };
+      this.mergeGenerales(event);
       this.datosResumenModificaciones = {
         ...(this.datosResumenModificaciones || {}),
         ...event,
@@ -876,10 +1106,13 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.persist();
     this.navigate('generador');
   }
-
   onVolverDesdeGenerador(event?: any) {
     if (event?.datos) this.datosGenerales = event.datos;
     this.origenImagenes = 'siguiente';
+
+    // 🔥 CORRECCIÓN: Cargar los datos guardados (incluidas las imágenes) para enviarlos
+    this.payloadResumen = { ...(this.datosResumenModificaciones || {}) };
+
     this.navigate('imagenes');
   }
 }

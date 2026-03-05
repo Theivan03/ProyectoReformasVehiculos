@@ -11,6 +11,7 @@ export interface Modificacion {
   nTornillos?: number;
   anotacion1?: boolean | string;
   anotacion2?: boolean | string;
+  anotacion3?: boolean | string;
   materialEstribos?: string;
   anchoAletines?: number;
   anchoSobrealetines?: number;
@@ -19,6 +20,7 @@ export interface Modificacion {
   capacidadLb?: number;
   carreteraDesactivada?: boolean;
   clase?: string;
+  superficieFrontalM2Aleron?: number;
   claseBarra?: string;
   cdgconductor?: number;
   cdgocu2?: number;
@@ -48,12 +50,306 @@ export interface Modificacion {
     interDelantero?: boolean;
     interTrasero?: boolean;
     interLateral?: boolean;
+    luzMatricula?: boolean;
+    luzAntinieblas?: boolean;
     estribosotaloneras?: boolean;
     anotacionAntideslizante?: boolean;
   };
   contrasenaHomologacionEje?: string;
   diametroEspiraDelantero?: number;
   metrica?: number;
+  medidasManillar?: number;
+  marcaluzGrupoOptico?: string;
+  modeloluzGrupoOptico?: string;
+  referencialuzGrupoOptico?: string;
+  curvaturaGuardaDelantMoto?: number;
+  curvaturaluzGrupoOptico?: number;
+  homologacionluzGrupoOptico?: string;
+
+  marcaintermitenteDelantero?: string;
+  referenciaintermitenteDelantero?: string;
+  marcajesintermitenteDelantero?: string;
+  homologacionintermitenteDelantero?: string;
+  curvaturaintermitenteDelantero?: number;
+
+  marcaintermitenteTrasero?: string;
+  referenciaintermitenteTrasero?: string;
+  marcajesintermitenteTrasero?: string;
+  homologacionintermitenteTrasero?: string;
+  curvaturaintermitenteTrasero?: number;
+
+  mmtaTotalSuspension?: number;
+  mmta1EjeSuspension?: number;
+  mmta2EjeSuspension?: number;
+
+  checkEje1Neumaticos?: boolean;
+  indiceCargaEje1Neumaticos?: number;
+  cargaEquivalenteEje1Neumaticos?: number;
+  mmaEje1Neumaticos?: number;
+  checkEje2Neumaticos?: boolean;
+  indiceCargaEje2Neumaticos?: number;
+  cargaEquivalenteEje2Neumaticos?: number;
+  mmaEje2Neumaticos?: number;
+  indiceCargaGeneralNeumaticos?: number;
+  cargaEquivalenteGeneralNeumaticos?: number;
+
+  ubicacionDiscos?: 'delanteros' | 'traseros' | 'ambos';
+  sonIguales?: boolean;
+  marcaDiscos?: string;
+  modeloDiscos?: string;
+  referenciaDiscos?: string;
+  diametroDiscos?: number;
+  espesorDiscos?: number;
+  modeloDiscoTrasero?: string;
+  diametroDiscoTrasero?: number;
+  espesorDiscoTrasero?: number;
+
+  marcaVolante?: string;
+  diametroVolante?: number;
+  llevaEspaciador?: boolean;
+  espesorEspaciador?: number;
+  tieneAirbagOriginal?: boolean;
+  tieneAirbagNuevo?: boolean;
+  marcaEspaciador?: string;
+
+  mandosOriginalesLuzMarchaAtras?: boolean;
+  descripcionAccionamientoLuzMarchaAtras?: string;
+  referenciaLuzMarchaAtras?: string;
+  tecnologiaLuzMarchaAtras?: string;
+  marcaLuzMarchaAtras?: string;
+  marcajeLuzMarchaAtras?: string;
+  contrasenaLuzMarchaAtras?: string;
+
+  ubicacionAntiniebla?: 'delanteros' | 'traseros' | 'ambos';
+  marcaAntinieblaDel?: string;
+  homologacionAntinieblaDel?: string;
+  marcaAntinieblaTras?: string;
+  homologacionAntinieblaTras?: string;
+
+  ubicacionPROTECTORES?: 'delantero' | 'trasero';
+  materialProtectorPROTECTORES?: string;
+  medidaLargoPROTECTORES?: number;
+  medidaAltoPROTECTORES?: number;
+
+  materialPlancha?: string;
+  ubicacionPlancha?: string;
+  medidaLargoPLANCHA?: number;
+  medidaAnchoPLANCHA?: number;
+
+  marcaTecho?: string;
+  referenciaTecho?: string;
+  anchoTecho?: number;
+  largoTecho?: number;
+  altoTecho?: number;
+  materialEstructuraTecho?: string;
+  tipoAccionamientoTecho?: string;
+  distanciaAsientosSueloTecho?: number;
+
+  tipoOrigenAsiento?: string;
+  referenciaAsiento?: string;
+
+  esReubicadoVelocimetro?: boolean;
+  observacionesTestigosVelocimetro?: string;
+  estaCalibradoVelocimetro?: boolean;
+  tipoVelocimetro?: string;
+  modeloVelocimetro?: string;
+  listaTestigosVelocimetro?: string;
+
+  incluirNotaIntegridadBasculante?: boolean;
+  marcaBasculante?: string;
+  modeloBasculante?: string;
+  contrasenaBasculante?: string;
+
+  plazasAntesReduccion?: number;
+  plazasDespuesReduccion?: number;
+  desinstalacionAsideroReduccion?: boolean;
+  desinstalacionEstriberasReduccion?: boolean;
+
+  marcaMandoLuces?: string;
+  modeloMandoLuces?: string;
+  funcionesIzquierdoMandoLuces?: string;
+  funcionesDerechoMandoLuces?: string;
+
+  retornoAutomaticoAcelerador?: boolean;
+  marcaAcelerador?: string;
+  modeloAcelerador?: string;
+
+  marcaTorretas?: string;
+  medidaLargoTorretas?: number;
+  medidaAnchoTorretas?: number;
+  medidaAltoTorretas?: number;
+
+  radioCurvaturaEscape?: number;
+
+  pesoAleron?: number;
+  coefAerodinamicoCwAleron?: number;
+  velocidadAireV2msAleron?: number;
+  densidadAireKgM3Aleron?: number;
+  coefSeguridadKAleron?: number;
+  curvaturaAleron?: number;
+  calidadTornilloAleron?: number;
+  resTraccionMinTornillo88Kgmm2Aleron?: number;
+  seccionResistenteAsAleron?: number;
+  metricaAleron?: number;
+  anchuraAleron?: number;
+  alturaAleron?: number;
+
+  tipoModificacionSubchasis?: string;
+  descripcionCorteSubchasis?: string;
+
+  cambiaSoloSilencioso?: boolean;
+  tipoSalidaOriginalEscape?: string;
+  ubicacionOriginalEscape?: string;
+  tipoSalidaNuevaEscape?: string;
+  ubicacionNuevaEscape?: string;
+  sobresaleEscape?: boolean;
+
+  medidaLlantas?: string;
+  medidaNeumaticos?: string;
+
+  reformasAdicionales?: string;
+
+  cumpleSalientesEstriberas?: boolean;
+  marcaEstriberas?: string;
+  refPisanteEstriberas?: string;
+  refSoporteEstriberas?: string;
+
+  reubicaFrenoSoportesDesplazados?: boolean;
+  reubicaCambioSoportesDesplazados?: boolean;
+  marcaSoportesDesplazados?: string;
+  referenciaSoportesDesplazados?: string;
+
+  ubicacionBombaFreno?: string;
+  marcaBombaFrenoDel?: string;
+  referenciaBombaFrenoDel?: string;
+  marcaBombaFrenoTras?: string;
+  referenciaBombaFrenoTras?: string;
+
+  anclajesOriginalesDeposito?: boolean;
+  descripcionUbicacionDeposito?: string;
+  marcaDeposito?: string;
+  modeloDeposito?: string;
+  contrasenaDeposito?: string;
+  capacidadDeposito?: number;
+
+  ubicacionSoporteMatricula?: string;
+  materialSoporteMatricula?: string;
+  marcaSoporteMatricula?: string;
+  medidaAnchoSoporteMatricula?: number;
+  medidaAltoSoporteMatricula?: number;
+
+  sinAfectacionEstructuralAntena?: boolean;
+  tipoAntena?: string;
+  ubicacionAntena?: string;
+  marcaAntena?: string;
+  modeloAntena?: string;
+
+  enEmplazamientoOriginalEnganche?: boolean;
+  marcaEnganche?: string;
+  claseEnganche?: string;
+  contrasenaEnganche?: string;
+  mmrEnganche?: number;
+
+  numeroPlazasBanqueta?: number;
+  esUsoEstacionarioBanqueta?: boolean;
+  materialBanqueta?: string;
+  ubicacionBanqueta?: string;
+  marcaBanqueta?: string;
+  modeloBanqueta?: string;
+
+  marcaTermo?: string;
+  modeloTermo?: string;
+  capacidadTermo?: number;
+  ubicacionTermo?: string;
+
+  zonaLateralesRevestimiento?: string;
+  zonaSueloRevestimiento?: string;
+  zonaTechoRevestimiento?: string;
+  instalaTarimaRevestimiento?: boolean;
+  materialTarimaRevestimiento?: string;
+  materialPaneladoRevestimiento?: string;
+
+  marcaCalandra?: string;
+  referenciaCalandra?: string;
+  materialCalandra?: string;
+  medidaLargoCALANDRA?: number;
+  medidaAltoCALANDRA?: number;
+
+  usAnclajesOriginalesINTERCOOLER?: boolean;
+  descSoportesINTERCOOLER?: string;
+  marcaIntercooler?: string;
+  refIntercooler?: string;
+  medidaLargoINTERCOOLER?: number;
+  medidaAltoINTERCOOLER?: number;
+  medidaEspesorINTERCOOLER?: number;
+
+  marcaEscape?: string;
+  referenciaEscape?: string;
+  contrasenaHomologacionEscape?: string;
+  cambiaNumeroSalidas?: boolean;
+  numeroSalidasEscape?: number;
+  cambiaUbicacion?: boolean;
+  descripcionUbicacionEscape?: string;
+
+  ubicacionPanelRelojes?: string;
+  medidaAnchoRelojes?: number;
+  medidaAltoRelojes?: number;
+  numeroRelojes?: number;
+  descripcionRelojes?: string;
+
+  materialDifusor?: string;
+  marcaDifusor?: string;
+  modeloDifusor?: string;
+  largoDifusor?: number;
+  altoDifusor?: number;
+
+  ubicacionVentana?: string;
+  materialVentana?: string;
+  largoVentana?: number;
+  altoVentana?: number;
+
+  ubicacionRefuerzo?: 'delantero' | 'trasero' | 'delantero y trasero';
+  materialRefuerzo?: string;
+  marcaRefuerzo?: string;
+  referenciaRefuerzo?: string;
+  largoRefuerzo?: number;
+  altoRefuerzo?: number;
+  fondoRefuerzo?: number;
+  materialRefuerzoDelantero?: string;
+  marcaRefuerzoDelantero?: string;
+  referenciaRefuerzoDelantero?: string;
+  largoRefuerzoDelantero?: number;
+  altoRefuerzoDelantero?: number;
+  fondoRefuerzoDelantero?: number;
+  materialRefuerzoTrasero?: string;
+  marcaRefuerzoTrasero?: string;
+  referenciaRefuerzoTrasero?: string;
+  largoRefuerzoTrasero?: number;
+  altoRefuerzoTrasero?: number;
+  fondoRefuerzoTrasero?: number;
+
+  marcacatadioptrico?: string;
+  referenciacatadioptrico?: string;
+  homologacioncatadioptrico?: string;
+  curvaturacatadioptrico?: number;
+
+  marcaluzMatricula?: string;
+  referencialuzMatricula?: string;
+  homologacionluzMatricula?: string;
+
+  marcaluzAntinieblas?: string;
+  marcajesluzAntinieblas?: string;
+  homologacionluzAntinieblas?: string;
+  curvaturaluzAntinieblas?: number;
+
+  marcaluzFreno?: string;
+  referencialuzFreno?: string;
+  homologacionluzFreno?: string;
+  luzMatriculaIntegradaLuzFreno?: boolean;
+
+  marcajesluzGrupoOptico?: string;
+  curvaturaGuardaTrasMoto?: number;
+  curvaturaManillar?: number;
   diametroExteriorDelantero?: number;
   diametroTacoDelantero?: number;
   diametroTacoTrasero?: number;
@@ -71,6 +367,76 @@ export interface Modificacion {
   espesorTacoTrasero?: number;
   esLed?: boolean;
   esLedPosicion?: boolean;
+
+  ubicacionAleron?: string;
+  materialAleron?: string;
+  marcaAleron?: string;
+  referenciaAleron?: string;
+  medidasAleron?: string;
+
+  tipoFabricacionLip?: string;
+  materialLipDelantero?: string;
+  marcaLipDelantero?: string;
+  referenciaLipDelantero?: string;
+  medidasLipDelantero?: string;
+
+  ubicacionAsientos?: string;
+  refAsientoConductor?: string;
+  refAsientosTraseros?: string;
+  refAsientoCopiloto?: string;
+  procedenciaAsientos?: string;
+  anoProcedenciaAsientos?: number;
+
+  ubicacionBarras?: string;
+  marcaBarras?: string;
+  modeloBarras?: string;
+  materialBarras?: string;
+  diametroTuboBarras?: number;
+  medidasBarras?: string;
+
+  ubicacionTecho?: string;
+  medidasTecho?: string;
+  homologacionTecho?: string;
+
+  zonaPeldano?: string;
+  marcaPeldano?: string;
+  materialPeldano?: string;
+  medidasPeldano?: string;
+
+  ladoVentana?: 'izquierdo' | 'derecho' | 'ambos';
+  medidasVentana?: string;
+
+  tipoFabricacionBodyLift?: string;
+  marcaBodyLift?: string;
+  cantidadTacosBodyLift?: number;
+  referenciaBodyLift?: string;
+  materialBodyLift?: string;
+  diametroBodyLift?: number;
+  alturaBodyLift?: number;
+
+  ubicacionLatiguillos?: string;
+  ubicacionSeparadores?: string;
+  separadoresIguales?: boolean;
+  marcaSeparadoresTraseros?: string;
+  referenciaSeparadoresTraseros?: string;
+  grosorSeparadoresTraseros?: string;
+
+  marcaVehiculoDonanteMotor?: string;
+  modeloVehiculoDonanteMotor?: string;
+  marcaMotor?: string;
+  tipoMotor?: string;
+  numCilindrosMotor?: number;
+  cilindradaMotor?: number;
+  potenciaFiscalMotor?: number;
+  potenciaRealMotor?: number;
+  nuevaTaraMotor?: number;
+
+  ubicacionChasis?: string;
+  descripcionOperacionChasis?: string;
+  elementoUnionChasis?: string;
+  medidasChasis?: string;
+  materialChasis?: string;
+
   guardabarrosDelantero?: boolean;
   guardabarrosTrasero?: boolean;
   grosor?: number;
@@ -310,7 +676,7 @@ export interface Modificacion {
   referenciaIntermitente?: string;
   referenciaMarchaAtras?: string;
   referenciaCatadioptrico?: string;
-  curvaturaSnorkel?: string;
+  curvaturaSnorkel?: number;
   curvaturaParagolpesDelantero?: string;
   curvaturaParagolpesTrasero?: string;
   curvaturaAletines?: string;
@@ -421,11 +787,25 @@ export interface Modificacion {
   radioCurvaRLucesEspecificas?: number;
   coefSeguridadKLucesEspecificas?: number;
 
+  pesoPiezaKgAntiempotramiento?: number;
+  superficieFrontalM2Antiempotramiento?: number;
+  seccionResistenteAsAntiempotramiento?: number;
+  resTraccionMinTornillo88Kgmm2Antiempotramiento?: number;
+  metricaAntiempotramiento?: number;
+  calidadTornilloAntiempotramiento?: number;
+  nTornillosAntiempotramiento?: number;
+  cwCoefAerodinamicoAntiempotramiento?: number;
+  densidadAireKgM3Antiempotramiento?: number;
+  velocidadAireV2msAntiempotramiento?: number;
+  radioCurvaRAntiempotramiento?: number;
+  coefSeguridadKAntiempotramiento?: number;
+
   pesoPiezaKgParagolpesDelantero?: number;
   superficieFrontalM2ParagolpesDelantero?: number;
   seccionResistenteAsParagolpesDelantero?: number;
   resTraccionMinTornillo88Kgmm2ParagolpesDelantero?: number;
   metricaParaDelantero?: number;
+  calidadTornilloParagolpesDelantero?: number;
   ntornillosParaDelantero?: number;
   cwCoefAerodinamicoParagolpesDelantero?: number;
   densidadAireKgM3ParagolpesDelantero?: number;
@@ -491,4 +871,60 @@ export interface Modificacion {
   anchoHojaBallestaTrasera?: number;
   espesorHojaBallestaTrasera?: number;
   longitudBallestaTrasera?: number;
+
+  ant_diametroBombaTrasera?: number;
+  ant_dimensionPistonTrasera?: number;
+  ant_numPistonesTrasero?: number;
+  ant_numPinzasTraseras?: number;
+  ant_numDiscosTrasero?: number;
+
+  ant_diametroBombaDelantera?: number;
+  ant_dimensionPistonDelantera?: number;
+  ant_numPistonesDelantero?: number;
+  ant_numPinzasDelanteras?: number;
+  ant_numDiscosDelantero?: number;
+
+  diametroBombaDiscos?: number;
+  dimensionPistonDiscos?: number;
+  numPistonesDiscos?: number;
+  numPinzasDelanteras?: number;
+  numDiscosDelantero?: number;
+
+  ant_diametroExteriorDiscoDelantero?: number;
+  diametroExteriorDiscos?: number;
+
+  ant_diametroInteriorDiscoDelantero?: number;
+  diametroInteriorDiscos?: number;
+
+  diametroBombaDiscoTrasero?: number;
+  dimensionPistonDiscoTrasero?: number;
+  numPistonesDiscoTrasero?: number;
+  numPinzasTraseras?: number;
+  numDiscosTrasero?: number;
+
+  ant_diametroExteriorDiscoTrasero?: number;
+  diametroExteriorDiscoTrasero?: number;
+  ant_diametroInteriorDiscoTrasero?: number;
+  diametroInteriorDiscoTrasero?: number;
+
+  anguloContactoDiscos?: number;
+  anguloContactoDiscoTrasero?: number;
+
+  ant_radioNeumaticoTrasero?: number;
+  ant_anchoNeumaticoTrasero?: number;
+  ant_perfilNeumaticoTrasero?: number;
+  ant_perfilNeumaticoDelantero?: number;
+  ant_anchoNeumaticoDelantero?: number;
+  ant_radioNeumaticoDelantero?: number;
+  perfilNeumaticoDiscoTrasero?: number;
+  anchoNeumaticoDiscoTrasero?: number;
+  radioNeumaticoDiscoTrasero?: number;
+  perfilNeumaticoDiscos?: number;
+  anchoNeumaticoDiscos?: number;
+  radioNeumaticoDiscos?: number;
+  diametroExteriorDiscoDelantero?: number;
+  diametroInteriorDiscoDelantero?: number;
+  diametroBombaDelantera?: number;
+  dimensionPistonDelantera?: number;
+  numPistonesDelantero?: number;
 }

@@ -22,6 +22,7 @@ export class CocheonoComponent implements OnInit {
   opcionesCoche: boolean[] = [false, false, false, false, false];
 
   ngOnInit(): void {
+    console.log('CocheonoComponent ngOnInit', this.datosEntrada);
     const tipo = (this.datosEntrada?.tipoVehiculo || '')
       .toString()
       .trim()
@@ -39,11 +40,11 @@ export class CocheonoComponent implements OnInit {
     this.emitAutosave();
 
     // Si NO es coche, saltamos este componente automáticamente (guardando antes)
-    if (tipo !== 'coche') {
-      this.datosEntrada.opcionesCoche = this.opcionesCoche;
-      this.emitAutosave();
-      this.continuar.emit(this.datosEntrada);
-    }
+    // if (tipo !== 'coche') {
+    //   this.datosEntrada.opcionesCoche = this.opcionesCoche;
+    //   this.emitAutosave();
+    //   this.continuar.emit(this.datosEntrada);
+    // }
   }
 
   /** Emite snapshot seguro */
@@ -87,10 +88,10 @@ export class CocheonoComponent implements OnInit {
     }
 
     // Para coche: requiere al menos una opción
-    if (this.anyOpcionCocheSeleccionada()) {
-      this.continuar.emit(this.datosEntrada);
-    } else {
-      form?.control.markAllAsTouched();
-    }
+    // if (this.anyOpcionCocheSeleccionada()) {
+    this.continuar.emit(this.datosEntrada);
+    // } else {
+    //   form?.control.markAllAsTouched();
+    // }
   }
 }

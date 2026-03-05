@@ -1,0 +1,831 @@
+<style>
+  /* --- VARIABLES GENERALES --- */
+  :root {
+    --bg-app: #f4f6f8;
+    --text-dark: #1f2937;
+    --text-grey: #6b7280;
+    --bg-col-curso: #ebecf0;
+    --bg-col-terminado: #dcfce7;
+  }
+
+  .trello-container {
+    background-color: var(--bg-app);
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+
+  /* --- ESTRUCTURA KANBAN --- */
+  .kanban-board {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+
+  .kanban-column {
+    flex: 1;
+    background: var(--bg-col-curso);
+    border-radius: 12px;
+    padding: 1.5rem;
+    min-height: 600px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
+  }
+
+  .kanban-column.col-terminado {
+    background: var(--bg-col-terminado);
+    border: 2px dashed #86efac;
+  }
+
+  .column-header {
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+  }
+
+  /* --- TARJETAS --- */
+  .kanban-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 6px solid transparent;
+  }
+
+  .kanban-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .border-curso {
+    border-left-color: #f59e0b;
+  }
+  .border-terminado {
+    border-left-color: #198754;
+    opacity: 0.9;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-grey);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* --- BADGES (ETIQUETAS) - COLORES FUERTES Y VISIBLES --- */
+  .badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mini-badge {
+    font-size: 0.75rem;
+    font-weight: 800; /* Texto bien grueso */
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: white !important; /* Texto SIEMPRE blanco para contraste */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* Sombrita para resaltar */
+  }
+
+  /* 1. NO CONTRATADO (Gris claro, texto gris oscuro) */
+  .badge-off {
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
+    border: 1px solid #d1d5db;
+    box-shadow: none;
+    opacity: 0.7;
+  }
+
+  /* 2. SIN EMPEZAR (Gris Oscuro/Negro Sólido) */
+  .badge-pending {
+    background-color: #343a40 !important;
+    border: 1px solid #212529;
+  }
+
+  /* 3. PRESENTADO (Azul Eléctrico Sólido) */
+  .badge-info {
+    background-color: #0d6efd !important;
+    border: 1px solid #0b5ed7;
+  }
+
+  /* 4. TERMINADO (Verde Semáforo Sólido) */
+  .badge-success {
+    background-color: #198754 !important;
+    border: 1px solid #157347;
+  }
+
+  /* --- MODAL BASE --- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+    padding: 3rem;
+  }
+
+  /* --- MODAL DOCUMENTOS --- */
+  .modal-backdrop-second {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2100;
+  }
+
+  .modal-panel {
+    background: white;
+    width: 100%;
+    max-width: 850px;
+    max-height: 90vh;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .modal-panel-docs {
+    background: white;
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    padding: 2rem;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .modal-body {
+    padding: 2rem;
+    overflow-y: auto;
+    background: #f9fafb;
+  }
+
+  /* Filas de Servicios */
+  .service-row {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+  }
+
+  .service-row.disabled {
+    background: #f9fafb;
+    opacity: 0.6;
+    border-style: dashed;
+  }
+
+  /* --- SWITCH (INTERRUPTOR) REDISEÑADO PARA VISIBILIDAD --- */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 54px; /* Un poco más ancho */
+    height: 30px; /* Un poco más alto */
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #94a3b8; /* Gris oscurete para estado OFF (visible en blanco) */
+    transition: 0.3s;
+    border-radius: 34px;
+    border: 2px solid transparent; /* Reserva espacio borde */
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Sombra para que destaque la bola */
+  }
+
+  /* Estado ACTIVADO: Verde Intenso */
+  input:checked + .slider {
+    background-color: #16a34a; /* Verde fuerte */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+
+  /* --- SELECTOR DE ESTADO --- */
+  .status-select {
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    width: 100%;
+    font-weight: 700; /* Texto negrita */
+    cursor: pointer;
+  }
+  .status-sin-empezar {
+    color: #343a40;
+    border-left: 5px solid #343a40;
+  }
+  .status-presentado {
+    color: #0d6efd;
+    border-left: 5px solid #0d6efd;
+  }
+  .status-terminado {
+    color: #198754;
+    border-left: 5px solid #198754;
+  }
+
+  /* --- TEXTAREA --- */
+  .notes-textarea {
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .notes-textarea:focus {
+    background-color: #fff;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+
+  /* Estilos botones docs */
+  .doc-btn {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+    transition: all 0.2s;
+    color: var(--text-dark);
+    font-weight: 500;
+  }
+  .doc-btn:hover {
+    background-color: #f0fdf4;
+    border-color: #86efac;
+    transform: translateX(5px);
+  }
+  .doc-category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #6b7280;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+  }
+</style>
+
+<div class="trello-container">
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <h2 class="fw-bold text-dark m-0">Gestión de Expedientes</h2>
+      <p class="text-muted mt-1 mb-0">
+        Arrastra las tarjetas para completar el expediente
+      </p>
+    </div>
+    <button
+      class="btn btn-primary px-4 py-2 shadow-sm fw-bold d-flex align-items-center gap-2"
+      (click)="cargarViviendas()"
+    >
+      <lucide-angular [img]="icons.Clock" style="width: 20px"></lucide-angular>
+      Refrescar Tablero
+    </button>
+  </div>
+
+  <div class="kanban-board">
+    <div
+      class="kanban-column"
+      (dragover)="onDragOver($event)"
+      (drop)="onDrop($event, 'empezado')"
+    >
+      <div class="column-header">
+        <span class="d-flex align-items-center gap-3">
+          <lucide-angular
+            [img]="icons.LayoutDashboard"
+            style="color: #f59e0b; width: 24px; height: 24px"
+          ></lucide-angular>
+          EN CURSO
+        </span>
+        <span class="badge bg-warning text-dark rounded-pill fs-6 px-3">{{
+          expedientesEnCurso.length
+        }}</span>
+      </div>
+      <div
+        *ngFor="let viv of expedientesEnCurso"
+        class="kanban-card border-curso"
+        draggable="true"
+        (dragstart)="onDragStart($event, viv)"
+        (click)="abrirFicha(viv)"
+      >
+        <h3 class="card-title">
+          {{ viv.titular_nombre }} {{ viv.titular_apellidos }}
+        </h3>
+        <div class="card-subtitle">
+          <lucide-angular
+            [img]="icons.MapPin"
+            style="width: 18px; height: 18px; color: var(--primary)"
+          ></lucide-angular>
+          <span
+            ><strong class="text-dark">{{
+              viv.vivienda_tipo_via | titlecase
+            }}</strong>
+            {{ viv.vivienda_nombre_via }} {{ viv.vivienda_numero }}</span
+          >
+        </div>
+        <div class="badge-container mt-3">
+          <span
+            *ngFor="let conf of configuracionServicios"
+            class="mini-badge"
+            [ngClass]="getBadgeClass(viv[conf.key], viv[conf.estadoKey])"
+          >
+            {{ conf.label }}
+            <lucide-angular
+              *ngIf="viv[conf.notasKey]"
+              [img]="icons.MessageSquare"
+              style="
+                width: 12px;
+                height: 12px;
+                fill: currentColor;
+                opacity: 0.9;
+              "
+            ></lucide-angular>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="kanban-column col-terminado"
+      (dragover)="onDragOver($event)"
+      (drop)="onDrop($event, 'terminado')"
+    >
+      <div class="column-header">
+        <span class="d-flex align-items-center gap-3 text-success">
+          <lucide-angular
+            [img]="icons.CheckCircle2"
+            style="width: 24px; height: 24px"
+          ></lucide-angular>
+          TERMINADOS
+        </span>
+        <span class="badge bg-success rounded-pill fs-6 px-3">{{
+          expedientesTerminados.length
+        }}</span>
+      </div>
+      <div
+        *ngFor="let viv of expedientesTerminados"
+        class="kanban-card border-terminado"
+        draggable="true"
+        (dragstart)="onDragStart($event, viv)"
+        (click)="abrirFicha(viv)"
+      >
+        <h3 class="card-title text-decoration-line-through text-muted">
+          {{ viv.titular_nombre }} {{ viv.titular_apellidos }}
+        </h3>
+        <div class="card-subtitle">
+          <lucide-angular
+            [img]="icons.MapPin"
+            style="width: 18px; height: 18px; color: var(--color-success)"
+          ></lucide-angular>
+          <span
+            >{{ viv.vivienda_tipo_via | titlecase }}
+            {{ viv.vivienda_nombre_via }} {{ viv.vivienda_numero }}</span
+          >
+        </div>
+        <div class="badge-container mt-3">
+          <span
+            class="mini-badge badge-success w-100 text-center justify-content-center"
+            >✅ EXPEDIENTE FINALIZADO</span
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal-backdrop"
+  *ngIf="viviendaSeleccionada"
+  (click)="cerrarModal()"
+>
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h2 class="fw-bold m-0 text-primary">
+          {{ viviendaSeleccionada.titular_nombre }}
+          {{ viviendaSeleccionada.titular_apellidos }}
+        </h2>
+        <div class="d-flex align-items-center gap-2 mt-2 text-muted fs-5">
+          <lucide-angular
+            [img]="icons.MapPin"
+            style="width: 20px; height: 20px"
+          ></lucide-angular>
+          <span
+            >{{ viviendaSeleccionada.vivienda_tipo_via | titlecase }}
+            {{ viviendaSeleccionada.vivienda_nombre_via }}
+            {{ viviendaSeleccionada.vivienda_numero }},
+            {{ viviendaSeleccionada.vivienda_poblacion }}</span
+          >
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button
+          class="btn btn-success text-white btn-sm d-flex align-items-center gap-2"
+          (click)="abrirModalDocumentos()"
+        >
+          <lucide-angular
+            [img]="icons.Download"
+            style="width: 16px"
+          ></lucide-angular>
+          Generar Docs
+        </button>
+
+        <button
+          class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2"
+          (click)="navegarAEdicion()"
+        >
+          <lucide-angular
+            [img]="icons.Edit"
+            style="width: 16px"
+          ></lucide-angular>
+          Editar Datos
+        </button>
+        <button
+          class="btn btn-light rounded-circle p-2"
+          (click)="cerrarModal()"
+        >
+          <lucide-angular
+            [img]="icons.X"
+            style="width: 24px; height: 24px"
+          ></lucide-angular>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <p
+        class="text-muted small mb-4 text-uppercase fw-bold ls-1 d-flex align-items-center gap-2"
+      >
+        <lucide-angular
+          [img]="icons.LayoutDashboard"
+          style="width: 16px"
+        ></lucide-angular>
+        Panel de Control de Permisos
+      </p>
+      <div
+        *ngFor="let conf of configuracionServicios"
+        class="service-row"
+        [class.disabled]="!viviendaSeleccionada[conf.key]"
+      >
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-3">
+            <label class="switch">
+              <input
+                type="checkbox"
+                [(ngModel)]="viviendaSeleccionada[conf.key]"
+              />
+              <span class="slider"></span>
+            </label>
+            <span
+              class="fw-bold fs-5"
+              [style.color]="
+                viviendaSeleccionada[conf.key] ? 'black' : '#9ca3af'
+              "
+              >{{ conf.fullLabel }}</span
+            >
+          </div>
+          <div style="width: 220px" *ngIf="viviendaSeleccionada[conf.key]">
+            <select
+              class="form-select status-select"
+              [(ngModel)]="viviendaSeleccionada[conf.estadoKey]"
+              [ngClass]="{
+                'status-sin-empezar':
+                  viviendaSeleccionada[conf.estadoKey] === 'sin empezar',
+                'status-presentado':
+                  viviendaSeleccionada[conf.estadoKey] === 'presentado',
+                'status-terminado':
+                  viviendaSeleccionada[conf.estadoKey] === 'terminado'
+              }"
+            >
+              <option value="sin empezar">⚪ Sin Empezar</option>
+              <option value="presentado">🔵 Presentado</option>
+              <option value="terminado">🟢 Terminado</option>
+            </select>
+          </div>
+          <span
+            *ngIf="!viviendaSeleccionada[conf.key]"
+            class="badge bg-light text-muted border px-3 py-2"
+            >No contratado</span
+          >
+        </div>
+        <div>
+          <label
+            class="small text-muted mb-2 d-flex align-items-center gap-2 fw-bold"
+          >
+            <lucide-angular
+              [img]="icons.FileText"
+              style="width: 14px"
+            ></lucide-angular>
+            Anotaciones Internas:
+          </label>
+          <textarea
+            class="form-control notes-textarea"
+            placeholder="Escribe aquí detalles sobre este trámite..."
+            [(ngModel)]="viviendaSeleccionada[conf.notasKey]"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="p-3 bg-light border-top text-center text-muted small">
+      <span class="d-flex align-items-center justify-content-center gap-2">
+        <lucide-angular [img]="icons.Save" style="width: 14px"></lucide-angular>
+        Los cambios se guardan automáticamente al cerrar esta ventana.
+      </span>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal-backdrop-second"
+  *ngIf="mostrarModalDocs"
+  (click)="cerrarModalDocumentos()"
+>
+  <div class="modal-panel-docs" (click)="$event.stopPropagation()">
+    <div class="modal-header bg-success text-white py-3">
+      <h5 class="m-0 fw-bold d-flex align-items-center gap-2">
+        <lucide-angular [img]="icons.FileDown" size="24"></lucide-angular>
+        Generar Documentación
+      </h5>
+      <button
+        class="btn btn-link text-white p-0"
+        (click)="cerrarModalDocumentos()"
+      >
+        <lucide-angular [img]="icons.X" size="24"></lucide-angular>
+      </button>
+    </div>
+    <div class="modal-body bg-light">
+      <div class="doc-category">Trámites Globales</div>
+      <button
+        class="doc-btn"
+        (click)="
+          generarDocumentoRepresentacionCCU2ocu(
+            'del Certificado de Compatibilidad Urbanística para vivienda turística'
+          )
+        "
+      >
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Autoliquidaciones y Trámites</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+
+      @if (viviendaSeleccionada.servicio_seleccion_ccu) {
+      <div class="doc-category">Compatibilidad Urbanística (CCU)</div>
+      <button
+        class="doc-btn"
+        (click)="
+          generarDocumentoRepresentacionCCU2ocu(
+            'del Certificado de Compatibilidad Urbanística para vivienda turística'
+          )
+        "
+      >
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Representación CCU</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      <button class="doc-btn" (click)="generarMemoriaTecnica()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Memoria Técnica</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      } @if (viviendaSeleccionada.servicio_seleccion_segunda_ocupacion) {
+      <div class="doc-category">Licencia 2ª Ocupación</div>
+      <button
+        class="doc-btn"
+        (click)="
+          generarDocumentoRepresentacionCCU2ocu(
+            'de la licencia de segunda ocupación'
+          )
+        "
+      >
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Representación 2ª Ocupación</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      <button class="doc-btn" (click)="generarDeclaracionTecnico()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Declaración Responsable Técnico</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      <button class="doc-btn" (click)="generarAnexoDecretoOcupacion()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Anexos I, II y Fichas</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      } @if (viviendaSeleccionada.servicio_seleccion_cee) {
+      <div class="doc-category">Certificado Energético (CEE)</div>
+      <button class="doc-btn" (click)="generarDocumentoRepresentacionCEE()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Representación CEE</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      <button class="doc-btn" (click)="generarDocumentoActaVisitaCEE()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Acta de Visita</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      } @if (viviendaSeleccionada.servicio_seleccion_registro_vt) {
+      <div class="doc-category">Registro Vivienda Turística</div>
+      <button class="doc-btn" (click)="generarRegistroVTCoselleria()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Documentos Registro Turismo</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      } @if (viviendaSeleccionada.servicio_seleccion_nra) {
+      <div class="doc-category">Registro Vivienda Turística</div>
+      <button class="doc-btn" (click)="generarGuiaPresentacionTelematica()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Documentos Registro de NRA</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      }
+    </div>
+  </div>
+</div>

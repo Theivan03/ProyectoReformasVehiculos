@@ -26,6 +26,25 @@ import saveAs from 'file-saver';
 import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
 import { firstValueFrom } from 'rxjs';
 
+type CaracteristicaAutoconsumoExclusiva =
+  | 'tipoInstalacionAutoconsumo'
+  | 'modalidadAutoconsumo'
+  | 'tipoConexionAutoconsumo'
+  | 'colectiva';
+
+type TipoMemoriaDescriptiva =
+  | 'nuevaInstalacion'
+  | 'modificacionInstalacionExistente';
+
+type CambioModificacionKey =
+  | 'deConExcedentesASinExcedentes'
+  | 'deSinExcedentesAConExcedentes'
+  | 'deProduccionTodoTodoASinExcedentes'
+  | 'deProduccionTodoTodoAConExcedentes'
+  | 'conVariacionPotencia'
+  | 'sustitucionEquipos'
+  | 'otros';
+
 @Component({
   selector: 'app-memoria-tecnica-autoconsumo',
   imports: [
@@ -40,7 +59,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class MemoriaTecnicaAutoconsumoComponent {
   pasoActual = 1;
-  totalPasos = 4;
+  totalPasos = 5;
   isGenerating = false;
   isSaving = false;
   isLoadingData = false;
@@ -65,6 +84,70 @@ export class MemoriaTecnicaAutoconsumoComponent {
     CloudUpload,
     ArrowLeft,
   };
+
+  readonly opcionesTipoInstalacionAutoconsumo = [
+    { value: 'redInterior', label: 'Red interior' },
+    {
+      value: 'redInteriorDiversosConsumidores',
+      label: 'Red interior de diversos consumidores',
+    },
+    { value: 'proximaApartirDeRed', label: 'Próxima a partir de red' },
+  ];
+
+  readonly opcionesModalidadAutoconsumo = [
+    { value: 'sinExcedentes', label: 'Sin excedentes' },
+    { value: 'conExcedentes', label: 'Con excedentes' },
+  ];
+
+  readonly opcionesTipoConexionAutoconsumo = [
+    { value: 'redInterior', label: 'Red interior' },
+    {
+      value: 'redInteriorVariosConsumidores',
+      label: 'Red interior de varios consumidores',
+    },
+    { value: 'proximaATravesDeRed', label: 'Próxima a través de red' },
+  ];
+
+  readonly opcionesColectiva = [
+    { value: 'si', label: 'Sí' },
+    { value: 'no', label: 'No' },
+  ];
+
+  readonly opcionesTipoMemoriaDescriptiva: {
+    value: TipoMemoriaDescriptiva;
+    label: string;
+  }[] = [
+    { value: 'nuevaInstalacion', label: 'Nueva instalaciÃ³n' },
+    {
+      value: 'modificacionInstalacionExistente',
+      label: 'ModificaciÃ³n de instalaciÃ³n existente',
+    },
+  ];
+
+  readonly opcionesCambioModificacion: {
+    value: CambioModificacionKey;
+    label: string;
+  }[] = [
+    {
+      value: 'deConExcedentesASinExcedentes',
+      label: 'De autoconsumo con excedentes a autoconsumo sin excedentes',
+    },
+    {
+      value: 'deSinExcedentesAConExcedentes',
+      label: 'De autoconsumo sin excedentes a autoconsumo con excedentes',
+    },
+    {
+      value: 'deProduccionTodoTodoASinExcedentes',
+      label: 'De producciÃ³n \"todo-todo\" a autoconsumo sin excedentes',
+    },
+    {
+      value: 'deProduccionTodoTodoAConExcedentes',
+      label: 'De producciÃ³n \"todo-todo\" a autoconsumo con excedentes',
+    },
+    { value: 'conVariacionPotencia', label: 'Con variaciÃ³n de potencia' },
+    { value: 'sustitucionEquipos', label: 'SustituciÃ³n de equipos' },
+    { value: 'otros', label: 'Otros' },
+  ];
 
   get isAutoconsumo(): boolean {
     return (
@@ -111,6 +194,25 @@ export class MemoriaTecnicaAutoconsumoComponent {
       tipoInstalacion: 'monofasica',
       diametroTuboMm: '32',
       esquemaUnifilar: '1',
+      tipoInstalacionAutoconsumo: 'redInterior',
+      modalidadAutoconsumo: 'sinExcedentes',
+      tipoConexionAutoconsumo: 'redInterior',
+      colectiva: 'no',
+      numeroConsumidores: '',
+    },
+    memoriaDescriptiva: {
+      tipoActuacion: 'nuevaInstalacion' as TipoMemoriaDescriptiva,
+      numeroRegAutoconsumo: '',
+      cambios: {
+        deConExcedentesASinExcedentes: false,
+        deSinExcedentesAConExcedentes: false,
+        deProduccionTodoTodoASinExcedentes: false,
+        deProduccionTodoTodoAConExcedentes: false,
+        conVariacionPotencia: false,
+        sustitucionEquipos: false,
+        otros: false,
+      },
+      descripcionOtros: '',
     },
     fechaFirma: { dia: '', mes: '', anyo: '', lugar: '' },
   };
@@ -135,6 +237,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
     this.datos.tipoMemoria = this.tipoMemoriaRuta;
     this.sincronizarLocalidadPoblacion();
     this.actualizarDiametroTubo();
+    this.normalizarMemoriaDescriptiva();
   }
 
   cargarDatosDelServidor(
@@ -158,6 +261,14 @@ export class MemoriaTecnicaAutoconsumoComponent {
             ...this.datos.caracteristicas,
             ...(data?.caracteristicas || {}),
           },
+          memoriaDescriptiva: {
+            ...this.datos.memoriaDescriptiva,
+            ...(data?.memoriaDescriptiva || {}),
+            cambios: {
+              ...this.datos.memoriaDescriptiva.cambios,
+              ...(data?.memoriaDescriptiva?.cambios || {}),
+            },
+          },
           fechaFirma: { ...this.datos.fechaFirma, ...(data?.fechaFirma || {}) },
         };
         this.datos.tipoMemoria = this.normalizarTipoMemoria(
@@ -166,6 +277,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
         );
         this.sincronizarLocalidadPoblacion();
         this.actualizarDiametroTubo();
+        this.normalizarMemoriaDescriptiva();
         this.isLoadingData = false;
         if (
           autoDownload &&
@@ -287,6 +399,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
     );
     this.sincronizarLocalidadPoblacion();
     this.actualizarDiametroTubo();
+    this.normalizarMemoriaDescriptiva();
     this.isSaving = true;
 
     const url = `${this.apiBaseUrl}/api/memorias`;
@@ -317,6 +430,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
     try {
       this.sincronizarLocalidadPoblacion();
       this.actualizarDiametroTubo();
+      this.normalizarMemoriaDescriptiva();
       const cargarAsset = async (url: string): Promise<ArrayBuffer> => {
         const res = await fetch(url);
         if (!res.ok) {
@@ -708,6 +822,136 @@ export class MemoriaTecnicaAutoconsumoComponent {
     );
   }
 
+  seleccionarOpcionExclusiva(
+    campo: CaracteristicaAutoconsumoExclusiva,
+    valor: string,
+  ) {
+    this.datos.caracteristicas[campo] = valor;
+    if (campo === 'colectiva' && valor !== 'si') {
+      this.datos.caracteristicas.numeroConsumidores = '';
+    }
+    this.normalizarCamposAutoconsumo();
+  }
+
+  seleccionarTipoMemoriaDescriptiva(tipo: TipoMemoriaDescriptiva) {
+    this.datos.memoriaDescriptiva.tipoActuacion = tipo;
+    this.normalizarMemoriaDescriptiva();
+  }
+
+  alternarCambioModificacion(campo: CambioModificacionKey, checked: boolean) {
+    const cambios = this.datos.memoriaDescriptiva.cambios;
+
+    if (campo === 'otros') {
+      cambios.otros = checked;
+      if (checked) {
+        this.desmarcarCambiosModificacionNoOtros();
+      } else {
+        this.datos.memoriaDescriptiva.descripcionOtros = '';
+      }
+      this.normalizarMemoriaDescriptiva();
+      return;
+    }
+
+    cambios[campo] = checked;
+    if (checked && cambios.otros) {
+      cambios.otros = false;
+      this.datos.memoriaDescriptiva.descripcionOtros = '';
+    }
+
+    this.normalizarMemoriaDescriptiva();
+  }
+
+  private normalizarCamposAutoconsumo() {
+    const normalizar = (
+      valor: string,
+      opciones: { value: string }[],
+      fallback: string,
+    ): string => {
+      return opciones.some((opcion) => opcion.value === valor)
+        ? valor
+        : fallback;
+    };
+
+    const caracteristicas = this.datos.caracteristicas;
+    caracteristicas.tipoInstalacionAutoconsumo = normalizar(
+      caracteristicas.tipoInstalacionAutoconsumo,
+      this.opcionesTipoInstalacionAutoconsumo,
+      'redInterior',
+    );
+    caracteristicas.modalidadAutoconsumo = normalizar(
+      caracteristicas.modalidadAutoconsumo,
+      this.opcionesModalidadAutoconsumo,
+      'sinExcedentes',
+    );
+    caracteristicas.tipoConexionAutoconsumo = normalizar(
+      caracteristicas.tipoConexionAutoconsumo,
+      this.opcionesTipoConexionAutoconsumo,
+      'redInterior',
+    );
+    caracteristicas.colectiva = normalizar(
+      caracteristicas.colectiva,
+      this.opcionesColectiva,
+      'no',
+    );
+
+    if (caracteristicas.colectiva !== 'si') {
+      caracteristicas.numeroConsumidores = '';
+      return;
+    }
+
+    const numeroConsumidores = Number(caracteristicas.numeroConsumidores);
+    caracteristicas.numeroConsumidores =
+      Number.isFinite(numeroConsumidores) && numeroConsumidores > 0
+        ? String(Math.trunc(numeroConsumidores))
+        : '';
+  }
+
+  private desmarcarCambiosModificacionNoOtros() {
+    const cambios = this.datos.memoriaDescriptiva.cambios;
+    this.opcionesCambioModificacion
+      .filter((opcion) => opcion.value !== 'otros')
+      .forEach((opcion) => {
+        cambios[opcion.value] = false;
+      });
+  }
+
+  private limpiarCambiosModificacion() {
+    const cambios = this.datos.memoriaDescriptiva.cambios;
+    this.opcionesCambioModificacion.forEach((opcion) => {
+      cambios[opcion.value] = false;
+    });
+    this.datos.memoriaDescriptiva.numeroRegAutoconsumo = '';
+    this.datos.memoriaDescriptiva.descripcionOtros = '';
+  }
+
+  private normalizarMemoriaDescriptiva() {
+    const memoria = this.datos.memoriaDescriptiva;
+    memoria.tipoActuacion =
+      memoria.tipoActuacion === 'modificacionInstalacionExistente'
+        ? 'modificacionInstalacionExistente'
+        : 'nuevaInstalacion';
+
+    if (memoria.tipoActuacion !== 'modificacionInstalacionExistente') {
+      this.limpiarCambiosModificacion();
+      return;
+    }
+
+    memoria.numeroRegAutoconsumo = String(
+      memoria.numeroRegAutoconsumo || '',
+    ).trim();
+
+    this.opcionesCambioModificacion.forEach((opcion) => {
+      memoria.cambios[opcion.value] = Boolean(memoria.cambios[opcion.value]);
+    });
+
+    if (memoria.cambios.otros) {
+      this.desmarcarCambiosModificacionNoOtros();
+      memoria.descripcionOtros = String(memoria.descripcionOtros || '').trim();
+    } else {
+      memoria.descripcionOtros = '';
+    }
+  }
+
   private sincronizarLocalidadPoblacion() {
     const sincronizar = (obj: { localidad?: string; poblacion?: string }) => {
       const localidad = (obj.localidad || '').trim();
@@ -726,6 +970,8 @@ export class MemoriaTecnicaAutoconsumoComponent {
   }
 
   actualizarDiametroTubo() {
+    this.normalizarCamposAutoconsumo();
+
     const tipoInstalacionNormalizado =
       this.datos.caracteristicas.tipoInstalacion === 'trifasica'
         ? 'trifasica'

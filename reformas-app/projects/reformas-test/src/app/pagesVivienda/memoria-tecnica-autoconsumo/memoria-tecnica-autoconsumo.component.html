@@ -1,0 +1,1942 @@
+﻿<style>
+  :host {
+    display: block;
+    background-color: #f1f5f9;
+    min-height: 100vh;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+      Arial, sans-serif;
+  }
+  .drop-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+    outline: none;
+    position: relative;
+  }
+  .drop-zone:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+  }
+  .drop-zone.dragover {
+    background-color: #eff6ff;
+    border-color: #2563eb;
+  }
+  .preview-img {
+    max-height: 250px;
+    border-radius: 0.5rem;
+    object-fit: contain;
+    width: 100%;
+  }
+  .main-container {
+    padding: 2rem 1rem;
+  }
+  .app-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background-color: white;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .btn-save {
+    background-color: #2563eb; /* Azul corporativo bonito */
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease; /* Suavizar animación */
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); /* Sombra sutil */
+  }
+
+  .btn-save:hover:not(:disabled) {
+    background-color: #1d4ed8; /* Azul más oscuro al pasar el ratón */
+    transform: translateY(-1px); /* Efecto de elevación */
+    box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-save:disabled {
+    background-color: #94a3b8; /* Gris cuando está guardando */
+    cursor: not-allowed;
+    transform: none;
+  }
+  .app-header {
+    background-color: #0f172a;
+    padding: 1.5rem 2rem;
+    color: white;
+  }
+  .step-badge {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    font-family: monospace;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+  }
+  .progress-container {
+    height: 6px;
+    background-color: #e2e8f0;
+    width: 100%;
+  }
+  .progress-bar-custom {
+    height: 100%;
+    background-color: #2563eb;
+    transition: width 0.3s ease;
+  }
+  .content-area {
+    padding: 2rem;
+    min-height: 400px;
+  }
+  .footer-area {
+    padding: 1.5rem 2rem;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+  .section-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  .section-subtitle {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+  }
+  .form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+  }
+  .form-control,
+  .form-select {
+    padding: 0.625rem;
+    border-radius: 0.375rem;
+    border-color: #cbd5e1;
+  }
+  .form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+  }
+  .btn-next {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+  }
+  .btn-prev {
+    background-color: white;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+  }
+  .animation-slide-in-down {
+    animation: slideInDown 0.4s ease-out forwards;
+  }
+  .type-selector {
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid #e2e8f0;
+  }
+  .type-selector:hover {
+    border-color: #94a3b8;
+  }
+  .type-selector.active {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+    color: #1e40af;
+  }
+  .check-group-card {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1rem;
+  }
+  .check-group-title {
+    color: #1e293b;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .check-option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.625rem;
+  }
+  .check-option-grid.long-options {
+    grid-template-columns: 1fr;
+  }
+  .check-option {
+    border: 1px solid #cbd5e1;
+    border-radius: 0.625rem;
+    background-color: #ffffff;
+    padding: 0.625rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .check-option:hover {
+    border-color: #94a3b8;
+    background-color: #f8fafc;
+  }
+  .check-option.active {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
+  }
+  .check-option .form-check-input {
+    margin-top: 0.125rem;
+  }
+  .check-option-label {
+    color: #1e293b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .collectiva-extra {
+    border: 1px dashed #bfdbfe;
+    background-color: #f8fafc;
+    border-radius: 0.625rem;
+    padding: 0.85rem;
+  }
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="main-container">
+  <div class="app-card">
+    <div class="app-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <button
+          class="btn btn-sm btn-outline-secondary text-white border-0 me-3"
+          (click)="volver()"
+        >
+          <lucide-icon [img]="icons.ArrowLeft" size="20"></lucide-icon>
+        </button>
+        <div>
+          <h1 class="h4 fw-bold mb-1">Memoria Técnica de Autoconsumo</h1>
+          <p class="mb-0 opacity-75 small">
+            Generador de documentación técnica
+          </p>
+        </div>
+      </div>
+      <div class="step-badge">Fase {{ pasoActual }} / {{ totalPasos }}</div>
+    </div>
+
+    <div class="progress-container">
+      <div
+        class="progress-bar-custom"
+        [style.width.%]="(pasoActual / totalPasos) * 100"
+      ></div>
+    </div>
+
+    <div class="content-area">
+      <div *ngIf="pasoActual === 1" class="animation-slide-in-down">
+        <h2 class="section-title h3">1. Datos del Titular</h2>
+        <p class="section-subtitle">
+          Información del propietario y domicilio social.
+        </p>
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Nombre / Razon Social</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white"
+                ><lucide-icon [img]="icons.User" size="18"></lucide-icon
+              ></span>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.titular.nombre"
+                placeholder="Ej: Juan"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Apellidos</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.apellidos"
+              placeholder="Ej: Perez Garcia"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">NIF / CIF</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.nif"
+            />
+          </div>
+
+          <div class="col-12"><hr class="text-muted opacity-25" /></div>
+
+          <div class="col-md-12">
+            <label class="form-label"
+              >Domicilio Social (Dirección Completa)</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.domicilio"
+              placeholder="Calle Mayor 12, 1 A"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">CP</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.cp"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Localidad</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.localidad"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Municipio</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.poblacion"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Provincia</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.provincia"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Teléfono</label>
+            <input
+              type="tel"
+              class="form-control"
+              [(ngModel)]="datos.titular.telefono"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Correo Electrónico</label>
+            <input
+              type="email"
+              class="form-control"
+              [(ngModel)]="datos.titular.correo"
+            />
+          </div>
+
+          <div class="col-12 mt-4">
+            <div
+              class="form-check form-switch bg-light p-3 rounded border d-flex align-items-center"
+            >
+              <input
+                class="form-check-input me-3"
+                type="checkbox"
+                role="switch"
+                id="mismaDireccionCheck"
+                [(ngModel)]="datos.mismaDireccion"
+                style="width: 3em; height: 1.5em"
+              />
+              <label
+                class="form-check-label fw-bold cursor-pointer"
+                for="mismaDireccionCheck"
+              >
+                El emplazamiento de la instalación es el mismo que el domicilio
+                social
+              </label>
+            </div>
+          </div>
+
+          <div
+            class="col-12 animation-slide-in-down"
+            *ngIf="datos.mismaDireccion"
+          >
+            <div
+              class="card border-primary-subtle bg-primary-subtle bg-opacity-10 p-3 mt-2"
+            >
+              <h6 class="fw-bold text-primary mb-3">
+                Detalles del Emplazamiento (Misma Ubicación)
+              </h6>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Referencia Catastral</label>
+                  <input
+                    type="text"
+                    class="form-control font-monospace bg-white"
+                    [(ngModel)]="datos.emplazamiento.refCatastral"
+                  />
+                </div>
+                <div class="col-md-6" *ngIf="isAutoconsumo">
+                  <label class="form-label">CUPS</label>
+                  <input
+                    type="text"
+                    class="form-control font-monospace bg-white"
+                    [(ngModel)]="datos.emplazamiento.cups"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Telefono</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="datos.emplazamiento.telefono"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Correo Electronico</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    [(ngModel)]="datos.emplazamiento.correo"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Tension (V)</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="datos.emplazamiento.tension"
+                  />
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">Empresa distribuidora</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="datos.emplazamiento.empresaDistribuidora"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 2" class="animation-slide-in-down">
+        <h2 class="section-title h3">2. Emplazamiento y Tipo</h2>
+        <p class="section-subtitle">
+          Ubicación fí­sica de la instalación (Distinta del titular).
+        </p>
+
+        <div class="card shadow-sm border-light p-3 mb-3">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Dirección Completa (Instalación)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-white"
+                  ><lucide-icon [img]="icons.MapPin" size="18"></lucide-icon
+                ></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="datos.emplazamiento.direccion"
+                  placeholder="Ej: Avenida del Mediterráneo 45"
+                />
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">CP</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.cp"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Localidad</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.localidad"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Municipio</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.poblacion"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Provincia</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.provincia"
+              />
+            </div>
+
+            <div class="col-md-4" *ngIf="isAutoconsumo">
+              <label class="form-label">CUPS</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                [(ngModel)]="datos.emplazamiento.cups"
+              />
+            </div>
+            <div [ngClass]="isAutoconsumo ? 'col-md-8' : 'col-md-12'">
+              <label class="form-label">Referencia Catastral</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                [(ngModel)]="datos.emplazamiento.refCatastral"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Telefono</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.telefono"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Correo Electronico</label>
+              <input
+                type="email"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.correo"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Tension (V)</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.tension"
+              />
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Empresa distribuidora</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.empresaDistribuidora"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 3" class="animation-slide-in-down">
+        <h2 class="section-title h3">3. Caracterí­sticas Técnicas</h2>
+        <p class="section-subtitle">Datos de la instalación y protecciones.</p>
+        <div class="row g-4">
+          <div class="col-md-12">
+            <div class="card bg-light border-0 p-3 mb-3">
+              <h6 class="fw-bold text-primary mb-3 d-flex align-items-center">
+                <lucide-icon
+                  [img]="icons.Zap"
+                  size="18"
+                  class="me-2"
+                ></lucide-icon>
+                Generación Fotovoltaica
+              </h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Potencia Instalada (kW)</label
+                  ><input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="datos.caracteristicas.potenciaInstalada"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="check-group-card mb-3">
+              <div class="check-group-title">Modalidad</div>
+              <div class="check-option-grid">
+                <label
+                  class="check-option d-flex align-items-start mb-0"
+                  *ngFor="let opcion of opcionesModalidadAutoconsumo"
+                  [class.active]="
+                    datos.caracteristicas.modalidadAutoconsumo === opcion.value
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-2"
+                    [checked]="
+                      datos.caracteristicas.modalidadAutoconsumo ===
+                      opcion.value
+                    "
+                    (change)="
+                      seleccionarOpcionExclusiva(
+                        'modalidadAutoconsumo',
+                        opcion.value
+                      )
+                    "
+                  />
+                  <span class="check-option-label">{{ opcion.label }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="check-group-card mb-3">
+              <div class="check-group-title">Tipo de instalación</div>
+              <div class="check-option-grid">
+                <label
+                  class="check-option d-flex align-items-start mb-0"
+                  *ngFor="let opcion of opcionesTipoInstalacionAutoconsumo"
+                  [class.active]="
+                    datos.caracteristicas.tipoInstalacionAutoconsumo ===
+                    opcion.value
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-2"
+                    [checked]="
+                      datos.caracteristicas.tipoInstalacionAutoconsumo ===
+                      opcion.value
+                    "
+                    (change)="
+                      seleccionarOpcionExclusiva(
+                        'tipoInstalacionAutoconsumo',
+                        opcion.value
+                      )
+                    "
+                  />
+                  <span class="check-option-label">{{ opcion.label }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="check-group-card mb-3">
+              <div class="check-group-title">Tipo de conexión</div>
+              <div class="check-option-grid">
+                <label
+                  class="check-option d-flex align-items-start mb-0"
+                  *ngFor="let opcion of opcionesTipoConexionAutoconsumo"
+                  [class.active]="
+                    datos.caracteristicas.tipoConexionAutoconsumo ===
+                    opcion.value
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-2"
+                    [checked]="
+                      datos.caracteristicas.tipoConexionAutoconsumo ===
+                      opcion.value
+                    "
+                    (change)="
+                      seleccionarOpcionExclusiva(
+                        'tipoConexionAutoconsumo',
+                        opcion.value
+                      )
+                    "
+                  />
+                  <span class="check-option-label">{{ opcion.label }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="check-group-card">
+              <div class="check-group-title">Colectiva</div>
+              <div class="check-option-grid">
+                <label
+                  class="check-option d-flex align-items-start mb-0"
+                  *ngFor="let opcion of opcionesColectiva"
+                  [class.active]="
+                    datos.caracteristicas.colectiva === opcion.value
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-2"
+                    [checked]="datos.caracteristicas.colectiva === opcion.value"
+                    (change)="
+                      seleccionarOpcionExclusiva('colectiva', opcion.value)
+                    "
+                  />
+                  <span class="check-option-label">{{ opcion.label }}</span>
+                </label>
+              </div>
+
+              <div
+                class="collectiva-extra mt-3 animation-slide-in-down"
+                *ngIf="datos.caracteristicas.colectiva === 'si'"
+              >
+                <label class="form-label mb-1">Nº consumidores</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  min="1"
+                  step="1"
+                  [(ngModel)]="datos.caracteristicas.numeroConsumidores"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="pasoActual === 4" class="animation-slide-in-down">
+        <h2 class="section-title h3">4. Memoria Descriptiva</h2>
+        <p class="section-subtitle">
+          Defina el tipo de actuacion y, si procede, los cambios de la
+          modificacion.
+        </p>
+
+        <div class="check-group-card mb-3">
+          <div class="check-group-title">Tipo de actuacion</div>
+          <div class="check-option-grid">
+            <label
+              class="check-option d-flex align-items-start mb-0"
+              *ngFor="let opcion of opcionesTipoMemoriaDescriptiva"
+              [class.active]="
+                datos.memoriaDescriptiva.tipoActuacion === opcion.value
+              "
+            >
+              <input
+                type="checkbox"
+                class="form-check-input me-2"
+                [checked]="
+                  datos.memoriaDescriptiva.tipoActuacion === opcion.value
+                "
+                (change)="seleccionarTipoMemoriaDescriptiva(opcion.value)"
+              />
+              <span class="check-option-label">{{ opcion.label }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div
+          class="check-group-card mb-3 animation-slide-in-down"
+          *ngIf="
+            datos.memoriaDescriptiva.tipoActuacion ===
+            'modificacionInstalacionExistente'
+          "
+        >
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nº de REG. autoconsumo</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.memoriaDescriptiva.numeroRegAutoconsumo"
+              />
+            </div>
+          </div>
+
+          <div class="check-group-title mt-4">Detalle de modificacion</div>
+          <div class="check-option-grid long-options">
+            <label
+              class="check-option d-flex align-items-start mb-0"
+              *ngFor="let opcion of opcionesCambioModificacion"
+              [class.active]="datos.memoriaDescriptiva.cambios[opcion.value]"
+            >
+              <input
+                type="checkbox"
+                class="form-check-input me-2"
+                [checked]="datos.memoriaDescriptiva.cambios[opcion.value]"
+                (change)="
+                  alternarCambioModificacion(
+                    opcion.value,
+                    $any($event.target).checked
+                  )
+                "
+              />
+              <span class="check-option-label">{{ opcion.label }}</span>
+            </label>
+          </div>
+
+          <div
+            class="collectiva-extra mt-3 animation-slide-in-down"
+            *ngIf="datos.memoriaDescriptiva.cambios.otros"
+          >
+            <label class="form-label mb-1">Descripcion (otros)</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              [(ngModel)]="datos.memoriaDescriptiva.descripcionOtros"
+              placeholder="Describe la modificacion"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 5" class="animation-slide-in-down">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="section-title h3">5. Equipos de Medida</h2>
+            <p class="section-subtitle mb-0">
+              Información de los contadores (Máximo 5).
+            </p>
+          </div>
+          <button
+            class="btn btn-outline-primary btn-sm d-flex align-items-center"
+            (click)="agregarContador()"
+            [disabled]="datos.contadores.length >= 5"
+          >
+            <lucide-icon
+              [img]="icons.Plus"
+              size="16"
+              class="me-1"
+            ></lucide-icon>
+            Añadir Contador
+          </button>
+        </div>
+        <div class="card bg-light border-0 p-3 mb-3">
+          <label class="form-label">Configuracion de medida</label>
+          <select
+            class="form-select bg-white"
+            [(ngModel)]="datos.configuracionMedida"
+          >
+            <option
+              *ngFor="let opcion of opcionesConfiguracionMedida"
+              [value]="opcion.value"
+            >
+              {{ opcion.label }}
+            </option>
+          </select>
+        </div>
+
+        <div
+          class="card bg-light border-0 p-3 mb-3"
+          *ngFor="let contador of datos.contadores; let i = index"
+        >
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-primary mb-0">Contador {{ i + 1 }}</h6>
+            <button
+              *ngIf="datos.contadores.length > 1"
+              class="btn btn-sm btn-outline-danger border-0"
+              (click)="eliminarContador(i)"
+            >
+              <lucide-icon [img]="icons.Trash2" size="16"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Tipo</label>
+              <select class="form-select bg-white" [(ngModel)]="contador.tipo">
+                <option value="" disabled selected>
+                  Selecciona un tipo...
+                </option>
+                <option
+                  *ngFor="let op of opcionesTipoContador"
+                  [value]="op.value"
+                >
+                  {{ op.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Ubicación</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="contador.ubicacion"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Fabricante</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="contador.fabricante"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Modelo</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="contador.modelo"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Núm. de fabricación</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                [(ngModel)]="contador.numFabricacion"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Relación de intensidad</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="contador.relacionIntensidad"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Tensión (V)</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="contador.tension"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Constante de lectura</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="contador.constanteLectura"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Clase</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="contador.clase"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Elemento de corte (A)</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="contador.elementoCorte"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 6" class="animation-slide-in-down">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="section-title h3">6. Placas Solares</h2>
+            <p class="section-subtitle mb-0">
+              Información de los módulos fotovoltaicos (Máximo 3).
+            </p>
+          </div>
+          <button
+            class="btn btn-outline-primary btn-sm d-flex align-items-center"
+            (click)="agregarPlaca()"
+            [disabled]="datos.placas.length >= 3"
+          >
+            <lucide-icon
+              [img]="icons.Plus"
+              size="16"
+              class="me-1"
+            ></lucide-icon>
+            Añadir Placa
+          </button>
+        </div>
+
+        <div
+          class="card bg-light border-0 p-3 mb-3"
+          *ngFor="let placa of datos.placas; let i = index"
+        >
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-primary mb-0">Placa {{ i + 1 }}</h6>
+            <button
+              *ngIf="datos.placas.length > 1"
+              class="btn btn-sm btn-outline-danger border-0"
+              (click)="eliminarPlaca(i)"
+            >
+              <lucide-icon [img]="icons.Trash2" size="16"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Fabricante</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="placa.fabricante"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Modelo</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="placa.modelo"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Núm. placas</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="placa.numPlacas"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Pot. max. unit. (Wp)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="placa.potMaxUnit"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Corriente max. potencia (A)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="placa.corrienteMaxPotencia"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Tensión en circuito abierto (V)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="placa.tensionCircuitoAbierto"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">ICC (A)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="placa.icc"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Tensión máxima potencia (V)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="placa.tensionMaxPotencia"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Superficie total de placas (m2)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="placa.superficieTotal"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Forma parte de una agrupación</label>
+              <select
+                class="form-select bg-white"
+                [(ngModel)]="placa.agrupacionPlacas"
+              >
+                <option
+                  *ngFor="let op of opcionesAgrupacionPlacas"
+                  [value]="op.value"
+                >
+                  {{ op.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 7" class="animation-slide-in-down">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="section-title h3">7. Inversores</h2>
+            <p class="section-subtitle mb-0">
+              Información de los inversores (Máximo 5).
+            </p>
+          </div>
+          <button
+            class="btn btn-outline-primary btn-sm d-flex align-items-center"
+            (click)="agregarInversor()"
+            [disabled]="datos.inversores.length >= 5"
+          >
+            <lucide-icon
+              [img]="icons.Plus"
+              size="16"
+              class="me-1"
+            ></lucide-icon>
+            Añadir Inversor
+          </button>
+        </div>
+
+        <div
+          class="card bg-light border-0 p-3 mb-3"
+          *ngFor="let inversor of datos.inversores; let i = index"
+        >
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-primary mb-0">Inversor {{ i + 1 }}</h6>
+            <button
+              *ngIf="datos.inversores.length > 1"
+              class="btn btn-sm btn-outline-danger border-0"
+              (click)="eliminarInversor(i)"
+            >
+              <lucide-icon [img]="icons.Trash2" size="16"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-2">
+              <label class="form-label">Núm. de unidades</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="inversor.numUnidadesInversor"
+              />
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label">Fabricante</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="inversor.fabricanteInversor"
+              />
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label">Modelo</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="inversor.modeloInversor"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Tensión nominal AC, Vn (V)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="inversor.tensionNominalAcInversor"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Potencia AC, Pn (kW)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="inversor.potenciaAcInversor"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Vcc máxima (V)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="inversor.vccMaximaInversor"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Vcc mí­nima (V)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="inversor.vccMinimaInversor"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Conexión RN, SN, TN o trifásico</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="inversor.conexionInversor"
+              />
+            </div>
+
+            <div class="col-12"><hr class="text-muted opacity-25 my-2" /></div>
+
+            <div class="col-md-4">
+              <label class="form-label">Protección Vac baja</label>
+              <select
+                class="form-select bg-white"
+                [(ngModel)]="inversor.proteccionVacBajaInversor"
+              >
+                <option
+                  *ngFor="let op of opcionesSiNoInversor"
+                  [value]="op.value"
+                >
+                  {{ op.label }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Tensión de actuación (Vac baja)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="inversor.tensionActuacionVacBajaInversor"
+                [disabled]="inversor.proteccionVacBajaInversor !== 'SI'"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Protección Vac alta</label>
+              <select
+                class="form-select bg-white"
+                [(ngModel)]="inversor.proteccionVacAltaInversor"
+              >
+                <option
+                  *ngFor="let op of opcionesSiNoInversor"
+                  [value]="op.value"
+                >
+                  {{ op.label }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Tensión de actuación (Vac alta)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="inversor.tensionActuacionVacAltaInversor"
+                [disabled]="inversor.proteccionVacAltaInversor !== 'SI'"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Protección frecuencia baja</label>
+              <select
+                class="form-select bg-white"
+                [(ngModel)]="inversor.proteccionFrecuenciaBajaInversor"
+              >
+                <option
+                  *ngFor="let op of opcionesSiNoInversor"
+                  [value]="op.value"
+                >
+                  {{ op.label }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label"
+                >Frecuencia de actuación (Hz) (Baja)</label
+              >
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="inversor.frecuenciaActuacionBajaInversor"
+                [disabled]="inversor.proteccionFrecuenciaBajaInversor !== 'SI'"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Protección frecuencia alta</label>
+              <select
+                class="form-select bg-white"
+                [(ngModel)]="inversor.proteccionFrecuenciaAltaInversor"
+              >
+                <option
+                  *ngFor="let op of opcionesSiNoInversor"
+                  [value]="op.value"
+                >
+                  {{ op.label }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label"
+                >Frecuencia de actuación (Hz) (Alta)</label
+              >
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="inversor.frecuenciaActuacionAltaInversor"
+                [disabled]="inversor.proteccionFrecuenciaAltaInversor !== 'SI'"
+              />
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label"
+                >Protección contra funcionamiento en isla</label
+              >
+              <select
+                class="form-select bg-white"
+                [(ngModel)]="inversor.proteccionIslaInversor"
+              >
+                <option
+                  *ngFor="let op of opcionesSiNoInversor"
+                  [value]="op.value"
+                >
+                  {{ op.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 8" class="animation-slide-in-down">
+        <h2 class="section-title h3">8. Estimaciones de Energi­a</h2>
+        <p class="section-subtitle">
+          Datos anuales estimados de generación y consumo.
+        </p>
+
+        <div class="card bg-light border-0 p-4">
+          <div class="row g-4">
+            <div class="col-md-4">
+              <label class="form-label"
+                >ENERGIA GENERADA ANUAL (ESTIMADA) (kWh)</label
+              >
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="
+                  datos.energia.energiaGeneradaAnualEstimadaKwhEnergia
+                "
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">ENERGIA CONSUMIDA ANUAL (kWh)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="datos.energia.energiaConsumidaAnualKwhEnergia"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label"
+                >ENERGIA ABOCADA ANUAL (ESTIMADA) (kWh)</label
+              >
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="
+                  datos.energia.energiaAbocadaAnualEstimadaKwhEnergia
+                "
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 9" class="animation-slide-in-down">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="section-title h3">9. Lí­neas y Circuitos</h2>
+            <p class="section-subtitle mb-0">
+              Detalles de las lí­neas eléctricas (Máximo 9).
+            </p>
+          </div>
+          <button
+            class="btn btn-outline-primary btn-sm d-flex align-items-center"
+            (click)="agregarLinea()"
+            [disabled]="datos.lineas.length >= 9"
+          >
+            <lucide-icon
+              [img]="icons.Plus"
+              size="16"
+              class="me-1"
+            ></lucide-icon>
+            Añadir Lí­nea
+          </button>
+        </div>
+
+        <div
+          class="card bg-light border-0 p-3 mb-3"
+          *ngFor="let linea of datos.lineas; let i = index"
+        >
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-primary mb-0">Lí­nea {{ i + 1 }}</h6>
+            <button
+              *ngIf="datos.lineas.length > 1"
+              class="btn btn-sm btn-outline-danger border-0"
+              (click)="eliminarLinea(i)"
+            >
+              <lucide-icon [img]="icons.Trash2" size="16"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Denominación</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="linea.denominacionLinea"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Potencia prevista (kW)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="linea.potenciaPrevistaKwLinea"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Longitud (m)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="linea.longitudMLinea"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Dispositivo protección In (A)</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="linea.dispositivoProteccionInALinea"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Material conductor/sección (mm2)</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="linea.materialConductorSeccionMm2Linea"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Intensidad admisible Iz (A)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="linea.intensidadAdmisibleIzALinea"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Caí­da de tensión AU (%)</label>
+              <input
+                type="number"
+                step="0.01"
+                class="form-control"
+                [(ngModel)]="linea.caidaTensionAuPorcentajeLinea"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 10" class="animation-slide-in-down">
+        <h2 class="section-title h3">10. Anexos Gráficos</h2>
+        <p class="section-subtitle">
+          Planos, esquemas y croquis de la instalación.
+        </p>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card bg-light border-0 p-3 h-100">
+              <h6 class="fw-bold text-primary mb-3">
+                Plano de Emplazamiento (Maps)
+              </h6>
+              <div
+                class="drop-zone"
+                tabindex="0"
+                [class.dragover]="isDragOver['planoMapsImagen']"
+                (dragover)="onDragOver($event, 'planoMapsImagen')"
+                (dragleave)="onDragLeave($event, 'planoMapsImagen')"
+                (drop)="onDrop($event, 'planoMapsImagen')"
+                (paste)="onPaste($event, 'planoMapsImagen')"
+              >
+                <div *ngIf="!datos.imagenes.planoMapsImagen">
+                  <lucide-icon
+                    [img]="icons.ImageIcon"
+                    size="40"
+                    class="text-muted mb-2"
+                  ></lucide-icon>
+                  <p class="text-muted small mb-3">
+                    Arrastra aquí­, haz clic para pegar (Ctrl+V) o selecciona
+                  </p>
+                  <button
+                    class="btn btn-outline-primary btn-sm"
+                    (click)="fileInputMaps.click()"
+                  >
+                    Abrir explorador
+                  </button>
+                  <input
+                    type="file"
+                    #fileInputMaps
+                    hidden
+                    accept="image/*"
+                    (change)="onFileSelected($event, 'planoMapsImagen')"
+                  />
+                </div>
+                <div
+                  *ngIf="datos.imagenes.planoMapsImagen"
+                  class="position-relative"
+                >
+                  <img
+                    [src]="datos.imagenes.planoMapsImagen"
+                    class="preview-img"
+                  />
+                  <button
+                    class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                    (click)="eliminarImagen('planoMapsImagen', $event)"
+                  >
+                    <lucide-icon [img]="icons.Trash2" size="14"></lucide-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card bg-light border-0 p-3 h-100">
+              <h6 class="fw-bold text-primary mb-3">
+                Plano de Emplazamiento (Catastro)
+              </h6>
+              <div
+                class="drop-zone"
+                tabindex="0"
+                [class.dragover]="isDragOver['planoCatastroImagen']"
+                (dragover)="onDragOver($event, 'planoCatastroImagen')"
+                (dragleave)="onDragLeave($event, 'planoCatastroImagen')"
+                (drop)="onDrop($event, 'planoCatastroImagen')"
+                (paste)="onPaste($event, 'planoCatastroImagen')"
+              >
+                <div *ngIf="!datos.imagenes.planoCatastroImagen">
+                  <lucide-icon
+                    [img]="icons.ImageIcon"
+                    size="40"
+                    class="text-muted mb-2"
+                  ></lucide-icon>
+                  <p class="text-muted small mb-3">
+                    Arrastra aquí­, haz clic para pegar (Ctrl+V) o selecciona
+                  </p>
+                  <button
+                    class="btn btn-outline-primary btn-sm"
+                    (click)="fileInputCatastro.click()"
+                  >
+                    Abrir explorador
+                  </button>
+                  <input
+                    type="file"
+                    #fileInputCatastro
+                    hidden
+                    accept="image/*"
+                    (change)="onFileSelected($event, 'planoCatastroImagen')"
+                  />
+                </div>
+                <div
+                  *ngIf="datos.imagenes.planoCatastroImagen"
+                  class="position-relative"
+                >
+                  <img
+                    [src]="datos.imagenes.planoCatastroImagen"
+                    class="preview-img"
+                  />
+                  <button
+                    class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                    (click)="eliminarImagen('planoCatastroImagen', $event)"
+                  >
+                    <lucide-icon [img]="icons.Trash2" size="14"></lucide-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card bg-light border-0 p-3">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h6 class="fw-bold text-primary mb-0">Esquema Unifilar</h6>
+                <select
+                  class="form-select form-select-sm w-auto bg-white"
+                  [(ngModel)]="datos.imagenes.tipoEsquemaUnifilarImagen"
+                >
+                  <option value="automatico">Generación Automática</option>
+                  <option value="aportado">Aportar Imagen Manualmente</option>
+                </select>
+              </div>
+
+              <div
+                *ngIf="datos.imagenes.tipoEsquemaUnifilarImagen === 'aportado'"
+                class="animation-slide-in-down mt-2"
+              >
+                <div
+                  class="drop-zone"
+                  tabindex="0"
+                  [class.dragover]="isDragOver['esquemaUnifilarImagen']"
+                  (dragover)="onDragOver($event, 'esquemaUnifilarImagen')"
+                  (dragleave)="onDragLeave($event, 'esquemaUnifilarImagen')"
+                  (drop)="onDrop($event, 'esquemaUnifilarImagen')"
+                  (paste)="onPaste($event, 'esquemaUnifilarImagen')"
+                >
+                  <div *ngIf="!datos.imagenes.esquemaUnifilarImagen">
+                    <lucide-icon
+                      [img]="icons.ImageIcon"
+                      size="40"
+                      class="text-muted mb-2"
+                    ></lucide-icon>
+                    <p class="text-muted small mb-3">
+                      Arrastra aquí­, haz clic para pegar (Ctrl+V) o selecciona
+                    </p>
+                    <button
+                      class="btn btn-outline-primary btn-sm"
+                      (click)="fileInputEsquema.click()"
+                    >
+                      Abrir explorador
+                    </button>
+                    <input
+                      type="file"
+                      #fileInputEsquema
+                      hidden
+                      accept="image/*"
+                      (change)="onFileSelected($event, 'esquemaUnifilarImagen')"
+                    />
+                  </div>
+                  <div
+                    *ngIf="datos.imagenes.esquemaUnifilarImagen"
+                    class="position-relative"
+                  >
+                    <img
+                      [src]="datos.imagenes.esquemaUnifilarImagen"
+                      class="preview-img"
+                    />
+                    <button
+                      class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                      (click)="eliminarImagen('esquemaUnifilarImagen', $event)"
+                    >
+                      <lucide-icon [img]="icons.Trash2" size="14"></lucide-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card bg-light border-0 p-3">
+              <h6 class="fw-bold text-primary mb-3">Croquis de Trazado</h6>
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <div
+                    class="drop-zone h-100 d-flex flex-column justify-content-center"
+                    tabindex="0"
+                    [class.dragover]="isDragOver['croquisTrazadoImagen']"
+                    (dragover)="onDragOver($event, 'croquisTrazadoImagen')"
+                    (dragleave)="onDragLeave($event, 'croquisTrazadoImagen')"
+                    (drop)="onDrop($event, 'croquisTrazadoImagen')"
+                    (paste)="onPaste($event, 'croquisTrazadoImagen')"
+                  >
+                    <div *ngIf="!datos.imagenes.croquisTrazadoImagen">
+                      <lucide-icon
+                        [img]="icons.ImageIcon"
+                        size="40"
+                        class="text-muted mb-2"
+                      ></lucide-icon>
+                      <p class="text-muted small mb-3">
+                        Arrastra aquí­, haz clic para pegar (Ctrl+V) o
+                        selecciona
+                      </p>
+                      <button
+                        class="btn btn-outline-primary btn-sm"
+                        (click)="fileInputCroquis.click()"
+                      >
+                        Abrir explorador
+                      </button>
+                      <input
+                        type="file"
+                        #fileInputCroquis
+                        hidden
+                        accept="image/*"
+                        (change)="
+                          onFileSelected($event, 'croquisTrazadoImagen')
+                        "
+                      />
+                    </div>
+                    <div
+                      *ngIf="datos.imagenes.croquisTrazadoImagen"
+                      class="position-relative"
+                    >
+                      <img
+                        [src]="datos.imagenes.croquisTrazadoImagen"
+                        class="preview-img"
+                      />
+                      <button
+                        class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                        (click)="eliminarImagen('croquisTrazadoImagen', $event)"
+                      >
+                        <lucide-icon
+                          [img]="icons.Trash2"
+                          size="14"
+                        ></lucide-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Descripción del croquis</label>
+                  <textarea
+                    class="form-control"
+                    rows="8"
+                    [(ngModel)]="datos.imagenes.descripcionCroquisImagen"
+                    placeholder="Escribe aquí­ la descripción. Los saltos de lí­nea se respetarán en el documento final."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="pasoActual === 11" class="animation-slide-in-down">
+        <h2 class="section-title h3">5. Finalizacion</h2>
+        <p class="section-subtitle">
+          Establezca la fecha de firma y genere el documento.
+        </p>
+
+        <div class="card bg-light border-0 p-4 mb-4">
+          <h6 class="fw-bold text-primary mb-3">Instalador</h6>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label"
+                >Seleccionar empresa instaladora o instalador</label
+              >
+              <select
+                class="form-select"
+                [(ngModel)]="instaladorSeleccionadoNombre"
+                (ngModelChange)="seleccionarInstalador($event)"
+                [disabled]="isLoadingInstaladores"
+              >
+                <option [ngValue]="null">-- Seleccionar --</option>
+                <option
+                  *ngFor="let instalador of instaladores"
+                  [ngValue]="obtenerNombreInstalador(instalador)"
+                >
+                  {{ obtenerNombreInstalador(instalador) }}
+                </option>
+              </select>
+              <small
+                class="text-muted d-block mt-2"
+                *ngIf="isLoadingInstaladores"
+              >
+                Cargando instaladores...
+              </small>
+              <small
+                class="text-muted d-block mt-2"
+                *ngIf="!isLoadingInstaladores && !instaladores.length"
+              >
+                No hay instaladores disponibles.
+              </small>
+            </div>
+          </div>
+
+          <div
+            class="row g-3 mt-1"
+            *ngIf="informacionInstaladorSeleccionado.length"
+          >
+            <div
+              class="col-md-6"
+              *ngFor="let campo of informacionInstaladorSeleccionado"
+            >
+              <label class="form-label">{{ campo.label }}</label>
+              <input
+                type="text"
+                class="form-control bg-white"
+                [value]="campo.value"
+                readonly
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-white border shadow-sm p-4 mb-4">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Lugar de Firma</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light"
+                  ><lucide-icon
+                    [img]="icons.MapPin"
+                    size="16"
+                  ></lucide-icon></span
+                ><input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="datos.fechaFirma.lugar"
+                />
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Dí­a</label
+              ><input
+                type="text"
+                class="form-control text-center"
+                [(ngModel)]="datos.fechaFirma.dia"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Mes</label
+              ><select class="form-select" [(ngModel)]="datos.fechaFirma.mes">
+                <option value="Enero">Enero</option>
+                <option value="Febrero">Febrero</option>
+                <option value="Marzo">Marzo</option>
+                <option value="Abril">Abril</option>
+                <option value="Mayo">Mayo</option>
+                <option value="Junio">Junio</option>
+                <option value="Julio">Julio</option>
+                <option value="Agosto">Agosto</option>
+                <option value="Septiembre">Septiembre</option>
+                <option value="Octubre">Octubre</option>
+                <option value="Noviembre">Noviembre</option>
+                <option value="Diciembre">Diciembre</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Año</label
+              ><input
+                type="text"
+                class="form-control text-center"
+                [(ngModel)]="datos.fechaFirma.anyo"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-info d-flex align-items-center">
+          <lucide-icon [img]="icons.FileText" class="me-3"></lucide-icon>
+          <div>
+            <strong>Todo listo.</strong> Se generará el PDF configurado.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-area d-flex justify-content-between align-items-center">
+      <button
+        class="btn-prev d-flex align-items-center shadow-sm"
+        (click)="retrocederPaso()"
+        [disabled]="pasoActual === 1"
+        [style.visibility]="pasoActual === 1 ? 'hidden' : 'visible'"
+      >
+        <lucide-icon
+          [img]="icons.ChevronLeft"
+          size="18"
+          class="me-2"
+        ></lucide-icon>
+        Anterior
+      </button>
+
+      <button
+        *ngIf="pasoActual < totalPasos"
+        class="btn-next d-flex align-items-center shadow-sm"
+        (click)="avanzarPaso()"
+      >
+        Siguiente
+        <lucide-icon
+          [img]="icons.ChevronRight"
+          size="18"
+          class="ms-2"
+        ></lucide-icon>
+      </button>
+
+      <div *ngIf="pasoActual === totalPasos" class="d-flex gap-3">
+        <button
+          class="btn-save d-flex align-items-center"
+          (click)="guardarEnServidor()"
+          [disabled]="isSaving"
+        >
+          <lucide-icon
+            *ngIf="!isSaving"
+            [img]="icons.CloudUpload"
+            size="18"
+            class="me-2"
+          ></lucide-icon>
+          <span
+            *ngIf="isSaving"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+
+          {{ isSaving ? "Guardando..." : "Guardar Datos" }}
+        </button>
+
+        <button
+          class="btn-next bg-success border-success d-flex align-items-center shadow-sm"
+          (click)="generarPDF()"
+          [disabled]="isGenerating"
+        >
+          <lucide-icon
+            *ngIf="!isGenerating"
+            [img]="icons.Download"
+            size="18"
+            class="me-2"
+          ></lucide-icon>
+          <span
+            *ngIf="isGenerating"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+
+          {{ isGenerating ? "Generando..." : "Descargar PDF" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

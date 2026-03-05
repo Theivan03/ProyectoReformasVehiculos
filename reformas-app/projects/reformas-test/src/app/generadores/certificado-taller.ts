@@ -5,14 +5,32 @@ import {
   TextRun,
   SectionType,
   AlignmentType,
+  Footer,
+  PageNumber,
 } from 'docx';
 import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
 import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
 
-export async function generarDocumentoTaller(data: any): Promise<void> {
+export async function generarDocumentoTaller(
+  data: any,
+  proyecto: any,
+): Promise<void> {
   const ingeniero = data.ingenieroSeleccionado;
   const modificaciones: Modificacion[] = data.modificaciones;
+  const revCabecera =
+    data?.revision !== undefined &&
+    data?.revision !== null &&
+    String(data.revision).trim() !== ''
+      ? `REV ${data.revision}`
+      : '';
+
+  let fraseProyecto = '';
+  if (proyecto) {
+    fraseProyecto = `- El proyecto técnico REF.: ${data.referenciaProyecto} ${revCabecera}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. ${ingeniero.nombre}, Colegiado nº ${ingeniero.numero} del ${ingeniero.colegio}.`;
+  } else {
+    fraseProyecto = `El proyecto técnico de la/s reforma/s, adjunto al expediente (en su caso).`;
+  }
 
   const seccion = [
     new Paragraph({
@@ -76,7 +94,7 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
     new Paragraph({
       children: [
         new TextRun({
-          text: `- El proyecto técnico REF.: ${data.referenciaProyecto}, de las reformas adjunto al expediente, realizado por el Ingeniero Técnico Industrial D. ${ingeniero.nombre}, Colegiado nº ${ingeniero.numero} del ${ingeniero.colegio}.`,
+          text: `${fraseProyecto}`,
           size: 22,
         }),
       ],
@@ -134,7 +152,7 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
         new TextRun({
           size: 22,
           text: `En ${data.taller.poblacion}, a ${new Date(
-            data.fechaProyecto
+            data.fechaProyecto,
           ).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -180,16 +198,60 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
 
   const modificacionesParagraphs = buildModificacionesParagraphs(
     modificaciones,
-    data
+    data,
+    false,
   );
 
   const section1 = {
     properties: { type: SectionType.NEXT_PAGE, pageNumberStart: 1 },
     children: [...seccion, ...modificacionesParagraphs, ...seccion2],
+    footers: {
+      default: new Footer({
+        children: [
+          new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            // Anulamos el espaciado 'line: 360' por defecto para el footer
+            spacing: { after: 0, line: 240 },
+            children: [
+              new TextRun({
+                text: 'Página ',
+                size: 22, // Coincide con tu 'default'
+              }),
+              new TextRun({
+                children: [PageNumber.CURRENT], // Campo para la página actual
+                size: 22,
+              }),
+              new TextRun({
+                text: ' de ',
+                size: 22,
+              }),
+              new TextRun({
+                children: [PageNumber.TOTAL_PAGES], // Campo para el total de páginas
+                size: 22,
+              }),
+            ],
+          }),
+        ],
+      }),
+    },
   };
 
   // 5) Monta y descarga el documento
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            size: 22,
+          },
+          paragraph: {
+            spacing: {
+              line: 360,
+            },
+          },
+        },
+      },
+    },
     sections: [section1],
   });
 
@@ -197,6 +259,6 @@ export async function generarDocumentoTaller(data: any): Promise<void> {
   const blob = await Packer.toBlob(doc);
   saveAs(
     blob,
-    `${data.referenciaProyecto} CT ${data.marca} ${data.modelo} ${data.matricula}.docx`
+    `${data.referenciaProyecto} CT ${data.marca} ${data.modelo} ${data.matricula}.docx`,
   );
 }

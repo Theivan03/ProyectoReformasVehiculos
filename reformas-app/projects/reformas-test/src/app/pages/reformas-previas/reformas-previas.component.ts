@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,12 +8,16 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule],
   templateUrl: './reformas-previas.component.html',
 })
-export class ReformasPreviasComponent {
+export class ReformasPreviasComponent implements OnInit {
   @Input() datos: any = { descripcionReformas: '' };
 
   @Output() autosave = new EventEmitter<any>();
   @Output() continuar = new EventEmitter<any>();
   @Output() volverAlFormulario = new EventEmitter<any>();
+
+  ngOnInit(): void {
+    console.log('ReformasPreviasComponent ngOnInit', this.datos);
+  }
 
   // Emitir autosave cada vez que cambia el textarea
   onChange() {

@@ -1,5 +1,59 @@
-<h2 class="mb-4">Bienvenido al sistema de reformas</h2>
-<p>
-  Seleccione una opción en el menú lateral para empezar y generar su
-  documentación técnica rápidamente.
-</p>
+<style>
+  /* --- CONTENEDOR DE BIENVENIDA --- */
+  #ing-welcome-wrapper {
+    /* Centrado en la pantalla (suponiendo un contenedor padre) */
+    text-align: center;
+    padding: 6rem 2rem;
+    background-color: #f8f9fa; /* Fondo gris muy suave */
+    border: 2px solid #000; /* Borde de alto contraste */
+    min-height: 400px;
+  }
+
+  #ing-welcome-wrapper * {
+    border-radius: 0 !important;
+  }
+
+  /* --- TÍTULO PRINCIPAL (Impacto Técnico) --- */
+  .ing-welcome-header {
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    font-weight: 900; /* Extra bold */
+    font-size: 2rem;
+    color: #000;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px; /* Más espaciado para impacto */
+  }
+
+  /* --- SUBTÍTULO / INSTRUCCIONES --- */
+  .ing-welcome-text {
+    font-family: "Roboto", sans-serif;
+    font-size: 1rem;
+    color: #495057;
+    margin-top: 1rem;
+    line-height: 1.6;
+    max-width: 600px; /* Limitar el ancho para legibilidad */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Acento visual para el texto clave */
+  .ing-welcome-text strong {
+    color: #0066ff; /* Azul técnico */
+    font-weight: 700;
+  }
+</style>
+
+<div id="ing-welcome-wrapper" class="container mt-4">
+  <h2 class="ing-welcome-header">Bienvenido al Sistema de Reformas</h2>
+  <div class="ing-welcome-text">
+    <p class="mb-0">
+      Seleccione una opción en el <strong>MENÚ LATERAL</strong> para empezar y
+      generar su documentación técnica rápidamente.
+    </p>
+    <p class="mb-0">
+      <small class="text-muted font-monospace"
+        >// INICIO DE SESIÓN SATISFACTORIO - MÓDULO DE INGENIERÍA ACTIVO</small
+      >
+    </p>
+  </div>
+</div>

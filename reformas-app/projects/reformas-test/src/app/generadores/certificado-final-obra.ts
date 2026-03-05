@@ -15,6 +15,7 @@ import {
   TableCell,
   VerticalAlign,
   ImageRun,
+  ShadingType,
 } from 'docx';
 import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
@@ -246,14 +247,14 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     new Paragraph({
       children: [
         new TextRun(
-          'D. LUIS SERRANO ARTESERO con DNI 20.037.410-V, colegiado nº 11.380 del Colegio Oficial'
+          'D. LUIS SERRANO ARTESERO con DNI 20.037.410-V, colegiado nº 11.380 del Colegio Oficial',
         ),
       ],
     }),
     new Paragraph({
       children: [
         new TextRun(
-          'de Peritos e Ingenieros Técnicos Industriales y de Grado de Valencia.'
+          'de Peritos e Ingenieros Técnicos Industriales y de Grado de Valencia.',
         ),
       ],
     }),
@@ -296,27 +297,25 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           new TableRow({
             children: [
               new TableCell({
-                verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 200, right: 200 },
                 children: [
                   new Paragraph({
                     text: String(label),
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                   }),
                 ],
               }),
               new TableCell({
-                verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 200, right: 200 },
                 children: [
                   new Paragraph({
                     text: String(value),
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                   }),
                 ],
               }),
             ],
-          })
+          }),
       ),
     }),
 
@@ -328,180 +327,216 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
     // TABLA DE DATOS DEL TALLER
     new Table({
-      width: { size: 70, type: WidthType.PERCENTAGE },
-      alignment: AlignmentType.CENTER, // 1) Centra la tabla en la página
+      width: { size: 100, type: WidthType.PERCENTAGE }, // Ligeramente más ancha
+      alignment: AlignmentType.CENTER,
+
+      // 1. BORDES: Bordes visibles como en la imagen (gruesos por fuera, finos por dentro)
       borders: {
-        top: { style: BorderStyle.NONE, size: 0 },
-        bottom: { style: BorderStyle.NONE, size: 0 },
-        left: { style: BorderStyle.NONE, size: 0 },
-        right: { style: BorderStyle.NONE, size: 0 },
-        insideHorizontal: { style: BorderStyle.NONE, size: 0 },
-        insideVertical: { style: BorderStyle.NONE, size: 0 },
+        top: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+        bottom: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+        left: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+        right: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
+        insideHorizontal: {
+          style: BorderStyle.SINGLE,
+          size: 6,
+          color: '000000',
+        },
+        insideVertical: { style: BorderStyle.SINGLE, size: 6, color: '000000' },
       },
+
       rows: [
-        ['NOMBRE EMPRESA', data.tallerSeleccionado.nombre],
-        ['DIRECCIÓN TALLER', data.tallerSeleccionado.direccion],
-        ['LOCALIDAD', data.tallerSeleccionado.poblacion],
-        ['PROVINCIA', data.tallerSeleccionado.provincia],
-        ['Nº REGISTRO INDUSTRIAL', data.tallerSeleccionado.registroIndustrial],
-        ['Nº REGISTRO ESPECIAL', data.tallerSeleccionado.registroEspecial],
+        ['NOMBRE EMPRESA', data.tallerSeleccionado?.nombre || ''],
+        ['DIRECCIÓN TALLER', data.tallerSeleccionado?.direccion || ''],
+        ['LOCALIDAD', data.tallerSeleccionado?.poblacion || ''],
+        ['PROVINCIA', data.tallerSeleccionado?.provincia || ''],
+        [
+          'Nº REGISTRO INDUSTRIAL',
+          data.tallerSeleccionado?.registroIndustrial || '',
+        ],
+        [
+          'Nº REGISTRO ESPECIAL',
+          data.tallerSeleccionado?.registroEspecial || '',
+        ],
       ].map(
         ([label, value]) =>
           new TableRow({
             children: [
+              // === CELDA IZQUIERDA (Etiqueta) ===
               new TableCell({
+                // 2. ANCHO: Definir ancho de la columna de etiqueta
+                width: { size: 40, type: WidthType.PERCENTAGE },
+                margins: { top: 100, bottom: 100, left: 150, right: 150 },
+
+                // 3. SOMBREADO: Añadir fondo gris
+                shading: {
+                  type: ShadingType.CLEAR,
+                  fill: 'D3D3D3', // Gris claro
+                },
                 verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 150, bottom: 150, left: 150, right: 150 }, // 2) Aumenta márgenes
                 children: [
                   new Paragraph({
-                    text: String(label),
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      // 4. TEXTO: Poner en negrita
+                      new TextRun({ text: String(label), bold: true }),
+                    ],
                   }),
                 ],
               }),
+
+              // === CELDA DERECHA (Valor) ===
               new TableCell({
+                // 2. ANCHO: Definir ancho de la columna de valor
+                width: { size: 60, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 150, bottom: 150, left: 150, right: 150 },
+                margins: { top: 100, bottom: 100, left: 150, right: 150 },
                 children: [
                   new Paragraph({
-                    text: String(value),
+                    // 5. ALINEACIÓN: Asegurar que el texto esté a la izquierda
+                    alignment: AlignmentType.CENTER,
+                    text: String(value || ''), // Usar || '' por si el valor es null
                   }),
                 ],
               }),
             ],
-          })
+          }),
       ),
     }),
 
     new Paragraph({ text: '', spacing: { after: 200 } }),
     new Paragraph({
-      text: 'La reforma realizada en el vehículo ha consistido en:',
+      text: `La reforma realizada en el vehículo en fecha ${data.fechaProyecto.split('-').reverse().join('/')} ha consistido en:`,
       spacing: { after: 200 },
     }),
   ];
 
   const punto1_6Tabla = [
-    ...(data.tipoVehiculo === 'coche'
+    // --------------------------------------------------------------------------------
+    // BLOQUE 1: COCHES Y CAMPERS
+    // --------------------------------------------------------------------------------
+    ...(data.tipoVehiculo === 'coche' || data.tipoVehiculo === 'camper'
       ? [
           (() => {
-            // 1) Define un array con las claves de modificación, su etiqueta y la propiedad donde guardas el valor
+            // 1) Definición de elementos (Datos del código 2)
             const elementos: Array<{
               nombreMod: string;
               etiqueta: string;
-              valor: string | number;
+              key: string; // Usamos string para evitar problemas de tipado estricto en el snippet
+              condition?: (m: any) => boolean;
             }> = [
               {
                 nombreMod: 'SNORKEL',
                 etiqueta: 'Snorkel',
-                valor: modificaciones.find((m) => m.nombre === 'SNORKEL')!
-                  .curvaturaSnorkel!,
+                key: 'curvaturaSnorkel',
               },
               {
                 nombreMod: 'PARAGOLPES DELANTERO',
                 etiqueta: 'Paragolpes delantero',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'PARAGOLPES DELANTERO'
-                )!.radioCurvaRParagolpesDelantero!,
+                key: 'radioCurvaRParagolpesDelantero',
               },
               {
                 nombreMod: 'PARAGOLPES TRASERO',
                 etiqueta: 'Paragolpes trasero',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'PARAGOLPES TRASERO'
-                )!.radioCurvaRParagolpesTrasero!,
-              },
-              {
-                nombreMod: 'ALETINES Y SOBREALETINES',
-                etiqueta: 'Aletines',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
-                )!.radioCurvaRAletines!,
-              },
-              {
-                nombreMod: 'ALETINES Y SOBREALETINES',
-                etiqueta: 'Sobrealetines',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
-                )!.curvaturaSobrealetines!,
+                key: 'radioCurvaRParagolpesTrasero',
               },
               {
                 nombreMod: 'ESTRIBOS LATERALES',
                 etiqueta: 'Estribos laterales',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'SEPARADORES DE RUEDA'
-                )!.curvaturaEstribosLaterales!,
+                key: 'curvaturaEstribosLaterales',
               },
               {
                 nombreMod: 'PROTECTORES LATERALES',
                 etiqueta: 'Protectores laterales',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'ALETINES Y SOBREALETINES'
-                )!.curvaturaProtectoresLaterales!,
+                key: 'curvaturaProtectoresLaterales',
               },
               {
                 nombreMod: 'DEFENSA DELANTERA',
                 etiqueta: 'Defensa delantera',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'DEFENSA DELANTERA'
-                )!.curvaturaDefensaDelantera!,
+                key: 'curvaturaDefensaDelantera',
               },
               {
                 nombreMod: 'SOPORTE PARA RUEDA DE REPUESTO',
                 etiqueta: 'Soporte rueda de repuesto',
-                valor: modificaciones.find(
-                  (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO'
-                )!.curvaturaSoporteRuedaRepuesto!,
+                key: 'curvaturaSoporteRuedaRepuesto',
+              },
+              {
+                nombreMod: 'ALERÓN',
+                etiqueta: 'Alerón',
+                key: 'curvaturaAleron',
+              },
+              {
+                nombreMod: 'ALETINES Y SOBREALETINES',
+                etiqueta: 'Aletines',
+                key: 'radioCurvaRAletines',
+                condition: (m) => m.detalle?.aletines === true,
+              },
+              {
+                nombreMod: 'ALETINES Y SOBREALETINES',
+                etiqueta: 'Sobrealetines',
+                key: 'curvaturaSobrealetines', // Ojo: en tu código 2 tenías 'radioCurvaRAletines' repetido, he puesto 'curvaturaSobrealetines' deduciendo del primer código
+                condition: (m) => m.detalle?.sobrealetines === true,
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN DE SISTEMA DE ESCAPE',
+                etiqueta: 'Escape',
+                key: 'radioCurvaturaEscape',
+                condition: (m) => m.sobresaleEscape === true,
               },
             ];
 
+            // 2) Construcción de filas (Lógica del código 1 adaptada para ser dinámica)
             const dataRows = elementos
-              .filter(({ nombreMod }) =>
-                modificaciones.some(
-                  (m) => m.nombre === nombreMod && m.seleccionado
-                )
-              )
-              .map(
-                ({ etiqueta, valor }) =>
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        verticalAlign: VerticalAlign.CENTER,
-                        margins: {
-                          top: 200,
-                          bottom: 200,
-                          left: 200,
-                          right: 200,
-                        },
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.CENTER,
-                            children: [new TextRun(etiqueta)],
-                          }),
-                        ],
-                      }),
-                      new TableCell({
-                        verticalAlign: VerticalAlign.CENTER,
-                        margins: {
-                          top: 200,
-                          bottom: 200,
-                          left: 200,
-                          right: 200,
-                        },
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.CENTER,
-                            children: [new TextRun(String(valor))],
-                          }),
-                        ],
-                      }),
-                    ],
-                  })
-              );
+              .map(({ nombreMod, etiqueta, key, condition }) => {
+                const mod = modificaciones.find(
+                  (m) => m.nombre === nombreMod && m.seleccionado,
+                );
 
+                // Si no existe la modificación o no cumple la condición extra, devolvemos null
+                if (!mod) return null;
+                if (condition && !condition(mod)) return null;
+
+                // Acceso seguro a la propiedad dinámicamente
+                const valor = (mod as any)[key];
+
+                // Si el valor no es válido, ignoramos la fila
+                if (valor === undefined || valor === null || valor === '')
+                  return null;
+
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(valor))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null); // Eliminamos los nulls
+
+            // Si no hay filas, devolvemos array vacío (no se pinta tabla)
             if (dataRows.length === 0) {
               return [];
             }
 
+            // 3) Construcción de la tabla (Estructura del código 1)
             const headerRow = new TableRow({
+              tableHeader: true,
               children: [
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
@@ -537,7 +572,166 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
             const spacer = new Paragraph({ spacing: { before: 400 } });
 
-            // 4) Construye y devuelve la tabla completa
+            const table = new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              borders: {
+                top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+                insideHorizontal: {
+                  style: BorderStyle.SINGLE,
+                  size: 1,
+                  color: '000000',
+                },
+                insideVertical: {
+                  style: BorderStyle.SINGLE,
+                  size: 1,
+                  color: '000000',
+                },
+              },
+              rows: [headerRow, ...dataRows],
+            });
+
+            return [spacer, table];
+          })(),
+        ]
+      : []),
+
+    // --------------------------------------------------------------------------------
+    // BLOQUE 2: MOTOS
+    // --------------------------------------------------------------------------------
+    ...(data.tipoVehiculo === 'moto'
+      ? [
+          (() => {
+            const elementos: Array<{
+              nombreMod: string;
+              etiqueta: string;
+              key: string;
+            }> = [
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Intermitentes delanteros',
+                key: 'curvaturaintermitenteDelantero',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Intermitentes traseros',
+                key: 'curvaturaintermitenteTrasero',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Catadioptrico',
+                key: 'curvaturacatadioptrico',
+              },
+              {
+                nombreMod: 'LUCES',
+                etiqueta: 'Luces antiniebla',
+                key: 'curvaturaluzAntinieblas',
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
+                etiqueta: 'Guardabarros trasero',
+                key: 'curvaturaGuardaTrasMoto',
+              },
+              {
+                nombreMod: 'SUSTITUCIÓN GUARDABARROS',
+                etiqueta: 'Guardabarros delantero',
+                key: 'curvaturaGuardaDelantMoto',
+              },
+            ];
+
+            const dataRows = elementos
+              .map(({ nombreMod, etiqueta, key }) => {
+                const mod = modificaciones.find(
+                  (m) => m.nombre === nombreMod && m.seleccionado,
+                );
+
+                // Acceso seguro
+                const valor = mod ? (mod as any)[key] : null;
+
+                if (
+                  !mod ||
+                  valor === undefined ||
+                  valor === null ||
+                  valor === ''
+                ) {
+                  return null;
+                }
+
+                // Lógica de cálculo segura para evitar NaN
+                // Si valor no es un número válido, usará 0 y se convertirá a string
+                const valorCalculado = (Number(valor) || 0) / 100;
+
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(valorCalculado))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null);
+
+            if (dataRows.length === 0) {
+              return [];
+            }
+
+            // Cabecera idéntica
+            const headerRow = new TableRow({
+              tableHeader: true,
+              children: [
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  width: { size: 70, type: WidthType.PERCENTAGE },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({ text: 'Elemento instalado', bold: true }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  width: { size: 30, type: WidthType.PERCENTAGE },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: 'Radio de curvatura más desfavorable en mm',
+                          bold: true,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            });
+
+            const spacer = new Paragraph({ spacing: { before: 400 } });
+
             const table = new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
               borders: {
@@ -584,7 +778,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                     spacing: { before: 240, after: 120 },
                     children: [new TextRun({ text: txt })],
                   })
-                : null
+                : null,
             )
             .filter((p): p is Paragraph => p != null);
 
@@ -686,7 +880,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           bold: true,
         }),
         new TextRun(
-          ', adjunto al presente certificado y firmado por Ingeniero Técnico Industrial Luis Serrano Artesero, colegiado 11380 COGITI Valencia.'
+          ', adjunto al presente certificado y firmado por Ingeniero Técnico Industrial Luis Serrano Artesero, colegiado 11380 COGITI Valencia.',
         ),
       ],
       spacing: { after: 200 },
@@ -696,7 +890,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       bullet: { level: 0 },
       children: [
         new TextRun(
-          'Los actos reglamentarios aplicables a cada una de ellas y que figuran en el Anexo I del presente certificado y documentación adicional correspondiente.'
+          'Los actos reglamentarios aplicables a cada una de ellas y que figuran en el Anexo I del presente certificado y documentación adicional correspondiente.',
         ),
       ],
       spacing: { after: 200 },
@@ -706,7 +900,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       bullet: { level: 0 },
       children: [
         new TextRun(
-          'La reforma del vehículo se concluye, tomándose las fotografías correspondientes que se aportan como Anexo II a este certificado.	'
+          'La reforma del vehículo se concluye, tomándose las fotografías correspondientes que se aportan como Anexo II a este certificado.	',
         ),
       ],
     }),
@@ -715,7 +909,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       bullet: { level: 0 },
       children: [
         new TextRun(
-          'La presente Certificación se adjuntará a la documentación que debe aportarse para la legalización de dicho vehículo.'
+          'La presente Certificación se adjuntará a la documentación que debe aportarse para la legalización de dicho vehículo.',
         ),
       ],
     }),
@@ -786,7 +980,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     const nombreArchivo = `${nombreBase}.png`;
     const url = `http://192.168.1.41:3000/imgs/${nombreArchivo}`;
     const tamaño = tamaños.find(
-      (img: { nombre: string }) => img.nombre === nombreArchivo
+      (img: { nombre: string }) => img.nombre === nombreArchivo,
     );
 
     if (!tamaño) continue;
@@ -828,7 +1022,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
               type: 'png',
             }),
           ],
-        })
+        }),
       );
 
       alturaAcumulada += alturaEscalada + 100; // Añadimos margen entre imágenes
@@ -836,7 +1030,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       console.warn(
         `No se pudo cargar la imagen para el código ${
           (codigo as { codigo: string }).codigo
-        }`
+        }`,
       );
     }
   }
@@ -855,7 +1049,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
             else reject('No se pudo generar Blob');
           }, file.type);
         },
-        { canvas: true, orientation: true }
+        { canvas: true, orientation: true },
       );
     });
   }
@@ -901,7 +1095,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           height: img.naturalHeight,
           mimeType: blob.type,
         };
-      })
+      }),
     );
 
     // 3) Párrafos iniciales
@@ -911,7 +1105,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
       spacing: { after: 300 },
       children: [
         new TextRun({
-          text: 'Anexo 2. Fotografías del vehículo antes de la reforma',
+          text: 'Anexo 2. Fotografías del vehículo después de la reforma',
           bold: true,
         }),
       ],
@@ -963,9 +1157,9 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                       ],
                     }),
                   ],
-                })
+                }),
             ),
-          })
+          }),
         );
       }
 
@@ -1000,7 +1194,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 ],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -1035,7 +1229,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 ],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -1063,7 +1257,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     // Normalizas los File a Blob rotados
     const rawFiles = data.postImages as File[];
     const orientedBlobs = await Promise.all(
-      rawFiles.map((f) => normalizeOrientation(f))
+      rawFiles.map((f) => normalizeOrientation(f)),
     );
 
     // 2) Aquí lees el arrayBuffer y guardas también el mimeType
@@ -1084,15 +1278,25 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           height: img.naturalHeight,
           mimeType: blob.type,
         };
-      })
+      }),
     );
 
-    // ... tus Paragraphs de título, pageBreak, etc. ...
+    const salto = new Paragraph({ pageBreakBefore: true });
+    const title = new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
+      children: [
+        new TextRun({
+          text: 'Anexo 3. Fotografías de las reformas',
+          bold: true,
+        }),
+      ],
+    });
 
     function buildPreviosTable(images: ImageInfo[]): Table {
       const rows: TableRow[] = [];
-      const maxCellWidth = 300;
-      const maxCellHeight = 250;
+      const maxCellWidth = 315;
+      const maxCellHeight = 265;
 
       for (let i = 0; i < images.length; i += 2) {
         const left = images[i];
@@ -1102,7 +1306,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
         const scaleL = Math.min(
           maxCellWidth / left.width,
           maxCellHeight / left.height,
-          1
+          1,
         );
         const wL = Math.round(left.width * scaleL);
         const hL = Math.round(left.height * scaleL);
@@ -1113,7 +1317,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           const scaleR = Math.min(
             maxCellWidth / right.width,
             maxCellHeight / right.height,
-            1
+            1,
           );
           wR = Math.round(right.width * scaleR);
           hR = Math.round(right.height * scaleR);
@@ -1171,7 +1375,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                   : [new Paragraph('')],
               }),
             ],
-          })
+          }),
         );
       }
 
@@ -1190,7 +1394,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     }
 
     const prevTable = buildPreviosTable(infos);
-    return [prevTable];
+    return [salto, title, prevTable];
   }
 
   const anexosPorsteriores = await generarPosteriores(data);
@@ -1201,7 +1405,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     footers: { default: makeFooter() },
     children: [
       ...seccion,
-      ...buildModificacionesParagraphs(modificaciones, data),
+      ...buildModificacionesParagraphs(modificaciones, data, false),
       ...punto1_6Tabla.flat(),
       ...punto1_6Avisos,
       ...bloqueLegal,
@@ -1213,6 +1417,20 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
 
   // 5) Monta y descarga el documento
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            size: 22,
+          },
+          paragraph: {
+            spacing: {
+              line: 360,
+            },
+          },
+        },
+      },
+    },
     sections: [section1],
   });
 
@@ -1220,6 +1438,6 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
   const blob = await Packer.toBlob(doc);
   saveAs(
     blob,
-    `${data.referenciaProyecto} CFO ${data.marca} ${data.modelo} ${data.matricula}.docx`
+    `${data.referenciaProyecto} CFO ${data.marca} ${data.modelo} ${data.matricula}.docx`,
   );
 }

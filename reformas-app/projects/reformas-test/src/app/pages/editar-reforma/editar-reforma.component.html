@@ -1,128 +1,326 @@
-<div class="container mt-4">
-  <h2 class="mb-3">Editar Reforma</h2>
-  <p class="text-muted">Seleccione un proyecto existente para editarlo.</p>
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Reformas</title>
 
-  <!-- Filtros -->
-  <div class="card p-3 mb-3">
-    <div class="row g-2">
-      <div class="col-md-3">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Filtrar por marca"
-          [(ngModel)]="filtroMarca"
-        />
-      </div>
-      <div class="col-md-3">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Filtrar por matrícula"
-          [(ngModel)]="filtroMatricula"
-        />
-      </div>
-      <div class="col-md-3">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Filtrar por propietario"
-          [(ngModel)]="filtroPropietario"
-        />
-      </div>
-      <div class="col-md-3 d-grid">
-        <button class="btn btn-primary" (click)="buscar()">Buscar</button>
-      </div>
-    </div>
-  </div>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <div *ngIf="cargando" class="alert alert-info">Cargando proyectos...</div>
-  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+    <style>
+      :root {
+        --sys-primary: #000000; /* CAMBIO: Negro puro para máxima visibilidad */
+        --sys-accent: #0097a7;
+        --sys-bg: #ffffff;
+        --sys-gray: #f3f4f6;
+      }
 
-  <!-- Listado de proyectos -->
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
-    <div
-      class="col"
-      *ngFor="let p of proyectos"
-      (click)="seleccionarProyecto(p)"
-    >
+      body {
+        background-color: var(--sys-bg);
+        font-family: "Roboto", sans-serif;
+        color: #374151;
+      }
+
+      h2,
+      h5,
+      .modal-title {
+        font-family: "Roboto", sans-serif;
+        font-weight: 300;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--sys-primary);
+      }
+
+      .font-data {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        color: #555;
+      }
+
+      .rounded-0,
+      .card,
+      .btn,
+      .form-control,
+      .modal-content {
+        border-radius: 0 !important;
+      }
+
+      .form-control {
+        background-color: transparent;
+        border: none;
+        border-bottom: 2px solid #e5e7eb;
+        padding: 0.5rem 0;
+        font-weight: 500;
+        color: var(--sys-primary);
+      }
+
+      .form-control:focus {
+        box-shadow: none;
+        border-bottom-color: var(--sys-accent);
+        background-color: #f9fafb;
+      }
+
+      .form-control::placeholder {
+        font-size: 0.9rem;
+        font-weight: 300;
+        color: #9ca3af;
+      }
+
+      .btn {
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-size: 0.8rem;
+        padding: 0.6rem 1.5rem;
+        border: 1px solid transparent;
+      }
+
+      /* CAMBIO: Estilo reforzado para el botón principal */
+      .btn-primary {
+        background-color: #000000;
+        color: white;
+        border: 1px solid #000000;
+      }
+
+      .btn-primary:hover {
+        background-color: #333333;
+        border-color: #333333;
+      }
+
+      .btn-outline-dark {
+        border: 1px solid #e5e7eb;
+        color: #374151;
+      }
+
+      .btn-outline-dark:hover {
+        background-color: #f3f4f6;
+        color: #000;
+      }
+
+      .project-card {
+        background-color: var(--sys-gray);
+        border: none;
+        border-left: 5px solid transparent;
+        transition: transform 0.2s, background-color 0.2s;
+        min-height: 100%;
+      }
+
+      .project-card:hover {
+        background-color: #e5e7eb;
+        transform: translateY(-3px);
+      }
+
+      .border-client {
+        border-left-color: var(--sys-accent) !important;
+      }
+
+      .border-internal {
+        border-left-color: #9ca3af !important;
+      }
+
+      .modal-header {
+        border-bottom: 1px solid #eee;
+        background-color: #fff;
+      }
+
+      .badge-tech {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        color: #333;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5 mb-5">
       <div
-        class="card h-100 text-center shadow-sm bg-white"
-        role="button"
-        [ngClass]="{
-          'border border-2': true,
-          'border-primary': p.enviadoPorCliente,
-          'border-secondary': !p.enviadoPorCliente,
-          'shadow-lg bg-light': p._hover
-        }"
-        (mouseenter)="p._hover = true"
-        (mouseleave)="p._hover = false"
-        style="transition: all 0.2s ease-in-out"
+        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 border-bottom pb-3"
       >
-        <div class="card-body">
-          <div class="mb-2">
-            <i class="bi bi-folder2-open fs-1 text-primary"></i>
+        <div>
+          <h2 class="mb-0">Registro de Reformas</h2>
+        </div>
+      </div>
+
+      <div class="mb-5">
+        <div class="row g-4 align-items-end">
+          <div class="col-md-3">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="BUSCAR POR MARCA"
+              [(ngModel)]="filtroMarca"
+            />
           </div>
-          <h5 class="card-title mb-1 text-dark">{{ p.nombre }}</h5>
-          <small class="text-muted d-block">Marca: {{ p.marca }}</small>
-          <small class="text-muted d-block">Matrícula: {{ p.matricula }}</small>
-          <small class="text-muted d-block"
-            >Propietario: {{ p.propietario }}</small
+          <div class="col-md-3">
+            <input
+              type="text"
+              class="form-control font-data"
+              placeholder="BUSCAR POR MATRÍCULA"
+              [(ngModel)]="filtroMatricula"
+            />
+          </div>
+          <div class="col-md-3">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="BUSCAR POR PROPIETARIO"
+              [(ngModel)]="filtroPropietario"
+            />
+          </div>
+          <div class="col-md-3 text-end">
+            <button class="btn btn-primary w-100" (click)="buscar()">
+              <i class="bi bi-funnel-fill me-2"></i> Aplicar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="cargando" class="py-4 text-center text-muted font-data">
+        <div class="spinner-grow spinner-grow-sm me-2" role="status"></div>
+        PROCESANDO SOLICITUD...
+      </div>
+
+      <div
+        *ngIf="error"
+        class="alert alert-danger rounded-0 border-0 bg-danger text-white font-data"
+      >
+        ERROR: {{ error }}
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+        <div
+          class="col"
+          *ngFor="let p of proyectos"
+          (click)="seleccionarProyecto(p)"
+        >
+          <div
+            class="card project-card h-100 p-3 cursor-pointer"
+            role="button"
+            [ngClass]="{
+              'border-client': p.enviadoPorCliente,
+              'border-internal': !p.enviadoPorCliente,
+              'shadow-sm': p._hover
+            }"
+            (mouseenter)="p._hover = true"
+            (mouseleave)="p._hover = false"
           >
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span
+                class="badge badge-tech text-uppercase"
+                style="font-size: 0.7rem"
+              >
+                {{ p.enviadoPorCliente ? "WEB CLIENTE" : "INTERNO" }}
+              </span>
+              <i class="bi bi-three-dots-vertical text-muted"></i>
+            </div>
+
+            <h5
+              class="fs-6 fw-bold mb-3 text-dark text-truncate"
+              style="font-weight: 500"
+            >
+              {{ p.nombre }}
+            </h5>
+
+            <div class="mt-auto">
+              <div
+                class="d-flex align-items-center text-muted mb-1 small font-data"
+              >
+                <i class="bi bi-car-front me-2"></i> {{ p.marca }}
+              </div>
+              <div
+                class="d-flex align-items-center text-muted mb-1 small font-data"
+              >
+                <i class="bi bi-upc-scan me-2"></i> {{ p.matricula }}
+              </div>
+              <div
+                class="d-flex align-items-center text-muted small font-data text-truncate"
+              >
+                <i class="bi bi-person-circle me-2"></i> {{ p.propietario }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- 🟡 Modal Selector -->
-<div
-  class="modal fade"
-  id="modalSelectorProyecto"
-  tabindex="-1"
-  aria-labelledby="modalSelectorProyectoLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-lg border-0 rounded-3">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="modalSelectorProyectoLabel">
-          Proyecto enviado por cliente
-        </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
+    <div
+      class="modal fade"
+      id="modalSelectorProyecto"
+      tabindex="-1"
+      aria-labelledby="modalSelectorProyectoLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow bg-white">
+          <div class="modal-header p-4 pb-2 border-0">
+            <div>
+              <h5
+                class="modal-title fs-5 fw-bold"
+                id="modalSelectorProyectoLabel"
+              >
+                Proyecto Externo
+              </h5>
+              <p class="text-muted small mt-1 mb-0">
+                Esta reforma requiere acción manual.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
 
-      <div class="modal-body text-center">
-        <p class="mb-3">
-          Este proyecto fue enviado por un cliente. ¿Qué deseas hacer?
-        </p>
-        <p class="fw-bold text-secondary">
-          {{ proyectoSeleccionado?.nombre || "Proyecto sin nombre" }}
-        </p>
-      </div>
+          <div class="modal-body px-4 pt-2 pb-4">
+            <div class="py-3 border-top border-bottom my-3">
+              <div class="row">
+                <div class="col-4 text-uppercase text-muted small fw-bold">
+                  Proyecto
+                </div>
+                <div class="col-8 font-data fw-bold text-dark text-end">
+                  {{ proyectoSeleccionado?.nombre || "---" }}
+                </div>
+              </div>
+            </div>
 
-      <div class="modal-footer justify-content-center">
-        <button
-          type="button"
-          class="btn btn-success px-4"
-          (click)="descargarDocx()"
-          data-bs-dismiss="modal"
-        >
-          <i class="bi bi-download me-2"></i> Descargar DOCX
-        </button>
-        <button
-          type="button"
-          class="btn btn-primary px-4"
-          (click)="modificarProyecto()"
-          data-bs-dismiss="modal"
-        >
-          <i class="bi bi-pencil-square me-2"></i> Modificar Proyecto
-        </button>
+            <div class="d-grid gap-2">
+              <button
+                type="button"
+                class="btn btn-primary py-2"
+                (click)="modificarProyecto()"
+                data-bs-dismiss="modal"
+              >
+                <i class="bi bi-pencil-square me-2"></i> EDITAR REFORMA
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-outline-dark py-2"
+                (click)="descargarDocx()"
+                data-bs-dismiss="modal"
+              >
+                <i class="bi bi-file-earmark-word me-2"></i> Descargar
+                Documentación
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -129,6 +129,58 @@
     background-color: #eff6ff;
     color: #1e40af;
   }
+  .check-group-card {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1rem;
+  }
+  .check-group-title {
+    color: #1e293b;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .check-option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.625rem;
+  }
+  .check-option-grid.long-options {
+    grid-template-columns: 1fr;
+  }
+  .check-option {
+    border: 1px solid #cbd5e1;
+    border-radius: 0.625rem;
+    background-color: #ffffff;
+    padding: 0.625rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .check-option:hover {
+    border-color: #94a3b8;
+    background-color: #f8fafc;
+  }
+  .check-option.active {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
+  }
+  .check-option .form-check-input {
+    margin-top: 0.125rem;
+  }
+  .check-option-label {
+    color: #1e293b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .collectiva-extra {
+    border: 1px dashed #bfdbfe;
+    background-color: #f8fafc;
+    border-radius: 0.625rem;
+    padding: 0.85rem;
+  }
   @keyframes slideInDown {
     from {
       opacity: 0;
@@ -509,11 +561,225 @@
               </div>
             </div>
           </div>
+
+          <div class="col-md-12">
+            <div class="check-group-card mb-3">
+              <div class="check-group-title">Tipo de instalación</div>
+              <div class="check-option-grid">
+                <label
+                  class="check-option d-flex align-items-start mb-0"
+                  *ngFor="let opcion of opcionesTipoInstalacionAutoconsumo"
+                  [class.active]="
+                    datos.caracteristicas.tipoInstalacionAutoconsumo ===
+                    opcion.value
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-2"
+                    [checked]="
+                      datos.caracteristicas.tipoInstalacionAutoconsumo ===
+                      opcion.value
+                    "
+                    (change)="
+                      seleccionarOpcionExclusiva(
+                        'tipoInstalacionAutoconsumo',
+                        opcion.value
+                      )
+                    "
+                  />
+                  <span class="check-option-label">{{ opcion.label }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="check-group-card mb-3">
+              <div class="check-group-title">Modalidad</div>
+              <div class="check-option-grid">
+                <label
+                  class="check-option d-flex align-items-start mb-0"
+                  *ngFor="let opcion of opcionesModalidadAutoconsumo"
+                  [class.active]="
+                    datos.caracteristicas.modalidadAutoconsumo === opcion.value
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-2"
+                    [checked]="
+                      datos.caracteristicas.modalidadAutoconsumo ===
+                      opcion.value
+                    "
+                    (change)="
+                      seleccionarOpcionExclusiva(
+                        'modalidadAutoconsumo',
+                        opcion.value
+                      )
+                    "
+                  />
+                  <span class="check-option-label">{{ opcion.label }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="check-group-card mb-3">
+              <div class="check-group-title">Tipo de conexión</div>
+              <div class="check-option-grid">
+                <label
+                  class="check-option d-flex align-items-start mb-0"
+                  *ngFor="let opcion of opcionesTipoConexionAutoconsumo"
+                  [class.active]="
+                    datos.caracteristicas.tipoConexionAutoconsumo ===
+                    opcion.value
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-2"
+                    [checked]="
+                      datos.caracteristicas.tipoConexionAutoconsumo ===
+                      opcion.value
+                    "
+                    (change)="
+                      seleccionarOpcionExclusiva(
+                        'tipoConexionAutoconsumo',
+                        opcion.value
+                      )
+                    "
+                  />
+                  <span class="check-option-label">{{ opcion.label }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="check-group-card">
+              <div class="check-group-title">Colectiva</div>
+              <div class="check-option-grid">
+                <label
+                  class="check-option d-flex align-items-start mb-0"
+                  *ngFor="let opcion of opcionesColectiva"
+                  [class.active]="datos.caracteristicas.colectiva === opcion.value"
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-2"
+                    [checked]="datos.caracteristicas.colectiva === opcion.value"
+                    (change)="
+                      seleccionarOpcionExclusiva('colectiva', opcion.value)
+                    "
+                  />
+                  <span class="check-option-label">{{ opcion.label }}</span>
+                </label>
+              </div>
+
+              <div
+                class="collectiva-extra mt-3 animation-slide-in-down"
+                *ngIf="datos.caracteristicas.colectiva === 'si'"
+              >
+                <label class="form-label mb-1">Nº consumidores</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  min="1"
+                  step="1"
+                  [(ngModel)]="datos.caracteristicas.numeroConsumidores"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="pasoActual === 4" class="animation-slide-in-down">
+        <h2 class="section-title h3">4. Memoria Descriptiva</h2>
+        <p class="section-subtitle">
+          Defina el tipo de actuacion y, si procede, los cambios de la
+          modificacion.
+        </p>
+
+        <div class="check-group-card mb-3">
+          <div class="check-group-title">Tipo de actuacion</div>
+          <div class="check-option-grid">
+            <label
+              class="check-option d-flex align-items-start mb-0"
+              *ngFor="let opcion of opcionesTipoMemoriaDescriptiva"
+              [class.active]="
+                datos.memoriaDescriptiva.tipoActuacion === opcion.value
+              "
+            >
+              <input
+                type="checkbox"
+                class="form-check-input me-2"
+                [checked]="datos.memoriaDescriptiva.tipoActuacion === opcion.value"
+                (change)="seleccionarTipoMemoriaDescriptiva(opcion.value)"
+              />
+              <span class="check-option-label">{{ opcion.label }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div
+          class="check-group-card mb-3 animation-slide-in-down"
+          *ngIf="
+            datos.memoriaDescriptiva.tipoActuacion ===
+            'modificacionInstalacionExistente'
+          "
+        >
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">NÂº de REG. autoconsumo</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.memoriaDescriptiva.numeroRegAutoconsumo"
+              />
+            </div>
+          </div>
+
+          <div class="check-group-title mt-4">Detalle de modificacion</div>
+          <div class="check-option-grid long-options">
+            <label
+              class="check-option d-flex align-items-start mb-0"
+              *ngFor="let opcion of opcionesCambioModificacion"
+              [class.active]="datos.memoriaDescriptiva.cambios[opcion.value]"
+            >
+              <input
+                type="checkbox"
+                class="form-check-input me-2"
+                [checked]="datos.memoriaDescriptiva.cambios[opcion.value]"
+                (change)="
+                  alternarCambioModificacion(
+                    opcion.value,
+                    $any($event.target).checked
+                  )
+                "
+              />
+              <span class="check-option-label">{{ opcion.label }}</span>
+            </label>
+          </div>
+
+          <div
+            class="collectiva-extra mt-3 animation-slide-in-down"
+            *ngIf="datos.memoriaDescriptiva.cambios.otros"
+          >
+            <label class="form-label mb-1">Descripcion (otros)</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              [(ngModel)]="datos.memoriaDescriptiva.descripcionOtros"
+              placeholder="Describe la modificacion"
+            ></textarea>
+          </div>
         </div>
       </div>
 
-      <div *ngIf="pasoActual === 4" class="animation-slide-in-down">
-        <h2 class="section-title h3">4. Finalización</h2>
+      <div *ngIf="pasoActual === 5" class="animation-slide-in-down">
+        <h2 class="section-title h3">5. Finalizacion</h2>
         <p class="section-subtitle">
           Establezca la fecha de firma y genere el documento.
         </p>
@@ -652,3 +918,4 @@
     </div>
   </div>
 </div>
+
