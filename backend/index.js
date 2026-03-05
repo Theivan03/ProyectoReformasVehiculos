@@ -824,7 +824,39 @@ app.get('/api/memorias/:id', (req, res) => {
   }
 });
 
-// 3. Obtener TODAS las memorias (Para la lista)
+// 3. Eliminar una memoria por ID
+app.delete('/api/memorias/:id', (req, res) => {
+  try {
+    const idBuscado = Number(req.params.id);
+    if (!Number.isFinite(idBuscado)) {
+      return res.status(400).json({ error: 'ID invalido' });
+    }
+
+    if (!fs.existsSync(MEMORIAS_FILE)) {
+      return res.status(404).json({ error: 'No hay memorias guardadas' });
+    }
+
+    const data = fs.readFileSync(MEMORIAS_FILE, 'utf-8');
+    const memorias = JSON.parse(data);
+    if (!Array.isArray(memorias)) {
+      return res.status(500).json({ error: 'Formato de memorias invalido' });
+    }
+
+    const memoriasActualizadas = memorias.filter((m) => m.id !== idBuscado);
+
+    if (memoriasActualizadas.length === memorias.length) {
+      return res.status(404).json({ error: 'Memoria no encontrada' });
+    }
+
+    fs.writeFileSync(MEMORIAS_FILE, JSON.stringify(memoriasActualizadas, null, 2));
+    res.json({ message: 'Memoria eliminada correctamente' });
+  } catch (error) {
+    console.error('Error eliminando memoria:', error);
+    res.status(500).json({ error: 'Error interno eliminando memoria' });
+  }
+});
+
+// 4. Obtener TODAS las memorias (Para la lista)
 app.get('/api/memorias', (req, res) => {
   try {
     if (fs.existsSync(MEMORIAS_FILE)) {

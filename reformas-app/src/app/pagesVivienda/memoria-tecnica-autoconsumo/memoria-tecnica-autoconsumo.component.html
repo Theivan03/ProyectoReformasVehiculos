@@ -221,7 +221,7 @@
               placeholder="Calle Mayor 12, 1º A"
             />
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label">CP</label>
             <input
               type="text"
@@ -229,7 +229,15 @@
               [(ngModel)]="datos.titular.cp"
             />
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
+            <label class="form-label">Localidad</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="datos.titular.localidad"
+            />
+          </div>
+          <div class="col-md-3">
             <label class="form-label">Población</label>
             <input
               type="text"
@@ -237,7 +245,7 @@
               [(ngModel)]="datos.titular.poblacion"
             />
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label">Provincia</label>
             <input
               type="text"
@@ -366,6 +374,14 @@
                 type="text"
                 class="form-control"
                 [(ngModel)]="datos.emplazamiento.cp"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Localidad</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="datos.emplazamiento.localidad"
               />
             </div>
             <div class="col-md-3">

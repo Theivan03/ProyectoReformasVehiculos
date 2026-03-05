@@ -108,7 +108,7 @@ import { Router } from '@angular/router';
       }
 
       .autoconsumo {
-        background: linear-gradient(180deg, #ecfeff 0%, #f8fafc 100%);
+        background: linear-gradient(180deg, #ecfdf5 0%, #f8fafc 100%);
       }
 
       @media (max-width: 768px) {

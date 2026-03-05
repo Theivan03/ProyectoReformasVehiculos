@@ -1,63 +1,5 @@
 [
   {
-    "id": 1767012768498,
-    "mismaDireccion": false,
-    "tipoVivienda": "piso",
-    "titular": {
-      "nombre": "5",
-      "nif": "5",
-      "domicilio": "5",
-      "cp": "5",
-      "poblacion": "5",
-      "provincia": "5",
-      "telefono": "5",
-      "correo": "5"
-    },
-    "emplazamiento": {
-      "direccion": "5",
-      "poblacion": "5",
-      "provincia": "5",
-      "cp": "5",
-      "refCatastral": "5",
-      "uso": "Vivienda",
-      "superficie": "",
-      "planoImagen": null
-    },
-    "caracteristicas": {
-      "tension": "",
-      "potenciaInstalada": 5,
-      "potenciaInversor": 5,
-      "numModulos": 5,
-      "derivacionIndividual": {
-        "type": "",
-        "seccion": "",
-        "longitud": "",
-        "caidaTension": ""
-      },
-      "protecciones": {
-        "interruptorGeneral": "",
-        "diferencial": ""
-      },
-      "cgp": {
-        "esquema": "7",
-        "intensidad": 5,
-        "fusibles": 5
-      },
-      "contadores": {
-        "numCentralizaciones": 5,
-        "totalContadores": 5,
-        "intensidadNominal": 5
-      }
-    },
-    "fechaFirma": {
-      "dia": "5",
-      "mes": "Febrero",
-      "anyo": "2025",
-      "lugar": "5"
-    },
-    "fechaCreacion": "2025-12-29T12:52:48.498Z"
-  },
-  {
     "id": 1770387534299,
     "mismaDireccion": false,
     "titular": {
@@ -102,6 +44,7 @@
     "mismaDireccion": false,
     "titular": {
       "nombre": "VIA SOCIAL VICTORIA SL",
+      "apellidos": "",
       "nif": "B24648057",
       "domicilio": "PLAZA DE LA INMACULADA, NUM 3, PLANTA 11, PUERTA D",
       "cp": "24001",
@@ -124,7 +67,8 @@
       "potenciaInstalada": 14.4,
       "tipoCableMm2": "10",
       "tipoInstalacion": "monofasica",
-      "diametroTuboMm": "32"
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "1"
     },
     "fechaFirma": {
       "dia": "4",
@@ -132,7 +76,9 @@
       "anyo": "2026",
       "lugar": "TEULADA"
     },
-    "fechaCreacion": "2026-03-04T10:48:34.751Z"
+    "fechaCreacion": "2026-03-04T10:48:34.751Z",
+    "tipoMemoria": "consumo",
+    "fechaEdicion": "2026-03-04T14:58:03.561Z"
   },
   {
     "id": 1772623101655,
@@ -176,6 +122,7 @@
     "mismaDireccion": true,
     "titular": {
       "nombre": "TROTONDA GARCIA DANIEL ",
+      "apellidos": "",
       "nif": "20049251J",
       "domicilio": "C/ SALVADOR SOLER Y SOLER, 16",
       "cp": "46780",
@@ -185,10 +132,10 @@
       "correo": "facturacio@electricitativan.com"
     },
     "emplazamiento": {
-      "direccion": "",
-      "poblacion": "",
-      "provincia": "",
-      "cp": "",
+      "direccion": "C/ SALVADOR SOLER Y SOLER, 16",
+      "poblacion": "OLIVA",
+      "provincia": "VALENCIA",
+      "cp": "46780",
       "refCatastral": "9822214YJ4192S0001AP",
       "uso": "Vivienda",
       "superficie": 161,
@@ -198,7 +145,8 @@
       "potenciaInstalada": 5.75,
       "tipoCableMm2": "6",
       "tipoInstalacion": "monofasica",
-      "diametroTuboMm": "32"
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "1"
     },
     "fechaFirma": {
       "dia": "4",
@@ -206,6 +154,48 @@
       "anyo": "2026",
       "lugar": "OLIVA"
     },
-    "fechaCreacion": "2026-03-04T12:43:31.644Z"
+    "fechaCreacion": "2026-03-04T12:43:31.644Z",
+    "fechaEdicion": "2026-03-04T14:53:57.556Z",
+    "tipoMemoria": "consumo"
+  },
+  {
+    "id": 1772634583630,
+    "tipoMemoria": "autoconsumo",
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "a",
+      "apellidos": "a",
+      "nif": "a",
+      "domicilio": "aaa",
+      "cp": "",
+      "poblacion": "",
+      "provincia": "",
+      "telefono": "618622012",
+      "correo": "hablamos@projectes.es"
+    },
+    "emplazamiento": {
+      "direccion": "",
+      "poblacion": "",
+      "provincia": "",
+      "cp": "",
+      "refCatastral": "",
+      "uso": "",
+      "superficie": "",
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": "",
+      "tipoCableMm2": "6",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "1"
+    },
+    "fechaFirma": {
+      "dia": "",
+      "mes": "",
+      "anyo": "",
+      "lugar": ""
+    },
+    "fechaCreacion": "2026-03-04T14:29:43.630Z"
   }
 ]

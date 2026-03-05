@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http'; // 🔥 IMPORTANTE
+import { HttpClient, HttpClientModule } from '@angular/common/http'; // ðŸ”¥ IMPORTANTE
 import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import PizZip from 'pizzip';
 import { saveAs } from 'file-saver';
+import { firstValueFrom } from 'rxjs';
 import {
   LucideAngularModule,
   FileText,
@@ -43,6 +45,8 @@ export class MemoriaTecnicaDisenoComponent {
   isGenerating = false;
   isSaving = false;
   isLoadingData = false;
+  private autoDownloadYaEjecutado = false;
+  private tipoMemoriaRuta: 'consumo' | 'autoconsumo' = 'consumo';
   private readonly apiBaseUrl = `http://${window.location.hostname || 'localhost'}:3000`;
 
   icons = {
@@ -63,9 +67,19 @@ export class MemoriaTecnicaDisenoComponent {
     ArrowLeft,
   };
 
+  get isAutoconsumo(): boolean {
+    return (
+      this.normalizarTipoMemoria(
+        this.datos.tipoMemoria,
+        this.tipoMemoriaRuta,
+      ) === 'autoconsumo'
+    );
+  }
+
   datos = {
     id: null,
-    // NUEVO: Control de dirección
+    tipoMemoria: 'consumo',
+    // NUEVO: Control de direcciÃ³n
     mismaDireccion: false, // Por defecto false (pide las dos)
 
     titular: {
@@ -84,6 +98,7 @@ export class MemoriaTecnicaDisenoComponent {
       poblacion: '',
       provincia: '',
       cp: '',
+      cups: '',
       refCatastral: '',
       uso: '',
       superficie: '',
@@ -106,15 +121,25 @@ export class MemoriaTecnicaDisenoComponent {
   ) {}
 
   ngOnInit() {
+    this.tipoMemoriaRuta = this.obtenerTipoMemoriaDesdeRuta();
+    const autoDownload =
+      this.route.snapshot.queryParamMap.get('autoDownload') === '1';
+    const autoDownloadToken =
+      this.route.snapshot.queryParamMap.get('dlToken') || '';
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.cargarDatosDelServidor(id);
+      this.cargarDatosDelServidor(id, autoDownload, autoDownloadToken);
       return;
     }
+    this.datos.tipoMemoria = this.tipoMemoriaRuta;
     this.actualizarDiametroTubo();
   }
 
-  cargarDatosDelServidor(id: string) {
+  cargarDatosDelServidor(
+    id: string,
+    autoDownload: boolean = false,
+    autoDownloadToken: string = '',
+  ) {
     this.isLoadingData = true;
     this.http.get(`${this.apiBaseUrl}/api/memorias/${id}`).subscribe({
       next: (data: any) => {
@@ -133,8 +158,20 @@ export class MemoriaTecnicaDisenoComponent {
           },
           fechaFirma: { ...this.datos.fechaFirma, ...(data?.fechaFirma || {}) },
         };
+        this.datos.tipoMemoria = this.normalizarTipoMemoria(
+          this.datos.tipoMemoria,
+          'consumo',
+        );
         this.actualizarDiametroTubo();
         this.isLoadingData = false;
+        if (
+          autoDownload &&
+          !this.autoDownloadYaEjecutado &&
+          this.debeEjecutarAutoDownload(id, autoDownloadToken)
+        ) {
+          this.autoDownloadYaEjecutado = true;
+          setTimeout(() => this.generarPDF(), 0);
+        }
       },
       error: (err) => {
         console.error('Error cargando memoria:', err);
@@ -144,9 +181,9 @@ export class MemoriaTecnicaDisenoComponent {
     });
   }
 
-  // 🔥 LÓGICA DE NAVEGACIÓN MODIFICADA
+  // ðŸ”¥ LÃ“GICA DE NAVEGACIÃ“N MODIFICADA
   avanzarPaso() {
-    // Si estamos en Paso 1 y es la misma dirección, saltamos el Paso 2 (Emplazamiento)
+    // Si estamos en Paso 1 y es la misma direcciÃ³n, saltamos el Paso 2 (Emplazamiento)
     if (this.pasoActual === 1 && this.datos.mismaDireccion) {
       this.pasoActual = 3;
     } else if (this.pasoActual < this.totalPasos) {
@@ -155,7 +192,7 @@ export class MemoriaTecnicaDisenoComponent {
   }
 
   retrocederPaso() {
-    // Si estamos en Paso 3 y es la misma dirección, volvemos al Paso 1
+    // Si estamos en Paso 3 y es la misma direcciÃ³n, volvemos al Paso 1
     if (this.pasoActual === 3 && this.datos.mismaDireccion) {
       this.pasoActual = 1;
     } else if (this.pasoActual > 1) {
@@ -165,6 +202,35 @@ export class MemoriaTecnicaDisenoComponent {
 
   volver() {
     this.router.navigate(['/memorias']);
+  }
+
+  private obtenerTipoMemoriaDesdeRuta(): 'consumo' | 'autoconsumo' {
+    const urlActual = (this.router.url || '').toLowerCase();
+    return urlActual.includes('/autoconsumo') ? 'autoconsumo' : 'consumo';
+  }
+
+  private normalizarTipoMemoria(
+    tipo: any,
+    fallback: 'consumo' | 'autoconsumo' = 'consumo',
+  ): 'consumo' | 'autoconsumo' {
+    const valor = String(tipo || '').toLowerCase();
+    if (valor === 'autoconsumo') return 'autoconsumo';
+    if (valor === 'consumo') return 'consumo';
+    return fallback;
+  }
+
+  private debeEjecutarAutoDownload(id: string, token: string): boolean {
+    try {
+      const tokenNormalizado = token || 'sin-token';
+      const key = `mtd_auto_download_${id}_${tokenNormalizado}`;
+      if (window.sessionStorage.getItem(key) === '1') {
+        return false;
+      }
+      window.sessionStorage.setItem(key, '1');
+      return true;
+    } catch {
+      return true;
+    }
   }
 
   private extraerSoloCalle(direccionCompleta: string): string {
@@ -212,6 +278,10 @@ export class MemoriaTecnicaDisenoComponent {
   }
 
   guardarEnServidor() {
+    this.datos.tipoMemoria = this.normalizarTipoMemoria(
+      this.datos.tipoMemoria,
+      this.datos.id ? 'consumo' : this.tipoMemoriaRuta,
+    );
     this.actualizarDiametroTubo();
     this.isSaving = true;
 
@@ -222,25 +292,37 @@ export class MemoriaTecnicaDisenoComponent {
         this.isSaving = false;
         if (response.id) {
           this.datos.id = response.id; // Guardamos el ID por si le da a guardar otra vez (para editar)
-          alert('✅ Datos guardados correctamente en el servidor.');
+          alert('âœ… Datos guardados correctamente en el servidor.');
         }
       },
       error: (error) => {
         this.isSaving = false;
         console.error('Error al guardar:', error);
         alert(
-          '❌ Error al conectar con el servidor. Revisa que esté encendido.',
+          'âŒ Error al conectar con el servidor. Revisa que estÃ© encendido.',
         );
       },
     });
   }
 
   async generarPDF() {
+    if (this.isGenerating) {
+      return;
+    }
     this.isGenerating = true;
     try {
       this.actualizarDiametroTubo();
+      const cargarAsset = async (url: string): Promise<ArrayBuffer> => {
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(
+            `No se pudo cargar el recurso ${url} (HTTP ${res.status})`,
+          );
+        }
+        return res.arrayBuffer();
+      };
       // 1. CARGA DE RECURSOS
-      const urlPdf = '/assets/MEMORIA TECNICA DE DISEÑO.pdf';
+      const urlPdf = '/assets/MEMORIA_TECNICA_DISENO.pdf';
       const esquemaSeleccionado =
         this.datos.caracteristicas.esquemaUnifilar || '1';
       const esquemaUnifilarMap: Record<string, string> = {
@@ -250,23 +332,23 @@ export class MemoriaTecnicaDisenoComponent {
       const urlEsquemaF =
         esquemaUnifilarMap[esquemaSeleccionado] || esquemaUnifilarMap['1'];
       const urlCuadroH = '/assets/cuadro.jpg';
-      const urlPlanoI = '/assets/plano emplazamiento.png'; // 🔥 IMAGEN SECCIÓN I
+      const urlPlanoI = '/assets/plano emplazamiento.png'; // ðŸ”¥ IMAGEN SECCIÃ“N I
 
       const [existingPdfBytes, esquemaFBytes, cuadroHBytes, planoIBytes] =
         await Promise.all([
-          fetch(urlPdf).then((res) => res.arrayBuffer()),
-          fetch(urlEsquemaF).then((res) => res.arrayBuffer()),
-          fetch(urlCuadroH).then((res) => res.arrayBuffer()),
-          fetch(urlPlanoI).then((res) => res.arrayBuffer()),
+          cargarAsset(urlPdf),
+          cargarAsset(urlEsquemaF),
+          cargarAsset(urlCuadroH),
+          cargarAsset(urlPlanoI),
         ]);
 
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       const form = pdfDoc.getForm();
 
-      // Fuente Estándar (Estilo técnico/máquina)
+      // Fuente EstÃ¡ndar (Estilo tÃ©cnico/mÃ¡quina)
       const fontHand = await pdfDoc.embedFont(StandardFonts.CourierBoldOblique);
 
-      // Incrustar imágenes
+      // Incrustar imÃ¡genes
       let esquemaImageF;
       try {
         esquemaImageF = await pdfDoc.embedPng(esquemaFBytes);
@@ -322,7 +404,7 @@ export class MemoriaTecnicaDisenoComponent {
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_LOC[0]',
-        this.datos.titular.poblacion,
+        this.obtenerLocalidadTitular(),
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_PRO[0]',
@@ -343,7 +425,11 @@ export class MemoriaTecnicaDisenoComponent {
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_LOC[0]',
-        this.datos.emplazamiento.poblacion,
+        this.obtenerLocalidadEmplazamiento(),
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_TEL[0]',
+        this.datos.emplazamiento.cups,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_PROV[0]',
@@ -419,7 +505,7 @@ export class MemoriaTecnicaDisenoComponent {
       const page5 = pages[4];
       const { width, height } = page5.getSize();
 
-      // 1. ESQUEMA UNIFILAR (Sección F)
+      // 1. ESQUEMA UNIFILAR (SecciÃ³n F)
       const esquemaDims = esquemaImageF.scaleToFit(520, 150);
       page5.drawImage(esquemaImageF, {
         x: width / 2 - esquemaDims.width / 2,
@@ -428,7 +514,7 @@ export class MemoriaTecnicaDisenoComponent {
         height: esquemaDims.height,
       });
 
-      // 2. CROQUIS TRAZADO (Sección H - Imagen JPG)
+      // 2. CROQUIS TRAZADO (SecciÃ³n H - Imagen JPG)
       const cuadroDims = cuadroImageH.scaleToFit(480, 110);
       page5.drawImage(cuadroImageH, {
         x: width / 2 - cuadroDims.width / 2,
@@ -437,7 +523,7 @@ export class MemoriaTecnicaDisenoComponent {
         height: cuadroDims.height,
       });
 
-      // 3. PLANO EMPLAZAMIENTO (Sección I - Imagen PNG + Texto Superpuesto)
+      // 3. PLANO EMPLAZAMIENTO (SecciÃ³n I - Imagen PNG + Texto Superpuesto)
       const planoDims = planoImageI.scaleToFit(350, 150);
       const iX = width / 2 - planoDims.width / 2;
       const iY = 75;
@@ -479,6 +565,17 @@ export class MemoriaTecnicaDisenoComponent {
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
       saveAs(blob, `MTD_${titularNombreDocumento || 'Documento'}.pdf`);
+      try {
+        await this.generarManualUsoMantenimiento(titularNombreDocumento);
+      } catch (manualError) {
+        console.error(
+          'Error generando manual de uso y mantenimiento:',
+          manualError,
+        );
+        alert(
+          'La memoria tecnica se ha generado, pero no se pudo generar el manual de uso y mantenimiento.',
+        );
+      }
     } catch (error) {
       console.error('Error generando PDF:', error);
       alert('Error al generar el PDF. Revisa la consola.');
@@ -492,6 +589,106 @@ export class MemoriaTecnicaDisenoComponent {
     const nombre = (this.datos.titular.nombre || '').trim();
 
     return [apellidos, nombre].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+  }
+
+  private async generarManualUsoMantenimiento(
+    titularNombreDocumento: string,
+  ): Promise<void> {
+    const plantillaUrl =
+      '/assets/MANUAL DE USO Y MANTENIMIENTO DE INSTALACION ELECTRICA.docx';
+    const arrayBuffer = await fetch(plantillaUrl).then((r) => r.arrayBuffer());
+    const zip = new PizZip(arrayBuffer);
+
+    const documentXmlFile = zip.file('word/document.xml');
+    if (!documentXmlFile) {
+      throw new Error('No se encuentra word/document.xml en la plantilla DOCX');
+    }
+
+    const titularManual =
+      (titularNombreDocumento || this.datos.titular.nombre || '')
+        .trim()
+        .toUpperCase() || ' ';
+    const direccionManual =
+      (this.datos.emplazamiento.direccion || this.datos.titular.domicilio || '')
+        .trim()
+        .toUpperCase() || ' ';
+    const cpManual =
+      (this.datos.emplazamiento.cp || this.datos.titular.cp || '')
+        .trim()
+        .toUpperCase() || ' ';
+    const poblacionManual =
+      (this.datos.emplazamiento.poblacion || this.datos.titular.poblacion || '')
+        .trim()
+        .toUpperCase() || ' ';
+    const provinciaManual =
+      (this.datos.emplazamiento.provincia || this.datos.titular.provincia || '')
+        .trim()
+        .toUpperCase() || ' ';
+
+    let documentXml = documentXmlFile.asText();
+    documentXml = documentXml
+      .replace('CONSTRUCCIONES JUST SA', this.escaparXml(titularManual))
+      .replace(
+        'AVENIDA LLAURADOR, 31-5, 1º 2',
+        this.escaparXml(direccionManual),
+      )
+      .replace('46780', this.escaparXml(cpManual))
+      .replace('OLIVA', this.escaparXml(poblacionManual))
+      .replace('VALENCIA', this.escaparXml(provinciaManual));
+
+    zip.file('word/document.xml', documentXml);
+
+    const docxBlob = zip.generate({
+      type: 'blob',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    });
+
+    const nombreLimpio = this.limpiarNombreArchivo(
+      titularNombreDocumento || 'Documento',
+    );
+    const pdfBlob = await this.convertirDocxAPdf(
+      docxBlob,
+      `MANUAL_USO_Y_MANTENIMIENTO_${nombreLimpio}.docx`,
+    );
+    saveAs(pdfBlob, `MANUAL_USO_Y_MANTENIMIENTO_${nombreLimpio}.pdf`);
+  }
+
+  private async convertirDocxAPdf(
+    docxBlob: Blob,
+    nombreArchivoDocx: string,
+  ): Promise<Blob> {
+    const formData = new FormData();
+    formData.append('doc', docxBlob, nombreArchivoDocx);
+
+    return firstValueFrom(
+      this.http.post(`${this.apiBaseUrl}/convertir-docx-a-pdf`, formData, {
+        responseType: 'blob',
+      }),
+    );
+  }
+
+  private escaparXml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  private limpiarNombreArchivo(value: string): string {
+    const limpio = value
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return limpio || 'Documento';
+  }
+
+  private obtenerLocalidadTitular(): string {
+    return this.datos.titular.poblacion || '';
+  }
+
+  private obtenerLocalidadEmplazamiento(): string {
+    return this.datos.emplazamiento.poblacion || '';
   }
 
   actualizarDiametroTubo() {
