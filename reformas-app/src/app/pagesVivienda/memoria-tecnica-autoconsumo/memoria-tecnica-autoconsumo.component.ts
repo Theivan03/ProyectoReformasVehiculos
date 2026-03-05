@@ -1,8 +1,24 @@
 import { Component } from '@angular/core';
-import { MemoriaTecnicaDisenoComponent } from '../memoria-tecnica-diseno/memoria-tecnica-diseno.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ArrowLeft, Box, Building, CheckSquare, ChevronLeft, ChevronRight, CloudUpload, Download, FileText, Home, ImageIcon, LucideAngularModule, MapPin, Save, User, Zap } from 'lucide-angular';
+import {
+  ArrowLeft,
+  Box,
+  Building,
+  CheckSquare,
+  ChevronLeft,
+  ChevronRight,
+  CloudUpload,
+  Download,
+  FileText,
+  Home,
+  ImageIcon,
+  LucideAngularModule,
+  MapPin,
+  Save,
+  User,
+  Zap,
+} from 'lucide-angular';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import PizZip from 'pizzip';
@@ -12,11 +28,13 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-memoria-tecnica-autoconsumo',
-  imports: [MemoriaTecnicaDisenoComponent, CommonModule,
+  imports: [
+    CommonModule,
     FormsModule,
     LucideAngularModule,
     HttpClientModule,
-    RouterModule,],
+    RouterModule,
+  ],
   templateUrl: './memoria-tecnica-autoconsumo.component.html',
   styleUrl: './memoria-tecnica-autoconsumo.component.css',
 })
@@ -49,10 +67,12 @@ export class MemoriaTecnicaAutoconsumoComponent {
   };
 
   get isAutoconsumo(): boolean {
-    return this.normalizarTipoMemoria(
-      this.datos.tipoMemoria,
-      this.tipoMemoriaRuta,
-    ) === 'autoconsumo';
+    return (
+      this.normalizarTipoMemoria(
+        this.datos.tipoMemoria,
+        this.tipoMemoriaRuta,
+      ) === 'autoconsumo'
+    );
   }
 
   datos = {
@@ -596,11 +616,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
         .trim()
         .toUpperCase() || ' ';
     const direccionManual =
-      (
-        this.datos.emplazamiento.direccion ||
-        this.datos.titular.domicilio ||
-        ''
-      )
+      (this.datos.emplazamiento.direccion || this.datos.titular.domicilio || '')
         .trim()
         .toUpperCase() || ' ';
     const cpManual =
@@ -618,11 +634,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
         .trim()
         .toUpperCase() || ' ';
     const provinciaManual =
-      (
-        this.datos.emplazamiento.provincia ||
-        this.datos.titular.provincia ||
-        ''
-      )
+      (this.datos.emplazamiento.provincia || this.datos.titular.provincia || '')
         .trim()
         .toUpperCase() || ' ';
 
