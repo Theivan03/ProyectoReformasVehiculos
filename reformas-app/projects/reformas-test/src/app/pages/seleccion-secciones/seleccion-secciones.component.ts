@@ -38,7 +38,7 @@ export class SeleccionSeccionesComponent implements OnInit {
   ngOnInit(): void {
     console.log(
       'Opciones de reforma cargadas en seleccion secciones:',
-      this.opcionesReforma
+      this.opcionesReforma,
     );
     this.syncFromPre();
   }
@@ -50,14 +50,14 @@ export class SeleccionSeccionesComponent implements OnInit {
       ? this.opcionesReforma
       : [];
     this.seccionesSeleccionadas = lista.filter((op) =>
-      pre.has(String(op.codigo))
+      pre.has(String(op.codigo)),
     );
   }
 
   /** Marca/desmarca una opción al hacer click */
   toggleSeleccion(opcion: { codigo: string; descripcion: string }) {
     const existe = this.seccionesSeleccionadas.find(
-      (s) => s.codigo === opcion.codigo
+      (s) => s.codigo === opcion.codigo,
     );
     this.seccionesSeleccionadas = existe
       ? this.seccionesSeleccionadas.filter((s) => s.codigo !== opcion.codigo)
@@ -67,7 +67,7 @@ export class SeleccionSeccionesComponent implements OnInit {
   /** Continuar → emite la selección ordenada por código */
   enviarSeleccion() {
     const ordenadas = [...this.seccionesSeleccionadas].sort(
-      (a, b) => Number(a.codigo) - Number(b.codigo)
+      (a, b) => Number(a.codigo) - Number(b.codigo),
     );
     this.continuar.emit(ordenadas);
   }

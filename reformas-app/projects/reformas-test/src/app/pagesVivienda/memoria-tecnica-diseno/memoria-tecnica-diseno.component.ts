@@ -160,7 +160,7 @@ export class MemoriaTecnicaDisenoComponent {
         };
         this.datos.tipoMemoria = this.normalizarTipoMemoria(
           this.datos.tipoMemoria,
-          'consumo',
+          this.tipoMemoriaRuta,
         );
         this.actualizarDiametroTubo();
         this.isLoadingData = false;
@@ -280,7 +280,7 @@ export class MemoriaTecnicaDisenoComponent {
   guardarEnServidor() {
     this.datos.tipoMemoria = this.normalizarTipoMemoria(
       this.datos.tipoMemoria,
-      this.datos.id ? 'consumo' : this.tipoMemoriaRuta,
+      this.tipoMemoriaRuta,
     );
     this.actualizarDiametroTubo();
     this.isSaving = true;

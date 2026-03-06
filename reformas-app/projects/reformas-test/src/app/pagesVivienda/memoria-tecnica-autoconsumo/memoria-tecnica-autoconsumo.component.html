@@ -1894,6 +1894,18 @@
         ></lucide-icon>
       </button>
 
+      <button
+        class="btn-next d-flex align-items-center shadow-sm"
+        (click)="generarPDFIDs()"
+      >
+        Generar documento
+        <lucide-icon
+          [img]="icons.ChevronRight"
+          size="18"
+          class="ms-2"
+        ></lucide-icon>
+      </button>
+
       <div *ngIf="pasoActual === totalPasos" class="d-flex gap-3">
         <button
           class="btn-save d-flex align-items-center"
@@ -1918,7 +1930,7 @@
 
         <button
           class="btn-next bg-success border-success d-flex align-items-center shadow-sm"
-          (click)="generarPDF()"
+          (click)="generarPDFIDs()"
           [disabled]="isGenerating"
         >
           <lucide-icon

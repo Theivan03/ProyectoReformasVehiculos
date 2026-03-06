@@ -163,7 +163,23 @@
         "Instalacion"
       ],
       "medidasAntiempotramiento": "200X800",
-      "nTornillos": 5
+      "nTornillos": 5,
+      "nTornillosAntiempotramiento": 5,
+      "seccionResistenteAsAntiempotramiento": 146.52,
+      "resTraccionMinTornillo88Kgmm2Antiempotramiento": 80,
+      "cwCoefAerodinamicoAntiempotramiento": 0.82,
+      "densidadAireKgM3Antiempotramiento": 1.29,
+      "velocidadAireV2msAntiempotramiento": 38.89,
+      "radioCurvaRAntiempotramiento": 800,
+      "coefSeguridadKAntiempotramiento": 3,
+      "superficieFrontalM2Antiempotramiento": 0.16,
+      "detalle": {
+        "aletines": false,
+        "sobrealetines": false
+      },
+      "calidadTornilloAntiempotramiento": 10.9,
+      "metricaAntiempotramiento": 16,
+      "pesoPiezaKgAntiempotramiento": 3
     },
     {
       "nombre": "ANTINIEBLA",
@@ -446,7 +462,8 @@
       "metricaParaDelantero": "11",
       "ntornillosParaDelantero": 8,
       "pesoPiezaKgParagolpesDelantero": 4,
-      "superficieFrontalM2ParagolpesDelantero": 0.16
+      "superficieFrontalM2ParagolpesDelantero": 0.16,
+      "calidadTornilloParagolpesDelantero": 10.9
     },
     {
       "nombre": "PARAGOLPES TRASERO",
@@ -530,7 +547,13 @@
       "materialRefuerzo": "ABS",
       "largoRefuerzo": 200,
       "altoRefuerzo": 800,
-      "fondoRefuerzo": 45
+      "fondoRefuerzo": 45,
+      "marcaRefuerzoDelantero": "R10",
+      "referenciaRefuerzoDelantero": "12345",
+      "materialRefuerzoDelantero": "ABS",
+      "largoRefuerzoDelantero": 200,
+      "altoRefuerzoDelantero": 800,
+      "fondoRefuerzoDelantero": 45
     },
     {
       "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO",
@@ -580,7 +603,8 @@
       "velocidadAireV2msSnorkel": 38.89,
       "densidadAireKgM3Snorkel": 1.29,
       "cwCoefAerodinamicoSnorkel": 0.82,
-      "calidadTornilloSnorkel": "8.8"
+      "calidadTornilloSnorkel": 8.8,
+      "resTraccionMinTornillo88Kgmm2Snorkel": 80
     },
     {
       "nombre": "SOPORTE PARA RUEDA DE REPUESTO",
@@ -821,7 +845,7 @@
   "bastidor": "vf712345678912345",
   "fechaMatriculacion": "2024-12-12",
   "homologacion": "e3*2007/116*4545",
-  "codigosReforma": "1.1 - 1.2 - 1.3 - 2.1 - 2.2 - 2.3 - 2.4 - 2.6 - 2.5 - 2.7 - 2.8 - 2.9 - 2.10 - 2.11 - 2.13 - 2.12 - 2.14 - 2.15 - 2.16 - 3.1 - 3.2 - 3.3 - 3.4 - 3.5 - 3.6 - 4.1 - 4.2 - 4.3 - 4.4 - 4.5 - 4.6 - 4.7 - 4.8 - 4.9 - 4.10 - 5.1 - 6.1 - 6.2 - 6.3 - 6.4 - 6.5 - 6.6 - 7.1 - 7.2 - 7.3 - 7.4 - 8.1 - 8.2 - 8.3 - 8.4 - 8.10 - 8.11 - 8.12 - 8.20 - 8.21 - 8.22 - 8.23 - 8.24 - 8.30 - 8.31 - 8.32 - 8.33 - 8.40 - 8.50 - 8.51 - 8.52 - 8.53 - 8.54 - 8.55 - 8.56 - 8.60 - 8.61 - 8.62 - 8.70 - 8.80 - 8.81 - 8.90 - 8.91 - 8.92 - 8.93 - 8.94 - 8.95 - 8.96 - 8.97 - 9.1 - 9.2 - 10.2 - 10.1 - 10.4 - 10.3 - 10.5 - 10.6 - 11.0 - 11.1 - 11.2 - 11.3 - 11.4 - 11.5 - 11.6",
+  "codigosReforma": "1.1 - 1.2 - 1.3 - 2.1 - 2.2 - 2.3 - 2.4 - 2.5 - 2.6 - 2.7 - 2.8 - 2.9 - 2.10 - 2.11 - 2.12 - 2.13 - 2.14 - 2.15 - 2.16 - 3.1 - 3.2 - 3.3 - 3.4 - 3.5 - 3.6 - 4.1 - 4.2 - 4.3 - 4.4 - 4.5 - 4.6 - 4.7 - 4.8 - 4.9 - 4.10 - 5.1 - 6.1 - 6.2 - 6.3 - 6.4 - 6.5 - 6.6 - 7.1 - 7.2 - 7.3 - 7.4 - 8.1 - 8.2 - 8.3 - 8.4 - 8.10 - 8.11 - 8.12 - 8.20 - 8.21 - 8.22 - 8.23 - 8.24 - 8.30 - 8.31 - 8.32 - 8.33 - 8.40 - 8.50 - 8.51 - 8.52 - 8.53 - 8.54 - 8.55 - 8.56 - 8.60 - 8.61 - 8.62 - 8.70 - 8.80 - 8.81 - 8.90 - 8.91 - 8.92 - 8.93 - 8.94 - 8.95 - 8.96 - 8.97 - 9.1 - 9.2 - 10.1 - 10.2 - 10.3 - 10.4 - 10.5 - 10.6 - 11.0 - 11.1 - 11.2 - 11.3 - 11.4 - 11.5 - 11.6",
   "propietario": "DAVID",
   "categoria": "M1",
   "clasificacion": "1000",
@@ -946,12 +970,12 @@
         "descripcion": "Adición o desinstalación de una/s unidad/es motriz/ces para la tracción del vehículo"
       },
       {
-        "codigo": "2.6",
-        "descripcion": "Modificación o sustitución de las características del sistema de escape: disposición, volumen total, silenciadores, catalizador, tramo de salida"
-      },
-      {
         "codigo": "2.5",
         "descripcion": "Cambio de emplazamiento de la unidad motriz"
+      },
+      {
+        "codigo": "2.6",
+        "descripcion": "Modificación o sustitución de las características del sistema de escape: disposición, volumen total, silenciadores, catalizador, tramo de salida"
       },
       {
         "codigo": "2.7",
@@ -974,12 +998,12 @@
         "descripcion": "Transformación a Vehículos eléctricos o híbridos y sus modificaciones"
       },
       {
-        "codigo": "2.13",
-        "descripcion": "Modificación del sistema del control de emisiones para el paso de una etapa Euro a una etapa superior"
-      },
-      {
         "codigo": "2.12",
         "descripcion": "Vehículos eléctricos o híbridos: modificación, sustitución, adición o reubicación del sistema de acumulación de energía recargable"
+      },
+      {
+        "codigo": "2.13",
+        "descripcion": "Modificación del sistema del control de emisiones para el paso de una etapa Euro a una etapa superior"
       },
       {
         "codigo": "2.14",
@@ -1278,20 +1302,20 @@
     ],
     "10": [
       {
-        "codigo": "10.2",
-        "descripcion": "Instalación, modificación o desinstalación de dispositivos de acoplamiento en vehículos de categoría O"
-      },
-      {
         "codigo": "10.1",
         "descripcion": "Instalación, modificación de dispositivos de acoplamiento en vehículos de categorías M y N"
       },
       {
-        "codigo": "10.4",
-        "descripcion": "Instalación, modificación o desinstalación de dispositivos de acoplamiento en vehículos agrícolas"
+        "codigo": "10.2",
+        "descripcion": "Instalación, modificación o desinstalación de dispositivos de acoplamiento en vehículos de categoría O"
       },
       {
         "codigo": "10.3",
         "descripcion": "Instalación, modificación o desinstalación de dispositivos de acoplamiento en vehículos de categoría L, Quad y UTV"
+      },
+      {
+        "codigo": "10.4",
+        "descripcion": "Instalación, modificación o desinstalación de dispositivos de acoplamiento en vehículos agrícolas"
       },
       {
         "codigo": "10.5",
@@ -1477,199 +1501,193 @@
     {
       "x": 0.19920494699646643,
       "y": 0.35577737020316025,
-      "label": "18",
+      "label": "17",
       "etiqueta": "BARRA DE DIRECCIÓN"
     },
     {
       "x": 0.13913427561837455,
       "y": 0.3648067155756208,
-      "label": "19",
+      "label": "18",
       "etiqueta": "BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)"
     },
     {
       "x": 0.3246466431095406,
       "y": 0.387380079006772,
-      "label": "20",
+      "label": "19",
       "etiqueta": "BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)"
     },
     {
       "x": 0.2698763250883392,
       "y": 0.31514531602708806,
-      "label": "21",
+      "label": "20",
       "etiqueta": "CABRESTANTE"
     },
     {
       "x": 0.21863957597173145,
       "y": 0.2835426072234763,
-      "label": "22",
+      "label": "21",
       "etiqueta": "CALANDRA"
     },
     {
       "x": 0.18860424028268552,
       "y": 0.387380079006772,
-      "label": "23",
+      "label": "22",
       "etiqueta": "DEFENSA DELANTERA"
     },
     {
       "x": 0.16740282685512367,
       "y": 0.7824139390519187,
-      "label": "24",
+      "label": "23",
       "etiqueta": "DIFUSOR TRASERO"
     },
     {
       "x": 0.3122791519434629,
       "y": 0.2451678893905192,
-      "label": "25",
+      "label": "24",
       "etiqueta": "DIURNAS"
     },
     {
       "x": 0.46952296819787986,
       "y": 0.8207886568848759,
-      "label": "26",
+      "label": "25",
       "etiqueta": "ESTRIBOS LATERALES O TALONERAS"
     },
     {
       "x": 0.30697879858657245,
       "y": 0.2745132618510158,
-      "label": "27",
+      "label": "26",
       "etiqueta": "FAROS DELANTEROS PRINCIPALES"
     },
     {
       "x": 0.14090106007067138,
       "y": 0.28128527088036115,
-      "label": "27",
+      "label": "26",
       "etiqueta": "FAROS DELANTEROS PRINCIPALES"
     },
     {
       "x": 0.26104240282685515,
       "y": 0.26999858916478553,
-      "label": "28",
+      "label": "27",
       "etiqueta": "INTERCOOLER"
     },
     {
       "x": 0.5843639575971732,
       "y": 0.7124365124153499,
-      "label": "29",
+      "label": "28",
       "etiqueta": "INTERMITENTES"
     },
     {
       "x": 0.30167844522968196,
       "y": 0.08489700902934537,
-      "label": "30",
+      "label": "29",
       "etiqueta": "LUCES DE LARGO ALCANCE"
     },
     {
       "x": 0.6709363957597173,
       "y": 0.24742522573363432,
-      "label": "31",
+      "label": "30",
       "etiqueta": "LUCES MATRÍCULA"
     },
     {
       "x": 0.34408127208480566,
       "y": 0.24065321670428894,
-      "label": "32",
+      "label": "31",
       "etiqueta": "LUZ DE CRUCE"
     },
     {
       "x": 0.10909893992932862,
       "y": 0.23388120767494355,
-      "label": "32",
+      "label": "31",
       "etiqueta": "LUZ DE CRUCE"
     },
     {
       "x": 0.35291519434628976,
       "y": 0.3196599887133183,
-      "label": "33",
+      "label": "32",
       "etiqueta": "LUZ DE POSICIÓN"
     },
     {
       "x": 0.08436395759717315,
       "y": 0.3264319977426637,
-      "label": "33",
+      "label": "32",
       "etiqueta": "LUZ DE POSICIÓN"
     },
     {
       "x": 0.6462014134275619,
       "y": 0.23162387133182843,
-      "label": "34",
+      "label": "33",
       "etiqueta": "LUZ MARCHA ATRÁS"
     },
     {
       "x": 0.909452296819788,
       "y": 0.24065321670428894,
-      "label": "34",
+      "label": "33",
       "etiqueta": "LUZ MARCHA ATRÁS"
     },
     {
       "x": 0.6709363957597173,
       "y": 0.2835426072234763,
-      "label": "35",
+      "label": "34",
       "etiqueta": "MATRÍCULA Y PORTAMATRÍCULA"
     },
     {
       "x": 0.683303886925795,
       "y": 0.8772220654627539,
-      "label": "36",
+      "label": "35",
       "etiqueta": "NEUMÁTICOS"
     },
     {
       "x": 0.30697879858657245,
       "y": 0.8749647291196389,
-      "label": "36",
+      "label": "35",
       "etiqueta": "NEUMÁTICOS"
     },
     {
       "x": 0.28224381625441697,
       "y": 0.17519046275395034,
-      "label": "37",
+      "label": "36",
       "etiqueta": "PANEL RELOJES"
     },
     {
       "x": 0.7610424028268551,
       "y": 0.8140166478555305,
-      "label": "38",
+      "label": "37",
       "etiqueta": "PARAGOLPES DELANTERO"
     },
     {
       "x": 0.15503533568904593,
       "y": 0.8207886568848759,
-      "label": "39",
+      "label": "38",
       "etiqueta": "PARAGOLPES TRASERO"
     },
     {
       "x": 0.7451413427561837,
       "y": 0.333204006772009,
-      "label": "39",
+      "label": "38",
       "etiqueta": "PARAGOLPES TRASERO"
     },
     {
       "x": 0.8811837455830389,
       "y": 0.2767705981941309,
-      "label": "40",
+      "label": "39",
       "etiqueta": "PILOTO TRASERO"
     },
     {
       "x": 0.6462014134275619,
       "y": 0.678576467268623,
-      "label": "41",
+      "label": "40",
       "etiqueta": "PLANCHA CAPÓ"
     },
     {
       "x": 0.1338339222614841,
       "y": 0.7891859480812641,
-      "label": "42",
+      "label": "41",
       "etiqueta": "PROTECTORES PARAGOLPES"
-    },
-    {
-      "x": 0.38648409893992935,
-      "y": 0.8185313205417607,
-      "label": "43",
-      "etiqueta": "REDUCCIÓN DE MMA"
     },
     {
       "x": 0.15856890459363956,
       "y": 0.49121755079006774,
-      "label": "61",
+      "label": "53",
       "etiqueta": "CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES"
     }
   ],

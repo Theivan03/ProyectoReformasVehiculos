@@ -373,7 +373,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
         };
         this.datos.tipoMemoria = this.normalizarTipoMemoria(
           this.datos.tipoMemoria,
-          'consumo',
+          this.tipoMemoriaRuta,
         );
         this.sincronizarLocalidadPoblacion();
         this.actualizarDiametroTubo();
@@ -395,6 +395,126 @@ export class MemoriaTecnicaAutoconsumoComponent {
         this.router.navigate(['/memorias']);
       },
     });
+  }
+
+  async generarPDFIDs() {
+    if (this.isGenerating) return;
+    this.isGenerating = true;
+
+    try {
+      const cargarAssetPdf = async (
+        urlDocumentoPdf: string,
+      ): Promise<ArrayBuffer> => {
+        const respuestaFetchPdf = await fetch(urlDocumentoPdf);
+        return respuestaFetchPdf.arrayBuffer();
+      };
+
+      const rutaPlantillaPdf = '/assets/PLANTILLA MTD AutoConsumo.pdf';
+      const bufferOriginalPdf = await cargarAssetPdf(rutaPlantillaPdf);
+      const documentoCargadoPdf = await PDFDocument.load(bufferOriginalPdf);
+      const formularioInteractivoPdf = documentoCargadoPdf.getForm();
+      const camposTotalesPdf = formularioInteractivoPdf.getFields();
+
+      const setField = (nombreCampoPdf: string, valorCampoPdf: string) => {
+        try {
+          const campoTextoEditablePdf =
+            formularioInteractivoPdf.getTextField(nombreCampoPdf);
+          if (campoTextoEditablePdf) {
+            campoTextoEditablePdf.setText(
+              valorCampoPdf?.toString().toUpperCase() || '',
+            );
+          }
+        } catch (errorSetFieldPdf) {
+          console.warn(`[MTD] Campo PDF no encontrado: ${nombreCampoPdf}`);
+        }
+      };
+
+      const setCheckFormularioPdf = (
+        nombreCampoPdf: string,
+        estadoCheckPdf: boolean,
+      ) => {
+        try {
+          const campoCheckboxPdf =
+            formularioInteractivoPdf.getCheckBox(nombreCampoPdf);
+          if (campoCheckboxPdf) {
+            estadoCheckPdf
+              ? campoCheckboxPdf.check()
+              : campoCheckboxPdf.uncheck();
+          }
+        } catch (errorSetCheckPdf) {}
+      };
+
+      const obtenerOpcionesRadioPdf = (nombreCampoRadioPdf: string) => {
+        try {
+          const campoRadioGrupoPdf =
+            formularioInteractivoPdf.getRadioGroup(nombreCampoRadioPdf);
+          const opcionesDisponiblesRadioPdf = campoRadioGrupoPdf.getOptions();
+          console.log(
+            `Opciones ocultas para ${nombreCampoRadioPdf}:`,
+            opcionesDisponiblesRadioPdf,
+          );
+        } catch (errorRadioPdf) {
+          console.warn(`No es un Radio Group: ${nombreCampoRadioPdf}`);
+        }
+      };
+
+      const seleccionarOpcionRadioPdf = (
+        nombreCampoRadioPdf: string,
+        valorElegidoRadioPdf: string,
+      ) => {
+        try {
+          const campoRadioGrupoPdf =
+            formularioInteractivoPdf.getRadioGroup(nombreCampoRadioPdf);
+          campoRadioGrupoPdf.select(valorElegidoRadioPdf);
+        } catch (errorRadioSeleccionPdf) {
+          console.warn(`Error al seleccionar en: ${nombreCampoRadioPdf}`);
+        }
+      };
+
+      camposTotalesPdf.forEach((campoActualPdf, indiceBuclePdf) => {
+        const numeroIdentificadorCampoPdf = (indiceBuclePdf + 1).toString();
+        const nombreTecnicoCampoPdf = campoActualPdf.getName();
+
+        console.log(
+          `${numeroIdentificadorCampoPdf} -> ${nombreTecnicoCampoPdf}`,
+        );
+
+        try {
+          const campoTextoEditablePdf = formularioInteractivoPdf.getTextField(
+            nombreTecnicoCampoPdf,
+          );
+          if (campoTextoEditablePdf) {
+            campoTextoEditablePdf.setText(numeroIdentificadorCampoPdf);
+          }
+        } catch (errorCampoPdf) {}
+      });
+
+      setField(
+        'form1[0].Pagina1[0].cabecera[0].CAU[0]',
+        this.datos.emplazamiento.cups + '1FA000',
+      );
+
+      const valorElegidoModalidadPdf =
+        this.datos.caracteristicas.modalidadAutoconsumo === 'conExcedentes'
+          ? '1'
+          : '2';
+      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].cabecera[0].tipo[0]');
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina1[0].cabecera[0].tipo[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      const documentoFinalBytesPdf = await documentoCargadoPdf.save();
+      const blobDocumentoPdf = new Blob([documentoFinalBytesPdf as any], {
+        type: 'application/pdf',
+      });
+      saveAs(blobDocumentoPdf, 'MAPEO_CAMPOS_MTDAC.pdf');
+    } catch (errorGeneracionPdf) {
+      console.error(errorGeneracionPdf);
+      alert('Error al mapear. Revisa la consola.');
+    } finally {
+      this.isGenerating = false;
+    }
   }
 
   avanzarPaso() {
@@ -495,7 +615,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
   guardarEnServidor() {
     this.datos.tipoMemoria = this.normalizarTipoMemoria(
       this.datos.tipoMemoria,
-      this.datos.id ? 'consumo' : this.tipoMemoriaRuta,
+      this.tipoMemoriaRuta,
     );
     this.sincronizarLocalidadPoblacion();
     this.actualizarDiametroTubo();

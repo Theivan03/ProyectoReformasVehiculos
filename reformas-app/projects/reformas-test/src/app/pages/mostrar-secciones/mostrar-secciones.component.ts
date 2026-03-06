@@ -15,7 +15,7 @@ export class MostrarSeccionesComponent implements OnInit {
     return this._secciones;
   }
   @Input() set secciones(
-    v: { codigo: string; descripcion: string }[] | null | undefined
+    v: { codigo: string; descripcion: string }[] | null | undefined,
   ) {
     this._secciones = Array.isArray(v) ? v : [];
     this.rebuild(); // recalcula opciones y checked
@@ -32,7 +32,7 @@ export class MostrarSeccionesComponent implements OnInit {
     v:
       | { [codigo: string]: { codigo: string; descripcion: string }[] }
       | null
-      | undefined
+      | undefined,
   ) {
     this._respuestas = v ?? {};
     // No cambiamos el índice aquí; solo re-marcamos checks al rebuild
@@ -75,7 +75,7 @@ export class MostrarSeccionesComponent implements OnInit {
     const all = (codigosReforma as any[]) || [];
     this.seccionesFiltradas = this._secciones.map((s) => {
       const opciones = all.filter((op) =>
-        String(op?.codigo ?? '').startsWith(s.codigo + '.')
+        String(op?.codigo ?? '').startsWith(s.codigo + '.'),
       );
 
       // marca checked según respuestas actuales
@@ -104,18 +104,18 @@ export class MostrarSeccionesComponent implements OnInit {
   isOpcionSeleccionada(seccionCodigo: string, opcionCodigo: string): boolean {
     return (
       this._respuestas[seccionCodigo]?.some(
-        (item) => item.codigo === opcionCodigo
+        (item) => item.codigo === opcionCodigo,
       ) ?? false
     );
   }
 
   onToggleOpcion(
     seccionCodigo: string,
-    opcion: { codigo: string; descripcion: string }
+    opcion: { codigo: string; descripcion: string },
   ): void {
     if (!this._respuestas[seccionCodigo]) this._respuestas[seccionCodigo] = [];
     const idx = this._respuestas[seccionCodigo].findIndex(
-      (it) => it.codigo === opcion.codigo
+      (it) => it.codigo === opcion.codigo,
     );
     if (idx === -1) {
       this._respuestas[seccionCodigo].push({
@@ -131,8 +131,34 @@ export class MostrarSeccionesComponent implements OnInit {
     if (this.indiceActual < this.seccionesFiltradas.length - 1) {
       this.indiceActual++;
     } else {
-      this.finalizarRecoleccion.emit(this._respuestas);
+      const respuestasOrdenadas = this.obtenerRespuestasOrdenadas();
+      console.log(
+        'Finalizando recolección con respuestas ordenadas:',
+        respuestasOrdenadas,
+      );
+      this.finalizarRecoleccion.emit(respuestasOrdenadas);
     }
+  }
+
+  private obtenerRespuestasOrdenadas() {
+    const ordenadas: { [key: string]: any[] } = {};
+
+    // 1. Ordenamos las llaves del objeto (las secciones)
+    const llavesOrdenadas = Object.keys(this._respuestas).sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }),
+    );
+
+    llavesOrdenadas.forEach((key) => {
+      // 2. Ordenamos las opciones dentro de cada sección por su código
+      ordenadas[key] = [...this._respuestas[key]].sort((a, b) =>
+        a.codigo.localeCompare(b.codigo, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        }),
+      );
+    });
+
+    return ordenadas;
   }
 
   volver(): void {

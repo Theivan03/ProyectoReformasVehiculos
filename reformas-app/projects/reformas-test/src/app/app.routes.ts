@@ -63,6 +63,14 @@ export const routes: Routes = [
         component: MemoriasListaComponent,
       },
       {
+        path: 'memoria-tecnica-diseno/consumo/:id',
+        component: MemoriaTecnicaDisenoComponent,
+      },
+      {
+        path: 'memoria-tecnica-diseno/autoconsumo/:id',
+        component: MemoriaTecnicaAutoconsumoComponent,
+      },
+      {
         path: 'memoria-tecnica-diseno/:id',
         component: MemoriaTecnicaDisenoComponent,
       },

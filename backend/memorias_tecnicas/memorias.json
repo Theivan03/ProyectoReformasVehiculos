@@ -222,6 +222,10 @@
       "cp": "46780",
       "cups": "ES0021000013497415RT",
       "refCatastral": "2424805YJ5122S0004RB",
+      "telefono": "",
+      "correo": "",
+      "tension": "",
+      "empresaDistribuidora": "I-DE REDES ELÉCTRICAS INTELIGENTES, S.A.U.",
       "uso": "",
       "superficie": "",
       "planoImagen": null
@@ -344,6 +348,8 @@
       "anyo": "2026",
       "lugar": "Oliva"
     },
-    "fechaCreacion": "2026-03-05T12:52:11.427Z"
+    "fechaCreacion": "2026-03-05T12:52:11.427Z",
+    "configuracionMedida": "A",
+    "fechaEdicion": "2026-03-05T14:18:49.749Z"
   }
 ]

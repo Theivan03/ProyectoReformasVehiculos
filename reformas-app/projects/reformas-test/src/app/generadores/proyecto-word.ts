@@ -1645,31 +1645,31 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     ),
   ];
 
-  const codigosImagenes = Object.values(data.codigosDetallados ?? {}).flat();
+  const codigosImagenes = Object.values(
+    data.codigosDetallados ?? {},
+  ).flat() as ReformaItem[];
+
   const tamañosResp = await fetch('http://192.168.1.41:3000/image-sizes');
   const tamaños = await tamañosResp.json();
 
   let alturaAcumulada = 0;
-  const alturaMaximaPagina = 700; // Aproximadamente útil en pt (842pt - márgenes)
+  const alturaMaximaPagina = 700;
 
-  codigosImagenes.sort((a, b) => {
-    const numA = parseFloat((a as any).codigo);
-    const numB = parseFloat((b as any).codigo);
-    return numA - numB;
-  });
+  codigosImagenes.sort((a, b) =>
+    a.codigo.localeCompare(b.codigo, undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    }),
+  );
 
-  for (const codigo of codigosImagenes) {
-    if (
-      typeof codigo !== 'object' ||
-      codigo === null ||
-      typeof (codigo as any).codigo !== 'string'
-    ) {
-      continue;
-    }
-    const codigoStr = (codigo as { codigo: string }).codigo;
+  for (const codigoObj of codigosImagenes) {
+    if (!codigoObj?.codigo) continue;
+
+    const codigoStr = codigoObj.codigo;
     const nombreBase = codigoStr.replace('.', '-');
     const nombreArchivo = `${nombreBase}.png`;
     const url = `http://192.168.1.41:3000/imgs/${nombreArchivo}`;
+
     const tamaño = tamaños.find(
       (img: { nombre: string }) => img.nombre === nombreArchivo,
     );
@@ -1681,7 +1681,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       const buffer = await response.arrayBuffer();
 
       const escala = 500 / tamaño.width;
-      const alturaEscalada = Math.round(tamaño.height * escala); // 🔁 Verificar si cabe en la página actual
+      const alturaEscalada = Math.round(tamaño.height * escala);
 
       if (alturaAcumulada + alturaEscalada > alturaMaximaPagina) {
         punto1_4Normativa.push(new Paragraph({ pageBreakBefore: true }));
@@ -1693,7 +1693,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           spacing: { line: 260, after: 60 },
           children: [
             new TextRun({
-              text: `Reforma ${(codigo as { codigo: string }).codigo}`,
+              text: `Reforma ${codigoStr}`,
               bold: true,
               break: 1,
             }),
@@ -1714,13 +1714,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         }),
       );
 
-      alturaAcumulada += alturaEscalada + 100; // Añadimos margen entre imágenes
+      alturaAcumulada += alturaEscalada + 100;
     } catch (err) {
-      console.warn(
-        `No se pudo cargar la imagen para el código ${
-          (codigo as { codigo: string }).codigo
-        }`,
-      );
+      console.warn(`Error cargando imagen ${codigoStr}`);
     }
   }
 
