@@ -1741,25 +1741,39 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   );
 
   if (protectores) {
-    // Determinamos el texto de la ubicación
-    const ubicacionTexto =
-      protectores.ubicacionPROTECTORES === 'delantero'
-        ? 'delantero'
-        : 'trasero';
+    const secciones = [];
 
-    // Construimos la frase
-    const fraseProtectores = `Instalación de protectores sobre paragolpes ${ubicacionTexto}, fabricados en ${protectores.materialProtectorPROTECTORES}, de medidas ${protectores.medidaLargoPROTECTORES} x ${protectores.medidaAltoPROTECTORES} mm.`;
+    if (protectores.selProtectorDelantero) {
+      secciones.push({
+        pos: 'delantero',
+        material: protectores.materialProtectorDelantero,
+        largo: protectores.largoProtectorDelantero,
+        alto: protectores.altoProtectorDelantero,
+      });
+    }
 
-    const raw = `- ${fraseProtectores}`;
+    if (protectores.selProtectorTrasero) {
+      secciones.push({
+        pos: 'trasero',
+        material: protectores.materialProtectorTrasero,
+        largo: protectores.largoProtectorTrasero,
+        alto: protectores.altoProtectorTrasero,
+      });
+    }
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
+    secciones.forEach((sec) => {
+      const fraseProtectores = `Instalación de protector sobre paragolpes ${sec.pos}, fabricado en ${sec.material}, de medidas ${sec.largo} x ${sec.alto} mm.`;
+      const raw = `- ${fraseProtectores}`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+
+      (p as any)._rawText = raw;
+      out.push(p);
     });
-
-    (p as any)._rawText = raw;
-    out.push(p);
   }
 
   const plancha = modificaciones.find(

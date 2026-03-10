@@ -335,6 +335,272 @@ export async function buildCalculos(
       out.push(tablaComprobacion);
     }
 
+    const sobrealetines = modificaciones.find(
+      (m) =>
+        m.nombre === 'ALETINES Y SOBREALETINES' &&
+        m.seleccionado &&
+        m.detalle?.sobrealetines,
+    );
+    if (aletines) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Sobrealetines',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      aletines.radioCurvaRSobrealetines =
+        (aletines.radioCurvaRSobrealetines ?? 0) * 100;
+
+      const peso = 9.81 * (aletines.pesoPiezaKgSobrealetines ?? 0);
+      const fuerzafrenado = (aletines.pesoPiezaKgSobrealetines ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (aletines.coefAerodinamicoCwSobrealetines ?? 0) *
+        (aletines.superficieFrontalM2Sobrealetines ?? 0) *
+        (aletines.densidadAireKgM3Sobrealetines ?? 0) *
+        (aletines.velocidadAireV2msSobrealetines ?? 0) *
+        (aletines.velocidadAireV2msSobrealetines ?? 0);
+      const fuerzacentrifuga =
+        (aletines.pesoPiezaKgSobrealetines ?? 0) *
+        (((aletines.velocidadAireV2msSobrealetines ?? 0) *
+          (aletines.velocidadAireV2msSobrealetines ?? 0)) /
+          (aletines.radioCurvaRSobrealetines ?? 0));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              aletines.coefAerodinamicoCwSobrealetines?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              aletines.superficieFrontalM2Sobrealetines
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              aletines.densidadAireKgM3Sobrealetines?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              aletines.velocidadAireV2msSobrealetines?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'R (radio de curva) m',
+              aletines.radioCurvaRSobrealetines?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              aletines.coefSeguridadKSobrealetines?.toFixed(2).toString() ??
+                '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (aletines.coefSeguridadKSobrealetines ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (aletines.resTraccionMinTornillo88Kgmm2Sobrealetines ?? 0) *
+          (aletines.seccionResistenteAsSobrealetines ?? 0)) /
+          1.25) *
+        (aletines.numTornillosSobrealetines ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (aletines.resTraccionMinTornillo88Kgmm2Sobrealetines ?? 0) *
+          (aletines.seccionResistenteAsSobrealetines ?? 0)) /
+          1.25) *
+        (aletines.numTornillosSobrealetines ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
     const frenos = modificaciones.find(
       (m) => m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO' && m.seleccionado,
     );
@@ -6533,6 +6799,1833 @@ export async function buildCalculos(
           (aleron.seccionResistenteAsAleron ?? 0)) /
           1.25) *
         (aleron.numTornillosAleron ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
+    const peldaños = modificaciones.find(
+      (m) => m.nombre === 'PELDAÑOS' && m.seleccionado,
+    );
+    if (peldaños) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Peldaños',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      const superficiefrontal = peldaños.superficieFrontalM2Peldanos;
+
+      const peso = 9.81 * (peldaños.pesoPeldanos ?? 0);
+      const fuerzafrenado = (peldaños.pesoPeldanos ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (peldaños.coefAerodinamicoCwPeldanos ?? 0) *
+        (superficiefrontal ?? 0) *
+        (peldaños.densidadAireKgM3Peldanos ?? 0) *
+        (peldaños.velocidadAireV2msPeldanos ?? 0) *
+        (peldaños.velocidadAireV2msPeldanos ?? 0);
+      const fuerzacentrifuga =
+        (peldaños.pesoPeldanos ?? 0) *
+        (((peldaños.velocidadAireV2msPeldanos ?? 0) *
+          (peldaños.velocidadAireV2msPeldanos ?? 0)) /
+          ((peldaños.radioCurvaRPeldanos ?? 0) * 100));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              peldaños.coefAerodinamicoCwPeldanos?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              peldaños.densidadAireKgM3Peldanos?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              peldaños.velocidadAireV2msPeldanos?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'R (radio de curva) m',
+              peldaños.radioCurvaRPeldanos?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              peldaños.coefSeguridadKPeldanos?.toFixed(2).toString() ?? '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (peldaños.coefSeguridadKPeldanos ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (peldaños.resTraccionMinTornillo88Kgmm2Peldanos ?? 0) *
+          (peldaños.seccionResistenteAsPeldanos ?? 0)) /
+          1.25) *
+        (peldaños.numTornillosPeldanos ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (peldaños.resTraccionMinTornillo88Kgmm2Peldanos ?? 0) *
+          (peldaños.seccionResistenteAsPeldanos ?? 0)) /
+          1.25) *
+        (peldaños.numTornillosPeldanos ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
+    const difusor = modificaciones.find(
+      (m) => m.nombre === 'DIFUSOR TRASERO' && m.seleccionado,
+    );
+    if (difusor) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Difusor trasero',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      const superficiefrontal = difusor.superficieFrontalM2Difusor;
+
+      const peso = 9.81 * (difusor.pesoDifusor ?? 0);
+      const fuerzafrenado = (difusor.pesoDifusor ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (difusor.coefAerodinamicoCwDifusor ?? 0) *
+        (superficiefrontal ?? 0) *
+        (difusor.densidadAireKgM3Difusor ?? 0) *
+        (difusor.velocidadAireV2msDifusor ?? 0) *
+        (difusor.velocidadAireV2msDifusor ?? 0);
+      const fuerzacentrifuga =
+        (difusor.pesoDifusor ?? 0) *
+        (((difusor.velocidadAireV2msDifusor ?? 0) *
+          (difusor.velocidadAireV2msDifusor ?? 0)) /
+          ((difusor.radioCurvaRDifusor ?? 0) * 100));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              difusor.coefAerodinamicoCwDifusor?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              difusor.densidadAireKgM3Difusor?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              difusor.velocidadAireV2msDifusor?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'R (radio de curva) m',
+              difusor.radioCurvaRDifusor?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              difusor.coefSeguridadKDifusor?.toFixed(2).toString() ?? '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (difusor.coefSeguridadKDifusor ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (difusor.resTraccionMinTornillo88Kgmm2Difusor ?? 0) *
+          (difusor.seccionResistenteAsDifusor ?? 0)) /
+          1.25) *
+        (difusor.numTornillosDifusor ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (difusor.resTraccionMinTornillo88Kgmm2Difusor ?? 0) *
+          (difusor.seccionResistenteAsDifusor ?? 0)) /
+          1.25) *
+        (difusor.numTornillosDifusor ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
+    const lipDelantero = modificaciones.find(
+      (m) => m.nombre === 'LIP DELANTERO' && m.seleccionado,
+    );
+    if (lipDelantero) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Lip delantero',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      const superficiefrontal = lipDelantero.superficieFrontalM2LipDelantero;
+
+      const peso = 9.81 * (lipDelantero.pesoLipDelantero ?? 0);
+      const fuerzafrenado = (lipDelantero.pesoLipDelantero ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (lipDelantero.coefAerodinamicoCwLipDelantero ?? 0) *
+        (superficiefrontal ?? 0) *
+        (lipDelantero.densidadAireKgM3LipDelantero ?? 0) *
+        (lipDelantero.velocidadAireV2msLipDelantero ?? 0) *
+        (lipDelantero.velocidadAireV2msLipDelantero ?? 0);
+      const fuerzacentrifuga =
+        (lipDelantero.pesoLipDelantero ?? 0) *
+        (((lipDelantero.velocidadAireV2msLipDelantero ?? 0) *
+          (lipDelantero.velocidadAireV2msLipDelantero ?? 0)) /
+          ((lipDelantero.radioCurvaRLipDelantero ?? 0) * 100));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              lipDelantero.coefAerodinamicoCwLipDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              lipDelantero.densidadAireKgM3LipDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              lipDelantero.velocidadAireV2msLipDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'R (radio de curva) m',
+              lipDelantero.radioCurvaRLipDelantero?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              lipDelantero.coefSeguridadKLipDelantero?.toFixed(2).toString() ??
+                '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (lipDelantero.coefSeguridadKLipDelantero ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (lipDelantero.resTraccionMinTornillo88Kgmm2LipDelantero ?? 0) *
+          (lipDelantero.seccionResistenteAsLipDelantero ?? 0)) /
+          1.25) *
+        (lipDelantero.numTornillosLipDelantero ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (lipDelantero.resTraccionMinTornillo88Kgmm2LipDelantero ?? 0) *
+          (lipDelantero.seccionResistenteAsLipDelantero ?? 0)) /
+          1.25) *
+        (lipDelantero.numTornillosLipDelantero ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
+    const protParaDelantero = modificaciones.find(
+      (m) => m.nombre === 'PROTECTORES PARAGOLPES' && m.seleccionado,
+    );
+    if (protParaDelantero?.selProtectorDelantero) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Protectores de paragolpes delanteros',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      const superficiefrontal = protParaDelantero.superficieProtectorDelantero;
+
+      const peso = 9.81 * (protParaDelantero.pesoProtectorDelantero ?? 0);
+      const fuerzafrenado =
+        (protParaDelantero.pesoProtectorDelantero ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (protParaDelantero.cwProtectorDelantero ?? 0) *
+        (superficiefrontal ?? 0) *
+        (protParaDelantero.densidadAireKgM3ProtectorDelantero ?? 0) *
+        (protParaDelantero.velocidadAireV2msProtectorDelantero ?? 0) *
+        (protParaDelantero.velocidadAireV2msProtectorDelantero ?? 0);
+      const fuerzacentrifuga =
+        (protParaDelantero.pesoProtectorDelantero ?? 0) *
+        (((protParaDelantero.velocidadAireV2msProtectorDelantero ?? 0) *
+          (protParaDelantero.velocidadAireV2msProtectorDelantero ?? 0)) /
+          ((protParaDelantero.curvaturaProtectorDelantero ?? 0) * 100));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              protParaDelantero.cwProtectorDelantero?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              protParaDelantero.densidadAireKgM3ProtectorDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              protParaDelantero.velocidadAireV2msProtectorDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'R (radio de curva) m',
+              protParaDelantero.curvaturaProtectorDelantero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              protParaDelantero.kProtectorDelantero?.toFixed(2).toString() ??
+                '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (protParaDelantero.kProtectorDelantero ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (protParaDelantero.resTraccionMinTornillo88Kgmm2ProtectorDelantero ??
+            0) *
+          (protParaDelantero.seccionResistenteAsProtectorDelantero ?? 0)) /
+          1.25) *
+        (protParaDelantero.numTornillosProtectorDelantero ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (protParaDelantero.resTraccionMinTornillo88Kgmm2ProtectorDelantero ??
+            0) *
+          (protParaDelantero.seccionResistenteAsProtectorDelantero ?? 0)) /
+          1.25) *
+        (protParaDelantero.numTornillosProtectorDelantero ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
+    if (protParaDelantero?.selProtectorTrasero) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Protectores de paragolpes traseros',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      const superficiefrontal = protParaDelantero.superficieProtectorTrasero;
+
+      const peso = 9.81 * (protParaDelantero.pesoProtectorTrasero ?? 0);
+      const fuerzafrenado = (protParaDelantero.pesoProtectorTrasero ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (protParaDelantero.cwProtectorTrasero ?? 0) *
+        (superficiefrontal ?? 0) *
+        (protParaDelantero.densidadAireKgM3ProtectorTrasero ?? 0) *
+        (protParaDelantero.velocidadAireV2msProtectorTrasero ?? 0) *
+        (protParaDelantero.velocidadAireV2msProtectorTrasero ?? 0);
+      const fuerzacentrifuga =
+        (protParaDelantero.pesoProtectorTrasero ?? 0) *
+        (((protParaDelantero.velocidadAireV2msProtectorTrasero ?? 0) *
+          (protParaDelantero.velocidadAireV2msProtectorTrasero ?? 0)) /
+          ((protParaDelantero.curvaturaProtectorTrasero ?? 0) * 100));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              protParaDelantero.cwProtectorTrasero?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              protParaDelantero.densidadAireKgM3ProtectorTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              protParaDelantero.velocidadAireV2msProtectorTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'R (radio de curva) m',
+              protParaDelantero.curvaturaProtectorTrasero
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              protParaDelantero.kProtectorTrasero?.toFixed(2).toString() ??
+                '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (protParaDelantero.kProtectorTrasero ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (protParaDelantero.resTraccionMinTornillo88Kgmm2ProtectorTrasero ??
+            0) *
+          (protParaDelantero.seccionResistenteAsProtectorTrasero ?? 0)) /
+          1.25) *
+        (protParaDelantero.numTornillosProtectorTrasero ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (protParaDelantero.resTraccionMinTornillo88Kgmm2ProtectorTrasero ??
+            0) *
+          (protParaDelantero.seccionResistenteAsProtectorTrasero ?? 0)) /
+          1.25) *
+        (protParaDelantero.numTornillosProtectorTrasero ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
+    const defensa = modificaciones.find(
+      (m) => m.nombre === 'DEFENSA DELANTERA' && m.seleccionado,
+    );
+    if (defensa) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Defensa delantera',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      const superficiefrontal = defensa.superficieFrontalM2Defensa;
+
+      const peso = 9.81 * (defensa.pesoDefensa ?? 0);
+      const fuerzafrenado = (defensa.pesoDefensa ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (defensa.coefAerodinamicoCwDefensa ?? 0) *
+        (superficiefrontal ?? 0) *
+        (defensa.densidadAireKgM3Defensa ?? 0) *
+        (defensa.velocidadAireV2msDefensa ?? 0) *
+        (defensa.velocidadAireV2msDefensa ?? 0);
+      const fuerzacentrifuga =
+        (defensa.pesoDefensa ?? 0) *
+        (((defensa.velocidadAireV2msDefensa ?? 0) *
+          (defensa.velocidadAireV2msDefensa ?? 0)) /
+          ((defensa.curvaturaDefensaDelantera ?? 0) * 100));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              defensa.coefAerodinamicoCwDefensa?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              defensa.densidadAireKgM3Defensa?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              defensa.velocidadAireV2msDefensa?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'R (radio de curva) m',
+              defensa.curvaturaDefensaDelantera?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              defensa.coefSeguridadKDefensa?.toFixed(2).toString() ?? '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (defensa.coefSeguridadKDefensa ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (defensa.resTraccionMinTornillo88Kgmm2Defensa ?? 0) *
+          (defensa.seccionResistenteAsDefensa ?? 0)) /
+          1.25) *
+        (defensa.numTornillosDefensa ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (defensa.resTraccionMinTornillo88Kgmm2Defensa ?? 0) *
+          (defensa.seccionResistenteAsDefensa ?? 0)) /
+          1.25) *
+        (defensa.numTornillosDefensa ?? 0);
+      const comprobacion =
+        fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
+
+      const tablaComprobacion = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'La fuerza de diseño soportada por los anclajes (N)',
+              'Fuerza máxima que soportan los tornillos a tracción (N)',
+              'Fuerza máxima que soportan los tornillos a cortante (N)',
+              'Comprobación <= 1',
+            ].map(
+              (t) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t, bold: true })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              fuerzadediseno.toFixed(2).toString() ?? '---',
+              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
+              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
+              comprobacion.toFixed(2).toString() ?? '---',
+            ].map(
+              (v, i) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: CELL_MARGINS,
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      out.push(tablaCaracteristicas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaFuerzas);
+      out.push(new Paragraph({ text: '' }));
+      out.push(tablaComprobacion);
+    }
+
+    const soporteRueda = modificaciones.find(
+      (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO' && m.seleccionado,
+    );
+    if (soporteRueda) {
+      out.push(new Paragraph({ text: '' }));
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '2.3.' + contador + ' Soporte para rueda de repuesto',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      contador++;
+
+      const superficiefrontal = soporteRueda.superficieFrontalM2SoporteRueda;
+
+      const peso = 9.81 * (soporteRueda.pesoSoporteRueda ?? 0);
+      const fuerzafrenado = (soporteRueda.pesoSoporteRueda ?? 0) * 10;
+      const resistenciaaerodinamica =
+        0.5 *
+        (soporteRueda.coefAerodinamicoCwSoporteRueda ?? 0) *
+        (superficiefrontal ?? 0) *
+        (soporteRueda.densidadAireKgM3SoporteRueda ?? 0) *
+        (soporteRueda.velocidadAireV2msSoporteRueda ?? 0) *
+        (soporteRueda.velocidadAireV2msSoporteRueda ?? 0);
+      const fuerzacentrifuga =
+        (soporteRueda.pesoSoporteRueda ?? 0) *
+        (((soporteRueda.velocidadAireV2msSoporteRueda ?? 0) *
+          (soporteRueda.velocidadAireV2msSoporteRueda ?? 0)) /
+          ((soporteRueda.curvaturaSoporteRueda ?? 0) * 100));
+      const sumadelasfuerzas =
+        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+      const tablaCaracteristicas = new Table({
+        width: { size: 70, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                      }),
+                    ],
+                  }),
+                ],
+                columnSpan: 2,
+              }),
+            ],
+          }),
+          ...[
+            [
+              'Cw=Coef. Aerodinámico',
+              soporteRueda.coefSeguridadKSoporteRueda?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'A =área de la pieza (m²)',
+              superficiefrontal?.toFixed(2).toString() ?? '---',
+            ],
+            [
+              'ρ (densidad del aire (Kg/m³)',
+              soporteRueda.densidadAireKgM3SoporteRueda
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'V² = velocidad del aire 140Km/h (m/s)',
+              soporteRueda.velocidadAireV2msSoporteRueda
+                ?.toFixed(2)
+                .toString() ?? '---',
+            ],
+            [
+              'R (radio de curva) m',
+              soporteRueda.curvaturaSoporteRueda?.toFixed(2).toString() ??
+                '---',
+            ],
+            [
+              'K (coeficiente de seguridad)',
+              soporteRueda.coefSeguridadKSoporteRueda?.toFixed(2).toString() ??
+                '---',
+            ],
+          ].map(
+            ([desc, val]) =>
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [
+                      new Paragraph({
+                        text: desc,
+                        alignment: AlignmentType.CENTER,
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: AlignmentType.CENTER,
+                    children: [new Paragraph(val)],
+                  }),
+                ],
+              }),
+          ),
+        ],
+      });
+
+      const tablaFuerzas = new Table({
+        width: { size: 80, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+              (heading) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  verticalAlign: VerticalAlign.CENTER,
+                  columnSpan: 5,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              'Peso',
+              'Fuerza de frenado',
+              'Resistencia aerodinámica',
+              'Fuerza centrífuga',
+              'Suma de fuerzas',
+            ].map(
+              (t) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: t })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+          new TableRow({
+            cantSplit: true,
+            children: [
+              peso.toFixed(2).toString() ?? '---',
+              fuerzafrenado.toFixed(2).toString() ?? '---',
+              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
+              fuerzacentrifuga.toFixed(2).toString() ?? '---',
+              sumadelasfuerzas.toFixed(2).toString() ?? '---',
+            ].map(
+              (v) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: v })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+        ],
+      });
+
+      const fuerzadediseno =
+        sumadelasfuerzas * (soporteRueda.coefSeguridadKSoporteRueda ?? 0);
+      const fuerzamaximatornillostraccion =
+        ((0.9 *
+          (soporteRueda.resTraccionMinTornillo88Kgmm2SoporteRueda ?? 0) *
+          (soporteRueda.seccionResistenteAsSoporteRueda ?? 0)) /
+          1.25) *
+        (soporteRueda.numTornillosSoporteRueda ?? 0);
+      const fuerzamaximatornilloscortante =
+        ((0.5 *
+          (soporteRueda.resTraccionMinTornillo88Kgmm2SoporteRueda ?? 0) *
+          (soporteRueda.seccionResistenteAsSoporteRueda ?? 0)) /
+          1.25) *
+        (soporteRueda.numTornillosSoporteRueda ?? 0);
       const comprobacion =
         fuerzadediseno / fuerzamaximatornilloscortante +
         fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
