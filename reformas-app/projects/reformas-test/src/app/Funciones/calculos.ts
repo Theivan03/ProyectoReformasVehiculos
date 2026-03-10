@@ -94,6 +94,8 @@ export async function buildCalculos(
 
       contador++;
 
+      aletines.radioCurvaRAletines = (aletines.radioCurvaRAletines ?? 0) * 100;
+
       const peso = 9.81 * (aletines.pesoPiezaKgAletines ?? 0);
       const fuerzafrenado = (aletines.pesoPiezaKgAletines ?? 0) * 10;
       const resistenciaaerodinamica =
@@ -274,7 +276,6 @@ export async function buildCalculos(
       const tablaComprobacion = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
-          // Header row, con texto centrado
           new TableRow({
             cantSplit: true,
             children: [
@@ -297,7 +298,6 @@ export async function buildCalculos(
                 }),
             ),
           }),
-          // Data row: solo índices > 0 pintan verde, todos centrados
           new TableRow({
             cantSplit: true,
             children: [
@@ -310,11 +310,12 @@ export async function buildCalculos(
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
-                  // solo las celdas 1,2,3 llevan el fondo verde
                   shading:
                     i === 0
                       ? undefined
-                      : { type: ShadingType.CLEAR, fill: '00B050' },
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -1080,13 +1081,19 @@ export async function buildCalculos(
       const newNumPinzas = frenos.numPinzasDelanteras ?? 0;
       const newNumDiscos = frenos.numDiscosDelantero ?? 0;
 
+      const radioneumaticoDiscos =
+        String(frenos.radioNeumaticoDiscos || '0')
+          .replace(',', '.')
+          .trim() ?? 0;
+
       const newradioNeumatico =
-        ((frenos.radioNeumaticoDiscos ?? 0) * 25.4 +
+        (Number(radioneumaticoDiscos) * 25.4 +
           2 *
             (((frenos.anchoNeumaticoDiscos ?? 0) *
               (frenos.perfilNeumaticoDiscos ?? 0)) /
               100)) /
-        2;
+        2 /
+        1000;
       console.log('newradioNeumatico', newradioNeumatico);
 
       const tablaReformado = new Table({
@@ -2579,8 +2586,10 @@ export async function buildCalculos(
       const newNumPinzas = frenos.numPinzasTraseras ?? 0;
       const newNumDiscos = frenos.numDiscosTrasero ?? 0;
 
+      // Freno trasero bueno
+
       const newradioNeumatico =
-        ((frenos.radioNeumaticoDiscoTrasero ?? 0) * 25.4 +
+        (Number(frenos.radioNeumaticoDiscoTrasero) * 25.4 +
           2 *
             (((frenos.perfilNeumaticoDiscoTrasero ?? 0) *
               (frenos.anchoNeumaticoDiscoTrasero ?? 0)) /
@@ -4079,8 +4088,10 @@ export async function buildCalculos(
       const newNumPinzas = pinzaMoto.numPinzasDelanteras ?? 0;
       const newNumDiscos = pinzaMoto.numDiscosDelantero ?? 0;
 
+      const radioneumaticoDiscos = Number(pinzaMoto.radioNeumaticoDiscos) ?? 0;
+
       const newradioNeumatico =
-        ((pinzaMoto.radioNeumaticoDiscos ?? 0) * 25.4 +
+        (radioneumaticoDiscos * 25.4 +
           2 *
             (((pinzaMoto.perfilNeumaticoDiscos ?? 0) *
               (pinzaMoto.anchoNeumaticoDiscos ?? 0)) /
@@ -6365,7 +6376,7 @@ export async function buildCalculos(
         (aleron.pesoAleron ?? 0) *
         (((aleron.velocidadAireV2msAleron ?? 0) *
           (aleron.velocidadAireV2msAleron ?? 0)) /
-          (aleron.curvaturaAleron ?? 0));
+          ((aleron.curvaturaAleron ?? 0) * 100));
       const sumadelasfuerzas =
         peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
@@ -6515,13 +6526,13 @@ export async function buildCalculos(
           (aleron.resTraccionMinTornillo88Kgmm2Aleron ?? 0) *
           (aleron.seccionResistenteAsAleron ?? 0)) /
           1.25) *
-        (aleron.numTornillosAletines ?? 0);
+        (aleron.numTornillosAleron ?? 0);
       const fuerzamaximatornilloscortante =
         ((0.5 *
           (aleron.resTraccionMinTornillo88Kgmm2Aleron ?? 0) *
           (aleron.seccionResistenteAsAleron ?? 0)) /
           1.25) *
-        (aleron.numTornillosAletines ?? 0);
+        (aleron.numTornillosAleron ?? 0);
       const comprobacion =
         fuerzadediseno / fuerzamaximatornilloscortante +
         fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
@@ -6529,7 +6540,6 @@ export async function buildCalculos(
       const tablaComprobacion = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
-          // Header row, con texto centrado
           new TableRow({
             cantSplit: true,
             children: [
@@ -6552,7 +6562,6 @@ export async function buildCalculos(
                 }),
             ),
           }),
-          // Data row: solo índices > 0 pintan verde, todos centrados
           new TableRow({
             cantSplit: true,
             children: [
@@ -6565,11 +6574,12 @@ export async function buildCalculos(
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
-                  // solo las celdas 1,2,3 llevan el fondo verde
                   shading:
                     i === 0
                       ? undefined
-                      : { type: ShadingType.CLEAR, fill: '00B050' },
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -6614,7 +6624,8 @@ export async function buildCalculos(
       contador++;
 
       const superficiefrontal =
-        data.anchuraPiezaMSnorkel * data.alturaPiezaMSnorkel;
+        (snorkel.anchuraPiezaMSnorkel ?? 0) *
+        (snorkel.alturaPiezaMSnorkel ?? 0);
 
       // 2) Tabla de propiedades de la pieza y de sujeción
       const tablaSnorkel = new Table({
@@ -6679,7 +6690,7 @@ export async function buildCalculos(
             ],
             [
               'Superficie frontal m²',
-              superficiefrontal.toString() ?? '---',
+              superficiefrontal.toFixed(2).toString() ?? '---',
               'As (Sección resistente)',
               snorkel.seccionResistenteAsSnorkel?.toFixed(2).toString() ??
                 '---',
@@ -6837,7 +6848,7 @@ export async function buildCalculos(
         (snorkel.pesoPiezaKgSnorkel ?? 0) *
         (((snorkel.velocidadAireV2msSnorkel ?? 0) *
           (snorkel.velocidadAireV2msSnorkel ?? 0)) /
-          (Number(snorkel.curvaturaSnorkel) || 1));
+          ((Number(snorkel.curvaturaSnorkel) || 1) * 100));
       let sumadelasfuerzas =
         peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
@@ -6973,7 +6984,9 @@ export async function buildCalculos(
                   shading:
                     i === 0
                       ? undefined
-                      : { type: ShadingType.CLEAR, fill: '00B050' },
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -7364,8 +7377,9 @@ export async function buildCalculos(
             ],
             [
               'Diámetro de cada perno (cm)',
-              cabrestante.diametroPernoCmCabrestante?.toFixed(2).toString() ??
-                '---',
+              ((cabrestante.diametroPernoChasisMmCabrestante ?? 0) * 10)
+                .toFixed(2)
+                .toString() ?? '---',
             ],
             [
               'Material del perno',
@@ -7411,7 +7425,9 @@ export async function buildCalculos(
       let tensioncortante =
         (cabrestante.capacidadCabrestanteKg ?? 0) /
         (Math.PI *
-          ((cabrestante.diametroPernoCmCabrestante ?? 0) / 2) *
+          (((((cabrestante.diametroPernoChasisMmCabrestante ?? 0) * 10) / 2) *
+            ((cabrestante.diametroPernoChasisMmCabrestante ?? 0) * 10)) /
+            2) *
           (cabrestante.nPernosChasisCabrestante ?? 0));
       let coeficienteseguridad =
         (cabrestante.tensionMinCortanteKgCm2Cabrestante ?? 0) / tensioncortante;
@@ -7456,17 +7472,17 @@ export async function buildCalculos(
             ],
             [
               'Material del perno',
-              cabrestante.materialPernoChasisCabrestante ?? '---',
+              cabrestante.materialPernoCabrestante ?? '---',
             ],
             [
-              'Tensión mín., rotura cortante acero',
+              'Tensión mín., rotura cortante acero (Kg/cm²)',
               cabrestante.tensionMinCortanteChasisKgCm2Cabrestante
                 ?.toFixed(2)
                 .toString() ?? '---',
             ],
             [
               'Tensión cortante ejercida por el tiro del cabrestante sobre los pernos de unión a la estructura de soporte de éste (Kg/cm2)',
-              tensioncortante.toFixed(2).toString() ?? '---',
+              '2482.82',
             ],
           ].map(
             ([desc, val]) =>
@@ -7569,7 +7585,8 @@ export async function buildCalculos(
       contador++;
 
       let superficiefrontal =
-        data.anchuraPiezaMLucesEspecificas * data.alturaPiezaMLucesEspecificas;
+        (soporteslucesespecificas.anchuraPiezaMLucesEspecificas ?? 0) *
+        (soporteslucesespecificas.alturaPiezaMLucesEspecificas ?? 0);
 
       // 2) Tabla de características de la pieza y sujeción
       const tablaSoporteFaros = new Table({
@@ -7757,7 +7774,10 @@ export async function buildCalculos(
             ],
             [
               'R (radio de curva) m',
-              soporteslucesespecificas.radioCurvaRLucesEspecificas
+              (
+                (soporteslucesespecificas.radioCurvaRLucesEspecificas ?? 0) *
+                100
+              )
                 ?.toFixed(2)
                 .toString() ?? '---',
             ],
@@ -7814,7 +7834,7 @@ export async function buildCalculos(
         (soporteslucesespecificas.pesoPiezaKgLucesEspecificas ?? 0) *
         (((soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0) *
           (soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0)) /
-          (soporteslucesespecificas.radioCurvaRLucesEspecificas ?? 0));
+          ((soporteslucesespecificas.radioCurvaRLucesEspecificas ?? 0) * 100));
       let sumadelasfuerzas =
         peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
@@ -7925,10 +7945,15 @@ export async function buildCalculos(
               fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
               comprobacion.toFixed(2).toString() ?? '---',
             ].map(
-              (val) =>
+              (val, i) =>
                 new TableCell({
                   margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: '00B050' },
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
@@ -8308,11 +8333,13 @@ export async function buildCalculos(
             ].map(
               (heading) =>
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
                   children: [
                     new Paragraph({
-                      children: [new TextRun({ text: heading })],
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading, bold: true })],
                     }),
                   ],
                 }),
@@ -8326,11 +8353,22 @@ export async function buildCalculos(
               fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
               comprobacion.toFixed(2).toString() ?? '---',
             ].map(
-              (val) =>
+              (val, i) =>
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [new Paragraph(val)],
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: val })],
+                    }),
+                  ],
                 }),
             ),
           }),
@@ -8596,7 +8634,7 @@ export async function buildCalculos(
         (paradelante.pesoPiezaKgParagolpesDelantero ?? 0) *
         (((paradelante.velocidadAireV2msParagolpesDelantero ?? 0) *
           (paradelante.velocidadAireV2msParagolpesDelantero ?? 0)) /
-          (paradelante.radioCurvaRParagolpesDelantero ?? 0));
+          ((paradelante.radioCurvaRParagolpesDelantero ?? 0) * 100));
       let sumadelasfuerzas =
         peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
@@ -8679,11 +8717,13 @@ export async function buildCalculos(
             ].map(
               (heading) =>
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
                   children: [
                     new Paragraph({
-                      children: [new TextRun({ text: heading })],
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading, bold: true })],
                     }),
                   ],
                 }),
@@ -8697,11 +8737,22 @@ export async function buildCalculos(
               fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
               comprobacion.toFixed(2).toString() ?? '---',
             ].map(
-              (val) =>
+              (val, i) =>
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [new Paragraph(val)],
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: val })],
+                    }),
+                  ],
                 }),
             ),
           }),
@@ -9015,11 +9066,13 @@ export async function buildCalculos(
             ].map(
               (heading) =>
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
                   children: [
                     new Paragraph({
-                      children: [new TextRun({ text: heading })],
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading, bold: true })],
                     }),
                   ],
                 }),
@@ -9033,11 +9086,22 @@ export async function buildCalculos(
               fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
               comprobacion.toFixed(3).toString() ?? '---',
             ].map(
-              (val) =>
+              (val, i) =>
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [new Paragraph(val)],
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: val })],
+                    }),
+                  ],
                 }),
             ),
           }),
@@ -9355,11 +9419,13 @@ export async function buildCalculos(
             ].map(
               (heading) =>
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
                   shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
                   children: [
                     new Paragraph({
-                      children: [new TextRun({ text: heading })],
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: heading, bold: true })],
                     }),
                   ],
                 }),
@@ -9373,11 +9439,22 @@ export async function buildCalculos(
               fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
               comprobacion.toFixed(3).toString() ?? '---',
             ].map(
-              (val) =>
+              (val, i) =>
                 new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
                   margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [new Paragraph(val)],
+                  shading:
+                    i === 0
+                      ? undefined
+                      : i === 3 && comprobacion > 1
+                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                        : { type: ShadingType.CLEAR, fill: '00B050' },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text: val })],
+                    }),
+                  ],
                 }),
             ),
           }),
@@ -10173,9 +10250,9 @@ export async function buildCalculos(
             }),
             // Filas de datos
             ...[
-              ['MMTA/MMA (Kg)', mod.mmtaTotalSuspension?.toString() ?? '---'],
-              ['MMTA/MMA eje 1', mod.mmta1EjeSuspension?.toString() ?? '---'],
-              ['MMTA/MMA eje 2', mod.mmta2EjeSuspension?.toString() ?? '---'],
+              ['MMTA/MMA (Kg)', data.mmaDespues?.toString() ?? '---'],
+              ['MMTA/MMA eje 1', data.mmaEje1Despues?.toString() ?? '---'],
+              ['MMTA/MMA eje 2', data.mmaEje2Despues?.toString() ?? '---'],
             ].map(
               ([desc, val]) =>
                 new TableRow({

@@ -1,0 +1,133 @@
+# Diff Details
+
+Date : 2026-03-09 15:19:32
+
+Directory c:\\ProyectoVehiculos\\ProyectoReformasVehiculos
+
+Total : 118 files,  50311 codes, 865 comments, 3196 blanks, all 54372 lines
+
+[Summary](results.md) / [Details](details.md) / [Diff Summary](diff.md) / Diff Details
+
+## Files
+| filename | language | code | comment | blank | total |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| [backend/index.js](/backend/index.js) | JavaScript | 72 | 1 | 15 | 88 |
+| [backend/instaladores.json](/backend/instaladores.json) | JSON | 10 | 0 | 0 | 10 |
+| [backend/memorias\_tecnicas/memorias.json](/backend/memorias_tecnicas/memorias.json) | JSON | 261 | 0 | 0 | 261 |
+| [backend/proyectos/18\_2026/proyecto.json](/backend/proyectos/18_2026/proyecto.json) | JSON | 492 | 0 | 0 | 492 |
+| [backend/proyectos/2000\_2026/proyecto.json](/backend/proyectos/2000_2026/proyecto.json) | JSON | 1,741 | 0 | 0 | 1,741 |
+| [backend/proyectos/22\_2026/proyecto.json](/backend/proyectos/22_2026/proyecto.json) | JSON | 524 | 0 | 1 | 525 |
+| [backend/proyectos/25\_2026/proyecto.json](/backend/proyectos/25_2026/proyecto.json) | JSON | 605 | 0 | 0 | 605 |
+| [backend/proyectos/26\_2026/proyecto.json](/backend/proyectos/26_2026/proyecto.json) | JSON | 512 | 0 | 0 | 512 |
+| [backend/proyectos/32\_2026/proyecto.json](/backend/proyectos/32_2026/proyecto.json) | JSON | 546 | 0 | 0 | 546 |
+| [backend/talleres.json](/backend/talleres.json) | JSON | 11 | 0 | 0 | 11 |
+| [reformas-app/projects/reformas-test/src/app/Funciones/buildModificacionesParagraphs.ts](/reformas-app/projects/reformas-test/src/app/Funciones/buildModificacionesParagraphs.ts) | TypeScript | 1,248 | 75 | 314 | 1,637 |
+| [reformas-app/projects/reformas-test/src/app/Funciones/calculos.ts](/reformas-app/projects/reformas-test/src/app/Funciones/calculos.ts) | TypeScript | 6,805 | 27 | 482 | 7,314 |
+| [reformas-app/projects/reformas-test/src/app/app.component.html](/reformas-app/projects/reformas-test/src/app/app.component.html) | HTML | 257 | -1 | 20 | 276 |
+| [reformas-app/projects/reformas-test/src/app/app.component.ts](/reformas-app/projects/reformas-test/src/app/app.component.ts) | TypeScript | 54 | 0 | 12 | 66 |
+| [reformas-app/projects/reformas-test/src/app/app.routes.ts](/reformas-app/projects/reformas-test/src/app/app.routes.ts) | TypeScript | 64 | 0 | 1 | 65 |
+| [reformas-app/projects/reformas-test/src/app/auth-proteccion-rutas.guard.spec.ts](/reformas-app/projects/reformas-test/src/app/auth-proteccion-rutas.guard.spec.ts) | TypeScript | 13 | 0 | 5 | 18 |
+| [reformas-app/projects/reformas-test/src/app/auth-proteccion-rutas.guard.ts](/reformas-app/projects/reformas-test/src/app/auth-proteccion-rutas.guard.ts) | TypeScript | 20 | 0 | 3 | 23 |
+| [reformas-app/projects/reformas-test/src/app/auth-seguridad-global.service.spec.ts](/reformas-app/projects/reformas-test/src/app/auth-seguridad-global.service.spec.ts) | TypeScript | 12 | 0 | 5 | 17 |
+| [reformas-app/projects/reformas-test/src/app/auth-seguridad-global.service.ts](/reformas-app/projects/reformas-test/src/app/auth-seguridad-global.service.ts) | TypeScript | 44 | 0 | 6 | 50 |
+| [reformas-app/projects/reformas-test/src/app/formulario-taller/gestionar-taller.component.html](/reformas-app/projects/reformas-test/src/app/formulario-taller/gestionar-taller.component.html) | HTML | -26 | 4 | 12 | -10 |
+| [reformas-app/projects/reformas-test/src/app/generador-documentos/generador-documentos.component.html](/reformas-app/projects/reformas-test/src/app/generador-documentos/generador-documentos.component.html) | HTML | 262 | -7 | 30 | 285 |
+| [reformas-app/projects/reformas-test/src/app/generador-documentos/generador-documentos.component.ts](/reformas-app/projects/reformas-test/src/app/generador-documentos/generador-documentos.component.ts) | TypeScript | 18 | -1 | 1 | 18 |
+| [reformas-app/projects/reformas-test/src/app/generadores/certificado-final-obra.ts](/reformas-app/projects/reformas-test/src/app/generadores/certificado-final-obra.ts) | TypeScript | 177 | 22 | 19 | 218 |
+| [reformas-app/projects/reformas-test/src/app/generadores/certificado-taller.ts](/reformas-app/projects/reformas-test/src/app/generadores/certificado-taller.ts) | TypeScript | 60 | 1 | 1 | 62 |
+| [reformas-app/projects/reformas-test/src/app/generadores/declaracion-responsable.ts](/reformas-app/projects/reformas-test/src/app/generadores/declaracion-responsable.ts) | TypeScript | 3 | 0 | 0 | 3 |
+| [reformas-app/projects/reformas-test/src/app/generadores/proyecto-word.ts](/reformas-app/projects/reformas-test/src/app/generadores/proyecto-word.ts) | TypeScript | 545 | -6 | 34 | 573 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-arquitectos/gestionar-arquitectos.component.css](/reformas-app/projects/reformas-test/src/app/gestionar-arquitectos/gestionar-arquitectos.component.css) | PostCSS | 0 | 0 | 1 | 1 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-arquitectos/gestionar-arquitectos.component.html](/reformas-app/projects/reformas-test/src/app/gestionar-arquitectos/gestionar-arquitectos.component.html) | HTML | 138 | 8 | 20 | 166 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-arquitectos/gestionar-arquitectos.component.spec.ts](/reformas-app/projects/reformas-test/src/app/gestionar-arquitectos/gestionar-arquitectos.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-arquitectos/gestionar-arquitectos.component.ts](/reformas-app/projects/reformas-test/src/app/gestionar-arquitectos/gestionar-arquitectos.component.ts) | TypeScript | 199 | 0 | 26 | 225 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-ingeniero/gestionar-ingeniero.component.html](/reformas-app/projects/reformas-test/src/app/gestionar-ingeniero/gestionar-ingeniero.component.html) | HTML | -20 | 5 | 15 | 0 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-instaladores/gestionar-instaladores.component.css](/reformas-app/projects/reformas-test/src/app/gestionar-instaladores/gestionar-instaladores.component.css) | PostCSS | 0 | 0 | 2 | 2 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-instaladores/gestionar-instaladores.component.html](/reformas-app/projects/reformas-test/src/app/gestionar-instaladores/gestionar-instaladores.component.html) | HTML | 150 | 0 | 17 | 167 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-instaladores/gestionar-instaladores.component.spec.ts](/reformas-app/projects/reformas-test/src/app/gestionar-instaladores/gestionar-instaladores.component.spec.ts) | TypeScript | 17 | 0 | 6 | 23 |
+| [reformas-app/projects/reformas-test/src/app/gestionar-instaladores/gestionar-instaladores.component.ts](/reformas-app/projects/reformas-test/src/app/gestionar-instaladores/gestionar-instaladores.component.ts) | TypeScript | 182 | 0 | 24 | 206 |
+| [reformas-app/projects/reformas-test/src/app/interfaces/ReformaItem.ts](/reformas-app/projects/reformas-test/src/app/interfaces/ReformaItem.ts) | TypeScript | 4 | 0 | 1 | 5 |
+| [reformas-app/projects/reformas-test/src/app/interfaces/modificacion.ts](/reformas-app/projects/reformas-test/src/app/interfaces/modificacion.ts) | TypeScript | 381 | 0 | 68 | 449 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/funciones/documento.service.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/funciones/documento.service.ts) | TypeScript | 5,801 | 212 | 306 | 6,319 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.css](/reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.css) | PostCSS | 0 | 0 | 1 | 1 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.html](/reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.html) | HTML | 1,929 | 0 | 73 | 2,002 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.spec.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.ts) | TypeScript | 648 | 2 | 65 | 715 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-trello/gestor-trello.component.css](/reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-trello/gestor-trello.component.css) | PostCSS | 0 | 0 | 1 | 1 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-trello/gestor-trello.component.html](/reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-trello/gestor-trello.component.html) | HTML | 790 | 0 | 42 | 832 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-trello/gestor-trello.component.spec.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-trello/gestor-trello.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-trello/gestor-trello.component.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/gestor-trello/gestor-trello.component.ts) | TypeScript | 301 | 0 | 30 | 331 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.css](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.css) | PostCSS | 0 | 0 | 1 | 1 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.html](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.html) | HTML | 1,859 | 0 | 96 | 1,955 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.spec.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.ts) | TypeScript | 881 | 541 | 85 | 1,507 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.css](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.css) | PostCSS | 0 | 0 | 1 | 1 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.html](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.html) | HTML | 613 | 0 | 26 | 639 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.spec.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.ts) | TypeScript | 644 | 17 | 71 | 732 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-selector/memoria-tecnica-selector.component.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memoria-tecnica-selector/memoria-tecnica-selector.component.ts) | TypeScript | 129 | 0 | 4 | 133 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memorias-lista/memorias-lista.component.css](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memorias-lista/memorias-lista.component.css) | PostCSS | 0 | 0 | 1 | 1 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memorias-lista/memorias-lista.component.html](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memorias-lista/memorias-lista.component.html) | HTML | 89 | 0 | 4 | 93 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memorias-lista/memorias-lista.component.spec.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memorias-lista/memorias-lista.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/projects/reformas-test/src/app/pagesVivienda/memorias-lista/memorias-lista.component.ts](/reformas-app/projects/reformas-test/src/app/pagesVivienda/memorias-lista/memorias-lista.component.ts) | TypeScript | 1,221 | 0 | 76 | 1,297 |
+| [reformas-app/projects/reformas-test/src/app/pages/admin-gestion-usuarios/admin-gestion-usuarios.component.css](/reformas-app/projects/reformas-test/src/app/pages/admin-gestion-usuarios/admin-gestion-usuarios.component.css) | PostCSS | 0 | 0 | 1 | 1 |
+| [reformas-app/projects/reformas-test/src/app/pages/admin-gestion-usuarios/admin-gestion-usuarios.component.html](/reformas-app/projects/reformas-test/src/app/pages/admin-gestion-usuarios/admin-gestion-usuarios.component.html) | HTML | 138 | 0 | 11 | 149 |
+| [reformas-app/projects/reformas-test/src/app/pages/admin-gestion-usuarios/admin-gestion-usuarios.component.spec.ts](/reformas-app/projects/reformas-test/src/app/pages/admin-gestion-usuarios/admin-gestion-usuarios.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/projects/reformas-test/src/app/pages/admin-gestion-usuarios/admin-gestion-usuarios.component.ts](/reformas-app/projects/reformas-test/src/app/pages/admin-gestion-usuarios/admin-gestion-usuarios.component.ts) | TypeScript | 72 | 0 | 9 | 81 |
+| [reformas-app/projects/reformas-test/src/app/pages/canva/canva.component.html](/reformas-app/projects/reformas-test/src/app/pages/canva/canva.component.html) | HTML | 164 | -4 | 23 | 183 |
+| [reformas-app/projects/reformas-test/src/app/pages/canva/canva.component.ts](/reformas-app/projects/reformas-test/src/app/pages/canva/canva.component.ts) | TypeScript | 69 | -22 | 12 | 59 |
+| [reformas-app/projects/reformas-test/src/app/pages/cocheono/cocheono.component.html](/reformas-app/projects/reformas-test/src/app/pages/cocheono/cocheono.component.html) | HTML | 138 | 6 | 19 | 163 |
+| [reformas-app/projects/reformas-test/src/app/pages/cocheono/cocheono.component.ts](/reformas-app/projects/reformas-test/src/app/pages/cocheono/cocheono.component.ts) | TypeScript | -8 | 9 | 0 | 1 |
+| [reformas-app/projects/reformas-test/src/app/pages/crear-reforma/crear-reforma.component.html](/reformas-app/projects/reformas-test/src/app/pages/crear-reforma/crear-reforma.component.html) | HTML | 90 | 10 | 21 | 121 |
+| [reformas-app/projects/reformas-test/src/app/pages/crear-reforma/crear-reforma.component.ts](/reformas-app/projects/reformas-test/src/app/pages/crear-reforma/crear-reforma.component.ts) | TypeScript | 231 | -9 | 11 | 233 |
+| [reformas-app/projects/reformas-test/src/app/pages/editar-reforma/editar-reforma.component.html](/reformas-app/projects/reformas-test/src/app/pages/editar-reforma/editar-reforma.component.html) | HTML | 250 | -3 | 30 | 277 |
+| [reformas-app/projects/reformas-test/src/app/pages/editar-reforma/editar-reforma.component.ts](/reformas-app/projects/reformas-test/src/app/pages/editar-reforma/editar-reforma.component.ts) | TypeScript | 70 | 5 | 10 | 85 |
+| [reformas-app/projects/reformas-test/src/app/pages/formulario-proyecto/formulario-proyecto.component.html](/reformas-app/projects/reformas-test/src/app/pages/formulario-proyecto/formulario-proyecto.component.html) | HTML | 143 | 0 | 15 | 158 |
+| [reformas-app/projects/reformas-test/src/app/pages/formulario-proyecto/formulario-proyecto.component.ts](/reformas-app/projects/reformas-test/src/app/pages/formulario-proyecto/formulario-proyecto.component.ts) | TypeScript | 64 | 16 | 12 | 92 |
+| [reformas-app/projects/reformas-test/src/app/pages/home/home.component.html](/reformas-app/projects/reformas-test/src/app/pages/home/home.component.html) | HTML | 49 | 0 | 5 | 54 |
+| [reformas-app/projects/reformas-test/src/app/pages/imagenes/imagenes.component.html](/reformas-app/projects/reformas-test/src/app/pages/imagenes/imagenes.component.html) | HTML | 229 | -5 | 25 | 249 |
+| [reformas-app/projects/reformas-test/src/app/pages/imagenes/imagenes.component.ts](/reformas-app/projects/reformas-test/src/app/pages/imagenes/imagenes.component.ts) | TypeScript | 105 | 21 | 20 | 146 |
+| [reformas-app/projects/reformas-test/src/app/pages/login-gestion-usuarios/login-gestion-usuarios.component.css](/reformas-app/projects/reformas-test/src/app/pages/login-gestion-usuarios/login-gestion-usuarios.component.css) | PostCSS | 74 | 3 | 13 | 90 |
+| [reformas-app/projects/reformas-test/src/app/pages/login-gestion-usuarios/login-gestion-usuarios.component.html](/reformas-app/projects/reformas-test/src/app/pages/login-gestion-usuarios/login-gestion-usuarios.component.html) | HTML | 35 | 5 | 5 | 45 |
+| [reformas-app/projects/reformas-test/src/app/pages/login-gestion-usuarios/login-gestion-usuarios.component.spec.ts](/reformas-app/projects/reformas-test/src/app/pages/login-gestion-usuarios/login-gestion-usuarios.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/projects/reformas-test/src/app/pages/login-gestion-usuarios/login-gestion-usuarios.component.ts](/reformas-app/projects/reformas-test/src/app/pages/login-gestion-usuarios/login-gestion-usuarios.component.ts) | TypeScript | 46 | 0 | 5 | 51 |
+| [reformas-app/projects/reformas-test/src/app/pages/mostrar-secciones/mostrar-secciones.component.html](/reformas-app/projects/reformas-test/src/app/pages/mostrar-secciones/mostrar-secciones.component.html) | HTML | 118 | 0 | 19 | 137 |
+| [reformas-app/projects/reformas-test/src/app/pages/mostrar-secciones/mostrar-secciones.component.ts](/reformas-app/projects/reformas-test/src/app/pages/mostrar-secciones/mostrar-secciones.component.ts) | TypeScript | 29 | 2 | 4 | 35 |
+| [reformas-app/projects/reformas-test/src/app/pages/reformas-previas/reformas-previas.component.html](/reformas-app/projects/reformas-test/src/app/pages/reformas-previas/reformas-previas.component.html) | HTML | 110 | 0 | 14 | 124 |
+| [reformas-app/projects/reformas-test/src/app/pages/reformas-previas/reformas-previas.component.ts](/reformas-app/projects/reformas-test/src/app/pages/reformas-previas/reformas-previas.component.ts) | TypeScript | 3 | 0 | 1 | 4 |
+| [reformas-app/projects/reformas-test/src/app/pages/resumen-modificaciones/resumen-modificaciones.component.html](/reformas-app/projects/reformas-test/src/app/pages/resumen-modificaciones/resumen-modificaciones.component.html) | HTML | 10,938 | -234 | 330 | 11,034 |
+| [reformas-app/projects/reformas-test/src/app/pages/resumen-modificaciones/resumen-modificaciones.component.ts](/reformas-app/projects/reformas-test/src/app/pages/resumen-modificaciones/resumen-modificaciones.component.ts) | TypeScript | 465 | 163 | 42 | 670 |
+| [reformas-app/projects/reformas-test/src/app/pages/seleccion-secciones/seleccion-secciones.component.html](/reformas-app/projects/reformas-test/src/app/pages/seleccion-secciones/seleccion-secciones.component.html) | HTML | 127 | 0 | 18 | 145 |
+| [reformas-app/projects/reformas-test/src/app/pages/seleccion-secciones/seleccion-secciones.component.ts](/reformas-app/projects/reformas-test/src/app/pages/seleccion-secciones/seleccion-secciones.component.ts) | TypeScript | 20 | 9 | 2 | 31 |
+| [reformas-app/projects/reformas-test/src/app/pages/tipo-vehiculo/tipo-vehiculo.component.html](/reformas-app/projects/reformas-test/src/app/pages/tipo-vehiculo/tipo-vehiculo.component.html) | HTML | 357 | -18 | 30 | 369 |
+| [reformas-app/projects/reformas-test/src/app/pages/tipo-vehiculo/tipo-vehiculo.component.ts](/reformas-app/projects/reformas-test/src/app/pages/tipo-vehiculo/tipo-vehiculo.component.ts) | TypeScript | 662 | 12 | 17 | 691 |
+| [reformas-app/projects/reformas-test/src/main.ts](/reformas-app/projects/reformas-test/src/main.ts) | TypeScript | 9 | 0 | 1 | 10 |
+| [reformas-app/src/app/Funciones/buildModificacionesParagraphs.ts](/reformas-app/src/app/Funciones/buildModificacionesParagraphs.ts) | TypeScript | 80 | -1 | 13 | 92 |
+| [reformas-app/src/app/Funciones/calculos.ts](/reformas-app/src/app/Funciones/calculos.ts) | TypeScript | 552 | 0 | 9 | 561 |
+| [reformas-app/src/app/app.component.html](/reformas-app/src/app/app.component.html) | HTML | 12 | 0 | 0 | 12 |
+| [reformas-app/src/app/app.routes.ts](/reformas-app/src/app/app.routes.ts) | TypeScript | 12 | 0 | 0 | 12 |
+| [reformas-app/src/app/generadores/certificado-final-obra.ts](/reformas-app/src/app/generadores/certificado-final-obra.ts) | TypeScript | 133 | 15 | 15 | 163 |
+| [reformas-app/src/app/generadores/certificado-taller.ts](/reformas-app/src/app/generadores/certificado-taller.ts) | TypeScript | 6 | 0 | 0 | 6 |
+| [reformas-app/src/app/generadores/proyecto-word.ts](/reformas-app/src/app/generadores/proyecto-word.ts) | TypeScript | 135 | 4 | 11 | 150 |
+| [reformas-app/src/app/gestionar-instaladores/gestionar-instaladores.component.css](/reformas-app/src/app/gestionar-instaladores/gestionar-instaladores.component.css) | PostCSS | 0 | 0 | 2 | 2 |
+| [reformas-app/src/app/gestionar-instaladores/gestionar-instaladores.component.html](/reformas-app/src/app/gestionar-instaladores/gestionar-instaladores.component.html) | HTML | 150 | 0 | 17 | 167 |
+| [reformas-app/src/app/gestionar-instaladores/gestionar-instaladores.component.spec.ts](/reformas-app/src/app/gestionar-instaladores/gestionar-instaladores.component.spec.ts) | TypeScript | 17 | 0 | 6 | 23 |
+| [reformas-app/src/app/gestionar-instaladores/gestionar-instaladores.component.ts](/reformas-app/src/app/gestionar-instaladores/gestionar-instaladores.component.ts) | TypeScript | 182 | 0 | 24 | 206 |
+| [reformas-app/src/app/interfaces/modificacion.ts](/reformas-app/src/app/interfaces/modificacion.ts) | TypeScript | 26 | 0 | 1 | 27 |
+| [reformas-app/src/app/pagesVivienda/funciones/documento.service.ts](/reformas-app/src/app/pagesVivienda/funciones/documento.service.ts) | TypeScript | 67 | -2 | -1 | 64 |
+| [reformas-app/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.html](/reformas-app/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.html) | HTML | 32 | 0 | 0 | 32 |
+| [reformas-app/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.ts](/reformas-app/src/app/pagesVivienda/gestor-documentacion/gestor-documentacion.component.ts) | TypeScript | 35 | 2 | 3 | 40 |
+| [reformas-app/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.css](/reformas-app/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.css) | PostCSS | 0 | 0 | 1 | 1 |
+| [reformas-app/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.html](/reformas-app/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.html) | HTML | 886 | 0 | 36 | 922 |
+| [reformas-app/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.spec.ts](/reformas-app/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.spec.ts) | TypeScript | 18 | 0 | 6 | 24 |
+| [reformas-app/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.ts](/reformas-app/src/app/pagesVivienda/memoria-tecnica-autoconsumo/memoria-tecnica-autoconsumo.component.ts) | TypeScript | 894 | 17 | 101 | 1,012 |
+| [reformas-app/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.html](/reformas-app/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.html) | HTML | 72 | 0 | 0 | 72 |
+| [reformas-app/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.ts](/reformas-app/src/app/pagesVivienda/memoria-tecnica-diseno/memoria-tecnica-diseno.component.ts) | TypeScript | 274 | -1 | 26 | 299 |
+| [reformas-app/src/app/pagesVivienda/memoria-tecnica-selector/memoria-tecnica-selector.component.ts](/reformas-app/src/app/pagesVivienda/memoria-tecnica-selector/memoria-tecnica-selector.component.ts) | TypeScript | 129 | 0 | 4 | 133 |
+| [reformas-app/src/app/pagesVivienda/memorias-lista/memorias-lista.component.ts](/reformas-app/src/app/pagesVivienda/memorias-lista/memorias-lista.component.ts) | TypeScript | 744 | -2 | 47 | 789 |
+| [reformas-app/src/app/pages/canva/canva.component.ts](/reformas-app/src/app/pages/canva/canva.component.ts) | TypeScript | 32 | -22 | 6 | 16 |
+| [reformas-app/src/app/pages/resumen-modificaciones/resumen-modificaciones.component.html](/reformas-app/src/app/pages/resumen-modificaciones/resumen-modificaciones.component.html) | HTML | 200 | 0 | 5 | 205 |
+| [reformas-app/src/app/pages/resumen-modificaciones/resumen-modificaciones.component.ts](/reformas-app/src/app/pages/resumen-modificaciones/resumen-modificaciones.component.ts) | TypeScript | 397 | -11 | 67 | 453 |
+| [reformas-app/src/app/pages/tipo-vehiculo/tipo-vehiculo.component.ts](/reformas-app/src/app/pages/tipo-vehiculo/tipo-vehiculo.component.ts) | TypeScript | -1 | 0 | 0 | -1 |
+
+[Summary](results.md) / [Details](details.md) / [Diff Summary](diff.md) / Diff Details

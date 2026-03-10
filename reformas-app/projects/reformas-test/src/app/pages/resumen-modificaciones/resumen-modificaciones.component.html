@@ -296,6 +296,118 @@
                   </div>
                 </div>
               </div>
+              <div class="col-12 mt-3">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="notaIntegridad{{ i }}"
+                        [(ngModel)]="mod.incluirNotaQuitadoCinturon"
+                        name="incluirNotaQuitadoCinturon{{ i }}"
+                      />
+                      <label
+                        class="form-check-label fw-bold text-primary"
+                        for="notaIntegridad{{ i }}"
+                      >
+                        Incluir nota de desinstalado el cinturón de seguridad
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        }
+        @if (mod.nombre === "REDUCCIÓN DE PLAZAS MOTO" && mod.seleccionado) {
+          <div class="mb-3">
+            <section class="mod-card">
+              <div class="mod-card__header">
+                <h4 class="mod-card__title">Reducción de Plazas</h4>
+                <span class="mod-card__hint"
+                  >Configuración de asientos y variaciones de capacidad</span
+                >
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12">
+                  <div class="form-floating">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="enclaje-{{ i }}"
+                      placeholder="Descripción"
+                      [(ngModel)]="mod.enclaje"
+                      name="enclajePlaza{{ i }}"
+                      required
+                      [class.is-invalid]="formSubmitted && !mod.enclaje"
+                    />
+                    <label for="enclaje-{{ i }}"
+                      >¿QUÉ PLAZA SE ELIMINA? (SE ELIMINARÁ...)</label
+                    >
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      min="0"
+                      class="form-control"
+                      id="plazasAntes-{{ i }}"
+                      placeholder="0"
+                      [(ngModel)]="mod.plazasAntes"
+                      name="plazasAntes{{ i }}"
+                      required
+                      [class.is-invalid]="formSubmitted && !mod.plazasAntes"
+                    />
+                    <label for="plazasAntes-{{ i }}"
+                      >NÚMERO DE PLAZAS ANTES</label
+                    >
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      min="0"
+                      class="form-control"
+                      id="plazasDespues-{{ i }}"
+                      placeholder="0"
+                      [(ngModel)]="mod.plazasDespues"
+                      name="plazasDespues{{ i }}"
+                      required
+                      [class.is-invalid]="formSubmitted && !mod.plazasDespues"
+                    />
+                    <label for="plazasDespues-{{ i }}"
+                      >PLAZAS DESPUÉS DE REFORMA</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 mt-3">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="notaIntegridad{{ i }}"
+                        [(ngModel)]="mod.incluirNotaQuitadoCinturon"
+                        name="incluirNotaQuitadoCinturon{{ i }}"
+                      />
+                      <label
+                        class="form-check-label fw-bold text-primary"
+                        for="notaIntegridad{{ i }}"
+                      >
+                        Incluir nota de desinstalado el cinturón de seguridad
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </section>
           </div>
         }
@@ -745,11 +857,11 @@
                           class="form-check-input"
                           type="checkbox"
                           id="accion-instalacion-{{ i }}"
-                          [checked]="mod.acciones?.includes('Instalacion')"
+                          [checked]="mod.acciones?.includes('Instalación')"
                           (change)="
                             toggleAccion(
                               mod,
-                              'Instalacion',
+                              'Instalación',
                               $event.target.checked
                             )
                           "
@@ -856,6 +968,7 @@
                             class="form-control"
                             placeholder="Ancho"
                             [(ngModel)]="mod.anchoAletines"
+                            (ngModelChange)="calcularSuperficieAletines(mod)"
                             name="anchoAletines{{ i }}"
                             required
                             [class.is-invalid]="
@@ -871,8 +984,9 @@
                             type="number"
                             min="0"
                             class="form-control"
-                            placeholder="Ancho"
+                            placeholder="Alto"
                             [(ngModel)]="mod.altoAletines"
+                            (ngModelChange)="calcularSuperficieAletines(mod)"
                             name="altoAletines{{ i }}"
                             required
                             [class.is-invalid]="
@@ -880,6 +994,27 @@
                             "
                           />
                           <label>ALTO (mm)</label>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-floating">
+                          <select
+                            class="form-select"
+                            [(ngModel)]="mod.posicionAletines"
+                            name="posicionAletines{{ i }}"
+                            required
+                            [class.is-invalid]="
+                              formSubmitted && !mod.posicionAletines
+                            "
+                          >
+                            <option [ngValue]="null" disabled selected>
+                              -- SELECCIONAR --
+                            </option>
+                            <option value="delantero">Delantero</option>
+                            <option value="trasero">Trasero</option>
+                            <option value="delantero y trasero">Ambos</option>
+                          </select>
+                          <label>POSICIÓN</label>
                         </div>
                       </div>
                       <div class="col-md-8">
@@ -949,12 +1084,7 @@
                             step="0.0001"
                             class="form-control"
                             placeholder="Superficie"
-                            [ngModel]="
-                              (
-                                (mod.anchoAletines / 1000) *
-                                (mod.altoAletines / 1000)
-                              ).toFixed(4)
-                            "
+                            [(ngModel)]="mod.superficieFrontalM2Aletines"
                             name="superficieFrontalM2Aletines{{ i }}"
                             readonly
                             [class.is-invalid]="
@@ -1129,11 +1259,11 @@
                           class="form-check-input"
                           type="checkbox"
                           id="accion-instalacion-sb-{{ i }}"
-                          [checked]="mod.acciones?.includes('Instalacion')"
+                          [checked]="mod.acciones?.includes('Instalación')"
                           (change)="
                             toggleAccion(
                               mod,
-                              'Instalacion',
+                              'Instalación',
                               $event.target.checked
                             )
                           "
@@ -1257,7 +1387,7 @@
                             min="0"
                             class="form-control"
                             placeholder="Curvatura"
-                            [ngModel]="mod.curvaturaSobrealetines ?? 800"
+                            [ngModel]="mod.curvaturaSobrealetines ?? 8"
                             (ngModelChange)="
                               mod.curvaturaSobrealetines = $event
                             "
@@ -1311,6 +1441,27 @@
                             "
                           />
                           <label>Nº TORNILLOS</label>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-floating">
+                          <select
+                            class="form-select"
+                            [(ngModel)]="mod.posicionSobrealetines"
+                            name="posicionSobrealetines{{ i }}"
+                            required
+                            [class.is-invalid]="
+                              formSubmitted && !mod.posicionSobrealetines
+                            "
+                          >
+                            <option [ngValue]="null" disabled selected>
+                              -- SELECCIONAR --
+                            </option>
+                            <option value="delantero">Delantero</option>
+                            <option value="trasero">Trasero</option>
+                            <option value="delantero y trasero">Ambos</option>
+                          </select>
+                          <label>POSICIÓN</label>
                         </div>
                       </div>
                     </div>
@@ -1562,11 +1713,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -1686,7 +1837,7 @@
                             formSubmitted && !mod.medidasSnorkel
                           "
                         />
-                        <label>MEDIDAS (mm)</label>
+                        <label>MEDIDAS (mm) (200x200...)</label>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -1783,7 +1934,7 @@
                           min="0"
                           class="form-control"
                           placeholder="Curvatura"
-                          [ngModel]="mod.curvaturaSnorkel ?? 800"
+                          [ngModel]="mod.curvaturaSnorkel ?? 8"
                           (ngModelChange)="mod.curvaturaSnorkel = $event"
                           name="curvaturaSnorkel{{ i }}"
                           required
@@ -1922,8 +2073,7 @@
                           required
                           readonly
                           [class.is-invalid]="
-                            formSubmitted &&
-                            mod.calidadTornilloSnorkel == null
+                            formSubmitted && mod.calidadTornilloSnorkel == null
                           "
                         />
                         <label>CALIDAD TORNILLO</label>
@@ -2169,6 +2319,25 @@
                         "
                       />
                       <label>ANCHO (mm)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.001"
+                        min="0"
+                        class="form-control"
+                        placeholder="R"
+                        [(ngModel)]="mod.radioCurvaRPlanchaCapo"
+                        name="radioCurvaRPlanchaCapo{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.radioCurvaRPlanchaCapo == null
+                        "
+                      />
+                      <label>Rario curvatura</label>
                     </div>
                   </div>
 
@@ -2524,6 +2693,25 @@
                         <label>FONDO (mm)</label>
                       </div>
                     </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.001"
+                          min="0"
+                          class="form-control"
+                          placeholder="R"
+                          [(ngModel)]="mod.radioCurvaRRefuerzo"
+                          name="radioCurvaRRefuerzo{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.radioCurvaRRefuerzo == null
+                          "
+                        />
+                        <label>Rario curvatura</label>
+                      </div>
+                    </div>
                   }
 
                   @if (isRefuerzoUbicacionSelected(mod, "trasero")) {
@@ -2671,11 +2859,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -2840,34 +3028,6 @@
                     <div class="col-md-6">
                       <div class="form-floating">
                         <input
-                          type="number"
-                          min="0"
-                          class="form-control"
-                          placeholder="Tiro Max"
-                          [(ngModel)]="mod.tiroMaxCabrestanteKg"
-                          name="tiroMaxCabrestanteKg{{ i }}"
-                        />
-                        <label>TIRO MÁX. (Kg)</label>
-                      </div>
-                    </div>
-
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          class="form-control"
-                          placeholder="Diam"
-                          [(ngModel)]="mod.diametroPernoCmCabrestante"
-                          name="diametroPernoCmCabrestante{{ i }}"
-                        />
-                        <label>DIÁMETRO PERNO (cm)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <input
                           type="text"
                           class="form-control"
                           placeholder="Material"
@@ -2932,18 +3092,6 @@
                     <div class="col-md-3">
                       <div class="form-floating">
                         <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Material"
-                          [(ngModel)]="mod.materialPernoChasisCabrestante"
-                          name="materialPernoChasisCabrestante{{ i }}"
-                        />
-                        <label>MATERIAL EN CHASIS</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
                           type="number"
                           step="0.01"
                           min="0"
@@ -2987,11 +3135,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -3060,14 +3208,16 @@
                           class="form-control"
                           placeholder="Medidas"
                           [(ngModel)]="mod.medidasAntiempotramiento"
-                          (ngModelChange)="calcularSuperficieAntiempotramiento(mod)"
+                          (ngModelChange)="
+                            calcularSuperficieAntiempotramiento(mod)
+                          "
                           name="medidasAntiempotramiento{{ i }}"
                           required
                           [class.is-invalid]="
                             formSubmitted && !mod.medidasAntiempotramiento
                           "
                         />
-                        <label>MEDIDAS (mm)</label>
+                        <label>MEDIDAS (mm) (200x200...)</label>
                       </div>
                     </div>
 
@@ -3085,7 +3235,8 @@
                           name="metricaAntiempotramiento{{ i }}"
                           required
                           [class.is-invalid]="
-                            formSubmitted && mod.metricaAntiempotramiento == null
+                            formSubmitted &&
+                            mod.metricaAntiempotramiento == null
                           "
                         >
                           <option [ngValue]="null" disabled>
@@ -3123,7 +3274,8 @@
                           name="nTornillosAntiempotramiento{{ i }}"
                           required
                           [class.is-invalid]="
-                            formSubmitted && mod.nTornillosAntiempotramiento == null
+                            formSubmitted &&
+                            mod.nTornillosAntiempotramiento == null
                           "
                         />
                         <label>Nº TORNILLOS</label>
@@ -3144,7 +3296,8 @@
                           name="pesoPiezaKgAntiempotramiento{{ i }}"
                           required
                           [class.is-invalid]="
-                            formSubmitted && mod.pesoPiezaKgAntiempotramiento == null
+                            formSubmitted &&
+                            mod.pesoPiezaKgAntiempotramiento == null
                           "
                         />
                         <label>PESO (Kg)</label>
@@ -3282,10 +3435,11 @@
                           name="radioCurvaRAntiempotramiento{{ i }}"
                           required
                           [class.is-invalid]="
-                            formSubmitted && mod.radioCurvaRAntiempotramiento == null
+                            formSubmitted &&
+                            mod.radioCurvaRAntiempotramiento == null
                           "
                         />
-                        <label>R (m)</label>
+                        <label>Rario curvatura</label>
                       </div>
                     </div>
                     <div class="col-md-3">
@@ -3342,11 +3496,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -3445,7 +3599,7 @@
                             formSubmitted && !mod.medidasLucesEspecificas
                           "
                         />
-                        <label>MEDIDAS (mm)</label>
+                        <label>MEDIDAS (mm) (200x200...)</label>
                       </div>
                     </div>
 
@@ -3766,11 +3920,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -3913,7 +4067,7 @@
                             formSubmitted && !mod.medidasRuedaRepuesto
                           "
                         />
-                        <label>MEDIDAS (mm)</label>
+                        <label>MEDIDAS (mm) (200x200...)</label>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -3922,7 +4076,7 @@
                           type="text"
                           class="form-control"
                           placeholder="Ratio"
-                          value="800"
+                          value="8"
                           [(ngModel)]="mod.curvaturaSoporteRuedaRepuesto"
                           name="curvaturaSoporteRuedaRepuesto{{ i }}"
                           required
@@ -4010,11 +4164,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -4203,12 +4357,28 @@
                           </div>
                         </div>
                       }
+
+                      <div class="col-md-4">
+                        <div class="form-floating">
+                          <input
+                            type="number"
+                            step="0.001"
+                            min="0"
+                            class="form-control"
+                            placeholder="R"
+                            [(ngModel)]="mod.radioCurvaRPortamatricula"
+                            name="radioCurvaRPortamatricula{{ i }}"
+                            required
+                            [class.is-invalid]="
+                              formSubmitted &&
+                              mod.radioCurvaRPortamatricula == null
+                            "
+                          />
+                          <label>Rario curvatura</label>
+                        </div>
+                      </div>
                     }
-                    @if (
-                      mod.detalle.instalacionPorta &&
-                      (mod.detalle.reubicacionTrasera ||
-                        mod.detalle.cambioUbicacionDelantera)
-                    ) {
+                    @if (mod.detalle.reubicacionTrasera) {
                       <div class="col-12"><hr class="mod-sep" /></div>
                     }
                     @if (mod.detalle.reubicacionTrasera) {
@@ -4259,11 +4429,7 @@
                         </div>
                       </div>
                     }
-                    @if (
-                      (mod.detalle.instalacionPorta ||
-                        mod.detalle.reubicacionTrasera) &&
-                      mod.detalle.cambioUbicacionDelantera
-                    ) {
+                    @if (mod.detalle.cambioUbicacionDelantera) {
                       <div class="col-12"><hr class="mod-sep" /></div>
                     }
                     @if (mod.detalle.cambioUbicacionDelantera) {
@@ -4328,7 +4494,7 @@
                               formSubmitted && mod.medidasMat3 === undefined
                             "
                           />
-                          <label>MEDIDAS</label>
+                          <label>MEDIDAS (200x200...)</label>
                         </div>
                       </div>
                       <div class="col-md-6">
@@ -4450,11 +4616,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -4768,11 +4934,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -4940,11 +5106,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -5185,11 +5351,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -5335,11 +5501,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -6042,11 +6208,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -6288,7 +6454,7 @@
                           placeholder="Marca"
                           [ngModel]="mod.marcaDiscos"
                           (ngModelChange)="
-                            mod.marcaDiscos = $event; onFrenosChange(mod)
+                            (mod.marcaDiscos); onFrenosChange(mod)
                           "
                           name="marcaDiscos{{ i }}"
                           required
@@ -6305,7 +6471,7 @@
                           placeholder="Modelo"
                           [ngModel]="mod.modeloDiscos"
                           (ngModelChange)="
-                            mod.modeloDiscos = $event; onFrenosChange(mod)
+                            (mod.modeloDiscos); onFrenosChange(mod)
                           "
                           name="modeloDiscos{{ i }}"
                         />
@@ -6320,7 +6486,7 @@
                           placeholder="Referencia"
                           [ngModel]="mod.referenciaDiscos"
                           (ngModelChange)="
-                            mod.referenciaDiscos = $event; onFrenosChange(mod)
+                            (mod.referenciaDiscos); onFrenosChange(mod)
                           "
                           name="referenciaDiscos{{ i }}"
                           required
@@ -6339,7 +6505,7 @@
                           placeholder="Diámetro"
                           [ngModel]="mod.diametroDiscos"
                           (ngModelChange)="
-                            mod.diametroDiscos = $event; onFrenosChange(mod)
+                            (mod.diametroDiscos); onFrenosChange(mod)
                           "
                           name="diametroDiscos{{ i }}"
                           required
@@ -6358,7 +6524,7 @@
                           placeholder="Espesor"
                           [ngModel]="mod.espesorDiscos"
                           (ngModelChange)="
-                            mod.espesorDiscos = $event; onFrenosChange(mod)
+                            (mod.espesorDiscos); onFrenosChange(mod)
                           "
                           name="espesorDiscos{{ i }}"
                           required
@@ -6383,8 +6549,7 @@
                               placeholder="Nº Discos"
                               [ngModel]="mod.numDiscosDelantero"
                               (ngModelChange)="
-                                mod.numDiscosDelantero = $event;
-                                onFrenosChange(mod)
+                                (mod.numDiscosDelantero); onFrenosChange(mod)
                               "
                               name="numDiscosDelantero{{ i }}"
                             />
@@ -6399,8 +6564,7 @@
                               placeholder="Nº Pinzas"
                               [ngModel]="mod.numPinzasDelanteras"
                               (ngModelChange)="
-                                mod.numPinzasDelanteras = $event;
-                                onFrenosChange(mod)
+                                (mod.numPinzasDelanteras); onFrenosChange(mod)
                               "
                               name="numPinzasDelanteras{{ i }}"
                             />
@@ -6415,7 +6579,7 @@
                               placeholder="Diámetro Exterior (m)"
                               [ngModel]="mod.diametroExteriorDiscos"
                               (ngModelChange)="
-                                mod.diametroExteriorDiscos = $event;
+                                (mod.diametroExteriorDiscos);
                                 onFrenosChange(mod)
                               "
                               name="diametroExteriorDiscos{{ i }}"
@@ -6431,7 +6595,7 @@
                               placeholder="Diámetro Interior (m)"
                               [ngModel]="mod.diametroInteriorDiscos"
                               (ngModelChange)="
-                                mod.diametroInteriorDiscos = $event;
+                                (mod.diametroInteriorDiscos);
                                 onFrenosChange(mod)
                               "
                               name="diametroInteriorDiscos{{ i }}"
@@ -6447,8 +6611,7 @@
                               placeholder="Diámetro Bomba"
                               [ngModel]="mod.diametroBombaDiscos"
                               (ngModelChange)="
-                                mod.diametroBombaDiscos = $event;
-                                onFrenosChange(mod)
+                                (mod.diametroBombaDiscos); onFrenosChange(mod)
                               "
                               name="diametroBombaDiscos{{ i }}"
                             />
@@ -6463,8 +6626,7 @@
                               placeholder="Dimensión Pistón (m)"
                               [ngModel]="mod.dimensionPistonDiscos"
                               (ngModelChange)="
-                                mod.dimensionPistonDiscos = $event;
-                                onFrenosChange(mod)
+                                (mod.dimensionPistonDiscos); onFrenosChange(mod)
                               "
                               name="dimensionPistonDiscos{{ i }}"
                             />
@@ -6479,8 +6641,7 @@
                               placeholder="Número Pistones"
                               [ngModel]="mod.numPistonesDiscos"
                               (ngModelChange)="
-                                mod.numPistonesDiscos = $event;
-                                onFrenosChange(mod)
+                                (mod.numPistonesDiscos); onFrenosChange(mod)
                               "
                               name="numPistonesDiscos{{ i }}"
                             />
@@ -6495,8 +6656,7 @@
                               placeholder="Ángulo Contacto"
                               [ngModel]="mod.anguloContactoDiscos"
                               (ngModelChange)="
-                                mod.anguloContactoDiscos = $event;
-                                onFrenosChange(mod)
+                                (mod.anguloContactoDiscos); onFrenosChange(mod)
                               "
                               name="anguloContactoDiscos{{ i }}"
                             />
@@ -6506,17 +6666,16 @@
                         <div class="col-md-4">
                           <div class="form-floating">
                             <input
-                              type="text"
+                              type="number"
                               class="form-control"
                               placeholder="Radio Neumático"
                               [ngModel]="mod.radioNeumaticoDiscos"
                               (ngModelChange)="
-                                mod.radioNeumaticoDiscos = $event;
-                                onFrenosChange(mod)
+                                (mod.radioNeumaticoDiscos); onFrenosChange(mod)
                               "
                               name="radioNeumaticoDiscos{{ i }}"
                             />
-                            <label>RADIO NEUMÁTICO (mm)</label>
+                            <label>RADIO NEUMÁTICO</label>
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -6527,8 +6686,7 @@
                               placeholder="Ancho Neumático"
                               [ngModel]="mod.anchoNeumaticoDiscos"
                               (ngModelChange)="
-                                mod.anchoNeumaticoDiscos = $event;
-                                onFrenosChange(mod)
+                                (mod.anchoNeumaticoDiscos); onFrenosChange(mod)
                               "
                               name="anchoNeumaticoDiscos{{ i }}"
                             />
@@ -6543,12 +6701,11 @@
                               placeholder="Perfil Neumático"
                               [ngModel]="mod.perfilNeumaticoDiscos"
                               (ngModelChange)="
-                                mod.perfilNeumaticoDiscos = $event;
-                                onFrenosChange(mod)
+                                (mod.perfilNeumaticoDiscos); onFrenosChange(mod)
                               "
                               name="perfilNeumaticoDiscos{{ i }}"
                             />
-                            <label>PERFIL NEUMÁTICO (%)</label>
+                            <label>PERFIL NEUMÁTICO (mm)</label>
                           </div>
                         </div>
                       </div>
@@ -6770,7 +6927,7 @@
                                   name="radioNeumaticoDiscoTrasero{{ i }}"
                                   [readonly]="mod.sonIguales"
                                 />
-                                <label>RADIO NEUMÁTICO (mm)</label>
+                                <label>RADIO NEUMÁTICO</label>
                               </div>
                             </div>
                             <div class="col-md-4">
@@ -6796,7 +6953,7 @@
                                   name="perfilNeumaticoDiscoTrasero{{ i }}"
                                   [readonly]="mod.sonIguales"
                                 />
-                                <label>PERFIL NEUMÁTICO (%)</label>
+                                <label>PERFIL NEUMÁTICO (mm)</label>
                               </div>
                             </div>
                           </div>
@@ -6946,9 +7103,7 @@
                                     "
                                     name="ant_radioNeumaticoDelantero{{ i }}"
                                   />
-                                  <label class="small"
-                                    >RADIO NEUMÁTICO (mm)</label
-                                  >
+                                  <label class="small">RADIO NEUMÁTICO</label>
                                 </div>
                               </div>
                               <div class="col-md-6">
@@ -6979,7 +7134,7 @@
                                     name="ant_perfilNeumaticoDelantero{{ i }}"
                                   />
                                   <label class="small"
-                                    >PERFIL NEUMÁTICO (%)</label
+                                    >PERFIL NEUMÁTICO (mm)</label
                                   >
                                 </div>
                               </div>
@@ -7117,9 +7272,7 @@
                                     [(ngModel)]="mod.ant_radioNeumaticoTrasero"
                                     name="ant_radioNeumaticoTrasero{{ i }}"
                                   />
-                                  <label class="small"
-                                    >RADIO NEUMÁTICO (mm)</label
-                                  >
+                                  <label class="small">RADIO NEUMÁTICO</label>
                                 </div>
                               </div>
                               <div class="col-md-6">
@@ -7146,7 +7299,7 @@
                                     name="ant_perfilNeumaticoTrasero{{ i }}"
                                   />
                                   <label class="small"
-                                    >PERFIL NEUMÁTICO (%)</label
+                                    >PERFIL NEUMÁTICO (mm)</label
                                   >
                                 </div>
                               </div>
@@ -7266,7 +7419,7 @@
                         required
                         [class.is-invalid]="formSubmitted && !mod.medidasAleron"
                       />
-                      <label>MEDIDAS (mm)</label>
+                      <label>MEDIDAS (mm) (200x200...)</label>
                     </div>
                   </div>
 
@@ -7597,7 +7750,7 @@
                       </div>
                     }
 
-                    <div class="col-12">
+                    <div class="col-6">
                       <div class="form-floating">
                         <input
                           type="text"
@@ -7612,8 +7765,26 @@
                           "
                         />
                         <label for="medidasLipDelantero-{{ i }}"
-                          >MEDIDAS (mm)</label
+                          >MEDIDAS (mm) (200x200...)</label
                         >
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.001"
+                          min="0"
+                          class="form-control"
+                          placeholder="R"
+                          [(ngModel)]="mod.radioCurvaRLipDelantero"
+                          name="radioCurvaRLipDelantero{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.radioCurvaRLipDelantero == null
+                          "
+                        />
+                        <label>Rario curvatura</label>
                       </div>
                     </div>
                   </div>
@@ -8019,6 +8190,38 @@
                       <input
                         type="text"
                         class="form-control"
+                        id="modeloTecho-{{ i }}"
+                        placeholder="Modelo"
+                        [(ngModel)]="mod.modeloTecho"
+                        name="modeloTecho{{ i }}"
+                        required
+                        [class.is-invalid]="formSubmitted && !mod.modeloTecho"
+                      />
+                      <label for="modeloTecho-{{ i }}">MODELO</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="potenciaTecho-{{ i }}"
+                        placeholder="Potencia"
+                        [(ngModel)]="mod.potenciaTecho"
+                        name="potenciaTecho{{ i }}"
+                        required
+                        [class.is-invalid]="formSubmitted && !mod.potenciaTecho"
+                      />
+                      <label for="potenciaTecho-{{ i }}">POTENCIA</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
                         id="homologacionTecho-{{ i }}"
                         placeholder="Contraseña Homologación"
                         [(ngModel)]="mod.homologacionTecho"
@@ -8046,7 +8249,9 @@
                         required
                         [class.is-invalid]="formSubmitted && !mod.medidasTecho"
                       />
-                      <label for="medidasTecho-{{ i }}">MEDIDAS (mm)</label>
+                      <label for="medidasTecho-{{ i }}"
+                        >MEDIDAS (mm) (200x200...)</label
+                      >
                     </div>
                   </div>
                 </div>
@@ -8132,8 +8337,27 @@
                           formSubmitted && !mod.medidasPeldano
                         "
                       />
-                      <label for="medidasPeldano-{{ i }}">MEDIDAS (mm)</label>
+                      <label for="medidasPeldano-{{ i }}"
+                        >MEDIDAS (mm) (200x200...)</label
+                      >
                     </div>
+                  </div>
+
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      class="form-control"
+                      placeholder="R"
+                      [(ngModel)]="mod.radioCurvaRPeldanos"
+                      name="radioCurvaRPeldanos{{ i }}"
+                      required
+                      [class.is-invalid]="
+                        formSubmitted && mod.radioCurvaRPeldanos == null
+                      "
+                    />
+                    <label>R (m)</label>
                   </div>
                 </div>
               </div>
@@ -8682,11 +8906,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -9227,7 +9451,7 @@
                         [class.is-invalid]="formSubmitted && !mod.medidasChasis"
                       />
                       <label for="medidasChasis-{{ i }}"
-                        >MEDIDAS / DIÁMETRO (mm)</label
+                        >MEDIDAS / DIÁMETRO (mm) (200x200...)</label
                       >
                     </div>
                   </div>
@@ -9261,11 +9485,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -9505,11 +9729,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -11705,7 +11929,7 @@
                           min="0"
                           class="form-control"
                           placeholder="Curvatura"
-                          value="800"
+                          value="8"
                           [(ngModel)]="mod.curvaturaGuardaDelantMoto"
                           name="curvaturaGuardaDelantMoto{{ i }}"
                           required
@@ -11835,7 +12059,7 @@
                           min="0"
                           class="form-control"
                           placeholder="Curvatura"
-                          value="800"
+                          value="8"
                           [(ngModel)]="mod.curvaturaGuardaTrasMoto"
                           name="curvaturaGuardaTrasMoto{{ i }}"
                           required
@@ -11907,7 +12131,7 @@
                       required
                       [class.is-invalid]="formSubmitted && !mod.medidasManillar"
                     />
-                    <label>MEDIDAS</label>
+                    <label>MEDIDAS (200x200...)</label>
                   </div>
                 </div>
 
@@ -11919,7 +12143,7 @@
                       class="form-control"
                       placeholder="Curvatura"
                       id="curv-manillar-{{ i }}"
-                      value="800"
+                      value="8"
                       [(ngModel)]="mod.curvaturaManillar"
                       name="curvaturaManillar{{ i }}"
                       required
@@ -12732,15 +12956,13 @@
                                 <div class="col-md-6">
                                   <div class="form-floating">
                                     <input
-                                      type="text"
+                                      type="number"
                                       class="form-control"
                                       placeholder="Radio Neumático"
                                       [(ngModel)]="mod.radioNeumaticoDiscos"
                                       name="radioNeumaticoDiscos{{ i }}"
                                     />
-                                    <label class="small"
-                                      >RADIO NEUMÁTICO (mm)</label
-                                    >
+                                    <label class="small">RADIO NEUMÁTICO</label>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
@@ -12767,7 +12989,7 @@
                                       name="perfilNeumaticoDiscos{{ i }}"
                                     />
                                     <label class="small"
-                                      >PERFIL NEUMÁTICO (%)</label
+                                      >PERFIL NEUMÁTICO (mm)</label
                                     >
                                   </div>
                                 </div>
@@ -12957,9 +13179,7 @@
                                       "
                                       name="radioNeumaticoDiscoTrasero{{ i }}"
                                     />
-                                    <label class="small"
-                                      >RADIO NEUMÁTICO (mm)</label
-                                    >
+                                    <label class="small">RADIO NEUMÁTICO</label>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
@@ -12990,7 +13210,7 @@
                                       name="perfilNeumaticoDiscoTrasero{{ i }}"
                                     />
                                     <label class="small"
-                                      >PERFIL NEUMÁTICO (%)</label
+                                      >PERFIL NEUMÁTICO (mm)</label
                                     >
                                   </div>
                                 </div>
@@ -13143,9 +13363,7 @@
                                       "
                                       name="ant_radioNeumaticoDelantero{{ i }}"
                                     />
-                                    <label class="small"
-                                      >RADIO NEUMÁTICO (mm)</label
-                                    >
+                                    <label class="small">RADIO NEUMÁTICO</label>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
@@ -13176,7 +13394,7 @@
                                       name="ant_perfilNeumaticoDelantero{{ i }}"
                                     />
                                     <label class="small"
-                                      >PERFIL NEUMÁTICO (%)</label
+                                      >PERFIL NEUMÁTICO (mm)</label
                                     >
                                   </div>
                                 </div>
@@ -13317,9 +13535,7 @@
                                       "
                                       name="ant_radioNeumaticoTrasero{{ i }}"
                                     />
-                                    <label class="small"
-                                      >RADIO NEUMÁTICO (mm)</label
-                                    >
+                                    <label class="small">RADIO NEUMÁTICO</label>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
@@ -13350,7 +13566,7 @@
                                       name="ant_perfilNeumaticoTrasero{{ i }}"
                                     />
                                     <label class="small"
-                                      >PERFIL NEUMÁTICO (%)</label
+                                      >PERFIL NEUMÁTICO (mm)</label
                                     >
                                   </div>
                                 </div>
@@ -13459,7 +13675,7 @@
                               step="0.01"
                               class="form-control"
                               placeholder="Curvatura"
-                              value="800"
+                              value="8"
                               [(ngModel)]="mod.curvaturaluzGrupoOptico"
                               name="curvaturaluzGrupoOptico{{ i }}"
                               required
@@ -13539,7 +13755,7 @@
                             <input
                               type="number"
                               step="0.01"
-                              value="800"
+                              value="8"
                               class="form-control"
                               placeholder="Curvatura"
                               [(ngModel)]="mod.curvaturaintermitenteDelantero"
@@ -13620,7 +13836,7 @@
                               type="number"
                               step="0.01"
                               class="form-control"
-                              value="800"
+                              value="8"
                               placeholder="Curvatura"
                               [(ngModel)]="mod.curvaturaintermitenteTrasero"
                               name="curvaturaintermitenteTrasero{{ i }}"
@@ -13688,7 +13904,7 @@
                               step="0.01"
                               class="form-control"
                               placeholder="Curvatura"
-                              value="800"
+                              value="8"
                               [(ngModel)]="mod.curvaturacatadioptrico"
                               name="curvaturacatadioptrico{{ i }}"
                               required
@@ -13806,7 +14022,7 @@
                               type="number"
                               step="0.01"
                               class="form-control"
-                              value="800"
+                              value="8"
                               placeholder="Curvatura"
                               [(ngModel)]="mod.curvaturaluzAntinieblas"
                               name="curvaturaluzAntinieblas{{ i }}"
@@ -14058,11 +14274,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -14205,7 +14421,7 @@
                             formSubmitted && !mod.medidasParagolpesTrasero
                           "
                         />
-                        <label>MEDIDAS (mm)</label>
+                        <label>MEDIDAS (mm) (200x200...)</label>
                       </div>
                     </div>
 
@@ -14499,11 +14715,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -14687,7 +14903,7 @@
                     >
                   </div>
 
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <div class="form-floating">
                       <input
                         type="number"
@@ -14702,7 +14918,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <div class="form-floating">
                       <input
                         type="number"
@@ -14714,6 +14930,25 @@
                         [class.is-invalid]="formSubmitted && !mod.altoDifusor"
                       />
                       <label>ALTO / ANCHO (mm)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.001"
+                        min="0"
+                        class="form-control"
+                        placeholder="R"
+                        [(ngModel)]="mod.radioCurvaRDifusor"
+                        name="radioCurvaRDifusor{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.radioCurvaRDifusor == null
+                        "
+                      />
+                      <label>Rario curvatura</label>
                     </div>
                   </div>
                 </div>
@@ -14743,11 +14978,11 @@
                         class="form-check-input"
                         type="checkbox"
                         id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalacion')"
+                        [checked]="mod.acciones?.includes('Instalación')"
                         (change)="
                           toggleAccion(
                             mod,
-                            'Instalacion',
+                            'Instalación',
                             $event.target.checked
                           )
                         "
@@ -14887,7 +15122,7 @@
                             formSubmitted && !mod.medidasParagolpesDelantero
                           "
                         />
-                        <label>MEDIDAS (mm)</label>
+                        <label>MEDIDAS (mm) (200x200...)</label>
                       </div>
                     </div>
 
@@ -15240,6 +15475,24 @@
                         "
                       />
                       <label>ALTO (mm)</label>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.001"
+                        min="0"
+                        class="form-control"
+                        placeholder="R"
+                        [(ngModel)]="mod.radioCurvaRCalandra"
+                        name="radioCurvaRCalandra{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.radioCurvaRCalandra == null
+                        "
+                      />
+                      <label>Rario curvatura</label>
                     </div>
                   </div>
                 </div>
@@ -16314,7 +16567,7 @@
                       required
                       [class.is-invalid]="formSubmitted && !mod.medidasDefensa"
                     />
-                    <label>MEDIDAS (mm)</label>
+                    <label>MEDIDAS (mm) (200x200...)</label>
                   </div>
                 </div>
                 <div class="col-md-4">
@@ -16323,7 +16576,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Ratio"
-                      value="800"
+                      value="8"
                       [(ngModel)]="mod.curvaturaDefensaDelantera"
                       name="curvaturaDefensaDelantera{{ i }}"
                       required
@@ -16540,7 +16793,7 @@
                           type="text"
                           class="form-control"
                           placeholder="Radio de curvatura"
-                          [ngModel]="mod.radioCurvaturaEscape ?? 800"
+                          [ngModel]="mod.radioCurvaturaEscape ?? 8"
                           (ngModelChange)="mod.radioCurvaturaEscape = $event"
                           name="radioCurvaturaEscape{{ i }}"
                           required
@@ -17993,7 +18246,9 @@
                               name="medidas{{ j }}"
                               placeholder="Ej: 600x1420x900"
                             />
-                            <label for="medidasBajo-{{ j }}">MEDIDAS</label>
+                            <label for="medidasBajo-{{ j }}"
+                              >MEDIDAS (200x200...)</label
+                            >
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -18294,7 +18549,9 @@
                               placeholder="Medidas"
                               required
                             />
-                            <label for="medidasAseo-{{ j }}">MEDIDAS</label>
+                            <label for="medidasAseo-{{ j }}"
+                              >MEDIDAS (200x200...)</label
+                            >
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -18879,7 +19136,7 @@
                         formSubmitted && !mod.medidasTomaExterior
                       "
                     />
-                    <label>MEDIDAS</label>
+                    <label>MEDIDAS (200x200...)</label>
                   </div>
                 </div>
               </div>
@@ -19285,7 +19542,7 @@
                       required
                       [class.is-invalid]="formSubmitted && !mod.medidasToldo"
                     />
-                    <label>MEDIDAS</label>
+                    <label>MEDIDAS (200x200...)</label>
                   </div>
                 </div>
                 <div class="col-md-4">

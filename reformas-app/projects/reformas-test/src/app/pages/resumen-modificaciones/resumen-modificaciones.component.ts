@@ -44,7 +44,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     5: 14.19,
     6: 20.14,
     7: 28.81,
-    8: 36.63,
+    8: 36.64,
     9: 48.15,
     10: 58.03,
     11: 72.32,
@@ -207,6 +207,195 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         this.syncRefuerzoLegacyData(m);
       }
 
+      if (m.nombre === 'DIFUSOR TRASERO') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
+        if (m.radioCurvaRDifusor == null) {
+          m.radioCurvaRDifusor = 8;
+        }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
+      }
+      if (m.nombre === 'LIP DELANTERO') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
+        if (m.radioCurvaRDifusor == null) {
+          m.radioCurvaRLipDelantero = 8;
+        }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
+      }
+      if (m.nombre === 'MATRÍCULA Y PORTAMATRÍCULA') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
+        if (m.radioCurvaRPortamatricula == null) {
+          m.radioCurvaRPortamatricula = 8;
+        }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
+      }
+      if (m.nombre === 'PELDAÑOS') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
+        if (m.radioCurvaRPeldanos == null) {
+          m.radioCurvaRPeldanos = 8;
+        }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
+      }
+      if (m.nombre === 'CALANDRA') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
+        if (m.radioCurvaRCalandra == null) {
+          m.radioCurvaRCalandra = 8;
+        }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
+      }
+      if (m.nombre === 'PLANCHA CAPÓ') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
+        if (m.radioCurvaRPlanchaCapo == null) {
+          m.radioCurvaRPlanchaCapo = 8;
+        }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
+      }
+      if (m.nombre === 'REFUERZO PARAGOLPES') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
+        if (m.radioCurvaRRefuerzo == null) {
+          m.radioCurvaRRefuerzo = 8;
+        }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
+      }
       if (m.nombre === 'ALETINES Y SOBREALETINES') {
         if (m.velocidadAireV2msAletines == null) {
           m.velocidadAireV2msAletines = 38.89;
@@ -215,10 +404,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.densidadAireKgM3Aletines = 1.29;
         }
         if (m.radioCurvaRAletines == null) {
-          m.radioCurvaRAletines = 800;
+          m.radioCurvaRAletines = 8;
         }
         if (m.curvaturaSobrealetines == null) {
-          m.curvaturaSobrealetines = 800;
+          m.curvaturaSobrealetines = 8;
         }
         if (m.coefSeguridadKAletines == null) {
           m.coefSeguridadKAletines = 3;
@@ -228,6 +417,9 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         }
         if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
           m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        }
+        if (m.superficieFrontalM2Aletines == null) {
+          m.superficieFrontalM2Aletines = 0;
         }
         if (m.seccionResistenteAsAletines == null) {
           m.seccionResistenteAsAletines =
@@ -282,7 +474,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.velocidadAireV2msAntiempotramiento = 38.89;
         }
         if (m.radioCurvaRAntiempotramiento == null) {
-          m.radioCurvaRAntiempotramiento = 800;
+          m.radioCurvaRAntiempotramiento = 8;
         }
         if (m.coefSeguridadKAntiempotramiento == null) {
           m.coefSeguridadKAntiempotramiento = 3;
@@ -318,7 +510,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.velocidadAireV2msLucesEspecificas = 38.89;
         }
         if (m.radioCurvaRLucesEspecificas == null) {
-          m.radioCurvaRLucesEspecificas = 800;
+          m.radioCurvaRLucesEspecificas = 8;
         }
         if (m.coefSeguridadKLucesEspecificas == null) {
           m.coefSeguridadKLucesEspecificas = 3;
@@ -347,7 +539,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.velocidadAireV2msParagolpesDelantero = 38.89;
         }
         if (m.radioCurvaRParagolpesDelantero == null) {
-          m.radioCurvaRParagolpesDelantero = 800;
+          m.radioCurvaRParagolpesDelantero = 8;
         }
         if (m.coefSeguridadKParagolpesDelantero == null) {
           m.coefSeguridadKParagolpesDelantero = 3;
@@ -378,7 +570,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.velocidadAireV2msParagolpesTrasero = 38.89;
         }
         if (m.radioCurvaRParagolpesTrasero == null) {
-          m.radioCurvaRParagolpesTrasero = 800;
+          m.radioCurvaRParagolpesTrasero = 8;
         }
         if (m.coefSeguridadKParagolpesTrasero == null) {
           m.coefSeguridadKParagolpesTrasero = 3;
@@ -409,7 +601,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.velocidadAireV2msEstribos = 38.89;
         }
         if (m.radioCurvaREstribos == null) {
-          m.radioCurvaREstribos = 800;
+          m.radioCurvaREstribos = 8;
         }
         if (m.coefSeguridadKEstribos == null) {
           m.coefSeguridadKEstribos = 3;
@@ -425,7 +617,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (!m.densidadAireKgM3Aleron) m.densidadAireKgM3Aleron = 1.29;
         if (!m.coefSeguridadKAleron) m.coefSeguridadKAleron = 3;
         if (m.curvaturaAleron == null) {
-          m.curvaturaAleron = 800;
+          m.curvaturaAleron = 8;
         }
         if (!m.calidadTornilloAleron) m.calidadTornilloAleron = 8.8;
         if (!m.resTraccionMinTornillo88Kgmm2Aleron)
@@ -568,7 +760,9 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
       if (!isNaN(largo) && !isNaN(ancho)) {
         const areaM2 = (largo * ancho) / 1000000;
-        mod.superficieFrontalM2Antiempotramiento = parseFloat(areaM2.toFixed(4));
+        mod.superficieFrontalM2Antiempotramiento = parseFloat(
+          areaM2.toFixed(4),
+        );
       }
     }
   }
@@ -632,11 +826,12 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   private ensureSnorkelDefaults(mod: any): void {
     if (!mod) return;
 
-    if (mod.curvaturaSnorkel == null) mod.curvaturaSnorkel = 800;
+    if (mod.curvaturaSnorkel == null) mod.curvaturaSnorkel = 8;
     if (mod.cwCoefAerodinamicoSnorkel == null)
       mod.cwCoefAerodinamicoSnorkel = 0.82;
     if (mod.densidadAireKgM3Snorkel == null) mod.densidadAireKgM3Snorkel = 1.29;
-    if (mod.velocidadAireV2msSnorkel == null) mod.velocidadAireV2msSnorkel = 38.89;
+    if (mod.velocidadAireV2msSnorkel == null)
+      mod.velocidadAireV2msSnorkel = 38.89;
     if (mod.coefSeguridadKSnorkel == null) mod.coefSeguridadKSnorkel = 3;
 
     if (mod.resTraccionMinTornillo88Kgmm2Snorkel == null) {
@@ -661,6 +856,16 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
 
     this.syncCalidadByMetrica(mod);
+  }
+
+  calcularSuperficieAletines(mod: any): void {
+    if (mod.anchoAletines != null && mod.altoAletines != null) {
+      const ancho = Number(mod.anchoAletines) / 1000;
+      const alto = Number(mod.altoAletines) / 1000;
+      mod.superficieFrontalM2Aletines = Number((ancho * alto).toFixed(4));
+    } else {
+      mod.superficieFrontalM2Aletines = null;
+    }
   }
 
   private syncCalidadByMetrica(mod: any): void {
@@ -718,9 +923,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     // Fallback por rango para métricas no incluidas en tornillosDB.
     // Así el campo "calidad" cambia al seleccionar otra métrica.
-    if (metricaNum <= 8) return 8.8;
-    if (metricaNum <= 16) return 10.9;
-    return 12.9;
+
+    return 8.8;
   }
 
   private toNumberOrNull(value: unknown): number | null {

@@ -4,16 +4,21 @@ import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Modal } from 'bootstrap';
+import { GeneradorDocumentosComponent } from '../../generador-documentos/generador-documentos.component';
 
 @Component({
   selector: 'app-editar-reforma',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule],
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    FormsModule,
+    GeneradorDocumentosComponent,
+  ],
   templateUrl: './editar-reforma.component.html',
   styleUrl: './editar-reforma.component.css',
 })
 export class EditarReformaComponent implements OnInit {
-  /** Cambia aquí la IP/puerto del backend */
   private readonly apiBase = 'http://192.168.1.41:3000';
 
   proyectos: any[] = [];
@@ -21,21 +26,27 @@ export class EditarReformaComponent implements OnInit {
   error: string | null = null;
 
   proyectoSeleccionado: any = null;
-  modalInstance: any;
+  modalSelectorProyectoExternoInstance: any;
+  modalSelectorProyectoInternoInstance: any;
 
-  // filtros
   filtroMarca = '';
   filtroMatricula = '';
   filtroPropietario = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  mostrandoGeneradorDocumentos = false;
+  proyectoDataCompleto: any = null;
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     this.cargarProyectos();
   }
 
   cargarProyectos(
-    filtros: { marca?: string; matricula?: string; propietario?: string } = {}
+    filtros: { marca?: string; matricula?: string; propietario?: string } = {},
   ) {
     this.cargando = true;
     this.error = null;
@@ -52,7 +63,6 @@ export class EditarReformaComponent implements OnInit {
         this.cargando = false;
       },
       error: (err) => {
-        console.error('Error cargando proyectos', err);
         this.error =
           'No se pudieron cargar los proyectos. ¿El servidor en 192.168.1.41:3000 está encendido y accesible desde este dispositivo?';
         this.cargando = false;
@@ -69,15 +79,21 @@ export class EditarReformaComponent implements OnInit {
   }
 
   seleccionarProyecto(p: any) {
+    this.proyectoSeleccionado = p;
     if (p?.enviadoPorCliente) {
-      this.proyectoSeleccionado = p;
       const modalEl = document.getElementById('modalSelectorProyecto');
       if (modalEl) {
-        this.modalInstance = new Modal(modalEl);
-        this.modalInstance.show();
+        this.modalSelectorProyectoExternoInstance = new Modal(modalEl);
+        this.modalSelectorProyectoExternoInstance.show();
       }
     } else {
-      this.irAModificarProyecto(p.id);
+      const modalIntEl = document.getElementById(
+        'modalSelectorProyectoInterno',
+      );
+      if (modalIntEl) {
+        this.modalSelectorProyectoInternoInstance = new Modal(modalIntEl);
+        this.modalSelectorProyectoInternoInstance.show();
+      }
     }
   }
 
@@ -90,7 +106,6 @@ export class EditarReformaComponent implements OnInit {
       .subscribe({
         next: (data: any) => {
           localStorage.setItem('proyectoSeleccionadoId', proyectoId);
-          // No persistimos las imágenes base64 en localStorage para no reventarlo
           const { prevImagesB64, postImagesB64, ...rest } = data || {};
           localStorage.setItem('proyectoSeleccionado', JSON.stringify(rest));
 
@@ -99,7 +114,6 @@ export class EditarReformaComponent implements OnInit {
           });
         },
         error: (err) => {
-          console.error('Error cargando proyecto', err);
           this.error = 'No se pudo cargar el proyecto seleccionado.';
         },
       });
@@ -123,9 +137,80 @@ export class EditarReformaComponent implements OnInit {
     enlace.click();
   }
 
-  private irAModificarProyecto(proyectoId: string) {
+  irAModificarProyectoInterno() {
+    if (!this.proyectoSeleccionado) return;
     this.router.navigate(['/crear-reforma'], {
-      queryParams: { editId: proyectoId },
+      queryParams: { editId: this.proyectoSeleccionado.id },
     });
+  }
+
+  abrirGeneradorDocumentos() {
+    if (!this.proyectoSeleccionado) return;
+    const proyectoId = this.proyectoSeleccionado.id;
+
+    this.cargando = true;
+    this.http
+      .get(`${this.apiBase}/proyectos/${proyectoId}/proyecto.json`)
+      .subscribe({
+        next: async (data: any) => {
+          // ¡Hacemos la función asíncrona!
+
+          try {
+            // 1. Clonamos el dato para no mutar el objeto original accidentalmente
+            const proyectoDataCompleto = JSON.parse(JSON.stringify(data));
+
+            // 2. Hidratar imágenes Previas (De Base64 a Blob/Buffer)
+            if (Array.isArray(proyectoDataCompleto.prevImagesB64)) {
+              proyectoDataCompleto.prevImages = await Promise.all(
+                proyectoDataCompleto.prevImagesB64.map((b64: string) =>
+                  this.dataUrlToBlob(b64),
+                ),
+              );
+            } else {
+              proyectoDataCompleto.prevImages = [];
+            }
+
+            // 3. Hidratar imágenes Posteriores (De Base64 a Blob/Buffer)
+            if (Array.isArray(proyectoDataCompleto.postImagesB64)) {
+              proyectoDataCompleto.postImages = await Promise.all(
+                proyectoDataCompleto.postImagesB64.map((b64: string) =>
+                  this.dataUrlToBlob(b64),
+                ),
+              );
+            } else {
+              proyectoDataCompleto.postImages = [];
+            }
+
+            // NOTA: Si 'proyecto-word.ts' también necesita la firma y el plano hidratados,
+            // deberías descargarlos aquí si vienen como URL. Si 'proyecto-word.ts' ya sabe
+            // manejar URLs, no hace falta.
+
+            this.proyectoDataCompleto = proyectoDataCompleto;
+            this.mostrandoGeneradorDocumentos = true;
+            this.cargando = false;
+          } catch (error) {
+            console.error('Error al hidratar las imágenes:', error);
+            this.error =
+              'Error interno preparando las imágenes para el documento.';
+            this.cargando = false;
+          }
+        },
+        error: (err) => {
+          this.error =
+            'No se pudo cargar la información del proyecto para generar documentos.';
+          this.cargando = false;
+        },
+      });
+  }
+
+  // --- FUNCIÓN AUXILIAR (La misma que usas en ImagenesComponent) ---
+  private async dataUrlToBlob(dataUrl: string): Promise<Blob> {
+    const res = await fetch(dataUrl);
+    return await res.blob();
+  }
+
+  cerrarGeneradorDocumentos() {
+    this.mostrandoGeneradorDocumentos = false;
+    this.proyectoDataCompleto = null;
   }
 }

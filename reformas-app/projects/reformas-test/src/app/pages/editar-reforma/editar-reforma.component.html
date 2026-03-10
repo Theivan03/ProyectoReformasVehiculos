@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -20,7 +20,7 @@
 
     <style>
       :root {
-        --sys-primary: #000000; /* CAMBIO: Negro puro para máxima visibilidad */
+        --sys-primary: #000000;
         --sys-accent: #0097a7;
         --sys-bg: #ffffff;
         --sys-gray: #f3f4f6;
@@ -86,7 +86,6 @@
         border: 1px solid transparent;
       }
 
-      /* CAMBIO: Estilo reforzado para el botón principal */
       .btn-primary {
         background-color: #000000;
         color: white;
@@ -112,7 +111,9 @@
         background-color: var(--sys-gray);
         border: none;
         border-left: 5px solid transparent;
-        transition: transform 0.2s, background-color 0.2s;
+        transition:
+          transform 0.2s,
+          background-color 0.2s;
         min-height: 100%;
       }
 
@@ -144,116 +145,128 @@
     </style>
   </head>
   <body>
-    <div class="container mt-5 mb-5">
-      <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 border-bottom pb-3"
-      >
-        <div>
-          <h2 class="mb-0">Registro de Reformas</h2>
-        </div>
-      </div>
-
-      <div class="mb-5">
-        <div class="row g-4 align-items-end">
-          <div class="col-md-3">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="BUSCAR POR MARCA"
-              [(ngModel)]="filtroMarca"
-            />
-          </div>
-          <div class="col-md-3">
-            <input
-              type="text"
-              class="form-control font-data"
-              placeholder="BUSCAR POR MATRÍCULA"
-              [(ngModel)]="filtroMatricula"
-            />
-          </div>
-          <div class="col-md-3">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="BUSCAR POR PROPIETARIO"
-              [(ngModel)]="filtroPropietario"
-            />
-          </div>
-          <div class="col-md-3 text-end">
-            <button class="btn btn-primary w-100" (click)="buscar()">
-              <i class="bi bi-funnel-fill me-2"></i> Aplicar Filtros
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="cargando" class="py-4 text-center text-muted font-data">
-        <div class="spinner-grow spinner-grow-sm me-2" role="status"></div>
-        PROCESANDO SOLICITUD...
-      </div>
-
-      <div
-        *ngIf="error"
-        class="alert alert-danger rounded-0 border-0 bg-danger text-white font-data"
-      >
-        ERROR: {{ error }}
-      </div>
-
-      <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+    <div *ngIf="!mostrandoGeneradorDocumentos">
+      <div class="container mt-5 mb-5">
         <div
-          class="col"
-          *ngFor="let p of proyectos"
-          (click)="seleccionarProyecto(p)"
+          class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 border-bottom pb-3"
+        >
+          <div>
+            <h2 class="mb-0">Registro de Reformas</h2>
+          </div>
+        </div>
+
+        <div class="mb-5">
+          <div class="row g-4 align-items-end">
+            <div class="col-md-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="BUSCAR POR MARCA"
+                [(ngModel)]="filtroMarca"
+              />
+            </div>
+            <div class="col-md-3">
+              <input
+                type="text"
+                class="form-control font-data"
+                placeholder="BUSCAR POR MATRÍCULA"
+                [(ngModel)]="filtroMatricula"
+              />
+            </div>
+            <div class="col-md-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="BUSCAR POR PROPIETARIO"
+                [(ngModel)]="filtroPropietario"
+              />
+            </div>
+            <div class="col-md-3 text-end">
+              <button class="btn btn-primary w-100" (click)="buscar()">
+                <i class="bi bi-funnel-fill me-2"></i> Aplicar Filtros
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="cargando" class="py-4 text-center text-muted font-data">
+          <div class="spinner-grow spinner-grow-sm me-2" role="status"></div>
+          PROCESANDO SOLICITUD...
+        </div>
+
+        <div
+          *ngIf="error"
+          class="alert alert-danger rounded-0 border-0 bg-danger text-white font-data"
+        >
+          ERROR: {{ error }}
+        </div>
+
+        <div
+          class="row row-cols-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3"
         >
           <div
-            class="card project-card h-100 p-3 cursor-pointer"
-            role="button"
-            [ngClass]="{
-              'border-client': p.enviadoPorCliente,
-              'border-internal': !p.enviadoPorCliente,
-              'shadow-sm': p._hover
-            }"
-            (mouseenter)="p._hover = true"
-            (mouseleave)="p._hover = false"
+            class="col"
+            *ngFor="let p of proyectos"
+            (click)="seleccionarProyecto(p)"
           >
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <span
-                class="badge badge-tech text-uppercase"
-                style="font-size: 0.7rem"
-              >
-                {{ p.enviadoPorCliente ? "WEB CLIENTE" : "INTERNO" }}
-              </span>
-              <i class="bi bi-three-dots-vertical text-muted"></i>
-            </div>
-
-            <h5
-              class="fs-6 fw-bold mb-3 text-dark text-truncate"
-              style="font-weight: 500"
+            <div
+              class="card project-card h-100 p-3 cursor-pointer"
+              role="button"
+              [ngClass]="{
+                'border-client': p.enviadoPorCliente,
+                'border-internal': !p.enviadoPorCliente,
+                'shadow-sm': p._hover,
+              }"
+              (mouseenter)="p._hover = true"
+              (mouseleave)="p._hover = false"
             >
-              {{ p.nombre }}
-            </h5>
+              <div
+                class="d-flex justify-content-between align-items-start mb-3"
+              >
+                <span
+                  class="badge badge-tech text-uppercase"
+                  style="font-size: 0.7rem"
+                >
+                  {{ p.enviadoPorCliente ? "WEB CLIENTE" : "INTERNO" }}
+                </span>
+                <i class="bi bi-three-dots-vertical text-muted"></i>
+              </div>
 
-            <div class="mt-auto">
-              <div
-                class="d-flex align-items-center text-muted mb-1 small font-data"
+              <h5
+                class="fs-6 fw-bold mb-3 text-dark text-truncate"
+                style="font-weight: 500"
               >
-                <i class="bi bi-car-front me-2"></i> {{ p.marca }}
-              </div>
-              <div
-                class="d-flex align-items-center text-muted mb-1 small font-data"
-              >
-                <i class="bi bi-upc-scan me-2"></i> {{ p.matricula }}
-              </div>
-              <div
-                class="d-flex align-items-center text-muted small font-data text-truncate"
-              >
-                <i class="bi bi-person-circle me-2"></i> {{ p.propietario }}
+                {{ p.nombre }}
+              </h5>
+
+              <div class="mt-auto">
+                <div
+                  class="d-flex align-items-center text-muted mb-1 small font-data"
+                >
+                  <i class="bi bi-car-front me-2"></i> {{ p.marca }}
+                </div>
+                <div
+                  class="d-flex align-items-center text-muted mb-1 small font-data"
+                >
+                  <i class="bi bi-upc-scan me-2"></i> {{ p.matricula }}
+                </div>
+                <div
+                  class="d-flex align-items-center text-muted small font-data text-truncate"
+                >
+                  <i class="bi bi-person-circle me-2"></i> {{ p.propietario }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <app-generador-documentos
+      *ngIf="mostrandoGeneradorDocumentos"
+      [reformaData]="proyectoDataCompleto"
+      (volverAlFormulario)="cerrarGeneradorDocumentos()"
+    ></app-generador-documentos>
 
     <div
       class="modal fade"
@@ -314,6 +327,72 @@
               >
                 <i class="bi bi-file-earmark-word me-2"></i> Descargar
                 Documentación
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalSelectorProyectoInterno"
+      tabindex="-1"
+      aria-labelledby="modalSelectorProyectoInternoLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow bg-white">
+          <div class="modal-header p-4 pb-2 border-0">
+            <div>
+              <h5
+                class="modal-title fs-5 fw-bold"
+                id="modalSelectorProyectoInternoLabel"
+              >
+                Proyecto Interno
+              </h5>
+              <p class="text-muted small mt-1 mb-0">
+                Seleccione la acción a realizar.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body px-4 pt-2 pb-4">
+            <div class="py-3 border-top border-bottom my-3">
+              <div class="row">
+                <div class="col-4 text-uppercase text-muted small fw-bold">
+                  Proyecto
+                </div>
+                <div class="col-8 font-data fw-bold text-dark text-end">
+                  {{ proyectoSeleccionado?.nombre || "---" }}
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button
+                type="button"
+                class="btn btn-primary py-2"
+                (click)="irAModificarProyectoInterno()"
+                data-bs-dismiss="modal"
+              >
+                <i class="bi bi-pencil-square me-2"></i> EDITAR REFORMA
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-outline-dark py-2"
+                (click)="abrirGeneradorDocumentos()"
+                data-bs-dismiss="modal"
+              >
+                <i class="bi bi-file-earmark-text me-2"></i> CENTRO DE
+                DOCUMENTACIÓN
               </button>
             </div>
           </div>

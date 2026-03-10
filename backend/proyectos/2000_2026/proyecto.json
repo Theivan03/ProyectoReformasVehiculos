@@ -16,21 +16,21 @@
       "velocidadAireV2msAleron": 38.89,
       "densidadAireKgM3Aleron": 1.29,
       "coefSeguridadKAleron": 3,
-      "curvaturaAleron": 800,
+      "curvaturaAleron": 8,
       "calidadTornilloAleron": 8.8,
       "resTraccionMinTornillo88Kgmm2Aleron": 80,
-      "metricaAleron": "5",
-      "seccionResistenteAsAleron": 14.19,
+      "metricaAleron": "8",
+      "seccionResistenteAsAleron": 36.64,
       "ubicacionAleron": "Sobre el portón trasero",
       "materialAleron": "Plastico ABS",
       "pesoAleron": "4",
       "marcaAleron": "R10",
       "referenciaAleron": "123456",
-      "medidasAleron": "200X800",
+      "medidasAleron": "1130x1170",
       "anchuraAleron": "200",
       "alturaAleron": "800",
-      "numTornillosAleron": 5,
-      "superficieFrontalM2Aleron": 0.16
+      "numTornillosAleron": 6,
+      "superficieFrontalM2Aleron": 1.3221
     },
     {
       "nombre": "LIP DELANTERO",
@@ -38,7 +38,8 @@
       "tipoFabricacionLip": "marca",
       "marcaLipDelantero": "R10",
       "referenciaLipDelantero": "12345",
-      "medidasLipDelantero": "200X800"
+      "medidasLipDelantero": "200X800",
+      "radioCurvaRLipDelantero": 8
     },
     {
       "nombre": "CANARD",
@@ -70,7 +71,9 @@
       "ubicacionTecho": "EN LA PARTE CENTRAL DEL ESPACIO DE CARGA",
       "marcaTecho": "R10",
       "homologacionTecho": "E10 43R - 8545",
-      "medidasTecho": "200X800"
+      "medidasTecho": "200X800",
+      "modeloTecho": "160W",
+      "potenciaTecho": "160W"
     },
     {
       "nombre": "PELDAÑOS",
@@ -78,7 +81,8 @@
       "zonaPeldano": "EN EL PORTON TRASERO",
       "marcaPeldano": "PELDAÑO",
       "materialPeldano": "ACERO",
-      "medidasPeldano": "200X800"
+      "medidasPeldano": "200X800",
+      "radioCurvaRPeldanos": 8
     },
     {
       "nombre": "VENTANA ABATIBLE",
@@ -128,12 +132,12 @@
       },
       "velocidadAireV2msAletines": 38.89,
       "densidadAireKgM3Aletines": 1.29,
-      "radioCurvaRAletines": 800,
+      "radioCurvaRAletines": 800000000,
       "coefSeguridadKAletines": 3,
       "resTraccionMinTornillo88Kgmm2Aletines": 80,
-      "seccionResistenteAsAletines": 36.63,
+      "seccionResistenteAsAletines": 36.64,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "marcaAletines": "R10",
       "referenciaAletines": "12345",
@@ -148,7 +152,10 @@
       "anchoSobrealetines": 800,
       "metricaSobrealetines": "5",
       "nTornillos": 4,
-      "curvaturaSobrealetines": 800
+      "curvaturaSobrealetines": 8,
+      "posicionAletines": "delantero y trasero",
+      "posicionSobrealetines": "delantero y trasero",
+      "superficieFrontalM2Aletines": 0.16
     },
     {
       "nombre": "AMORTIGUADOR DE DIRECCIÓN",
@@ -160,7 +167,7 @@
       "nombre": "ANTIEMPOTRAMIENTO",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "medidasAntiempotramiento": "200X800",
       "nTornillos": 5,
@@ -170,14 +177,14 @@
       "cwCoefAerodinamicoAntiempotramiento": 0.82,
       "densidadAireKgM3Antiempotramiento": 1.29,
       "velocidadAireV2msAntiempotramiento": 38.89,
-      "radioCurvaRAntiempotramiento": 800,
+      "radioCurvaRAntiempotramiento": 8,
       "coefSeguridadKAntiempotramiento": 3,
       "superficieFrontalM2Antiempotramiento": 0.16,
       "detalle": {
         "aletines": false,
         "sobrealetines": false
       },
-      "calidadTornilloAntiempotramiento": 10.9,
+      "calidadTornilloAntiempotramiento": 8.8,
       "metricaAntiempotramiento": 16,
       "pesoPiezaKgAntiempotramiento": 3
     },
@@ -185,7 +192,7 @@
       "nombre": "ANTINIEBLA",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "ubicacionAntiniebla": "delanteros",
       "marcaAntinieblaDel": "EDQWE",
@@ -206,7 +213,7 @@
       "nombre": "BARRA DE DIRECCIÓN",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "marcaBarraDireccion": "SVR"
     },
@@ -218,7 +225,7 @@
       "nombre": "BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "regulable": true,
       "marcaConvergenciaReg": "DDFGDF",
@@ -236,7 +243,7 @@
       },
       "marcaCabrestante": "SVR",
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "capacidadCabrestanteLb": 12000,
       "capacidadCabrestanteKg": 15600,
@@ -255,7 +262,8 @@
       "referenciaCalandra": "1245",
       "materialCalandra": "PLASTICO ABS",
       "medidaLargoCALANDRA": 200,
-      "medidaAltoCALANDRA": 800
+      "medidaAltoCALANDRA": 800,
+      "radioCurvaRCalandra": 8
     },
     {
       "nombre": "DEFENSA DELANTERA",
@@ -275,13 +283,14 @@
       "modeloDifusor": "1245",
       "materialDifusor": "ACERO",
       "largoDifusor": 200,
-      "altoDifusor": 500
+      "altoDifusor": 500,
+      "radioCurvaRDifusor": 8
     },
     {
       "nombre": "DIURNAS",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "esLed": true,
       "marcaDiurnas": "R10",
@@ -296,14 +305,14 @@
       },
       "coefAerodinamicoEstribos": 0.82,
       "calidadTornilloEstribos": 8.8,
-      "seccionResistenteAsEstribos": 36.63,
+      "seccionResistenteAsEstribos": 36.64,
       "resTraccionMinTornillo88Kgmm2Estribos": 80,
       "densidadAireKgM3Estribos": 1.29,
       "velocidadAireV2msEstribos": 38.89,
-      "radioCurvaREstribos": 800,
+      "radioCurvaREstribos": 8,
       "coefSeguridadKEstribos": 3,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "marcataloneras": "R10",
       "materialEstribos": "acero",
@@ -344,7 +353,7 @@
         "interLateral": false
       },
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "marcajeIntermitentes": "A2",
       "homologacionIntermitentes": "E4582"
@@ -353,7 +362,7 @@
       "nombre": "LUCES DE LARGO ALCANCE",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "marca": "R10",
       "referencia": "12345",
@@ -388,7 +397,7 @@
       "nombre": "LUZ DE POSICIÓN",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "esLedPosicion": true,
       "marcaPosicion": "R10",
@@ -415,13 +424,14 @@
         "cambioUbicacionDelantera": true
       },
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "ubicacionMat3": "delantera",
       "materialMat3": "Acrílica",
       "medidasMat3": "100X250",
       "ubicacionBumper3": "centro",
-      "paragolpesNuevo3": true
+      "paragolpesNuevo3": true,
+      "radioCurvaRPortamatricula": 8
     },
     {
       "nombre": "NEUMÁTICOS",
@@ -443,38 +453,38 @@
     {
       "nombre": "PARAGOLPES DELANTERO",
       "seleccionado": true,
-      "seccionResistenteAsParagolpesDelantero": 72.32,
+      "seccionResistenteAsParagolpesDelantero": 58.03,
       "resTraccionMinTornillo88Kgmm2ParagolpesDelantero": 80,
       "cwCoefAerodinamicoParagolpesDelantero": 0.82,
       "densidadAireKgM3ParagolpesDelantero": 1.29,
       "velocidadAireV2msParagolpesDelantero": 38.89,
-      "radioCurvaRParagolpesDelantero": 800,
+      "radioCurvaRParagolpesDelantero": 8,
       "coefSeguridadKParagolpesDelantero": 3,
       "detalle": {
         "aletines": false,
         "sobrealetines": false
       },
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "tipoFabricacionParagolpesDelantero": "artesanal",
       "medidasParagolpesDelantero": "200X800",
-      "metricaParaDelantero": "11",
+      "metricaParaDelantero": 10,
       "ntornillosParaDelantero": 8,
       "pesoPiezaKgParagolpesDelantero": 4,
       "superficieFrontalM2ParagolpesDelantero": 0.16,
-      "calidadTornilloParagolpesDelantero": 10.9
+      "calidadTornilloParagolpesDelantero": 8.8
     },
     {
       "nombre": "PARAGOLPES TRASERO",
       "seleccionado": true,
       "calidadTornilloParagolpesTrasero": 8.8,
-      "seccionResistenteAsParagolpesTrasero": 36.63,
+      "seccionResistenteAsParagolpesTrasero": 36.64,
       "resTraccionMinTornillo88Kgmm2ParagolpesTrasero": 80,
       "coefAerodinamicoParagolpesTrasero": 0.82,
       "densidadAireKgM3ParagolpesTrasero": 1.29,
       "velocidadAireV2msParagolpesTrasero": 38.89,
-      "radioCurvaRParagolpesTrasero": 800,
+      "radioCurvaRParagolpesTrasero": 8,
       "coefSeguridadKParagolpesTrasero": 3,
       "detalle": {
         "aletines": false,
@@ -490,7 +500,7 @@
       "nTornillosParagolpesTrasero": 5,
       "pesoPiezaKgParagolpesTrasero": 6,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ]
     },
     {
@@ -513,7 +523,8 @@
       "materialPlancha": "ALUMINO",
       "ubicacionPlancha": "CENTRO DEL CAPÓ",
       "medidaLargoPLANCHA": 200,
-      "medidaAnchoPLANCHA": 800
+      "medidaAnchoPLANCHA": 800,
+      "radioCurvaRPlanchaCapo": 8
     },
     {
       "nombre": "PROTECTORES PARAGOLPES",
@@ -536,7 +547,8 @@
       "seleccionado": true,
       "enclaje": "SE ELIMINARÁ LA PLAZA TRASERA CENTRAL",
       "plazasAntes": 5,
-      "plazasDespues": 4
+      "plazasDespues": 4,
+      "incluirNotaQuitadoCinturon": true
     },
     {
       "nombre": "REFUERZO PARAGOLPES",
@@ -553,13 +565,14 @@
       "materialRefuerzoDelantero": "ABS",
       "largoRefuerzoDelantero": 200,
       "altoRefuerzoDelantero": 800,
-      "fondoRefuerzoDelantero": 45
+      "fondoRefuerzoDelantero": 45,
+      "radioCurvaRRefuerzo": 8
     },
     {
       "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "marca": "AST",
       "tipo": "50",
@@ -587,7 +600,7 @@
       "nombre": "SNORKEL",
       "seleccionado": true,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ],
       "marcaSnorkel": "4X4",
       "materialSnorkel": "plástico ABS",
@@ -595,10 +608,10 @@
       "anchuraPiezaMSnorkel": 0.2,
       "alturaPiezaMSnorkel": 0.8,
       "metricaSnorkel": "8",
-      "seccionResistenteAsSnorkel": 36.63,
+      "seccionResistenteAsSnorkel": 36.64,
       "pesoPiezaKgSnorkel": 5,
       "nTornillosSnorkel": 8,
-      "curvaturaSnorkel": 800,
+      "curvaturaSnorkel": 8,
       "coefSeguridadKSnorkel": 3,
       "velocidadAireV2msSnorkel": 38.89,
       "densidadAireKgM3Snorkel": 1.29,
@@ -615,19 +628,19 @@
       "metrica": "8",
       "nTornillos": 5,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ]
     },
     {
       "nombre": "SOPORTES PARA LUCES DE USO ESPECÍFICO",
       "seleccionado": true,
       "calidadTornilloLucesEspecificas": 8.8,
-      "seccionResistenteAsLucesEspecificas": 36.63,
+      "seccionResistenteAsLucesEspecificas": 36.64,
       "resTraccionMinTornillo88Kgmm2LucesEspecificas": 80,
       "cwCoefAerodinamicoLucesEspecificas": 0.82,
       "densidadAireKgM3LucesEspecificas": 1.29,
       "velocidadAireV2msLucesEspecificas": 38.89,
-      "radioCurvaRLucesEspecificas": 800,
+      "radioCurvaRLucesEspecificas": 8,
       "coefSeguridadKLucesEspecificas": 3,
       "detalle": {
         "aletines": false,
@@ -641,7 +654,7 @@
       "metricaLucesEspecificas": "8",
       "nTornillosLucesEspecificas": 5,
       "acciones": [
-        "Instalacion"
+        "Instalación"
       ]
     },
     {
@@ -662,8 +675,8 @@
       "dimensionPistonDiscoTrasero": 0.045,
       "numPistonesDiscoTrasero": 1,
       "anguloContactoDiscoTrasero": 0.7,
-      "perfilNeumaticoDiscoTrasero": 12,
-      "anchoNeumaticoDiscoTrasero": 250,
+      "perfilNeumaticoDiscoTrasero": 60,
+      "anchoNeumaticoDiscoTrasero": 235,
       "marcaDiscos": "AST",
       "modeloDiscos": "50",
       "referenciaDiscos": "1245",
@@ -677,9 +690,9 @@
       "dimensionPistonDiscos": 0.045,
       "numPistonesDiscos": 1,
       "anguloContactoDiscos": 0.7,
-      "radioNeumaticoDiscos": "0,1335",
-      "anchoNeumaticoDiscos": 250,
-      "perfilNeumaticoDiscos": 12,
+      "radioNeumaticoDiscos": 18,
+      "anchoNeumaticoDiscos": 235,
+      "perfilNeumaticoDiscos": 60,
       "ant_numDiscosDelantero": 2,
       "ant_numPinzasDelanteras": 2,
       "ant_diametroExteriorDiscoDelantero": 0.25,
@@ -688,9 +701,9 @@
       "ant_dimensionPistonDelantera": 0.25,
       "ant_numPistonesDelantero": 2,
       "ant_anguloContactoDiscoDelantero": 0.7,
-      "ant_radioNeumaticoDelantero": "225",
-      "ant_anchoNeumaticoDelantero": 250,
-      "ant_perfilNeumaticoDelantero": 12,
+      "ant_radioNeumaticoDelantero": "18",
+      "ant_anchoNeumaticoDelantero": 235,
+      "ant_perfilNeumaticoDelantero": 60,
       "ant_numDiscosTrasero": 2,
       "ant_numPinzasTraseras": 2,
       "ant_diametroExteriorDiscoTrasero": 0.12,
@@ -699,9 +712,10 @@
       "ant_dimensionPistonTrasera": 0.24,
       "ant_numPistonesTrasero": 3,
       "ant_anguloContactoDiscoTrasero": 0.7,
-      "ant_radioNeumaticoTrasero": "225",
-      "ant_anchoNeumaticoTrasero": 250,
-      "ant_perfilNeumaticoTrasero": 12
+      "ant_radioNeumaticoTrasero": "18",
+      "ant_anchoNeumaticoTrasero": 235,
+      "ant_perfilNeumaticoTrasero": 60,
+      "radioNeumaticoDiscoTrasero": 18
     },
     {
       "nombre": "SUSTITUCIÓN DE EJES",
@@ -1367,328 +1381,328 @@
   ],
   "marcadores": [
     {
-      "x": 0.7734098939929329,
-      "y": 0.044264954853273135,
+      "x": 0.07022968197879859,
+      "y": 0.05103696388261851,
       "label": "1",
       "etiqueta": "3ª LUZ DE FRENO"
     },
     {
-      "x": 0.732773851590106,
-      "y": 0.04200761851015802,
+      "x": 0.10203180212014135,
+      "y": 0.048779627539503385,
       "label": "2",
       "etiqueta": "ALERÓN"
     },
     {
-      "x": 0.23630742049469966,
-      "y": 0.34223335214446954,
+      "x": 0.14796819787985865,
+      "y": 0.053294300225733636,
       "label": "3",
       "etiqueta": "LIP DELANTERO"
     },
     {
-      "x": 0.32287985865724383,
-      "y": 0.32417466139954854,
+      "x": 0.17977031802120141,
+      "y": 0.05780897291196388,
       "label": "4",
       "etiqueta": "CANARD"
     },
     {
-      "x": 0.14090106007067138,
-      "y": 0.3309466704288939,
-      "label": "4",
-      "etiqueta": "CANARD"
-    },
-    {
-      "x": 0.4960247349823322,
-      "y": 0.6560031038374717,
+      "x": 0.22040636042402828,
+      "y": 0.06232364559819413,
       "label": "5",
       "etiqueta": "CAMBIO DE ASIENTOS"
     },
     {
-      "x": 0.1974381625441696,
-      "y": 0.6018270316027088,
+      "x": 0.25574204946996465,
+      "y": 0.05555163656884876,
       "label": "6",
       "etiqueta": "BARRAS ANTIVUELCO"
     },
     {
-      "x": 0.43418727915194344,
-      "y": 0.5566803047404063,
+      "x": 0.29814487632508835,
+      "y": 0.053294300225733636,
       "label": "7",
       "etiqueta": "TECHO SOLAR"
     },
     {
-      "x": 0.17800353356890458,
-      "y": 0.7462965575620768,
+      "x": 0.3370141342756184,
+      "y": 0.044264954853273135,
       "label": "8",
       "etiqueta": "PELDAÑOS"
     },
     {
-      "x": 0.2698763250883392,
-      "y": 0.6424590857787811,
+      "x": 0.37765017667844525,
+      "y": 0.04652229119638826,
       "label": "9",
       "etiqueta": "VENTANA ABATIBLE"
     },
     {
-      "x": 0.31051236749116606,
-      "y": 0.7395245485327314,
+      "x": 0.4218197879858657,
+      "y": 0.04200761851015802,
       "label": "10",
       "etiqueta": "BODY LIFT"
     },
     {
-      "x": 0.6886042402826855,
-      "y": 0.7395245485327314,
-      "label": "10",
-      "etiqueta": "BODY LIFT"
-    },
-    {
-      "x": 0.2539752650176678,
-      "y": 0.7937006207674944,
+      "x": 0.4589222614840989,
+      "y": 0.04200761851015802,
       "label": "11",
       "etiqueta": "LATIGUILLOS"
     },
     {
-      "x": 0.6179328621908127,
-      "y": 0.8004726297968398,
-      "label": "11",
-      "etiqueta": "LATIGUILLOS"
-    },
-    {
-      "x": 0.6462014134275619,
-      "y": 0.714693848758465,
+      "x": 0.4907243816254417,
+      "y": 0.03975028216704289,
       "label": "12",
       "etiqueta": "MOTOR"
     },
     {
-      "x": 0.17446996466431094,
-      "y": 0.2541972347629797,
-      "label": "12",
-      "etiqueta": "MOTOR"
-    },
-    {
-      "x": 0.2751766784452297,
-      "y": 0.732752539503386,
+      "x": 0.5348939929328622,
+      "y": 0.044264954853273135,
       "label": "13",
       "etiqueta": "ALETINES Y SOBREALETINES"
     },
     {
-      "x": 0.7204063604240283,
-      "y": 0.7282378668171557,
-      "label": "13",
-      "etiqueta": "ALETINES Y SOBREALETINES"
-    },
-    {
-      "x": 0.2698763250883392,
-      "y": 0.37383606094808125,
+      "x": 0.5702296819787986,
+      "y": 0.030720936794582394,
       "label": "14",
       "etiqueta": "AMORTIGUADOR DE DIRECCIÓN"
     },
     {
-      "x": 0.18330388692579505,
-      "y": 0.8433620203160271,
+      "x": 0.605565371024735,
+      "y": 0.021691591422121896,
       "label": "15",
       "etiqueta": "ANTIEMPOTRAMIENTO"
     },
     {
-      "x": 0.11263250883392226,
-      "y": 0.2835426072234763,
+      "x": 0.6532685512367491,
+      "y": 0.03975028216704289,
       "label": "16",
       "etiqueta": "ANTINIEBLA"
     },
     {
-      "x": 0.3370141342756184,
-      "y": 0.29257195259593677,
-      "label": "16",
-      "etiqueta": "ANTINIEBLA"
-    },
-    {
-      "x": 0.19920494699646643,
-      "y": 0.35577737020316025,
+      "x": 0.7062720848056537,
+      "y": 0.044264954853273135,
       "label": "17",
       "etiqueta": "BARRA DE DIRECCIÓN"
     },
     {
-      "x": 0.13913427561837455,
-      "y": 0.3648067155756208,
+      "x": 0.7433745583038869,
+      "y": 0.03975028216704289,
       "label": "18",
       "etiqueta": "BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)"
     },
     {
-      "x": 0.3246466431095406,
-      "y": 0.387380079006772,
+      "x": 0.782243816254417,
+      "y": 0.048779627539503385,
       "label": "19",
       "etiqueta": "BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (movimiento lateral)"
     },
     {
-      "x": 0.2698763250883392,
-      "y": 0.31514531602708806,
+      "x": 0.8069787985865724,
+      "y": 0.04652229119638826,
       "label": "20",
       "etiqueta": "CABRESTANTE"
     },
     {
-      "x": 0.21863957597173145,
-      "y": 0.2835426072234763,
+      "x": 0.851148409893993,
+      "y": 0.04652229119638826,
       "label": "21",
       "etiqueta": "CALANDRA"
     },
     {
-      "x": 0.18860424028268552,
-      "y": 0.387380079006772,
+      "x": 0.890017667844523,
+      "y": 0.044264954853273135,
       "label": "22",
       "etiqueta": "DEFENSA DELANTERA"
     },
     {
-      "x": 0.16740282685512367,
-      "y": 0.7824139390519187,
+      "x": 0.9271201413427562,
+      "y": 0.048779627539503385,
       "label": "23",
       "etiqueta": "DIFUSOR TRASERO"
     },
     {
-      "x": 0.3122791519434629,
-      "y": 0.2451678893905192,
+      "x": 0.07376325088339222,
+      "y": 0.10972770880361174,
       "label": "24",
       "etiqueta": "DIURNAS"
     },
     {
-      "x": 0.46952296819787986,
-      "y": 0.8207886568848759,
+      "x": 0.11793286219081273,
+      "y": 0.10295569977426637,
       "label": "25",
       "etiqueta": "ESTRIBOS LATERALES O TALONERAS"
     },
     {
-      "x": 0.30697879858657245,
-      "y": 0.2745132618510158,
+      "x": 0.15680212014134276,
+      "y": 0.11649971783295711,
       "label": "26",
       "etiqueta": "FAROS DELANTEROS PRINCIPALES"
     },
     {
-      "x": 0.14090106007067138,
-      "y": 0.28128527088036115,
-      "label": "26",
-      "etiqueta": "FAROS DELANTEROS PRINCIPALES"
-    },
-    {
-      "x": 0.26104240282685515,
-      "y": 0.26999858916478553,
+      "x": 0.20097173144876326,
+      "y": 0.11424238148984199,
       "label": "27",
       "etiqueta": "INTERCOOLER"
     },
     {
-      "x": 0.5843639575971732,
-      "y": 0.7124365124153499,
+      "x": 0.2416077738515901,
+      "y": 0.10972770880361174,
       "label": "28",
       "etiqueta": "INTERMITENTES"
     },
     {
-      "x": 0.30167844522968196,
-      "y": 0.08489700902934537,
+      "x": 0.2787102473498233,
+      "y": 0.10295569977426637,
       "label": "29",
       "etiqueta": "LUCES DE LARGO ALCANCE"
     },
     {
-      "x": 0.6709363957597173,
-      "y": 0.24742522573363432,
+      "x": 0.3122791519434629,
+      "y": 0.10521303611738149,
       "label": "30",
       "etiqueta": "LUCES MATRÍCULA"
     },
     {
       "x": 0.34408127208480566,
-      "y": 0.24065321670428894,
+      "y": 0.10069836343115124,
       "label": "31",
       "etiqueta": "LUZ DE CRUCE"
     },
     {
-      "x": 0.10909893992932862,
-      "y": 0.23388120767494355,
-      "label": "31",
-      "etiqueta": "LUZ DE CRUCE"
-    },
-    {
-      "x": 0.35291519434628976,
-      "y": 0.3196599887133183,
+      "x": 0.38825088339222613,
+      "y": 0.10747037246049661,
       "label": "32",
       "etiqueta": "LUZ DE POSICIÓN"
     },
     {
-      "x": 0.08436395759717315,
-      "y": 0.3264319977426637,
-      "label": "32",
-      "etiqueta": "LUZ DE POSICIÓN"
-    },
-    {
-      "x": 0.6462014134275619,
-      "y": 0.23162387133182843,
+      "x": 0.43065371024734983,
+      "y": 0.10521303611738149,
       "label": "33",
       "etiqueta": "LUZ MARCHA ATRÁS"
     },
     {
-      "x": 0.909452296819788,
-      "y": 0.24065321670428894,
-      "label": "33",
-      "etiqueta": "LUZ MARCHA ATRÁS"
-    },
-    {
-      "x": 0.6709363957597173,
-      "y": 0.2835426072234763,
+      "x": 0.4659893992932862,
+      "y": 0.10295569977426637,
       "label": "34",
       "etiqueta": "MATRÍCULA Y PORTAMATRÍCULA"
     },
     {
-      "x": 0.683303886925795,
-      "y": 0.8772220654627539,
+      "x": 0.5013250883392226,
+      "y": 0.10295569977426637,
       "label": "35",
       "etiqueta": "NEUMÁTICOS"
     },
     {
-      "x": 0.30697879858657245,
-      "y": 0.8749647291196389,
-      "label": "35",
-      "etiqueta": "NEUMÁTICOS"
-    },
-    {
-      "x": 0.28224381625441697,
-      "y": 0.17519046275395034,
+      "x": 0.5384275618374559,
+      "y": 0.10972770880361174,
       "label": "36",
       "etiqueta": "PANEL RELOJES"
     },
     {
-      "x": 0.7610424028268551,
-      "y": 0.8140166478555305,
+      "x": 0.5737632508833922,
+      "y": 0.09844102708803612,
       "label": "37",
       "etiqueta": "PARAGOLPES DELANTERO"
     },
     {
-      "x": 0.15503533568904593,
-      "y": 0.8207886568848759,
+      "x": 0.6090989399293286,
+      "y": 0.09844102708803612,
       "label": "38",
       "etiqueta": "PARAGOLPES TRASERO"
     },
     {
-      "x": 0.7451413427561837,
-      "y": 0.333204006772009,
-      "label": "38",
-      "etiqueta": "PARAGOLPES TRASERO"
-    },
-    {
-      "x": 0.8811837455830389,
-      "y": 0.2767705981941309,
+      "x": 0.6497349823321554,
+      "y": 0.10069836343115124,
       "label": "39",
       "etiqueta": "PILOTO TRASERO"
     },
     {
-      "x": 0.6462014134275619,
-      "y": 0.678576467268623,
+      "x": 0.6886042402826855,
+      "y": 0.10972770880361174,
       "label": "40",
       "etiqueta": "PLANCHA CAPÓ"
     },
     {
-      "x": 0.1338339222614841,
-      "y": 0.7891859480812641,
+      "x": 0.7274734982332155,
+      "y": 0.10295569977426637,
       "label": "41",
       "etiqueta": "PROTECTORES PARAGOLPES"
     },
     {
+      "x": 0.7592756183745583,
+      "y": 0.10069836343115124,
+      "label": "42",
+      "etiqueta": "REFUERZO PARAGOLPES"
+    },
+    {
+      "x": 0.7963780918727915,
+      "y": 0.10972770880361174,
+      "label": "43",
+      "etiqueta": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO"
+    },
+    {
+      "x": 0.8370141342756183,
+      "y": 0.10747037246049661,
+      "label": "44",
+      "etiqueta": "SEPARADORES DE RUEDA"
+    },
+    {
+      "x": 0.8758833922261484,
+      "y": 0.10521303611738149,
+      "label": "45",
+      "etiqueta": "SNORKEL"
+    },
+    {
+      "x": 0.909452296819788,
+      "y": 0.10521303611738149,
+      "label": "46",
+      "etiqueta": "SOPORTE PARA RUEDA DE REPUESTO"
+    },
+    {
+      "x": 0.08083038869257951,
+      "y": 0.17293312641083522,
+      "label": "47",
+      "etiqueta": "SOPORTES PARA LUCES DE USO ESPECÍFICO"
+    },
+    {
+      "x": 0.11793286219081273,
+      "y": 0.16616111738148984,
+      "label": "48",
+      "etiqueta": "SUSTITUCIÓN DE DISCOS DE FRENO"
+    },
+    {
       "x": 0.15856890459363956,
-      "y": 0.49121755079006774,
+      "y": 0.16616111738148984,
+      "label": "49",
+      "etiqueta": "SUSTITUCIÓN DE EJES"
+    },
+    {
+      "x": 0.19390459363957596,
+      "y": 0.16390378103837472,
+      "label": "50",
+      "etiqueta": "SUSTITUCIÓN DE SISTEMA DE ESCAPE"
+    },
+    {
+      "x": 0.2416077738515901,
+      "y": 0.15487443566591422,
+      "label": "51",
+      "etiqueta": "SUSTITUCIÓN DE VOLANTE"
+    },
+    {
+      "x": 0.28047703180212014,
+      "y": 0.15487443566591422,
+      "label": "52",
+      "etiqueta": "TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR"
+    },
+    {
+      "x": 0.321113074204947,
+      "y": 0.15938910835214448,
       "label": "53",
       "etiqueta": "CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES"
+    },
+    {
+      "x": 0.35644876325088337,
+      "y": 0.1616464446952596,
+      "label": "54",
+      "etiqueta": "VENTANA LATERAL"
     }
   ],
   "fechaFirma": "Teulada, 2 de marzo de 2026",
