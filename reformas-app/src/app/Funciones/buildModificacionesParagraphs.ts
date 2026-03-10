@@ -75,7 +75,7 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'REDUCCIÓN DE PLAZAS' && m.seleccionado,
   );
   if (reduccionplazas) {
-    const raw = `- Desmontaje de plazas de asiento pasando de ${reduccionplazas.plazasAntes} a ${reduccionplazas.plazasDespues} mediante la desinstalación del cinturón de seguridad y el anclaje de la plaza ${reduccionplazas.enclaje}.`;
+    const raw = `- Disminución de plazas de asiento pasando de ${reduccionplazas.plazasAntes} a ${reduccionplazas.plazasDespues} mediante la desinstalación del cinturón de seguridad y el anclaje de la plaza ${reduccionplazas.enclaje}.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -86,17 +86,19 @@ export function buildModificacionesParagraphs(
     (p as any)._rawText = raw;
     out.push(p);
 
-    out.push(
-      new Paragraph({
-        spacing: { line: 260, after: 120 },
-        children: [
-          new TextRun({ text: 'NOTA: ', bold: true }),
-          new TextRun({
-            text: 'En la plaza en la cual se ha desinstalado el cinturón de seguridad, se ha instalado un pictograma con texto el cual indica inequívocamente que dicha plaza no puede utilizarse con el vehículo en circulación.',
-          }),
-        ],
-      }),
-    );
+    if (reduccionplazas.incluirNotaQuitadoCinturon) {
+      out.push(
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [
+            new TextRun({ text: 'NOTA: ', bold: true }),
+            new TextRun({
+              text: 'En la plaza en la cual se ha desinstalado el cinturón de seguridad, se ha instalado un pictograma con texto el cual indica inequívocamente que dicha plaza no puede utilizarse con el vehículo en circulación.',
+            }),
+          ],
+        }),
+      );
+    }
   }
 
   //
@@ -264,16 +266,7 @@ export function buildModificacionesParagraphs(
   );
   if (aletines) {
     (aletines.acciones || []).forEach((accion: string) => {
-      const raw = `- ${accion} de los aletines originales por otros, marca ${
-        modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
-          .marcaAletines
-      }, referencia ${
-        modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
-          .referenciaAletines
-      }, de material plástico ABS y ancho de ${
-        modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
-          .anchoAletines
-      } mm. Se asegura la no interferencia entre el neumático y ningún punto de la carrocería.`;
+      const raw = `- ${accion} de los aletines originales por otros en eje ${aletines.posicionAletines}, marca ${aletines.marcaAletines}, referencia ${aletines.referenciaAletines}, de material plástico ABS y medidas de ${aletines.anchoAletines}x${aletines.altoAletines} mm. Se asegura la no interferencia entre el neumático y ningún punto de la carrocería.`;
 
       const p = new Paragraph({
         spacing: { line: 260, after: 120 },
@@ -294,10 +287,7 @@ export function buildModificacionesParagraphs(
   );
   if (sobrealetines) {
     (sobrealetines.acciones || []).forEach((accion: string) => {
-      const raw = `- ${accion} de sobrealetines en los cuatro pasos de rueda fabricados en goma de forma artesanal de ${
-        modificaciones.find((m) => m.nombre === 'ALETINES Y SOBREALETINES')!
-          .anchoSobrealetines
-      } mm de ancho, asegurando la no interferencia entre el neumático y cualquier punto de la carrocería.`;
+      const raw = `- ${accion} de sobrealetines en eje ${sobrealetines.posicionSobrealetines}, fabricados en goma de forma artesanal de ${sobrealetines.anchoSobrealetines} mm de ancho, asegurando la no interferencia entre el neumático y ningún punto de la carrocería.`;
 
       const p = new Paragraph({
         spacing: { line: 260, after: 120 },
@@ -420,35 +410,33 @@ export function buildModificacionesParagraphs(
     (m) => m.nombre === 'SUSTITUCIÓN DE VOLANTE' && m.seleccionado,
   );
   if (volante) {
-    volante.acciones?.forEach((accion: string) => {
-      let espaciador = '';
-      let airbagoriginal = 'El volante original del vehículo no llevaba airbag';
-      let airbagnuevo = 'el nuevo instalado no lleva airbag';
-      if (volante.llevaEspaciador) {
-        espaciador = `marca ${volante.marcaEspaciador} de espesor ${volante.espesorEspaciador}mm`;
-      }
-      if (volante.tieneAirbagOriginal) {
-        airbagoriginal = `El volante
+    let espaciador = '';
+    let airbagoriginal = 'El volante original del vehículo no llevaba airbag';
+    let airbagnuevo = 'el nuevo instalado no lleva airbag';
+    if (volante.llevaEspaciador) {
+      espaciador = `marca ${volante.marcaEspaciador} de espesor ${volante.espesorEspaciador}mm`;
+    }
+    if (volante.tieneAirbagOriginal) {
+      airbagoriginal = `El volante
 original del vehículo llevaba airbag`;
-      }
-      if (volante.tieneAirbagNuevo) {
-        airbagnuevo = `el nuevo instalado lleva airbag`;
-      }
-      const fraseVolante = `Sustitución del volante original, por otro de la marca ${volante.marcaEspaciador} con un diámetro de ${volante.marcaEspaciador}
+    }
+    if (volante.tieneAirbagNuevo) {
+      airbagnuevo = `el nuevo instalado lleva airbag`;
+    }
+    const fraseVolante = `Sustitución del volante original, por otro de la marca ${volante.marcaEspaciador} con un diámetro de ${volante.marcaEspaciador}
 mm montado sobre un espaciador ${espaciador}. ${airbagoriginal}, ${airbagnuevo}. Se garantiza que
 el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
 
-      const raw = `- ${fraseVolante}`;
+    const raw = `- ${fraseVolante}`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-
-      (p as any)._rawText = raw;
-      out.push(p);
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
     });
+
+    (p as any)._rawText = raw;
+    out.push(p);
   }
 
   const escape = modificaciones.find(
@@ -501,7 +489,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       espesor: number,
     ) => {
       const txtModelo = modelo ? ` modelo ${modelo}` : '';
-      return `Instalación de discos de sustitución en el ${eje} marca ${marca}${txtModelo} con referencia ${ref} de ${diam} mm de diámetro y ${espesor} mm de espesor, igual que los que incorpora el vehículo de origen y no modificando ningún otro componente del sistema de frenado.`;
+      return `Sustitución de discos de freno en el ${eje} marca ${marca}${txtModelo} con referencia ${ref} de ${diam} mm de diámetro y ${espesor} mm de espesor, igual que los que incorpora el vehículo de origen y no modificando ningún otro componente del sistema de frenado.`;
     };
 
     const parrafosDiscos: string[] = [];
@@ -971,11 +959,13 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`),
+          new TextRun(
+            `• Diámetro exterior: ${mod.diametroExteriorTraseroSinRef} mm`,
+          ),
         ],
       });
       (p1 as any)._rawText =
-        `• Diámetro exterior: ${mod.diametroExteriorTrasero} mm`;
+        `• Diámetro exterior: ${mod.diametroExteriorTraseroSinRef} mm`;
       (p1 as any)._fromCasuistica = true; // 👈 marca
       out.push(p1);
 
@@ -983,10 +973,13 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Longitud de muelle: ${mod.longitudTrasero} mm`),
+          new TextRun(
+            `• Longitud de muelle: ${mod.longitudLibreTraseroSinRef} mm`,
+          ),
         ],
       });
-      (p2 as any)._rawText = `• Longitud de muelle: ${mod.longitudTrasero} mm`;
+      (p2 as any)._rawText =
+        `• Longitud de muelle: ${mod.longitudLibreTraseroSinRef} mm`;
       (p2 as any)._fromCasuistica = true;
       out.push(p2);
 
@@ -995,12 +988,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         spacing,
         children: [
           new TextRun(
-            `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`,
+            `• Diámetro de la espira: ${mod.diametroEspiraTraseroSinRef} mm`,
           ),
         ],
       });
       (p3 as any)._rawText =
-        `• Diámetro de la espira: ${mod.diametroEspiraTrasero} mm`;
+        `• Diámetro de la espira: ${mod.diametroEspiraTraseroSinRef} mm`;
       (p3 as any)._fromCasuistica = true;
       out.push(p3);
 
@@ -1008,11 +1001,13 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         indent: { left: indentLeft },
         spacing,
         children: [
-          new TextRun(`• Número de espiras: ${mod.numeroEspirasTrasero}.`),
+          new TextRun(
+            `• Número de espiras: ${mod.numeroEspirasTraseroSinRef}.`,
+          ),
         ],
       });
       (p4 as any)._rawText =
-        `• Número de espiras: ${mod.numeroEspirasTrasero}.`;
+        `• Número de espiras: ${mod.numeroEspirasTraseroSinRef}.`;
       (p4 as any)._fromCasuistica = true;
       out.push(p4);
     }
@@ -1102,9 +1097,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       raw =
         `- Instalación de kit de elevación en ` +
         partesEjes.join(' y ') +
-        `, fabricados en aluminio marca ` +
-        marcas.join(' y ') +
-        `, compuestos por:`;
+        `, fabricados en aluminio, compuestos por:`;
 
       pushCasuistica(
         out,
@@ -1119,8 +1112,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       // 2) DETALLE MUELLES DELANTEROS
       if (mod.detallesMuelles?.['kitElevacionDelantero']) {
         raw =
-          `• Muelles delanteros: taco ${mod.tipoTacoDelantero} de aluminio de ` +
-          `${mod.diametroTacoDelantero} mm Ø y ` +
+          `• Muelles delanteros: taco ${mod.tipoTacoDelantero} de aluminio de Ø ` +
+          `${mod.diametroTacoDelantero} mm y ` +
           `${mod.espesorTacoDelantero} mm de espesor ` +
           `instalado en cada muelle delantero, marca ${mod.marcaKitElevacionDelantera}.`;
 
@@ -1187,23 +1180,21 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     mod.acciones?.forEach((accion: string) => {
       let raw: string;
 
-      if (
-        mod.detalle?.instalacionPorta &&
-        mod.fabricacionPorta1 === 'artesanal'
-      ) {
-        raw = `- ${accion} de portamatrículas ${mod.ubicacionPorta1} en el lado ${mod.ladoPorta1} fabricado en ${mod.materialPorta1} de forma artesanal.`;
-      } else {
-        raw = `- ${accion} de portamatrículas ${mod.ubicacionPorta1} en el lado ${mod.ladoPorta1} fabricado en ${mod.materialPorta1} de la marca ${mod.marcaPorta1} y referencia ${mod.referenciaPorta1}.`;
+      if (mod.detalle?.instalacionPorta) {
+        if (mod.fabricacionPorta1 === 'artesanal') {
+          raw = `- ${accion} de portamatrículas ${mod.ubicacionPorta1} en el lado ${mod.ladoPorta1} fabricado en ${mod.materialPorta1} de forma artesanal.`;
+        } else {
+          raw = `- ${accion} de portamatrículas ${mod.ubicacionPorta1} en el lado ${mod.ladoPorta1} fabricado en ${mod.materialPorta1} de la marca ${mod.marcaPorta1} y referencia ${mod.referenciaPorta1}.`;
+        }
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+
+        (p as any)._rawText = raw;
+        out.push(p);
       }
-
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-
-      (p as any)._rawText = raw;
-      out.push(p);
     });
 
     // 2) Reubicación
@@ -1530,7 +1521,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   );
 
   if (techoSolar) {
-    const raw = `- Instalación en el techo del vehículo de un techo solar, de la marca ${techoSolar.marcaTecho} ${techoSolar.ubicacionTecho}, de medidas ${techoSolar.medidasTecho} mm, con contraseña de homologación ${techoSolar.homologacionTecho}, sin afectar a la estructura principal del vehículo.`;
+    const raw = `- Instalación de placa solar monocristalina sobre el techo del vehículo, de la marca ${techoSolar.marcaTecho} modelo ${techoSolar.modeloTecho}, de ${techoSolar.potenciaTecho} y dimensiones ${techoSolar.medidasTecho} mm, sin afectar a la estructura.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -1893,7 +1884,9 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         refuerzo.largoRefuerzo,
       );
       const alto = pickFirst(
-        isDelantero ? refuerzo.altoRefuerzoDelantero : refuerzo.altoRefuerzoTrasero,
+        isDelantero
+          ? refuerzo.altoRefuerzoDelantero
+          : refuerzo.altoRefuerzoTrasero,
         refuerzo.altoRefuerzo,
       );
       const fondo = pickFirst(
@@ -2280,6 +2273,19 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         out.push(p);
       });
     }
+    if (estribostaloneras.detalle?.anotacionAntideslizante === '1') {
+      out.push(
+        new Paragraph({
+          spacing: { line: 260, after: 120 },
+          children: [
+            new TextRun({ text: 'NOTA: ', bold: true }),
+            new TextRun({
+              text: 'Se garantiza que las taloneras o estribos instalados disponen de una superficie antideslizante para evitar resbalones al subir o bajar del vehículo.',
+            }),
+          ],
+        }) as any,
+      );
+    }
   }
 
   //
@@ -2620,7 +2626,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   const reduccionMoto = modificaciones.find(
-    (m) => m.nombre === 'REDUCCIÓN DE PLAZAS' && m.seleccionado,
+    (m) => m.nombre === 'REDUCCIÓN DE PLAZAS MOTO' && m.seleccionado,
   );
 
   if (reduccionMoto) {
@@ -3896,10 +3902,17 @@ export function generarDocumentoProyectoParagraphs(
 
   let montajesBase = nonCasuisticaParas.filter(
     (p) =>
-      !['Variación', 'Sustitución', 'Desmontaje', '', ' '].includes(first(p)),
+      ![
+        'Variación',
+        'Sustitución',
+        'Desmontaje',
+        'Disminución',
+        '',
+        ' ',
+      ].includes(first(p)),
   );
   let desmontajesBase = nonCasuisticaParas.filter(
-    (p) => first(p) === 'Desmontaje',
+    (p) => first(p) === 'Desmontaje' || first(p) === 'Disminución',
   );
   let variacionesBase = nonCasuisticaParas.filter((p) =>
     ['Variación', 'Sustitución'].includes(first(p)),
@@ -4050,13 +4063,103 @@ function expandSuspensionToLabels(det?: DetallesMuelles): string[] {
   return out;
 }
 
-/** Reconstruye la lista "labels" como en la UI, en el mismo orden */
+const CANVAS_HIDDEN_MOD_NAMES = [
+  'AUMENTO DE PLAZAS',
+  'REDUCCION DE PLAZAS',
+  'REDUCCION DE MMA',
+  'REDUCCION DE MMTA',
+];
+
+function normalizeText(value: unknown): string {
+  return (value ?? '')
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toUpperCase();
+}
+
+const CANVAS_HIDDEN_MOD_NAMES_NORMALIZED = new Set<string>(
+  CANVAS_HIDDEN_MOD_NAMES.map((name) => normalizeText(name)),
+);
+
+const CANVAS_HIDDEN_MOD_RULES: Array<(mod: any) => boolean> = [
+  (mod) => CANVAS_HIDDEN_MOD_NAMES_NORMALIZED.has(normalizeText(mod?.nombre)),
+  (mod) =>
+    normalizeText(mod?.nombre) === 'AUMENTO O DISMINUCION DE PLAZAS' &&
+    (mod?.tipoCambio || '').toString().trim().toLowerCase() === 'aumento',
+];
+
+function shouldHideModInCanvas(mod: any): boolean {
+  return CANVAS_HIDDEN_MOD_RULES.some((rule) => rule(mod));
+}
+
+const LUCES_LABELS: Record<string, string> = {
+  luzGrupoOptico: 'Grupo óptico delantero',
+  intermitenteDelantero: 'Intermitente delantero',
+  intermitenteTrasero: 'Intermitente trasero',
+  catadioptrico: 'Catadióptrico',
+  luzMatricula: 'Luz de matrícula',
+  luzAntinieblas: 'Luz antinieblas',
+  luzFreno: 'Luz de freno',
+};
+
+function expandLuces(mod: any): string[] {
+  const det = mod?.descripcionLuces;
+  if (!det) return [];
+
+  const out: string[] = [];
+  (Object.keys(LUCES_LABELS) as Array<keyof typeof LUCES_LABELS>).forEach(
+    (k) => {
+      if (det[k]) {
+        out.push(LUCES_LABELS[k]);
+      }
+    },
+  );
+  return out;
+}
+
+function expandInstalacionElectrica(mod: any): string[] {
+  const out: string[] = [];
+
+  if (Array.isArray(mod.placasSolares)) {
+    mod.placasSolares.forEach((placa: any, i: number) => {
+      out.push(
+        `Placa solar ${i + 1} (${placa.marcaPlacaSolar || ''} ${
+          placa.modeloPlacaSolar || ''
+        })`,
+      );
+    });
+  }
+
+  if (mod.cantidadBaterias && mod.potenciaBaterias) {
+    out.push(`Batería ${mod.potenciaBaterias}V`);
+  }
+
+  if (mod.marcaInversor || mod.potenciaInversor) {
+    out.push(`Inversor ${mod.marcaInversor || ''}`);
+  }
+
+  if (mod.marcaControlador || mod.modeloControlador) {
+    out.push(`Controlador ${mod.modeloControlador || ''}`);
+  }
+
+  if (mod.instalacionesSecundarias) {
+    out.push(`Instalaciones secundarias`);
+  }
+
+  return out;
+}
+
 function buildLabelsFromMods(data: any): string[] {
   const labels: string[] = [];
   const mods = Array.isArray(data?.modificaciones) ? data.modificaciones : [];
 
   for (const mod of mods) {
-    // 1) MOBILIARIO (igual que en la UI)
+    if (mod?.seleccionado && shouldHideModInCanvas(mod)) {
+      continue;
+    }
+
     if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
       mod.mueblesBajo?.forEach((m: any) =>
         labels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`),
@@ -4070,14 +4173,24 @@ function buildLabelsFromMods(data: any): string[] {
       continue;
     }
 
-    // 2) CASUÍSTICA SUSPENSIÓN → sustituir por subapartados (solo true)
     if (isCasuisticaSuspension(mod?.nombre)) {
       const sublabels = expandSuspensionToLabels(mod?.detallesMuelles);
       if (sublabels.length > 0) labels.push(...sublabels);
-      continue; // No añadimos el nombre genérico
+      continue;
     }
 
-    // 3) Resto (solo seleccionadas)
+    if (mod?.seleccionado && mod?.nombre === 'INSTALACIÓN ELÉCTRICA') {
+      const sublabels = expandInstalacionElectrica(mod);
+      if (sublabels.length > 0) labels.push(...sublabels);
+      continue;
+    }
+
+    if (mod?.seleccionado && mod?.nombre === 'LUCES') {
+      const sublabels = expandLuces(mod);
+      if (sublabels.length > 0) labels.push(...sublabels);
+      continue;
+    }
+
     if (mod?.seleccionado) {
       labels.push(mod.nombre);
     }
@@ -4248,4 +4361,3 @@ export async function generarDocumentoConWordArt(ingeniero: {
   const imgData = await renderWordArtBrowser(ingeniero.web.toUpperCase());
   return imgData;
 }
-

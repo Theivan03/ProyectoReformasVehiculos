@@ -29,6 +29,7 @@ import {
   generarDocumentoProyectoParagraphs,
   generarTablaLeyenda,
 } from '../Funciones/buildModificacionesParagraphs';
+import type { ReformaItem } from '../interfaces/ReformaItem';
 import loadImage from 'blueimp-load-image';
 import { buildCalculos } from '../Funciones/calculos';
 
@@ -1645,31 +1646,31 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     ),
   ];
 
-  const codigosImagenes = Object.values(data.codigosDetallados ?? {}).flat();
+  const codigosImagenes = Object.values(
+    data.codigosDetallados ?? {},
+  ).flat() as ReformaItem[];
+
   const tamañosResp = await fetch('http://192.168.1.41:3000/image-sizes');
   const tamaños = await tamañosResp.json();
 
   let alturaAcumulada = 0;
-  const alturaMaximaPagina = 700; // Aproximadamente útil en pt (842pt - márgenes)
+  const alturaMaximaPagina = 700;
 
-  codigosImagenes.sort((a, b) => {
-    const numA = parseFloat((a as any).codigo);
-    const numB = parseFloat((b as any).codigo);
-    return numA - numB;
-  });
+  codigosImagenes.sort((a, b) =>
+    a.codigo.localeCompare(b.codigo, undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    }),
+  );
 
-  for (const codigo of codigosImagenes) {
-    if (
-      typeof codigo !== 'object' ||
-      codigo === null ||
-      typeof (codigo as any).codigo !== 'string'
-    ) {
-      continue;
-    }
-    const codigoStr = (codigo as { codigo: string }).codigo;
+  for (const codigoObj of codigosImagenes) {
+    if (!codigoObj?.codigo) continue;
+
+    const codigoStr = codigoObj.codigo;
     const nombreBase = codigoStr.replace('.', '-');
     const nombreArchivo = `${nombreBase}.png`;
     const url = `http://192.168.1.41:3000/imgs/${nombreArchivo}`;
+
     const tamaño = tamaños.find(
       (img: { nombre: string }) => img.nombre === nombreArchivo,
     );
@@ -1681,7 +1682,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       const buffer = await response.arrayBuffer();
 
       const escala = 500 / tamaño.width;
-      const alturaEscalada = Math.round(tamaño.height * escala); // 🔁 Verificar si cabe en la página actual
+      const alturaEscalada = Math.round(tamaño.height * escala);
 
       if (alturaAcumulada + alturaEscalada > alturaMaximaPagina) {
         punto1_4Normativa.push(new Paragraph({ pageBreakBefore: true }));
@@ -1693,7 +1694,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           spacing: { line: 260, after: 60 },
           children: [
             new TextRun({
-              text: `Reforma ${(codigo as { codigo: string }).codigo}`,
+              text: `Reforma ${codigoStr}`,
               bold: true,
               break: 1,
             }),
@@ -1714,13 +1715,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         }),
       );
 
-      alturaAcumulada += alturaEscalada + 100; // Añadimos margen entre imágenes
+      alturaAcumulada += alturaEscalada + 100;
     } catch (err) {
-      console.warn(
-        `No se pudo cargar la imagen para el código ${
-          (codigo as { codigo: string }).codigo
-        }`,
-      );
+      console.warn(`Error cargando imagen ${codigoStr}`);
     }
   }
 
@@ -1772,17 +1769,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   ];
 
   const punto1_6Tabla = [
-    // --------------------------------------------------------------------------------
-    // BLOQUE 1: COCHES Y CAMPERS
-    // --------------------------------------------------------------------------------
     ...(data.tipoVehiculo === 'coche' || data.tipoVehiculo === 'camper'
       ? [
           (() => {
-            // 1) Definición de elementos (Datos del código 2)
             const elementos: Array<{
               nombreMod: string;
               etiqueta: string;
-              key: string; // Usamos string para evitar problemas de tipado estricto en el snippet
+              key: string;
               condition?: (m: any) => boolean;
             }> = [
               {
@@ -1834,7 +1827,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               {
                 nombreMod: 'ALETINES Y SOBREALETINES',
                 etiqueta: 'Sobrealetines',
-                key: 'curvaturaSobrealetines', // Ojo: en tu código 2 tenías 'radioCurvaRAletines' repetido, he puesto 'curvaturaSobrealetines' deduciendo del primer código
+                key: 'curvaturaSobrealetines',
                 condition: (m) => m.detalle?.sobrealetines === true,
               },
               {
@@ -1843,23 +1836,69 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 key: 'radioCurvaturaEscape',
                 condition: (m) => m.sobresaleEscape === true,
               },
+              {
+                nombreMod: 'ANTIEMPOTRAMIENTO',
+                etiqueta: 'Antiempotramiento',
+                key: 'radioCurvaRAntiempotramiento',
+              },
+              {
+                nombreMod: 'SOPORTES PARA LUCES DE USO ESPECÍFICO',
+                etiqueta: 'Soporte para luces de uso específico',
+                key: 'radioCurvaRLucesEspecificas',
+              },
+              {
+                nombreMod: 'ESTRIBOS LATERALES O TALONERAS',
+                etiqueta: 'Estribos laterales o taloneras',
+                key: 'radioCurvaREstribos',
+              },
+              {
+                nombreMod: 'DIFUSOR TRASERO',
+                etiqueta: 'Difusor trasero',
+                key: 'radioCurvaRDifusor',
+              },
+              {
+                nombreMod: 'LIP DELANTERO',
+                etiqueta: 'Lip delantero',
+                key: 'radioCurvaRLipDelantero',
+              },
+              {
+                nombreMod: 'MATRÍCULA Y PORTAMATRÍCULA',
+                etiqueta: 'Matrícula y portamatrícula',
+                key: 'radioCurvaRPortamatricula',
+              },
+              {
+                nombreMod: 'CALANDRA',
+                etiqueta: 'Calandra',
+                key: 'radioCurvaRCalandra',
+              },
+              {
+                nombreMod: 'PLANCHA CAPÓ',
+                etiqueta: 'Plancha de capó',
+                key: 'radioCurvaRPlanchaCapo',
+              },
+              {
+                nombreMod: 'REFUERZO PARAGOLPES',
+                etiqueta: 'Refuerzo paragolpes',
+                key: 'radioCurvaRRefuerzo',
+              },
+              {
+                nombreMod: 'PELDAÑOS',
+                etiqueta: 'Peldaños',
+                key: 'radioCurvaRPeldanos',
+              },
             ];
 
-            // 2) Construcción de filas (Lógica del código 1 adaptada para ser dinámica)
             const dataRows = elementos
               .map(({ nombreMod, etiqueta, key, condition }) => {
                 const mod = modificaciones.find(
                   (m) => m.nombre === nombreMod && m.seleccionado,
                 );
 
-                // Si no existe la modificación o no cumple la condición extra, devolvemos null
                 if (!mod) return null;
                 if (condition && !condition(mod)) return null;
 
-                // Acceso seguro a la propiedad dinámicamente
                 const valor = (mod as any)[key];
 
-                // Si el valor no es válido, ignoramos la fila
                 if (valor === undefined || valor === null || valor === '')
                   return null;
 
@@ -1867,7 +1906,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new TableCell({
                       verticalAlign: VerticalAlign.CENTER,
-                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
                       children: [
                         new Paragraph({
                           alignment: AlignmentType.CENTER,
@@ -1877,7 +1916,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     }),
                     new TableCell({
                       verticalAlign: VerticalAlign.CENTER,
-                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
                       children: [
                         new Paragraph({
                           alignment: AlignmentType.CENTER,
@@ -1888,20 +1927,18 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   ],
                 });
               })
-              .filter((row): row is TableRow => row !== null); // Eliminamos los nulls
+              .filter((row): row is TableRow => row !== null);
 
-            // Si no hay filas, devolvemos array vacío (no se pinta tabla)
             if (dataRows.length === 0) {
               return [];
             }
 
-            // 3) Construcción de la tabla (Estructura del código 1)
             const headerRow = new TableRow({
               tableHeader: true,
               children: [
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
-                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
                   width: { size: 70, type: WidthType.PERCENTAGE },
                   children: [
                     new Paragraph({
@@ -1914,7 +1951,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
-                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
                   width: { size: 30, type: WidthType.PERCENTAGE },
                   children: [
                     new Paragraph({
@@ -1934,7 +1971,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
             const spacer = new Paragraph({ spacing: { before: 400 } });
 
             const table = new Table({
-              width: { size: 100, type: WidthType.PERCENTAGE },
+              width: { size: 70, type: WidthType.PERCENTAGE },
+              alignment: AlignmentType.CENTER,
               borders: {
                 top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
                 bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
@@ -1959,9 +1997,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         ]
       : []),
 
-    // --------------------------------------------------------------------------------
-    // BLOQUE 2: MOTOS
-    // --------------------------------------------------------------------------------
     ...(data.tipoVehiculo === 'moto'
       ? [
           (() => {
@@ -2008,7 +2043,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   (m) => m.nombre === nombreMod && m.seleccionado,
                 );
 
-                // Acceso seguro
                 const valor = mod ? (mod as any)[key] : null;
 
                 if (
@@ -2020,15 +2054,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   return null;
                 }
 
-                // Lógica de cálculo segura para evitar NaN
-                // Si valor no es un número válido, usará 0 y se convertirá a string
                 const valorCalculado = (Number(valor) || 0) / 100;
 
                 return new TableRow({
                   children: [
                     new TableCell({
                       verticalAlign: VerticalAlign.CENTER,
-                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
                       children: [
                         new Paragraph({
                           alignment: AlignmentType.CENTER,
@@ -2038,7 +2070,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     }),
                     new TableCell({
                       verticalAlign: VerticalAlign.CENTER,
-                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
                       children: [
                         new Paragraph({
                           alignment: AlignmentType.CENTER,
@@ -2055,13 +2087,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               return [];
             }
 
-            // Cabecera idéntica
             const headerRow = new TableRow({
               tableHeader: true,
               children: [
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
-                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
                   width: { size: 70, type: WidthType.PERCENTAGE },
                   children: [
                     new Paragraph({
@@ -2074,7 +2105,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
                 new TableCell({
                   verticalAlign: VerticalAlign.CENTER,
-                  margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
                   width: { size: 30, type: WidthType.PERCENTAGE },
                   children: [
                     new Paragraph({
@@ -2094,7 +2125,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
             const spacer = new Paragraph({ spacing: { before: 400 } });
 
             const table = new Table({
-              width: { size: 100, type: WidthType.PERCENTAGE },
+              width: { size: 70, type: WidthType.PERCENTAGE },
+              alignment: AlignmentType.CENTER,
               borders: {
                 top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
                 bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
@@ -2117,107 +2149,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
             return [spacer, table];
           })(),
         ]
-      : []),
-  ];
-
-  const avisosCondicionalesPorModificacion: Array<{
-    nombreModificacion: string;
-    texto: string;
-  }> = [
-    {
-      nombreModificacion: 'PARAGOLPES DELANTERO',
-      texto:
-        'Ninguna de las piezas instaladas entorpece la entrada del flujo de aire al motor para su respectiva refrigeración.',
-    },
-  ];
-
-  const textosAvisosCondicionales = avisosCondicionalesPorModificacion
-    .filter(({ nombreModificacion }) =>
-      modificaciones.some(
-        (m) => m.nombre === nombreModificacion && m.seleccionado,
-      ),
-    )
-    .map(({ texto }) => texto);
-
-  const punto1_6Avisos = [
-    ...(data.tipoVehiculo === 'coche'
-      ? (() => {
-          const textos = [
-            'El vehículo dispone de sistema de frenado ABS.',
-            'Se cumple en todo caso con la normativa de salientes exteriores.',
-            'Los anclajes del paragolpes delantero son los originales, no modificándose la altura libre. Se respetan los anclajes para los ganchos de rescate del vehículo, tanto el delantero como el trasero en su caso.',
-            'El sistema de remolcado delantero y trasero no se ve impedido tras la reforma.',
-            'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
-          ];
-
-          const bullets: Paragraph[] = textos
-            .map((txt, i) =>
-              data.opcionesCoche[i]
-                ? new Paragraph({
-                    bullet: { level: 0 },
-                    spacing: { before: 240, after: 120 },
-                    children: [new TextRun({ text: txt })],
-                  })
-                : null,
-            )
-            .filter((p): p is Paragraph => p != null);
-
-          const avisosCondicionales = textosAvisosCondicionales.map(
-            (texto) =>
-              new Paragraph({
-                spacing: { before: 240, after: 120 },
-                children: [new TextRun({ text: texto })],
-              }),
-          );
-
-          return [...bullets, ...avisosCondicionales];
-        })()
-      : []),
-
-    ...(data.tipoVehiculo === 'camper'
-      ? (() => {
-          const textosFinales = [
-            'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
-            ...textosAvisosCondicionales,
-            'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
-          ];
-
-          const fraseFinal = new Paragraph({
-            spacing: { before: 240, after: 120 },
-            children: textosFinales.map(
-              (texto) =>
-                new TextRun({
-                  text: texto,
-                  break: 1,
-                }),
-            ),
-          });
-
-          return [fraseFinal];
-        })()
-      : []),
-
-    ...(data.tipoVehiculo === 'moto'
-      ? (() => {
-          const textosFinales = [
-            'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
-            ...textosAvisosCondicionales,
-            'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
-          ];
-
-          const fraseFinal = new Paragraph({
-            spacing: { before: 240, after: 120 },
-            children: textosFinales.map(
-              (texto) =>
-                new TextRun({
-                  text: texto,
-                  break: 1,
-                }),
-            ),
-          });
-
-          return [fraseFinal];
-        })()
       : []),
   ];
 
@@ -2470,23 +2401,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         spacing: { before: 240, after: 120 },
         children: [
           new TextRun({
-            text: 'La distribución de pesos entre ejes no se ve afectadas respecto al vehículo de serie, debido al poco peso de los elementos instalados.',
-          }),
-        ],
-      }),
-      new Paragraph({
-        spacing: { before: 240, after: 120 },
-        children: [
-          new TextRun({
-            text: 'La tara del vehículo después de la reforma se encuentra dentro de tolerancias respecto al vehículo de serie.',
-          }),
-        ],
-      }),
-      new Paragraph({
-        spacing: { before: 240, after: 120 },
-        children: [
-          new TextRun({
-            text: 'Por este motivo, el técnico que suscribe no considera necesario realizar el reparto de masas por ejes.',
+            text: 'La distribución de pesos entre ejes no se ve afectadas respecto al vehículo de serie, debido al poco peso de los elementos instalados. La tara del vehículo después de la reforma se encuentra dentro de tolerancias respecto al vehículo de serie. Por este motivo, el técnico que suscribe no considera necesario realizar el reparto de masas por ejes.',
           }),
         ],
       }),
@@ -4583,10 +4498,24 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           ],
         }),
         new Paragraph({
+          spacing: { after: 240 },
+          children: [
+            new TextRun(
+              'Por este motivo, el técnico que suscribe no considera necesario realizar el reparto de masas por ejes.',
+            ),
+            new TextRun(
+              'La tara del vehículo después de la reforma se encuentra dentro de tolerancias respecto al vehículo de serie. ',
+            ),
+            new TextRun(
+              'Por este motivo, el técnico que suscribe no considera necesario realizar el reparto de masas por ejes.',
+            ),
+          ],
+        }),
+        new Paragraph({
           spacing: { before: 240, after: 120 },
           children: [
             new TextRun({
-              text: 'd) Cálculo de la resistencia del bastidor',
+              text: 'a) Cálculo de la resistencia del bastidor',
               bold: true,
               underline: {},
             }),
@@ -5586,7 +5515,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       ...punto1_5Consideraciones,
       ...buildModificacionesParagraphs(modificaciones, data, false),
       ...punto1_6Tabla,
-      ...punto1_6Avisos,
       ...generarDocumentoProyectoParagraphs({ modificaciones }, data),
       ...punto1_6_4_Materiales,
       ...punto1_7_Conclusion,

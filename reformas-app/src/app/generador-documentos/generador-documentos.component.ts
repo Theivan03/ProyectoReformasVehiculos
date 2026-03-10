@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { generarDocumentoProyecto } from '../generadores/proyecto-word';
 import { generarDocumentoFinalObra } from '../generadores/certificado-final-obra';
 import { generarDocumentoTaller } from '../generadores/certificado-taller';
@@ -19,14 +26,30 @@ import { generarDocumentoMemoria } from '../generadores/memoria-tecnica';
   styleUrl: './generador-documentos.component.css',
 })
 export class GeneradorDocumentosComponent implements OnInit {
-  constructor(private http: HttpClient) {}
-
   progreso: number = -1;
   isLoading = false;
   tallerConProyecto: boolean | null = null;
+  comunidadSeleccionada: string | null = null;
+  provinciaSeleccionada: string | null = null;
+
+  provinciasAndalucia = [
+    'Almería',
+    'Cádiz',
+    'Córdoba',
+    'Granada',
+    'Huelva',
+    'Jaén',
+    'Málaga',
+    'Sevilla',
+  ];
 
   @Input() reformaData: any;
   @Output() volverAlFormulario = new EventEmitter<void>();
+
+  constructor(
+    private http: HttpClient,
+    private cdrGenerador: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
     console.log('Modificaciones:', this.reformaData);
@@ -41,22 +64,29 @@ export class GeneradorDocumentosComponent implements OnInit {
     switch (tipo) {
       case 'proyecto':
         this.isLoading = true;
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        this.cdrGenerador.detectChanges();
+        await new Promise((resolve) => setTimeout(resolve, 50));
 
         try {
           const blobDocx: Blob = await generarDocumentoProyecto(
             this.reformaData,
           );
+
+          const refProyGenerador = this.reformaData.referenciaProyecto || '';
+          const marcaProyGenerador = this.reformaData.marca || '';
+          const modeloProyGenerador = this.reformaData.modelo || '';
+          const matriculaProyGenerador = this.reformaData.matricula || '';
+
           const nombreBase =
-            `${this.reformaData.referenciaProyecto} PROYECTO ` +
-            `${this.reformaData.marca} ${this.reformaData.modelo} ${this.reformaData.matricula}`;
+            `${refProyGenerador} PROYECTO ${marcaProyGenerador} ${modeloProyGenerador} ${matriculaProyGenerador}`.trim();
 
           saveAs(blobDocx, `${nombreBase}.docx`);
-          this.isLoading = false;
-        } catch (err) {
-          console.error('Error generando DOCX:', err);
+        } catch (errGenerador) {
+          console.error('Error generando DOCX:', errGenerador);
           alert('Ha ocurrido un error al crear el DOCX.');
+        } finally {
           this.isLoading = false;
+          this.cdrGenerador.detectChanges();
         }
         break;
 
@@ -74,7 +104,6 @@ export class GeneradorDocumentosComponent implements OnInit {
     }
   }
 
-  // 🔹 Declaración Responsable con comunidad seleccionada
   generarDeclaracion(comunidad: 'valenciana' | 'murcia' | 'andalucia') {
     const dataCompleta = {
       ...this.reformaData,
@@ -83,20 +112,6 @@ export class GeneradorDocumentosComponent implements OnInit {
 
     generarDocumentoResponsable(dataCompleta);
   }
-
-  comunidadSeleccionada: string | null = null;
-  provinciaSeleccionada: string | null = null;
-
-  provinciasAndalucia = [
-    'Almería',
-    'Cádiz',
-    'Córdoba',
-    'Granada',
-    'Huelva',
-    'Jaén',
-    'Málaga',
-    'Sevilla',
-  ];
 
   seleccionarComunidad(comunidad: string) {
     this.comunidadSeleccionada = comunidad;
@@ -152,8 +167,8 @@ export class GeneradorDocumentosComponent implements OnInit {
             this.progreso = -1;
           }
         },
-        (err) => {
-          console.error('Error guardando proyecto:', err);
+        (errDB) => {
+          console.error('Error guardando proyecto:', errDB);
           alert('Ha ocurrido un error al guardar el proyecto.');
           this.progreso = -1;
         },
@@ -161,7 +176,7 @@ export class GeneradorDocumentosComponent implements OnInit {
   }
 
   volver(): void {
-    this.volverAlFormulario.emit(this.reformaData);
+    this.volverAlFormulario.emit();
   }
 
   sendDocxToPdf(file: Blob): Observable<Blob> {

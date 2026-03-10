@@ -76,14 +76,14 @@ export class CanvaComponent implements OnInit {
     ballestaTrasera: 'Ballesta trasera',
     amortiguadorTrasero: 'Amortiguador trasero',
     tacosDeGoma: 'Tacos de goma / suplementos',
-    kitElevacion: 'Kit de elevaciÃ³n',
+    kitElevacion: 'Kit de elevación',
   };
 
   private readonly LUCES_LABELS: Record<string, string> = {
-    luzGrupoOptico: 'Grupo Ã³ptico delantero',
+    luzGrupoOptico: 'Grupo óptico delantero',
     intermitenteDelantero: 'Intermitente delantero',
     intermitenteTrasero: 'Intermitente trasero',
-    catadioptrico: 'CatadiÃ³ptrico',
+    catadioptrico: 'Catadióptrico',
     luzMatricula: 'Luz de matrÃ­cula',
     luzAntinieblas: 'Luz antinieblas',
     luzFreno: 'Luz de freno',
@@ -129,7 +129,7 @@ export class CanvaComponent implements OnInit {
   private isCasuisticaSuspension(nombre: string | undefined): boolean {
     return (
       (nombre || '').trim().toUpperCase() ===
-      'TODA LA CASUÃSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
+      'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
     );
   }
 
@@ -430,4 +430,3 @@ export class CanvaComponent implements OnInit {
     });
   }
 }
-

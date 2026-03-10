@@ -300,7 +300,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     }
 
     // Matrícula
-    if (mod.nombre.includes('MATRÍCULA') && !mod.detalle) {
+    if (mod.nombre === 'MATRÍCULA Y PORTAMATRÍCULA' && !mod.detalle) {
       mod.detalle = {
         instalacionPorta: false,
         reubicacionTrasera: false,
@@ -497,7 +497,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
             detalle: {
               estribosotaloneras: false,
-              anotacionAntideslizante: false,
+              anotacionAntideslizante: '2',
             },
           },
           {
@@ -735,7 +735,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
           { nombre: 'MANILLAR', seleccionado: false },
           { nombre: 'RECORTE SUBCHASIS', seleccionado: false },
           { nombre: 'AUMENTO DE PLAZAS', seleccionado: false },
-          { nombre: 'REDUCCIÓN DE PLAZAS', seleccionado: false },
+          { nombre: 'REDUCCIÓN DE PLAZAS MOTO', seleccionado: false },
           {
             nombre: 'REDUCCIÓN MMA Y MMTA',
             seleccionado: false,
@@ -905,7 +905,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
             seleccionado: false,
             detalle: {
               estribosotaloneras: false,
-              anotacionAntideslizante: false,
+              anotacionAntideslizante: '2',
             },
           },
           {
@@ -1076,6 +1076,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         'SOPORTE PARA RUEDA DE REPUESTO',
         'PLANCHA CAPÓ',
         'MATRÍCULA Y PORTAMATRÍCULA',
+        'SOPORTE MATRÍCULA',
         'CABRESTANTE',
         'ANTIEMPOTRAMIENTO',
         'ANTENA',
@@ -1155,7 +1156,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         'AUMENTO O DISMINUCIÓN DE PLAZAS',
         'RECORTE SUBCHASIS',
         'SUSTITUCIÓN GUARDABARROS',
-        'SOPORTE MATRÍCULA',
         'SOPORTES DESPLAZADOS',
         'ENGANCHE REMOLQUE',
         'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO',
@@ -1187,6 +1187,32 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     return this.modificaciones.filter(
       (m) => !todosLosItemsAgrupados.includes(m.nombre),
     );
+  }
+
+  gestionarIntermitenteDesdeFaro(
+    valorSeleccionado: string | null | undefined,
+  ): void {
+    if (valorSeleccionado === '1') {
+      const intermitentesMod = this.modificaciones.find(
+        (m) => m.nombre === 'INTERMITENTES',
+      );
+
+      if (intermitentesMod) {
+        intermitentesMod.seleccionado = true;
+
+        if (!intermitentesMod.detalle) {
+          intermitentesMod.detalle = {
+            interDelantero: false,
+            interTrasero: false,
+            interLateral: false,
+          };
+        }
+
+        intermitentesMod.detalle.interDelantero = true;
+
+        this.emitAutosave();
+      }
+    }
   }
 
   continuarFormulario(): void {
@@ -1234,7 +1260,8 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       }
 
       if (
-        (mod.nombre.includes('MATRÍCULA') || mod.nombre.includes('ALETINES')) &&
+        (mod.nombre === 'MATRÍCULA Y PORTAMATRÍCULA' ||
+          mod.nombre.includes('ALETINES')) &&
         mod.detalle
       ) {
         invalido = !Object.values(mod.detalle).some((v) => v);
@@ -1334,7 +1361,8 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     }
 
     if (
-      (mod.nombre.includes('MATRÍCULA') || mod.nombre.includes('ALETINES')) &&
+      (mod.nombre === 'MATRÍCULA Y PORTAMATRÍCULA' ||
+        mod.nombre.includes('ALETINES')) &&
       mod.detalle
     ) {
       invalido = !Object.values(mod.detalle).some((v) => v);
