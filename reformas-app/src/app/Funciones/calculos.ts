@@ -72,6 +72,7 @@ export async function buildCalculos(
     );
 
     let contador = 1;
+    let contador2 = 0;
 
     const aletines = modificaciones.find(
       (m) =>
@@ -10472,6 +10473,76 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
     }
 
+    const NO_BORDERS = {
+      top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      bottom: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      insideVertical: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+    };
+
+    const underlineRun = (text: string) =>
+      new TextRun({
+        text,
+        underline: {},
+        bold: true,
+      });
+
+    const fmtDec = (value?: number, decimals = 2) =>
+      Number.isFinite(value)
+        ? Number(value).toLocaleString('es-ES', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+          })
+        : '---';
+
+    const fmtInt = (value?: number) =>
+      Number.isFinite(value)
+        ? Number(value).toLocaleString('es-ES', {
+            maximumFractionDigits: 0,
+          })
+        : '---';
+
+    const makeBorderlessTable = (
+      rows: Array<[string, string]>,
+      width = 60,
+    ): Table =>
+      new Table({
+        width: { size: width, type: WidthType.PERCENTAGE },
+        borders: NO_BORDERS,
+        rows: rows.map(
+          ([label, value]) =>
+            new TableRow({
+              cantSplit: true,
+              children: [
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  width: { size: 65, type: WidthType.PERCENTAGE },
+                  borders: NO_BORDERS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.LEFT,
+                      children: [new TextRun({ text: label })],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  width: { size: 35, type: WidthType.PERCENTAGE },
+                  borders: NO_BORDERS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.LEFT,
+                      children: [new TextRun({ text: value })],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+        ),
+      });
+
     const paradelante = modificaciones.find(
       (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado,
     );
@@ -12295,6 +12366,7 @@ export async function buildCalculos(
       );
 
       contador = 1;
+      contador2 = 1;
 
       out.push(new Paragraph({ text: '' }));
 
@@ -14127,7 +14199,1107 @@ export async function buildCalculos(
       }
     }
 
-    // 7) Texto final en cursiva
+    const engancheRemolque = modificaciones.find(
+      (m) =>
+        m.nombre === 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO' &&
+        m.seleccionado,
+    );
+
+    if (engancheRemolque) {
+      const marcaBola = engancheRemolque.marca;
+      const contrasenaHomologacion = engancheRemolque.homologacion;
+      const tipoBola = engancheRemolque.tipo;
+
+      const dKn = engancheRemolque?.valorDKnRemolque ?? 0;
+      const sKg = engancheRemolque?.mmrBarraTraccion ?? 0;
+      const tTn = engancheRemolque?.mmtaRemolque ?? 0;
+      const g = 9.81;
+
+      const dN = dKn * 1000;
+      const tKg = tTn * 1000;
+
+      const rKg =
+        Number.isFinite(dN) &&
+        Number.isFinite(tKg) &&
+        Number.isFinite(g) &&
+        g * tKg !== dN
+          ? (dN * tKg) / (g * tKg - dN)
+          : undefined;
+
+      let mmrCfKg = engancheRemolque.mmrBarraTraccion ?? 3500;
+
+      let numero = 0;
+
+      out.push(new Paragraph({ text: '' }));
+      if (contador2 === 1) {
+        numero = 5;
+      } else {
+        numero = 4;
+      }
+
+      out.push(
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          children: [
+            new TextRun({
+              text: `2.${numero} CÁLCULO ENGANCHE DE REMOLQUE `,
+              color: '000000',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      // Creación de la nueva estructura de tabla
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [new TextRun({ text: 'Bola de enganche:' })],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            ['Marca', marcaBola ?? '---'],
+            ['Contraseña homologación', contrasenaHomologacion ?? '---'],
+            ['Tipo', tipoBola ?? '---'],
+          ],
+          66,
+        ),
+      );
+
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [new TextRun({ text: 'Características:' })],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            ['D', `${fmtDec(dKn, 1)} KN`],
+            ['S (Carga vertical enganche)', `${fmtInt(sKg)} Kg`],
+            ['T (MTMA)', `${fmtDec(tTn, 2)} Tn`],
+            ['g', `${fmtDec(g, 2)} m/seg2`],
+          ],
+          66,
+        ),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: 'R = D·T / (g·T − D)',
+              italics: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: `R= ${fmtDec(
+                Number.isFinite(rKg) ? Number(rKg) / 1000 : undefined,
+                2,
+              )} Tn = ${fmtInt(rKg)} Kg`,
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: `${fmtInt(rKg)} Kg > ${fmtInt(engancheRemolque.mmrEjeCentral)}Kg (MMR)`,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text:
+                'Como se ha demostrado mediante cálculo, podemos afirmar que la MMR cf del vehículo será de ' +
+                `${fmtInt(engancheRemolque.mmrEjeCentral)}Kg.`,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `2.${numero}.2 Cálculo sistema enganche al bastidor del vehículo`,
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Para la realización de estos cálculos partiremos de la determinación de la fuerza que han de soportar los sistemas de fijación en una superficie expuesta como en nuestro caso.',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'En este punto se pretende demostrar que el sistema situado entre el chasis i la bola de remolque, es capaz de soportar la MMR cf, que el fabricante indica es la máxima que el vehículo puede remolcar.',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Esta fuerza irá repartida entre los tornillos que unen la estructura con el chasis y que consisten en un conjunto de 4 tornillos M10. Las fuerzas que sufrirán los tornillos se considerarán a tracción.',
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      const fabricacionEstructura =
+        engancheRemolque.tipoFabricacionBarraTraccion ?? 'Artesanal en hierro';
+      const referenciaEstructura =
+        engancheRemolque.referenciaBarraTraccion ?? 'Sin referencia';
+
+      mmrCfKg = Number(engancheRemolque.mmaBarraTraccion ?? 3500);
+
+      const numeroTornillos = Number(
+        engancheRemolque.nTornillosBarraTraccion ??
+          engancheRemolque.nTornillos ??
+          4,
+      );
+
+      const metrica = Number(
+        engancheRemolque.metricasTornillosBarraTraccion ??
+          engancheRemolque.metrica ??
+          16,
+      );
+
+      const calidadTexto =
+        'ISO ' +
+        (engancheRemolque.calidadTornilloBarraTraccion?.toString() ?? '8.8');
+
+      const seccionResistente = Number(
+        engancheRemolque.seccionResistenteAsBarraTraccion ?? 157,
+      );
+
+      const resistenciaTraccionMin = Number(
+        engancheRemolque.resTraccionMinTornillo88Kgmm2BarraTraccion ?? 80,
+      );
+
+      const gammaMb = Number(1.25);
+
+      const fuerzaSoportarN = mmrCfKg * 9.81;
+      const fuerzaFrenadoN = mmrCfKg * 9.81;
+      const esfuerzoMaximoTraccionN =
+        ((0.9 * resistenciaTraccionMin * seccionResistente) / gammaMb) *
+        numeroTornillos;
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [
+            new TextRun({ text: 'Estructura a chasis del enganche:' }),
+          ],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            ['Fabricación:', fabricacionEstructura],
+            ['Referencia:', referenciaEstructura],
+          ],
+          66,
+        ),
+      );
+
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [new TextRun({ text: 'Características:' })],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            [
+              'Fuerza a soportar:',
+              `${fmtInt(mmrCfKg)} Kg = ${fmtDec(fuerzaSoportarN, 0)} N`,
+            ],
+          ],
+          66,
+        ),
+      );
+
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [new TextRun({ text: 'Sujeción:' })],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            ['Nº de tornillos', fmtInt(numeroTornillos)],
+            ['Métrica', fmtInt(metrica)],
+            ['Calidad', calidadTexto],
+            ['Sección resistente', `${fmtInt(seccionResistente)} mm2`],
+            [
+              'Resistencia a tracción Mín:',
+              `${fmtDec(resistenciaTraccionMin, 2)} Kg/mm2`,
+            ],
+          ],
+          66,
+        ),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [underlineRun('Fuerza de Frenado')],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Partiendo de la aceleración de frenado asumida en las consideraciones previas, dicho esfuerzo lo obtendremos mediante la expresión:',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: 'F(f) = m(Kg) * a',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: `Considerando la aceleración (a = 10,00 m/s2), sustituyendo obtenemos que:`,
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: `F(f) = ${fmtDec(fuerzaFrenadoN, 0)} N`,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            underlineRun('Esfuerzos máximos soportados por los tornillos'),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Los esfuerzos máximos que podrán soportar los tornillos a tracción vendrán dados mediante la siguiente fórmula:',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: 'Ft(máx) = (0,9 * fu * As / γMb) * N',
+              italics: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [new TextRun({ text: 'Siendo:' })],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Ft(máx): ' }),
+            new TextRun({
+              text: 'La fuerza máxima que podrá soportar el grupo de tornillos a Tracción.',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'fu: ' }),
+            new TextRun({
+              text: 'Tensión última a tracción del tornillo.',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'As: ' }),
+            new TextRun({
+              text: 'Área resistente a tracción del tornillo.',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'γMb: ' }),
+            new TextRun({
+              text: `Coeficiente parcial de seguridad de los tornillos (${fmtDec(
+                gammaMb,
+                2,
+              )})`,
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'N: ' }),
+            new TextRun({
+              text: 'Número de tornillos empleados en la sujeción.',
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      const conjuntoTraccionValido = esfuerzoMaximoTraccionN > fuerzaFrenadoN;
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Sustituyendo los valores en las anteriores expresiones, obtenemos:',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'En la primera fórmula:',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: `Ft(máx)= ${fmtDec(esfuerzoMaximoTraccionN, 1)} N`,
+              bold: true,
+              italics: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Al ser los esfuerzos tracción máximos superiores a la fuerza de diseño, el conjunto de tornillos es ',
+            }),
+            new TextRun({
+              text: conjuntoTraccionValido ? 'VALIDO.' : 'NO VÁLIDO.',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      // ===== APARTADO 2.x.3 CARGA VERTICAL =====
+      const cargaVerticalKg = Number(sKg ?? 0);
+      const fuerzaVerticalN = cargaVerticalKg * 9.81;
+
+      const esfuerzoMaximoCortanteN =
+        ((0.6 * resistenciaTraccionMin * seccionResistente) / gammaMb) *
+        numeroTornillos;
+
+      const conjuntoCortanteValido = esfuerzoMaximoCortanteN > fuerzaVerticalN;
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `2.${numero}.3 Cálculo sistema enganche debido a la carga vertical`,
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Para la realización de estos cálculos partiremos de la determinación de la fuerza que han de soportar los sistemas de fijación en una superficie expuesta como en nuestro caso.',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: `En este punto se pretende demostrar que el sistema es capaz de soportar una fuerza a cortante de ${fmtInt(cargaVerticalKg)}Kg.`,
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [new TextRun({ text: 'Características:' })],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            [
+              'Fuerza a soportar:',
+              `${fmtInt(cargaVerticalKg)} Kg = ${fmtDec(fuerzaVerticalN, 1)} N`,
+            ],
+          ],
+          66,
+        ),
+      );
+
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [new TextRun({ text: 'Sujeción:' })],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            ['Nº de tornillos', fmtInt(numeroTornillos)],
+            ['Métrica', fmtInt(metrica)],
+            ['Calidad', calidadTexto],
+            ['Sección resistente', `${fmtInt(seccionResistente)} mm2`],
+            [
+              'Resistencia a tracción Mín:',
+              `${fmtDec(resistenciaTraccionMin, 2)} Kg/mm2`,
+            ],
+          ],
+          66,
+        ),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: 'Fv(máx) = (0,6 * fu * As / γMb) * N',
+              italics: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: `Fv(máx)= ${fmtDec(esfuerzoMaximoCortanteN, 1)} N`,
+              bold: true,
+              italics: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Al ser los esfuerzos cortantes máximos superiores a la fuerza de diseño, el conjunto de tornillos es ',
+            }),
+            new TextRun({
+              text: conjuntoCortanteValido ? 'VALIDO' : 'NO VÁLIDO',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      contador2 = contador2 + 1;
+    }
+
+    const antiempotramiento2 = modificaciones.find(
+      (m) => m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado,
+    );
+
+    if (antiempotramiento2) {
+      const BORDE_NEGRO = {
+        style: BorderStyle.SINGLE,
+        size: 4,
+        color: '000000',
+      };
+
+      const BORDES_TABLA = {
+        top: BORDE_NEGRO,
+        bottom: BORDE_NEGRO,
+        left: BORDE_NEGRO,
+        right: BORDE_NEGRO,
+        insideHorizontal: BORDE_NEGRO,
+        insideVertical: BORDE_NEGRO,
+      };
+
+      const BORDES_CELDA = {
+        top: BORDE_NEGRO,
+        bottom: BORDE_NEGRO,
+        left: BORDE_NEGRO,
+        right: BORDE_NEGRO,
+      };
+
+      const mmtaKgAnti = Number(
+        antiempotramiento2.pesoMMTAAntiempotramiento ?? 0,
+      );
+
+      const fuerzaImpactoKg = Number(mmtaKgAnti / 2);
+
+      const fuerzaImpactoN = fuerzaImpactoKg * 9.81;
+
+      const pesoPiezaKgAnti = Number(
+        antiempotramiento2.pesoPiezaKgAntiempotramiento ?? 0,
+      );
+
+      const pesoPiezaNAnti = pesoPiezaKgAnti * 9.81;
+
+      const sumaFuerzasAntiN = pesoPiezaNAnti + fuerzaImpactoN;
+
+      const numeroTornillosAnti = Number(
+        antiempotramiento2.nTornillosAntiempotramiento ??
+          antiempotramiento2.nTornillos ??
+          4,
+      );
+
+      const metricaAnti = Number(
+        antiempotramiento2.metricaAntiempotramiento ??
+          antiempotramiento2.metrica ??
+          16,
+      );
+
+      const calidadAnti =
+        'ISO ' +
+        (antiempotramiento2.calidadTornilloAntiempotramiento?.toString() ??
+          '8.8');
+
+      const seccionResistenteAnti = Number(
+        antiempotramiento2.seccionResistenteAsAntiempotramiento ?? 157,
+      );
+
+      const resistenciaTraccionMinAnti = Number(
+        antiempotramiento2.resTraccionMinTornillo88Kgmm2Antiempotramiento ?? 80,
+      );
+
+      const gammaMbAnti = 1.25;
+
+      const fuerzaDisenoAntiN = sumaFuerzasAntiN;
+
+      const fuerzaMaximaTraccionAntiN =
+        ((0.9 * resistenciaTraccionMinAnti * seccionResistenteAnti) /
+          gammaMbAnti) *
+        numeroTornillosAnti;
+
+      const fuerzaMaximaCortanteAntiN =
+        ((0.5 * resistenciaTraccionMinAnti * seccionResistenteAnti) /
+          gammaMbAnti) *
+        numeroTornillosAnti;
+
+      const comprobacionAnti =
+        fuerzaDisenoAntiN / fuerzaMaximaCortanteAntiN +
+        fuerzaDisenoAntiN / (1.4 * fuerzaMaximaTraccionAntiN);
+
+      const esValidoAnti = comprobacionAnti <= 1;
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          children: [
+            new TextRun({
+              text: `2.${contador2} CÁLCULOS DE RESISTENCIA A IMPACTOS`,
+              color: '000000',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `2.${contador2}.1 Barra antiempotramiento`,
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Para realizar el cálculo de la resistencia a impactos de la barra antiempotramiento trasera se tomarán los siguientes valores característicos',
+            }),
+          ],
+        }),
+      );
+
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [new TextRun({ text: 'Características:' })],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            [
+              'Fuerza a soportar:',
+              `MMTA/2 = ${fmtInt(fuerzaImpactoKg)} Kg = ${fmtDec(
+                fuerzaImpactoN,
+                1,
+              )} N`,
+            ],
+          ],
+          66,
+        ),
+      );
+
+      out.push(
+        new Paragraph({
+          indent: { left: 700 },
+          children: [new TextRun({ text: 'Sujeción:' })],
+        }),
+      );
+
+      out.push(
+        makeBorderlessTable(
+          [
+            ['Nº de tornillos', fmtInt(numeroTornillosAnti)],
+            ['Métrica', fmtInt(metricaAnti)],
+            ['Calidad', calidadAnti],
+            ['Sección resistente', `${fmtInt(seccionResistenteAnti)} mm2`],
+            [
+              'Resistencia a tracción Mín:',
+              `${fmtDec(resistenciaTraccionMinAnti, 2)} Kg/mm2`,
+            ],
+          ],
+          66,
+        ),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+
+      const tablaFuerzasImpactoAnti = new Table({
+        width: { size: 56, type: WidthType.PERCENTAGE },
+        borders: BORDES_TABLA,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 3,
+                borders: BORDES_CELDA,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'FUERZAS QUE ACTUAN SOBRE LA PIEZA (N)',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                borders: BORDES_CELDA,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
+                width: { size: 18, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: 'Peso' })],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
+                width: { size: 42, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: 'Fuerza del  impacto' })],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
+                width: { size: 40, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: 'Suma de fuerzas' })],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                borders: BORDES_CELDA,
+                margins: CELL_MARGINS,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({ text: fmtDec(pesoPiezaNAnti, 2) }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                margins: CELL_MARGINS,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({ text: fmtDec(fuerzaImpactoN, 2) }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                margins: CELL_MARGINS,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({ text: fmtDec(sumaFuerzasAntiN, 2) }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaFuerzasImpactoAnti);
+      out.push(new Paragraph({ text: '' }));
+      out.push(new Paragraph({ text: '' }));
+
+      const tablaComprobacionAntiempotramiento = new Table({
+        width: { size: 72, type: WidthType.PERCENTAGE },
+        borders: BORDES_TABLA,
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                borders: BORDES_CELDA,
+                verticalAlign: VerticalAlign.CENTER,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
+                width: { size: 28, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'La fuerza de diseño soportada por los anclajes (N)',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                verticalAlign: VerticalAlign.CENTER,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
+                width: { size: 20, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza máxima que soportan los tornillos a traccion (N)',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                verticalAlign: VerticalAlign.CENTER,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
+                width: { size: 24, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'Fuerza máxima que soportan los tornillos a cortante (N)',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                verticalAlign: VerticalAlign.CENTER,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
+                width: { size: 12, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: 'comprobación <=1',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                borders: BORDES_CELDA,
+                verticalAlign: VerticalAlign.CENTER,
+                margins: CELL_MARGINS,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: fmtDec(fuerzaDisenoAntiN, 2),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                verticalAlign: VerticalAlign.CENTER,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: '00B050' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: fmtDec(fuerzaMaximaTraccionAntiN, 1),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                verticalAlign: VerticalAlign.CENTER,
+                margins: CELL_MARGINS,
+                shading: { type: ShadingType.CLEAR, fill: '00B050' },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: fmtDec(fuerzaMaximaCortanteAntiN, 2),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                borders: BORDES_CELDA,
+                verticalAlign: VerticalAlign.CENTER,
+                margins: CELL_MARGINS,
+                shading: {
+                  type: ShadingType.CLEAR,
+                  fill: esValidoAnti ? '00B050' : 'FF0000',
+                },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: fmtDec(comprobacionAnti, 3),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+
+      out.push(tablaComprobacionAntiempotramiento);
+      out.push(new Paragraph({ text: '' }));
+
+      out.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text: 'Al ser la comprobación inferior o igual a 1, el conjunto de tornillos es ',
+            }),
+            new TextRun({
+              text: esValidoAnti ? 'VÁLIDO.' : 'NO VÁLIDO.',
+              bold: true,
+            }),
+          ],
+        }),
+      );
+
+      out.push(new Paragraph({ text: '' }));
+    }
+
+    // Final
     out.push(
       new Paragraph({
         children: [

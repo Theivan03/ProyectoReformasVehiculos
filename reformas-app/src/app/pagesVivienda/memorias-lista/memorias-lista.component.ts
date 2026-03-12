@@ -220,27 +220,48 @@ import {
                 <label class="form-label">Ref. catastral</label>
                 <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.refCatastral" />
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Uso</label>
-                <select class="form-select" [(ngModel)]="memoriaSeleccionada.emplazamiento.uso">
-                  <option value="">Seleccionar</option>
-                  <option value="Vivienda">Vivienda</option>
-                  <option value="Local">Local</option>
-                  <option value="Garaje">Garaje</option>
-                  <option value="Oficina">Oficina</option>
-                  <option value="Otro">Otro</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Superficie (m2)</label>
-                <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.emplazamiento.superficie" />
-              </div>
+              <ng-container *ngIf="!esAutoconsumoSeleccionada; else emplazamientoAutoconsumo">
+                <div class="col-md-4">
+                  <label class="form-label">Uso</label>
+                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.emplazamiento.uso">
+                    <option value="">Seleccionar</option>
+                    <option value="Vivienda">Vivienda</option>
+                    <option value="Local">Local</option>
+                    <option value="Garaje">Garaje</option>
+                    <option value="Oficina">Oficina</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Superficie (m2)</label>
+                  <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.emplazamiento.superficie" />
+                </div>
+              </ng-container>
+
+              <ng-template #emplazamientoAutoconsumo>
+                <div class="col-md-4">
+                  <label class="form-label">Telefono</label>
+                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.telefono" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Correo</label>
+                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.correo" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Tension (V)</label>
+                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.tension" />
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">Empresa distribuidora</label>
+                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.empresaDistribuidora" />
+                </div>
+              </ng-template>
             </div>
           </div>
 
           <div class="section-card">
             <h6 class="section-title">Caracteristicas</h6>
-            <div class="row g-3">
+            <div class="row g-3" *ngIf="!esAutoconsumoSeleccionada; else caracteristicasAutoconsumo">
               <div class="col-md-3">
                 <label class="form-label">Potencia (kW)</label>
                 <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.caracteristicas.potenciaInstalada" />
@@ -284,6 +305,78 @@ import {
                 </select>
               </div>
             </div>
+
+            <ng-template #caracteristicasAutoconsumo>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Potencia (kW)</label>
+                  <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.caracteristicas.potenciaInstalada" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Modalidad autoconsumo</label>
+                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.caracteristicas.modalidadAutoconsumo">
+                    <option *ngFor="let opcion of opcionesModalidadAutoconsumo" [value]="opcion.value">
+                      {{ opcion.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Tipo de instalacion</label>
+                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.caracteristicas.tipoInstalacionAutoconsumo">
+                    <option *ngFor="let opcion of opcionesTipoInstalacionAutoconsumo" [value]="opcion.value">
+                      {{ opcion.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Tipo de conexion</label>
+                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.caracteristicas.tipoConexionAutoconsumo">
+                    <option *ngFor="let opcion of opcionesTipoConexionAutoconsumo" [value]="opcion.value">
+                      {{ opcion.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Colectiva</label>
+                  <select
+                    class="form-select"
+                    [(ngModel)]="memoriaSeleccionada.caracteristicas.colectiva"
+                    (ngModelChange)="onCambioColectivaSeleccionada()"
+                  >
+                    <option *ngFor="let opcion of opcionesColectiva" [value]="opcion.value">
+                      {{ opcion.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-4" *ngIf="memoriaSeleccionada.caracteristicas.colectiva === 'si'">
+                  <label class="form-label">Numero consumidores</label>
+                  <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.caracteristicas.numeroConsumidores" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Tipo de actuacion</label>
+                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.memoriaDescriptiva.tipoActuacion">
+                    <option *ngFor="let opcion of opcionesTipoActuacionAutoconsumo" [value]="opcion.value">
+                      {{ opcion.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Configuracion de medida</label>
+                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.configuracionMedida">
+                    <option *ngFor="let opcion of opcionesConfiguracionMedida" [value]="opcion.value">
+                      {{ opcion.label }}
+                    </option>
+                  </select>
+                </div>
+                <div
+                  class="col-md-6"
+                  *ngIf="memoriaSeleccionada.memoriaDescriptiva.tipoActuacion === 'modificacionInstalacionExistente'"
+                >
+                  <label class="form-label">Numero registro autoconsumo</label>
+                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.memoriaDescriptiva.numeroRegAutoconsumo" />
+                </div>
+              </div>
+            </ng-template>
           </div>
 
           <div class="section-card">
@@ -610,6 +703,65 @@ export class MemoriasListaComponent implements OnInit {
     'Diciembre',
   ];
 
+  readonly opcionesModalidadAutoconsumo = [
+    { value: 'sinExcedentes', label: 'Sin excedentes' },
+    { value: 'conExcedentes', label: 'Con excedentes' },
+  ];
+
+  readonly opcionesTipoInstalacionAutoconsumo = [
+    { value: 'redInterior', label: 'Red interior' },
+    {
+      value: 'redInteriorDiversosConsumidores',
+      label: 'Red interior de diversos consumidores',
+    },
+    { value: 'proximaApartirDeRed', label: 'Proxima a partir de red' },
+  ];
+
+  readonly opcionesTipoConexionAutoconsumo = [
+    { value: 'redInterior', label: 'Red interior' },
+    {
+      value: 'redInteriorVariosConsumidores',
+      label: 'Red interior de varios consumidores',
+    },
+    { value: 'proximaATravesDeRed', label: 'Proxima a traves de red' },
+  ];
+
+  readonly opcionesColectiva = [
+    { value: 'si', label: 'Si' },
+    { value: 'no', label: 'No' },
+  ];
+
+  readonly opcionesTipoActuacionAutoconsumo = [
+    { value: 'nuevaInstalacion', label: 'Nueva instalacion' },
+    {
+      value: 'modificacionInstalacionExistente',
+      label: 'Modificacion de instalacion existente',
+    },
+  ];
+
+  readonly opcionesConfiguracionMedida = [
+    {
+      value: 'A',
+      label: 'A - Un equipo de medida bidireccional en punto frontera',
+    },
+    {
+      value: 'B',
+      label:
+        'B - Un equipo de medida bidireccional en punto de frontera y otro de generacion neta',
+    },
+    {
+      value: 'C',
+      label:
+        'C - Un equipo de medida del consumo total y otro bidireccional de generacion neta',
+    },
+    {
+      value: 'D',
+      label:
+        'D - Un equipo de medida del consumo total, otro de generacion bruta y otro de consumo de servicios auxiliares',
+    },
+    { value: 'E', label: 'E - Configuracion singular' },
+  ];
+
   icons = {
     FileText,
     Plus,
@@ -635,7 +787,10 @@ export class MemoriasListaComponent implements OnInit {
         this.memorias = (data || [])
           .map((memoria) => ({
             ...memoria,
-            tipoMemoria: this.normalizarTipoMemoria(memoria?.tipoMemoria),
+            tipoMemoria: this.normalizarTipoMemoria(
+              memoria?.tipoMemoria,
+              this.inferirTipoMemoriaDesdeDatos(memoria),
+            ),
           }))
           .reverse();
         this.cargando = false;
@@ -663,11 +818,24 @@ export class MemoriasListaComponent implements OnInit {
       : 'Consumo';
   }
 
+  get esAutoconsumoSeleccionada(): boolean {
+    return (
+      this.normalizarTipoMemoria(
+        this.memoriaSeleccionada?.tipoMemoria,
+        this.inferirTipoMemoriaDesdeDatos(this.memoriaSeleccionada),
+      ) === 'autoconsumo'
+    );
+  }
+
   abrirDetalle(memoria: any) {
     this.memoriaSeleccionada = this.normalizarMemoria(
       JSON.parse(JSON.stringify(memoria || {})),
     );
-    this.actualizarDiametroTuboSeleccionada();
+    if (this.esAutoconsumoSeleccionada) {
+      this.normalizarCamposAutoconsumoSeleccionada();
+    } else {
+      this.actualizarDiametroTuboSeleccionada();
+    }
   }
 
   confirmarEliminarMemoria(memoria: any, event: MouseEvent) {
@@ -715,6 +883,10 @@ export class MemoriasListaComponent implements OnInit {
       this.memoriaSeleccionada.titular.poblacion || titularLocalidad;
     this.memoriaSeleccionada.emplazamiento.provincia =
       this.memoriaSeleccionada.titular.provincia || '';
+    this.memoriaSeleccionada.emplazamiento.telefono =
+      this.memoriaSeleccionada.titular.telefono || '';
+    this.memoriaSeleccionada.emplazamiento.correo =
+      this.memoriaSeleccionada.titular.correo || '';
   }
 
   actualizarDiametroTuboSeleccionada() {
@@ -758,6 +930,81 @@ export class MemoriasListaComponent implements OnInit {
     this.memoriaSeleccionada.caracteristicas.diametroTuboMm = '';
   }
 
+  onCambioColectivaSeleccionada() {
+    if (
+      !this.memoriaSeleccionada?.caracteristicas ||
+      this.memoriaSeleccionada.caracteristicas.colectiva === 'si'
+    ) {
+      return;
+    }
+    this.memoriaSeleccionada.caracteristicas.numeroConsumidores = '';
+  }
+
+  private normalizarCamposAutoconsumoSeleccionada() {
+    if (!this.memoriaSeleccionada) return;
+
+    const caracteristicas = this.memoriaSeleccionada.caracteristicas || {};
+    const normalizarOpcion = (
+      valor: any,
+      opciones: { value: string }[],
+      fallback: string,
+    ): string =>
+      opciones.some((opcion) => opcion.value === valor) ? valor : fallback;
+
+    caracteristicas.modalidadAutoconsumo = normalizarOpcion(
+      caracteristicas.modalidadAutoconsumo,
+      this.opcionesModalidadAutoconsumo,
+      'sinExcedentes',
+    );
+    caracteristicas.tipoInstalacionAutoconsumo = normalizarOpcion(
+      caracteristicas.tipoInstalacionAutoconsumo,
+      this.opcionesTipoInstalacionAutoconsumo,
+      'redInterior',
+    );
+    caracteristicas.tipoConexionAutoconsumo = normalizarOpcion(
+      caracteristicas.tipoConexionAutoconsumo,
+      this.opcionesTipoConexionAutoconsumo,
+      'redInterior',
+    );
+    caracteristicas.colectiva = normalizarOpcion(
+      caracteristicas.colectiva,
+      this.opcionesColectiva,
+      'no',
+    );
+
+    if (caracteristicas.colectiva !== 'si') {
+      caracteristicas.numeroConsumidores = '';
+    } else {
+      const numero = Number(caracteristicas.numeroConsumidores);
+      caracteristicas.numeroConsumidores =
+        Number.isFinite(numero) && numero > 0 ? String(Math.trunc(numero)) : '';
+    }
+
+    this.memoriaSeleccionada.caracteristicas = caracteristicas;
+
+    this.memoriaSeleccionada.configuracionMedida = normalizarOpcion(
+      this.memoriaSeleccionada.configuracionMedida,
+      this.opcionesConfiguracionMedida,
+      'A',
+    );
+
+    const memoriaDescriptiva = this.memoriaSeleccionada.memoriaDescriptiva || {};
+    memoriaDescriptiva.tipoActuacion =
+      memoriaDescriptiva.tipoActuacion === 'modificacionInstalacionExistente'
+        ? 'modificacionInstalacionExistente'
+        : 'nuevaInstalacion';
+
+    if (memoriaDescriptiva.tipoActuacion !== 'modificacionInstalacionExistente') {
+      memoriaDescriptiva.numeroRegAutoconsumo = '';
+    } else {
+      memoriaDescriptiva.numeroRegAutoconsumo = String(
+        memoriaDescriptiva.numeroRegAutoconsumo || '',
+      ).trim();
+    }
+
+    this.memoriaSeleccionada.memoriaDescriptiva = memoriaDescriptiva;
+  }
+
   async guardarDetalle() {
     await this.persistirDetalle(false);
   }
@@ -771,8 +1018,17 @@ export class MemoriasListaComponent implements OnInit {
         return;
       }
 
+      const tipoMemoriaSeleccionada = this.normalizarTipoMemoria(
+        this.memoriaSeleccionada?.tipoMemoria,
+        this.inferirTipoMemoriaDesdeDatos(this.memoriaSeleccionada),
+      );
+      const rutaEdicion =
+        tipoMemoriaSeleccionada === 'autoconsumo'
+          ? '/memoria-tecnica-diseno/autoconsumo'
+          : '/memoria-tecnica-diseno/consumo';
+
       const urlTree = this.router.createUrlTree(
-        ['/memoria-tecnica-diseno', this.memoriaSeleccionada.id],
+        [rutaEdicion, this.memoriaSeleccionada.id],
         {
           queryParams: {
             autoDownload: '1',
@@ -810,8 +1066,13 @@ export class MemoriasListaComponent implements OnInit {
     this.guardandoDetalle = true;
     this.memoriaSeleccionada.tipoMemoria = this.normalizarTipoMemoria(
       this.memoriaSeleccionada.tipoMemoria,
+      this.inferirTipoMemoriaDesdeDatos(this.memoriaSeleccionada),
     );
-    this.actualizarDiametroTuboSeleccionada();
+    if (this.esAutoconsumoSeleccionada) {
+      this.normalizarCamposAutoconsumoSeleccionada();
+    } else {
+      this.actualizarDiametroTuboSeleccionada();
+    }
     this.sincronizarLocalidadPoblacionSeleccionada();
     this.onCambioMismaDireccion();
     this.sincronizarLocalidadPoblacionSeleccionada();
@@ -871,9 +1132,37 @@ export class MemoriasListaComponent implements OnInit {
 
     this.memorias[idx] = {
       ...JSON.parse(JSON.stringify(memoriaActualizada)),
-      tipoMemoria: this.normalizarTipoMemoria(memoriaActualizada?.tipoMemoria),
+      tipoMemoria: this.normalizarTipoMemoria(
+        memoriaActualizada?.tipoMemoria,
+        this.inferirTipoMemoriaDesdeDatos(memoriaActualizada),
+      ),
     };
     this.memorias = [...this.memorias];
+  }
+
+  private inferirTipoMemoriaDesdeDatos(memoria: any): 'consumo' | 'autoconsumo' {
+    if (!memoria || typeof memoria !== 'object') {
+      return 'consumo';
+    }
+
+    const caracteristicas = memoria?.caracteristicas || {};
+    const memoriaDescriptiva = memoria?.memoriaDescriptiva || {};
+
+    const tieneCamposAutoconsumo = Boolean(
+      caracteristicas?.tipoInstalacionAutoconsumo ||
+        caracteristicas?.modalidadAutoconsumo ||
+        caracteristicas?.tipoConexionAutoconsumo ||
+        caracteristicas?.colectiva ||
+        memoriaDescriptiva?.tipoActuacion ||
+        memoriaDescriptiva?.numeroRegAutoconsumo ||
+        memoria?.configuracionMedida ||
+        Array.isArray(memoria?.contadores) ||
+        Array.isArray(memoria?.placas) ||
+        Array.isArray(memoria?.inversores) ||
+        Array.isArray(memoria?.lineas),
+    );
+
+    return tieneCamposAutoconsumo ? 'autoconsumo' : 'consumo';
   }
 
   private normalizarTipoMemoria(
@@ -911,6 +1200,10 @@ export class MemoriasListaComponent implements OnInit {
         cp: '',
         cups: '',
         refCatastral: '',
+        telefono: '',
+        correo: '',
+        tension: '',
+        empresaDistribuidora: 'I-DE REDES ELÉCTRICAS INTELIGENTES, S.A.U.',
         uso: '',
         superficie: '',
         planoImagen: null,
@@ -921,7 +1214,27 @@ export class MemoriasListaComponent implements OnInit {
         tipoInstalacion: 'monofasica',
         diametroTuboMm: '32',
         esquemaUnifilar: '1',
+        tipoInstalacionAutoconsumo: 'redInterior',
+        modalidadAutoconsumo: 'sinExcedentes',
+        tipoConexionAutoconsumo: 'redInterior',
+        colectiva: 'no',
+        numeroConsumidores: '',
       },
+      memoriaDescriptiva: {
+        tipoActuacion: 'nuevaInstalacion',
+        numeroRegAutoconsumo: '',
+        cambios: {
+          deConExcedentesASinExcedentes: false,
+          deSinExcedentesAConExcedentes: false,
+          deProduccionTodoTodoASinExcedentes: false,
+          deProduccionTodoTodoAConExcedentes: false,
+          conVariacionPotencia: false,
+          sustitucionEquipos: false,
+          otros: false,
+        },
+        descripcionOtros: '',
+      },
+      configuracionMedida: 'A',
       fechaFirma: { dia: '', mes: '', anyo: '', lugar: '' },
       fechaCreacion: '',
       fechaEdicion: '',
@@ -930,7 +1243,10 @@ export class MemoriasListaComponent implements OnInit {
     const normalizada = {
       ...base,
       ...memoria,
-      tipoMemoria: this.normalizarTipoMemoria(memoria?.tipoMemoria),
+      tipoMemoria: this.normalizarTipoMemoria(
+        memoria?.tipoMemoria,
+        this.inferirTipoMemoriaDesdeDatos(memoria),
+      ),
       titular: { ...base.titular, ...(memoria?.titular || {}) },
       emplazamiento: {
         ...base.emplazamiento,
@@ -939,6 +1255,14 @@ export class MemoriasListaComponent implements OnInit {
       caracteristicas: {
         ...base.caracteristicas,
         ...(memoria?.caracteristicas || {}),
+      },
+      memoriaDescriptiva: {
+        ...base.memoriaDescriptiva,
+        ...(memoria?.memoriaDescriptiva || {}),
+        cambios: {
+          ...base.memoriaDescriptiva.cambios,
+          ...(memoria?.memoriaDescriptiva?.cambios || {}),
+        },
       },
       fechaFirma: { ...base.fechaFirma, ...(memoria?.fechaFirma || {}) },
     };

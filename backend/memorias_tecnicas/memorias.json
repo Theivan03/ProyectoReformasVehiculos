@@ -126,6 +126,7 @@
       "nif": "20049251J",
       "domicilio": "C/ SALVADOR SOLER Y SOLER, 16",
       "cp": "46780",
+      "localidad": "OLIVA",
       "poblacion": "OLIVA",
       "provincia": "VALENCIA",
       "telefono": "676875461",
@@ -133,10 +134,16 @@
     },
     "emplazamiento": {
       "direccion": "C/ SALVADOR SOLER Y SOLER, 16",
+      "localidad": "OLIVA",
       "poblacion": "OLIVA",
       "provincia": "VALENCIA",
       "cp": "46780",
+      "cups": "",
       "refCatastral": "9822214YJ4192S0001AP",
+      "telefono": "676875461",
+      "correo": "facturacio@electricitativan.com",
+      "tension": "",
+      "empresaDistribuidora": "I-DE REDES ELÉCTRICAS INTELIGENTES, S.A.U.",
       "uso": "Vivienda",
       "superficie": 161,
       "planoImagen": null
@@ -146,7 +153,12 @@
       "tipoCableMm2": "6",
       "tipoInstalacion": "monofasica",
       "diametroTuboMm": "32",
-      "esquemaUnifilar": "1"
+      "esquemaUnifilar": "1",
+      "tipoInstalacionAutoconsumo": "redInterior",
+      "modalidadAutoconsumo": "sinExcedentes",
+      "tipoConexionAutoconsumo": "redInterior",
+      "colectiva": "no",
+      "numeroConsumidores": ""
     },
     "fechaFirma": {
       "dia": "4",
@@ -155,8 +167,23 @@
       "lugar": "OLIVA"
     },
     "fechaCreacion": "2026-03-04T12:43:31.644Z",
-    "fechaEdicion": "2026-03-04T14:53:57.556Z",
-    "tipoMemoria": "consumo"
+    "fechaEdicion": "2026-03-12T07:31:17.197Z",
+    "tipoMemoria": "consumo",
+    "memoriaDescriptiva": {
+      "tipoActuacion": "nuevaInstalacion",
+      "numeroRegAutoconsumo": "",
+      "cambios": {
+        "deConExcedentesASinExcedentes": false,
+        "deSinExcedentesAConExcedentes": false,
+        "deProduccionTodoTodoASinExcedentes": false,
+        "deProduccionTodoTodoAConExcedentes": false,
+        "conVariacionPotencia": false,
+        "sustitucionEquipos": false,
+        "otros": false
+      },
+      "descripcionOtros": ""
+    },
+    "configuracionMedida": "A"
   },
   {
     "id": 1772634583630,
@@ -351,5 +378,109 @@
     "fechaCreacion": "2026-03-05T12:52:11.427Z",
     "configuracionMedida": "A",
     "fechaEdicion": "2026-03-05T14:18:49.749Z"
+  },
+  {
+    "id": 1773238748959,
+    "tipoMemoria": "consumo",
+    "mismaDireccion": true,
+    "titular": {
+      "nombre": "MARIA CONCEPCION",
+      "apellidos": "ROIG TOMAS",
+      "nif": "19977205A",
+      "domicilio": "Calle Isla Decreta 9 Planta 1 Puerta Detras",
+      "cp": "46780",
+      "poblacion": "Oliva",
+      "provincia": "Valencia",
+      "telefono": "676875461",
+      "correo": "facturacio@electricitativan.com"
+    },
+    "emplazamiento": {
+      "direccion": "Calle Isla Decreta 9 Planta 1 Puerta Detras",
+      "poblacion": "Oliva",
+      "provincia": "Valencia",
+      "cp": "46780",
+      "cups": "",
+      "refCatastral": "CUPS ES0021000008232825RH",
+      "uso": "Vivienda",
+      "superficie": 53,
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": 7.3,
+      "tipoCableMm2": "6",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "1"
+    },
+    "fechaFirma": {
+      "dia": "11",
+      "mes": "Marzo",
+      "anyo": "2026",
+      "lugar": "Teulada"
+    },
+    "fechaCreacion": "2026-03-11T14:19:08.959Z",
+    "fechaEdicion": "2026-03-11T14:20:13.593Z"
+  },
+  {
+    "id": 1773299843307,
+    "tipoMemoria": "autoconsumo",
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "",
+      "apellidos": "",
+      "nif": "",
+      "domicilio": "",
+      "cp": "",
+      "localidad": "",
+      "poblacion": "",
+      "provincia": "",
+      "telefono": "618622012",
+      "correo": "hablamos@projectes.es"
+    },
+    "emplazamiento": {
+      "direccion": "",
+      "localidad": "",
+      "poblacion": "",
+      "provincia": "",
+      "cp": "",
+      "cups": "",
+      "refCatastral": "",
+      "uso": "",
+      "superficie": "",
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": "",
+      "tipoCableMm2": "6",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "1",
+      "tipoInstalacionAutoconsumo": "redInterior",
+      "modalidadAutoconsumo": "sinExcedentes",
+      "tipoConexionAutoconsumo": "redInterior",
+      "colectiva": "no",
+      "numeroConsumidores": ""
+    },
+    "memoriaDescriptiva": {
+      "tipoActuacion": "nuevaInstalacion",
+      "numeroRegAutoconsumo": "",
+      "cambios": {
+        "deConExcedentesASinExcedentes": false,
+        "deSinExcedentesAConExcedentes": false,
+        "deProduccionTodoTodoASinExcedentes": false,
+        "deProduccionTodoTodoAConExcedentes": false,
+        "conVariacionPotencia": false,
+        "sustitucionEquipos": false,
+        "otros": false
+      },
+      "descripcionOtros": ""
+    },
+    "fechaFirma": {
+      "dia": "",
+      "mes": "",
+      "anyo": "",
+      "lugar": ""
+    },
+    "fechaCreacion": "2026-03-12T07:17:23.307Z"
   }
 ]

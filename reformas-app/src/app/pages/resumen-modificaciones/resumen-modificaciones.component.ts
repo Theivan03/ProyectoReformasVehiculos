@@ -208,193 +208,39 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
 
       if (m.nombre === 'DIFUSOR TRASERO') {
-        // if (m.velocidadAireV2msAletines == null) {
-        //   m.velocidadAireV2msAletines = 38.89;
-        // }
-        // if (m.densidadAireKgM3Aletines == null) {
-        //   m.densidadAireKgM3Aletines = 1.29;
-        // }
-        // if (m.radioCurvaRAletines == null) {
-        //   m.radioCurvaRAletines = 8;
-        // }
         if (m.radioCurvaRDifusor == null) {
           m.radioCurvaRDifusor = 8;
         }
-        // if (m.coefSeguridadKAletines == null) {
-        //   m.coefSeguridadKAletines = 3;
-        // }
-        // if (m.coefAerodinamicoCwAletines == null) {
-        //   m.coefAerodinamicoCwAletines = 0.82;
-        // }
-        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
-        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
-        // }
-        // if (m.seccionResistenteAsAletines == null) {
-        //   m.seccionResistenteAsAletines =
-        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        // }
       }
       if (m.nombre === 'LIP DELANTERO') {
-        // if (m.velocidadAireV2msAletines == null) {
-        //   m.velocidadAireV2msAletines = 38.89;
-        // }
-        // if (m.densidadAireKgM3Aletines == null) {
-        //   m.densidadAireKgM3Aletines = 1.29;
-        // }
-        // if (m.radioCurvaRAletines == null) {
-        //   m.radioCurvaRAletines = 8;
-        // }
         if (m.radioCurvaRDifusor == null) {
           m.radioCurvaRLipDelantero = 8;
         }
-        // if (m.coefSeguridadKAletines == null) {
-        //   m.coefSeguridadKAletines = 3;
-        // }
-        // if (m.coefAerodinamicoCwAletines == null) {
-        //   m.coefAerodinamicoCwAletines = 0.82;
-        // }
-        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
-        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
-        // }
-        // if (m.seccionResistenteAsAletines == null) {
-        //   m.seccionResistenteAsAletines =
-        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        // }
       }
       if (m.nombre === 'MATRÍCULA Y PORTAMATRÍCULA') {
-        // if (m.velocidadAireV2msAletines == null) {
-        //   m.velocidadAireV2msAletines = 38.89;
-        // }
-        // if (m.densidadAireKgM3Aletines == null) {
-        //   m.densidadAireKgM3Aletines = 1.29;
-        // }
-        // if (m.radioCurvaRAletines == null) {
-        //   m.radioCurvaRAletines = 8;
-        // }
         if (m.radioCurvaRPortamatricula == null) {
           m.radioCurvaRPortamatricula = 8;
         }
-        // if (m.coefSeguridadKAletines == null) {
-        //   m.coefSeguridadKAletines = 3;
-        // }
-        // if (m.coefAerodinamicoCwAletines == null) {
-        //   m.coefAerodinamicoCwAletines = 0.82;
-        // }
-        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
-        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
-        // }
-        // if (m.seccionResistenteAsAletines == null) {
-        //   m.seccionResistenteAsAletines =
-        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        // }
       }
       if (m.nombre === 'PELDAÑOS') {
-        // if (m.velocidadAireV2msAletines == null) {
-        //   m.velocidadAireV2msAletines = 38.89;
-        // }
-        // if (m.densidadAireKgM3Aletines == null) {
-        //   m.densidadAireKgM3Aletines = 1.29;
-        // }
-        // if (m.radioCurvaRAletines == null) {
-        //   m.radioCurvaRAletines = 8;
-        // }
         if (m.radioCurvaRPeldanos == null) {
           m.radioCurvaRPeldanos = 8;
         }
-        // if (m.coefSeguridadKAletines == null) {
-        //   m.coefSeguridadKAletines = 3;
-        // }
-        // if (m.coefAerodinamicoCwAletines == null) {
-        //   m.coefAerodinamicoCwAletines = 0.82;
-        // }
-        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
-        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
-        // }
-        // if (m.seccionResistenteAsAletines == null) {
-        //   m.seccionResistenteAsAletines =
-        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        // }
       }
       if (m.nombre === 'CALANDRA') {
-        // if (m.velocidadAireV2msAletines == null) {
-        //   m.velocidadAireV2msAletines = 38.89;
-        // }
-        // if (m.densidadAireKgM3Aletines == null) {
-        //   m.densidadAireKgM3Aletines = 1.29;
-        // }
-        // if (m.radioCurvaRAletines == null) {
-        //   m.radioCurvaRAletines = 8;
-        // }
         if (m.radioCurvaRCalandra == null) {
           m.radioCurvaRCalandra = 8;
         }
-        // if (m.coefSeguridadKAletines == null) {
-        //   m.coefSeguridadKAletines = 3;
-        // }
-        // if (m.coefAerodinamicoCwAletines == null) {
-        //   m.coefAerodinamicoCwAletines = 0.82;
-        // }
-        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
-        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
-        // }
-        // if (m.seccionResistenteAsAletines == null) {
-        //   m.seccionResistenteAsAletines =
-        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        // }
       }
       if (m.nombre === 'PLANCHA CAPÓ') {
-        // if (m.velocidadAireV2msAletines == null) {
-        //   m.velocidadAireV2msAletines = 38.89;
-        // }
-        // if (m.densidadAireKgM3Aletines == null) {
-        //   m.densidadAireKgM3Aletines = 1.29;
-        // }
-        // if (m.radioCurvaRAletines == null) {
-        //   m.radioCurvaRAletines = 8;
-        // }
         if (m.radioCurvaRPlanchaCapo == null) {
           m.radioCurvaRPlanchaCapo = 8;
         }
-        // if (m.coefSeguridadKAletines == null) {
-        //   m.coefSeguridadKAletines = 3;
-        // }
-        // if (m.coefAerodinamicoCwAletines == null) {
-        //   m.coefAerodinamicoCwAletines = 0.82;
-        // }
-        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
-        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
-        // }
-        // if (m.seccionResistenteAsAletines == null) {
-        //   m.seccionResistenteAsAletines =
-        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        // }
       }
       if (m.nombre === 'REFUERZO PARAGOLPES') {
-        // if (m.velocidadAireV2msAletines == null) {
-        //   m.velocidadAireV2msAletines = 38.89;
-        // }
-        // if (m.densidadAireKgM3Aletines == null) {
-        //   m.densidadAireKgM3Aletines = 1.29;
-        // }
-        // if (m.radioCurvaRAletines == null) {
-        //   m.radioCurvaRAletines = 8;
-        // }
         if (m.radioCurvaRRefuerzo == null) {
           m.radioCurvaRRefuerzo = 8;
         }
-        // if (m.coefSeguridadKAletines == null) {
-        //   m.coefSeguridadKAletines = 3;
-        // }
-        // if (m.coefAerodinamicoCwAletines == null) {
-        //   m.coefAerodinamicoCwAletines = 0.82;
-        // }
-        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
-        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
-        // }
-        // if (m.seccionResistenteAsAletines == null) {
-        //   m.seccionResistenteAsAletines =
-        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        // }
       }
       if (m.nombre === 'ALETINES Y SOBREALETINES') {
         if (m.velocidadAireV2msAletines == null) {
@@ -804,6 +650,23 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
             this.getAreaResistenteByMetrica(m.metricaPeldanos) ?? 11.33;
         }
       }
+      if (m.nombre === 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO') {
+        if (!m.referenciaBarraTraccion)
+          m.referenciaBarraTraccion = 'Sin referencia';
+        if (!m.tipoFabricacionBarraTraccion)
+          m.tipoFabricacionBarraTraccion = 'Artesanal en hierro';
+        if (!m.calidadTornilloBarraTraccion)
+          m.calidadTornilloBarraTraccion = 8.8;
+        if (!m.resTraccionMinTornillo88Kgmm2BarraTraccion)
+          m.resTraccionMinTornillo88Kgmm2BarraTraccion = 80;
+        if (!m.metricasTornillosBarraTraccion)
+          m.metricasTornillosBarraTraccion = 4;
+        if (!m.seccionResistenteAsBarraTraccion) {
+          m.seccionResistenteAsBarraTraccion =
+            this.getAreaResistenteByMetrica(m.metricasTornillosBarraTraccion) ??
+            11.33;
+        }
+      }
 
       if (m.nombre === 'SNORKEL') {
         this.ensureSnorkelDefaults(m);
@@ -1138,6 +1001,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       {
         metricaKey: 'metricaPeldanos',
         areaKey: 'seccionResistenteAsPeldanos',
+      },
+      {
+        metricaKey: 'metricasTornillosBarraTraccion',
+        areaKey: 'seccionResistenteAsBarraTraccion',
       },
     ];
 

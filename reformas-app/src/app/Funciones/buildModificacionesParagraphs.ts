@@ -30,7 +30,10 @@ export function buildModificacionesParagraphs(
   );
   if (remolquenohomologado) {
     (remolquenohomologado.acciones || []).forEach((accion: string) => {
-      const raw = `- ${accion} de enganche de remolque homologado en emplazamiento no homologado, consistente en: soporte marca ${remolquenohomologado.marca}, tipo ${remolquenohomologado.tipo}, clase ${remolquenohomologado.clase}, contraseña de homologación ${remolquenohomologado.homologacion}, para una MMR en remolques de eje central ${remolquenohomologado.mmrEjeCentral} kg y de barra de tracción ${remolquenohomologado.mmrBarraTraccion} kg.`;
+      const raw = `- ${accion} de enganche de remolque homologado en emplazamiento no homologado, consistente en: soporte ${remolquenohomologado.tipoFabricacionBarraTraccion}, para una MMR en remolques de eje
+central ${remolquenohomologado.mmrEjeCentral} y de barra de tracción ${remolquenohomologado.mmaBarraTraccion}, con un valor de D=${remolquenohomologado.valorDKnFijacion} KN y S= ${remolquenohomologado.mmrBarraTraccion}Kg //
+bola marca ${remolquenohomologado.marca}, clase ${remolquenohomologado.clase}, tipo ${remolquenohomologado.tipo}, con contraseña de homologación ${remolquenohomologado.homologacion}, para una MMR en remolques de eje central ${remolquenohomologado.mmrEjeCentral} y de barra de tracción
+${remolquenohomologado.mmaBarraTraccion}, con un valor de D= ${remolquenohomologado.valorDKn} KN y S=${remolquenohomologado.mmrBarraTraccion} Kg`;
 
       const p = new Paragraph({
         spacing: { line: 260, after: 120 },

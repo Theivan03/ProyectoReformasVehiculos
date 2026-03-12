@@ -118,6 +118,22 @@ export interface Modificacion {
   superficieFrontalM2Difusor?: number;
   coefSeguridadKDifusor?: number;
 
+  mmtaRemolque?: number;
+  valorDKnRemolque?: number;
+
+  nTornillosBarraTraccion?: number;
+  mmaBarraTraccion?: number;
+  metricasTornillosBarraTraccion?: number;
+  numTornillosBarraTraccion?: number;
+  calidadTornilloBarraTraccion?: number;
+  resTraccionMinTornillo88Kgmm2BarraTraccion?: number;
+  seccionResistenteAsBarraTraccion?: number;
+  tipoFabricacionBarraTraccion?: string;
+  referenciaBarraTraccion?: string;
+  valorDKn?: number;
+  valorDKnFijacion?: number;
+  pesoMMTAAntiempotramiento?: number;
+
   pesoPeldanos?: number;
   metricaPeldanos?: number;
   numTornillosPeldanos?: number;

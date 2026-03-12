@@ -15,8 +15,8 @@
       "curvaturaAleron": 8,
       "calidadTornilloAleron": 8.8,
       "resTraccionMinTornillo88Kgmm2Aleron": 80,
-      "metricaAleron": "8",
-      "seccionResistenteAsAleron": 36.64,
+      "metricaAleron": "16",
+      "seccionResistenteAsAleron": 146.52,
       "ubicacionAleron": "a",
       "materialAleron": "a",
       "pesoAleron": "5",
@@ -48,7 +48,7 @@
     },
     {
       "nombre": "PELDAÑOS",
-      "seleccionado": true,
+      "seleccionado": false,
       "radioCurvaRPeldanos": 8,
       "coefAerodinamicoCwPeldanos": 0.82,
       "velocidadAireV2msPeldanos": 38.89,
@@ -114,8 +114,8 @@
     },
     {
       "nombre": "ANTIEMPOTRAMIENTO",
-      "seleccionado": false,
-      "seccionResistenteAsAntiempotramiento": 36.64,
+      "seleccionado": true,
+      "seccionResistenteAsAntiempotramiento": 146.52,
       "resTraccionMinTornillo88Kgmm2Antiempotramiento": 80,
       "cwCoefAerodinamicoAntiempotramiento": 0.82,
       "densidadAireKgM3Antiempotramiento": 1.29,
@@ -126,7 +126,14 @@
         "aletines": false,
         "sobrealetines": false
       },
-      "calidadTornilloAntiempotramiento": 8.8
+      "calidadTornilloAntiempotramiento": 8.8,
+      "metricaAntiempotramiento": 16,
+      "medidasAntiempotramiento": "1660x115x55",
+      "superficieFrontalM2Antiempotramiento": 0.1909,
+      "nTornillosAntiempotramiento": 4,
+      "pesoPiezaKgAntiempotramiento": 5,
+      "nTornillos": 4,
+      "pesoMMTAAntiempotramiento": 2720
     },
     {
       "nombre": "ANTINIEBLA",
@@ -337,7 +344,31 @@
     },
     {
       "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO",
-      "seleccionado": false
+      "seleccionado": true,
+      "acciones": [
+        "Instalación"
+      ],
+      "marca": "a",
+      "tipo": "e",
+      "clase": "i",
+      "homologacion": "o",
+      "mmrEjeCentral": 3500,
+      "mmrBarraTraccion": 210,
+      "mmtaRemolque": 2.72,
+      "valorDKnRemolque": 17.2,
+      "metrica": "16",
+      "nTornillos": 4,
+      "referenciaBarraTraccion": "Sin referencia",
+      "tipoFabricacionBarraTraccion": "Artesanal en hierro",
+      "calidadTornilloBarraTraccion": 8.8,
+      "resTraccionMinTornillo88Kgmm2BarraTraccion": 80,
+      "metricasTornillosBarraTraccion": "16",
+      "seccionResistenteAsBarraTraccion": 146.52,
+      "mmaBarraTraccion": 3500,
+      "numTornillosBarraTraccion": 4,
+      "mmta": 2.72,
+      "valorDKn": 17.2,
+      "valorDKnFijacion": 15
     },
     {
       "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO",

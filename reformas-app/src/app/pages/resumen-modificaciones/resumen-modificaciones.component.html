@@ -4081,6 +4081,25 @@
                       <div class="form-floating">
                         <input
                           type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Peso"
+                          [(ngModel)]="mod.pesoMMTAAntiempotramiento"
+                          name="pesoMMTAAntiempotramiento{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.pesoMMTAAntiempotramiento == null
+                          "
+                        />
+                        <label>MMTA del vehículo (Kg)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
                           step="0.0001"
                           min="0"
                           class="form-control"
@@ -10825,248 +10844,463 @@
           </div>
         }
         @if (mod.nombre === REMOLQUE_NO_HOMOLOGADO && mod.seleccionado) {
-          <div class="mb-3">
-            <section class="mod-card">
-              <div class="mod-card__header">
-                <h4 class="mod-card__title">
-                  Homologado en Emplazamiento No Homologado
-                </h4>
-                <span class="mod-card__hint"
-                  >Definición de parámetros de instalación y carga</span
-                >
-              </div>
+  <div class="mb-3">
+    <section class="mod-card remolque-no-homologado">
+      <div class="mod-card__header">
+        <h4 class="mod-card__title">
+          Homologado en Emplazamiento No Homologado
+        </h4>
+        <span class="mod-card__hint"
+          >Definición de parámetros de instalación y carga</span
+        >
+      </div>
 
-              <div class="row g-4">
-                <div class="col-12 col-md-4 border-end">
-                  <label
-                    class="form-label d-block mb-2 fw-bold text-uppercase small"
-                    >Tipo de acción</label
-                  >
+      <div class="row g-4">
+        <div class="col-12 col-md-4 border-end">
+          <label
+            class="form-label d-block mb-2 fw-bold text-uppercase small"
+            >Tipo de acción</label
+          >
 
-                  <div class="d-flex flex-column gap-2">
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="accion-instalacion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Instalación')"
-                        (change)="
-                          toggleAccion(
-                            mod,
-                            'Instalación',
-                            $event.target.checked
-                          )
-                        "
-                      />
-                      <label
-                        class="form-check-label"
-                        for="accion-instalacion-{{ i }}"
-                        >Instalación</label
-                      >
-                    </div>
+          <div class="d-flex flex-column gap-2">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="accion-instalacion-{{ i }}"
+                [checked]="mod.acciones?.includes('Instalación')"
+                (change)="
+                  toggleAccion(
+                    mod,
+                    'Instalación',
+                    $event.target.checked
+                  )
+                "
+              />
+              <label
+                class="form-check-label"
+                for="accion-instalacion-{{ i }}"
+                >Instalación</label
+              >
+            </div>
 
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="accion-sustitucion-{{ i }}"
-                        [checked]="mod.acciones?.includes('Sustitución')"
-                        (change)="
-                          toggleAccion(
-                            mod,
-                            'Sustitución',
-                            $event.target.checked
-                          )
-                        "
-                      />
-                      <label
-                        class="form-check-label"
-                        for="accion-sustitucion-{{ i }}"
-                        >Sustitución</label
-                      >
-                    </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="accion-sustitucion-{{ i }}"
+                [checked]="mod.acciones?.includes('Sustitución')"
+                (change)="
+                  toggleAccion(
+                    mod,
+                    'Sustitución',
+                    $event.target.checked
+                  )
+                "
+              />
+              <label
+                class="form-check-label"
+                for="accion-sustitucion-{{ i }}"
+                >Sustitución</label
+              >
+            </div>
 
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="accion-desmontaje-{{ i }}"
-                        [checked]="mod.acciones?.includes('Desmontaje')"
-                        (change)="
-                          toggleAccion(mod, 'Desmontaje', $event.target.checked)
-                        "
-                      />
-                      <label
-                        class="form-check-label"
-                        for="accion-desmontaje-{{ i }}"
-                        >Desmontaje</label
-                      >
-                    </div>
-                  </div>
-
-                  <div
-                    class="invalid-feedback d-block mt-2"
-                    *ngIf="
-                      formSubmitted &&
-                      (!mod.acciones || mod.acciones.length === 0)
-                    "
-                  >
-                    <i class="bi bi-exclamation-circle"></i> Debe seleccionar al
-                    menos una acción.
-                  </div>
-                </div>
-
-                <div class="col-12 col-md-8">
-                  <div class="row g-3">
-                    <div class="col-md-4">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Marca"
-                          [(ngModel)]="mod.marca"
-                          name="marcaHomologado{{ i }}"
-                          required
-                          [class.is-invalid]="formSubmitted && !mod.marca"
-                        />
-                        <label>MARCA</label>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Tipo"
-                          [(ngModel)]="mod.tipo"
-                          name="tipoHomologado{{ i }}"
-                          required
-                          [class.is-invalid]="formSubmitted && !mod.tipo"
-                        />
-                        <label>TIPO</label>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Clase"
-                          [(ngModel)]="mod.clase"
-                          name="claseHomologado{{ i }}"
-                          required
-                          [class.is-invalid]="formSubmitted && !mod.clase"
-                        />
-                        <label>CLASE</label>
-                      </div>
-                    </div>
-
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Homologación"
-                          [(ngModel)]="mod.homologacion"
-                          name="homologacion{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted && !mod.homologacion
-                          "
-                        />
-                        <label>CONTRASEÑA HOMOLOGACIÓN</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          min="0"
-                          class="form-control"
-                          placeholder="MMR Eje"
-                          [(ngModel)]="mod.mmrEjeCentral"
-                          name="mmrEjeCentral{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted && !mod.mmrEjeCentral
-                          "
-                        />
-                        <label>MMR EJE (Kg)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          min="0"
-                          class="form-control"
-                          placeholder="MMR Barra"
-                          [(ngModel)]="mod.mmrBarraTraccion"
-                          name="mmrBarraTraccion{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted && !mod.mmrBarraTraccion
-                          "
-                        />
-                        <label>MMR BARRA (Kg)</label>
-                      </div>
-                    </div>
-
-                    <div class="col-12">
-                      <div class="p-3 bg-light border mt-2">
-                        <h6
-                          class="text-muted text-uppercase small mb-3 fw-bold"
-                        >
-                          Especificaciones de Fijación
-                        </h6>
-                        <div class="row g-3">
-                          <div class="col-md-6">
-                            <div class="form-floating">
-                              <select
-                                class="form-select"
-                                [(ngModel)]="mod.metrica"
-                                name="metrica{{ i }}"
-                                required
-                                [class.is-invalid]="
-                                  formSubmitted && mod.metrica == null
-                                "
-                              >
-                                <option [value]="null" disabled selected>
-                                  -- SELECCIONAR --
-                                </option>
-                                @for (num of metricasTornillos; track num) {
-                                  <option [value]="num">{{ num }}</option>
-                                }
-                              </select>
-                              <label>MÉTRICA TORNILLOS</label>
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="form-floating">
-                              <input
-                                type="number"
-                                min="0"
-                                class="form-control"
-                                placeholder="Nº"
-                                [(ngModel)]="mod.nTornillos"
-                                name="nTornillos"
-                                required
-                                [class.is-invalid]="
-                                  formSubmitted && !mod.nTornillos
-                                "
-                              />
-                              <label>Nº DE TORNILLOS</label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="accion-desmontaje-{{ i }}"
+                [checked]="mod.acciones?.includes('Desmontaje')"
+                (change)="
+                  toggleAccion(mod, 'Desmontaje', $event.target.checked)
+                "
+              />
+              <label
+                class="form-check-label"
+                for="accion-desmontaje-{{ i }}"
+                >Desmontaje</label
+              >
+            </div>
           </div>
-        }
+
+          <div
+            class="invalid-feedback d-block mt-2"
+            *ngIf="
+              formSubmitted &&
+              (!mod.acciones || mod.acciones.length === 0)
+            "
+          >
+            <i class="bi bi-exclamation-circle"></i> Debe seleccionar al
+            menos una acción.
+          </div>
+        </div>
+
+        <div class="col-12 col-md-8">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Marca"
+                  [(ngModel)]="mod.marca"
+                  name="marcaHomologado{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.marca"
+                />
+                <label>MARCA</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Tipo"
+                  [(ngModel)]="mod.tipo"
+                  name="tipoHomologado{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.tipo"
+                />
+                <label>TIPO</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Clase"
+                  [(ngModel)]="mod.clase"
+                  name="claseHomologado{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.clase"
+                />
+                <label>CLASE</label>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Homologación"
+                  [(ngModel)]="mod.homologacion"
+                  name="homologacion{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.homologacion
+                  "
+                />
+                <label>CONTRASEÑA HOMOLOGACIÓN</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="number"
+                  min="0"
+                  class="form-control"
+                  placeholder="MMR Eje"
+                  [(ngModel)]="mod.mmrEjeCentral"
+                  name="mmrEjeCentral{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.mmrEjeCentral
+                  "
+                />
+                <label>MMR EJE (Kg)</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="number"
+                  min="0"
+                  class="form-control"
+                  placeholder="MMR Barra"
+                  [(ngModel)]="mod.mmrBarraTraccion"
+                  name="mmrBarraTraccion{{ i }}"
+                  required
+                  [class.is-invalid]="
+                    formSubmitted && !mod.mmrBarraTraccion
+                  "
+                />
+                <label>MMR BARRA (Kg)</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="number"
+                  min="0"
+                  class="form-control"
+                  placeholder="MMTA"
+                  [(ngModel)]="mod.mmta"
+                  name="mmta{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.mmta"
+                />
+                <label>MMTA (Tn)</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="form-control"
+                  placeholder="Valor D"
+                  [(ngModel)]="mod.valorDKn"
+                  name="valorDKn{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.valorDKn"
+                />
+                <label>VALOR D (kN)</label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="p-3 bg-light border mt-2">
+                <h6
+                  class="text-muted text-uppercase small mb-3 fw-bold"
+                >
+                  Especificaciones de Fijación Principal
+                </h6>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="mod.metrica"
+                        name="metrica{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.metrica == null
+                        "
+                      >
+                        <option [value]="null" disabled selected>
+                          -- SELECCIONAR --
+                        </option>
+                        @for (num of metricasTornillos; track num) {
+                          <option [value]="num">{{ num }}</option>
+                        }
+                      </select>
+                      <label>MÉTRICA TORNILLOS</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        min="0"
+                        class="form-control"
+                        placeholder="Nº"
+                        [(ngModel)]="mod.nTornillos"
+                        name="nTornillos"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.nTornillos
+                        "
+                      />
+                      <label>Nº DE TORNILLOS</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="p-3 bg-white border mt-2">
+                <h6
+                  class="text-primary text-uppercase small mb-3 fw-bold"
+                >
+                  <i class="bi bi-link-45deg me-1"></i> Especificaciones
+                  Barra de Tracción
+                </h6>
+                <div class="row g-3">
+
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Referencia"
+                        [(ngModel)]="mod.tipoFabricacionBarraTraccion"
+                        name="tipoFabricacionBarraTraccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.tipoFabricacionBarraTraccion
+                        "
+                      />
+                      <label>TIPO DE FABRICACIÓN</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Referencia"
+                        [(ngModel)]="mod.referenciaBarraTraccion"
+                        name="referenciaBarraTraccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.referenciaBarraTraccion
+                        "
+                      />
+                      <label>REFERENCIA</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-12">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        min="0"
+                        class="form-control"
+                        placeholder="MMA Barra"
+                        [(ngModel)]="mod.mmaBarraTraccion"
+                        name="mmaBarraTraccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.mmaBarraTraccion
+                        "
+                      />
+                      <label>MMA BARRA DE TRACCIÓN (Kg)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="form-control"
+                  placeholder="Valor D"
+                  [(ngModel)]="mod.valorDKnFijacion"
+                  name="valorDKnFijacion{{ i }}"
+                  required
+                  [class.is-invalid]="formSubmitted && !mod.valorDKnFijacion"
+                />
+                <label>VALOR D (kN)</label>
+              </div>
+            </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="mod.metricasTornillosBarraTraccion"
+                        (ngModelChange)="onMetricaChange(mod)"
+                        name="metricasTornillosBarraTraccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted &&
+                          mod.metricasTornillosBarraTraccion == null
+                        "
+                      >
+                        <option [ngValue]="null" disabled selected>
+                          -- SELECCIONAR --
+                        </option>
+                        @for (num of metricasTornillos; track num) {
+                          <option [value]="num">{{ num }}</option>
+                        }
+                      </select>
+                      <label>MÉTRICA</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        min="1"
+                        class="form-control"
+                        placeholder="Nº"
+                        [(ngModel)]="mod.numTornillosBarraTraccion"
+                        name="numTornillosBarraTraccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted &&
+                          !mod.numTornillosBarraTraccion
+                        "
+                      />
+                      <label>Nº TORNILLOS</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.1"
+                        class="form-control"
+                        placeholder="Calidad"
+                        [(ngModel)]="mod.calidadTornilloBarraTraccion"
+                        name="calidadTornilloBarraTraccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted &&
+                          mod.calidadTornilloBarraTraccion == null
+                        "
+                      />
+                      <label>CALIDAD (Ej. 8.8)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="
+                          mod.resTraccionMinTornillo88Kgmm2BarraTraccion
+                        "
+                        name="resTraccionBarraTraccion{{ i }}"
+                        required
+                      >
+                        <option [ngValue]="null" disabled>
+                          -- SELECCIONAR --
+                        </option>
+                        <option [ngValue]="80">80</option>
+                        <option [ngValue]="25">25</option>
+                      </select>
+                      <label>RES. TRACCIÓN MÍN. (Kg/mm²)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        class="form-control"
+                        placeholder="As"
+                        [(ngModel)]="
+                          mod.seccionResistenteAsBarraTraccion
+                        "
+                        name="seccionResistenteAsBarraTraccion{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted &&
+                          mod.seccionResistenteAsBarraTraccion == null
+                        "
+                      />
+                      <label>As (SECCIÓN RESISTENTE)</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+}
         <!-- Homologado en emplazamiento también homologado -->
         @if (mod.nombre === REMOLQUE_TAMBIEN_HOMOLOGADO && mod.seleccionado) {
           <div class="mb-3">
