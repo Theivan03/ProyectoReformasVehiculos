@@ -758,12 +758,12 @@
             <label
               class="check-option d-flex align-items-start mb-0"
               *ngFor="let opcion of opcionesCambioModificacion"
-              [class.active]="datos.memoriaDescriptiva.cambios[opcion.value]"
+              [class.active]="esCambioModificacionActivo(opcion.value)"
             >
               <input
                 type="checkbox"
                 class="form-check-input me-2"
-                [checked]="datos.memoriaDescriptiva.cambios[opcion.value]"
+                [checked]="esCambioModificacionActivo(opcion.value)"
                 (change)="
                   alternarCambioModificacion(
                     opcion.value,

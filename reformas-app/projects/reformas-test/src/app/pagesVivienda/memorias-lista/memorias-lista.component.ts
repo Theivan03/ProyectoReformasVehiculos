@@ -7,12 +7,7 @@ import {
   LucideAngularModule,
   FileText,
   Plus,
-  Search,
-  Download,
-  Save,
-  X,
   MapPin,
-  User,
   Trash2,
 } from 'lucide-angular';
 
@@ -115,320 +110,24 @@ import {
       </div>
     </div>
 
-    <div *ngIf="memoriaSeleccionada" class="modal-backdrop" (click)="cerrarDetalle()">
-      <section class="modal-panel" (click)="$event.stopPropagation()">
-        <header class="modal-header">
-          <div>
-            <h4 class="mb-1 fw-bold">Resumen rapido de memoria tecnica</h4>
-            <div class="text-muted small">Edita datos y descarga el documento desde aqui</div>
-          </div>
-          <button class="btn btn-sm btn-outline-secondary" (click)="cerrarDetalle()">
-            <lucide-icon [img]="icons.X" size="16"></lucide-icon>
+    <div
+      *ngIf="memoriaPendiente"
+      class="action-backdrop"
+      (click)="cerrarAccionMemoria()"
+    >
+      <section class="action-modal" (click)="$event.stopPropagation()">
+        <h5 class="action-title">¿Qué quieres hacer?</h5>
+        <p class="action-subtitle">
+          Puedes descargar los documentos o abrir la memoria para editarla.
+        </p>
+        <div class="action-buttons">
+          <button class="btn btn-primary" (click)="descargarPendiente()">
+            Descargar documentos
           </button>
-        </header>
-
-        <div class="modal-body">
-          <div class="section-card">
-            <h6 class="section-title">Titular</h6>
-            <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label">Nombre</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.nombre" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Apellidos</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.apellidos" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">NIF / CIF</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.nif" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Telefono</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.telefono" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Correo</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.correo" />
-              </div>
-              <div class="col-md-12">
-                <label class="form-label">Domicilio</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.domicilio" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">CP</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.cp" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Localidad</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.localidad" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Poblacion</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.poblacion" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Provincia</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.titular.provincia" />
-              </div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="section-title mb-0">Emplazamiento</h6>
-              <div class="form-check form-switch">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  [(ngModel)]="memoriaSeleccionada.mismaDireccion"
-                  (ngModelChange)="onCambioMismaDireccion()"
-                  id="mismaDireccionRapida"
-                />
-                <label class="form-check-label small" for="mismaDireccionRapida">
-                  Misma direccion
-                </label>
-              </div>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-md-12">
-                <label class="form-label">Direccion</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.direccion" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">CP</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.cp" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Localidad</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.localidad" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Poblacion</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.poblacion" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Provincia</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.provincia" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">CUPS</label>
-                <input class="form-control font-monospace" [(ngModel)]="memoriaSeleccionada.emplazamiento.cups" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Ref. catastral</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.refCatastral" />
-              </div>
-              <ng-container *ngIf="!esAutoconsumoSeleccionada; else emplazamientoAutoconsumo">
-                <div class="col-md-4">
-                  <label class="form-label">Uso</label>
-                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.emplazamiento.uso">
-                    <option value="">Seleccionar</option>
-                    <option value="Vivienda">Vivienda</option>
-                    <option value="Local">Local</option>
-                    <option value="Garaje">Garaje</option>
-                    <option value="Oficina">Oficina</option>
-                    <option value="Otro">Otro</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Superficie (m2)</label>
-                  <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.emplazamiento.superficie" />
-                </div>
-              </ng-container>
-
-              <ng-template #emplazamientoAutoconsumo>
-                <div class="col-md-4">
-                  <label class="form-label">Telefono</label>
-                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.telefono" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Correo</label>
-                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.correo" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Tension (V)</label>
-                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.tension" />
-                </div>
-                <div class="col-md-12">
-                  <label class="form-label">Empresa distribuidora</label>
-                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.emplazamiento.empresaDistribuidora" />
-                </div>
-              </ng-template>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <h6 class="section-title">Caracteristicas</h6>
-            <div class="row g-3" *ngIf="!esAutoconsumoSeleccionada; else caracteristicasAutoconsumo">
-              <div class="col-md-3">
-                <label class="form-label">Potencia (kW)</label>
-                <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.caracteristicas.potenciaInstalada" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Cable (mm2)</label>
-                <select
-                  class="form-select"
-                  [(ngModel)]="memoriaSeleccionada.caracteristicas.tipoCableMm2"
-                  (ngModelChange)="actualizarDiametroTuboSeleccionada()"
-                >
-                  <option value="6">6</option>
-                  <option value="10">10</option>
-                  <option value="16">16</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Instalacion</label>
-                <select
-                  class="form-select"
-                  [(ngModel)]="memoriaSeleccionada.caracteristicas.tipoInstalacion"
-                  (ngModelChange)="actualizarDiametroTuboSeleccionada()"
-                >
-                  <option value="monofasica">Monofasica</option>
-                  <option value="trifasica">Trifasica</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Diametro tubo</label>
-                <input
-                  class="form-control"
-                  [(ngModel)]="memoriaSeleccionada.caracteristicas.diametroTuboMm"
-                  readonly
-                />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Esquema unifilar</label>
-                <select class="form-select" [(ngModel)]="memoriaSeleccionada.caracteristicas.esquemaUnifilar">
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select>
-              </div>
-            </div>
-
-            <ng-template #caracteristicasAutoconsumo>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <label class="form-label">Potencia (kW)</label>
-                  <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.caracteristicas.potenciaInstalada" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Modalidad autoconsumo</label>
-                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.caracteristicas.modalidadAutoconsumo">
-                    <option *ngFor="let opcion of opcionesModalidadAutoconsumo" [value]="opcion.value">
-                      {{ opcion.label }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Tipo de instalacion</label>
-                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.caracteristicas.tipoInstalacionAutoconsumo">
-                    <option *ngFor="let opcion of opcionesTipoInstalacionAutoconsumo" [value]="opcion.value">
-                      {{ opcion.label }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Tipo de conexion</label>
-                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.caracteristicas.tipoConexionAutoconsumo">
-                    <option *ngFor="let opcion of opcionesTipoConexionAutoconsumo" [value]="opcion.value">
-                      {{ opcion.label }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Colectiva</label>
-                  <select
-                    class="form-select"
-                    [(ngModel)]="memoriaSeleccionada.caracteristicas.colectiva"
-                    (ngModelChange)="onCambioColectivaSeleccionada()"
-                  >
-                    <option *ngFor="let opcion of opcionesColectiva" [value]="opcion.value">
-                      {{ opcion.label }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-md-4" *ngIf="memoriaSeleccionada.caracteristicas.colectiva === 'si'">
-                  <label class="form-label">Numero consumidores</label>
-                  <input class="form-control" type="number" [(ngModel)]="memoriaSeleccionada.caracteristicas.numeroConsumidores" />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Tipo de actuacion</label>
-                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.memoriaDescriptiva.tipoActuacion">
-                    <option *ngFor="let opcion of opcionesTipoActuacionAutoconsumo" [value]="opcion.value">
-                      {{ opcion.label }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Configuracion de medida</label>
-                  <select class="form-select" [(ngModel)]="memoriaSeleccionada.configuracionMedida">
-                    <option *ngFor="let opcion of opcionesConfiguracionMedida" [value]="opcion.value">
-                      {{ opcion.label }}
-                    </option>
-                  </select>
-                </div>
-                <div
-                  class="col-md-6"
-                  *ngIf="memoriaSeleccionada.memoriaDescriptiva.tipoActuacion === 'modificacionInstalacionExistente'"
-                >
-                  <label class="form-label">Numero registro autoconsumo</label>
-                  <input class="form-control" [(ngModel)]="memoriaSeleccionada.memoriaDescriptiva.numeroRegAutoconsumo" />
-                </div>
-              </div>
-            </ng-template>
-          </div>
-
-          <div class="section-card">
-            <h6 class="section-title">Firma</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Lugar</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.fechaFirma.lugar" />
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">Dia</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.fechaFirma.dia" />
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">Mes</label>
-                <select class="form-select" [(ngModel)]="memoriaSeleccionada.fechaFirma.mes">
-                  <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
-                </select>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">Anyo</label>
-                <input class="form-control" [(ngModel)]="memoriaSeleccionada.fechaFirma.anyo" />
-              </div>
-            </div>
-          </div>
+          <button class="btn btn-outline-secondary" (click)="editarPendiente()">
+            Editar memoria
+          </button>
         </div>
-
-        <footer class="modal-footer">
-          <button
-            class="btn btn-outline-secondary"
-            (click)="cerrarDetalle()"
-            [disabled]="guardandoDetalle || descargandoDetalle"
-          >
-            Cerrar
-          </button>
-          <button
-            class="btn btn-success d-flex align-items-center gap-2"
-            (click)="guardarDetalle()"
-            [disabled]="guardandoDetalle || descargandoDetalle"
-          >
-            <lucide-icon [img]="icons.Save" size="16"></lucide-icon>
-            {{ guardandoDetalle ? 'Guardando...' : 'Guardar cambios' }}
-          </button>
-          <button
-            class="btn btn-primary d-flex align-items-center gap-2"
-            (click)="descargarDesdeDetalle()"
-            [disabled]="guardandoDetalle || descargandoDetalle"
-          >
-            <lucide-icon [img]="icons.Download" size="16"></lucide-icon>
-            {{ descargandoDetalle ? 'Preparando...' : 'Descargar documento' }}
-          </button>
-        </footer>
       </section>
     </div>
   `,
@@ -474,6 +173,45 @@ import {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 0.9rem;
+      }
+
+      .action-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        padding: 1rem;
+      }
+
+      .action-modal {
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.25);
+        padding: 1.25rem 1.5rem;
+        width: min(360px, 100%);
+        text-align: center;
+      }
+
+      .action-title {
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+        color: #0f172a;
+      }
+
+      .action-subtitle {
+        font-size: 0.9rem;
+        color: #475569;
+        margin-bottom: 1rem;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 0.6rem;
+        justify-content: center;
+        flex-wrap: wrap;
       }
 
       .memory-card {
@@ -668,6 +406,10 @@ import {
           grid-template-columns: 1fr;
         }
 
+        .action-modal {
+          width: 100%;
+        }
+
         .modal-footer {
           justify-content: stretch;
         }
@@ -683,6 +425,7 @@ export class MemoriasListaComponent implements OnInit {
   memorias: any[] = [];
   cargando = true;
   memoriaSeleccionada: any = null;
+  memoriaPendiente: any = null;
   guardandoDetalle = false;
   descargandoDetalle = false;
 
@@ -765,12 +508,7 @@ export class MemoriasListaComponent implements OnInit {
   icons = {
     FileText,
     Plus,
-    Search,
-    Download,
-    Save,
-    X,
     MapPin,
-    User,
     Trash2,
   };
 
@@ -828,15 +566,44 @@ export class MemoriasListaComponent implements OnInit {
   }
 
   abrirDetalle(memoria: any) {
-    this.memoriaSeleccionada = this.normalizarMemoria(
-      JSON.parse(JSON.stringify(memoria || {})),
-    );
-    if (this.esAutoconsumoSeleccionada) {
-      this.normalizarCamposAutoconsumoSeleccionada();
-    } else {
-      this.actualizarDiametroTuboSeleccionada();
+    if (!memoria?.id) {
+      alert('No se pudo abrir la memoria seleccionada.');
+      return;
     }
+
+    this.memoriaPendiente = memoria;
   }
+
+  cerrarAccionMemoria() {
+    if (this.guardandoDetalle || this.descargandoDetalle) return;
+    this.memoriaPendiente = null;
+  }
+
+  descargarPendiente() {
+    if (!this.memoriaPendiente?.id) return;
+    const ruta = this.resolverRutaMemoria(this.memoriaPendiente);
+    const urlTree = this.router.createUrlTree(
+      [ruta, this.memoriaPendiente.id],
+      {
+        queryParams: {
+          autoDownload: '1',
+          dlToken: this.crearTokenDescarga(),
+        },
+      },
+    );
+    const url = this.router.serializeUrl(urlTree);
+    this.dispararDescargaEnSegundoPlano(url);
+    this.memoriaPendiente = null;
+  }
+
+  editarPendiente() {
+    if (!this.memoriaPendiente?.id) return;
+    const ruta = this.resolverRutaMemoria(this.memoriaPendiente);
+    const id = this.memoriaPendiente.id;
+    this.memoriaPendiente = null;
+    this.router.navigate([ruta, id]);
+  }
+
 
   confirmarEliminarMemoria(memoria: any, event: MouseEvent) {
     event.stopPropagation();
@@ -1173,6 +940,16 @@ export class MemoriasListaComponent implements OnInit {
     if (valor === 'autoconsumo') return 'autoconsumo';
     if (valor === 'consumo') return 'consumo';
     return fallback;
+  }
+
+  private resolverRutaMemoria(memoria: any): string {
+    const tipoMemoria = this.normalizarTipoMemoria(
+      memoria?.tipoMemoria,
+      this.inferirTipoMemoriaDesdeDatos(memoria),
+    );
+    return tipoMemoria === 'autoconsumo'
+      ? '/memoria-tecnica-diseno/autoconsumo'
+      : '/memoria-tecnica-diseno/consumo';
   }
 
   private normalizarMemoria(memoria: any) {

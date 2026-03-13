@@ -47,6 +47,8 @@ type CambioModificacionKey =
   | 'sustitucionEquipos'
   | 'otros';
 
+type CambiosModificacion = Record<CambioModificacionKey, boolean>;
+
 type CampoInstalador = {
   key: string;
   label: string;
@@ -308,7 +310,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
         conVariacionPotencia: false,
         sustitucionEquipos: false,
         otros: false,
-      },
+      } as CambiosModificacion,
       descripcionOtros: '',
     },
     configuracionMedida: 'A',
@@ -415,7 +417,6 @@ export class MemoriaTecnicaAutoconsumoComponent {
         }
       },
       error: (err) => {
-        console.error('Error cargando memoria:', err);
         alert('No se pudo cargar la memoria solicitada.');
         this.router.navigate(['/memorias']);
       },
@@ -441,24 +442,6 @@ export class MemoriaTecnicaAutoconsumoComponent {
       const camposTotalesPdf = formularioInteractivoPdf.getFields();
       const nombresCamposPdf = camposTotalesPdf.map((campo) => campo.getName());
       const setNombresCamposPdf = new Set(nombresCamposPdf);
-      const reporteCamposPdf = camposTotalesPdf.map((campo, indice) => {
-        let opciones: string[] = [];
-        const getOptions = (campo as any).getOptions;
-        if (typeof getOptions === 'function') {
-          try {
-            const resultado = getOptions.call(campo);
-            if (Array.isArray(resultado)) {
-              opciones = resultado;
-            }
-          } catch {}
-        }
-        return {
-          index: indice + 1,
-          name: campo.getName(),
-          type: campo.constructor?.name || 'Campo',
-          options: opciones,
-        };
-      });
 
       const normalizarNombreCampoPdf = (nombreCampoPdf: string) => {
         // Ya no eliminamos la barra invertida, porque el PDF la tiene.
@@ -478,46 +461,198 @@ export class MemoriaTecnicaAutoconsumoComponent {
         return null;
       };
 
-      const logCampoPdf = (nombreCampoPdf: string) => {
-        const nombreReal = resolverNombreCampoPdf(nombreCampoPdf);
-        if (!nombreReal) {
-          const normalizado = normalizarNombreCampoPdf(nombreCampoPdf);
-          const sufijo = normalizado.split('.').pop() || normalizado;
-          const sugerencias = nombresCamposPdf
-            .filter((nombre) => nombre.endsWith(sufijo))
-            .slice(0, 6);
-          console.warn(`[PDF] Campo no encontrado: ${nombreCampoPdf}`);
-          if (sugerencias.length > 0) {
-            console.warn(
-              `[PDF] Sugerencias para ${nombreCampoPdf}:`,
-              sugerencias,
-            );
-          }
-          return;
-        }
-
+      const corregirMojibake = (texto: string) => {
+        const valor = String(texto || '');
+        if (!valor) return '';
         try {
-          const campo = formularioInteractivoPdf.getField(nombreReal);
-          const tipo = campo.constructor?.name || 'Campo';
-          const opciones = (campo as any).getOptions?.();
-          console.log(`[PDF] ${nombreCampoPdf} -> ${nombreReal} (${tipo})`);
-          if (Array.isArray(opciones) && opciones.length > 0) {
-            console.log(`[PDF] Opciones ${nombreReal}:`, opciones);
-          }
-        } catch (errorCampo) {
-          console.warn(`[PDF] Error inspeccionando: ${nombreReal}`);
+          if (typeof TextDecoder === 'undefined') return valor;
+          const bytes = Uint8Array.from(valor, (char) => char.charCodeAt(0));
+          const decoded = new TextDecoder('utf-8', { fatal: false }).decode(
+            bytes,
+          );
+          return decoded.includes('\uFFFD') ? valor : decoded;
+        } catch {
+          return valor;
         }
       };
+
+      const normalizarTextoOpcion = (texto: string) =>
+        corregirMojibake(texto)
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .toUpperCase();
+
+      const extraerCodigoOpcion = (texto: string) =>
+        normalizarTextoOpcion(texto).split(/[\s(]/)[0] || '';
+
+      const seleccionarOpcionDesplegablePdf = (
+        nombreCampoPdf: string,
+        valorDeseadoCampoPdf: string,
+      ): boolean => {
+        const nombreReal = resolverNombreCampoPdf(nombreCampoPdf);
+        if (!nombreReal) {
+          return false;
+        }
+
+        const valorTexto = String(valorDeseadoCampoPdf || '').trim();
+        if (!valorTexto) return false;
+
+        const valorNormalizado = normalizarTextoOpcion(valorTexto);
+        const codigoDeseado = extraerCodigoOpcion(valorTexto);
+
+        const intentarSeleccion = (campo: any): boolean => {
+          if (!campo) return false;
+          const opciones = (campo as any).getOptions?.();
+          if (Array.isArray(opciones) && opciones.length > 0) {
+            const opcionExacta = opciones.find(
+              (op: string) => normalizarTextoOpcion(op) === valorNormalizado,
+            );
+            const opcionPorCodigo =
+              opcionExacta ||
+              (codigoDeseado
+                ? opciones.find(
+                    (op: string) => extraerCodigoOpcion(op) === codigoDeseado,
+                  )
+                : undefined);
+            const opcionParcial =
+              opcionPorCodigo ||
+              (valorNormalizado
+                ? opciones.find((op: string) =>
+                    normalizarTextoOpcion(op).includes(valorNormalizado),
+                  )
+                : undefined);
+            const opcionFinal = opcionParcial || opcionExacta;
+            if (opcionFinal) {
+              campo.select(opcionFinal);
+              return true;
+            }
+          }
+
+          try {
+            campo.select(valorTexto);
+            return true;
+          } catch {
+            return false;
+          }
+        };
+
+        try {
+          const campoDesplegablePdf =
+            formularioInteractivoPdf.getDropdown(nombreReal);
+          if (intentarSeleccion(campoDesplegablePdf)) return true;
+        } catch {}
+
+        try {
+          const campoListaOpcionesPdf =
+            formularioInteractivoPdf.getOptionList(nombreReal);
+          if (intentarSeleccion(campoListaOpcionesPdf)) return true;
+        } catch {}
+
+        return false;
+      };
+
+      const obtenerPaginaPorNombreCampo = (nombreCampoPdf: string) => {
+        const match = nombreCampoPdf.match(/Pagina(\d+)/i);
+        if (!match) return null;
+        const indice = Number.parseInt(match[1], 10) - 1;
+        const paginas = documentoCargadoPdf.getPages();
+        return paginas[indice] || null;
+      };
+
+      const obtenerRectCampoPdf = (nombreCampoPdf: string) => {
+        const nombreReal = resolverNombreCampoPdf(nombreCampoPdf);
+        if (!nombreReal) return null;
+        try {
+          const campo: any = formularioInteractivoPdf.getField(nombreReal);
+          const widgets = campo?.acroField?.getWidgets?.() || [];
+          const rect = widgets[0]?.getRectangle?.();
+          if (!rect) return null;
+          return { rect, nombreReal };
+        } catch {
+          return null;
+        }
+      };
+
+      const dataUrlToUint8 = (dataUrl: string): Uint8Array | null => {
+        const contenido = String(dataUrl || '');
+        if (!contenido) return null;
+        const parts = contenido.split(',');
+        if (parts.length < 2) return null;
+        try {
+          const binary = atob(parts[1]);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          return bytes;
+        } catch {
+          return null;
+        }
+      };
+
+      const cargarBytesDesdeUrl = async (
+        url: string,
+      ): Promise<Uint8Array | null> => {
+        if (!url) return null;
+        try {
+          const respuesta = await fetch(url);
+          if (!respuesta.ok) return null;
+          const buffer = await respuesta.arrayBuffer();
+          return new Uint8Array(buffer);
+        } catch {
+          return null;
+        }
+      };
+
+      const embedImageBytes = async (bytes: Uint8Array) => {
+        try {
+          return await documentoCargadoPdf.embedPng(bytes);
+        } catch {
+          return await documentoCargadoPdf.embedJpg(bytes);
+        }
+      };
+
+      const cargarImagen = async (fuente: string) => {
+        const valor = String(fuente || '').trim();
+        if (!valor) return null;
+        if (valor.startsWith('data:')) {
+          const bytes = dataUrlToUint8(valor);
+          if (!bytes) return null;
+          return embedImageBytes(bytes);
+        }
+        const bytes = await cargarBytesDesdeUrl(valor);
+        if (!bytes) return null;
+        return embedImageBytes(bytes);
+      };
+
+      const dibujarImagenEnRect = (
+        pagina: any,
+        imagen: any,
+        rect: { x: number; y: number; width: number; height: number },
+      ) => {
+        if (!pagina || !imagen) return;
+        const dims = imagen.scaleToFit(rect.width, rect.height);
+        const x = rect.x + (rect.width - dims.width) / 2;
+        const y = rect.y + (rect.height - dims.height) / 2;
+        pagina.drawImage(imagen, {
+          x,
+          y,
+          width: dims.width,
+          height: dims.height,
+        });
+      };
+
+      const fuenteCroquis = await documentoCargadoPdf.embedFont(
+        StandardFonts.Helvetica,
+      );
 
       const setField = (nombreCampoPdf: string, valorCampoPdf: string) => {
         try {
           const nombreReal = resolverNombreCampoPdf(nombreCampoPdf);
           if (!nombreReal) {
-            console.warn(`[MTD] Campo PDF no encontrado: ${nombreCampoPdf}`);
             return;
-          }
-          if (nombreReal !== nombreCampoPdf) {
-            console.log(`[PDF] Alias ${nombreCampoPdf} -> ${nombreReal}`);
           }
           const campoTextoEditablePdf =
             formularioInteractivoPdf.getTextField(nombreReal);
@@ -526,9 +661,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
               valorCampoPdf?.toString().toUpperCase() || '',
             );
           }
-        } catch (errorSetFieldPdf) {
-          console.warn(`[MTD] Campo PDF no encontrado: ${nombreCampoPdf}`);
-        }
+        } catch (errorSetFieldPdf) {}
       };
 
       const setCheckFormularioPdf = (
@@ -538,11 +671,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
         try {
           const nombreReal = resolverNombreCampoPdf(nombreCampoPdf);
           if (!nombreReal) {
-            console.warn(`[MTD] Campo PDF no encontrado: ${nombreCampoPdf}`);
             return;
-          }
-          if (nombreReal !== nombreCampoPdf) {
-            console.log(`[PDF] Alias ${nombreCampoPdf} -> ${nombreReal}`);
           }
           const campoCheckboxPdf =
             formularioInteractivoPdf.getCheckBox(nombreReal);
@@ -558,24 +687,13 @@ export class MemoriaTecnicaAutoconsumoComponent {
         try {
           const nombreReal = resolverNombreCampoPdf(nombreCampoRadioPdf);
           if (!nombreReal) {
-            console.warn(
-              `[MTD] Campo PDF no encontrado: ${nombreCampoRadioPdf}`,
-            );
             return;
-          }
-          if (nombreReal !== nombreCampoRadioPdf) {
-            console.log(`[PDF] Alias ${nombreCampoRadioPdf} -> ${nombreReal}`);
           }
           const campoRadioGrupoPdf =
             formularioInteractivoPdf.getRadioGroup(nombreReal);
           const opcionesDisponiblesRadioPdf = campoRadioGrupoPdf.getOptions();
-          console.log(
-            `Opciones ocultas para ${nombreReal}:`,
-            opcionesDisponiblesRadioPdf,
-          );
-        } catch (errorRadioPdf) {
-          console.warn(`No es un Radio Group: ${nombreCampoRadioPdf}`);
-        }
+          void opcionesDisponiblesRadioPdf;
+        } catch (errorRadioPdf) {}
       };
 
       const seleccionarOpcionRadioPdf = (
@@ -585,58 +703,15 @@ export class MemoriaTecnicaAutoconsumoComponent {
         try {
           const nombreReal = resolverNombreCampoPdf(nombreCampoRadioPdf);
           if (!nombreReal) {
-            console.warn(
-              `[MTD] Campo PDF no encontrado: ${nombreCampoRadioPdf}`,
-            );
             return;
-          }
-          if (nombreReal !== nombreCampoRadioPdf) {
-            console.log(`[PDF] Alias ${nombreCampoRadioPdf} -> ${nombreReal}`);
           }
           const campoRadioGrupoPdf =
             formularioInteractivoPdf.getRadioGroup(nombreReal);
           campoRadioGrupoPdf.select(valorElegidoRadioPdf);
-        } catch (errorRadioSeleccionPdf) {
-          console.warn(`Error al seleccionar en: ${nombreCampoRadioPdf}`);
-        }
+        } catch (errorRadioSeleccionPdf) {}
       };
 
-      [
-        'form1[0].Pagina1[0].cabecera[0].tipo[0]',
-        'form1[0].Pagina1[0].seccion\\.c[0].C10[0]',
-        'form1[0].Pagina1[0].seccion\\.c[0].C_11[0]',
-        'form1[0].Pagina1[0].seccion\\.c[0].C_12[0]',
-        'form1[0].Pagina1[0].seccion\\.c[0].C_13[0]',
-        'form1[0].Pagina1[0].seccion\\.d[0].D_1[0]',
-        'form1[0].Pagina1[0].seccion\\.d[0].D_3[0]',
-        'form1[0].Pagina1[0].seccion\\.d[0].D_4[0]',
-        'form1[0].Pagina1[0].seccion\\.d[0].D_5[0]',
-        'form1[0].Pagina1[0].seccion\\.d[0].D_6[0]',
-        'form1[0].Pagina1[0].seccion\\.d[0].D_7[0]',
-        'form1[0].Pagina1[0].seccion\\.d[0].D_8[0]',
-        'form1[0].Pagina1[0].seccion\\.d[0].D_9[0]',
-        'form1[0].Pagina1[0].seccion\\.a[0].A_1[0]',
-        'form1[0].Pagina1[0].seccion\\.b[0].B_1[0]',
-        'form1[0].Pagina1[0].seccion\\.c[0].C_1[0]',
-      ].forEach(logCampoPdf);
-
-      camposTotalesPdf.forEach((campoActualPdf, indiceBuclePdf) => {
-        const numeroIdentificadorCampoPdf = (indiceBuclePdf + 1).toString();
-        const nombreTecnicoCampoPdf = campoActualPdf.getName();
-
-        console.log(
-          `${numeroIdentificadorCampoPdf} -> ${nombreTecnicoCampoPdf}`,
-        );
-
-        try {
-          const campoTextoEditablePdf = formularioInteractivoPdf.getTextField(
-            nombreTecnicoCampoPdf,
-          );
-          if (campoTextoEditablePdf) {
-            campoTextoEditablePdf.setText(numeroIdentificadorCampoPdf);
-          }
-        } catch (errorCampoPdf) {}
-      });
+      // Debug de campos eliminado.
 
       //Inicio
 
@@ -650,24 +725,43 @@ export class MemoriaTecnicaAutoconsumoComponent {
         valorElegidoModalidadPdf,
       );
 
-      valorElegidoModalidadPdf = this.datos.contadores[0].tipo;
-      obtenerOpcionesRadioPdf(
-        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_1[0]',
-      );
+      valorElegidoModalidadPdf =
+        this.datos.caracteristicas.modalidadAutoconsumo === 'conExcedentes'
+          ? '2'
+          : '1';
+      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.c[0].C_11[0]');
       seleccionarOpcionRadioPdf(
-        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_1[0]',
+        'form1[0].Pagina1[0].seccion\\.c[0].C_11[0]',
         valorElegidoModalidadPdf,
       );
 
-      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.c[0].C10[0]');
-      seleccionarOpcionRadioPdf(
-        'form1[0].Pagina1[0].seccion\\.c[0].C10[0]',
-        valorElegidoModalidadPdf,
-      );
-
-      obtenerOpcionesRadioPdf(
+      const camposTipoContadorPdf = [
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_1[0]',
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_2[0]',
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_3[0]',
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_4[0]',
         'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_5[0]',
-      );
+      ];
+
+      camposTipoContadorPdf.forEach((campoPdf, index) => {
+        const tipoContador = String(
+          this.datos.contadores[index]?.tipo || '',
+        ).trim();
+        if (!tipoContador) return;
+        seleccionarOpcionDesplegablePdf(campoPdf, tipoContador);
+      });
+
+      if (
+        !seleccionarOpcionDesplegablePdf(
+          'form1[0].Pagina2[0].seccion\\.e1[0].E_1[0]',
+          this.datos.configuracionMedida,
+        )
+      ) {
+        setField(
+          'form1[0].Pagina2[0].seccion\\.e1[0].E_1[0]',
+          this.datos.configuracionMedida,
+        );
+      }
 
       if (
         this.datos.caracteristicas.tipoInstalacionAutoconsumo === 'redInterior'
@@ -683,9 +777,9 @@ export class MemoriaTecnicaAutoconsumoComponent {
         'proximaApartirDeRed'
       )
         valorElegidoModalidadPdf = '3';
-      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.c[0].C_11[0]');
+      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.c[0].C10[0]');
       seleccionarOpcionRadioPdf(
-        'form1[0].Pagina1[0].seccion\\.c[0].C_11[0]',
+        'form1[0].Pagina1[0].seccion\\.c[0].C10[0]',
         valorElegidoModalidadPdf,
       );
 
@@ -723,6 +817,36 @@ export class MemoriaTecnicaAutoconsumoComponent {
       seleccionarOpcionRadioPdf(
         'form1[0].Pagina1[0].seccion\\.d[0].D_1[0]',
         valorElegidoModalidadPdf,
+      );
+
+      const cambiosModificacion = this.datos.memoriaDescriptiva.cambios;
+      setCheckFormularioPdf(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_3[0]',
+        Boolean(cambiosModificacion.deConExcedentesASinExcedentes),
+      );
+      setCheckFormularioPdf(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_4[0]',
+        Boolean(cambiosModificacion.deSinExcedentesAConExcedentes),
+      );
+      setCheckFormularioPdf(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_5[0]',
+        Boolean(cambiosModificacion.deProduccionTodoTodoASinExcedentes),
+      );
+      setCheckFormularioPdf(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_6[0]',
+        Boolean(cambiosModificacion.deProduccionTodoTodoAConExcedentes),
+      );
+      setCheckFormularioPdf(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_7[0]',
+        Boolean(cambiosModificacion.conVariacionPotencia),
+      );
+      setCheckFormularioPdf(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_8[0]',
+        Boolean(cambiosModificacion.sustitucionEquipos),
+      );
+      setCheckFormularioPdf(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_9[0]',
+        Boolean(cambiosModificacion.otros),
       );
 
       if (this.datos.placas[0].agrupacionPlacas === 'blanco')
@@ -802,8 +926,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
       );
 
       valorElegidoModalidadPdf =
-        this.datos.inversores[0].proteccionFrecuenciaAltaInversor ===
-        'nuevaInstalacion'
+        this.datos.inversores[0].proteccionFrecuenciaAltaInversor === 'SI'
           ? '1'
           : '2';
       obtenerOpcionesRadioPdf(
@@ -1096,7 +1219,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.c[0].C_2[0]',
-        this.datos.emplazamiento.telefono,
+        this.datos.titular.telefono,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.c[0].C_3[0]',
@@ -1118,10 +1241,17 @@ export class MemoriaTecnicaAutoconsumoComponent {
         'form1[0].Pagina1[0].seccion\\.c[0].C_7[0]',
         this.datos.caracteristicas.potenciaInstalada,
       );
-      setField(
-        'form1[0].Pagina1[0].seccion\\.c[0].C_8[0]',
-        this.datos.emplazamiento.tension,
-      );
+      if (
+        !seleccionarOpcionDesplegablePdf(
+          'form1[0].Pagina1[0].seccion\\.c[0].C_8[0]',
+          this.datos.emplazamiento.tension,
+        )
+      ) {
+        setField(
+          'form1[0].Pagina1[0].seccion\\.c[0].C_8[0]',
+          this.datos.emplazamiento.tension,
+        );
+      }
       setField(
         'form1[0].Pagina1[0].seccion\\.c[0].C_9[0]',
         this.datos.emplazamiento.empresaDistribuidora,
@@ -1983,6 +2113,172 @@ export class MemoriaTecnicaAutoconsumoComponent {
         this.datos.instalador.cifODni || '',
       );
 
+      const planoRect = obtenerRectCampoPdf(
+        'form1[0].Pagina4[0].seccion\\.i[0].I_CT1[0]',
+      );
+      const paginaPlano = obtenerPaginaPorNombreCampo(
+        'form1[0].Pagina4[0].seccion\\.i[0].I_CT1[0]',
+      );
+      if (planoRect && paginaPlano) {
+        const imagenMapa = await cargarImagen(
+          this.datos.imagenes.planoMapsImagen || '',
+        );
+        const imagenCatastro = await cargarImagen(
+          this.datos.imagenes.planoCatastroImagen || '',
+        );
+        const separacion = 8;
+        const inset = 4;
+        const anchoMedio = Math.max(0, (planoRect.rect.width - separacion) / 2);
+        const rectIzq = {
+          x: planoRect.rect.x,
+          y: planoRect.rect.y,
+          width: anchoMedio,
+          height: planoRect.rect.height,
+        };
+        const rectDer = {
+          x: planoRect.rect.x + anchoMedio + separacion,
+          y: planoRect.rect.y,
+          width: anchoMedio,
+          height: planoRect.rect.height,
+        };
+        const rectIzqInset = {
+          x: rectIzq.x + inset,
+          y: rectIzq.y + inset,
+          width: Math.max(0, rectIzq.width - inset * 2),
+          height: Math.max(0, rectIzq.height - inset * 2),
+        };
+        const rectDerInset = {
+          x: rectDer.x + inset,
+          y: rectDer.y + inset,
+          width: Math.max(0, rectDer.width - inset * 2),
+          height: Math.max(0, rectDer.height - inset * 2),
+        };
+        if (imagenMapa)
+          dibujarImagenEnRect(paginaPlano, imagenMapa, rectIzqInset);
+        if (imagenCatastro)
+          dibujarImagenEnRect(paginaPlano, imagenCatastro, rectDerInset);
+      }
+
+      const unifilarRect = obtenerRectCampoPdf(
+        'form1[0].Pagina5[0].seccion\\.g[0].G_1[0]',
+      );
+      const paginaUnifilar = obtenerPaginaPorNombreCampo(
+        'form1[0].Pagina5[0].seccion\\.g[0].G_1[0]',
+      );
+      if (unifilarRect && paginaUnifilar) {
+        const usarAutomatico =
+          this.datos.imagenes.tipoEsquemaUnifilarImagen !== 'aportado';
+        const fuenteEsquema = usarAutomatico
+          ? '/assets/unifilar.jpeg'
+          : this.datos.imagenes.esquemaUnifilarImagen || '';
+        const imagenEsquema = await cargarImagen(fuenteEsquema);
+        if (imagenEsquema) {
+          const inset = 4;
+          const rectInset = {
+            x: unifilarRect.rect.x + inset,
+            y: unifilarRect.rect.y + inset,
+            width: Math.max(0, unifilarRect.rect.width - inset * 2),
+            height: Math.max(0, unifilarRect.rect.height - inset * 2),
+          };
+          dibujarImagenEnRect(paginaUnifilar, imagenEsquema, rectInset);
+        }
+      }
+
+      const croquisRect = obtenerRectCampoPdf(
+        'form1[0].Pagina6[0].seccion\\.h[0].H_CT1[0]',
+      );
+      const paginaCroquis = obtenerPaginaPorNombreCampo(
+        'form1[0].Pagina6[0].seccion\\.h[0].H_CT1[0]',
+      );
+      if (croquisRect && paginaCroquis) {
+        const padding = 6;
+        const interlineado = 1.2;
+        let fontSize = 11;
+        const textoCroquis = String(
+          this.datos.imagenes.descripcionCroquisImagen || '',
+        );
+        const textoCroquisNormalizado = textoCroquis.trim();
+
+        const ajustarLineas = (texto: string, maxWidth: number) => {
+          const resultado: string[] = [];
+          const lineas = texto.replace(/\r\n/g, '\n').split('\n');
+          lineas.forEach((linea) => {
+            const limpio = linea.replace(/\s+/g, ' ').trim();
+            if (!limpio) {
+              resultado.push('');
+              return;
+            }
+            const palabras = limpio.split(' ');
+            let actual = '';
+            palabras.forEach((palabra) => {
+              const candidato = actual ? `${actual} ${palabra}` : palabra;
+              const ancho = fuenteCroquis.widthOfTextAtSize(
+                candidato,
+                fontSize,
+              );
+              if (ancho <= maxWidth) {
+                actual = candidato;
+              } else {
+                if (actual) resultado.push(actual);
+                actual = palabra;
+              }
+            });
+            if (actual) resultado.push(actual);
+          });
+          return resultado;
+        };
+
+        const anchoTextoMax = Math.max(0, croquisRect.rect.width - padding * 2);
+        let lineasTexto = textoCroquisNormalizado
+          ? ajustarLineas(textoCroquis, anchoTextoMax)
+          : [];
+        let altoTexto = lineasTexto.length * fontSize * interlineado;
+
+        const espacioEntre = lineasTexto.length > 0 ? 6 : 0;
+        const altoDisponibleParaTexto =
+          croquisRect.rect.height - padding * 2 - espacioEntre;
+        if (altoTexto > altoDisponibleParaTexto && lineasTexto.length > 0) {
+          fontSize = Math.max(
+            8,
+            Math.floor((altoDisponibleParaTexto / lineasTexto.length) * 0.95),
+          );
+          lineasTexto = ajustarLineas(textoCroquis, anchoTextoMax);
+          altoTexto = lineasTexto.length * fontSize * interlineado;
+        }
+
+        if (lineasTexto.length > 0) {
+          let yTexto =
+            croquisRect.rect.y + croquisRect.rect.height - padding - fontSize;
+          lineasTexto.forEach((linea) => {
+            paginaCroquis.drawText(linea, {
+              x: croquisRect.rect.x + padding,
+              y: yTexto,
+              size: fontSize,
+              font: fuenteCroquis,
+              color: rgb(0, 0, 0),
+            });
+            yTexto -= fontSize * interlineado;
+          });
+        }
+
+        const altoImagen =
+          croquisRect.rect.height - altoTexto - padding * 2 - espacioEntre;
+        if (altoImagen > 4) {
+          const imagenCroquis = await cargarImagen(
+            this.datos.imagenes.croquisTrazadoImagen || '',
+          );
+          if (imagenCroquis) {
+            const rectImagen = {
+              x: croquisRect.rect.x + padding,
+              y: croquisRect.rect.y + padding,
+              width: croquisRect.rect.width - padding * 2,
+              height: altoImagen,
+            };
+            dibujarImagenEnRect(paginaCroquis, imagenCroquis, rectImagen);
+          }
+        }
+      }
+
       //Final
 
       const documentoFinalBytesPdf = await documentoCargadoPdf.save();
@@ -1990,16 +2286,8 @@ export class MemoriaTecnicaAutoconsumoComponent {
         type: 'application/pdf',
       });
       saveAs(blobDocumentoPdf, 'MAPEO_CAMPOS_MTDAC.pdf');
-      const blobReporte = new Blob(
-        [JSON.stringify(reporteCamposPdf, null, 2)],
-        {
-          type: 'application/json',
-        },
-      );
-      saveAs(blobReporte, 'MAPEO_CAMPOS_MTDAC.json');
     } catch (errorGeneracionPdf) {
-      console.error(errorGeneracionPdf);
-      alert('Error al mapear. Revisa la consola.');
+      alert('Error al generar el documento.');
     } finally {
       this.isGenerating = false;
     }
@@ -2122,7 +2410,6 @@ export class MemoriaTecnicaAutoconsumoComponent {
       },
       error: (error) => {
         this.isSaving = false;
-        console.error('Error al guardar:', error);
         alert('Error al conectar con el servidor. Revisa que está encendido.');
       },
     });
@@ -2215,20 +2502,16 @@ export class MemoriaTecnicaAutoconsumoComponent {
         try {
           const nombreReal = resolverNombreCampoPdf(name);
           if (!nombreReal) {
-            console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
             return;
           }
           const f = form.getTextField(nombreReal);
           if (f) f.setText(value?.toString().toUpperCase() || '');
-        } catch (e) {
-          console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
-        }
+        } catch (e) {}
       };
       const setCheck = (name: string, c: boolean) => {
         try {
           const nombreReal = resolverNombreCampoPdf(name);
           if (!nombreReal) {
-            console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
             return;
           }
           const f = form.getCheckBox(nombreReal);
@@ -2239,14 +2522,11 @@ export class MemoriaTecnicaAutoconsumoComponent {
         try {
           const nombreReal = resolverNombreCampoPdf(name);
           if (!nombreReal) {
-            console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
             return;
           }
           const f = form.getRadioGroup(nombreReal);
           if (f) f.select(value);
-        } catch (e) {
-          console.warn(`[MTD] Radio PDF no encontrado: ${name}`);
-        }
+        } catch (e) {}
       };
       const setSelect = (
         nombreOriginalCampoPdf: string,
@@ -2375,38 +2655,33 @@ export class MemoriaTecnicaAutoconsumoComponent {
       );
 
       const cambiosModificacion = this.datos.memoriaDescriptiva.cambios;
-      const valorCheckCambio = (estado: boolean) => (estado ? '1' : '2');
-      setRadio(
+      setCheck(
         'form1[0].Pagina1[0].seccion\\.d[0].D_3[0]',
-        valorCheckCambio(cambiosModificacion.deConExcedentesASinExcedentes),
+        Boolean(cambiosModificacion.deConExcedentesASinExcedentes),
       );
-      setRadio(
+      setCheck(
         'form1[0].Pagina1[0].seccion\\.d[0].D_4[0]',
-        valorCheckCambio(cambiosModificacion.deSinExcedentesAConExcedentes),
+        Boolean(cambiosModificacion.deSinExcedentesAConExcedentes),
       );
-      setRadio(
+      setCheck(
         'form1[0].Pagina1[0].seccion\\.d[0].D_5[0]',
-        valorCheckCambio(
-          cambiosModificacion.deProduccionTodoTodoASinExcedentes,
-        ),
+        Boolean(cambiosModificacion.deProduccionTodoTodoASinExcedentes),
       );
-      setRadio(
+      setCheck(
         'form1[0].Pagina1[0].seccion\\.d[0].D_6[0]',
-        valorCheckCambio(
-          cambiosModificacion.deProduccionTodoTodoAConExcedentes,
-        ),
+        Boolean(cambiosModificacion.deProduccionTodoTodoAConExcedentes),
       );
-      setRadio(
+      setCheck(
         'form1[0].Pagina1[0].seccion\\.d[0].D_7[0]',
-        valorCheckCambio(cambiosModificacion.conVariacionPotencia),
+        Boolean(cambiosModificacion.conVariacionPotencia),
       );
-      setRadio(
+      setCheck(
         'form1[0].Pagina1[0].seccion\\.d[0].D_8[0]',
-        valorCheckCambio(cambiosModificacion.sustitucionEquipos),
+        Boolean(cambiosModificacion.sustitucionEquipos),
       );
-      setRadio(
+      setCheck(
         'form1[0].Pagina1[0].seccion\\.d[0].D_9[0]',
-        valorCheckCambio(cambiosModificacion.otros),
+        Boolean(cambiosModificacion.otros),
       );
 
       const camposTipoContadorPdf = [
@@ -2449,9 +2724,6 @@ export class MemoriaTecnicaAutoconsumoComponent {
         pendientesTipoContador.forEach((pendiente) => {
           const nombre = candidatosTipoContador[pendiente.index];
           if (!nombre) {
-            console.warn(
-              `[MTD] No se encontró campo de tipo contador para índice ${pendiente.index + 1}`,
-            );
             return;
           }
           setSelect(nombre, pendiente.tipo);
@@ -2561,17 +2833,12 @@ export class MemoriaTecnicaAutoconsumoComponent {
       try {
         await this.generarManualUsoMantenimiento(titularNombreDocumento);
       } catch (manualError) {
-        console.error(
-          'Error generando manual de uso y mantenimiento:',
-          manualError,
-        );
         alert(
           'La memoria tecnica se ha generado, pero no se pudo generar el manual de uso y mantenimiento.',
         );
       }
     } catch (error) {
-      console.error('Error generando PDF:', error);
-      alert('Error al generar el PDF. Revisa la consola.');
+      alert('Error al generar el PDF.');
     } finally {
       this.isGenerating = false;
     }
@@ -2897,7 +3164,6 @@ export class MemoriaTecnicaAutoconsumoComponent {
         this.isLoadingInstaladores = false;
       },
       error: (err) => {
-        console.error('Error al cargar instaladores:', err);
         this.instaladores = [];
         this.sincronizarInstaladorSeleccionadoConDatos();
         this.isLoadingInstaladores = false;
@@ -2988,6 +3254,10 @@ export class MemoriaTecnicaAutoconsumoComponent {
   seleccionarTipoMemoriaDescriptiva(tipo: TipoMemoriaDescriptiva) {
     this.datos.memoriaDescriptiva.tipoActuacion = tipo;
     this.normalizarMemoriaDescriptiva();
+  }
+
+  esCambioModificacionActivo(campo: CambioModificacionKey): boolean {
+    return Boolean(this.datos.memoriaDescriptiva.cambios[campo]);
   }
 
   alternarCambioModificacion(campo: CambioModificacionKey, checked: boolean) {
