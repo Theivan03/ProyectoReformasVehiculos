@@ -389,6 +389,7 @@
       "nif": "19977205A",
       "domicilio": "Calle Isla Decreta 9 Planta 1 Puerta Detras",
       "cp": "46780",
+      "localidad": "Oliva",
       "poblacion": "Oliva",
       "provincia": "Valencia",
       "telefono": "676875461",
@@ -396,11 +397,16 @@
     },
     "emplazamiento": {
       "direccion": "Calle Isla Decreta 9 Planta 1 Puerta Detras",
+      "localidad": "Oliva",
       "poblacion": "Oliva",
       "provincia": "Valencia",
       "cp": "46780",
       "cups": "",
-      "refCatastral": "CUPS ES0021000008232825RH",
+      "refCatastral": "2624217YJ5122S0006QX",
+      "telefono": "676875461",
+      "correo": "facturacio@electricitativan.com",
+      "tension": "",
+      "empresaDistribuidora": "I-DE REDES ELÉCTRICAS INTELIGENTES, S.A.U.",
       "uso": "Vivienda",
       "superficie": 53,
       "planoImagen": null
@@ -410,16 +416,36 @@
       "tipoCableMm2": "6",
       "tipoInstalacion": "monofasica",
       "diametroTuboMm": "32",
-      "esquemaUnifilar": "1"
+      "esquemaUnifilar": "1",
+      "tipoInstalacionAutoconsumo": "redInterior",
+      "modalidadAutoconsumo": "sinExcedentes",
+      "tipoConexionAutoconsumo": "redInterior",
+      "colectiva": "no",
+      "numeroConsumidores": ""
     },
     "fechaFirma": {
-      "dia": "11",
+      "dia": "12",
       "mes": "Marzo",
       "anyo": "2026",
       "lugar": "Teulada"
     },
     "fechaCreacion": "2026-03-11T14:19:08.959Z",
-    "fechaEdicion": "2026-03-11T14:20:13.593Z"
+    "fechaEdicion": "2026-03-12T11:01:16.156Z",
+    "memoriaDescriptiva": {
+      "tipoActuacion": "nuevaInstalacion",
+      "numeroRegAutoconsumo": "",
+      "cambios": {
+        "deConExcedentesASinExcedentes": false,
+        "deSinExcedentesAConExcedentes": false,
+        "deProduccionTodoTodoASinExcedentes": false,
+        "deProduccionTodoTodoAConExcedentes": false,
+        "conVariacionPotencia": false,
+        "sustitucionEquipos": false,
+        "otros": false
+      },
+      "descripcionOtros": ""
+    },
+    "configuracionMedida": "A"
   },
   {
     "id": 1773299843307,
@@ -482,5 +508,361 @@
       "lugar": ""
     },
     "fechaCreacion": "2026-03-12T07:17:23.307Z"
+  },
+  {
+    "id": 1773311866452,
+    "tipoMemoria": "consumo",
+    "mismaDireccion": true,
+    "titular": {
+      "nombre": "RODRIGO",
+      "apellidos": "FRIAS COLMENARES",
+      "nif": "55742822E",
+      "domicilio": "CL MONJAS CLARISAS 26 Bl:C Es:1 Pl:02 Pt:04",
+      "cp": "46780",
+      "localidad": "OLIVA",
+      "poblacion": "OLIVA",
+      "provincia": "VALENCIA",
+      "telefono": "676875461",
+      "correo": "facturacio@electricitativan.com"
+    },
+    "emplazamiento": {
+      "direccion": "CL MONJAS CLARISAS 26 Bl:C Es:1 Pl:02 Pt:04",
+      "localidad": "OLIVA",
+      "poblacion": "OLIVA",
+      "provincia": "VALENCIA",
+      "cp": "46780",
+      "cups": "",
+      "refCatastral": "0218301YJ5101N0033SU",
+      "telefono": "676875461",
+      "correo": "facturacio@electricitativan.com",
+      "tension": "",
+      "empresaDistribuidora": "I-DE REDES ELÉCTRICAS INTELIGENTES, S.A.U.",
+      "uso": "Vivienda",
+      "superficie": 127,
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": 7.3,
+      "tipoCableMm2": "6",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "2",
+      "tipoInstalacionAutoconsumo": "redInterior",
+      "modalidadAutoconsumo": "sinExcedentes",
+      "tipoConexionAutoconsumo": "redInterior",
+      "colectiva": "no",
+      "numeroConsumidores": ""
+    },
+    "fechaFirma": {
+      "dia": "12",
+      "mes": "Marzo",
+      "anyo": "2026",
+      "lugar": "Teulada"
+    },
+    "fechaCreacion": "2026-03-12T10:37:46.452Z",
+    "memoriaDescriptiva": {
+      "tipoActuacion": "nuevaInstalacion",
+      "numeroRegAutoconsumo": "",
+      "cambios": {
+        "deConExcedentesASinExcedentes": false,
+        "deSinExcedentesAConExcedentes": false,
+        "deProduccionTodoTodoASinExcedentes": false,
+        "deProduccionTodoTodoAConExcedentes": false,
+        "conVariacionPotencia": false,
+        "sustitucionEquipos": false,
+        "otros": false
+      },
+      "descripcionOtros": ""
+    },
+    "configuracionMedida": "A",
+    "fechaEdicion": "2026-03-12T11:35:55.902Z"
+  },
+  {
+    "id": 1773317378991,
+    "tipoMemoria": "autoconsumo",
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "",
+      "apellidos": "",
+      "nif": "",
+      "domicilio": "",
+      "cp": "",
+      "localidad": "",
+      "poblacion": "",
+      "provincia": "",
+      "telefono": "",
+      "correo": ""
+    },
+    "emplazamiento": {
+      "direccion": "",
+      "localidad": "",
+      "poblacion": "",
+      "provincia": "",
+      "cp": "",
+      "cups": "",
+      "refCatastral": "",
+      "telefono": "",
+      "correo": "",
+      "tension": "",
+      "empresaDistribuidora": "I-DE REDES ELÉCTRICAS INTELIGENTES, S.A.U.",
+      "uso": "",
+      "superficie": "",
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": "",
+      "tipoCableMm2": "6",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "1",
+      "tipoInstalacionAutoconsumo": "redInterior",
+      "modalidadAutoconsumo": "sinExcedentes",
+      "tipoConexionAutoconsumo": "redInterior",
+      "colectiva": "no",
+      "numeroConsumidores": ""
+    },
+    "memoriaDescriptiva": {
+      "tipoActuacion": "nuevaInstalacion",
+      "numeroRegAutoconsumo": "",
+      "cambios": {
+        "deConExcedentesASinExcedentes": false,
+        "deSinExcedentesAConExcedentes": false,
+        "deProduccionTodoTodoASinExcedentes": false,
+        "deProduccionTodoTodoAConExcedentes": false,
+        "conVariacionPotencia": false,
+        "sustitucionEquipos": false,
+        "otros": false
+      },
+      "descripcionOtros": ""
+    },
+    "configuracionMedida": "A",
+    "instalador": {
+      "empresaInstaladoraOInstalador": "",
+      "cifODni": ""
+    },
+    "contadores": [
+      {
+        "tipo": "CT (Medida consumo consumidor asociado)",
+        "ubicacion": "",
+        "fabricante": "",
+        "modelo": "",
+        "numFabricacion": "",
+        "relacionIntensidad": "",
+        "tension": "",
+        "constanteLectura": "",
+        "clase": "",
+        "elementoCorte": ""
+      }
+    ],
+    "placas": [
+      {
+        "fabricante": "",
+        "modelo": "",
+        "numPlacas": "",
+        "potMaxUnit": "",
+        "corrienteMaxPotencia": "",
+        "tensionCircuitoAbierto": "",
+        "icc": "",
+        "tensionMaxPotencia": "",
+        "superficieTotal": "",
+        "agrupacionPlacas": ""
+      }
+    ],
+    "inversores": [
+      {
+        "numUnidadesInversor": "",
+        "fabricanteInversor": "",
+        "modeloInversor": "",
+        "tensionNominalAcInversor": "",
+        "potenciaAcInversor": "",
+        "vccMaximaInversor": "",
+        "vccMinimaInversor": "",
+        "conexionInversor": "",
+        "proteccionVacBajaInversor": "SI",
+        "tensionActuacionVacBajaInversor": "",
+        "proteccionVacAltaInversor": "SI",
+        "tensionActuacionVacAltaInversor": "",
+        "proteccionFrecuenciaBajaInversor": "SI",
+        "frecuenciaActuacionBajaInversor": "",
+        "proteccionFrecuenciaAltaInversor": "SI",
+        "frecuenciaActuacionAltaInversor": "",
+        "proteccionIslaInversor": "SI"
+      }
+    ],
+    "energia": {
+      "energiaGeneradaAnualEstimadaKwhEnergia": "",
+      "energiaConsumidaAnualKwhEnergia": "",
+      "energiaAbocadaAnualEstimadaKwhEnergia": ""
+    },
+    "lineas": [
+      {
+        "denominacionLinea": "",
+        "potenciaPrevistaKwLinea": "",
+        "longitudMLinea": "",
+        "dispositivoProteccionInALinea": "",
+        "materialConductorSeccionMm2Linea": "",
+        "intensidadAdmisibleIzALinea": "",
+        "caidaTensionAuPorcentajeLinea": ""
+      }
+    ],
+    "imagenes": {
+      "planoMapsImagen": null,
+      "planoCatastroImagen": null,
+      "tipoEsquemaUnifilarImagen": "automatico",
+      "esquemaUnifilarImagen": null,
+      "croquisTrazadoImagen": null,
+      "descripcionCroquisImagen": ""
+    },
+    "fechaFirma": {
+      "dia": "",
+      "mes": "",
+      "anyo": "",
+      "lugar": ""
+    },
+    "fechaCreacion": "2026-03-12T12:09:38.991Z"
+  },
+  {
+    "id": 1773387103842,
+    "tipoMemoria": "autoconsumo",
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "",
+      "apellidos": "",
+      "nif": "",
+      "domicilio": "",
+      "cp": "",
+      "localidad": "",
+      "poblacion": "",
+      "provincia": "",
+      "telefono": "",
+      "correo": ""
+    },
+    "emplazamiento": {
+      "direccion": "",
+      "localidad": "",
+      "poblacion": "",
+      "provincia": "",
+      "cp": "",
+      "cups": "",
+      "refCatastral": "",
+      "telefono": "",
+      "correo": "",
+      "tension": "",
+      "empresaDistribuidora": "I-DE REDES ELÉCTRICAS INTELIGENTES, S.A.U.",
+      "uso": "",
+      "superficie": "",
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": "",
+      "tipoCableMm2": "6",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "1",
+      "tipoInstalacionAutoconsumo": "redInterior",
+      "modalidadAutoconsumo": "sinExcedentes",
+      "tipoConexionAutoconsumo": "redInterior",
+      "colectiva": "no",
+      "numeroConsumidores": ""
+    },
+    "memoriaDescriptiva": {
+      "tipoActuacion": "nuevaInstalacion",
+      "numeroRegAutoconsumo": "",
+      "cambios": {
+        "deConExcedentesASinExcedentes": false,
+        "deSinExcedentesAConExcedentes": false,
+        "deProduccionTodoTodoASinExcedentes": false,
+        "deProduccionTodoTodoAConExcedentes": false,
+        "conVariacionPotencia": false,
+        "sustitucionEquipos": false,
+        "otros": false
+      },
+      "descripcionOtros": ""
+    },
+    "configuracionMedida": "A",
+    "instalador": {
+      "empresaInstaladoraOInstalador": "Luis Serrano Artesero",
+      "cifODni": "20037410V"
+    },
+    "contadores": [
+      {
+        "tipo": "",
+        "ubicacion": "",
+        "fabricante": "",
+        "modelo": "",
+        "numFabricacion": "",
+        "relacionIntensidad": "",
+        "tension": "",
+        "constanteLectura": "",
+        "clase": "",
+        "elementoCorte": ""
+      }
+    ],
+    "placas": [
+      {
+        "fabricante": "",
+        "modelo": "",
+        "numPlacas": "",
+        "potMaxUnit": "",
+        "corrienteMaxPotencia": "",
+        "tensionCircuitoAbierto": "",
+        "icc": "",
+        "tensionMaxPotencia": "",
+        "superficieTotal": "",
+        "agrupacionPlacas": ""
+      }
+    ],
+    "inversores": [
+      {
+        "numUnidadesInversor": "",
+        "fabricanteInversor": "",
+        "modeloInversor": "",
+        "tensionNominalAcInversor": "",
+        "potenciaAcInversor": "",
+        "vccMaximaInversor": "",
+        "vccMinimaInversor": "",
+        "conexionInversor": "",
+        "proteccionVacBajaInversor": "SI",
+        "tensionActuacionVacBajaInversor": "",
+        "proteccionVacAltaInversor": "SI",
+        "tensionActuacionVacAltaInversor": "",
+        "proteccionFrecuenciaBajaInversor": "SI",
+        "frecuenciaActuacionBajaInversor": "",
+        "proteccionFrecuenciaAltaInversor": "SI",
+        "frecuenciaActuacionAltaInversor": "",
+        "proteccionIslaInversor": "SI"
+      }
+    ],
+    "energia": {
+      "energiaGeneradaAnualEstimadaKwhEnergia": "",
+      "energiaConsumidaAnualKwhEnergia": "",
+      "energiaAbocadaAnualEstimadaKwhEnergia": ""
+    },
+    "lineas": [
+      {
+        "denominacionLinea": "",
+        "potenciaPrevistaKwLinea": "",
+        "longitudMLinea": "",
+        "dispositivoProteccionInALinea": "",
+        "materialConductorSeccionMm2Linea": "",
+        "intensidadAdmisibleIzALinea": "",
+        "caidaTensionAuPorcentajeLinea": ""
+      }
+    ],
+    "imagenes": {
+      "planoMapsImagen": null,
+      "planoCatastroImagen": null,
+      "tipoEsquemaUnifilarImagen": "automatico",
+      "esquemaUnifilarImagen": null,
+      "croquisTrazadoImagen": null,
+      "descripcionCroquisImagen": ""
+    },
+    "fechaFirma": {
+      "dia": "",
+      "mes": "",
+      "anyo": "",
+      "lugar": ""
+    },
+    "fechaCreacion": "2026-03-13T07:31:43.842Z"
   }
 ]

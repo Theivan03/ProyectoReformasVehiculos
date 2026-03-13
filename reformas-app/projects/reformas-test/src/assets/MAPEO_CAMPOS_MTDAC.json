@@ -1,0 +1,2248 @@
+[
+  {
+    "index": 1,
+    "name": "form1[0].#pageSet[0].Formato1[0].PieYLateralDerecho_Vertical[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 2,
+    "name": "form1[0].#pageSet[0].Formato1[1].PieYLateralDerecho_Vertical[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 3,
+    "name": "form1[0].#pageSet[0].Formato1[2].PieYLateralDerecho_Vertical[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 4,
+    "name": "form1[0].#pageSet[0].Formato1[3].PieYLateralDerecho_Vertical[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 5,
+    "name": "form1[0].#pageSet[0].Formato1[4].PieYLateralDerecho_Vertical[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 6,
+    "name": "form1[0].#pageSet[0].Formato1[5].PieYLateralDerecho_Vertical[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 7,
+    "name": "form1[0].#pageSet[0].Formato1[6].PieYLateralDerecho_Vertical[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 8,
+    "name": "form1[0].Pagina1[0].cabecera[0].tipo[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 9,
+    "name": "form1[0].Pagina1[0].cabecera[0].CAU[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 10,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 11,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 12,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 13,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 14,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 15,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 16,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 17,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_8[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 18,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_9[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 19,
+    "name": "form1[0].Pagina1[0].seccion\\.a[0].A_10[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 20,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 21,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 22,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 23,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 24,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 25,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 26,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 27,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_8[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 28,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_9[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 29,
+    "name": "form1[0].Pagina1[0].seccion\\.b[0].B_10[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 30,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 31,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 32,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 33,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 34,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 35,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 36,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 37,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_8[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "1x220",
+      "1x230",
+      "3x380",
+      "3x380/220",
+      "3x400",
+      "3x400/230",
+      "1x27",
+      "1x133",
+      "2x220",
+      "2x230",
+      "3x220",
+      "3x220/127",
+      "3x230",
+      "3x230/133",
+      "100",
+      "150",
+      "3x100",
+      "3x150/260",
+      "3x260"
+    ]
+  },
+  {
+    "index": 38,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_9[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 39,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C10[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2",
+      "3"
+    ]
+  },
+  {
+    "index": 40,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_11[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 41,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_12[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2",
+      "3"
+    ]
+  },
+  {
+    "index": 42,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_13[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 43,
+    "name": "form1[0].Pagina1[0].seccion\\.c[0].C_14[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 44,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_1[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 45,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 46,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_3[0]",
+    "type": "PDFCheckBox2",
+    "options": []
+  },
+  {
+    "index": 47,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_4[0]",
+    "type": "PDFCheckBox2",
+    "options": []
+  },
+  {
+    "index": 48,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_5[0]",
+    "type": "PDFCheckBox2",
+    "options": []
+  },
+  {
+    "index": 49,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_6[0]",
+    "type": "PDFCheckBox2",
+    "options": []
+  },
+  {
+    "index": 50,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_7[0]",
+    "type": "PDFCheckBox2",
+    "options": []
+  },
+  {
+    "index": 51,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_8[0]",
+    "type": "PDFCheckBox2",
+    "options": []
+  },
+  {
+    "index": 52,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_9[0]",
+    "type": "PDFCheckBox2",
+    "options": []
+  },
+  {
+    "index": 53,
+    "name": "form1[0].Pagina1[0].seccion\\.d[0].D_10[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 54,
+    "name": "form1[0].Pagina1[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 55,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].E_1[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "A - Un equipo de medida bidireccional en punto frontera",
+      "B - Un equipo de medida bidireccional en punto frontera y otro de generación neta",
+      "C - Un equipo de medida del consumo total y otro bidireccional de generación neta",
+      "D - Un equipo de medida del consumo total, otro de generación bruta y otro de consumo de servicios auxiliares",
+      "E - Configuración singular"
+    ]
+  },
+  {
+    "index": 56,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_1[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "PF (Bidireccional en punt frontera / Bidireccional en punto frontera)",
+      "GN (Mesura de generació neta / Medida de generación neta)",
+      "CT (Mesura consum consumidor associat / Medida consumo \nconsumidor asociado)",
+      "GB (Mesura de generació bruta / Medida de generación bruta)",
+      "CSA (Mesura consum serveis auxiliars / Medida consumo servicios auxiliares)"
+    ]
+  },
+  {
+    "index": 57,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_2[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "PF (Bidireccional en punt frontera / Bidireccional en punto frontera)",
+      "GN (Mesura de generació neta / Medida de generación neta)",
+      "CT (Mesura consum consumidor associat / Medida consumo \nconsumidor asociado)",
+      "GB (Mesura de generació bruta / Medida de generación bruta)",
+      "CSA (Mesura consum serveis auxiliars / Medida consumo servicios auxiliares)"
+    ]
+  },
+  {
+    "index": 58,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_3[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "PF (Bidireccional en punt frontera / Bidireccional en punto frontera)",
+      "GN (Mesura de generació neta / Medida de generación neta)",
+      "CT (Mesura consum consumidor associat / Medida consumo \nconsumidor asociado)",
+      "GB (Mesura de generació bruta / Medida de generación bruta)",
+      "CSA (Mesura consum serveis auxiliars / Medida consumo servicios auxiliares)"
+    ]
+  },
+  {
+    "index": 59,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_4[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "PF (Bidireccional en punt frontera / Bidireccional en punto frontera)",
+      "GN (Mesura de generació neta / Medida de generación neta)",
+      "CT (Mesura consum consumidor associat / Medida consumo \nconsumidor asociado)",
+      "GB (Mesura de generació bruta / Medida de generación bruta)",
+      "CSA (Mesura consum serveis auxiliars / Medida consumo servicios auxiliares)"
+    ]
+  },
+  {
+    "index": 60,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_5[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "PF (Bidireccional en punt frontera / Bidireccional en punto frontera)",
+      "GN (Mesura de generació neta / Medida de generación neta)",
+      "CT (Mesura consum consumidor associat / Medida consumo \nconsumidor asociado)",
+      "GB (Mesura de generació bruta / Medida de generación bruta)",
+      "CSA (Mesura consum serveis auxiliars / Medida consumo servicios auxiliares)"
+    ]
+  },
+  {
+    "index": 61,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 62,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 63,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 64,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 65,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 66,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 67,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 68,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 69,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 70,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 71,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 72,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 73,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 74,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 75,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 76,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 77,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 78,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 79,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 80,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 81,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 82,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 83,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 84,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 85,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 86,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 87,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 88,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 89,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 90,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 91,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 92,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 93,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 94,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 95,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 96,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 97,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 98,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 99,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 100,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 101,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 102,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 103,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 104,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 105,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 106,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].B_28[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "a11 - Cogeneració gas natural / cogeneración gas natural",
+      "a12 - cogeneració gasoil / cogeneración gasoil",
+      "a13 - cogeneració altres / cogeneración otros",
+      "a13 - central energies residuals / central energías residuales",
+      "a20 - central energies residuales / central energáis residuales",
+      "b11 - fotovoltaica",
+      "b12 - termosolar",
+      "b21 - eòlica terrestre / eólica terrestre",
+      "b22 - eòlica marian / eólica marina",
+      "b30 - central altres energies / central otras energías",
+      "b41 - hidroelèctica<=10 MW ús exclusiu / hidroeléctrica<=10 MW uso exclusivo ",
+      "b42 - hidroelèctica<=10 MW altres usos / hidroeléctrica<=10 MW otros usos",
+      "b51 - hidroelèctica<=10 MW ús exclusiu / hidroeléctrica<=10 MW uso exclusivo",
+      "b52 - hidroelèctica<=10 MW altres usos / hidroeléctrica<=10 MW otros usos",
+      "b60 - central biomassa forestal o de cultius / central biomasa forestal o de cultivos",
+      "b71 - central biogàs abocador / central biogás vertedero",
+      "b72 - central biogàs-biolíquid digestors / central biogás-biolíquido digestores",
+      "b80 - central biomassa instal·lació industrial ",
+      "c10 - central residus domèstics / central resíduos domésticos",
+      "c20 - central altres residus / central otros resíduos",
+      "c30 - central residus miners / central de resíduos mineros "
+    ]
+  },
+  {
+    "index": 107,
+    "name": "form1[0].Pagina2[0].seccion\\.e1[0].B_30[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "[Cap / Ninguno]",
+      "Biocombustibles líquids / Biocombustibles líquidos",
+      "Biogàs de digestió / Biogás de digestión",
+      "Biogàs d'abocador / Biogás de vertedero",
+      "Biomassa industrial agrícola / Biomasa industrial agrícola",
+      "Biomassa industrial forestal / Biomasa industrial forestal",
+      "Calor residual / Calor residual",
+      "Carbó / Carbón",
+      "Cultius energètcs agrícoles o forestals / Cultivos energéticos agrícolas forestales",
+      "Derivats petrolífers diferents al gasoil, GLP o fuel / Derivados petrolíferos diferentes al gasóleo",
+      "Energies residuals / Energías residuales",
+      "Fems / Estiércoles",
+      "Fuel",
+      "Gas natural ",
+      "Gas resisual",
+      "Gasoil / Gasóleo",
+      "GLP",
+      "Licros negres / Licores negros",
+      "Propà / Propano",
+      "Residu aprofitament forestal o silvícola / Residuo aprovechamiento forestal o silvícola",
+      "Residus activitat agrícoles o jardineria / Resíduos actividad agrícola o jardinería",
+      "Residus industrials / Resíduos industriales",
+      "Residus sólids urbans / Resíduos sólidos urbanos"
+    ]
+  },
+  {
+    "index": 108,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila1[0].D12_F1_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 109,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila1[0].D12_F1_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 110,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila1[0].D12_F1_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 111,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila2[0].D12_F2_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 112,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila2[0].D12_F2_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 113,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila2[0].D12_F2_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 114,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila3[0].D12_F3_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 115,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila3[0].D12_F3_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 116,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila3[0].D12_F3_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 117,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila4[0].D12_F4_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 118,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila4[0].D12_F4_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 119,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila4[0].D12_F4_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 120,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila5[0].D12_F5_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 121,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila5[0].D12_F5_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 122,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila5[0].D12_F5_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 123,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila6[0].D12_F6_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 124,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila6[0].D12_F6_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 125,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila6[0].D12_F6_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 126,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila7[0].D12_F7_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 127,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila7[0].D12_F7_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 128,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila7[0].D12_F7_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 129,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila8[0].D12_F8_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 130,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila8[0].D12_F8_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 131,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila8[0].D12_F8_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 132,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila9[0].D12_F9_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 133,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila9[0].D12_F9_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 134,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila9[0].D12_F9_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 135,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C1[0].D12_F1_C1[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 136,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C2[0].D12_F1_C2[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 137,
+    "name": "form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C3[0].D12_F1_C3[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 138,
+    "name": "form1[0].Pagina2[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 139,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 140,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 141,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 142,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 143,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 144,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 145,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 146,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 147,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 148,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 149,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 150,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 151,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 152,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 153,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 154,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 155,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 156,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 157,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 158,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 159,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 160,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 161,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 162,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 163,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 164,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 165,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 166,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 167,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 168,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 169,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 170,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 171,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 172,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 173,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 174,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 175,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 176,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 177,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 178,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 179,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C2[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 180,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C3[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 181,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C4[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 182,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C5[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 183,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C6[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 184,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 185,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 186,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 187,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 188,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 189,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C2[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 190,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C3[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 191,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C4[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 192,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C5[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 193,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C6[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 194,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 195,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 196,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 197,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 198,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 199,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C2[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 200,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C3[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 201,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C4[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 202,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C5[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 203,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C6[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 204,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 205,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 206,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 207,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 208,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 209,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C2[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 210,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C3[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 211,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C4[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 212,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C5[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 213,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C6[0].SI_NO[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 214,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 215,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 216,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 217,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 218,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 219,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 220,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 221,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 222,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 223,
+    "name": "form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 224,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].FilaEncabezado[0].D2B_F1_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 225,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].FilaEncabezado[0].D2B_F1_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 226,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].FilaEncabezado[0].D2B_F1_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 227,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila1[0].D2B_F2_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 228,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila1[0].D2B_F2_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 229,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila1[0].D2B_F2_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 230,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila2[0].D2B_F3_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 231,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila2[0].D2B_F3_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 232,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila2[0].D2B_F3_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 233,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila3[0].D2B_F4_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 234,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila3[0].D2B_F4_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 235,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila3[0].D2B_F4_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 236,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila4[0].D2B_F5_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 237,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila4[0].D2B_F5_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 238,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila4[0].D2B_F5_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 239,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila5[0].D2B_F6_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 240,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila5[0].D2B_F6_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 241,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila5[0].D2B_F6_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 242,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila6[0].D2B_F7_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 243,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila6[0].D2B_F7_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 244,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].TablaD2B[0].Fila6[0].D2B_F7_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 245,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].D2b_3[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "index": 246,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].D2b_4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 247,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].D2b_5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 248,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].D2b_6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 249,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].D2b_7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 250,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].D2b_8[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 251,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].D2b_9[0]",
+    "type": "PDFDropdown2",
+    "options": [
+      "Cap / Ninguno",
+      "Negligibles d'acord amb l'art. 3j) de l'RD 244/2019 / Despreciables conforme art. 3j) del RD 244/2019",
+      "No negligibles d'acord amb l'art. 3j) de l'RD 244/2019 / No despreciables conforme al art. 3j) del RD 244/2019"
+    ]
+  },
+  {
+    "index": 252,
+    "name": "form1[0].Pagina3[0].seccion\\.d2b[0].D_10[0]",
+    "type": "PDFRadioGroup2",
+    "options": [
+      "1"
+    ]
+  },
+  {
+    "index": 253,
+    "name": "form1[0].Pagina3[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 254,
+    "name": "form1[0].Pagina4[0].seccion\\.d3[0].D11_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 255,
+    "name": "form1[0].Pagina4[0].seccion\\.d3[0].D11_2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 256,
+    "name": "form1[0].Pagina4[0].seccion\\.d3[0].D11_3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 257,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 258,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 259,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 260,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 261,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 262,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 263,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 264,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 265,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 266,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 267,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 268,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 269,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 270,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 271,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 272,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 273,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 274,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 275,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 276,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 277,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 278,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 279,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 280,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 281,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 282,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 283,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 284,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 285,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 286,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 287,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 288,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 289,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 290,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 291,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 292,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 293,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 294,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 295,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 296,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 297,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 298,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 299,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 300,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 301,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 302,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 303,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 304,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 305,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 306,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 307,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 308,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 309,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 310,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 311,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 312,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 313,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 314,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 315,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C3[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 316,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C4[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 317,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C5[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 318,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C6[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 319,
+    "name": "form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C7[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 320,
+    "name": "form1[0].Pagina4[0].seccion\\.i[0].I_CT1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 321,
+    "name": "form1[0].Pagina4[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 322,
+    "name": "form1[0].Pagina5[0].seccion\\.g[0].G_1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 323,
+    "name": "form1[0].Pagina5[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 324,
+    "name": "form1[0].Pagina6[0].seccion\\.h[0].H_CT1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 325,
+    "name": "form1[0].Pagina6[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 326,
+    "name": "form1[0].Pagina7[0].seccion\\.j[0].j_CT1[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 327,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].J_FIRMATC[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 328,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].J_DNITC[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 329,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].J_FIRMAINS[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 330,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].J_DNIINS[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 331,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].FI_LLOC[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 332,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].FI_DIA[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 333,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].FI_MES[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 334,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].FI_ANY[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 335,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].FI_LLOC2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 336,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].FI_DIA2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 337,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].FI_MES2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 338,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].FI_ANY2[0]",
+    "type": "PDFTextField2",
+    "options": []
+  },
+  {
+    "index": 339,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].CampoFirma1[0]",
+    "type": "PDFSignature2",
+    "options": []
+  },
+  {
+    "index": 340,
+    "name": "form1[0].Pagina7[0].seccion\\.k[0].CampoFirma2[0]",
+    "type": "PDFSignature2",
+    "options": []
+  },
+  {
+    "index": 341,
+    "name": "form1[0].Pagina7[0].NOM_ARCHIVO[0]",
+    "type": "PDFTextField2",
+    "options": []
+  }
+]

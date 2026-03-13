@@ -98,12 +98,31 @@ export class MemoriaTecnicaAutoconsumoComponent {
     Trash2,
   };
 
+  // Sustituye tu array en la parte superior de la clase por este:
   readonly opcionesTipoContador = [
-    { value: 'PF', label: 'PF (Bidireccional en punto frontera)' },
-    { value: 'GN', label: 'GN (Medida de generación neta)' },
-    { value: 'CT', label: 'CT (Medida consumo consumidor asociado)' },
-    { value: 'GB', label: 'GB (Medida de generación bruta)' },
-    { value: 'CSA', label: 'CSA (Medida consumo servicios auxiliares)' },
+    {
+      value:
+        'PF (Bidireccional en punt frontera / Bidireccional en punto frontera)',
+      label: 'PF (Bidireccional en punto frontera)',
+    },
+    {
+      value: 'GN (Mesura de generació neta / Medida de generación neta)',
+      label: 'GN (Medida de generación neta)',
+    },
+    {
+      value:
+        'CT (Mesura consum consumidor associat / Medida consumo \nconsumidor asociado)',
+      label: 'CT (Medida consumo consumidor asociado)',
+    },
+    {
+      value: 'GB (Mesura de generació bruta / Medida de generación bruta)',
+      label: 'GB (Medida de generación bruta)',
+    },
+    {
+      value:
+        'CSA (Mesura consum serveis auxiliars / Medida consumo servicios auxiliares)',
+      label: 'CSA (Medida consumo servicios auxiliares)',
+    },
   ];
 
   readonly opcionesConfiguracionMedida = [
@@ -130,7 +149,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
   ];
 
   readonly opcionesAgrupacionPlacas = [
-    { value: '', label: 'En blanco' },
+    { value: 'blanco', label: 'En blanco' },
     { value: 'si', label: 'Sí­' },
     { value: 'no', label: 'No' },
   ];
@@ -311,7 +330,13 @@ export class MemoriaTecnicaAutoconsumoComponent {
       croquisTrazadoImagen: null as string | null,
       descripcionCroquisImagen: '',
     },
-    fechaFirma: { dia: '', mes: '', anyo: '', lugar: '' },
+    fechaFirma: {
+      presupuestoTotalEurosEnergia: '',
+      dia: '',
+      mes: '',
+      anyo: '',
+      lugar: '',
+    },
   };
 
   constructor(
@@ -414,11 +439,88 @@ export class MemoriaTecnicaAutoconsumoComponent {
       const documentoCargadoPdf = await PDFDocument.load(bufferOriginalPdf);
       const formularioInteractivoPdf = documentoCargadoPdf.getForm();
       const camposTotalesPdf = formularioInteractivoPdf.getFields();
+      const nombresCamposPdf = camposTotalesPdf.map((campo) => campo.getName());
+      const setNombresCamposPdf = new Set(nombresCamposPdf);
+      const reporteCamposPdf = camposTotalesPdf.map((campo, indice) => {
+        let opciones: string[] = [];
+        const getOptions = (campo as any).getOptions;
+        if (typeof getOptions === 'function') {
+          try {
+            const resultado = getOptions.call(campo);
+            if (Array.isArray(resultado)) {
+              opciones = resultado;
+            }
+          } catch {}
+        }
+        return {
+          index: indice + 1,
+          name: campo.getName(),
+          type: campo.constructor?.name || 'Campo',
+          options: opciones,
+        };
+      });
+
+      const normalizarNombreCampoPdf = (nombreCampoPdf: string) => {
+        // Ya no eliminamos la barra invertida, porque el PDF la tiene.
+        return nombreCampoPdf;
+      };
+
+      const resolverNombreCampoPdf = (
+        nombreCampoPdf: string,
+      ): string | null => {
+        if (setNombresCamposPdf.has(nombreCampoPdf)) return nombreCampoPdf;
+
+        // Como fallback, probamos a añadir la doble barra invertida si el usuario
+        // la pasó como simple, para que coincida con el volcado JSON.
+        const conDobleEscape = nombreCampoPdf.replace(/\\\./g, '\\\\.');
+        if (setNombresCamposPdf.has(conDobleEscape)) return conDobleEscape;
+
+        return null;
+      };
+
+      const logCampoPdf = (nombreCampoPdf: string) => {
+        const nombreReal = resolverNombreCampoPdf(nombreCampoPdf);
+        if (!nombreReal) {
+          const normalizado = normalizarNombreCampoPdf(nombreCampoPdf);
+          const sufijo = normalizado.split('.').pop() || normalizado;
+          const sugerencias = nombresCamposPdf
+            .filter((nombre) => nombre.endsWith(sufijo))
+            .slice(0, 6);
+          console.warn(`[PDF] Campo no encontrado: ${nombreCampoPdf}`);
+          if (sugerencias.length > 0) {
+            console.warn(
+              `[PDF] Sugerencias para ${nombreCampoPdf}:`,
+              sugerencias,
+            );
+          }
+          return;
+        }
+
+        try {
+          const campo = formularioInteractivoPdf.getField(nombreReal);
+          const tipo = campo.constructor?.name || 'Campo';
+          const opciones = (campo as any).getOptions?.();
+          console.log(`[PDF] ${nombreCampoPdf} -> ${nombreReal} (${tipo})`);
+          if (Array.isArray(opciones) && opciones.length > 0) {
+            console.log(`[PDF] Opciones ${nombreReal}:`, opciones);
+          }
+        } catch (errorCampo) {
+          console.warn(`[PDF] Error inspeccionando: ${nombreReal}`);
+        }
+      };
 
       const setField = (nombreCampoPdf: string, valorCampoPdf: string) => {
         try {
+          const nombreReal = resolverNombreCampoPdf(nombreCampoPdf);
+          if (!nombreReal) {
+            console.warn(`[MTD] Campo PDF no encontrado: ${nombreCampoPdf}`);
+            return;
+          }
+          if (nombreReal !== nombreCampoPdf) {
+            console.log(`[PDF] Alias ${nombreCampoPdf} -> ${nombreReal}`);
+          }
           const campoTextoEditablePdf =
-            formularioInteractivoPdf.getTextField(nombreCampoPdf);
+            formularioInteractivoPdf.getTextField(nombreReal);
           if (campoTextoEditablePdf) {
             campoTextoEditablePdf.setText(
               valorCampoPdf?.toString().toUpperCase() || '',
@@ -434,8 +536,16 @@ export class MemoriaTecnicaAutoconsumoComponent {
         estadoCheckPdf: boolean,
       ) => {
         try {
+          const nombreReal = resolverNombreCampoPdf(nombreCampoPdf);
+          if (!nombreReal) {
+            console.warn(`[MTD] Campo PDF no encontrado: ${nombreCampoPdf}`);
+            return;
+          }
+          if (nombreReal !== nombreCampoPdf) {
+            console.log(`[PDF] Alias ${nombreCampoPdf} -> ${nombreReal}`);
+          }
           const campoCheckboxPdf =
-            formularioInteractivoPdf.getCheckBox(nombreCampoPdf);
+            formularioInteractivoPdf.getCheckBox(nombreReal);
           if (campoCheckboxPdf) {
             estadoCheckPdf
               ? campoCheckboxPdf.check()
@@ -446,11 +556,21 @@ export class MemoriaTecnicaAutoconsumoComponent {
 
       const obtenerOpcionesRadioPdf = (nombreCampoRadioPdf: string) => {
         try {
+          const nombreReal = resolverNombreCampoPdf(nombreCampoRadioPdf);
+          if (!nombreReal) {
+            console.warn(
+              `[MTD] Campo PDF no encontrado: ${nombreCampoRadioPdf}`,
+            );
+            return;
+          }
+          if (nombreReal !== nombreCampoRadioPdf) {
+            console.log(`[PDF] Alias ${nombreCampoRadioPdf} -> ${nombreReal}`);
+          }
           const campoRadioGrupoPdf =
-            formularioInteractivoPdf.getRadioGroup(nombreCampoRadioPdf);
+            formularioInteractivoPdf.getRadioGroup(nombreReal);
           const opcionesDisponiblesRadioPdf = campoRadioGrupoPdf.getOptions();
           console.log(
-            `Opciones ocultas para ${nombreCampoRadioPdf}:`,
+            `Opciones ocultas para ${nombreReal}:`,
             opcionesDisponiblesRadioPdf,
           );
         } catch (errorRadioPdf) {
@@ -463,13 +583,42 @@ export class MemoriaTecnicaAutoconsumoComponent {
         valorElegidoRadioPdf: string,
       ) => {
         try {
+          const nombreReal = resolverNombreCampoPdf(nombreCampoRadioPdf);
+          if (!nombreReal) {
+            console.warn(
+              `[MTD] Campo PDF no encontrado: ${nombreCampoRadioPdf}`,
+            );
+            return;
+          }
+          if (nombreReal !== nombreCampoRadioPdf) {
+            console.log(`[PDF] Alias ${nombreCampoRadioPdf} -> ${nombreReal}`);
+          }
           const campoRadioGrupoPdf =
-            formularioInteractivoPdf.getRadioGroup(nombreCampoRadioPdf);
+            formularioInteractivoPdf.getRadioGroup(nombreReal);
           campoRadioGrupoPdf.select(valorElegidoRadioPdf);
         } catch (errorRadioSeleccionPdf) {
           console.warn(`Error al seleccionar en: ${nombreCampoRadioPdf}`);
         }
       };
+
+      [
+        'form1[0].Pagina1[0].cabecera[0].tipo[0]',
+        'form1[0].Pagina1[0].seccion\\.c[0].C10[0]',
+        'form1[0].Pagina1[0].seccion\\.c[0].C_11[0]',
+        'form1[0].Pagina1[0].seccion\\.c[0].C_12[0]',
+        'form1[0].Pagina1[0].seccion\\.c[0].C_13[0]',
+        'form1[0].Pagina1[0].seccion\\.d[0].D_1[0]',
+        'form1[0].Pagina1[0].seccion\\.d[0].D_3[0]',
+        'form1[0].Pagina1[0].seccion\\.d[0].D_4[0]',
+        'form1[0].Pagina1[0].seccion\\.d[0].D_5[0]',
+        'form1[0].Pagina1[0].seccion\\.d[0].D_6[0]',
+        'form1[0].Pagina1[0].seccion\\.d[0].D_7[0]',
+        'form1[0].Pagina1[0].seccion\\.d[0].D_8[0]',
+        'form1[0].Pagina1[0].seccion\\.d[0].D_9[0]',
+        'form1[0].Pagina1[0].seccion\\.a[0].A_1[0]',
+        'form1[0].Pagina1[0].seccion\\.b[0].B_1[0]',
+        'form1[0].Pagina1[0].seccion\\.c[0].C_1[0]',
+      ].forEach(logCampoPdf);
 
       camposTotalesPdf.forEach((campoActualPdf, indiceBuclePdf) => {
         const numeroIdentificadorCampoPdf = (indiceBuclePdf + 1).toString();
@@ -489,12 +638,9 @@ export class MemoriaTecnicaAutoconsumoComponent {
         } catch (errorCampoPdf) {}
       });
 
-      setField(
-        'form1[0].Pagina1[0].cabecera[0].CAU[0]',
-        this.datos.emplazamiento.cups + '1FA000',
-      );
+      //Inicio
 
-      const valorElegidoModalidadPdf =
+      let valorElegidoModalidadPdf =
         this.datos.caracteristicas.modalidadAutoconsumo === 'conExcedentes'
           ? '1'
           : '2';
@@ -504,11 +650,1353 @@ export class MemoriaTecnicaAutoconsumoComponent {
         valorElegidoModalidadPdf,
       );
 
+      valorElegidoModalidadPdf = this.datos.contadores[0].tipo;
+      obtenerOpcionesRadioPdf(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_1[0]',
+      );
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_1[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.c[0].C10[0]');
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina1[0].seccion\\.c[0].C10[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      obtenerOpcionesRadioPdf(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_5[0]',
+      );
+
+      if (
+        this.datos.caracteristicas.tipoInstalacionAutoconsumo === 'redInterior'
+      )
+        valorElegidoModalidadPdf = '1';
+      if (
+        this.datos.caracteristicas.tipoInstalacionAutoconsumo ===
+        'redInteriorDiversosConsumidores'
+      )
+        valorElegidoModalidadPdf = '2';
+      if (
+        this.datos.caracteristicas.tipoInstalacionAutoconsumo ===
+        'proximaApartirDeRed'
+      )
+        valorElegidoModalidadPdf = '3';
+      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.c[0].C_11[0]');
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_11[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      if (this.datos.caracteristicas.tipoConexionAutoconsumo === 'redInterior')
+        valorElegidoModalidadPdf = '1';
+      if (
+        this.datos.caracteristicas.tipoConexionAutoconsumo ===
+        'redInteriorVariosConsumidores'
+      )
+        valorElegidoModalidadPdf = '2';
+      if (
+        this.datos.caracteristicas.tipoConexionAutoconsumo ===
+        'proximaATravesDeRed'
+      )
+        valorElegidoModalidadPdf = '3';
+      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.c[0].C_12[0]');
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_12[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      valorElegidoModalidadPdf =
+        this.datos.caracteristicas.colectiva === 'no' ? '1' : '2';
+      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.c[0].C_13[0]');
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_13[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      valorElegidoModalidadPdf =
+        this.datos.memoriaDescriptiva.tipoActuacion === 'nuevaInstalacion'
+          ? '1'
+          : '2';
+      obtenerOpcionesRadioPdf('form1[0].Pagina1[0].seccion\\.d[0].D_1[0]');
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_1[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      if (this.datos.placas[0].agrupacionPlacas === 'blanco')
+        valorElegidoModalidadPdf = '0';
+      if (this.datos.placas[0].agrupacionPlacas === 'si')
+        valorElegidoModalidadPdf = '1';
+      if (this.datos.placas[0].agrupacionPlacas === 'no')
+        valorElegidoModalidadPdf = '2';
+      obtenerOpcionesRadioPdf(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C1[0].D12_F1_C1[0]',
+      );
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C1[0].D12_F1_C1[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      if (this.datos.placas.length > 1) {
+        if (this.datos.placas[1].agrupacionPlacas === 'blanco')
+          valorElegidoModalidadPdf = '0';
+        if (this.datos.placas[1].agrupacionPlacas === 'si')
+          valorElegidoModalidadPdf = '1';
+        if (this.datos.placas[1].agrupacionPlacas === 'no')
+          valorElegidoModalidadPdf = '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C2[0].D12_F1_C2[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C2[0].D12_F1_C2[0]',
+          valorElegidoModalidadPdf,
+        );
+      }
+
+      if (this.datos.placas.length > 2) {
+        if (this.datos.placas[2].agrupacionPlacas === 'blanco')
+          valorElegidoModalidadPdf = '0';
+        if (this.datos.placas[2].agrupacionPlacas === 'si')
+          valorElegidoModalidadPdf = '1';
+        if (this.datos.placas[2].agrupacionPlacas === 'no')
+          valorElegidoModalidadPdf = '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C3[0].D12_F1_C3[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina2[0].Tabla_D12[0].Fila10[0].D12_F1_C3[0].D12_F1_C3[0]',
+          valorElegidoModalidadPdf,
+        );
+      }
+
+      valorElegidoModalidadPdf =
+        this.datos.inversores[0].proteccionVacBajaInversor === 'SI' ? '1' : '2';
+      obtenerOpcionesRadioPdf(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C2[0].SI_NO[0]',
+      );
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C2[0].SI_NO[0]',
+        valorElegidoModalidadPdf,
+      );
+      valorElegidoModalidadPdf =
+        this.datos.inversores[0].proteccionVacAltaInversor === 'SI' ? '1' : '2';
+      obtenerOpcionesRadioPdf(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C2[0].SI_NO[0]',
+      );
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C2[0].SI_NO[0]',
+        valorElegidoModalidadPdf,
+      );
+      valorElegidoModalidadPdf =
+        this.datos.inversores[0].proteccionFrecuenciaBajaInversor === 'SI'
+          ? '1'
+          : '2';
+      obtenerOpcionesRadioPdf(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C2[0].SI_NO[0]',
+      );
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C2[0].SI_NO[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      valorElegidoModalidadPdf =
+        this.datos.inversores[0].proteccionFrecuenciaAltaInversor ===
+        'nuevaInstalacion'
+          ? '1'
+          : '2';
+      obtenerOpcionesRadioPdf(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C2[0].SI_NO[0]',
+      );
+      seleccionarOpcionRadioPdf(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C2[0].SI_NO[0]',
+        valorElegidoModalidadPdf,
+      );
+
+      if (this.datos.inversores.length > 1) {
+        valorElegidoModalidadPdf =
+          this.datos.inversores[1].proteccionVacBajaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C3[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C3[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[1].proteccionVacAltaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C3[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C3[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[1].proteccionFrecuenciaBajaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C6[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C6[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+
+        valorElegidoModalidadPdf =
+          this.datos.inversores[1].proteccionFrecuenciaAltaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C3[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C3[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+      }
+
+      if (this.datos.inversores.length > 2) {
+        valorElegidoModalidadPdf =
+          this.datos.inversores[2].proteccionVacBajaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C4[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C4[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[2].proteccionVacAltaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C4[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C4[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[2].proteccionFrecuenciaBajaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C3[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C3[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+
+        valorElegidoModalidadPdf =
+          this.datos.inversores[2].proteccionFrecuenciaAltaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C4[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C4[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+      }
+
+      if (this.datos.inversores.length > 3) {
+        valorElegidoModalidadPdf =
+          this.datos.inversores[3].proteccionVacBajaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C5[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C5[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[3].proteccionVacAltaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C5[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C5[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[3].proteccionFrecuenciaBajaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C4[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C4[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+
+        valorElegidoModalidadPdf =
+          this.datos.inversores[3].proteccionFrecuenciaAltaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C5[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C5[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+      }
+
+      if (this.datos.inversores.length > 4) {
+        valorElegidoModalidadPdf =
+          this.datos.inversores[4].proteccionVacBajaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C6[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila8[0].TC111_F8_C6[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[4].proteccionVacAltaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C6[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila10[0].TC111_F10_C6[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[4].proteccionFrecuenciaBajaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C6[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila12[0].TC111_F12_C6[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+        valorElegidoModalidadPdf =
+          this.datos.inversores[4].proteccionFrecuenciaAltaInversor === 'SI'
+            ? '1'
+            : '2';
+        obtenerOpcionesRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C6[0].SI_NO[0]',
+        );
+        seleccionarOpcionRadioPdf(
+          'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila14[0].TC111_F14_C6[0].SI_NO[0]',
+          valorElegidoModalidadPdf,
+        );
+      }
+
+      setField(
+        'form1[0].Pagina1[0].cabecera[0].CAU[0]',
+        this.datos.emplazamiento.cups + '1FA000',
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_1[0]',
+        this.datos.titular.nombre + ' ' + this.datos.titular.apellidos,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_2[0]',
+        this.datos.titular.nif,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_3[0]',
+        this.datos.titular.domicilio,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_4[0]',
+        this.datos.titular.cp,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_5[0]',
+        this.datos.titular.localidad,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_6[0]',
+        this.datos.titular.poblacion,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_7[0]',
+        this.datos.titular.provincia,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_8[0]',
+        this.datos.titular.telefono,
+      );
+
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_10[0]',
+        this.datos.titular.correo,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_1[0]',
+        this.datos.emplazamiento.direccion,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_2[0]',
+        this.datos.emplazamiento.cp,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_3[0]',
+        this.datos.emplazamiento.localidad,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_4[0]',
+        this.datos.emplazamiento.poblacion,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_5[0]',
+        this.datos.emplazamiento.provincia,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_6[0]',
+        this.datos.emplazamiento.refCatastral,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_7[0]',
+        this.datos.emplazamiento.cups,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_8[0]',
+        this.datos.emplazamiento.telefono,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.b[0].B_10[0]',
+        this.datos.emplazamiento.correo,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_1[0]',
+        this.datos.emplazamiento.direccion,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_2[0]',
+        this.datos.emplazamiento.telefono,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_3[0]',
+        this.datos.emplazamiento.localidad,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_4[0]',
+        this.datos.emplazamiento.poblacion,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_5[0]',
+        this.datos.emplazamiento.provincia,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_6[0]',
+        this.datos.emplazamiento.cp,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_7[0]',
+        this.datos.caracteristicas.potenciaInstalada,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_8[0]',
+        this.datos.emplazamiento.tension,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_9[0]',
+        this.datos.emplazamiento.empresaDistribuidora,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_14[0]',
+        this.datos.caracteristicas.numeroConsumidores,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_2[0]',
+        this.datos.memoriaDescriptiva.numeroRegAutoconsumo,
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_10[0]',
+        this.datos.memoriaDescriptiva.descripcionOtros,
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_1[0]',
+        this.datos.contadores[0]?.ubicacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_2[0]',
+        this.datos.contadores[1]?.ubicacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_3[0]',
+        this.datos.contadores[2]?.ubicacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_4[0]',
+        this.datos.contadores[3]?.ubicacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila2[0].E_3_5[0]',
+        this.datos.contadores[4]?.ubicacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_1[0]',
+        this.datos.contadores[0]?.fabricante || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_2[0]',
+        this.datos.contadores[1]?.fabricante || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_3[0]',
+        this.datos.contadores[2]?.fabricante || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_4[0]',
+        this.datos.contadores[3]?.fabricante || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila3[0].E_4_5[0]',
+        this.datos.contadores[4]?.fabricante || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_1[0]',
+        this.datos.contadores[0]?.modelo || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_3[0]',
+        this.datos.contadores[1]?.modelo || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_4[0]',
+        this.datos.contadores[2]?.modelo || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_5[0]',
+        this.datos.contadores[3]?.modelo || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila4[0].E_5_6[0]',
+        this.datos.contadores[4]?.modelo || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_1[0]',
+        this.datos.contadores[0]?.numFabricacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_2[0]',
+        this.datos.contadores[1]?.numFabricacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_3[0]',
+        this.datos.contadores[2]?.numFabricacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_4[0]',
+        this.datos.contadores[3]?.numFabricacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila5[0].E_6_5[0]',
+        this.datos.contadores[4]?.numFabricacion || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_1[0]',
+        this.datos.contadores[0]?.relacionIntensidad || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_2[0]',
+        this.datos.contadores[1]?.relacionIntensidad || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_3[0]',
+        this.datos.contadores[2]?.relacionIntensidad || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_4[0]',
+        this.datos.contadores[3]?.relacionIntensidad || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila6[0].E_7_5[0]',
+        this.datos.contadores[4]?.relacionIntensidad || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_1[0]',
+        this.datos.contadores[0]?.tension || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_2[0]',
+        this.datos.contadores[1]?.tension || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_3[0]',
+        this.datos.contadores[2]?.tension || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_4[0]',
+        this.datos.contadores[3]?.tension || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila7[0].E_8_5[0]',
+        this.datos.contadores[4]?.tension || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_1[0]',
+        this.datos.contadores[0]?.constanteLectura || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_2[0]',
+        this.datos.contadores[1]?.constanteLectura || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_3[0]',
+        this.datos.contadores[2]?.constanteLectura || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_4[0]',
+        this.datos.contadores[3]?.constanteLectura || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila8[0].E_9_5[0]',
+        this.datos.contadores[4]?.constanteLectura || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_1[0]',
+        this.datos.contadores[0]?.clase || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_2[0]',
+        this.datos.contadores[1]?.clase || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_3[0]',
+        this.datos.contadores[2]?.clase || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_4[0]',
+        this.datos.contadores[3]?.clase || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila9[0].E_10_5[0]',
+        this.datos.contadores[4]?.clase || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_1[0]',
+        this.datos.contadores[0]?.elementoCorte || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_2[0]',
+        this.datos.contadores[1]?.elementoCorte || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_3[0]',
+        this.datos.contadores[2]?.elementoCorte || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_4[0]',
+        this.datos.contadores[3]?.elementoCorte || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila10[0].E_11_5[0]',
+        this.datos.contadores[4]?.elementoCorte || '',
+      );
+
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila1[0].D12_F1_C1[0]',
+        this.datos.placas[0]?.fabricante || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila1[0].D12_F1_C2[0]',
+        this.datos.placas[1]?.fabricante || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila1[0].D12_F1_C3[0]',
+        this.datos.placas[2]?.fabricante || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila2[0].D12_F2_C1[0]',
+        this.datos.placas[0]?.modelo || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila2[0].D12_F2_C2[0]',
+        this.datos.placas[1]?.modelo || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila2[0].D12_F2_C3[0]',
+        this.datos.placas[2]?.modelo || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila3[0].D12_F3_C1[0]',
+        this.datos.placas[0]?.numPlacas || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila3[0].D12_F3_C2[0]',
+        this.datos.placas[1]?.numPlacas || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila3[0].D12_F3_C3[0]',
+        this.datos.placas[2]?.numPlacas || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila4[0].D12_F4_C1[0]',
+        this.datos.placas[0]?.potMaxUnit || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila4[0].D12_F4_C2[0]',
+        this.datos.placas[1]?.potMaxUnit || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila4[0].D12_F4_C3[0]',
+        this.datos.placas[2]?.potMaxUnit || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila5[0].D12_F5_C1[0]',
+        this.datos.placas[0]?.corrienteMaxPotencia || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila5[0].D12_F5_C2[0]',
+        this.datos.placas[1]?.corrienteMaxPotencia || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila5[0].D12_F5_C3[0]',
+        this.datos.placas[2]?.corrienteMaxPotencia || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila6[0].D12_F6_C1[0]',
+        this.datos.placas[0]?.tensionCircuitoAbierto || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila6[0].D12_F6_C2[0]',
+        this.datos.placas[1]?.tensionCircuitoAbierto || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila6[0].D12_F6_C3[0]',
+        this.datos.placas[2]?.tensionCircuitoAbierto || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila7[0].D12_F7_C1[0]',
+        this.datos.placas[0]?.icc || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila7[0].D12_F7_C2[0]',
+        this.datos.placas[1]?.icc || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila7[0].D12_F7_C3[0]',
+        this.datos.placas[2]?.icc || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila8[0].D12_F8_C1[0]',
+        this.datos.placas[0]?.tensionMaxPotencia || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila8[0].D12_F8_C2[0]',
+        this.datos.placas[1]?.tensionMaxPotencia || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila8[0].D12_F8_C3[0]',
+        this.datos.placas[2]?.tensionMaxPotencia || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila9[0].D12_F9_C1[0]',
+        this.datos.placas[0]?.superficieTotal || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila9[0].D12_F9_C2[0]',
+        this.datos.placas[1]?.superficieTotal || '',
+      );
+      setField(
+        'form1[0].Pagina2[0].Tabla_D12[0].Fila9[0].D12_F9_C3[0]',
+        this.datos.placas[2]?.superficieTotal || '',
+      );
+
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C1[0]',
+        this.datos.inversores[0]?.numUnidadesInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C2[0]',
+        this.datos.inversores[1]?.numUnidadesInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C3[0]',
+        this.datos.inversores[2]?.numUnidadesInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C4[0]',
+        this.datos.inversores[3]?.numUnidadesInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila0[0].TC2A_F0_C5[0]',
+        this.datos.inversores[4]?.numUnidadesInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C1[0]',
+        this.datos.inversores[0]?.fabricanteInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C2[0]',
+        this.datos.inversores[1]?.fabricanteInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C3[0]',
+        this.datos.inversores[2]?.fabricanteInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C4[0]',
+        this.datos.inversores[3]?.fabricanteInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila1[0].TC2A_F1_C5[0]',
+        this.datos.inversores[4]?.fabricanteInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C1[0]',
+        this.datos.inversores[0]?.modeloInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C2[0]',
+        this.datos.inversores[1]?.modeloInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C3[0]',
+        this.datos.inversores[2]?.modeloInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C4[0]',
+        this.datos.inversores[3]?.modeloInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila2[0].TC2A_F2_C5[0]',
+        this.datos.inversores[4]?.modeloInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C1[0]',
+        this.datos.inversores[0]?.tensionNominalAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C2[0]',
+        this.datos.inversores[1]?.tensionNominalAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C3[0]',
+        this.datos.inversores[2]?.tensionNominalAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C4[0]',
+        this.datos.inversores[3]?.tensionNominalAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila3[0].TC2A_F3_C5[0]',
+        this.datos.inversores[4]?.tensionNominalAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C1[0]',
+        this.datos.inversores[0]?.potenciaAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C2[0]',
+        this.datos.inversores[1]?.potenciaAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C3[0]',
+        this.datos.inversores[2]?.potenciaAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C4[0]',
+        this.datos.inversores[3]?.potenciaAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila4[0].TC2A_F4_C5[0]',
+        this.datos.inversores[4]?.potenciaAcInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C1[0]',
+        this.datos.inversores[0]?.vccMaximaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C2[0]',
+        this.datos.inversores[1]?.vccMaximaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C3[0]',
+        this.datos.inversores[2]?.vccMaximaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C4[0]',
+        this.datos.inversores[3]?.vccMaximaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila5[0].TC111_F5_C5[0]',
+        this.datos.inversores[4]?.vccMaximaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C2[0]',
+        this.datos.inversores[0]?.vccMinimaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C3[0]',
+        this.datos.inversores[1]?.vccMinimaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C4[0]',
+        this.datos.inversores[2]?.vccMinimaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C5[0]',
+        this.datos.inversores[3]?.vccMinimaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila6[0].TC111_F6_C6[0]',
+        this.datos.inversores[4]?.vccMinimaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C2[0]',
+        this.datos.inversores[0]?.conexionInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C3[0]',
+        this.datos.inversores[1]?.conexionInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C4[0]',
+        this.datos.inversores[2]?.conexionInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C5[0]',
+        this.datos.inversores[3]?.conexionInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila7[0].TC111_F7_C6[0]',
+        this.datos.inversores[4]?.conexionInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C2[0]',
+        this.datos.inversores[0]?.tensionActuacionVacBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C3[0]',
+        this.datos.inversores[1]?.tensionActuacionVacBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C4[0]',
+        this.datos.inversores[2]?.tensionActuacionVacBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C5[0]',
+        this.datos.inversores[3]?.tensionActuacionVacBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila9[0].TC111_F9_C6[0]',
+        this.datos.inversores[4]?.tensionActuacionVacBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C2[0]',
+        this.datos.inversores[0]?.tensionActuacionVacAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C3[0]',
+        this.datos.inversores[1]?.tensionActuacionVacAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C4[0]',
+        this.datos.inversores[2]?.tensionActuacionVacAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C5[0]',
+        this.datos.inversores[3]?.tensionActuacionVacAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila11[0].TC111_F11_C6[0]',
+        this.datos.inversores[4]?.tensionActuacionVacAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C2[0]',
+        this.datos.inversores[0]?.frecuenciaActuacionBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C3[0]',
+        this.datos.inversores[1]?.frecuenciaActuacionBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C4[0]',
+        this.datos.inversores[2]?.frecuenciaActuacionBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C5[0]',
+        this.datos.inversores[3]?.frecuenciaActuacionBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila13[0].TC111_F13_C6[0]',
+        this.datos.inversores[4]?.frecuenciaActuacionBajaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C2[0]',
+        this.datos.inversores[0]?.frecuenciaActuacionAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C3[0]',
+        this.datos.inversores[1]?.frecuenciaActuacionAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C4[0]',
+        this.datos.inversores[2]?.frecuenciaActuacionAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C5[0]',
+        this.datos.inversores[3]?.frecuenciaActuacionAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila15[0].TC111_F15_C6[0]',
+        this.datos.inversores[4]?.frecuenciaActuacionAltaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C1[0]',
+        this.datos.inversores[0]?.proteccionIslaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C2[0]',
+        this.datos.inversores[1]?.proteccionIslaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C3[0]',
+        this.datos.inversores[2]?.proteccionIslaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C4[0]',
+        this.datos.inversores[3]?.proteccionIslaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina3[0].sUBF1[0].TabC2A[0].Fila16[0].TC111_F16_C5[0]',
+        this.datos.inversores[4]?.proteccionIslaInversor || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.d3[0].D11_2[0]',
+        this.datos.energia.energiaGeneradaAnualEstimadaKwhEnergia,
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.d3[0].D11_1[0]',
+        this.datos.energia.energiaConsumidaAnualKwhEnergia,
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.d3[0].D11_3[0]',
+        this.datos.energia.energiaAbocadaAnualEstimadaKwhEnergia,
+      );
+
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C1[0]',
+        this.datos.lineas[0]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C2[0]',
+        this.datos.lineas[0]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C3[0]',
+        this.datos.lineas[0]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C4[0]',
+        this.datos.lineas[0]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C5[0]',
+        this.datos.lineas[0]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C6[0]',
+        this.datos.lineas[0]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila1[0].TE2_F1_C7[0]',
+        this.datos.lineas[0]?.caidaTensionAuPorcentajeLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C1[0]',
+        this.datos.lineas[1]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C2[0]',
+        this.datos.lineas[1]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C3[0]',
+        this.datos.lineas[1]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C4[0]',
+        this.datos.lineas[1]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C5[0]',
+        this.datos.lineas[1]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C6[0]',
+        this.datos.lineas[1]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila2[0].TE2_F2_C7[0]',
+        this.datos.lineas[1]?.caidaTensionAuPorcentajeLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C1[0]',
+        this.datos.lineas[2]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C2[0]',
+        this.datos.lineas[2]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C3[0]',
+        this.datos.lineas[2]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C4[0]',
+        this.datos.lineas[2]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C5[0]',
+        this.datos.lineas[2]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C6[0]',
+        this.datos.lineas[2]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila3[0].TE2_F3_C7[0]',
+        this.datos.lineas[2]?.caidaTensionAuPorcentajeLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C1[0]',
+        this.datos.lineas[3]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C2[0]',
+        this.datos.lineas[3]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C3[0]',
+        this.datos.lineas[3]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C4[0]',
+        this.datos.lineas[3]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C5[0]',
+        this.datos.lineas[3]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C6[0]',
+        this.datos.lineas[3]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila4[0].TE2_F4_C7[0]',
+        this.datos.lineas[3]?.caidaTensionAuPorcentajeLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C1[0]',
+        this.datos.lineas[4]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C2[0]',
+        this.datos.lineas[4]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C3[0]',
+        this.datos.lineas[4]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C4[0]',
+        this.datos.lineas[4]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C5[0]',
+        this.datos.lineas[4]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C6[0]',
+        this.datos.lineas[4]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila5[0].TE2_F5_C7[0]',
+        this.datos.lineas[4]?.caidaTensionAuPorcentajeLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C1[0]',
+        this.datos.lineas[5]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C2[0]',
+        this.datos.lineas[5]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C3[0]',
+        this.datos.lineas[5]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C4[0]',
+        this.datos.lineas[5]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C5[0]',
+        this.datos.lineas[5]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C6[0]',
+        this.datos.lineas[5]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila6[0].TE2_F6_C7[0]',
+        this.datos.lineas[5]?.caidaTensionAuPorcentajeLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C1[0]',
+        this.datos.lineas[6]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C2[0]',
+        this.datos.lineas[6]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C3[0]',
+        this.datos.lineas[6]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C4[0]',
+        this.datos.lineas[6]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C5[0]',
+        this.datos.lineas[6]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C6[0]',
+        this.datos.lineas[6]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila7[0].TE2_F7_C7[0]',
+        this.datos.lineas[6]?.caidaTensionAuPorcentajeLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C1[0]',
+        this.datos.lineas[7]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C2[0]',
+        this.datos.lineas[7]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C3[0]',
+        this.datos.lineas[7]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C4[0]',
+        this.datos.lineas[7]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C5[0]',
+        this.datos.lineas[7]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C6[0]',
+        this.datos.lineas[7]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila8[0].TE2_F8_C7[0]',
+        this.datos.lineas[7]?.caidaTensionAuPorcentajeLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C1[0]',
+        this.datos.lineas[8]?.denominacionLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C2[0]',
+        this.datos.lineas[8]?.potenciaPrevistaKwLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C3[0]',
+        this.datos.lineas[8]?.longitudMLinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C4[0]',
+        this.datos.lineas[8]?.dispositivoProteccionInALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C5[0]',
+        this.datos.lineas[8]?.materialConductorSeccionMm2Linea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C6[0]',
+        this.datos.lineas[8]?.intensidadAdmisibleIzALinea || '',
+      );
+      setField(
+        'form1[0].Pagina4[0].seccion\\.e[0].TablaE2[0].Fila9[0].TE2_F9_C7[0]',
+        this.datos.lineas[8]?.caidaTensionAuPorcentajeLinea || '',
+      );
+
+      setField(
+        'form1[0].Pagina7[0].seccion\\.j[0].j_CT1[0]',
+        this.datos.fechaFirma.presupuestoTotalEurosEnergia || '',
+      );
+      setField(
+        'form1[0].Pagina7[0].seccion\\.k[0].FI_LLOC2[0]',
+        this.datos.fechaFirma.lugar || '',
+      );
+      setField(
+        'form1[0].Pagina7[0].seccion\\.k[0].FI_DIA2[0]',
+        this.datos.fechaFirma.dia || '',
+      );
+      setField(
+        'form1[0].Pagina7[0].seccion\\.k[0].FI_MES2[0]',
+        this.datos.fechaFirma.mes || '',
+      );
+      setField(
+        'form1[0].Pagina7[0].seccion\\.k[0].FI_ANY2[0]',
+        this.datos.fechaFirma.anyo || '',
+      );
+      setField(
+        'form1[0].Pagina7[0].seccion\\.k[0].J_FIRMAINS[0]',
+        this.datos.instalador.empresaInstaladoraOInstalador || '',
+      );
+      setField(
+        'form1[0].Pagina7[0].seccion\\.k[0].J_DNIINS[0]',
+        this.datos.instalador.cifODni || '',
+      );
+
+      //Final
+
       const documentoFinalBytesPdf = await documentoCargadoPdf.save();
       const blobDocumentoPdf = new Blob([documentoFinalBytesPdf as any], {
         type: 'application/pdf',
       });
       saveAs(blobDocumentoPdf, 'MAPEO_CAMPOS_MTDAC.pdf');
+      const blobReporte = new Blob(
+        [JSON.stringify(reporteCamposPdf, null, 2)],
+        {
+          type: 'application/json',
+        },
+      );
+      saveAs(blobReporte, 'MAPEO_CAMPOS_MTDAC.json');
     } catch (errorGeneracionPdf) {
       console.error(errorGeneracionPdf);
       alert('Error al mapear. Revisa la consola.');
@@ -694,11 +2182,43 @@ export class MemoriaTecnicaAutoconsumoComponent {
       const planoImageI = await pdfDoc.embedPng(planoIBytes);
 
       const colorBoli = rgb(0, 0, 0.7);
+      const nombresCamposPdf = form.getFields().map((campo) => campo.getName());
+      const setNombresCamposPdf = new Set(nombresCamposPdf);
+
+      const normalizarNombreCampoPdf = (nombreCampoPdf: string) =>
+        nombreCampoPdf.replace(/\\\./g, '.');
+
+      const resolverNombreCampoPdf = (
+        nombreCampoPdf: string,
+      ): string | null => {
+        if (setNombresCamposPdf.has(nombreCampoPdf)) return nombreCampoPdf;
+        const sinEscape = normalizarNombreCampoPdf(nombreCampoPdf);
+        if (setNombresCamposPdf.has(sinEscape)) return sinEscape;
+        if (!nombreCampoPdf.includes('\\.') && nombreCampoPdf.includes('.')) {
+          const conEscape = nombreCampoPdf.replace(/\./g, '\\.');
+          if (setNombresCamposPdf.has(conEscape)) return conEscape;
+        }
+        return null;
+      };
+
+      const normalizarTextoOpcion = (texto: string) =>
+        String(texto || '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .toUpperCase();
+
+      const extraerCodigoOpcion = (texto: string) =>
+        normalizarTextoOpcion(texto).split(/[\s(]/)[0] || '';
 
       // Helpers Campos
       const setField = (name: string, value: string) => {
         try {
-          const f = form.getTextField(name);
+          const nombreReal = resolverNombreCampoPdf(name);
+          if (!nombreReal) {
+            console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
+            return;
+          }
+          const f = form.getTextField(nombreReal);
           if (f) f.setText(value?.toString().toUpperCase() || '');
         } catch (e) {
           console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
@@ -706,9 +2226,61 @@ export class MemoriaTecnicaAutoconsumoComponent {
       };
       const setCheck = (name: string, c: boolean) => {
         try {
-          const f = form.getCheckBox(name);
+          const nombreReal = resolverNombreCampoPdf(name);
+          if (!nombreReal) {
+            console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
+            return;
+          }
+          const f = form.getCheckBox(nombreReal);
           if (f) c ? f.check() : f.uncheck();
         } catch (e) {}
+      };
+      const setRadio = (name: string, value: string) => {
+        try {
+          const nombreReal = resolverNombreCampoPdf(name);
+          if (!nombreReal) {
+            console.warn(`[MTD] Campo PDF no encontrado: ${name}`);
+            return;
+          }
+          const f = form.getRadioGroup(nombreReal);
+          if (f) f.select(value);
+        } catch (e) {
+          console.warn(`[MTD] Radio PDF no encontrado: ${name}`);
+        }
+      };
+      const setSelect = (
+        nombreOriginalCampoPdf: string,
+        valorDeseadoCampoPdf: string,
+      ): boolean => {
+        const nombreRealCampoPdf = resolverNombreCampoPdf(
+          nombreOriginalCampoPdf,
+        );
+
+        if (!nombreRealCampoPdf) {
+          return false;
+        }
+
+        try {
+          const campoDesplegablePdf = form.getDropdown(nombreRealCampoPdf);
+          campoDesplegablePdf.select(valorDeseadoCampoPdf);
+          return true;
+        } catch {}
+
+        try {
+          const campoListaOpcionesPdf = form.getOptionList(nombreRealCampoPdf);
+          campoListaOpcionesPdf.select(valorDeseadoCampoPdf);
+          return true;
+        } catch {}
+
+        try {
+          const campoTextoPdf = form.getTextField(nombreRealCampoPdf);
+          campoTextoPdf.setText(
+            valorDeseadoCampoPdf?.toString().toUpperCase() || '',
+          );
+          return true;
+        } catch {
+          return false;
+        }
       };
 
       // --- RELLENADO DE DATOS ---
@@ -801,6 +2373,90 @@ export class MemoriaTecnicaAutoconsumoComponent {
           ? '3x400/230V'
           : '1x230V',
       );
+
+      const cambiosModificacion = this.datos.memoriaDescriptiva.cambios;
+      const valorCheckCambio = (estado: boolean) => (estado ? '1' : '2');
+      setRadio(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_3[0]',
+        valorCheckCambio(cambiosModificacion.deConExcedentesASinExcedentes),
+      );
+      setRadio(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_4[0]',
+        valorCheckCambio(cambiosModificacion.deSinExcedentesAConExcedentes),
+      );
+      setRadio(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_5[0]',
+        valorCheckCambio(
+          cambiosModificacion.deProduccionTodoTodoASinExcedentes,
+        ),
+      );
+      setRadio(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_6[0]',
+        valorCheckCambio(
+          cambiosModificacion.deProduccionTodoTodoAConExcedentes,
+        ),
+      );
+      setRadio(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_7[0]',
+        valorCheckCambio(cambiosModificacion.conVariacionPotencia),
+      );
+      setRadio(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_8[0]',
+        valorCheckCambio(cambiosModificacion.sustitucionEquipos),
+      );
+      setRadio(
+        'form1[0].Pagina1[0].seccion\\.d[0].D_9[0]',
+        valorCheckCambio(cambiosModificacion.otros),
+      );
+
+      const camposTipoContadorPdf = [
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_1[0]',
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_2[0]',
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_3[0]',
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_4[0]',
+        'form1[0].Pagina2[0].seccion\\.e1[0].Tabla_C1[0].Fila1[0].E_2_5[0]',
+      ];
+
+      const pendientesTipoContador: { index: number; tipo: string }[] = [];
+      this.datos.contadores.forEach((contador, index) => {
+        if (index >= camposTipoContadorPdf.length) return;
+        const tipoContador = String(contador?.tipo || '').trim();
+        if (!tipoContador) return;
+        const aplicado = setSelect(camposTipoContadorPdf[index], tipoContador);
+        if (!aplicado) {
+          pendientesTipoContador.push({ index, tipo: tipoContador });
+        }
+      });
+      if (pendientesTipoContador.length > 0) {
+        const candidatosTipoContador = form
+          .getFields()
+          .map((campo) => {
+            const opciones = (campo as any).getOptions?.();
+            if (!Array.isArray(opciones) || opciones.length < 5) return null;
+            const codigos = opciones
+              .map((op: string) => extraerCodigoOpcion(op))
+              .filter(Boolean);
+            const codigosSet = new Set(codigos);
+            const requeridos = ['PF', 'GN', 'CT', 'GB', 'CSA'];
+            const coincide = requeridos.every((codigo) =>
+              codigosSet.has(codigo),
+            );
+            return coincide ? campo.getName() : null;
+          })
+          .filter((nombre): nombre is string => Boolean(nombre))
+          .sort((a, b) => a.localeCompare(b));
+
+        pendientesTipoContador.forEach((pendiente) => {
+          const nombre = candidatosTipoContador[pendiente.index];
+          if (!nombre) {
+            console.warn(
+              `[MTD] No se encontró campo de tipo contador para índice ${pendiente.index + 1}`,
+            );
+            return;
+          }
+          setSelect(nombre, pendiente.tipo);
+        });
+      }
 
       const nombreCalleSolo = this.extraerSoloCalle(
         this.datos.emplazamiento.direccion,
@@ -897,6 +2553,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
         rotate: degrees(1.5),
       });
 
+      form.updateFieldAppearances(fontHand);
       form.flatten();
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });

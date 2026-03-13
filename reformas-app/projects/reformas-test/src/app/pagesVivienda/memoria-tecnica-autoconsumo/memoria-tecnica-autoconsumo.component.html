@@ -1786,6 +1786,16 @@
             </div>
           </div>
 
+          <div class="col-md-4">
+            <label class="form-label">PRESUPUESTO TOTAL (€)</label>
+            <input
+              type="number"
+              step="0.01"
+              class="form-control"
+              [(ngModel)]="datos.fechaFirma.presupuestoTotalEurosEnergia"
+            />
+          </div>
+
           <div
             class="row g-3 mt-1"
             *ngIf="informacionInstaladorSeleccionado.length"
