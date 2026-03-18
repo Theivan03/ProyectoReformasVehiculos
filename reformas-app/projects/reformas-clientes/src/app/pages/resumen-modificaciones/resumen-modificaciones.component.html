@@ -6707,49 +6707,73 @@
           <h4 class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark">
             <i class="bi bi-window me-2"></i>Claraboya
           </h4>
+          <button
+            type="button"
+            class="btn btn-ing btn-ing-add"
+            (click)="mod.claraboyas.push({})"
+          >
+            <i class="bi bi-plus-lg me-1"></i> Añadir claraboya
+          </button>
         </div>
 
-        <div class="bg-light p-4 border">
-          <div class="row g-3">
-            <div class="col-md-2">
-              <label class="ing-label">Cantidad</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.cantidadClaraboya"
-                name="cantidadClaraboya{{ i }}"
-                placeholder="0"
-              />
-            </div>
-            <div class="col-md-5">
-              <label class="ing-label">Marca</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.marcaClaraboya"
-                name="marcaClaraboya{{ i }}"
-                placeholder="Marca del fabricante"
-              />
-            </div>
-            <div class="col-md-5">
-              <label class="ing-label">Modelo</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.modeloClaraboya"
-                name="modeloClaraboya{{ i }}"
-                placeholder="Modelo comercial"
-              />
-            </div>
+        @if (!mod.claraboyas || mod.claraboyas.length === 0) {
+        <div class="text-muted small fst-italic mb-3">
+          No hay claraboyas añadidas.
+        </div>
+        }
 
+        @if (
+          formSubmitted &&
+          (!mod.claraboyas || mod.claraboyas.length === 0)
+        ) {
+        <div class="text-danger small mb-3">
+          Añade al menos una claraboya.
+        </div>
+        }
+
+        @for (claraboyaItem of mod.claraboyas; track $index; let j = $index) {
+        <div class="bg-light p-4 border mb-3 position-relative">
+          <span
+            class="position-absolute top-0 end-0 badge bg-secondary rounded-0 m-2"
+            >#{{ j + 1 }}</span
+          >
+          <div class="row g-3 pt-3">
             <div class="col-12">
               <label class="ing-label">Contraseña de Homologación</label>
               <input
                 type="text"
                 class="form-control ing-input"
-                [(ngModel)]="mod.homologacionClaraboya"
-                name="homologacionClaraboya{{ i }}"
+                [(ngModel)]="claraboyaItem.homologacion"
+                name="homologacionClaraboya{{ i }}-{{ j }}"
                 placeholder="Ej: E1 43R-001234"
+                required
+                [class.is-invalid]="
+                  formSubmitted && !claraboyaItem.homologacion
+                "
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="ing-label">Marca</label>
+              <input
+                type="text"
+                class="form-control ing-input"
+                [(ngModel)]="claraboyaItem.marca"
+                name="marcaClaraboya{{ i }}-{{ j }}"
+                placeholder="Marca del fabricante"
+                required
+                [class.is-invalid]="formSubmitted && !claraboyaItem.marca"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="ing-label">Modelo</label>
+              <input
+                type="text"
+                class="form-control ing-input"
+                [(ngModel)]="claraboyaItem.modelo"
+                name="modeloClaraboya{{ i }}-{{ j }}"
+                placeholder="Modelo comercial"
+                required
+                [class.is-invalid]="formSubmitted && !claraboyaItem.modelo"
               />
             </div>
 
@@ -6758,13 +6782,26 @@
               <textarea
                 class="form-control ing-input"
                 rows="2"
-                [(ngModel)]="mod.descripcionClaraboya"
-                name="descripcionClaraboya{{ i }}"
+                [(ngModel)]="claraboyaItem.descripcion"
+                name="descripcionClaraboya{{ i }}-{{ j }}"
                 placeholder="Detalles de instalación, dimensiones de corte..."
+                required
+                [class.is-invalid]="formSubmitted && !claraboyaItem.descripcion"
               ></textarea>
+            </div>
+
+            <div class="col-12 text-end">
+              <button
+                type="button"
+                class="btn btn-ing btn-ing-del"
+                (click)="mod.claraboyas.splice(j, 1)"
+              >
+                <i class="bi bi-trash me-1"></i> Eliminar claraboya
+              </button>
             </div>
           </div>
         </div>
+        }
       </div>
       }
       <!-- VENTANA -->
@@ -6776,60 +6813,85 @@
           <h4 class="ing-sub-title mb-0 border-0 bg-transparent ps-0 text-dark">
             <i class="bi bi-aspect-ratio me-2"></i>Ventana
           </h4>
+          <button
+            type="button"
+            class="btn btn-ing btn-ing-add"
+            (click)="mod.ventanas.push({})"
+          >
+            <i class="bi bi-plus-lg me-1"></i> Añadir ventana
+          </button>
         </div>
 
-        <div class="bg-light p-4 border">
-          <div class="row g-3">
-            <div class="col-md-2">
-              <label class="ing-label">Cantidad</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.cantidadVentanas"
-                name="cantidadVentanas{{ i }}"
-                placeholder="0"
-              />
-            </div>
-            <div class="col-md-5">
-              <label class="ing-label">Marca</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.marcaVentana"
-                name="marcaVentana{{ i }}"
-                placeholder="Marca del fabricante"
-              />
-            </div>
-            <div class="col-md-5">
-              <label class="ing-label">Modelo</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.modeloVentana"
-                name="modeloVentana{{ i }}"
-                placeholder="Modelo comercial"
-              />
-            </div>
+        @if (!mod.ventanas || mod.ventanas.length === 0) {
+        <div class="text-muted small fst-italic mb-3">
+          No hay ventanas añadidas.
+        </div>
+        }
 
-            <div class="col-md-6">
-              <label class="ing-label">Dimensiones</label>
-              <input
-                type="text"
-                class="form-control ing-input"
-                [(ngModel)]="mod.dimensionesVentana"
-                name="dimensionesVentana{{ i }}"
-                placeholder="Ej: 900x450 mm"
-              />
-            </div>
+        @if (
+          formSubmitted &&
+          (!mod.ventanas || mod.ventanas.length === 0)
+        ) {
+        <div class="text-danger small mb-3">
+          Añade al menos una ventana.
+        </div>
+        }
 
-            <div class="col-md-6">
+        @for (ventanaItem of mod.ventanas; track $index; let j = $index) {
+        <div class="bg-light p-4 border mb-3 position-relative">
+          <span
+            class="position-absolute top-0 end-0 badge bg-secondary rounded-0 m-2"
+            >#{{ j + 1 }}</span
+          >
+          <div class="row g-3 pt-3">
+            <div class="col-12">
               <label class="ing-label">Contraseña de Homologación</label>
               <input
                 type="text"
                 class="form-control ing-input"
-                [(ngModel)]="mod.homologacionVentana"
-                name="homologacionVentana{{ i }}"
+                [(ngModel)]="ventanaItem.homologacion"
+                name="homologacionVentana{{ i }}-{{ j }}"
                 placeholder="Ej: 43R-001234"
+                required
+                [class.is-invalid]="
+                  formSubmitted && !ventanaItem.homologacion
+                "
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="ing-label">Marca</label>
+              <input
+                type="text"
+                class="form-control ing-input"
+                [(ngModel)]="ventanaItem.marca"
+                name="marcaVentana{{ i }}-{{ j }}"
+                placeholder="Marca del fabricante"
+                required
+                [class.is-invalid]="formSubmitted && !ventanaItem.marca"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="ing-label">Modelo</label>
+              <input
+                type="text"
+                class="form-control ing-input"
+                [(ngModel)]="ventanaItem.modelo"
+                name="modeloVentana{{ i }}-{{ j }}"
+                placeholder="Modelo comercial"
+                required
+                [class.is-invalid]="formSubmitted && !ventanaItem.modelo"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="ing-label">Dimensiones</label>
+              <input
+                type="text"
+                class="form-control ing-input"
+                [(ngModel)]="ventanaItem.dimensiones"
+                name="dimensionesVentana{{ i }}-{{ j }}"
+                placeholder="Ej: 900x450 mm"
+                required
+                [class.is-invalid]="formSubmitted && !ventanaItem.dimensiones"
               />
             </div>
 
@@ -6838,13 +6900,26 @@
               <textarea
                 class="form-control ing-input"
                 rows="2"
-                [(ngModel)]="mod.descripcionVentana"
-                name="descripcionVentana{{ i }}"
+                [(ngModel)]="ventanaItem.descripcion"
+                name="descripcionVentana{{ i }}-{{ j }}"
                 placeholder="Ubicación, tipo de apertura, material..."
+                required
+                [class.is-invalid]="formSubmitted && !ventanaItem.descripcion"
               ></textarea>
+            </div>
+
+            <div class="col-12 text-end">
+              <button
+                type="button"
+                class="btn btn-ing btn-ing-del"
+                (click)="mod.ventanas.splice(j, 1)"
+              >
+                <i class="bi bi-trash me-1"></i> Eliminar ventana
+              </button>
             </div>
           </div>
         </div>
+        }
       </div>
       } } @if(mod.detalle.fontaneria){
       <!-- DEPÓSITO DE AGUA SUCIA -->

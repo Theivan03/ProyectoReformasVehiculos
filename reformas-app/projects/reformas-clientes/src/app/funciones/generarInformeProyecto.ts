@@ -638,29 +638,115 @@ export async function generarInformeProyecto(data: any): Promise<Blob> {
             }
             if (mod.detalle?.mobiliarioInterior?.claraboyas) {
               addCampo('CLARABOYAS', ' ');
-              addCampo(
-                `Cantidad de claraboyas instaladas`,
-                mod.cantidadClaraboya
-              );
-              addCampo(`Marca de la claraboya`, mod.marcaClaraboya);
-              addCampo(`Modelo de la claraboya`, mod.modeloClaraboya);
-              addCampo(`Descripción de la claraboya`, mod.descripcionClaraboya);
-              addCampo(
-                `Contraseña de homologación de la claraboya`,
-                mod.homologacionClaraboya
-              );
+              const hasClaraboyasArray =
+                Array.isArray(mod.claraboyas) && mod.claraboyas.length > 0;
+              const claraboyas = hasClaraboyasArray
+                ? mod.claraboyas
+                : [
+                    {
+                      marca: mod.marcaClaraboya,
+                      modelo: mod.modeloClaraboya,
+                      descripcion: mod.descripcionClaraboya,
+                      homologacion: mod.homologacionClaraboya,
+                    },
+                  ].filter(
+                    (item) =>
+                      item.marca ||
+                      item.modelo ||
+                      item.descripcion ||
+                      item.homologacion ||
+                      mod.cantidadClaraboya
+                  );
+
+              if (claraboyas.length > 0) {
+                const cantidadClaraboyas = hasClaraboyasArray
+                  ? claraboyas.length
+                  : mod.cantidadClaraboya ?? claraboyas.length;
+                addCampo(
+                  `Cantidad de claraboyas instaladas`,
+                  cantidadClaraboyas
+                );
+                claraboyas.forEach((claraboya: any, index: number) => {
+                  const etiqueta = `Claraboya #${index + 1}`;
+                  addCampo(`${etiqueta} - Marca`, claraboya.marca);
+                  addCampo(`${etiqueta} - Modelo`, claraboya.modelo);
+                  addCampo(`${etiqueta} - Descripción`, claraboya.descripcion);
+                  addCampo(
+                    `${etiqueta} - Contraseña de homologación`,
+                    claraboya.homologacion
+                  );
+                });
+              } else {
+                addCampo(
+                  `Cantidad de claraboyas instaladas`,
+                  mod.cantidadClaraboya
+                );
+                addCampo(`Marca de la claraboya`, mod.marcaClaraboya);
+                addCampo(`Modelo de la claraboya`, mod.modeloClaraboya);
+                addCampo(
+                  `Descripción de la claraboya`,
+                  mod.descripcionClaraboya
+                );
+                addCampo(
+                  `Contraseña de homologación de la claraboya`,
+                  mod.homologacionClaraboya
+                );
+              }
             }
             if (mod.detalle?.mobiliarioInterior?.ventanas) {
               addCampo('VENTANAS', ' ');
-              addCampo(`Cantidad de ventanas instaladas`, mod.cantidadVentanas);
-              addCampo(`Marca de la ventana`, mod.marcaVentana);
-              addCampo(`Modelo de la ventana`, mod.modeloVentana);
-              addCampo(`Descripción de la ventana`, mod.descripcionVentana);
-              addCampo(`Descripción de la ventana`, mod.dimensionesVentana);
-              addCampo(
-                `Contraseña de homologación de la ventana`,
-                mod.homologacionVentana
-              );
+              const hasVentanasArray =
+                Array.isArray(mod.ventanas) && mod.ventanas.length > 0;
+              const ventanas = hasVentanasArray
+                ? mod.ventanas
+                : [
+                    {
+                      descripcion: mod.descripcionVentana,
+                      marca: mod.marcaVentana,
+                      modelo: mod.modeloVentana,
+                      dimensiones: mod.dimensionesVentana,
+                      homologacion: mod.homologacionVentana,
+                    },
+                  ].filter(
+                    (item) =>
+                      item.descripcion ||
+                      item.marca ||
+                      item.modelo ||
+                      item.dimensiones ||
+                      item.homologacion ||
+                      mod.cantidadVentanas
+                  );
+
+              if (ventanas.length > 0) {
+                const cantidadVentanas = hasVentanasArray
+                  ? ventanas.length
+                  : mod.cantidadVentanas ?? ventanas.length;
+                addCampo(`Cantidad de ventanas instaladas`, cantidadVentanas);
+                ventanas.forEach((ventana: any, index: number) => {
+                  const etiqueta = `Ventana #${index + 1}`;
+                  addCampo(`${etiqueta} - Marca`, ventana.marca);
+                  addCampo(`${etiqueta} - Modelo`, ventana.modelo);
+                  addCampo(`${etiqueta} - Dimensiones`, ventana.dimensiones);
+                  addCampo(`${etiqueta} - Descripción`, ventana.descripcion);
+                  addCampo(
+                    `${etiqueta} - Contraseña de homologación`,
+                    ventana.homologacion
+                  );
+                });
+              } else {
+                addCampo(
+                  `Cantidad de ventanas instaladas`,
+                  mod.cantidadVentanas
+                );
+                addCampo(`Marca de la ventana`, mod.marcaVentana);
+                addCampo(`Modelo de la ventana`, mod.modeloVentana);
+                addCampo(`Descripción de la ventana`, mod.descripcionVentana);
+                addCampo(`Dimensiones de la ventana`, mod.dimensionesVentana);
+                addCampo(
+                  `Contraseña de homologación de la ventana`,
+                  mod.homologacionVentana
+                );
+              }
             }
           }
           if (mod.detalle?.fontaneria) {

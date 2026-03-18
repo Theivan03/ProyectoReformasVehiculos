@@ -2328,41 +2328,125 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
   let punto2_2 = [];
 
-  const reparto = {
-    masaReal: { del: 0.536, tras: 0.464 },
-    ocupDel: { del: 0.78, tras: 0.22 },
-    ocup2: { del: 0.96, tras: 0.04 },
-    ocup3: { del: 0.0, tras: 0.0 },
-    cargaUtil: { del: 0.105, tras: 0.895 },
+  const toNumber = (value: any): number => {
+    if (value === null || value === undefined) return 0;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+
+    const text = String(value).trim();
+    if (!text || text === '---') return 0;
+
+    const normalized =
+      text.includes(',') && text.includes('.')
+        ? text.replace(/\./g, '').replace(',', '.')
+        : text.replace(',', '.');
+
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
   };
-  const aientostotal = data.asientosDelanteros + 1;
-  const ocupDelTotal = (aientostotal ?? 0) * 75;
-  const ocup2Total = (data.asientos2Fila ?? 0) * 75;
-  const ocup3Total = (data.asientos3Fila ?? 0) * 75;
-  const cargaUtilTotal = Number(data.cargaUtilTotal ?? 0);
-  const masaRealTotal = Number(data.masaRealDespues ?? 0) + 75;
 
-  const masaRealDel = Math.round(masaRealTotal * reparto.masaReal.del);
-  const masaRealTras = masaRealTotal - masaRealDel;
+  const formatCalc = (value: number): string => {
+    if (!Number.isFinite(value)) return '-';
+    return Number(value.toFixed(0)).toString();
+  };
 
-  const ocupDelDel = Math.round(ocupDelTotal * reparto.ocupDel.del);
-  const ocupDelTras = ocupDelTotal - ocupDelDel;
+  const PESO_OCUPANTE = 75;
+  const distanciaEntreEjes = toNumber(data.distanciaEntreEjes);
 
-  const ocup2Del = Math.round(ocup2Total * reparto.ocup2.del);
-  const ocup2Tras = ocup2Total - ocup2Del;
+  const taraDelante = toNumber(data.taraDelante);
+  const taraDetras = toNumber(data.taraDetras);
+  const taraTotalIntroducida = toNumber(data.taraTotal);
+  const taraTotal =
+    taraDelante + taraDetras > 0
+      ? taraDelante + taraDetras
+      : taraTotalIntroducida;
 
-  const ocup3Del = Math.round(ocup3Total * reparto.ocup3.del);
-  const ocup3Tras = ocup3Total - ocup3Del;
+  const ocupantesAdicionales = toNumber(data.ocupantesAdicionales);
+  const ocupDelTotal = toNumber(data.asientosDelanteros) * PESO_OCUPANTE;
+  const ocup2Total = toNumber(data.asientos2Fila) * PESO_OCUPANTE;
+  const ocup3Total = toNumber(data.asientos3Fila) * PESO_OCUPANTE;
+  const totalKgOcupAdicionales = ocupantesAdicionales * PESO_OCUPANTE;
 
-  const cargaUtilDel = Math.round(cargaUtilTotal * reparto.cargaUtil.del);
-  const cargaUtilTras = cargaUtilTotal - cargaUtilDel;
+  // Hoja "TOTALES": Masa Real = Tara total + 75 kg (conductor)
+  const masaRealTotal = taraTotal + PESO_OCUPANTE;
 
+  // Hoja "TOTALES": Carga útil = MMA - Masa Real - (75 * ocupantes adicionales)
+  const cargaUtilTotal =
+    toNumber(data.mmaDespues) - masaRealTotal - totalKgOcupAdicionales;
+
+  const repartirPorEjes = (pesoTotal: number, distanciaCDG: number) => {
+    if (!distanciaEntreEjes || !Number.isFinite(pesoTotal)) {
+      return { del: pesoTotal, tras: 0 };
+    }
+
+    const tras = (pesoTotal * toNumber(distanciaCDG)) / distanciaEntreEjes;
+    const del = pesoTotal - tras;
+    return { del, tras };
+  };
+
+  const conductor = repartirPorEjes(PESO_OCUPANTE, toNumber(data.cdgconductor));
+  const masaRealDel = taraDelante + conductor.del;
+  const masaRealTras = taraDetras + conductor.tras;
+
+  const ocupDel = repartirPorEjes(ocupDelTotal, toNumber(data.cdgconductor));
+  const ocup2 = repartirPorEjes(ocup2Total, toNumber(data.cdgocu2));
+  const ocup3 = repartirPorEjes(ocup3Total, toNumber(data.cdgocu3));
+  const cargaUtil = repartirPorEjes(
+    cargaUtilTotal,
+    toNumber(data.cdgcargautil),
+  );
+
+  const ocupDelDel = ocupDel.del;
+  const ocupDelTras = ocupDel.tras;
+  const ocup2Del = ocup2.del;
+  const ocup2Tras = ocup2.tras;
+  const ocup3Del = ocup3.del;
+  const ocup3Tras = ocup3.tras;
+  const cargaUtilDel = cargaUtil.del;
+  const cargaUtilTras = cargaUtil.tras;
+
+  const sumaTotal =
+    masaRealTotal + ocupDelTotal + ocup2Total + ocup3Total + cargaUtilTotal;
   const sumaDel = masaRealDel + ocupDelDel + ocup2Del + ocup3Del + cargaUtilDel;
   const sumaTras =
     masaRealTras + ocupDelTras + ocup2Tras + ocup3Tras + cargaUtilTras;
 
-  const verttras = (data.cargavertical * 4220) / data.distanciaEntreEjes;
-  const vertdel = data.cargavertical - verttras;
+  const cargaVerticalAcopl = toNumber(data.cdgcargavert);
+  const vertical = repartirPorEjes(
+    cargaVerticalAcopl,
+    toNumber(data.cdgcargavert),
+  );
+  const vertdel = vertical.del;
+  const verttras = vertical.tras;
+
+  const cargaUtilSinVerticalTotal = cargaUtilTotal - cargaVerticalAcopl;
+  const cargaUtilSinVertical = repartirPorEjes(
+    cargaUtilSinVerticalTotal,
+    toNumber(data.cdgcargautil),
+  );
+  const cargaUtilDelConVertical = cargaUtilSinVertical.del;
+  const cargaUtilTrasConVertical = cargaUtilSinVertical.tras;
+
+  const sumaTotalConVertical =
+    masaRealTotal +
+    ocupDelTotal +
+    ocup2Total +
+    ocup3Total +
+    cargaUtilSinVerticalTotal +
+    cargaVerticalAcopl;
+  const sumaDelConVertical =
+    masaRealDel +
+    ocupDelDel +
+    ocup2Del +
+    ocup3Del +
+    cargaUtilDelConVertical +
+    vertdel;
+  const sumaTrasConVertical =
+    masaRealTras +
+    ocupDelTras +
+    ocup2Tras +
+    ocup3Tras +
+    cargaUtilTrasConVertical +
+    verttras;
 
   function limpiarYParsear(valor: any): number | null {
     if (valor === null || valor === undefined) return null;
@@ -2377,12 +2461,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   }
 
   const momAntes = limpiarYParsear(data.momAntes);
-  const masaRealDespues = limpiarYParsear(data.masaRealDespues);
   let plazasDespues = limpiarYParsear(data.plazasDespues);
 
   if (plazasDespues === null) plazasDespues = 1;
 
-  if (momAntes === null || masaRealDespues === null) {
+  if (momAntes === null) {
     // Se asume que la diferencia es menor al 3%
     punto2_2 = [
       new Paragraph({
@@ -2432,7 +2515,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       }),
     ];
   } else {
-    const variacion = Math.abs(masaRealDespues - momAntes) / momAntes;
+    const variacion =
+      momAntes === 0 ? 0 : Math.abs(masaRealTotal - momAntes) / momAntes;
 
     if (variacion > 0.03) {
       punto2_2 = [
@@ -2542,7 +2626,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.taraTotal?.toString() ?? '---',
+                      text: formatCalc(taraTotal),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2552,7 +2636,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.taraDelante?.toString() ?? '---',
+                      text: formatCalc(taraDelante),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2562,7 +2646,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.taraDetras?.toString() ?? '---',
+                      text: formatCalc(taraDetras),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2596,15 +2680,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 }),
                 new TableCell({
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
-                  children: [
-                    new Paragraph(
-                      limpiarYParsear(data.masaRealDespues) !== null
-                        ? (
-                            limpiarYParsear(data.masaRealDespues)! + 75
-                          ).toString()
-                        : '',
-                    ),
-                  ],
+                  children: [new Paragraph(formatCalc(masaRealTotal))],
                   verticalAlign: AlignmentType.CENTER,
                 }),
               ],
@@ -2674,7 +2750,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.cargaverticalDespues?.toString() ?? '-',
+                      text: formatCalc(cargaVerticalAcopl),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2697,13 +2773,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: (
-                        75 *
-                        (data.asientosDelanteros +
-                          data.asientos2Fila +
-                          data.asientos3Fila +
-                          1)!
-                      ).toString(),
+                      text: totalKgOcupAdicionales.toString(),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2744,7 +2814,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaDespues.toString() ?? '---',
+                      text: String(data.mmaDespues ?? '---'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2785,7 +2855,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje1Despues.toString() ?? '---',
+                      text: String(data.mmaEje1Despues ?? '---'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2826,7 +2896,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.mmaEje2Despues.toString() ?? '---',
+                      text: String(data.mmaEje2Despues ?? '---'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2867,7 +2937,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.cargaUtilTotal?.toString() ?? '-',
+                      text: formatCalc(cargaUtilTotal),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2920,7 +2990,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   columnSpan: 2,
                   children: [
                     new Paragraph({
-                      text: data.distanciaEntreEjes?.toString() ?? '-',
+                      text: String(data.distanciaEntreEjes ?? '-'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3044,7 +3114,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.taraTotal?.toString() ?? '-',
+                          text: formatCalc(taraTotal),
                           bold: true,
                         }),
                       ],
@@ -3058,7 +3128,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.taraDelante?.toString() ?? '-',
+                          text: formatCalc(taraDelante),
                           bold: true,
                         }),
                       ],
@@ -3072,7 +3142,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.taraDetras?.toString() ?? '-',
+                          text: formatCalc(taraDetras),
                           bold: true,
                         }),
                       ],
@@ -3123,12 +3193,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (
-                            75 -
-                            (75 * data.cdgconductor!) / data.distanciaEntreEjes!
-                          )
-                            .toFixed(2)
-                            .toString(),
+                          text: formatCalc(conductor.del),
                         }),
                       ],
                     }),
@@ -3141,12 +3206,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (
-                            (75 * data.cdgconductor!) /
-                            data.distanciaEntreEjes!
-                          )
-                            .toFixed(2)
-                            .toString(),
+                          text: formatCalc(conductor.tras),
                         }),
                       ],
                     }),
@@ -3187,7 +3247,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (data.taraTotal + 75).toFixed(2).toString(),
+                          text: formatCalc(masaRealTotal),
                         }),
                       ],
                     }),
@@ -3200,14 +3260,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (
-                            75 -
-                            (75 * data.cdgconductor!) /
-                              data.distanciaEntreEjes! +
-                            data.taraDetras
-                          )
-                            .toFixed(2)
-                            .toString(),
+                          text: formatCalc(masaRealDel),
                         }),
                       ],
                     }),
@@ -3220,13 +3273,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (
-                            (75 * data.cdgconductor!) /
-                              data.distanciaEntreEjes! +
-                            data.taraTrasera
-                          )
-                            .toFixed(2)
-                            .toString(),
+                          text: formatCalc(masaRealTras),
                         }),
                       ],
                     }),
@@ -3272,10 +3319,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            (data.asientosDelanteros * 75)
-                              ?.toFixed(2)
-                              .toString() ?? '-',
+                          text: formatCalc(ocupDelTotal),
                         }),
                       ],
                     }),
@@ -3288,16 +3332,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            (
-                              data.asientosDelanteros * 75 -
-                              (data.asientosDelanteros *
-                                75 *
-                                data.cdgconductor) /
-                                data.distanciaEntreEjes!
-                            )
-                              .toFixed(2)
-                              .toString() ?? '-',
+                          text: formatCalc(ocupDelDel),
                         }),
                       ],
                     }),
@@ -3310,15 +3345,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            (
-                              (data.asientosDelanteros *
-                                75 *
-                                data.cdgconductor) /
-                              data.distanciaEntreEjes!
-                            )
-                              .toFixed(2)
-                              .toString() ?? '-',
+                          text: formatCalc(ocupDelTras),
                         }),
                       ],
                     }),
@@ -3364,7 +3391,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (data.asientos2Fila * 75)?.toString() ?? '-',
+                          text: formatCalc(ocup2Total),
                         }),
                       ],
                     }),
@@ -3377,7 +3404,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: ocup2Del.toString() ?? '-',
+                          text: formatCalc(ocup2Del),
                         }),
                       ],
                     }),
@@ -3390,7 +3417,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: ocup2Tras.toString() ?? '-',
+                          text: formatCalc(ocup2Tras),
                         }),
                       ],
                     }),
@@ -3436,7 +3463,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (data.asientos3Fila * 75)?.toString() ?? '-',
+                          text: formatCalc(ocup3Total),
                         }),
                       ],
                     }),
@@ -3449,7 +3476,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: ocup3Del.toString() ?? '-',
+                          text: formatCalc(ocup3Del),
                         }),
                       ],
                     }),
@@ -3462,7 +3489,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: ocup3Tras.toString() ?? '-',
+                          text: formatCalc(ocup3Tras),
                         }),
                       ],
                     }),
@@ -3508,7 +3535,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.cargaUtilTotal?.toString() ?? '-',
+                          text: formatCalc(cargaUtilTotal),
                         }),
                       ],
                     }),
@@ -3521,7 +3548,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: cargaUtilDel.toString() ?? '-',
+                          text: formatCalc(cargaUtilDel),
                         }),
                       ],
                     }),
@@ -3534,7 +3561,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: cargaUtilTras.toString() ?? '-',
+                          text: formatCalc(cargaUtilTras),
                         }),
                       ],
                     }),
@@ -3580,15 +3607,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            (
-                              Number(data.cargaUtilTotal) +
-                              75 +
-                              Number(data.masaRealDespues) +
-                              Number(data.asientosDelanteros) +
-                              Number(data.asientos2Fila) +
-                              Number(data.asientos3Fila)
-                            )?.toString() ?? '-',
+                          text: formatCalc(sumaTotal),
                         }),
                       ],
                     }),
@@ -3601,7 +3620,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: sumaDel.toString() ?? '-',
+                          text: formatCalc(sumaDel),
                         }),
                       ],
                     }),
@@ -3614,7 +3633,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: sumaTras.toString() ?? '-',
+                          text: formatCalc(sumaTras),
                         }),
                       ],
                     }),
@@ -3754,7 +3773,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.taraTotal ?? '-'),
+                          text: formatCalc(taraTotal),
                         }),
                       ],
                     }),
@@ -3767,7 +3786,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.taraDelante ?? '-'),
+                          text: formatCalc(taraDelante),
                         }),
                       ],
                     }),
@@ -3780,7 +3799,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.taraDetras ?? '-'),
+                          text: formatCalc(taraDetras),
                         }),
                       ],
                     }),
@@ -3831,12 +3850,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (
-                            75 -
-                            (75 * data.cdgconductor!) / data.distanciaEntreEjes!
-                          )
-                            .toFixed(2)
-                            .toString(),
+                          text: formatCalc(conductor.del),
                         }),
                       ],
                     }),
@@ -3849,12 +3863,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (
-                            (75 * data.cdgconductor!) /
-                            data.distanciaEntreEjes!
-                          )
-                            .toFixed(2)
-                            .toString(),
+                          text: formatCalc(conductor.tras),
                         }),
                       ],
                     }),
@@ -3894,7 +3903,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (data.taraTotal + 75).toFixed(2).toString(),
+                          text: formatCalc(masaRealTotal),
                         }),
                       ],
                     }),
@@ -3907,14 +3916,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (
-                            75 -
-                            (75 * data.cdgconductor!) /
-                              data.distanciaEntreEjes! +
-                            data.taraDetras
-                          )
-                            .toFixed(2)
-                            .toString(),
+                          text: formatCalc(masaRealDel),
                         }),
                       ],
                     }),
@@ -3927,13 +3929,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: (
-                            (75 * data.cdgconductor!) /
-                              data.distanciaEntreEjes! +
-                            data.taraTrasera
-                          )
-                            .toFixed(2)
-                            .toString(),
+                          text: formatCalc(masaRealTras),
                         }),
                       ],
                     }),
@@ -3975,7 +3971,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.asientosDelanteros * 75),
+                          text: formatCalc(ocupDelTotal),
                         }),
                       ],
                     }),
@@ -3988,16 +3984,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            (
-                              data.asientosDelanteros * 75 -
-                              (data.asientosDelanteros *
-                                75 *
-                                data.cdgconductor) /
-                                data.distanciaEntreEjes!
-                            )
-                              .toFixed(2)
-                              .toString() ?? '-',
+                          text: formatCalc(ocupDelDel),
                         }),
                       ],
                     }),
@@ -4010,15 +3997,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            (
-                              (data.asientosDelanteros *
-                                75 *
-                                data.cdgconductor) /
-                              data.distanciaEntreEjes!
-                            )
-                              .toFixed(2)
-                              .toString() ?? '-',
+                          text: formatCalc(ocupDelTras),
                         }),
                       ],
                     }),
@@ -4058,9 +4037,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: String(data.asientos2Fila * 75) }),
-                      ],
+                      children: [new TextRun({ text: formatCalc(ocup2Total) })],
                     }),
                   ],
                 }),
@@ -4069,9 +4046,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: String(ocup2Del ?? '-') }),
-                      ],
+                      children: [new TextRun({ text: formatCalc(ocup2Del) })],
                     }),
                   ],
                 }),
@@ -4080,9 +4055,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: String(ocup2Tras ?? '-') }),
-                      ],
+                      children: [new TextRun({ text: formatCalc(ocup2Tras) })],
                     }),
                   ],
                 }),
@@ -4120,9 +4093,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: String(data.asientos3Fila * 75) }),
-                      ],
+                      children: [new TextRun({ text: formatCalc(ocup3Total) })],
                     }),
                   ],
                 }),
@@ -4131,9 +4102,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: String(ocup3Del ?? '-') }),
-                      ],
+                      children: [new TextRun({ text: formatCalc(ocup3Del) })],
                     }),
                   ],
                 }),
@@ -4142,9 +4111,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: String(ocup3Tras ?? '-') }),
-                      ],
+                      children: [new TextRun({ text: formatCalc(ocup3Tras) })],
                     }),
                   ],
                 }),
@@ -4184,7 +4151,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.cargaUtilTotal ?? '-'),
+                          text: formatCalc(cargaUtilSinVerticalTotal),
                         }),
                       ],
                     }),
@@ -4196,7 +4163,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(cargaUtilDel ?? '-') }),
+                        new TextRun({
+                          text: formatCalc(cargaUtilDelConVertical),
+                        }),
                       ],
                     }),
                   ],
@@ -4207,7 +4176,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(cargaUtilTras ?? '-') }),
+                        new TextRun({
+                          text: formatCalc(cargaUtilTrasConVertical),
+                        }),
                       ],
                     }),
                   ],
@@ -4223,7 +4194,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 50, bottom: 50, left: 50, right: 50 },
                   children: [
                     new Paragraph({
-                      text: '4220',
+                      text: String(data.cdgcargavert ?? '-'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -4246,7 +4217,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: data.cargaverticalDespues.toString() ?? '---',
+                          text: formatCalc(cargaVerticalAcopl),
                         }),
                       ],
                     }),
@@ -4257,9 +4228,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER, //continuar
-                      children: [
-                        new TextRun({ text: vertdel.toString() ?? '-' }),
-                      ],
+                      children: [new TextRun({ text: formatCalc(vertdel) })],
                     }),
                   ],
                 }),
@@ -4268,9 +4237,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [
-                        new TextRun({ text: verttras.toString() ?? '-' }),
-                      ],
+                      children: [new TextRun({ text: formatCalc(verttras) })],
                     }),
                   ],
                 }),
@@ -4308,15 +4275,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text:
-                            (
-                              Number(data.cargaUtilTotal) +
-                              75 +
-                              Number(data.masaRealDespues) +
-                              Number(data.asientosDelanteros) +
-                              Number(data.asientos2Fila) +
-                              Number(data.asientos3Fila)
-                            )?.toString() ?? '-',
+                          text: formatCalc(sumaTotalConVertical),
                         }),
                       ],
                     }),
@@ -4327,7 +4286,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   children: [
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: String(sumaDel ?? '-') })],
+                      children: [
+                        new TextRun({ text: formatCalc(sumaDelConVertical) }),
+                      ],
                     }),
                   ],
                 }),
@@ -4337,7 +4298,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(sumaTras ?? '-') }),
+                        new TextRun({ text: formatCalc(sumaTrasConVertical) }),
                       ],
                     }),
                   ],
@@ -4445,22 +4406,17 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
       let punto2_2_adicional: ConcatArray<Paragraph | Table> = [];
 
-      const mma = Number(data.mmaDespues) || 0;
-      const mmaEje2 = Number(data.mmaEje2Despues) || 0;
-      const totalCarga =
-        (Number(data.cargaUtilTotal) || 0) +
-        75 +
-        (Number(data.masaRealDespues) || 0) +
-        (Number(data.asientosDelanteros) || 0) +
-        (Number(data.asientos2Fila) || 0) +
-        (Number(data.asientos3Fila) || 0);
+      const mma = toNumber(data.mmaDespues);
+      const mmaEje2 = toNumber(data.mmaEje2Despues);
+      const totalCarga = Math.max(sumaTotal, sumaTotalConVertical);
 
       // Comprobaciones reglamentarias
       const supera10Porciento = totalCarga > mma * 1.1;
       const supera100kg = totalCarga > mma + 100;
-      const superaEjeTrasero = sumaTras > mmaEje2 * 1.15;
+      const cargaTraseraDesfavorable = Math.max(sumaTras, sumaTrasConVertical);
+      const superaEjeTrasero = cargaTraseraDesfavorable > mmaEje2 * 1.15;
 
-      if (!supera10Porciento || !supera100kg || !superaEjeTrasero) {
+      if (!supera10Porciento && !supera100kg && !superaEjeTrasero) {
         punto2_2_adicional = [
           new Paragraph({
             spacing: { after: 120 },
@@ -5285,7 +5241,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new ImageRun({
           data: imageBuffer4,
           transformation: {
-            width: 400,
+            width: 600,
             height: alto2,
           },
           type: 'png',

@@ -185,7 +185,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     // --- AQUÍ EMPIEZA LA INICIALIZACIÓN DE VARIABLES ---
     this.modificacionesSeleccionadas.forEach((m) => {
-      // 1. Lógica existente de Mobiliario
+      // 1. L?gica existente de Mobiliario
       if (m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
         if (m.diametroTornilloSeleccionado === undefined) {
           m.diametroTornilloSeleccionado = null;
@@ -193,13 +193,116 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (m.areaResistenteTornilloSeleccionado === undefined) {
           m.areaResistenteTornilloSeleccionado = null;
         }
+
+        if (Array.isArray(m.mueblesBajo)) {
+          m.mueblesBajo.forEach((mueble: any) => {
+            if (mueble?.metricaTornillosMuebleBajo === undefined) {
+              mueble.metricaTornillosMuebleBajo = null;
+            }
+            if (mueble?.configuracionMuebleBajo === undefined) {
+              mueble.configuracionMuebleBajo = '';
+            }
+            if (
+              !mueble.configuracionMuebleBajo &&
+              mueble?.cajones !== undefined &&
+              mueble?.cajones !== null &&
+              mueble?.cajones !== ''
+            ) {
+              mueble.configuracionMuebleBajo = `${mueble.cajones} cajones`;
+            }
+          });
+        }
+
+        if (Array.isArray(m.mueblesAlto)) {
+          m.mueblesAlto.forEach((mueble: any) => {
+            if (mueble?.metricaTornillosMuebleAlto === undefined) {
+              mueble.metricaTornillosMuebleAlto = null;
+            }
+            if (mueble?.configuracionMuebleAlto === undefined) {
+              mueble.configuracionMuebleAlto = '';
+            }
+          });
+        }
+
+        if (Array.isArray(m.mueblesAseo)) {
+          m.mueblesAseo.forEach((mueble: any) => {
+            if (mueble?.metricaTornillosMuebleAseo === undefined) {
+              mueble.metricaTornillosMuebleAseo = null;
+            }
+            if (mueble?.configuracionMuebleAseo === undefined) {
+              mueble.configuracionMuebleAseo = '';
+            }
+          });
+        }
+
         this.onDiametroTornilloChange(m);
       }
 
-      // 2. Lógica existente de Instalación Eléctrica
+      // 2. L?gica existente de Instalaci?n El?ctrica
       if (m.nombre === 'INSTALACIÓN ELÉCTRICA') {
-        if (!Array.isArray(m.placasSolares)) {
-          m.placasSolares = [];
+        this.ensureInstalacionElectricaDefaults(m);
+      }
+
+      if (m.nombre === 'PELDAÑOS') {
+        if (!m.metodoActuacionPeldanos) {
+          m.metodoActuacionPeldanos = 'manual';
+        }
+        if (m.ubicacionAccionamientoPeldanos === undefined) {
+          m.ubicacionAccionamientoPeldanos = '';
+        }
+        if (m.referenciaPeldanos === undefined) {
+          m.referenciaPeldanos = '';
+        }
+      }
+
+      if (m.nombre === 'CLARABOYA') {
+        this.ensureClaraboyaDefaults(m);
+      }
+
+      if (m.nombre === 'VENTANA') {
+        if (!Array.isArray(m.ventanas)) {
+          m.ventanas = [];
+        }
+
+        if (m.ventanas.length === 0) {
+          const hasLegacy =
+            m.descripcionVentana ||
+            m.marcaVentana ||
+            m.modeloVentana ||
+            m.dimensionesVentana ||
+            m.homologacionVentana ||
+            m.cantidadVentanas;
+
+          if (hasLegacy) {
+            m.ventanas.push({
+              descripcion: m.descripcionVentana ?? '',
+              marca: m.marcaVentana ?? '',
+              modelo: m.modeloVentana ?? '',
+              dimensiones: m.dimensionesVentana ?? '',
+              homologacion: m.homologacionVentana ?? '',
+            });
+          }
+        }
+      }
+
+      if (m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
+        if (!Array.isArray(m.reformasAdicionalesItems)) {
+          m.reformasAdicionalesItems = [];
+        }
+
+        if (
+          m.reformasAdicionalesItems.length === 0 &&
+          typeof m.reformasAdicionales === 'string' &&
+          m.reformasAdicionales.trim()
+        ) {
+          m.reformasAdicionalesItems = m.reformasAdicionales
+            .split(/\r?\n/)
+            .map((line: string) => line.trim())
+            .filter((line: string) => line.length > 0)
+            .map((line: string, index: number) => ({
+              titulo: `Reforma adicional ${index + 1}`,
+              descripcion: line,
+            }));
         }
       }
 
@@ -633,6 +736,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         this.ensureSnorkelDefaults(m);
       }
 
+      if (m.nombre === 'TOLDO') {
+        this.ensureToldoDefaults(m);
+      }
+
       if (m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO') {
         this.ensureAngulosContactoSustitucionDiscos(m);
       }
@@ -794,6 +901,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     const metricToAreaMap: Array<{ metricaKey: string; areaKey: string }> = [
       { metricaKey: 'metricaTalonera', areaKey: 'seccionResistenteAsEstribos' },
+      { metricaKey: 'metricaToldo', areaKey: 'seccionResistenteAsToldo' },
       {
         metricaKey: 'metricaParaTrasero',
         areaKey: 'seccionResistenteAsParagolpesTrasero',
@@ -891,6 +999,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         metricaKey: 'metricaAntiempotramiento',
         calidadKey: 'calidadTornilloAntiempotramiento',
       },
+      {
+        nombre: 'TOLDO',
+        metricaKey: 'metricaToldo',
+        calidadKey: 'calidadTornilloToldo',
+      },
     ];
 
     const config = configs.find((item) => item.nombre === mod.nombre);
@@ -985,6 +1098,203 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     } else {
       mod[targetHeightKey] = null;
     }
+  }
+
+  onAerodynamicItemMetricaChange(item: any): void {
+    if (!item) return;
+
+    const area = this.getAreaResistenteByMetrica(item.metrica);
+    item.seccionResistenteAs = area ?? item.seccionResistenteAs ?? 36.64;
+    item.calidadTornillo = this.getCalidadTornilloByMetrica(item.metrica) ?? 8.8;
+  }
+
+  onPlacaAgrupacionChange(placa: any, checked: boolean): void {
+    if (!placa) return;
+
+    placa.agruparIguales = checked;
+    if (!checked) {
+      placa.cantidad = 1;
+      return;
+    }
+
+    const cantidad = Math.trunc(Number(placa.cantidad));
+    placa.cantidad = Number.isFinite(cantidad) && cantidad > 1 ? cantidad : 2;
+  }
+
+  private createClaraboyaItem(initial: any = {}): any {
+    const item = {
+      marca: '',
+      modelo: '',
+      descripcion: '',
+      homologacion: '',
+      medidas: '',
+      pesoPiezaKg: null,
+      anchuraPiezaM: null,
+      alturaPiezaM: null,
+      metrica: null,
+      nTornillos: null,
+      calidadTornillo: 8.8,
+      seccionResistenteAs: null,
+      resTraccionMinTornillo88Kgmm2: 80,
+      cwCoefAerodinamico: 0.82,
+      densidadAireKgM3: 1.29,
+      velocidadAireV2ms: 38.89,
+      coefSeguridadK: 3,
+      curvatura: 8,
+      ...initial,
+    };
+
+    this.ensureAerodynamicItemDefaults(item, 'medidas');
+    return item;
+  }
+
+  private createPlacaSolarItem(initial: any = {}): any {
+    const item = {
+      marca: '',
+      modelo: '',
+      potencia: '',
+      dimensiones: '',
+      ubicacion: '',
+      agruparIguales: false,
+      cantidad: 1,
+      pesoPiezaKg: null,
+      anchuraPiezaM: null,
+      alturaPiezaM: null,
+      metrica: null,
+      nTornillos: null,
+      calidadTornillo: 8.8,
+      seccionResistenteAs: null,
+      resTraccionMinTornillo88Kgmm2: 80,
+      cwCoefAerodinamico: 0.82,
+      densidadAireKgM3: 1.29,
+      velocidadAireV2ms: 38.89,
+      coefSeguridadK: 3,
+      curvatura: 8,
+      ...initial,
+    };
+
+    item.agruparIguales = !!item.agruparIguales;
+    const cantidad = Math.trunc(Number(item.cantidad));
+    item.cantidad =
+      item.agruparIguales && Number.isFinite(cantidad) && cantidad > 1
+        ? cantidad
+        : 1;
+
+    this.ensureAerodynamicItemDefaults(item, 'dimensiones');
+    return item;
+  }
+
+  private ensureClaraboyaDefaults(mod: any): void {
+    if (!Array.isArray(mod.claraboyas)) {
+      mod.claraboyas = [];
+    }
+
+    if (mod.claraboyas.length === 0) {
+      const hasLegacy =
+        mod.marcaClaraboya ||
+        mod.modeloClaraboya ||
+        mod.descripcionClaraboya ||
+        mod.homologacionClaraboya ||
+        mod.cantidadClaraboya;
+
+      if (hasLegacy) {
+        mod.claraboyas.push(
+          this.createClaraboyaItem({
+            marca: mod.marcaClaraboya ?? '',
+            modelo: mod.modeloClaraboya ?? '',
+            descripcion: mod.descripcionClaraboya ?? '',
+            homologacion: mod.homologacionClaraboya ?? '',
+          }),
+        );
+      }
+    }
+
+    mod.claraboyas = mod.claraboyas.map((item: any) =>
+      this.createClaraboyaItem(item),
+    );
+  }
+
+  private ensureInstalacionElectricaDefaults(mod: any): void {
+    if (!Array.isArray(mod.placasSolares)) {
+      mod.placasSolares = [];
+    }
+
+    mod.placasSolares = mod.placasSolares.map((item: any) =>
+      this.createPlacaSolarItem(item),
+    );
+  }
+
+  private ensureToldoDefaults(mod: any): void {
+    if (mod.metricaToldo == null && mod.metrica != null) {
+      mod.metricaToldo = this.toNumberOrNull(mod.metrica);
+    }
+
+    if (mod.nTornillosToldo == null && mod.nTornillos != null) {
+      mod.nTornillosToldo = this.toNumberOrNull(mod.nTornillos);
+    }
+
+    if (mod.curvaturaToldo == null) mod.curvaturaToldo = 8;
+    if (mod.cwCoefAerodinamicoToldo == null) mod.cwCoefAerodinamicoToldo = 0.82;
+    if (mod.densidadAireKgM3Toldo == null) mod.densidadAireKgM3Toldo = 1.29;
+    if (mod.velocidadAireV2msToldo == null) mod.velocidadAireV2msToldo = 38.89;
+    if (mod.coefSeguridadKToldo == null) mod.coefSeguridadKToldo = 3;
+
+    if (mod.resTraccionMinTornillo88Kgmm2Toldo == null) {
+      mod.resTraccionMinTornillo88Kgmm2Toldo = 80;
+    }
+
+    if (mod.seccionResistenteAsToldo == null) {
+      mod.seccionResistenteAsToldo =
+        this.getAreaResistenteByMetrica(mod.metricaToldo) ?? 36.64;
+    }
+
+    if (
+      mod.medidasToldo &&
+      (mod.anchuraPiezaMToldo == null || mod.alturaPiezaMToldo == null)
+    ) {
+      this.onDimensionesChange(
+        mod,
+        'medidasToldo',
+        'anchuraPiezaMToldo',
+        'alturaPiezaMToldo',
+      );
+    }
+
+    this.syncCalidadByMetrica(mod);
+  }
+
+  private ensureAerodynamicItemDefaults(item: any, sourceKey: string): void {
+    if (!item) return;
+
+    if (item.curvatura == null) item.curvatura = 8;
+    if (item.cwCoefAerodinamico == null) item.cwCoefAerodinamico = 0.82;
+    if (item.densidadAireKgM3 == null) item.densidadAireKgM3 = 1.29;
+    if (item.velocidadAireV2ms == null) item.velocidadAireV2ms = 38.89;
+    if (item.coefSeguridadK == null) item.coefSeguridadK = 3;
+
+    if (item.resTraccionMinTornillo88Kgmm2 == null) {
+      item.resTraccionMinTornillo88Kgmm2 = 80;
+    }
+
+    if (item.seccionResistenteAs == null) {
+      item.seccionResistenteAs =
+        this.getAreaResistenteByMetrica(item.metrica) ?? 36.64;
+    }
+
+    if (
+      sourceKey &&
+      item[sourceKey] &&
+      (item.anchuraPiezaM == null || item.alturaPiezaM == null)
+    ) {
+      this.onDimensionesChange(
+        item,
+        sourceKey,
+        'anchuraPiezaM',
+        'alturaPiezaM',
+      );
+    }
+
+    this.onAerodynamicItemMetricaChange(item);
   }
 
   private parseRefuerzoUbicaciones(
@@ -1089,20 +1399,59 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (tipo === 'bajo') {
       mod.mueblesBajo = mod.mueblesBajo || [];
       mod.mueblesBajo.push({
-        medidas: '',
         cajones: 0,
         ubicacionMuebleBajo: '',
+        configuracionMuebleBajo: '',
+        metricaTornillosMuebleBajo: null,
       });
     }
     if (tipo === 'alto') {
       mod.mueblesAlto = mod.mueblesAlto || [];
-      mod.mueblesAlto.push({ medidas: '', ubicacionMuebleAlto: '' });
+      mod.mueblesAlto.push({
+        ubicacionMuebleAlto: '',
+        configuracionMuebleAlto: '',
+        metricaTornillosMuebleAlto: null,
+      });
     }
     if (tipo === 'aseo') {
       mod.mueblesAseo = mod.mueblesAseo || [];
-      mod.mueblesAseo.push({ medidas: '', descripcion: '' });
+      mod.mueblesAseo.push({
+        descripcion: '',
+        configuracionMuebleAseo: '',
+        metricaTornillosMuebleAseo: null,
+      });
     }
     this.formSubmitted = false;
+  }
+
+  anadirClaraboya(mod: any): void {
+    if (!Array.isArray(mod.claraboyas)) {
+      mod.claraboyas = [];
+    }
+
+    mod.claraboyas.push(this.createClaraboyaItem());
+    this.formSubmitted = false;
+  }
+
+  borrarClaraboya(mod: any, index: number): void {
+    if (!Array.isArray(mod?.claraboyas)) return;
+    if (index < 0 || index >= mod.claraboyas.length) return;
+    mod.claraboyas.splice(index, 1);
+  }
+
+  anadirPlacaSolar(mod: any): void {
+    if (!Array.isArray(mod.placasSolares)) {
+      mod.placasSolares = [];
+    }
+
+    mod.placasSolares.push(this.createPlacaSolarItem());
+    this.formSubmitted = false;
+  }
+
+  borrarPlacaSolar(mod: any, index: number): void {
+    if (!Array.isArray(mod?.placasSolares)) return;
+    if (index < 0 || index >= mod.placasSolares.length) return;
+    mod.placasSolares.splice(index, 1);
   }
 
   borrarUltimoMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {
@@ -1115,6 +1464,20 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (tipo === 'aseo' && mod.mueblesAseo?.length > 0) {
       mod.mueblesAseo.pop();
     }
+  }
+
+  anadirReformaAdicional(mod: any): void {
+    if (!Array.isArray(mod.reformasAdicionalesItems)) {
+      mod.reformasAdicionalesItems = [];
+    }
+    mod.reformasAdicionalesItems.push({ titulo: '', descripcion: '' });
+    this.formSubmitted = false;
+  }
+
+  borrarReformaAdicional(mod: any, index: number): void {
+    if (!Array.isArray(mod?.reformasAdicionalesItems)) return;
+    if (index < 0 || index >= mod.reformasAdicionalesItems.length) return;
+    mod.reformasAdicionalesItems.splice(index, 1);
   }
 
   formularioInvalido(): boolean {
@@ -1155,6 +1518,18 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
             mod.altoRefuerzoTrasero == null ||
             mod.fondoRefuerzoTrasero == null)
         ) {
+          return true;
+        }
+      }
+
+      if (mod.nombre === 'CLARABOYA' && mod.seleccionado) {
+        if (!Array.isArray(mod.claraboyas) || mod.claraboyas.length === 0) {
+          return true;
+        }
+      }
+
+      if (mod.nombre === 'VENTANA' && mod.seleccionado) {
+        if (!Array.isArray(mod.ventanas) || mod.ventanas.length === 0) {
           return true;
         }
       }
@@ -1211,6 +1586,47 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         mod.radioNeumaticoDiscoTrasero = mod.radioNeumaticoDiscos;
         mod.anchoNeumaticoDiscoTrasero = mod.anchoNeumaticoDiscos;
         mod.perfilNeumaticoDiscoTrasero = mod.perfilNeumaticoDiscos;
+      }
+
+      if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
+        const lines: string[] = [];
+        if (Array.isArray(mod.reformasAdicionalesItems)) {
+          mod.reformasAdicionalesItems.forEach((item: any) => {
+            const descripcion = (item?.descripcion ?? '').toString();
+            descripcion
+              .split(/\r?\n/)
+              .map((line: string) => line.trim())
+              .filter((line: string) => line.length > 0)
+              .forEach((line: string) => lines.push(line));
+          });
+        }
+        mod.reformasAdicionales = lines.join('\n');
+      }
+
+      if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && Array.isArray(mod.placasSolares)) {
+        mod.placasSolares = mod.placasSolares.map((placa: any) =>
+          this.createPlacaSolarItem(placa),
+        );
+      }
+
+      if (mod.nombre === 'CLARABOYA' && Array.isArray(mod.claraboyas)) {
+        mod.claraboyas = mod.claraboyas.map((item: any) =>
+          this.createClaraboyaItem(item),
+        );
+      }
+
+      if (mod.nombre === 'TOLDO') {
+        mod.metricaToldo = this.toNumberOrNull(mod.metricaToldo ?? mod.metrica);
+        mod.nTornillosToldo = this.toNumberOrNull(
+          mod.nTornillosToldo ?? mod.nTornillos,
+        );
+      }
+
+      if (
+        mod.nombre === 'PELDAÑOS' &&
+        mod.metodoActuacionPeldanos !== 'electrico'
+      ) {
+        mod.ubicacionAccionamientoPeldanos = '';
       }
     });
     // ------------------------------------------------------

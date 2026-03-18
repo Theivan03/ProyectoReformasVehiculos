@@ -1,8 +1,66 @@
 export interface Mueble {
   tipo: 'bajo' | 'alto' | 'aseo';
-  medidas: string;
+  medidas?: string;
   descripcion?: string;
+  configuracion?: string;
   peso?: number;
+}
+
+export interface ClaraboyaItem {
+  marca?: string;
+  modelo?: string;
+  descripcion?: string;
+  homologacion?: string;
+  medidas?: string;
+  pesoPiezaKg?: number;
+  anchuraPiezaM?: number;
+  alturaPiezaM?: number;
+  metrica?: number;
+  nTornillos?: number;
+  calidadTornillo?: number;
+  seccionResistenteAs?: number;
+  resTraccionMinTornillo88Kgmm2?: number;
+  cwCoefAerodinamico?: number;
+  densidadAireKgM3?: number;
+  velocidadAireV2ms?: number;
+  coefSeguridadK?: number;
+  curvatura?: number;
+}
+
+export interface PlacaSolarItem {
+  marca?: string;
+  modelo?: string;
+  potencia?: string;
+  dimensiones?: string;
+  ubicacion?: string;
+  agruparIguales?: boolean;
+  cantidad?: number;
+  pesoPiezaKg?: number;
+  anchuraPiezaM?: number;
+  alturaPiezaM?: number;
+  metrica?: number;
+  nTornillos?: number;
+  calidadTornillo?: number;
+  seccionResistenteAs?: number;
+  resTraccionMinTornillo88Kgmm2?: number;
+  cwCoefAerodinamico?: number;
+  densidadAireKgM3?: number;
+  velocidadAireV2ms?: number;
+  coefSeguridadK?: number;
+  curvatura?: number;
+}
+
+export interface VentanaItem {
+  marca?: string;
+  modelo?: string;
+  dimensiones?: string;
+  descripcion?: string;
+  homologacion?: string;
+}
+
+export interface ReformaAdicionalItem {
+  titulo?: string;
+  descripcion?: string;
 }
 
 export interface Modificacion {
@@ -222,6 +280,7 @@ export interface Modificacion {
   medidaNeumaticos?: string;
 
   reformasAdicionales?: string;
+  reformasAdicionalesItems?: ReformaAdicionalItem[];
 
   cumpleSalientesEstriberas?: boolean;
   marcaEstriberas?: string;
@@ -414,10 +473,13 @@ export interface Modificacion {
 
   zonaPeldano?: string;
   marcaPeldano?: string;
+  referenciaPeldanos?: string;
   materialPeldano?: string;
   medidasPeldano?: string;
+  metodoActuacionPeldanos?: 'manual' | 'electrico';
+  ubicacionAccionamientoPeldanos?: string;
 
-  ladoVentana?: 'izquierdo' | 'derecho' | 'ambos';
+  ladoVentana?: 'izquierdo' | 'derecho' | 'ambos' | 'trasero';
   medidasVentana?: string;
 
   tipoFabricacionBodyLift?: string;
@@ -613,6 +675,11 @@ export interface Modificacion {
   medidasMuebleAlto?: string;
   medidasAseo?: string;
   descripcionAseo?: string;
+  configuracionMuebleBajo?: string;
+  configuracionMuebleAlto?: string;
+  configuracionMuebleAseo?: string;
+  claraboyas?: ClaraboyaItem[];
+  ventanas?: VentanaItem[];
   marcaClaraboya?: string;
   modeloClaraboya?: string;
   descripcionClaraboya?: string;
@@ -622,6 +689,8 @@ export interface Modificacion {
   modeloVentana?: string;
   dimensionesVentana?: string;
   homologacionVentana?: string;
+  incluirHomologacionVentanaAbatible?: boolean;
+  homologacionVentanaAbatible?: string;
   litrosAguaSucia?: number;
   litrosAguaLimpia?: number;
   longitudDelantero?: number;
@@ -635,25 +704,34 @@ export interface Modificacion {
   ubicacionTomaExterior?: string;
   medidasTomaExterior?: string;
   ubicacionDuchaExterior?: string;
-  placasSolares?: {
-    marca?: string;
-    modelo?: string;
-    potencia?: string;
-    dimensiones?: string;
-    ubicacion?: string;
-  }[];
+  placasSolares?: PlacaSolarItem[];
   cantidadBaterias?: number;
   potenciaBaterias?: string;
   ubicacionBaterias?: string;
   potenciaInversor?: string;
   marcaInversor?: string;
+  homologacionInversor?: string;
   ubicacionInversor?: string;
   modeloControlador?: string;
   marcaControlador?: string;
+  homologacionControlador?: string;
   ubicacionControlador?: string;
   marcaToldo?: string;
   medidasToldo?: string;
   ubicacionToldo?: string;
+  pesoPiezaKgToldo?: number;
+  anchuraPiezaMToldo?: number;
+  alturaPiezaMToldo?: number;
+  metricaToldo?: number;
+  nTornillosToldo?: number;
+  calidadTornilloToldo?: number;
+  seccionResistenteAsToldo?: number;
+  resTraccionMinTornillo88Kgmm2Toldo?: number;
+  cwCoefAerodinamicoToldo?: number;
+  densidadAireKgM3Toldo?: number;
+  velocidadAireV2msToldo?: number;
+  coefSeguridadKToldo?: number;
+  curvaturaToldo?: number;
 
   ubicacionPorta1?: 'trasero' | 'delantero';
   ladoPorta1?: 'izquierdo' | 'derecho' | 'centro';

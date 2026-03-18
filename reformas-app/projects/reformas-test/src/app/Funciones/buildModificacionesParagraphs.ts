@@ -306,30 +306,44 @@ export function buildModificacionesParagraphs(
       m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' && m.seleccionado,
   );
 
-  if (campoLibre && campoLibre.reformasAdicionales) {
-    const lineas = campoLibre.reformasAdicionales.split('\n');
+  if (campoLibre) {
+    const lineas: string[] = [];
 
-    // 2. Iteramos sobre cada línea
-    lineas.forEach((linea: string) => {
-      const lineaLimpia = linea.trim();
+    if (
+      Array.isArray(campoLibre.reformasAdicionalesItems) &&
+      campoLibre.reformasAdicionalesItems.length > 0
+    ) {
+      campoLibre.reformasAdicionalesItems.forEach((item: any) => {
+        const descripcion = (item?.descripcion ?? '').toString();
+        descripcion
+          .split(/\r?\n/)
+          .map((line: string) => line.trim())
+          .filter((line: string) => line.length > 0)
+          .forEach((line: string) => lineas.push(line));
+      });
+    } else if (campoLibre.reformasAdicionales) {
+      campoLibre.reformasAdicionales
+        .split(/\r?\n/)
+        .map((line: string) => line.trim())
+        .filter((line: string) => line.length > 0)
+        .forEach((line: string) => lineas.push(line));
+    }
 
-      if (lineaLimpia.length > 0) {
-        const raw = `- ${lineaLimpia}`;
+    lineas.forEach((lineaLimpia: string) => {
+      const raw = `- ${lineaLimpia}`;
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [
-            new TextRun({
-              text: raw,
-            }),
-          ],
-        });
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [
+          new TextRun({
+            text: raw,
+          }),
+        ],
+      });
 
-        (p as any)._rawText = raw;
-
-        out.push(p);
-      }
+      (p as any)._rawText = raw;
+      out.push(p);
     });
   }
 
@@ -1538,7 +1552,29 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   );
 
   if (peldanos) {
-    const raw = `- Instalación de peldaño en ${peldanos.zonaPeldano}, de la marca ${peldanos.marcaPeldano}, fabricado en ${peldanos.materialPeldano}, de medidas ${peldanos.medidasPeldano}mm.`;
+    const referenciaTexto = peldanos.referenciaPeldanos
+      ? `, referencia ${peldanos.referenciaPeldanos}`
+      : '';
+    const metodoActuacion = (peldanos.metodoActuacionPeldanos || '')
+      .toString()
+      .trim()
+      .toLowerCase();
+    const metodoTexto =
+      metodoActuacion === 'electrico'
+        ? ' de actuación eléctrica'
+        : metodoActuacion === 'manual'
+          ? ' de actuación manual'
+          : '';
+    const ubicacionAccionamiento =
+      typeof peldanos.ubicacionAccionamientoPeldanos === 'string' &&
+      peldanos.ubicacionAccionamientoPeldanos.trim()
+        ? peldanos.ubicacionAccionamientoPeldanos.trim()
+        : 'junto a la puerta trasera';
+    const notaMetodoElectrico =
+      metodoActuacion === 'electrico'
+        ? ` Este componente se acciona en parado mediante botón instalado en el interior del vehículo, ${ubicacionAccionamiento}.`
+        : '';
+    const raw = `- Instalación de peldaño en ${peldanos.zonaPeldano}, de la marca ${peldanos.marcaPeldano}${referenciaTexto}, fabricado en ${peldanos.materialPeldano}, de medidas ${peldanos.medidasPeldano}mm${metodoTexto}.${notaMetodoElectrico}`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -1562,13 +1598,24 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       ubicacionTexto = 'en el lateral izquierdo';
     } else if (ventanaAbatible.ladoVentana === 'derecho') {
       ubicacionTexto = 'en el lateral derecho';
+    } else if (ventanaAbatible.ladoVentana === 'trasero') {
+      ubicacionTexto = 'en el portón trasero';
     } else if (ventanaAbatible.ladoVentana === 'ambos') {
       ubicacionTexto = 'en ambos laterales';
     }
 
-    // Frase: Instalación de ventana trasera abatible en el lateral izquierdo, de la marca Malaika,
-    // fabricada en acero, de dimensiones 110 x 475mm.
-    const raw = `- Instalación de ventana trasera abatible ${ubicacionTexto}, de la marca ${ventanaAbatible.marcaVentana}, fabricada en ${ventanaAbatible.materialVentana}, de dimensiones ${ventanaAbatible.medidasVentana}mm.`;
+    let material = '';
+    if (ventanaAbatible.material) {
+      `, fabricada en ${ventanaAbatible.materialVentana}`;
+    }
+
+    const incluirHomologacion =
+      !!ventanaAbatible.incluirHomologacionVentanaAbatible;
+    const homologacionTexto =
+      incluirHomologacion && ventanaAbatible.homologacionVentanaAbatible
+        ? ` y contraseña de homologación ${ventanaAbatible.homologacionVentanaAbatible}`
+        : '';
+    const raw = `- Instalación de ventana trasera abatible ${ubicacionTexto}, de la marca ${ventanaAbatible.marcaVentana}${material}, de dimensiones ${ventanaAbatible.medidasVentana}mm${homologacionTexto}.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -3515,23 +3562,14 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             ? mueble.ubicacionMuebleAlto.trim()
             : 'el lateral derecho';
 
-        let fabricacion = '';
-        if (mueble.tipoFabricacionMuebleAlto === 'maderaArtesanal') {
-          fabricacion = 'fabricado en madera de forma artesanal';
-        } else if (mueble.tipoFabricacionMuebleAlto === 'aceroArtesanal') {
-          fabricacion = 'fabricado en acero de forma artesanal';
-        } else if (mueble.tipoFabricacionMuebleAlto === 'comercial') {
-          const marca = mueble.marcaMuebleAlto
-            ? `la marca ${mueble.marcaMuebleAlto}`
+        const configuracionMuebleAlto =
+          typeof mueble.configuracionMuebleAlto === 'string'
+            ? mueble.configuracionMuebleAlto.trim()
             : '';
-          const referencia = mueble.referenciaMuebleAlto
-            ? `con referencia ${mueble.referenciaMuebleAlto}`
-            : '';
-          const detalle = [marca, referencia].filter(Boolean).join(' ');
-          fabricacion = detalle ? `de ${detalle}` : '';
-        }
-        const fabricacionTexto = fabricacion ? ` ${fabricacion}` : '';
-        const raw = `o Instalación de un mueble alto situado en ${ubicacionMuebleAlto}${fabricacionTexto} de medidas ${mueble.medidas} con puerta abatible.`;
+        const detalleConfiguracionAlto = configuracionMuebleAlto
+          ? ` con ${configuracionMuebleAlto}`
+          : ' con puerta abatible';
+        const raw = `o Instalación de un mueble alto situado en ${ubicacionMuebleAlto}${detalleConfiguracionAlto}.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -3555,23 +3593,14 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             ? mueble.ubicacionMuebleBajo.trim()
             : 'la parte media del lateral izquierdo';
 
-        let fabricacion = '';
-        if (mueble.tipoFabricacionMuebleBajo === 'maderaArtesanal') {
-          fabricacion = 'fabricado en madera de forma artesanal';
-        } else if (mueble.tipoFabricacionMuebleBajo === 'aceroArtesanal') {
-          fabricacion = 'fabricado en acero de forma artesanal';
-        } else if (mueble.tipoFabricacionMuebleBajo === 'comercial') {
-          const marca = mueble.marcaMuebleBajo
-            ? `la marca ${mueble.marcaMuebleBajo}`
+        const configuracionMuebleBajo =
+          typeof mueble.configuracionMuebleBajo === 'string'
+            ? mueble.configuracionMuebleBajo.trim()
             : '';
-          const referencia = mueble.referenciaMuebleBajo
-            ? `con referencia ${mueble.referenciaMuebleBajo}`
-            : '';
-          const detalle = [marca, referencia].filter(Boolean).join(' ');
-          fabricacion = detalle ? `de ${detalle}` : '';
-        }
-        const fabricacionTexto = fabricacion ? ` ${fabricacion}` : '';
-        const raw = `o Instalación de mueble bajo situado en ${ubicacionMuebleBajo}${fabricacionTexto} de medidas ${mueble.medidas} con ${mueble.cajones} cajones. En la parte superior se ubica una pila de acero de medidas 320x260mm y un grifo.`;
+        const detalleConfiguracionBajo = configuracionMuebleBajo
+          ? ` con ${configuracionMuebleBajo}`
+          : '';
+        const raw = `o Instalación de mueble bajo situado en ${ubicacionMuebleBajo}${detalleConfiguracionBajo}.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -3589,10 +3618,17 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       Array.isArray((mobil as any).mueblesAseo)
     ) {
       (mobil as any).mueblesAseo.forEach((aseo: any) => {
+        const configuracionMuebleAseo =
+          typeof aseo.configuracionMuebleAseo === 'string'
+            ? aseo.configuracionMuebleAseo.trim()
+            : '';
+        const detalleConfiguracionAseo = configuracionMuebleAseo
+          ? ` con ${configuracionMuebleAseo}`
+          : '';
         const descripcion = aseo.descripcion
           ? ` en su interior se ubica ${aseo.descripcion}`
           : '';
-        const raw = `o Instalación de aseo de medidas ${aseo.medidas}${descripcion}.`;
+        const raw = `o Instalación de aseo${detalleConfiguracionAseo}${descripcion}.`;
 
         const p = new Paragraph({
           spacing: { line: 260, after: 120 },
@@ -3612,15 +3648,62 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) => m.nombre === 'CLARABOYA' && m.seleccionado,
   );
   if (claraboya) {
-    raw = `- Instalación en el techo del vehículo ${claraboya.cantidadClaraboya} claraboyas, marca ${claraboya.marcaClaraboya} modelo ${claraboya.modeloClaraboya} ${claraboya.descripcionClaraboya}, con contraseña de homologación ${claraboya.homologacionClaraboya}, sin afectar a la estructura principal del vehículo.`;
+    const claraboyasArray = Array.isArray(claraboya.claraboyas)
+      ? claraboya.claraboyas
+      : [];
+    const hasArray = claraboyasArray.length > 0;
+    const claraboyas = hasArray
+      ? claraboyasArray
+      : [
+          {
+            marca: claraboya.marcaClaraboya,
+            modelo: claraboya.modeloClaraboya,
+            descripcion: claraboya.descripcionClaraboya,
+            homologacion: claraboya.homologacionClaraboya,
+          },
+        ].filter(
+          (item) =>
+            item.marca ||
+            item.modelo ||
+            item.descripcion ||
+            item.homologacion ||
+            claraboya.cantidadClaraboya,
+        );
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+    if (!hasArray && claraboyas.length > 0 && claraboya.cantidadClaraboya) {
+      const item = claraboyas[0];
+      const marca = item.marca || '---';
+      const modelo = item.modelo || '---';
+      const descripcion = item.descripcion || '---';
+      const homologacion = item.homologacion || '---';
+
+      raw = `- Instalación en el techo del vehículo ${claraboya.cantidadClaraboya} claraboyas, marca ${marca} modelo ${modelo} ${descripcion}, con contraseña de homologación ${homologacion}, sin afectar a la estructura principal del vehículo.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    } else {
+      claraboyas.forEach((item) => {
+        const marca = item.marca || '---';
+        const modelo = item.modelo || '---';
+        const descripcion = item.descripcion || '---';
+        const homologacion = item.homologacion || '---';
+
+        raw = `- Instalación en el techo del vehículo de claraboya, marca ${marca} modelo ${modelo} ${descripcion}, con contraseña de homologación ${homologacion}, sin afectar a la estructura principal del vehículo.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -3630,15 +3713,66 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) => m.nombre === 'VENTANA' && m.seleccionado,
   );
   if (ventana) {
-    raw = `- Instalación de ${ventana.cantidadVentanas} ventanas abatibles/correderas ${ventana.descripcionVentana} marca ${ventana.marcaVentana} modelo ${ventana.modeloVentana} de dimensiones ${ventana.dimensionesVentana}mm y contraseña de homologación ${ventana.homologacionVentana}, sin afectar a la estructura principal del vehículo.`;
+    const ventanasArray = Array.isArray(ventana.ventanas)
+      ? ventana.ventanas
+      : [];
+    const hasArray = ventanasArray.length > 0;
+    const ventanas = hasArray
+      ? ventanasArray
+      : [
+          {
+            descripcion: ventana.descripcionVentana,
+            marca: ventana.marcaVentana,
+            modelo: ventana.modeloVentana,
+            dimensiones: ventana.dimensionesVentana,
+            homologacion: ventana.homologacionVentana,
+          },
+        ].filter(
+          (item) =>
+            item.descripcion ||
+            item.marca ||
+            item.modelo ||
+            item.dimensiones ||
+            item.homologacion ||
+            ventana.cantidadVentanas,
+        );
 
-    const p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+    if (!hasArray && ventanas.length > 0 && ventana.cantidadVentanas) {
+      const item = ventanas[0];
+      const descripcion = item.descripcion || '---';
+      const marca = item.marca || '---';
+      const modelo = item.modelo || '---';
+      const dimensiones = item.dimensiones || '---';
+      const homologacion = item.homologacion || '---';
+
+      raw = `- Instalación de ${ventana.cantidadVentanas} ventanas abatibles/correderas ${descripcion} marca ${marca} modelo ${modelo} de dimensiones ${dimensiones}mm y contraseña de homologación ${homologacion}, sin afectar a la estructura principal del vehículo.`;
+
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
+    } else {
+      ventanas.forEach((item) => {
+        const descripcion = item.descripcion || '---';
+        const marca = item.marca || '---';
+        const modelo = item.modelo || '---';
+        const dimensiones = item.dimensiones || '---';
+        const homologacion = item.homologacion || '---';
+
+        raw = `- Instalación de ventana abatible/corredera ${descripcion} marca ${marca} modelo ${modelo} de dimensiones ${dimensiones}mm y contraseña de homologación ${homologacion}, sin afectar a la estructura principal del vehículo.`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      });
+    }
   }
 
   //
@@ -3666,7 +3800,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) => m.nombre === 'DEPÓSITO DE AGUA LIMPIA' && m.seleccionado,
   );
   if (agualimpia) {
-    raw = `- Instalación de depósito para agua limpia de ${agualimpia.litrosAguaLimpia} litros y medidas ${agualimpia.medidasAguaLimpia}mm en la parte trasera del lateral izquierdo.`;
+    raw = `- Instalación de depósito para agua limpia de ${agualimpia.litrosAguaLimpia} litros y medidas ${agualimpia.medidasAguaLimpia}mm.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -3684,7 +3818,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) => m.nombre === 'BOMBA DE AGUA' && m.seleccionado,
   );
   if (bombaagua) {
-    raw = `- Instalación de bomba de agua de 12V marca ${bombaagua.marcaBombaAgua} modelo ${bombaagua.modeloBombaAgua} ubicada en la parte trasera izquierda del vehículo.`;
+    raw = `- Instalación de bomba de agua de 12V marca ${bombaagua.marcaBombaAgua} modelo ${bombaagua.modeloBombaAgua} ubicada en ${bombaagua.ubicacionBombaAgua}.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -3767,8 +3901,17 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     out.push(p);
 
     if (Array.isArray(instalacionelectrica.placasSolares)) {
-      instalacionelectrica.placasSolares.forEach(
-        (placa: any, index: number) => {
+      instalacionelectrica.placasSolares.forEach((placa: any) => {
+          const cantidad =
+            placa?.agruparIguales && Number(placa?.cantidad) > 1
+              ? Math.trunc(Number(placa.cantidad))
+              : 1;
+          const sujeto =
+            cantidad > 1
+              ? `${cantidad} placas solares monocristalinas`
+              : 'Placa solar monocristalina';
+          const situacion = cantidad > 1 ? 'situadas' : 'situada';
+
           raw = `o Placa solar monocristalina marca ${
             placa.marca || ''
           } modelo ${placa.modelo || ''} de ${
@@ -3777,6 +3920,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
             placa.ubicacion || ''
           } del vehículo.`;
 
+          raw = `o ${sujeto} marca ${placa.marca || ''} modelo ${
+            placa.modelo || ''
+          } de ${placa.potencia || ''}W de dimensiones ${
+            placa.dimensiones || ''
+          }mm ${situacion} en ${placa.ubicacion || ''} del vehículo.`;
+
           const pPlaca = new Paragraph({
             spacing: { line: 260, after: 120 },
             indent: { left: 600 },
@@ -3784,8 +3933,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           });
           (pPlaca as any)._rawText = raw;
           out.push(pPlaca);
-        },
-      );
+      });
     }
 
     raw = `o ${instalacionelectrica.cantidadBaterias} batería auxiliar de ${instalacionelectrica.potenciaBaterias}V situada en ${instalacionelectrica.ubicacionBaterias}.`;
@@ -3798,7 +3946,10 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (p as any)._rawText = raw;
     out.push(p);
 
-    raw = `o Inversor ${instalacionelectrica.potenciaInversor} marca ${instalacionelectrica.marcaInversor} situado en ${instalacionelectrica.ubicacionInversor}. `;
+    const homologacionInversorTexto = instalacionelectrica.homologacionInversor
+      ? ` con contraseña de homologación ${instalacionelectrica.homologacionInversor}`
+      : '';
+    raw = `o Inversor ${instalacionelectrica.potenciaInversor} marca ${instalacionelectrica.marcaInversor}${homologacionInversorTexto} situado en ${instalacionelectrica.ubicacionInversor}.`;
 
     p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -3808,7 +3959,11 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (p as any)._rawText = raw;
     out.push(p);
 
-    raw = `o Controlador de carga solar ${instalacionelectrica.modeloControlador} marca ${instalacionelectrica.marcaControlador} situado en ${instalacionelectrica.ubicacionControlador}.`;
+    const homologacionControladorTexto =
+      instalacionelectrica.homologacionControlador
+        ? ` con contraseña de homologación ${instalacionelectrica.homologacionControlador}`
+        : '';
+    raw = `o Controlador de carga solar ${instalacionelectrica.modeloControlador} marca ${instalacionelectrica.marcaControlador}${homologacionControladorTexto} situado en ${instalacionelectrica.ubicacionControlador}.`;
 
     p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -4094,6 +4249,40 @@ function shouldHideModInCanvas(mod: any): boolean {
   return CANVAS_HIDDEN_MOD_RULES.some((rule) => rule(mod));
 }
 
+function hasValue(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  if (typeof value === 'string') return value.trim().length > 0;
+  return true;
+}
+
+function isMobiliarioInteriorMod(mod: any, normalizedName: string): boolean {
+  return (
+    normalizedName.includes('MOBILIARIO INTERIOR') ||
+    mod?.opcionesMueble != null ||
+    Array.isArray(mod?.mueblesBajo) ||
+    Array.isArray(mod?.mueblesAlto) ||
+    Array.isArray(mod?.mueblesAseo)
+  );
+}
+
+function isInstalacionElectricaMod(mod: any, normalizedName: string): boolean {
+  return (
+    (normalizedName.includes('INSTALACI') && normalizedName.includes('CTRICA')) ||
+    Array.isArray(mod?.placasSolares) ||
+    hasValue(mod?.cantidadBaterias) ||
+    hasValue(mod?.potenciaBaterias) ||
+    hasValue(mod?.ubicacionBaterias) ||
+    hasValue(mod?.potenciaInversor) ||
+    hasValue(mod?.marcaInversor) ||
+    hasValue(mod?.homologacionInversor) ||
+    hasValue(mod?.ubicacionInversor) ||
+    hasValue(mod?.modeloControlador) ||
+    hasValue(mod?.marcaControlador) ||
+    hasValue(mod?.homologacionControlador) ||
+    hasValue(mod?.ubicacionControlador)
+  );
+}
+
 const LUCES_LABELS: Record<string, string> = {
   luzGrupoOptico: 'Grupo óptico delantero',
   intermitenteDelantero: 'Intermitente delantero',
@@ -4124,29 +4313,132 @@ function expandInstalacionElectrica(mod: any): string[] {
 
   if (Array.isArray(mod.placasSolares)) {
     mod.placasSolares.forEach((placa: any, i: number) => {
+      const marca = (placa?.marcaPlacaSolar ?? placa?.marca ?? '')
+        .toString()
+        .trim();
+      const modelo = (placa?.modeloPlacaSolar ?? placa?.modelo ?? '')
+        .toString()
+        .trim();
+      const detalle = [marca, modelo].filter(Boolean).join(' ');
+      const cantidad =
+        placa?.agruparIguales && Number(placa?.cantidad) > 1
+          ? Math.trunc(Number(placa.cantidad))
+          : 1;
+      const label =
+        cantidad > 1
+          ? detalle
+            ? `${cantidad} placas solares (${detalle})`
+            : `${cantidad} placas solares`
+          : detalle
+            ? `Placa solar ${i + 1} (${detalle})`
+            : `Placa solar ${i + 1}`;
       out.push(
-        `Placa solar ${i + 1} (${placa.marcaPlacaSolar || ''} ${
-          placa.modeloPlacaSolar || ''
-        })`,
+        label,
       );
     });
   }
 
-  if (mod.cantidadBaterias && mod.potenciaBaterias) {
-    out.push(`Batería ${mod.potenciaBaterias}V`);
-  }
+  // La leyenda siempre separa batería/inversor/controlador en instalación eléctrica.
+  out.push('Batería');
+  out.push('Inversor');
+  out.push('Controlador');
 
-  if (mod.marcaInversor || mod.potenciaInversor) {
-    out.push(`Inversor ${mod.marcaInversor || ''}`);
-  }
-
-  if (mod.marcaControlador || mod.modeloControlador) {
-    out.push(`Controlador ${mod.modeloControlador || ''}`);
-  }
-
-  if (mod.instalacionesSecundarias) {
+  if (hasValue(mod.instalacionesSecundarias)) {
     out.push(`Instalaciones secundarias`);
   }
+
+  return out;
+}
+
+function buildLabelWithModel(
+  prefix: 'Ventana' | 'Claraboya',
+  model: any,
+): string {
+  const modelText = (model ?? '').toString().trim();
+  return modelText ? `${prefix} ${modelText}` : prefix;
+}
+
+function toPositiveInt(value: any): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+  return Math.floor(parsed);
+}
+
+function expandClaraboyas(mod: any): string[] {
+  const out: string[] = [];
+
+  if (Array.isArray(mod?.claraboyas) && mod.claraboyas.length > 0) {
+    mod.claraboyas.forEach((item: any) => {
+      out.push(buildLabelWithModel('Claraboya', item?.modelo));
+    });
+    return out;
+  }
+
+  const legacyExists =
+    mod?.modeloClaraboya ||
+    mod?.marcaClaraboya ||
+    mod?.homologacionClaraboya ||
+    mod?.descripcionClaraboya ||
+    mod?.cantidadClaraboya;
+
+  if (!legacyExists) return out;
+
+  const qty = toPositiveInt(mod?.cantidadClaraboya);
+  const count = qty > 0 ? qty : 1;
+  for (let i = 0; i < count; i++) {
+    out.push(buildLabelWithModel('Claraboya', mod?.modeloClaraboya));
+  }
+
+  return out;
+}
+
+function expandVentanas(mod: any): string[] {
+  const out: string[] = [];
+
+  if (Array.isArray(mod?.ventanas) && mod.ventanas.length > 0) {
+    mod.ventanas.forEach((item: any) => {
+      out.push(buildLabelWithModel('Ventana', item?.modelo));
+    });
+    return out;
+  }
+
+  const legacyExists =
+    mod?.modeloVentana ||
+    mod?.marcaVentana ||
+    mod?.homologacionVentana ||
+    mod?.descripcionVentana ||
+    mod?.dimensionesVentana ||
+    mod?.cantidadVentanas;
+
+  if (!legacyExists) return out;
+
+  const qty = toPositiveInt(mod?.cantidadVentanas);
+  const count = qty > 0 ? qty : 1;
+  for (let i = 0; i < count; i++) {
+    out.push(buildLabelWithModel('Ventana', mod?.modeloVentana));
+  }
+
+  return out;
+}
+
+function expandReformasAdicionalesLabels(mod: any): string[] {
+  const out: string[] = [];
+  const items = Array.isArray(mod?.reformasAdicionalesItems)
+    ? mod.reformasAdicionalesItems
+    : [];
+
+  items.forEach((item: any, index: number) => {
+    const titulo = (item?.titulo ?? '').toString().trim();
+    if (titulo) {
+      out.push(titulo);
+      return;
+    }
+
+    const descripcion = (item?.descripcion ?? '').toString().trim();
+    if (descripcion) {
+      out.push(`Reforma adicional ${index + 1}`);
+    }
+  });
 
   return out;
 }
@@ -4156,19 +4448,24 @@ function buildLabelsFromMods(data: any): string[] {
   const mods = Array.isArray(data?.modificaciones) ? data.modificaciones : [];
 
   for (const mod of mods) {
+    const normalizedName = normalizeText(mod?.nombre);
+
     if (mod?.seleccionado && shouldHideModInCanvas(mod)) {
       continue;
     }
 
-    if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
-      mod.mueblesBajo?.forEach((m: any) =>
-        labels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`),
+    if (
+      mod?.seleccionado &&
+      isMobiliarioInteriorMod(mod, normalizedName)
+    ) {
+      mod.mueblesBajo?.forEach((_: any, idx: number) =>
+        labels.push(`Mueble bajo ${idx + 1}`),
       );
-      mod.mueblesAlto?.forEach((m: any) =>
-        labels.push(`Mueble alto (${m?.medidas || 'sin medidas'})`),
+      mod.mueblesAlto?.forEach((_: any, idx: number) =>
+        labels.push(`Mueble alto ${idx + 1}`),
       );
-      mod.mueblesAseo?.forEach((m: any) =>
-        labels.push(`Aseo (${m?.medidas || 'sin medidas'})`),
+      mod.mueblesAseo?.forEach((_: any, idx: number) =>
+        labels.push(`Aseo ${idx + 1}`),
       );
       continue;
     }
@@ -4179,7 +4476,10 @@ function buildLabelsFromMods(data: any): string[] {
       continue;
     }
 
-    if (mod?.seleccionado && mod?.nombre === 'INSTALACIÓN ELÉCTRICA') {
+    if (
+      mod?.seleccionado &&
+      isInstalacionElectricaMod(mod, normalizedName)
+    ) {
       const sublabels = expandInstalacionElectrica(mod);
       if (sublabels.length > 0) labels.push(...sublabels);
       continue;
@@ -4188,6 +4488,31 @@ function buildLabelsFromMods(data: any): string[] {
     if (mod?.seleccionado && mod?.nombre === 'LUCES') {
       const sublabels = expandLuces(mod);
       if (sublabels.length > 0) labels.push(...sublabels);
+      continue;
+    }
+
+    if (mod?.seleccionado && normalizedName === 'CLARABOYA') {
+      const sublabels = expandClaraboyas(mod);
+      if (sublabels.length > 0) labels.push(...sublabels);
+      continue;
+    }
+
+    if (mod?.seleccionado && normalizedName === 'VENTANA') {
+      const sublabels = expandVentanas(mod);
+      if (sublabels.length > 0) labels.push(...sublabels);
+      continue;
+    }
+
+    if (
+      mod?.seleccionado &&
+      normalizedName === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES'
+    ) {
+      const sublabels = expandReformasAdicionalesLabels(mod);
+      if (sublabels.length > 0) {
+        labels.push(...sublabels);
+      } else {
+        labels.push(mod.nombre);
+      }
       continue;
     }
 

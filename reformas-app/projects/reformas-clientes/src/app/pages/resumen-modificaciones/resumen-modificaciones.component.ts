@@ -664,6 +664,25 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       ) {
         return !mod.tieneDisco && !mod.tienePastilla;
       }
+
+      if (
+        mod.nombre === 'Modificaciones en el interior del vehículo' &&
+        mod.seleccionado
+      ) {
+        if (
+          mod.mobiliarioInterior?.claraboyas &&
+          (!Array.isArray(mod.claraboyas) || mod.claraboyas.length === 0)
+        ) {
+          return true;
+        }
+
+        if (
+          mod.mobiliarioInterior?.ventanas &&
+          (!Array.isArray(mod.ventanas) || mod.ventanas.length === 0)
+        ) {
+          return true;
+        }
+      }
       return false;
     });
   }
@@ -724,6 +743,54 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (!Array.isArray(m.mueblesBajo)) m.mueblesBajo = [];
         if (!Array.isArray(m.mueblesAlto)) m.mueblesAlto = [];
         if (!Array.isArray(m.mueblesAseo)) m.mueblesAseo = [];
+      }
+
+      if (m.nombre === 'Modificaciones en el interior del vehículo') {
+        if (!Array.isArray(m.claraboyas)) {
+          m.claraboyas = [];
+        }
+
+        if (m.claraboyas.length === 0) {
+          const hasLegacy =
+            m.marcaClaraboya ||
+            m.modeloClaraboya ||
+            m.descripcionClaraboya ||
+            m.homologacionClaraboya ||
+            m.cantidadClaraboya;
+
+          if (hasLegacy) {
+            m.claraboyas.push({
+              marca: m.marcaClaraboya ?? '',
+              modelo: m.modeloClaraboya ?? '',
+              descripcion: m.descripcionClaraboya ?? '',
+              homologacion: m.homologacionClaraboya ?? '',
+            });
+          }
+        }
+
+        if (!Array.isArray(m.ventanas)) {
+          m.ventanas = [];
+        }
+
+        if (m.ventanas.length === 0) {
+          const hasLegacy =
+            m.descripcionVentana ||
+            m.marcaVentana ||
+            m.modeloVentana ||
+            m.dimensionesVentana ||
+            m.homologacionVentana ||
+            m.cantidadVentanas;
+
+          if (hasLegacy) {
+            m.ventanas.push({
+              descripcion: m.descripcionVentana ?? '',
+              marca: m.marcaVentana ?? '',
+              modelo: m.modeloVentana ?? '',
+              dimensiones: m.dimensionesVentana ?? '',
+              homologacion: m.homologacionVentana ?? '',
+            });
+          }
+        }
       }
     });
   }

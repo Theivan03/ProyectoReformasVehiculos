@@ -42,7 +42,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   get totalPaginas(): number {
-    return this.necesitaPasoExtra ? 6 : 5;
+    return 6;
   }
 
   datos: any = {
@@ -209,25 +209,22 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   ngOnInit(): void {
-    // Carga catálogo talleres
     this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
       next: (data) => {
         this.talleres = data;
-        this.intentarNormalizarListas(); // <--- Normalizar cuando llegan los datos
+        this.intentarNormalizarListas();
       },
       error: (err) => console.error('Error al cargar talleres:', err),
     });
 
-    // Carga catálogo ingenieros
     this.http.get<any[]>('http://192.168.1.41:3000/ingenieros').subscribe({
       next: (data) => {
         this.ingenieros = Array.isArray(data) ? data : [data];
-        this.intentarNormalizarListas(); // <--- Normalizar cuando llegan los datos
+        this.intentarNormalizarListas();
       },
       error: (err) => console.error('Error al cargar ingenieros:', err),
     });
 
-    // Carga número de proyecto / referencias si no es edición
     if (!this.esEdicion) {
       this.http
         .get<{
@@ -245,7 +242,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         });
     }
 
-    // Decidir página inicial
     if (this.forzarPrimera) {
       this.paginaActual = 1;
     } else {
@@ -257,14 +253,13 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   private intentarNormalizarListas() {
-    // Normalizar Taller
     if (this.talleres?.length && this.datos.tallerSeleccionado) {
       const encontrado = this.talleres.find(
         (t) => t.nombre === this.datos.tallerSeleccionado.nombre,
       );
+
       if (encontrado) {
         this.datos.tallerSeleccionado = encontrado;
-        // Importante: Actualizamos también la propiedad 'taller' para que estén sync
         this.datos.taller = encontrado;
       }
     }
@@ -319,54 +314,69 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   // Verificación de condiciones de carga (reglamentarias)
   comprobarCondicionesCarga() {
     const n = (v: any) => Number(v) || 0;
+    const PESO_OCUPANTE = 75;
 
     const mma = n(this.datos.mmaDespues);
     const mmaEje2 = n(this.datos.mmaEje2Despues);
-    const masaReal = n(this.datos.masaRealDespues);
+    const distanciaEntreEjes = n(this.datos.distanciaEntreEjes);
 
-    const reparto = {
-      masaReal: { del: 0.536, tras: 0.464 },
-      ocupDel: { del: 0.78, tras: 0.22 },
-      ocup2: { del: 0.96, tras: 0.04 },
-      ocup3: { del: 0.0, tras: 0.0 },
-      cargaUtil: { del: 0.105, tras: 0.895 },
+    const taraDelante = n(this.datos.taraDelante);
+    const taraDetras = n(this.datos.taraDetras);
+    const taraTotal =
+      taraDelante + taraDetras > 0
+        ? taraDelante + taraDetras
+        : n(this.datos.taraTotal);
+
+    const ocupantesAdicionales = n(this.datos.ocupantesAdicionales);
+    const ocupDelTotal = n(this.datos.asientosDelanteros) * PESO_OCUPANTE;
+    const ocup2Total = n(this.datos.asientos2Fila) * PESO_OCUPANTE;
+    const ocup3Total = n(this.datos.asientos3Fila) * PESO_OCUPANTE;
+    const totalKgOcupAdicionales = ocupantesAdicionales * PESO_OCUPANTE;
+
+    const masaRealTotal = taraTotal + PESO_OCUPANTE;
+    const cargaUtilTotal = mma - masaRealTotal - totalKgOcupAdicionales;
+
+    const repartirPorEjes = (pesoTotal: number, distanciaCDG: number) => {
+      if (!distanciaEntreEjes) return { del: pesoTotal, tras: 0 };
+      const tras = (pesoTotal * n(distanciaCDG)) / distanciaEntreEjes;
+      return { del: pesoTotal - tras, tras };
     };
 
-    const masaRealDel = Math.round(
-      this.datos.masaRealTotal * reparto.masaReal.del,
-    );
-    const masaRealTras = this.datos.masaRealTotal - masaRealDel;
+    const conductor = repartirPorEjes(PESO_OCUPANTE, n(this.datos.cdgconductor));
+    const masaRealTras = taraDetras + conductor.tras;
 
-    const ocupDelDel = Math.round(
-      this.datos.ocupDelTotal * reparto.ocupDel.del,
-    );
-    const ocupDelTras = this.datos.ocupDelTotal - ocupDelDel;
-
-    const ocup2Del = Math.round(this.datos.ocup2Total * reparto.ocup2.del);
-    const ocup2Tras = this.datos.ocup2Total - ocup2Del;
-
-    const ocup3Del = Math.round(this.datos.ocup3Total * reparto.ocup3.del);
-    const ocup3Tras = this.datos.ocup3Total - ocup3Del;
-
-    const cargaUtilDel = Math.round(
-      this.datos.cargaUtilTotal * reparto.cargaUtil.del,
-    );
-    const cargaUtilTras = this.datos.cargaUtilTotal - cargaUtilDel;
+    const ocupDel = repartirPorEjes(ocupDelTotal, n(this.datos.cdgconductor));
+    const ocup2 = repartirPorEjes(ocup2Total, n(this.datos.cdgocu2));
+    const ocup3 = repartirPorEjes(ocup3Total, n(this.datos.cdgocu3));
+    const cargaUtil = repartirPorEjes(cargaUtilTotal, n(this.datos.cdgcargautil));
 
     const sumaTras =
-      masaRealTras + cargaUtilTras + ocup2Tras + ocup3Tras + ocupDelTras;
+      masaRealTras +
+      ocupDel.tras +
+      ocup2.tras +
+      ocup3.tras +
+      cargaUtil.tras;
 
-    // Cálculo de masa total con ocupantes (75 kg por persona + conductor)
-    const ocupantes =
-      n(this.datos.asientosDelanteros) +
-      n(this.datos.asientos2Fila) +
-      n(this.datos.asientos3Fila) +
-      1; // conductor
+    const cargaVerticalAcopl =
+      n(this.datos.cargaverticalDespues) || n(this.datos.cargavertical);
+    const cargaUtilSinVerticalTotal = cargaUtilTotal - cargaVerticalAcopl;
+    const cargaUtilSinVertical = repartirPorEjes(
+      cargaUtilSinVerticalTotal,
+      n(this.datos.cdgcargautil),
+    );
+    const vertical = repartirPorEjes(cargaVerticalAcopl, n(this.datos.cdgcargavert));
+    const sumaTrasConVertical =
+      masaRealTras +
+      ocupDel.tras +
+      ocup2.tras +
+      ocup3.tras +
+      cargaUtilSinVertical.tras +
+      vertical.tras;
 
-    const masaTotal = masaReal + ocupantes * 75;
+    const masaTotal = masaRealTotal + ocupDelTotal + ocup2Total + ocup3Total + cargaUtilTotal;
 
     // Comprobaciones reglamentarias
-    const superaEje2 = sumaTras > mmaEje2 * 1.15;
+    const superaEje2 = Math.max(sumaTras, sumaTrasConVertical) > mmaEje2 * 1.15;
     const superaTotal10 = masaTotal > mma * 1.1;
     const superaTotal100 = masaTotal > mma + 100;
 
@@ -374,22 +384,22 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     if (superaEje2)
       problemas.push(
         `La carga sobre el eje trasero (${sumaTras.toFixed(
-          0,
+          2,
         )} kg) supera en más del 15 % la MMA del eje (${mmaEje2.toFixed(
-          0,
+          2,
         )} kg).`,
       );
     if (superaTotal10)
       problemas.push(
         `La masa total (${masaTotal.toFixed(
-          0,
-        )} kg) supera el 110 % de la MMA del vehículo (${mma.toFixed(0)} kg).`,
+          2,
+        )} kg) supera el 110 % de la MMA del vehículo (${mma.toFixed(2)} kg).`,
       );
     if (superaTotal100)
       problemas.push(
         `La masa total excede la MMA en más de 100 kg (diferencia de ${(
           masaTotal - mma
-        ).toFixed(0)} kg).`,
+        ).toFixed(2)} kg).`,
       );
 
     if (problemas.length > 0) {
@@ -410,23 +420,26 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
 
   siguiente(): void {
     const n = (v: any) => Number(v) || 0;
-    const ocupantes =
-      n(this.datos.asientosDelanteros) +
-      n(this.datos.asientos2Fila) +
-      n(this.datos.asientos3Fila) +
-      1;
-    const mma = n(this.datos.mmaDespues);
-    const masaReal = n(this.datos.masaRealDespues);
-    this.datos.cargaUtilTotal = mma - (ocupantes * 75 + masaReal);
+    const taraDelante = n(this.datos.taraDelante);
+    const taraDetras = n(this.datos.taraDetras);
+    const taraTotal =
+      taraDelante + taraDetras > 0
+        ? taraDelante + taraDetras
+        : n(this.datos.taraTotal);
+    const masaRealTotal = taraTotal + 75;
+    const totalKgOcupAdicionales = n(this.datos.ocupantesAdicionales) * 75;
+    this.datos.taraTotal = taraTotal;
+    this.datos.cargaUtilTotal =
+      n(this.datos.mmaDespues) - masaRealTotal - totalKgOcupAdicionales;
 
     // Validaciones reglamentarias informativas
     this.comprobarCondicionesCarga();
 
     if (!this.validarPaginaActual()) return;
 
-    if (this.paginaActual === 4 && this.necesitaPasoExtra) {
+    if (this.paginaActual === 4) {
       this.paginaActual = 5;
-    } else if (this.paginaActual === 4 || this.paginaActual === 5) {
+    } else if (this.paginaActual === 5) {
       this.paginaActual = this.totalPaginas;
     } else if (this.paginaActual === 6) {
       this.enviarFormulario();
@@ -450,7 +463,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
 
   anterior(): void {
     this.comprobarCondicionesCarga();
-    if (this.paginaActual === this.totalPaginas && this.necesitaPasoExtra) {
+    if (this.paginaActual === this.totalPaginas) {
       this.paginaActual = 5;
       this.emitAutosave();
       return;

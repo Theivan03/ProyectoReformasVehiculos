@@ -1,4 +1,4 @@
-<style>
+﻿<style>
   @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap");
 
   #ing-app-wrapper {
@@ -4323,7 +4323,7 @@
                       </div>
 
                       @if (mod.fabricacionPorta1 === "comprado") {
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                           <div class="form-floating">
                             <input
                               type="text"
@@ -4339,7 +4339,7 @@
                             <label>MARCA</label>
                           </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                           <div class="form-floating">
                             <input
                               type="text"
@@ -4481,7 +4481,7 @@
                           <label>MATERIAL</label>
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3">
                         <div class="form-floating">
                           <input
                             type="text"
@@ -4884,9 +4884,7 @@
                     <label>ÍNDICE REF. (pdl/ud)</label>
                   </div>
                 </div>
-
                 <div class="col-12"><hr class="mod-sep" /></div>
-
                 <div class="col-md-6">
                   <div class="form-floating">
                     <select
@@ -6771,7 +6769,7 @@
                             <label>REFERENCIA (TRAS)</label>
                           </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                           <div class="form-floating">
                             <input
                               type="number"
@@ -8310,6 +8308,24 @@
                       <input
                         type="text"
                         class="form-control"
+                        id="referenciaPeldanos-{{ i }}"
+                        placeholder="Referencia"
+                        [(ngModel)]="mod.referenciaPeldanos"
+                        name="referenciaPeldanos{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.referenciaPeldanos
+                        "
+                      />
+                      <label for="referenciaPeldanos-{{ i }}">REFERENCIA</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
                         id="materialPeldano-{{ i }}"
                         placeholder="Material"
                         [(ngModel)]="mod.materialPeldano"
@@ -8323,7 +8339,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <div class="form-floating">
                       <input
                         type="text"
@@ -8342,6 +8358,63 @@
                       >
                     </div>
                   </div>
+
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <select
+                        class="form-select"
+                        id="metodoActuacionPeldanos-{{ i }}"
+                        [(ngModel)]="mod.metodoActuacionPeldanos"
+                        name="metodoActuacionPeldanos{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.metodoActuacionPeldanos
+                        "
+                      >
+                        <option [ngValue]="null" disabled>
+                          -- SELECCIONAR --
+                        </option>
+                        <option value="manual">MANUAL</option>
+                        <option value="electrico">ELÉCTRICO</option>
+                      </select>
+                      <label for="metodoActuacionPeldanos-{{ i }}"
+                        >MÉTODO DE ACTUACIÓN</label
+                      >
+                    </div>
+                  </div>
+
+                  @if (mod.metodoActuacionPeldanos === "electrico") {
+                    <div class="col-12">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="ubicacionAccionamientoPeldanos-{{ i }}"
+                          placeholder="Ubicación botón"
+                          [(ngModel)]="mod.ubicacionAccionamientoPeldanos"
+                          name="ubicacionAccionamientoPeldanos{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.ubicacionAccionamientoPeldanos
+                          "
+                        />
+                        <label for="ubicacionAccionamientoPeldanos-{{ i }}"
+                          >UBICACIÓN ACCIONAMIENTO</label
+                        >
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="alert alert-info py-2 mb-0">
+                        Este componente se acciona en parado mediante botón
+                        instalado en el interior del vehículo,
+                        {{
+                          mod.ubicacionAccionamientoPeldanos ||
+                            "junto a la puerta trasera"
+                        }}.
+                      </div>
+                    </div>
+                  }
 
                   <div class="form-floating">
                     <input
@@ -8402,15 +8475,31 @@
                           class="form-check-input"
                           type="radio"
                           name="ladoVentana{{ i }}"
-                          id="ladoVentanaDer{{ i }}"
+                          id="ladoVentanaTras{{ i }}"
                           value="derecho"
+                          [(ngModel)]="mod.ladoVentana"
+                        />
+                        <label
+                          class="form-check-label"
+                          for="ladoVentanaTras{{ i }}"
+                        >
+                          Derecho
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="ladoVentana{{ i }}"
+                          id="ladoVentanaDer{{ i }}"
+                          value="trasero"
                           [(ngModel)]="mod.ladoVentana"
                         />
                         <label
                           class="form-check-label"
                           for="ladoVentanaDer{{ i }}"
                         >
-                          Derecho
+                          Portón trasero
                         </label>
                       </div>
                       <div class="form-check">
@@ -8459,10 +8548,6 @@
                         placeholder="Material"
                         [(ngModel)]="mod.materialVentana"
                         name="materialVentana{{ i }}"
-                        required
-                        [class.is-invalid]="
-                          formSubmitted && !mod.materialVentana
-                        "
                       />
                       <label for="materialVentana-{{ i }}"
                         >MATERIAL (Ej. Acero)</label
@@ -8489,6 +8574,46 @@
                       >
                     </div>
                   </div>
+
+                  <div class="col-12">
+                    <div class="form-check form-switch mt-2">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="incluirHomologacionVentanaAbatible{{ i }}"
+                        [(ngModel)]="mod.incluirHomologacionVentanaAbatible"
+                        name="incluirHomologacionVentanaAbatible{{ i }}"
+                      />
+                      <label
+                        class="form-check-label"
+                        for="incluirHomologacionVentanaAbatible{{ i }}"
+                      >
+                        Incluir contraseña de homologación
+                      </label>
+                    </div>
+                  </div>
+
+                  @if (mod.incluirHomologacionVentanaAbatible) {
+                    <div class="col-12">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="homologacionVentanaAbatible-{{ i }}"
+                          placeholder="Contraseña homologación"
+                          [(ngModel)]="mod.homologacionVentanaAbatible"
+                          name="homologacionVentanaAbatible{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.homologacionVentanaAbatible
+                          "
+                        />
+                        <label for="homologacionVentanaAbatible-{{ i }}"
+                          >CONTRASEÑA HOMOLOGACIÓN</label
+                        >
+                      </div>
+                    </div>
+                  }
                 </div>
               </div>
             </section>
@@ -10612,7 +10737,7 @@
                         DATOS BOMBA DELANTERA
                       </h6>
                       <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                           <div class="form-floating">
                             <input
                               type="text"
@@ -16602,12 +16727,15 @@
                   <div class="form-floating">
                     <select
                       class="form-select"
-                      [(ngModel)]="mod.metrica"
-                      name="metrica{{ i }}"
+                      [(ngModel)]="mod.metricaToldo"
+                      (ngModelChange)="onMetricaChange(mod)"
+                      name="metricaToldo{{ i }}"
                       required
-                      [class.is-invalid]="formSubmitted && mod.metrica == null"
+                      [class.is-invalid]="
+                        formSubmitted && mod.metricaToldo == null
+                      "
                     >
-                      <option [value]="null" disabled selected>
+                      <option [ngValue]="null" disabled>
                         -- SELECCIONAR --
                       </option>
                       @for (num of metricasTornillos; track num) {
@@ -18132,69 +18260,10 @@
           <div class="mb-3">
             <section class="mod-card mobiliario">
               <div class="mod-card__header">
-                <h4 class="mod-card__title">Mobiliario Interior Vehículo</h4>
+                <h4 class="mod-card__title">Mobiliario Interior Veh?culo</h4>
                 <span class="mod-card__hint"
-                  >Gestión de muebles y tornillería</span
+                  >Gesti?n de muebles y torniller?a</span
                 >
-              </div>
-
-              <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                  <div class="form-floating">
-                    <select
-                      class="form-select"
-                      id="diametro-tornillo-{{ i }}"
-                      [(ngModel)]="mod.diametroTornilloSeleccionado"
-                      (ngModelChange)="onDiametroTornilloChange(mod)"
-                      name="diametroTornilloSeleccionado{{ i }}"
-                      required
-                    >
-                      <option [ngValue]="null" disabled>
-                        -- SELECCIONAR --
-                      </option>
-                      @for (t of tornillosDB; track t.diametro) {
-                        <option [ngValue]="t.diametro">
-                          {{ t.diametro }} mm
-                        </option>
-                      }
-                    </select>
-                    <label for="diametro-tornillo-{{ i }}"
-                      >DIÁMETRO DE TORNILLO</label
-                    >
-                  </div>
-                </div>
-
-                @if (mod.diametroTornilloSeleccionado) {
-                  <div class="col-md-6">
-                    <div
-                      class="p-3 bg-light border h-100 d-flex flex-column justify-content-center"
-                    >
-                      <div class="row text-muted small text-uppercase fw-bold">
-                        <div class="col-4">
-                          Tensión:
-                          <span class="text-dark"
-                            >{{
-                              getTornilloActivo(mod)?.seccionTension
-                            }}
-                            mm²</span
-                          >
-                        </div>
-                        <div class="col-4">
-                          Par:
-                          <span class="text-dark"
-                            >{{ getTornilloActivo(mod)?.parAprete }} N·mm</span
-                          >
-                        </div>
-                        <div class="col-4">
-                          Carga:
-                          <span class="text-dark"
-                            >{{ getTornilloActivo(mod)?.cargaMax }} Kg</span
-                          >
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                }
               </div>
 
               <div class="col-12"><hr class="mod-sep" /></div>
@@ -18213,14 +18282,14 @@
                         class="btn btn-success btn-sm"
                         (click)="anadirMueble(mod, 'bajo')"
                       >
-                        <i class="bi bi-plus-lg me-1"></i> AÑADIR
+                        <i class="bi bi-plus-lg me-1"></i> A?ADIR
                       </button>
                       <button
                         type="button"
                         class="btn btn-outline-danger btn-sm ms-2"
                         (click)="borrarUltimoMueble(mod, 'bajo')"
                       >
-                        <i class="bi bi-trash me-1"></i> BORRAR ÚLTIMO
+                        <i class="bi bi-trash me-1"></i> BORRAR ?LTIMO
                       </button>
                     </div>
                   </div>
@@ -18241,14 +18310,12 @@
                             <input
                               type="text"
                               class="form-control"
-                              id="medidasBajo-{{ j }}"
-                              [(ngModel)]="mueble.medidas"
-                              name="medidas{{ j }}"
-                              placeholder="Ej: 600x1420x900"
+                              id="ubicacionBajo-{{ j }}"
+                              [(ngModel)]="mueble.ubicacionMuebleBajo"
+                              name="ubicacionMuebleBajo{{ j }}"
+                              placeholder="parte media del lateral izquierdo"
                             />
-                            <label for="medidasBajo-{{ j }}"
-                              >MEDIDAS (200x200...)</label
-                            >
+                            <label for="ubicacionBajo-{{ j }}">UBICACI?N</label>
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -18256,12 +18323,18 @@
                             <input
                               type="text"
                               class="form-control"
-                              id="ubicacionBajo-{{ j }}"
-                              [(ngModel)]="mueble.ubicacionMuebleBajo"
-                              name="ubicacionMuebleBajo{{ j }}"
-                              placeholder="parte media del lateral izquierdo"
+                              id="configuracionBajo-{{ j }}"
+                              [(ngModel)]="mueble.configuracionMuebleBajo"
+                              name="configuracionMuebleBajo{{ j }}"
+                              placeholder="Cajones, puertas, etc."
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !mueble.configuracionMuebleBajo
+                              "
                             />
-                            <label for="ubicacionBajo-{{ j }}">UBICACIÓN</label>
+                            <label for="configuracionBajo-{{ j }}"
+                              >CONFIGURACIÓN (CAJONES, PUERTAS, ETC.)</label
+                            >
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -18292,59 +18365,34 @@
                             >
                           </div>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-4">
                           <div class="form-floating">
                             <select
                               class="form-select"
-                              [(ngModel)]="mueble.tipoFabricacionMuebleBajo"
-                              name="tipoFabricacionMuebleBajo{{ i }}"
+                              id="metricaTornillosMuebleBajo-{{ i }}-{{ j }}"
+                              [(ngModel)]="mueble.metricaTornillosMuebleBajo"
+                              name="metricaTornillosMuebleBajo{{ i }}-{{ j }}"
                               required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                !mueble.metricaTornillosMuebleBajo
+                              "
                             >
-                              <option value="" disabled selected>
+                              <option [ngValue]="null" disabled>
                                 -- SELECCIONAR --
                               </option>
-                              <option value="comercial">
-                                Marca y Referencia
-                              </option>
-                              <option value="aceroArtesanal">
-                                Fabricado en acero artesanal
-                              </option>
-                              <option value="maderaArtesanal">
-                                Fabricado en madera artesanal
-                              </option>
+                              @for (t of tornillosDB; track t.diametro) {
+                                <option [ngValue]="t.diametro">
+                                  {{ t.diametro }} mm
+                                </option>
+                              }
                             </select>
-                            <label>TIPO DE FABRICACIÓN</label>
+                            <label
+                              for="metricaTornillosMuebleBajo-{{ i }}-{{ j }}"
+                              >M?TRICA TORNILLO</label
+                            >
                           </div>
                         </div>
-
-                        @if (mueble.tipoFabricacionMuebleBajo === "comercial") {
-                          <div class="col-md-6">
-                            <div class="form-floating">
-                              <input
-                                type="text"
-                                class="form-control"
-                                id="marcaBajo-{{ j }}"
-                                [(ngModel)]="mueble.marcaMuebleBajo"
-                                name="marcaMuebleBajo{{ i }}"
-                                placeholder="Marca"
-                              />
-                              <label for="marcaBajo-{{ j }}">MARCA</label>
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="form-floating">
-                              <input
-                                type="text"
-                                class="form-control"
-                                id="refBajo-{{ j }}"
-                                [(ngModel)]="mueble.referenciaMuebleBajo"
-                                name="referenciaMuebleBajo{{ i }}"
-                                placeholder="Ref"
-                              />
-                              <label for="refBajo-{{ j }}">REFERENCIA</label>
-                            </div>
-                          </div>
-                        }
                       </div>
                     </div>
                   }
@@ -18367,14 +18415,14 @@
                         class="btn btn-success btn-sm"
                         (click)="anadirMueble(mod, 'alto')"
                       >
-                        <i class="bi bi-plus-lg me-1"></i> AÑADIR
+                        <i class="bi bi-plus-lg me-1"></i> A?ADIR
                       </button>
                       <button
                         type="button"
                         class="btn btn-outline-danger btn-sm ms-2"
                         (click)="borrarUltimoMueble(mod, 'alto')"
                       >
-                        <i class="bi bi-trash me-1"></i> BORRAR ÚLTIMO
+                        <i class="bi bi-trash me-1"></i> BORRAR ?LTIMO
                       </button>
                     </div>
                   </div>
@@ -18395,14 +18443,12 @@
                             <input
                               type="text"
                               class="form-control"
-                              id="medidasAlto-{{ j }}"
-                              [(ngModel)]="mueble.medidas"
-                              name="medidasAlto{{ j }}"
-                              placeholder="Ej: 1250x405x325"
+                              id="ubicacionAlto-{{ j }}"
+                              [(ngModel)]="mueble.ubicacionMuebleAlto"
+                              name="ubicacionMuebleAlto{{ j }}"
+                              placeholder="parte media del lateral izquierdo"
                             />
-                            <label for="medidasAlto-{{ j }}"
-                              >MEDIDAS(mm) EJ: 1250x405x325</label
-                            >
+                            <label for="ubicacionAlto-{{ j }}">UBICACI?N</label>
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -18410,12 +18456,18 @@
                             <input
                               type="text"
                               class="form-control"
-                              id="ubicacionAlto-{{ j }}"
-                              [(ngModel)]="mueble.ubicacionMuebleAlto"
-                              name="ubicacionMuebleAlto{{ j }}"
-                              placeholder="parte media del lateral izquierdo"
+                              id="configuracionAlto-{{ j }}"
+                              [(ngModel)]="mueble.configuracionMuebleAlto"
+                              name="configuracionMuebleAlto{{ j }}"
+                              placeholder="Cajones, puertas, etc."
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !mueble.configuracionMuebleAlto
+                              "
                             />
-                            <label for="ubicacionAlto-{{ j }}">UBICACIÓN</label>
+                            <label for="configuracionAlto-{{ j }}"
+                              >CONFIGURACIÓN (CAJONES, PUERTAS, ETC.)</label
+                            >
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -18446,59 +18498,34 @@
                             >
                           </div>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-4">
                           <div class="form-floating">
                             <select
                               class="form-select"
-                              [(ngModel)]="mueble.tipoFabricacionMuebleAlto"
-                              name="tipoFabricacionMuebleAlto{{ i }}"
+                              id="metricaTornillosMuebleAlto-{{ i }}-{{ j }}"
+                              [(ngModel)]="mueble.metricaTornillosMuebleAlto"
+                              name="metricaTornillosMuebleAlto{{ i }}-{{ j }}"
                               required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                !mueble.metricaTornillosMuebleAlto
+                              "
                             >
-                              <option value="" disabled selected>
+                              <option [ngValue]="null" disabled>
                                 -- SELECCIONAR --
                               </option>
-                              <option value="comercial">
-                                Marca y Referencia
-                              </option>
-                              <option value="aceroArtesanal">
-                                Fabricado en acero artesanal
-                              </option>
-                              <option value="maderaArtesanal">
-                                Fabricado en madera artesanal
-                              </option>
+                              @for (t of tornillosDB; track t.diametro) {
+                                <option [ngValue]="t.diametro">
+                                  {{ t.diametro }} mm
+                                </option>
+                              }
                             </select>
-                            <label>TIPO DE FABRICACIÓN</label>
+                            <label
+                              for="metricaTornillosMuebleAlto-{{ i }}-{{ j }}"
+                              >M?TRICA TORNILLO</label
+                            >
                           </div>
                         </div>
-
-                        @if (mueble.tipoFabricacionMuebleAlto === "comercial") {
-                          <div class="col-md-6">
-                            <div class="form-floating">
-                              <input
-                                type="text"
-                                class="form-control"
-                                id="marcaAlto-{{ j }}"
-                                [(ngModel)]="mueble.marcaMuebleAlto"
-                                name="marcaMuebleAlto{{ i }}"
-                                placeholder="Marca"
-                              />
-                              <label for="marcaAlto-{{ j }}">MARCA</label>
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="form-floating">
-                              <input
-                                type="text"
-                                class="form-control"
-                                id="refAlto-{{ j }}"
-                                [(ngModel)]="mueble.referenciaMuebleAlto"
-                                name="referenciaMuebleAlto{{ i }}"
-                                placeholder="Ref"
-                              />
-                              <label for="refAlto-{{ j }}">REFERENCIA</label>
-                            </div>
-                          </div>
-                        }
                       </div>
                     </div>
                   }
@@ -18519,14 +18546,14 @@
                         class="btn btn-success btn-sm"
                         (click)="anadirMueble(mod, 'aseo')"
                       >
-                        <i class="bi bi-plus-lg me-1"></i> AÑADIR
+                        <i class="bi bi-plus-lg me-1"></i> A?ADIR
                       </button>
                       <button
                         type="button"
                         class="btn btn-outline-danger btn-sm ms-2"
                         (click)="borrarUltimoMueble(mod, 'aseo')"
                       >
-                        <i class="bi bi-trash me-1"></i> BORRAR ÚLTIMO
+                        <i class="bi bi-trash me-1"></i> BORRAR ?LTIMO
                       </button>
                     </div>
                   </div>
@@ -18538,22 +18565,6 @@
                         >#{{ j + 1 }}</span
                       >
                       <div class="row g-3">
-                        <div class="col-md-4">
-                          <div class="form-floating">
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="medidasAseo-{{ j }}"
-                              [(ngModel)]="aseo.medidas"
-                              name="medidasAseo{{ j }}"
-                              placeholder="Medidas"
-                              required
-                            />
-                            <label for="medidasAseo-{{ j }}"
-                              >MEDIDAS (200x200...)</label
-                            >
-                          </div>
-                        </div>
                         <div class="col-md-4">
                           <div class="form-floating">
                             <input
@@ -18572,6 +18583,25 @@
                             <input
                               type="text"
                               class="form-control"
+                              id="configuracionAseo-{{ j }}"
+                              [(ngModel)]="aseo.configuracionMuebleAseo"
+                              name="configuracionMuebleAseo{{ j }}"
+                              placeholder="Cajones, puertas, etc."
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !aseo.configuracionMuebleAseo
+                              "
+                            />
+                            <label for="configuracionAseo-{{ j }}"
+                              >CONFIGURACIÓN (CAJONES, PUERTAS, ETC.)</label
+                            >
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
                               id="tornillosAseo-{{ j }}"
                               [(ngModel)]="aseo.tornillosMuebleAseo"
                               name="tornillosMuebleAseo{{ j }}"
@@ -18579,6 +18609,34 @@
                             />
                             <label for="tornillosAseo-{{ j }}"
                               >CANTIDAD TORNILLOS</label
+                            >
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <select
+                              class="form-select"
+                              id="metricaTornillosMuebleAseo-{{ i }}-{{ j }}"
+                              [(ngModel)]="aseo.metricaTornillosMuebleAseo"
+                              name="metricaTornillosMuebleAseo{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                !aseo.metricaTornillosMuebleAseo
+                              "
+                            >
+                              <option [ngValue]="null" disabled>
+                                -- SELECCIONAR --
+                              </option>
+                              @for (t of tornillosDB; track t.diametro) {
+                                <option [ngValue]="t.diametro">
+                                  {{ t.diametro }} mm
+                                </option>
+                              }
+                            </select>
+                            <label
+                              for="metricaTornillosMuebleAseo-{{ i }}-{{ j }}"
+                              >M?TRICA TORNILLO</label
                             >
                           </div>
                         </div>
@@ -18591,11 +18649,11 @@
                               style="height: 100px"
                               [(ngModel)]="aseo.descripcion"
                               name="descripcionAseo{{ j }}"
-                              placeholder="Descripción"
+                              placeholder="Descripci?n"
                               required
                             ></textarea>
                             <label for="descripcionAseo-{{ j }}"
-                              >DESCRIPCIÓN INTERIOR</label
+                              >DESCRIPCI?N INTERIOR</label
                             >
                           </div>
                         </div>
@@ -18607,7 +18665,6 @@
             </section>
           </div>
         }
-
         <!-- CLARABOYA -->
         @if (mod.nombre === "CLARABOYA" && mod.seleccionado) {
           <div class="mb-3">
@@ -18620,86 +18677,412 @@
               </div>
 
               <div class="row g-3">
-                <div class="col-md-4">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Cantidad"
-                      [(ngModel)]="mod.cantidadClaraboya"
-                      name="cantidadClaraboya{{ i }}"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.cantidadClaraboya
-                      "
-                    />
-                    <label>CANTIDAD</label>
-                  </div>
-                </div>
-                <div class="col-md-8">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Homologación"
-                      [(ngModel)]="mod.homologacionClaraboya"
-                      name="homologacionClaraboya{{ i }}"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.homologacionClaraboya
-                      "
-                    />
-                    <label>CONTRASEÑA HOMOLOGACIÓN</label>
-                  </div>
+                <div
+                  class="col-12 d-flex justify-content-between align-items-center"
+                >
+                  <h6 class="text-uppercase text-muted small fw-bold mb-0">
+                    Claraboyas
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-success btn-sm"
+                    (click)="anadirClaraboya(mod)"
+                  >
+                    <i class="bi bi-plus-lg me-1"></i> AÑADIR CLARABOYA
+                  </button>
                 </div>
 
-                <div class="col-12"><hr class="mod-sep" /></div>
+                @if (!mod.claraboyas || mod.claraboyas.length === 0) {
+                  <div class="col-12">
+                    <div class="text-muted small fst-italic">
+                      No hay claraboyas añadidas.
+                    </div>
+                  </div>
+                }
 
-                <div class="col-md-6">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Marca"
-                      [(ngModel)]="mod.marcaClaraboya"
-                      name="marcaClaraboya{{ i }}"
-                      required
-                      [class.is-invalid]="formSubmitted && !mod.marcaClaraboya"
-                    />
-                    <label>MARCA</label>
+                @if (
+                  formSubmitted &&
+                  (!mod.claraboyas || mod.claraboyas.length === 0)
+                ) {
+                  <div class="col-12">
+                    <div class="text-danger small">
+                      Añade al menos una claraboya.
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Modelo"
-                      [(ngModel)]="mod.modeloClaraboya"
-                      name="modeloClaraboya{{ i }}"
-                      required
-                      [class.is-invalid]="formSubmitted && !mod.modeloClaraboya"
-                    />
-                    <label>MODELO</label>
-                  </div>
-                </div>
+                }
 
-                <div class="col-12">
-                  <div class="form-floating">
-                    <textarea
-                      class="form-control"
-                      style="height: 100px"
-                      placeholder="Descripción"
-                      [(ngModel)]="mod.descripcionClaraboya"
-                      name="descripcionClaraboya{{ i }}"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.descripcionClaraboya
-                      "
-                    ></textarea>
-                    <label>DESCRIPCIÓN TÉCNICA</label>
+                @for (
+                  claraboyaItem of mod.claraboyas;
+                  track $index;
+                  let j = $index
+                ) {
+                  <div class="col-12">
+                    <div class="p-3 border bg-light position-relative">
+                      <span
+                        class="position-absolute top-0 end-0 badge bg-secondary rounded-0 m-2"
+                        >#{{ j + 1 }}</span
+                      >
+                      <div class="row g-3 pt-4">
+                        <div class="col-12">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Homologación"
+                              [(ngModel)]="claraboyaItem.homologacion"
+                              name="homologacionClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !claraboyaItem.homologacion
+                              "
+                            />
+                            <label>CONTRASEÑA HOMOLOGACIÓN</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Marca"
+                              [(ngModel)]="claraboyaItem.marca"
+                              name="marcaClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !claraboyaItem.marca
+                              "
+                            />
+                            <label>MARCA</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Modelo"
+                              [(ngModel)]="claraboyaItem.modelo"
+                              name="modeloClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !claraboyaItem.modelo
+                              "
+                            />
+                            <label>MODELO</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Medidas"
+                              [(ngModel)]="claraboyaItem.medidas"
+                              (ngModelChange)="
+                                onDimensionesChange(
+                                  claraboyaItem,
+                                  'medidas',
+                                  'anchuraPiezaM',
+                                  'alturaPiezaM'
+                                )
+                              "
+                              name="medidasClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !claraboyaItem.medidas
+                              "
+                            />
+                            <label>MEDIDAS (mm)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
+                          <div class="form-floating">
+                            <textarea
+                              class="form-control"
+                              style="height: 100px"
+                              placeholder="Descripción"
+                              [(ngModel)]="claraboyaItem.descripcion"
+                              name="descripcionClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !claraboyaItem.descripcion
+                              "
+                            ></textarea>
+                            <label>DESCRIPCIÓN TÉCNICA</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12"><hr class="mod-sep" /></div>
+
+                        <div class="col-12">
+                          <h6
+                            class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-0"
+                          >
+                            CÃ¡lculo de Fijaciones
+                          </h6>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="Peso"
+                              [(ngModel)]="claraboyaItem.pesoPiezaKg"
+                              name="pesoClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && claraboyaItem.pesoPiezaKg == null
+                              "
+                            />
+                            <label>PESO (Kg)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <select
+                              class="form-select"
+                              [(ngModel)]="claraboyaItem.metrica"
+                              (ngModelChange)="
+                                onAerodynamicItemMetricaChange(claraboyaItem)
+                              "
+                              name="metricaClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && claraboyaItem.metrica == null
+                              "
+                            >
+                              <option [ngValue]="null" disabled>
+                                -- SELECCIONAR --
+                              </option>
+                              @for (num of metricasTornillos; track num) {
+                                <option [value]="num">{{ num }}</option>
+                              }
+                            </select>
+                            <label>MÃ‰TRICA TORNILLOS</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="NÂº"
+                              [(ngModel)]="claraboyaItem.nTornillos"
+                              name="nTornillosClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && claraboyaItem.nTornillos == null
+                              "
+                            />
+                            <label>NÂº TORNILLOS</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="R"
+                              [(ngModel)]="claraboyaItem.curvatura"
+                              name="curvaturaClaraboya{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && claraboyaItem.curvatura == null
+                              "
+                            />
+                            <label>RATIO CURVATURA</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.001"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho"
+                              [(ngModel)]="claraboyaItem.anchuraPiezaM"
+                              name="anchuraClaraboya{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted && claraboyaItem.anchuraPiezaM == null
+                              "
+                            />
+                            <label>ANCHO (m)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.001"
+                              min="0"
+                              class="form-control"
+                              placeholder="Alto"
+                              [(ngModel)]="claraboyaItem.alturaPiezaM"
+                              name="alturaClaraboya{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted && claraboyaItem.alturaPiezaM == null
+                              "
+                            />
+                            <label>ALTO (m)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.1"
+                              class="form-control"
+                              placeholder="Calidad"
+                              [(ngModel)]="claraboyaItem.calidadTornillo"
+                              name="calidadClaraboya{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                claraboyaItem.calidadTornillo == null
+                              "
+                            />
+                            <label>CALIDAD TORNILLO</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="As"
+                              [(ngModel)]="claraboyaItem.seccionResistenteAs"
+                              name="asClaraboya{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                claraboyaItem.seccionResistenteAs == null
+                              "
+                            />
+                            <label>As (SECCIÃ“N)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <select
+                              class="form-select"
+                              [(ngModel)]="
+                                claraboyaItem.resTraccionMinTornillo88Kgmm2
+                              "
+                              name="resistenciaClaraboya{{ i }}-{{ j }}"
+                              required
+                            >
+                              <option [ngValue]="null" disabled>
+                                -- SELECCIONAR --
+                              </option>
+                              <option [ngValue]="80">80</option>
+                              <option [ngValue]="25">25</option>
+                            </select>
+                            <label>RESISTENCIA TRACCIÃ“N MÃN. (Kg/mmÂ²)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="Cw"
+                              [(ngModel)]="claraboyaItem.cwCoefAerodinamico"
+                              name="cwClaraboya{{ i }}-{{ j }}"
+                              required
+                            />
+                            <label>Cw</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.0001"
+                              min="0"
+                              class="form-control"
+                              placeholder="p"
+                              [(ngModel)]="claraboyaItem.densidadAireKgM3"
+                              name="densidadClaraboya{{ i }}-{{ j }}"
+                              required
+                            />
+                            <label>p</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="V2"
+                              [(ngModel)]="claraboyaItem.velocidadAireV2ms"
+                              name="velocidadClaraboya{{ i }}-{{ j }}"
+                              required
+                            />
+                            <label>Vâ‚‚ (m/s)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="K"
+                              [(ngModel)]="claraboyaItem.coefSeguridadK"
+                              name="seguridadClaraboya{{ i }}-{{ j }}"
+                              required
+                            />
+                            <label>K</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12 text-end">
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            (click)="borrarClaraboya(mod, j)"
+                          >
+                            <i class="bi bi-trash me-1"></i> ELIMINAR CLARABOYA
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                }
               </div>
             </section>
           </div>
@@ -18716,102 +19099,147 @@
               </div>
 
               <div class="row g-3">
-                <div class="col-md-4">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Cantidad"
-                      [(ngModel)]="mod.cantidadVentanas"
-                      name="cantidadVentanas"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.cantidadVentanas
-                      "
-                    />
-                    <label>CANTIDAD</label>
-                  </div>
-                </div>
-                <div class="col-md-8">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Homologación"
-                      [(ngModel)]="mod.homologacionVentana"
-                      name="homologacionVentana"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.homologacionVentana
-                      "
-                    />
-                    <label>CONTRASEÑA HOMOLOGACIÓN</label>
-                  </div>
+                <div
+                  class="col-12 d-flex justify-content-between align-items-center"
+                >
+                  <h6 class="text-uppercase text-muted small fw-bold mb-0">
+                    Ventanas
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-success btn-sm"
+                    (click)="mod.ventanas.push({})"
+                  >
+                    <i class="bi bi-plus-lg me-1"></i> AÑADIR VENTANA
+                  </button>
                 </div>
 
-                <div class="col-12"><hr class="mod-sep" /></div>
+                @if (!mod.ventanas || mod.ventanas.length === 0) {
+                  <div class="col-12">
+                    <div class="text-muted small fst-italic">
+                      No hay ventanas añadidas.
+                    </div>
+                  </div>
+                }
 
-                <div class="col-md-4">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Marca"
-                      [(ngModel)]="mod.marcaVentana"
-                      name="marcaVentana"
-                      required
-                      [class.is-invalid]="formSubmitted && !mod.marcaVentana"
-                    />
-                    <label>MARCA</label>
+                @if (
+                  formSubmitted && (!mod.ventanas || mod.ventanas.length === 0)
+                ) {
+                  <div class="col-12">
+                    <div class="text-danger small">
+                      Añade al menos una ventana.
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Modelo"
-                      [(ngModel)]="mod.modeloVentana"
-                      name="modeloVentana"
-                      required
-                      [class.is-invalid]="formSubmitted && !mod.modeloVentana"
-                    />
-                    <label>MODELO</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Dimensiones"
-                      [(ngModel)]="mod.dimensionesVentana"
-                      name="dimensionesVentana"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.dimensionesVentana
-                      "
-                    />
-                    <label>DIMENSIONES</label>
-                  </div>
-                </div>
+                }
 
-                <div class="col-12">
-                  <div class="form-floating">
-                    <textarea
-                      class="form-control"
-                      style="height: 100px"
-                      placeholder="Descripción"
-                      [(ngModel)]="mod.descripcionVentana"
-                      name="descripcionVentana"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && !mod.descripcionVentana
-                      "
-                    ></textarea>
-                    <label>DESCRIPCIÓN TÉCNICA</label>
+                @for (
+                  ventanaItem of mod.ventanas;
+                  track $index;
+                  let j = $index
+                ) {
+                  <div class="col-12">
+                    <div class="p-3 border bg-light position-relative">
+                      <span
+                        class="position-absolute top-0 end-0 badge bg-secondary rounded-0 m-2"
+                        >#{{ j + 1 }}</span
+                      >
+                      <div class="row g-3 pt-4">
+                        <div class="col-12">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Homologación"
+                              [(ngModel)]="ventanaItem.homologacion"
+                              name="homologacionVentana{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !ventanaItem.homologacion
+                              "
+                            />
+                            <label>CONTRASEÑA HOMOLOGACIÓN</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Marca"
+                              [(ngModel)]="ventanaItem.marca"
+                              name="marcaVentana{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !ventanaItem.marca
+                              "
+                            />
+                            <label>MARCA</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Modelo"
+                              [(ngModel)]="ventanaItem.modelo"
+                              name="modeloVentana{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !ventanaItem.modelo
+                              "
+                            />
+                            <label>MODELO</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Dimensiones"
+                              [(ngModel)]="ventanaItem.dimensiones"
+                              name="dimensionesVentana{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !ventanaItem.dimensiones
+                              "
+                            />
+                            <label>DIMENSIONES</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
+                          <div class="form-floating">
+                            <textarea
+                              class="form-control"
+                              style="height: 100px"
+                              placeholder="Descripción"
+                              [(ngModel)]="ventanaItem.descripcion"
+                              name="descripcionVentana{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !ventanaItem.descripcion
+                              "
+                            ></textarea>
+                            <label>DESCRIPCIÓN TÉCNICA</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12 text-end">
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            (click)="mod.ventanas.splice(j, 1)"
+                          >
+                            <i class="bi bi-trash me-1"></i> ELIMINAR VENTANA
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                }
               </div>
             </section>
           </div>
@@ -18865,11 +19293,11 @@
           </div>
         }
         <!-- DEPÓSITO DE AGUA LIMPIA -->
-        @if (mod.nombre === "DEPÓSITO DE AGUA SUCIA" && mod.seleccionado) {
+        @if (mod.nombre === "DEPÓSITO DE AGUA LIMPIA" && mod.seleccionado) {
           <div class="mb-3">
-            <section class="mod-card deposito-agua-sucia">
+            <section class="mod-card deposito-agua-limpia">
               <div class="mod-card__header">
-                <h4 class="mod-card__title">Depósito de Agua Sucia</h4>
+                <h4 class="mod-card__title">Depósito de Agua Limpia</h4>
                 <span class="mod-card__hint"
                   >Capacidad y fijación del depósito</span
                 >
@@ -18883,12 +19311,32 @@
                       min="0"
                       class="form-control"
                       placeholder="Litros"
-                      [(ngModel)]="mod.litrosAguaSucia"
-                      name="litrosAguaSucia"
+                      [(ngModel)]="mod.litrosAguaLimpia"
+                      name="litrosAguaLimpia"
                       required
-                      [class.is-invalid]="formSubmitted && !mod.litrosAguaSucia"
+                      [class.is-invalid]="
+                        formSubmitted && !mod.litrosAguaLimpia
+                      "
                     />
                     <label>CANTIDAD (Litros)</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      min="0"
+                      class="form-control"
+                      placeholder="Litros"
+                      [(ngModel)]="mod.medidasAguaLimpia"
+                      name="medidasAguaLimpia"
+                      required
+                      [class.is-invalid]="
+                        formSubmitted && !mod.medidasAguaLimpia
+                      "
+                    />
+                    <label>MEDIDAS (mm)</label>
                   </div>
                 </div>
 
@@ -19233,7 +19681,7 @@
                     <button
                       type="button"
                       class="btn btn-success btn-sm"
-                      (click)="mod.placasSolares.push({})"
+                      (click)="anadirPlacaSolar(mod)"
                     >
                       <i class="bi bi-plus-lg me-1"></i> AÑADIR PLACA
                     </button>
@@ -19258,9 +19706,8 @@
                               placeholder="Marca"
                               [(ngModel)]="placa.marca"
                               name="placaMarca{{ i }}-{{ j }}"
-                              [class.is-invalid]="
-                                formSubmitted && !mod.ubicacionControlador
-                              "
+                              required
+                              [class.is-invalid]="formSubmitted && !placa.marca"
                             />
                             <label>MARCA</label>
                           </div>
@@ -19273,9 +19720,8 @@
                               placeholder="Modelo"
                               [(ngModel)]="placa.modelo"
                               name="placaModelo{{ i }}-{{ j }}"
-                              [class.is-invalid]="
-                                formSubmitted && !mod.ubicacionControlador
-                              "
+                              required
+                              [class.is-invalid]="formSubmitted && !placa.modelo"
                             />
                             <label>MODELO</label>
                           </div>
@@ -19288,9 +19734,8 @@
                               placeholder="Potencia"
                               [(ngModel)]="placa.potencia"
                               name="placaPotencia{{ i }}-{{ j }}"
-                              [class.is-invalid]="
-                                formSubmitted && !mod.ubicacionControlador
-                              "
+                              required
+                              [class.is-invalid]="formSubmitted && !placa.potencia"
                             />
                             <label>POTENCIA (W)</label>
                           </div>
@@ -19302,8 +19747,19 @@
                               class="form-control"
                               placeholder="Dimensiones"
                               [(ngModel)]="placa.dimensiones"
+                              (ngModelChange)="
+                                onDimensionesChange(
+                                  placa,
+                                  'dimensiones',
+                                  'anchuraPiezaM',
+                                  'alturaPiezaM'
+                                )
+                              "
                               name="placaDimensiones{{ i }}-{{ j }}"
                               required
+                              [class.is-invalid]="
+                                formSubmitted && !placa.dimensiones
+                              "
                             />
                             <label>DIMENSIONES (mm)</label>
                           </div>
@@ -19316,18 +19772,304 @@
                               placeholder="Ubicación"
                               [(ngModel)]="placa.ubicacion"
                               name="placaUbicacion{{ i }}-{{ j }}"
+                              required
                               [class.is-invalid]="
-                                formSubmitted && !mod.ubicacionControlador
+                                formSubmitted && !placa.ubicacion
                               "
                             />
                             <label>UBICACIÓN</label>
                           </div>
                         </div>
+
+                        <div class="col-12"><hr class="mod-sep" /></div>
+                        <div class="col-12">
+                          <h6
+                            class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-0"
+                          >
+                            Cálculo de Fijaciones
+                          </h6>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-check form-switch mt-2">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              [checked]="placa.agruparIguales"
+                              (change)="
+                                onPlacaAgrupacionChange(
+                                  placa,
+                                  $event.target.checked
+                                )
+                              "
+                              id="agruparPlaca{{ i }}-{{ j }}"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="agruparPlaca{{ i }}-{{ j }}"
+                            >
+                              Agrupar placas iguales en este bloque
+                            </label>
+                          </div>
+                        </div>
+
+                        @if (placa.agruparIguales) {
+                          <div class="col-md-3">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                min="2"
+                                class="form-control"
+                                placeholder="Cantidad"
+                                [(ngModel)]="placa.cantidad"
+                                name="cantidadPlaca{{ i }}-{{ j }}"
+                                required
+                                [class.is-invalid]="
+                                  formSubmitted && placa.cantidad == null
+                                "
+                              />
+                              <label>CANTIDAD IGUALES</label>
+                            </div>
+                          </div>
+                        }
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="Peso"
+                              [(ngModel)]="placa.pesoPiezaKg"
+                              name="pesoPlaca{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && placa.pesoPiezaKg == null
+                              "
+                            />
+                            <label>PESO UNITARIO (Kg)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <select
+                              class="form-select"
+                              [(ngModel)]="placa.metrica"
+                              (ngModelChange)="
+                                onAerodynamicItemMetricaChange(placa)
+                              "
+                              name="metricaPlaca{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && placa.metrica == null
+                              "
+                            >
+                              <option [ngValue]="null" disabled>
+                                -- SELECCIONAR --
+                              </option>
+                              @for (num of metricasTornillos; track num) {
+                                <option [value]="num">{{ num }}</option>
+                              }
+                            </select>
+                            <label>MÉTRICA TORNILLOS</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="N"
+                              [(ngModel)]="placa.nTornillos"
+                              name="nTornillosPlaca{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && placa.nTornillos == null
+                              "
+                            />
+                            <label>Nº TORNILLOS / PLACA</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="R"
+                              [(ngModel)]="placa.curvatura"
+                              name="curvaturaPlaca{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && placa.curvatura == null
+                              "
+                            />
+                            <label>RATIO CURVATURA</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.001"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho"
+                              [(ngModel)]="placa.anchuraPiezaM"
+                              name="anchuraPlaca{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted && placa.anchuraPiezaM == null
+                              "
+                            />
+                            <label>ANCHO (m)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.001"
+                              min="0"
+                              class="form-control"
+                              placeholder="Alto"
+                              [(ngModel)]="placa.alturaPiezaM"
+                              name="alturaPlaca{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted && placa.alturaPiezaM == null
+                              "
+                            />
+                            <label>ALTO (m)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.1"
+                              class="form-control"
+                              placeholder="Calidad"
+                              [(ngModel)]="placa.calidadTornillo"
+                              name="calidadPlaca{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted && placa.calidadTornillo == null
+                              "
+                            />
+                            <label>CALIDAD TORNILLO</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="As"
+                              [(ngModel)]="placa.seccionResistenteAs"
+                              name="asPlaca{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted && placa.seccionResistenteAs == null
+                              "
+                            />
+                            <label>As (SECCIÓN)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <select
+                              class="form-select"
+                              [(ngModel)]="placa.resTraccionMinTornillo88Kgmm2"
+                              name="resistenciaPlaca{{ i }}-{{ j }}"
+                              required
+                            >
+                              <option [ngValue]="null" disabled>
+                                -- SELECCIONAR --
+                              </option>
+                              <option [ngValue]="80">80</option>
+                              <option [ngValue]="25">25</option>
+                            </select>
+                            <label>RESISTENCIA TRACCIÓN MÍN. (Kg/mm²)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="Cw"
+                              [(ngModel)]="placa.cwCoefAerodinamico"
+                              name="cwPlaca{{ i }}-{{ j }}"
+                              required
+                            />
+                            <label>Cw</label>
+                          </div>
+                        </div>
+                        <div class="col-md-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.0001"
+                              min="0"
+                              class="form-control"
+                              placeholder="p"
+                              [(ngModel)]="placa.densidadAireKgM3"
+                              name="densidadPlaca{{ i }}-{{ j }}"
+                              required
+                            />
+                            <label>p</label>
+                          </div>
+                        </div>
+                        <div class="col-md-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="V2"
+                              [(ngModel)]="placa.velocidadAireV2ms"
+                              name="velocidadPlaca{{ i }}-{{ j }}"
+                              required
+                            />
+                            <label>V² (m/s)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="K"
+                              [(ngModel)]="placa.coefSeguridadK"
+                              name="seguridadPlaca{{ i }}-{{ j }}"
+                              required
+                            />
+                            <label>K</label>
+                          </div>
+                        </div>
+
                         <div class="col-12 text-end">
                           <button
                             type="button"
                             class="btn btn-outline-danger btn-sm"
-                            (click)="mod.placasSolares.splice(j, 1)"
+                            (click)="borrarPlacaSolar(mod, j)"
                           >
                             <i class="bi bi-trash me-1"></i> ELIMINAR PLACA
                           </button>
@@ -19408,7 +20150,7 @@
                           <label>MARCA</label>
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3">
                         <div class="form-floating">
                           <input
                             type="text"
@@ -19420,7 +20162,19 @@
                           <label>POTENCIA</label>
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3">
+                        <div class="form-floating">
+                          <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Contraseña homologación"
+                            [(ngModel)]="mod.homologacionInversor"
+                            name="homologacionInversor{{ i }}"
+                          />
+                          <label>CONTRASEÑA HOMOLOGACIÓN</label>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
                         <div class="form-floating">
                           <input
                             type="text"
@@ -19444,7 +20198,7 @@
                       Controlador de Carga
                     </h6>
                     <div class="row g-3">
-                      <div class="col-md-4">
+                      <div class="col-md-3">
                         <div class="form-floating">
                           <input
                             type="text"
@@ -19456,7 +20210,7 @@
                           <label>MARCA</label>
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3">
                         <div class="form-floating">
                           <input
                             type="text"
@@ -19468,7 +20222,19 @@
                           <label>MODELO</label>
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3">
+                        <div class="form-floating">
+                          <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Contraseña homologación"
+                            [(ngModel)]="mod.homologacionControlador"
+                            name="homologacionControlador{{ i }}"
+                          />
+                          <label>CONTRASEÑA HOMOLOGACIÓN</label>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
                         <div class="form-floating">
                           <input
                             type="text"
@@ -19538,6 +20304,14 @@
                       class="form-control"
                       placeholder="Medidas"
                       [(ngModel)]="mod.medidasToldo"
+                      (ngModelChange)="
+                        onDimensionesChange(
+                          mod,
+                          'medidasToldo',
+                          'anchuraPiezaMToldo',
+                          'alturaPiezaMToldo'
+                        )
+                      "
                       name="medidasToldo{{ i }}"
                       required
                       [class.is-invalid]="formSubmitted && !mod.medidasToldo"
@@ -19561,17 +20335,45 @@
                 </div>
 
                 <div class="col-12"><hr class="mod-sep" /></div>
+                <div class="col-12">
+                  <h6
+                    class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-0"
+                  >
+                    Cálculo de Fijaciones
+                  </h6>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="Peso"
+                      [(ngModel)]="mod.pesoPiezaKgToldo"
+                      name="pesoPiezaKgToldo{{ i }}"
+                      required
+                      [class.is-invalid]="
+                        formSubmitted && mod.pesoPiezaKgToldo == null
+                      "
+                    />
+                    <label>PESO (Kg)</label>
+                  </div>
+                </div>
 
-                <div class="col-md-6">
+                <div class="col-md-3">
                   <div class="form-floating">
                     <select
                       class="form-select"
-                      [(ngModel)]="mod.metrica"
-                      name="metrica{{ i }}"
+                      [(ngModel)]="mod.metricaToldo"
+                      (ngModelChange)="onMetricaChange(mod)"
+                      name="metricaToldo{{ i }}"
                       required
-                      [class.is-invalid]="formSubmitted && mod.metrica == null"
+                      [class.is-invalid]="
+                        formSubmitted && mod.metricaToldo == null
+                      "
                     >
-                      <option [value]="null" disabled selected>
+                      <option [ngValue]="null" disabled>
                         -- SELECCIONAR --
                       </option>
                       @for (num of metricasTornillos; track num) {
@@ -19581,19 +20383,193 @@
                     <label>MÉTRICA TORNILLOS</label>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                   <div class="form-floating">
                     <input
                       type="number"
                       min="0"
                       class="form-control"
                       placeholder="Nº"
-                      [(ngModel)]="mod.nTornillos"
-                      name="nTornillos{{ i }}"
+                      [(ngModel)]="mod.nTornillosToldo"
+                      name="nTornillosToldo{{ i }}"
                       required
-                      [class.is-invalid]="formSubmitted && !mod.nTornillos"
+                      [class.is-invalid]="
+                        formSubmitted && mod.nTornillosToldo == null
+                      "
                     />
                     <label>Nº TORNILLOS</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="R"
+                      [(ngModel)]="mod.curvaturaToldo"
+                      name="curvaturaToldo{{ i }}"
+                      required
+                      [class.is-invalid]="
+                        formSubmitted && mod.curvaturaToldo == null
+                      "
+                    />
+                    <label>RATIO CURVATURA</label>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0"
+                      class="form-control"
+                      placeholder="Ancho"
+                      [(ngModel)]="mod.anchuraPiezaMToldo"
+                      name="anchuraToldo{{ i }}"
+                      required
+                      readonly
+                      [class.is-invalid]="
+                        formSubmitted && mod.anchuraPiezaMToldo == null
+                      "
+                    />
+                    <label>ANCHO (m)</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0"
+                      class="form-control"
+                      placeholder="Alto"
+                      [(ngModel)]="mod.alturaPiezaMToldo"
+                      name="alturaToldo{{ i }}"
+                      required
+                      readonly
+                      [class.is-invalid]="
+                        formSubmitted && mod.alturaPiezaMToldo == null
+                      "
+                    />
+                    <label>ALTO (m)</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.1"
+                      class="form-control"
+                      placeholder="Calidad"
+                      [(ngModel)]="mod.calidadTornilloToldo"
+                      name="calidadToldo{{ i }}"
+                      required
+                      readonly
+                      [class.is-invalid]="
+                        formSubmitted && mod.calidadTornilloToldo == null
+                      "
+                    />
+                    <label>CALIDAD TORNILLO</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="As"
+                      [(ngModel)]="mod.seccionResistenteAsToldo"
+                      name="asToldo{{ i }}"
+                      required
+                      readonly
+                      [class.is-invalid]="
+                        formSubmitted && mod.seccionResistenteAsToldo == null
+                      "
+                    />
+                    <label>As (SECCIÓN)</label>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <select
+                      class="form-select"
+                      [(ngModel)]="mod.resTraccionMinTornillo88Kgmm2Toldo"
+                      name="resistenciaToldo{{ i }}"
+                      required
+                    >
+                      <option [ngValue]="null" disabled>
+                        -- SELECCIONAR --
+                      </option>
+                      <option [ngValue]="80">80</option>
+                      <option [ngValue]="25">25</option>
+                    </select>
+                    <label>RESISTENCIA TRACCIÓN MÍN. (Kg/mm²)</label>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="Cw"
+                      [(ngModel)]="mod.cwCoefAerodinamicoToldo"
+                      name="cwToldo{{ i }}"
+                      required
+                    />
+                    <label>Cw</label>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.0001"
+                      min="0"
+                      class="form-control"
+                      placeholder="p"
+                      [(ngModel)]="mod.densidadAireKgM3Toldo"
+                      name="densidadToldo{{ i }}"
+                      required
+                    />
+                    <label>p</label>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="V2"
+                      [(ngModel)]="mod.velocidadAireV2msToldo"
+                      name="velocidadToldo{{ i }}"
+                      required
+                    />
+                    <label>V² (m/s)</label>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="K"
+                      [(ngModel)]="mod.coefSeguridadKToldo"
+                      name="seguridadToldo{{ i }}"
+                      required
+                    />
+                    <label>K</label>
                   </div>
                 </div>
               </div>
@@ -19617,21 +20593,100 @@
                 <strong>NOTA TÉCNICA:</strong> Describa cualquier reforma no
                 existente en las opciones anteriores realizada en el vehículo
                 relevante para el presente proyecto. Esta información constará
-                en la documentación técnica final. <br /><br />En este campo de
-                texto se deberán utilizar saltos de línea para separar los
-                distintos puntos o apartados que se quieran incluir.<br /><br />
-                Cada línea deberá empezar siempre por "Instalación",
-                "Desmontaje" o "Sustitución", según corresponda.
+                en la documentación técnica final. <br /><br />Añada cada
+                reforma como un elemento independiente con el botón "AÑADIR
+                REFORMA". El campo de descripción mantiene el mismo
+                funcionamiento técnico que antes (puede incluir saltos de
+                línea).<br /><br />Cada línea de descripción deberá empezar por
+                "Instalación", "Desmontaje" o "Sustitución", según corresponda.
               </div>
 
-              <div class="mb-3">
-                <textarea
-                  class="form-control"
-                  [(ngModel)]="mod.reformasAdicionales"
-                  name="reformasAdicionales"
-                  rows="8"
-                  placeholder="// Escriba aquí los detalles técnicos introduciendo saltos de línea..."
-                ></textarea>
+              <div class="row g-3">
+                <div
+                  class="col-12 d-flex justify-content-between align-items-center"
+                >
+                  <h6 class="text-uppercase text-muted small fw-bold mb-0">
+                    Reformas adicionales
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-success btn-sm"
+                    (click)="anadirReformaAdicional(mod)"
+                  >
+                    <i class="bi bi-plus-lg me-1"></i> AÑADIR REFORMA
+                  </button>
+                </div>
+
+                @if (
+                  !mod.reformasAdicionalesItems ||
+                  mod.reformasAdicionalesItems.length === 0
+                ) {
+                  <div class="col-12">
+                    <div class="text-muted small fst-italic">
+                      No hay reformas adicionales añadidas.
+                    </div>
+                  </div>
+                }
+
+                @for (
+                  reforma of mod.reformasAdicionalesItems;
+                  track $index;
+                  let j = $index
+                ) {
+                  <div class="col-12">
+                    <div class="p-3 border bg-light position-relative">
+                      <span
+                        class="position-absolute top-0 end-0 badge bg-secondary rounded-0 m-2"
+                        >#{{ j + 1 }}</span
+                      >
+                      <div class="row g-3 pt-4">
+                        <div class="col-12">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Título"
+                              [(ngModel)]="reforma.titulo"
+                              name="reformaAdicionalTitulo{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !reforma.titulo
+                              "
+                            />
+                            <label>TÍTULO (CANVA / TABLA)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
+                          <div class="form-floating">
+                            <textarea
+                              class="form-control"
+                              style="height: 120px"
+                              placeholder="Descripción"
+                              [(ngModel)]="reforma.descripcion"
+                              name="reformaAdicionalDescripcion{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !reforma.descripcion
+                              "
+                            ></textarea>
+                            <label>DESCRIPCIÓN TÉCNICA</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12 text-end">
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            (click)="borrarReformaAdicional(mod, j)"
+                          >
+                            <i class="bi bi-trash me-1"></i> ELIMINAR REFORMA
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
             </section>
           </div>
@@ -19650,3 +20705,7 @@
     </div>
   </form>
 </div>
+
+
+
+
