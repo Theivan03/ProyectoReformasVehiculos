@@ -6141,43 +6141,6 @@
                   <div class="col-12">
                     <hr class="text-muted my-2" />
                   </div>
-
-                  <div class="col-12">
-                    <div class="form-check form-switch">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="mandosOriginales{{ i }}"
-                        [(ngModel)]="mod.mandosOriginales"
-                        name="mandosOriginales{{ i }}"
-                      />
-                      <label
-                        class="form-check-label"
-                        for="mandosOriginales{{ i }}"
-                      >
-                        Accionada desde los mandos originales
-                      </label>
-                    </div>
-
-                    @if (!mod.mandosOriginales) {
-                      <div class="form-floating mt-3">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Descripción accionamiento"
-                          [(ngModel)]="mod.descripcionAccionamiento"
-                          name="descripcionAccionamiento{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            !mod.mandosOriginales &&
-                            !mod.descripcionAccionamiento
-                          "
-                        />
-                        <label>DESCRIPCIÓN DEL ACCIONAMIENTO</label>
-                      </div>
-                    }
-                  </div>
                 </div>
               </div>
             </section>
@@ -6272,38 +6235,159 @@
 
                 <div class="col-12 col-md-8">
                   <div class="row g-3">
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Marcaje"
-                          [(ngModel)]="mod.marcajeIntermitentes"
-                          name="marcajeIntermitentes{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted && !mod.marcajeIntermitentes
-                          "
-                        />
-                        <label>MARCAJE</label>
+                    @if (mod.detalle?.interDelantero) {
+                      <div class="col-12">
+                        <div class="p-3 border bg-light">
+                          <h6
+                            class="text-uppercase text-muted fw-bold mb-3 small border-bottom pb-2"
+                          >
+                            Intermitentes delanteros
+                          </h6>
+                          <div class="row g-3">
+                            <div class="col-md-6">
+                              <div class="form-floating">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Marcaje"
+                                  [(ngModel)]="
+                                    mod.marcajesintermitenteDelantero
+                                  "
+                                  name="marcajesintermitenteDelantero{{ i }}"
+                                  required
+                                  [class.is-invalid]="
+                                    formSubmitted &&
+                                    !mod.marcajesintermitenteDelantero
+                                  "
+                                />
+                                <label>MARCAJE</label>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-floating">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Homologación"
+                                  [(ngModel)]="
+                                    mod.homologacionintermitenteDelantero
+                                  "
+                                  name="homologacionintermitenteDelantero{{
+                                    i
+                                  }}"
+                                  required
+                                  [class.is-invalid]="
+                                    formSubmitted &&
+                                    !mod.homologacionintermitenteDelantero
+                                  "
+                                />
+                                <label>CONTRASEÑA HOMOLOGACIÓN</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Homologación"
-                          [(ngModel)]="mod.homologacionIntermitentes"
-                          name="homologacionIntermitentes{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted && !mod.homologacionIntermitentes
-                          "
-                        />
-                        <label>CONTRASEÑA HOMOLOGACIÓN</label>
+                    }
+
+                    @if (mod.detalle?.interTrasero) {
+                      <div class="col-12">
+                        <div class="p-3 border bg-light">
+                          <h6
+                            class="text-uppercase text-muted fw-bold mb-3 small border-bottom pb-2"
+                          >
+                            Intermitentes traseros
+                          </h6>
+                          <div class="row g-3">
+                            <div class="col-md-6">
+                              <div class="form-floating">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Marcaje"
+                                  [(ngModel)]="mod.marcajesintermitenteTrasero"
+                                  name="marcajesintermitenteTrasero{{ i }}"
+                                  required
+                                  [class.is-invalid]="
+                                    formSubmitted &&
+                                    !mod.marcajesintermitenteTrasero
+                                  "
+                                />
+                                <label>MARCAJE</label>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-floating">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Homologación"
+                                  [(ngModel)]="
+                                    mod.homologacionintermitenteTrasero
+                                  "
+                                  name="homologacionintermitenteTrasero{{ i }}"
+                                  required
+                                  [class.is-invalid]="
+                                    formSubmitted &&
+                                    !mod.homologacionintermitenteTrasero
+                                  "
+                                />
+                                <label>CONTRASEÑA HOMOLOGACIÓN</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    }
+
+                    @if (mod.detalle?.interLateral) {
+                      <div class="col-12">
+                        <div class="p-3 border bg-light">
+                          <h6
+                            class="text-uppercase text-muted fw-bold mb-3 small border-bottom pb-2"
+                          >
+                            Intermitentes laterales
+                          </h6>
+                          <div class="row g-3">
+                            <div class="col-md-6">
+                              <div class="form-floating">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Marcaje"
+                                  [(ngModel)]="mod.marcajesintermitenteLateral"
+                                  name="marcajesintermitenteLateral{{ i }}"
+                                  required
+                                  [class.is-invalid]="
+                                    formSubmitted &&
+                                    !mod.marcajesintermitenteLateral
+                                  "
+                                />
+                                <label>MARCAJE</label>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-floating">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Homologación"
+                                  [(ngModel)]="
+                                    mod.homologacionintermitenteLateral
+                                  "
+                                  name="homologacionintermitenteLateral{{ i }}"
+                                  required
+                                  [class.is-invalid]="
+                                    formSubmitted &&
+                                    !mod.homologacionintermitenteLateral
+                                  "
+                                />
+                                <label>CONTRASEÑA HOMOLOGACIÓN</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    }
                   </div>
                 </div>
               </div>
@@ -18836,7 +18920,8 @@
                               name="pesoClaraboya{{ i }}-{{ j }}"
                               required
                               [class.is-invalid]="
-                                formSubmitted && claraboyaItem.pesoPiezaKg == null
+                                formSubmitted &&
+                                claraboyaItem.pesoPiezaKg == null
                               "
                             />
                             <label>PESO (Kg)</label>
@@ -18879,7 +18964,8 @@
                               name="nTornillosClaraboya{{ i }}-{{ j }}"
                               required
                               [class.is-invalid]="
-                                formSubmitted && claraboyaItem.nTornillos == null
+                                formSubmitted &&
+                                claraboyaItem.nTornillos == null
                               "
                             />
                             <label>NÂº TORNILLOS</label>
@@ -18918,7 +19004,8 @@
                               required
                               readonly
                               [class.is-invalid]="
-                                formSubmitted && claraboyaItem.anchuraPiezaM == null
+                                formSubmitted &&
+                                claraboyaItem.anchuraPiezaM == null
                               "
                             />
                             <label>ANCHO (m)</label>
@@ -18938,7 +19025,8 @@
                               required
                               readonly
                               [class.is-invalid]="
-                                formSubmitted && claraboyaItem.alturaPiezaM == null
+                                formSubmitted &&
+                                claraboyaItem.alturaPiezaM == null
                               "
                             />
                             <label>ALTO (m)</label>
@@ -19721,7 +19809,9 @@
                               [(ngModel)]="placa.modelo"
                               name="placaModelo{{ i }}-{{ j }}"
                               required
-                              [class.is-invalid]="formSubmitted && !placa.modelo"
+                              [class.is-invalid]="
+                                formSubmitted && !placa.modelo
+                              "
                             />
                             <label>MODELO</label>
                           </div>
@@ -19735,7 +19825,9 @@
                               [(ngModel)]="placa.potencia"
                               name="placaPotencia{{ i }}-{{ j }}"
                               required
-                              [class.is-invalid]="formSubmitted && !placa.potencia"
+                              [class.is-invalid]="
+                                formSubmitted && !placa.potencia
+                              "
                             />
                             <label>POTENCIA (W)</label>
                           </div>
@@ -19980,7 +20072,8 @@
                               required
                               readonly
                               [class.is-invalid]="
-                                formSubmitted && placa.seccionResistenteAs == null
+                                formSubmitted &&
+                                placa.seccionResistenteAs == null
                               "
                             />
                             <label>As (SECCIÓN)</label>
@@ -20705,7 +20798,3 @@
     </div>
   </form>
 </div>
-
-
-
-

@@ -2229,50 +2229,124 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   }
 
   //
-  // 30) INTERMITENTES
+  // 30) LUCES MATRÍCULA
   //
-  const intermitentes = modificaciones.find(
-    (m) => m.nombre === 'INTERMITENTES' && m.seleccionado,
+  const luzMatricula = modificaciones.find(
+    (m) => m.nombre === 'LUCES MATRÍCULA' && m.seleccionado,
   );
-  if (intermitentes) {
-    let posicion = ' ';
 
-    if (intermitentes.detalle?.interDelantero) {
-      posicion = `delanteros`;
-    } else if (intermitentes.detalle?.interTrasero) {
-      posicion = `traseros`;
-    } else if (intermitentes.detalle?.interLateral) {
-      posicion = `laterales`;
-    } else if (
-      intermitentes.detalle?.interLateral &&
-      intermitentes.detalle?.interTrasero
-    ) {
-      posicion = `laterales y traseros`;
-    } else if (
-      intermitentes.detalle?.interDelantero &&
-      intermitentes.detalle?.interTrasero
-    ) {
-      posicion = `delanteros y traseros`;
-    } else if (
-      intermitentes.detalle?.interLateral &&
-      intermitentes.detalle?.interDelantero
-    ) {
-      posicion = `laterales y delanteros`;
-    }
-
-    let raw = `- Sustitución de los intermitentes ${posicion} por otros con marcaje ${intermitentes.marcajeIntermitentes} y contraseña de homologación ${intermitentes.homologacionIntermitentes}, Los intermitentes delanteros originales quedan inhabilitados.`;
+  if (luzMatricula) {
+    const raw = `- Sustitución de luz de matrícula marca ${
+      luzMatricula.marcaLuz || ''
+    } con referencia ${luzMatricula.referenciaLuz || ''}, con sistema ${
+      luzMatricula.tecnologiaLuz || ''
+    } con marcaje ${luzMatricula.marcajeLuz || ''} y contraseña de homologación ${
+      luzMatricula.contrasenaHomologacion || ''
+    }.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
       indent: { left: 400 },
       children: [new TextRun({ text: raw })],
     });
+
     (p as any)._rawText = raw;
     out.push(p);
   }
 
   //
-  // 31) SUSTITUCIÓN DE EJES
+  // 31) INTERMITENTES
+  //
+  const intermitentes = modificaciones.find(
+    (m) => m.nombre === 'INTERMITENTES' && m.seleccionado,
+  );
+  if (intermitentes) {
+    const elementos = [
+      {
+        enabled: !!intermitentes.detalle?.interDelantero,
+        posicion: 'delanteros',
+        marcaje:
+          intermitentes.marcajesintermitenteDelantero ||
+          intermitentes.marcajeIntermitentes,
+        homologacion:
+          intermitentes.homologacionintermitenteDelantero ||
+          intermitentes.homologacionIntermitentes,
+        notaFinal:
+          ' Los intermitentes delanteros originales quedan inhabilitados.',
+      },
+      {
+        enabled: !!intermitentes.detalle?.interTrasero,
+        posicion: 'traseros',
+        marcaje:
+          intermitentes.marcajesintermitenteTrasero ||
+          intermitentes.marcajeIntermitentes,
+        homologacion:
+          intermitentes.homologacionintermitenteTrasero ||
+          intermitentes.homologacionIntermitentes,
+        notaFinal: '',
+      },
+      {
+        enabled: !!intermitentes.detalle?.interLateral,
+        posicion: 'laterales',
+        marcaje:
+          intermitentes.marcajesintermitenteLateral ||
+          intermitentes.marcajeIntermitentes,
+        homologacion:
+          intermitentes.homologacionintermitenteLateral ||
+          intermitentes.homologacionIntermitentes,
+        notaFinal: '',
+      },
+    ].filter((elemento) => elemento.enabled);
+
+    if (elementos.length === 0) {
+      elementos.push({
+        enabled: true,
+        posicion: '',
+        marcaje: intermitentes.marcajeIntermitentes,
+        homologacion: intermitentes.homologacionIntermitentes,
+        notaFinal: '',
+      });
+    }
+
+    const acciones =
+      Array.isArray(intermitentes.acciones) && intermitentes.acciones.length > 0
+        ? intermitentes.acciones
+        : ['Sustitución'];
+
+    acciones.forEach((accion: string) => {
+      elementos.forEach((elemento) => {
+        const posicionTexto = elemento.posicion ? ` ${elemento.posicion}` : '';
+        let texto = '';
+
+        if (accion === 'Instalación') {
+          texto = `- Instalación de intermitentes${posicionTexto} con marcaje ${
+            elemento.marcaje || ''
+          } y contraseña de homologación ${elemento.homologacion || ''}.${
+            elemento.notaFinal
+          }`;
+        } else if (accion === 'Desmontaje') {
+          texto = `- Desmontaje de los intermitentes${posicionTexto}.`;
+        } else {
+          texto = `- Sustitución de los intermitentes${posicionTexto} por otros con marcaje ${
+            elemento.marcaje || ''
+          } y contraseña de homologación ${elemento.homologacion || ''}.${
+            elemento.notaFinal
+          }`;
+        }
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: texto })],
+        });
+        (p as any)._rawText = texto;
+        out.push(p);
+      });
+    });
+  }
+
+  //
+  // 32) SUSTITUCIÓN DE EJES
   //
   const sustiejes = modificaciones.find(
     (m) => m.nombre === 'SUSTITUCIÓN DE EJES' && m.seleccionado,
@@ -3902,37 +3976,37 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
 
     if (Array.isArray(instalacionelectrica.placasSolares)) {
       instalacionelectrica.placasSolares.forEach((placa: any) => {
-          const cantidad =
-            placa?.agruparIguales && Number(placa?.cantidad) > 1
-              ? Math.trunc(Number(placa.cantidad))
-              : 1;
-          const sujeto =
-            cantidad > 1
-              ? `${cantidad} placas solares monocristalinas`
-              : 'Placa solar monocristalina';
-          const situacion = cantidad > 1 ? 'situadas' : 'situada';
+        const cantidad =
+          placa?.agruparIguales && Number(placa?.cantidad) > 1
+            ? Math.trunc(Number(placa.cantidad))
+            : 1;
+        const sujeto =
+          cantidad > 1
+            ? `${cantidad} placas solares monocristalinas`
+            : 'Placa solar monocristalina';
+        const situacion = cantidad > 1 ? 'situadas' : 'situada';
 
-          raw = `o Placa solar monocristalina marca ${
-            placa.marca || ''
-          } modelo ${placa.modelo || ''} de ${
-            placa.potencia || ''
-          }W de dimensiones ${placa.dimensiones || ''}mm situada en ${
-            placa.ubicacion || ''
-          } del vehículo.`;
+        raw = `o Placa solar monocristalina marca ${
+          placa.marca || ''
+        } modelo ${placa.modelo || ''} de ${
+          placa.potencia || ''
+        }W de dimensiones ${placa.dimensiones || ''}mm situada en ${
+          placa.ubicacion || ''
+        } del vehículo.`;
 
-          raw = `o ${sujeto} marca ${placa.marca || ''} modelo ${
-            placa.modelo || ''
-          } de ${placa.potencia || ''}W de dimensiones ${
-            placa.dimensiones || ''
-          }mm ${situacion} en ${placa.ubicacion || ''} del vehículo.`;
+        raw = `o ${sujeto} marca ${placa.marca || ''} modelo ${
+          placa.modelo || ''
+        } de ${placa.potencia || ''}W de dimensiones ${
+          placa.dimensiones || ''
+        }mm ${situacion} en ${placa.ubicacion || ''} del vehículo.`;
 
-          const pPlaca = new Paragraph({
-            spacing: { line: 260, after: 120 },
-            indent: { left: 600 },
-            children: [new TextRun({ text: raw })],
-          });
-          (pPlaca as any)._rawText = raw;
-          out.push(pPlaca);
+        const pPlaca = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 600 },
+          children: [new TextRun({ text: raw })],
+        });
+        (pPlaca as any)._rawText = raw;
+        out.push(pPlaca);
       });
     }
 
@@ -4267,7 +4341,8 @@ function isMobiliarioInteriorMod(mod: any, normalizedName: string): boolean {
 
 function isInstalacionElectricaMod(mod: any, normalizedName: string): boolean {
   return (
-    (normalizedName.includes('INSTALACI') && normalizedName.includes('CTRICA')) ||
+    (normalizedName.includes('INSTALACI') &&
+      normalizedName.includes('CTRICA')) ||
     Array.isArray(mod?.placasSolares) ||
     hasValue(mod?.cantidadBaterias) ||
     hasValue(mod?.potenciaBaterias) ||
@@ -4332,9 +4407,7 @@ function expandInstalacionElectrica(mod: any): string[] {
           : detalle
             ? `Placa solar ${i + 1} (${detalle})`
             : `Placa solar ${i + 1}`;
-      out.push(
-        label,
-      );
+      out.push(label);
     });
   }
 
@@ -4454,10 +4527,7 @@ function buildLabelsFromMods(data: any): string[] {
       continue;
     }
 
-    if (
-      mod?.seleccionado &&
-      isMobiliarioInteriorMod(mod, normalizedName)
-    ) {
+    if (mod?.seleccionado && isMobiliarioInteriorMod(mod, normalizedName)) {
       mod.mueblesBajo?.forEach((_: any, idx: number) =>
         labels.push(`Mueble bajo ${idx + 1}`),
       );
@@ -4476,10 +4546,7 @@ function buildLabelsFromMods(data: any): string[] {
       continue;
     }
 
-    if (
-      mod?.seleccionado &&
-      isInstalacionElectricaMod(mod, normalizedName)
-    ) {
+    if (mod?.seleccionado && isInstalacionElectricaMod(mod, normalizedName)) {
       const sublabels = expandInstalacionElectrica(mod);
       if (sublabels.length > 0) labels.push(...sublabels);
       continue;

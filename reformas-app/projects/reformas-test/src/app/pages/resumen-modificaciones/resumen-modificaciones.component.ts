@@ -243,6 +243,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         this.ensureInstalacionElectricaDefaults(m);
       }
 
+      if (m.nombre === 'INTERMITENTES') {
+        this.ensureIntermitentesDefaults(m);
+      }
+
       if (m.nombre === 'PELDAÑOS') {
         if (!m.metodoActuacionPeldanos) {
           m.metodoActuacionPeldanos = 'manual';
@@ -1221,6 +1225,50 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     mod.placasSolares = mod.placasSolares.map((item: any) =>
       this.createPlacaSolarItem(item),
+    );
+  }
+
+  private ensureIntermitentesDefaults(mod: any): void {
+    if (!mod) return;
+
+    if (!mod.detalle) {
+      mod.detalle = {
+        interDelantero: false,
+        interTrasero: false,
+        interLateral: false,
+      };
+    }
+
+    const syncLegacyFields = (
+      enabled: boolean,
+      marcajeKey: string,
+      homologacionKey: string,
+    ) => {
+      if (!enabled) return;
+
+      if (!mod[marcajeKey] && mod.marcajeIntermitentes) {
+        mod[marcajeKey] = mod.marcajeIntermitentes;
+      }
+
+      if (!mod[homologacionKey] && mod.homologacionIntermitentes) {
+        mod[homologacionKey] = mod.homologacionIntermitentes;
+      }
+    };
+
+    syncLegacyFields(
+      !!mod.detalle?.interDelantero,
+      'marcajesintermitenteDelantero',
+      'homologacionintermitenteDelantero',
+    );
+    syncLegacyFields(
+      !!mod.detalle?.interTrasero,
+      'marcajesintermitenteTrasero',
+      'homologacionintermitenteTrasero',
+    );
+    syncLegacyFields(
+      !!mod.detalle?.interLateral,
+      'marcajesintermitenteLateral',
+      'homologacionintermitenteLateral',
     );
   }
 

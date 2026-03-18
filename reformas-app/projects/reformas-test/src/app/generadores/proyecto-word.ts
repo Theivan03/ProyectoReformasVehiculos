@@ -1885,48 +1885,110 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 etiqueta: 'Peldaños',
                 key: 'radioCurvaRPeldanos',
               },
+              {
+                nombreMod: 'TOLDO',
+                etiqueta: 'Toldo',
+                key: 'curvaturaToldo',
+              },
             ];
 
-            const dataRows = elementos
-              .map(({ nombreMod, etiqueta, key, condition }) => {
-                const mod = modificaciones.find(
-                  (m) => m.nombre === nombreMod && m.seleccionado,
-                );
+            const buildCurvaturaRow = (
+              etiqueta: string,
+              valor: any,
+            ): TableRow | null => {
+              if (valor === undefined || valor === null || valor === '') {
+                return null;
+              }
 
-                if (!mod) return null;
-                if (condition && !condition(mod)) return null;
+              return new TableRow({
+                children: [
+                  new TableCell({
+                    verticalAlign: VerticalAlign.CENTER,
+                    margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun(etiqueta)],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: VerticalAlign.CENTER,
+                    margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun(String(valor))],
+                      }),
+                    ],
+                  }),
+                ],
+              });
+            };
 
-                const valor = (mod as any)[key];
+            const findSelectedMod = (nombreMod: string) =>
+              modificaciones.find(
+                (m) => m.nombre === nombreMod && m.seleccionado,
+              );
 
-                if (valor === undefined || valor === null || valor === '')
-                  return null;
+            const claraboyaMod = findSelectedMod('CLARABOYA');
+            const instalacionElectricaMod = findSelectedMod(
+              'INSTALACIÓN ELÉCTRICA',
+            );
 
-                return new TableRow({
-                  children: [
-                    new TableCell({
-                      verticalAlign: VerticalAlign.CENTER,
-                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
-                      children: [
-                        new Paragraph({
-                          alignment: AlignmentType.CENTER,
-                          children: [new TextRun(etiqueta)],
-                        }),
-                      ],
-                    }),
-                    new TableCell({
-                      verticalAlign: VerticalAlign.CENTER,
-                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
-                      children: [
-                        new Paragraph({
-                          alignment: AlignmentType.CENTER,
-                          children: [new TextRun(String(valor))],
-                        }),
-                      ],
-                    }),
-                  ],
-                });
+            const claraboyaRows = (
+              Array.isArray(claraboyaMod?.claraboyas)
+                ? claraboyaMod.claraboyas
+                : []
+            )
+              .map((item: any, index: number) =>
+                buildCurvaturaRow(
+                  item?.modelo
+                    ? `Claraboya ${item.modelo}`
+                    : `Claraboya ${index + 1}`,
+                  item?.curvatura,
+                ),
+              )
+              .filter((row): row is TableRow => row !== null);
+
+            const placasRows = (
+              Array.isArray(instalacionElectricaMod?.placasSolares)
+                ? instalacionElectricaMod.placasSolares
+                : []
+            )
+              .map((item: any, index: number) => {
+                const modelo = (item?.modelo ?? '').toString().trim();
+                const cantidad =
+                  item?.agruparIguales && Number(item?.cantidad) > 1
+                    ? Math.trunc(Number(item.cantidad))
+                    : 1;
+                const etiqueta =
+                  cantidad > 1
+                    ? modelo
+                      ? `${cantidad} placas solares ${modelo}`
+                      : `${cantidad} placas solares`
+                    : modelo
+                      ? `Placa solar ${modelo}`
+                      : `Placa solar ${index + 1}`;
+
+                return buildCurvaturaRow(etiqueta, item?.curvatura);
               })
               .filter((row): row is TableRow => row !== null);
+
+            const dataRows = [
+              ...elementos
+                .map(({ nombreMod, etiqueta, key, condition }) => {
+                  const mod = findSelectedMod(nombreMod);
+
+                  if (!mod) return null;
+                  if (condition && !condition(mod)) return null;
+
+                  return buildCurvaturaRow(etiqueta, (mod as any)[key]);
+                })
+                .filter((row): row is TableRow => row !== null),
+              ...claraboyaRows,
+              ...placasRows,
+            ];
 
             if (dataRows.length === 0) {
               return [];

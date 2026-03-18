@@ -150,6 +150,9 @@ export interface Modificacion {
   homologacionintermitenteTrasero?: string;
   curvaturaintermitenteTrasero?: number;
 
+  marcajesintermitenteLateral?: string;
+  homologacionintermitenteLateral?: string;
+
   mmtaTotalSuspension?: number;
   mmta1EjeSuspension?: number;
   mmta2EjeSuspension?: number;
@@ -191,6 +194,11 @@ export interface Modificacion {
   marcaLuzMarchaAtras?: string;
   marcajeLuzMarchaAtras?: string;
   contrasenaLuzMarchaAtras?: string;
+  marcaLuz?: string;
+  referenciaLuz?: string;
+  tecnologiaLuz?: string;
+  marcajeLuz?: string;
+  contrasenaHomologacion?: string;
 
   ubicacionAntiniebla?: 'delanteros' | 'traseros' | 'ambos';
   marcaAntinieblaDel?: string;

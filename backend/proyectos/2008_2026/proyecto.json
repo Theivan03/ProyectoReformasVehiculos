@@ -209,7 +209,7 @@
     },
     {
       "nombre": "CLARABOYA",
-      "seleccionado": true,
+      "seleccionado": false,
       "claraboyas": [
         {
           "marca": "5",
@@ -269,7 +269,7 @@
     },
     {
       "nombre": "INSTALACIÓN ELÉCTRICA",
-      "seleccionado": true,
+      "seleccionado": false,
       "anotacion": false,
       "placasSolares": [
         {
@@ -332,12 +332,21 @@
     },
     {
       "nombre": "INTERMITENTES",
-      "seleccionado": false,
+      "seleccionado": true,
       "detalle": {
-        "interDelantero": false,
-        "interTrasero": false,
-        "interLateral": false
-      }
+        "interDelantero": true,
+        "interTrasero": true,
+        "interLateral": true
+      },
+      "marcajesintermitenteDelantero": "5",
+      "homologacionintermitenteDelantero": "55",
+      "marcajesintermitenteTrasero": "5",
+      "homologacionintermitenteTrasero": "55",
+      "marcajesintermitenteLateral": "5",
+      "homologacionintermitenteLateral": "5",
+      "acciones": [
+        "Instalación"
+      ]
     },
     {
       "nombre": "LUCES DE LARGO ALCANCE",
@@ -345,7 +354,12 @@
     },
     {
       "nombre": "LUCES MATRÍCULA",
-      "seleccionado": false
+      "seleccionado": true,
+      "marcaLuz": "5",
+      "referenciaLuz": "5",
+      "tecnologiaLuz": "5",
+      "marcajeLuz": "5",
+      "contrasenaHomologacion": "5"
     },
     {
       "nombre": "LUZ DE CRUCE",
@@ -413,7 +427,7 @@
     },
     {
       "nombre": "TOLDO",
-      "seleccionado": true,
+      "seleccionado": false,
       "curvaturaToldo": 8,
       "cwCoefAerodinamicoToldo": 0.82,
       "densidadAireKgM3Toldo": 1.29,
@@ -588,10 +602,10 @@
   },
   "marcadores": [
     {
-      "x": 0.40751591859056996,
-      "y": 0.3927360201908668,
-      "label": "4",
-      "etiqueta": "Batería"
+      "x": 0.3562639165592406,
+      "y": 0.3801167284486158,
+      "label": "2",
+      "etiqueta": "LUCES MATRÍCULA"
     }
   ],
   "fechaFirma": "Teulada, 5 de marzo de 2026",
