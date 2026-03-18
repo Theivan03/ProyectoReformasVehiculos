@@ -482,52 +482,161 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 key: 'radioCurvaturaEscape',
                 condition: (m) => m.sobresaleEscape === true,
               },
+              {
+                nombreMod: 'ANTIEMPOTRAMIENTO',
+                etiqueta: 'Antiempotramiento',
+                key: 'radioCurvaRAntiempotramiento',
+              },
+              {
+                nombreMod: 'SOPORTES PARA LUCES DE USO ESPECÍFICO',
+                etiqueta: 'Soporte para luces de uso específico',
+                key: 'radioCurvaRLucesEspecificas',
+              },
+              {
+                nombreMod: 'ESTRIBOS LATERALES O TALONERAS',
+                etiqueta: 'Estribos laterales o taloneras',
+                key: 'radioCurvaREstribos',
+              },
+              {
+                nombreMod: 'DIFUSOR TRASERO',
+                etiqueta: 'Difusor trasero',
+                key: 'radioCurvaRDifusor',
+              },
+              {
+                nombreMod: 'LIP DELANTERO',
+                etiqueta: 'Lip delantero',
+                key: 'radioCurvaRLipDelantero',
+              },
+              {
+                nombreMod: 'MATRÍCULA Y PORTAMATRÍCULA',
+                etiqueta: 'Matrícula y portamatrícula',
+                key: 'radioCurvaRPortamatricula',
+              },
+              {
+                nombreMod: 'CALANDRA',
+                etiqueta: 'Calandra',
+                key: 'radioCurvaRCalandra',
+              },
+              {
+                nombreMod: 'PLANCHA CAPÓ',
+                etiqueta: 'Plancha de capó',
+                key: 'radioCurvaRPlanchaCapo',
+              },
+              {
+                nombreMod: 'REFUERZO PARAGOLPES',
+                etiqueta: 'Refuerzo paragolpes',
+                key: 'radioCurvaRRefuerzo',
+              },
+              {
+                nombreMod: 'PELDAÑOS',
+                etiqueta: 'Peldaños',
+                key: 'radioCurvaRPeldanos',
+              },
+              {
+                nombreMod: 'TOLDO',
+                etiqueta: 'Toldo',
+                key: 'curvaturaToldo',
+              },
             ];
 
-            // 2) Construcción de filas (Lógica del código 1 adaptada para ser dinámica)
-            const dataRows = elementos
-              .map(({ nombreMod, etiqueta, key, condition }) => {
-                const mod = modificaciones.find(
-                  (m) => m.nombre === nombreMod && m.seleccionado,
-                );
+            const buildCurvaturaRow = (
+              etiqueta: string,
+              valor: any,
+            ): TableRow | null => {
+              if (valor === undefined || valor === null || valor === '') {
+                return null;
+              }
 
-                // Si no existe la modificación o no cumple la condición extra, devolvemos null
-                if (!mod) return null;
-                if (condition && !condition(mod)) return null;
+              return new TableRow({
+                children: [
+                  new TableCell({
+                    verticalAlign: VerticalAlign.CENTER,
+                    margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun(etiqueta)],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    verticalAlign: VerticalAlign.CENTER,
+                    margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun(String(valor))],
+                      }),
+                    ],
+                  }),
+                ],
+              });
+            };
 
-                // Acceso seguro a la propiedad dinámicamente
-                const valor = (mod as any)[key];
+            const findSelectedMod = (nombreMod: string) =>
+              modificaciones.find(
+                (m) => m.nombre === nombreMod && m.seleccionado,
+              );
 
-                // Si el valor no es válido, ignoramos la fila
-                if (valor === undefined || valor === null || valor === '')
-                  return null;
+            const claraboyaMod = findSelectedMod('CLARABOYA');
+            const instalacionElectricaMod = findSelectedMod(
+              'INSTALACIÓN ELÉCTRICA',
+            );
 
-                return new TableRow({
-                  children: [
-                    new TableCell({
-                      verticalAlign: VerticalAlign.CENTER,
-                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
-                      children: [
-                        new Paragraph({
-                          alignment: AlignmentType.CENTER,
-                          children: [new TextRun(etiqueta)],
-                        }),
-                      ],
-                    }),
-                    new TableCell({
-                      verticalAlign: VerticalAlign.CENTER,
-                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
-                      children: [
-                        new Paragraph({
-                          alignment: AlignmentType.CENTER,
-                          children: [new TextRun(String(valor))],
-                        }),
-                      ],
-                    }),
-                  ],
-                });
+            const claraboyaRows = (
+              Array.isArray(claraboyaMod?.claraboyas)
+                ? claraboyaMod.claraboyas
+                : []
+            )
+              .map((item: any, index: number) =>
+                buildCurvaturaRow(
+                  item?.modelo
+                    ? `Claraboya ${item.modelo}`
+                    : `Claraboya ${index + 1}`,
+                  item?.curvatura,
+                ),
+              )
+              .filter((row): row is TableRow => row !== null);
+
+            const placasRows = (
+              Array.isArray(instalacionElectricaMod?.placasSolares)
+                ? instalacionElectricaMod.placasSolares
+                : []
+            )
+              .map((item: any, index: number) => {
+                const modelo = (item?.modelo ?? '').toString().trim();
+                const cantidad =
+                  item?.agruparIguales && Number(item?.cantidad) > 1
+                    ? Math.trunc(Number(item.cantidad))
+                    : 1;
+                const etiqueta =
+                  cantidad > 1
+                    ? modelo
+                      ? `${cantidad} placas solares ${modelo}`
+                      : `${cantidad} placas solares`
+                    : modelo
+                      ? `Placa solar ${modelo}`
+                      : `Placa solar ${index + 1}`;
+
+                return buildCurvaturaRow(etiqueta, item?.curvatura);
               })
-              .filter((row): row is TableRow => row !== null); // Eliminamos los nulls
+              .filter((row): row is TableRow => row !== null);
+
+            // 2) Construcción de filas (Lógica del código 1 adaptada para ser dinámica)
+            const dataRows = [
+              ...elementos
+                .map(({ nombreMod, etiqueta, key, condition }) => {
+                  const mod = findSelectedMod(nombreMod);
+
+                  if (!mod) return null;
+                  if (condition && !condition(mod)) return null;
+
+                  return buildCurvaturaRow(etiqueta, (mod as any)[key]);
+                })
+                .filter((row): row is TableRow => row !== null),
+              ...claraboyaRows,
+              ...placasRows,
+            ];
 
             // Si no hay filas, devolvemos array vacío (no se pinta tabla)
             if (dataRows.length === 0) {

@@ -352,6 +352,31 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       };
     }
 
+    if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && !Array.isArray(mod.placasSolares)) {
+      mod.placasSolares = [];
+    }
+
+    if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
+      if (!Array.isArray(mod.reformasAdicionalesItems)) {
+        mod.reformasAdicionalesItems = [];
+      }
+
+      if (
+        mod.reformasAdicionalesItems.length === 0 &&
+        typeof mod.reformasAdicionales === 'string' &&
+        mod.reformasAdicionales.trim()
+      ) {
+        mod.reformasAdicionalesItems = mod.reformasAdicionales
+          .split(/\r?\n/)
+          .map((line: string) => line.trim())
+          .filter((line: string) => line.length > 0)
+          .map((line: string) => ({
+            titulo: '',
+            descripcion: line,
+          }));
+      }
+    }
+
     return mod;
   }
 

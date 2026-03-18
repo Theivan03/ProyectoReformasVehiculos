@@ -185,7 +185,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     // --- AQUÍ EMPIEZA LA INICIALIZACIÓN DE VARIABLES ---
     this.modificacionesSeleccionadas.forEach((m) => {
-      // 1. Lógica existente de Mobiliario
+      // 1. L?gica existente de Mobiliario
       if (m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO') {
         if (m.diametroTornilloSeleccionado === undefined) {
           m.diametroTornilloSeleccionado = null;
@@ -193,13 +193,120 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (m.areaResistenteTornilloSeleccionado === undefined) {
           m.areaResistenteTornilloSeleccionado = null;
         }
+
+        if (Array.isArray(m.mueblesBajo)) {
+          m.mueblesBajo.forEach((mueble: any) => {
+            if (mueble?.metricaTornillosMuebleBajo === undefined) {
+              mueble.metricaTornillosMuebleBajo = null;
+            }
+            if (mueble?.configuracionMuebleBajo === undefined) {
+              mueble.configuracionMuebleBajo = '';
+            }
+            if (
+              !mueble.configuracionMuebleBajo &&
+              mueble?.cajones !== undefined &&
+              mueble?.cajones !== null &&
+              mueble?.cajones !== ''
+            ) {
+              mueble.configuracionMuebleBajo = `${mueble.cajones} cajones`;
+            }
+          });
+        }
+
+        if (Array.isArray(m.mueblesAlto)) {
+          m.mueblesAlto.forEach((mueble: any) => {
+            if (mueble?.metricaTornillosMuebleAlto === undefined) {
+              mueble.metricaTornillosMuebleAlto = null;
+            }
+            if (mueble?.configuracionMuebleAlto === undefined) {
+              mueble.configuracionMuebleAlto = '';
+            }
+          });
+        }
+
+        if (Array.isArray(m.mueblesAseo)) {
+          m.mueblesAseo.forEach((mueble: any) => {
+            if (mueble?.metricaTornillosMuebleAseo === undefined) {
+              mueble.metricaTornillosMuebleAseo = null;
+            }
+            if (mueble?.configuracionMuebleAseo === undefined) {
+              mueble.configuracionMuebleAseo = '';
+            }
+          });
+        }
+
         this.onDiametroTornilloChange(m);
       }
 
-      // 2. Lógica existente de Instalación Eléctrica
+      // 2. L?gica existente de Instalaci?n El?ctrica
       if (m.nombre === 'INSTALACIÓN ELÉCTRICA') {
-        if (!Array.isArray(m.placasSolares)) {
-          m.placasSolares = [];
+        this.ensureInstalacionElectricaDefaults(m);
+      }
+
+      if (m.nombre === 'INTERMITENTES') {
+        this.ensureIntermitentesDefaults(m);
+      }
+
+      if (m.nombre === 'PELDAÑOS') {
+        if (!m.metodoActuacionPeldanos) {
+          m.metodoActuacionPeldanos = 'manual';
+        }
+        if (m.ubicacionAccionamientoPeldanos === undefined) {
+          m.ubicacionAccionamientoPeldanos = '';
+        }
+        if (m.referenciaPeldanos === undefined) {
+          m.referenciaPeldanos = '';
+        }
+      }
+
+      if (m.nombre === 'CLARABOYA') {
+        this.ensureClaraboyaDefaults(m);
+      }
+
+      if (m.nombre === 'VENTANA') {
+        if (!Array.isArray(m.ventanas)) {
+          m.ventanas = [];
+        }
+
+        if (m.ventanas.length === 0) {
+          const hasLegacy =
+            m.descripcionVentana ||
+            m.marcaVentana ||
+            m.modeloVentana ||
+            m.dimensionesVentana ||
+            m.homologacionVentana ||
+            m.cantidadVentanas;
+
+          if (hasLegacy) {
+            m.ventanas.push({
+              descripcion: m.descripcionVentana ?? '',
+              marca: m.marcaVentana ?? '',
+              modelo: m.modeloVentana ?? '',
+              dimensiones: m.dimensionesVentana ?? '',
+              homologacion: m.homologacionVentana ?? '',
+            });
+          }
+        }
+      }
+
+      if (m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
+        if (!Array.isArray(m.reformasAdicionalesItems)) {
+          m.reformasAdicionalesItems = [];
+        }
+
+        if (
+          m.reformasAdicionalesItems.length === 0 &&
+          typeof m.reformasAdicionales === 'string' &&
+          m.reformasAdicionales.trim()
+        ) {
+          m.reformasAdicionalesItems = m.reformasAdicionales
+            .split(/\r?\n/)
+            .map((line: string) => line.trim())
+            .filter((line: string) => line.length > 0)
+            .map((line: string, index: number) => ({
+              titulo: `Reforma adicional ${index + 1}`,
+              descripcion: line,
+            }));
         }
       }
 
@@ -208,39 +315,193 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
 
       if (m.nombre === 'DIFUSOR TRASERO') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
         if (m.radioCurvaRDifusor == null) {
           m.radioCurvaRDifusor = 8;
         }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
       }
       if (m.nombre === 'LIP DELANTERO') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
         if (m.radioCurvaRDifusor == null) {
           m.radioCurvaRLipDelantero = 8;
         }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
       }
       if (m.nombre === 'MATRÍCULA Y PORTAMATRÍCULA') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
         if (m.radioCurvaRPortamatricula == null) {
           m.radioCurvaRPortamatricula = 8;
         }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
       }
       if (m.nombre === 'PELDAÑOS') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
         if (m.radioCurvaRPeldanos == null) {
           m.radioCurvaRPeldanos = 8;
         }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
       }
       if (m.nombre === 'CALANDRA') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
         if (m.radioCurvaRCalandra == null) {
           m.radioCurvaRCalandra = 8;
         }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
       }
       if (m.nombre === 'PLANCHA CAPÓ') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
         if (m.radioCurvaRPlanchaCapo == null) {
           m.radioCurvaRPlanchaCapo = 8;
         }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
       }
       if (m.nombre === 'REFUERZO PARAGOLPES') {
+        // if (m.velocidadAireV2msAletines == null) {
+        //   m.velocidadAireV2msAletines = 38.89;
+        // }
+        // if (m.densidadAireKgM3Aletines == null) {
+        //   m.densidadAireKgM3Aletines = 1.29;
+        // }
+        // if (m.radioCurvaRAletines == null) {
+        //   m.radioCurvaRAletines = 8;
+        // }
         if (m.radioCurvaRRefuerzo == null) {
           m.radioCurvaRRefuerzo = 8;
         }
+        // if (m.coefSeguridadKAletines == null) {
+        //   m.coefSeguridadKAletines = 3;
+        // }
+        // if (m.coefAerodinamicoCwAletines == null) {
+        //   m.coefAerodinamicoCwAletines = 0.82;
+        // }
+        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
+        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
+        // }
+        // if (m.seccionResistenteAsAletines == null) {
+        //   m.seccionResistenteAsAletines =
+        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
+        // }
       }
       if (m.nombre === 'ALETINES Y SOBREALETINES') {
         if (m.velocidadAireV2msAletines == null) {
@@ -270,31 +531,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         if (m.seccionResistenteAsAletines == null) {
           m.seccionResistenteAsAletines =
             this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        }
-        if (m.velocidadAireV2msSobrealetines == null) {
-          m.velocidadAireV2msSobrealetines = 38.89;
-        }
-        if (m.densidadAireKgM3Sobrealetines == null) {
-          m.densidadAireKgM3Sobrealetines = 1.29;
-        }
-        if (m.radioCurvaRSobrealetines == null) {
-          m.radioCurvaRSobrealetines = 8;
-        }
-        if (m.coefSeguridadKSobrealetines == null) {
-          m.coefSeguridadKSobrealetines = 3;
-        }
-        if (m.coefAerodinamicoCwSobrealetines == null) {
-          m.coefAerodinamicoCwSobrealetines = 0.82;
-        }
-        if (m.resTraccionMinTornillo88Kgmm2Sobrealetines == null) {
-          m.resTraccionMinTornillo88Kgmm2Sobrealetines = 80;
-        }
-        if (m.superficieFrontalM2Sobrealetines == null) {
-          m.superficieFrontalM2Sobrealetines = 0;
-        }
-        if (m.seccionResistenteAsSobrealetines == null) {
-          m.seccionResistenteAsSobrealetines =
-            this.getAreaResistenteByMetrica(m.metricaSobrealetines) ?? 36.64;
         }
         if (!m.detalle) {
           m.detalle = { aletines: false, sobrealetines: false };
@@ -360,7 +596,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           m.detalle = { aletines: false, sobrealetines: false };
         }
       }
-
       if (m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO') {
         if (m.calidadTornilloLucesEspecificas == null) {
           m.calidadTornilloLucesEspecificas = 8.8;
@@ -501,175 +736,12 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         }
       }
 
-      if (m.nombre === 'PROTECTORES PARAGOLPES') {
-        if (!m.cwProtectorDelantero) m.cwProtectorDelantero = 0.82;
-        if (!m.velocidadAireV2msProtectorDelantero)
-          m.velocidadAireV2msProtectorDelantero = 38.89;
-        if (!m.densidadAireKgM3ProtectorDelantero)
-          m.densidadAireKgM3ProtectorDelantero = 1.29;
-        if (!m.kProtectorDelantero) m.kProtectorDelantero = 3;
-        if (m.curvaturaProtectorDelantero == null) {
-          m.curvaturaProtectorDelantero = 8;
-        }
-        if (!m.calidadProtectorDelantero) m.calidadProtectorDelantero = 8.8;
-        if (!m.resTraccionMinTornillo88Kgmm2ProtectorDelantero)
-          m.resTraccionMinTornillo88Kgmm2ProtectorDelantero = 80;
-        if (!m.metricaProtectorDelantero) m.metricaProtectorDelantero = 4;
-        if (!m.seccionResistenteAsProtectorDelantero) {
-          m.seccionResistenteAsProtectorDelantero =
-            this.getAreaResistenteByMetrica(m.metricaProtectorDelantero) ??
-            11.33;
-        }
-
-        if (!m.cwProtectorTrasero) m.cwProtectorTrasero = 0.82;
-        if (!m.velocidadAireV2msProtectorTrasero)
-          m.velocidadAireV2msProtectorTrasero = 38.89;
-        if (!m.densidadAireKgM3ProtectorTrasero)
-          m.densidadAireKgM3ProtectorTrasero = 1.29;
-        if (!m.kProtectorTrasero) m.kProtectorTrasero = 3;
-        if (m.curvaturaProtectorTrasero == null) {
-          m.curvaturaProtectorTrasero = 8;
-        }
-        if (!m.calidadProtectorTrasero) m.calidadProtectorTrasero = 8.8;
-        if (!m.resTraccionMinTornillo88Kgmm2ProtectorTrasero)
-          m.resTraccionMinTornillo88Kgmm2ProtectorTrasero = 80;
-        if (!m.metricaProtectorTrasero) m.metricaProtectorTrasero = 4;
-        if (!m.seccionResistenteAsProtectorTrasero) {
-          m.seccionResistenteAsProtectorTrasero =
-            this.getAreaResistenteByMetrica(m.metricaProtectorTrasero) ?? 11.33;
-        }
-      }
-
-      if (m.nombre === 'DEFENSA DELANTERA') {
-        if (!m.coefAerodinamicoCwDefensa) m.coefAerodinamicoCwDefensa = 0.82;
-        if (!m.velocidadAireV2msDefensa) m.velocidadAireV2msDefensa = 38.89;
-        if (!m.densidadAireKgM3Defensa) m.densidadAireKgM3Defensa = 1.29;
-        if (!m.coefSeguridadKDefensa) m.coefSeguridadKDefensa = 3;
-        if (m.curvaturaDefensaDelantera == null) {
-          m.curvaturaDefensaDelantera = 8;
-        }
-        if (m.superficieFrontalM2Defensa == null) {
-          m.superficieFrontalM2Defensa = 0;
-        }
-        if (!m.calidadTornilloDefensa) m.calidadTornilloDefensa = 8.8;
-        if (!m.resTraccionMinTornillo88Kgmm2Defensa)
-          m.resTraccionMinTornillo88Kgmm2Defensa = 80;
-        if (!m.metricaDefensa) m.metricaDefensa = 4;
-        if (!m.seccionResistenteAsDefensa) {
-          m.seccionResistenteAsDefensa =
-            this.getAreaResistenteByMetrica(m.metricaDefensa) ?? 11.33;
-        }
-      }
-
-      if (m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO') {
-        if (!m.coefAerodinamicoCwSoporteRueda)
-          m.coefAerodinamicoCwSoporteRueda = 0.82;
-        if (!m.velocidadAireV2msSoporteRueda)
-          m.velocidadAireV2msSoporteRueda = 38.89;
-        if (!m.densidadAireKgM3SoporteRueda)
-          m.densidadAireKgM3SoporteRueda = 1.29;
-        if (!m.coefSeguridadKSoporteRueda) m.coefSeguridadKSoporteRueda = 3;
-        if (m.curvaturaSoporteRueda == null) {
-          m.curvaturaSoporteRueda = 8;
-        }
-        if (m.superficieFrontalM2SoporteRueda == null) {
-          m.superficieFrontalM2SoporteRueda = 0;
-        }
-        if (!m.calidadTornilloSoporteRueda) m.calidadTornilloSoporteRueda = 8.8;
-        if (!m.resTraccionMinTornillo88Kgmm2SoporteRueda)
-          m.resTraccionMinTornillo88Kgmm2SoporteRueda = 80;
-        if (!m.metricaSoporteRueda) m.metricaSoporteRueda = 4;
-        if (!m.seccionResistenteAsSoporteRueda) {
-          m.seccionResistenteAsSoporteRueda =
-            this.getAreaResistenteByMetrica(m.metricaSoporteRueda) ?? 11.33;
-        }
-      }
-
-      if (m.nombre === 'LIP DELANTERO') {
-        if (!m.coefAerodinamicoCwLipDelantero)
-          m.coefAerodinamicoCwLipDelantero = 0.82;
-        if (!m.velocidadAireV2msLipDelantero)
-          m.velocidadAireV2msLipDelantero = 38.89;
-        if (!m.densidadAireKgM3LipDelantero)
-          m.densidadAireKgM3LipDelantero = 1.29;
-        if (!m.coefSeguridadKLipDelantero) m.coefSeguridadKLipDelantero = 3;
-        if (m.radioCurvaRLipDelantero == null) {
-          m.radioCurvaRLipDelantero = 8;
-        }
-        if (m.superficieFrontalM2LipDelantero == null) {
-          m.superficieFrontalM2LipDelantero = 0;
-        }
-        if (!m.calidadTornilloLipDelantero) m.calidadTornilloLipDelantero = 8.8;
-        if (!m.resTraccionMinTornillo88Kgmm2LipDelantero)
-          m.resTraccionMinTornillo88Kgmm2LipDelantero = 80;
-        if (!m.metricaLipDelantero) m.metricaLipDelantero = 4;
-        if (!m.seccionResistenteAsLipDelantero) {
-          m.seccionResistenteAsLipDelantero =
-            this.getAreaResistenteByMetrica(m.metricaLipDelantero) ?? 11.33;
-        }
-      }
-
-      if (m.nombre === 'DIFUSOR TRASERO') {
-        if (!m.coefAerodinamicoCwDifusor) m.coefAerodinamicoCwDifusor = 0.82;
-        if (!m.velocidadAireV2msDifusor) m.velocidadAireV2msDifusor = 38.89;
-        if (!m.densidadAireKgM3Difusor) m.densidadAireKgM3Difusor = 1.29;
-        if (!m.coefSeguridadKDifusor) m.coefSeguridadKDifusor = 3;
-        if (m.radioCurvaRDifusor == null) {
-          m.radioCurvaRDifusor = 8;
-        }
-        if (m.superficieFrontalM2Difusor == null) {
-          m.superficieFrontalM2Difusor = 0;
-        }
-        if (!m.calidadTornilloDifusor) m.calidadTornilloDifusor = 8.8;
-        if (!m.resTraccionMinTornillo88Kgmm2Difusor)
-          m.resTraccionMinTornillo88Kgmm2Difusor = 80;
-        if (!m.metricaDifusor) m.metricaDifusor = 4;
-        if (!m.seccionResistenteAsDifusor) {
-          m.seccionResistenteAsDifusor =
-            this.getAreaResistenteByMetrica(m.metricaDifusor) ?? 11.33;
-        }
-      }
-
-      if (m.nombre === 'PELDAÑOS') {
-        if (!m.coefAerodinamicoCwPeldanos) m.coefAerodinamicoCwPeldanos = 0.82;
-        if (!m.velocidadAireV2msPeldanos) m.velocidadAireV2msPeldanos = 38.89;
-        if (!m.densidadAireKgM3Peldanos) m.densidadAireKgM3Peldanos = 1.29;
-        if (!m.coefSeguridadKPeldanos) m.coefSeguridadKPeldanos = 3;
-        if (m.radioCurvaRPeldanos == null) {
-          m.radioCurvaRPeldanos = 8;
-        }
-        if (m.superficieFrontalM2Peldanos == null) {
-          m.superficieFrontalM2Peldanos = 0;
-        }
-        if (!m.calidadTornilloPeldanos) m.calidadTornilloPeldanos = 8.8;
-        if (!m.resTraccionMinTornillo88Kgmm2Peldanos)
-          m.resTraccionMinTornillo88Kgmm2Peldanos = 80;
-        if (!m.metricaPeldanos) m.metricaPeldanos = 4;
-        if (!m.seccionResistenteAsPeldanos) {
-          m.seccionResistenteAsPeldanos =
-            this.getAreaResistenteByMetrica(m.metricaPeldanos) ?? 11.33;
-        }
-      }
-      if (m.nombre === 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO') {
-        if (!m.referenciaBarraTraccion)
-          m.referenciaBarraTraccion = 'Sin referencia';
-        if (!m.tipoFabricacionBarraTraccion)
-          m.tipoFabricacionBarraTraccion = 'Artesanal en hierro';
-        if (!m.calidadTornilloBarraTraccion)
-          m.calidadTornilloBarraTraccion = 8.8;
-        if (!m.resTraccionMinTornillo88Kgmm2BarraTraccion)
-          m.resTraccionMinTornillo88Kgmm2BarraTraccion = 80;
-        if (!m.metricasTornillosBarraTraccion)
-          m.metricasTornillosBarraTraccion = 4;
-        if (!m.seccionResistenteAsBarraTraccion) {
-          m.seccionResistenteAsBarraTraccion =
-            this.getAreaResistenteByMetrica(m.metricasTornillosBarraTraccion) ??
-            11.33;
-        }
-      }
-
       if (m.nombre === 'SNORKEL') {
         this.ensureSnorkelDefaults(m);
+      }
+
+      if (m.nombre === 'TOLDO') {
+        this.ensureToldoDefaults(m);
       }
 
       if (m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO') {
@@ -756,131 +828,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
   }
 
-  calcularSuperficieSoporteRueda(mod: any) {
-    if (!mod.medidasSoporteRueda) {
-      return;
-    }
-
-    const valorLimpio = mod.medidasSoporteRueda
-      .toString()
-      .toLowerCase()
-      .replace(/mm/g, '')
-      .replace(/\s/g, '');
-
-    if (valorLimpio.includes('x')) {
-      const partes = valorLimpio.split('x');
-      const largo = parseFloat(partes[0]);
-      const ancho = parseFloat(partes[1]);
-
-      if (!isNaN(largo) && !isNaN(ancho)) {
-        const areaM2 = (largo * ancho) / 1000000;
-        mod.superficieFrontalM2SoporteRueda = parseFloat(areaM2.toFixed(4));
-      }
-    }
-  }
-
-  calcularSuperficieLipDelantero(mod: any) {
-    if (!mod.medidasLipDelantero) {
-      return;
-    }
-
-    const valorLimpio = mod.medidasLipDelantero
-      .toString()
-      .toLowerCase()
-      .replace(/mm/g, '')
-      .replace(/\s/g, '');
-
-    if (valorLimpio.includes('x')) {
-      const partes = valorLimpio.split('x');
-      const largo = parseFloat(partes[0]);
-      const ancho = parseFloat(partes[1]);
-
-      if (!isNaN(largo) && !isNaN(ancho)) {
-        const areaM2 = (largo * ancho) / 1000000;
-        mod.superficieFrontalM2LipDelantero = parseFloat(areaM2.toFixed(4));
-      }
-    }
-  }
-
-  calcularSuperficieProtector(
-    mod: any,
-    posicion: 'delantero' | 'trasero',
-  ): void {
-    if (posicion === 'delantero') {
-      if (mod.largoProtectorDelantero && mod.altoProtectorDelantero) {
-        mod.superficieProtectorDelantero =
-          (mod.largoProtectorDelantero * mod.altoProtectorDelantero) / 1000000;
-      } else {
-        mod.superficieProtectorDelantero = 0;
-      }
-    } else if (posicion === 'trasero') {
-      if (mod.largoProtectorTrasero && mod.altoProtectorTrasero) {
-        mod.superficieProtectorTrasero =
-          (mod.largoProtectorTrasero * mod.altoProtectorTrasero) / 1000000;
-      } else {
-        mod.superficieProtectorTrasero = 0;
-      }
-    }
-  }
-
-  calcularSuperficieDifusor(mod: any): void {
-    if (mod.largoDifusor != null && mod.altoDifusor != null) {
-      const largoMetros = Number(mod.largoDifusor) / 1000;
-      const altoMetros = Number(mod.altoDifusor) / 1000;
-      mod.superficieFrontalM2Difusor = Number(
-        (largoMetros * altoMetros).toFixed(4),
-      );
-    } else {
-      mod.superficieFrontalM2Difusor = null;
-    }
-  }
-
-  calcularSuperficieDefensa(mod: any) {
-    if (!mod.medidasDefensa) {
-      return;
-    }
-
-    const valorLimpio = mod.medidasDefensa
-      .toString()
-      .toLowerCase()
-      .replace(/mm/g, '')
-      .replace(/\s/g, '');
-
-    if (valorLimpio.includes('x')) {
-      const partes = valorLimpio.split('x');
-      const largo = parseFloat(partes[0]);
-      const ancho = parseFloat(partes[1]);
-
-      if (!isNaN(largo) && !isNaN(ancho)) {
-        const areaM2 = (largo * ancho) / 1000000;
-        mod.superficieFrontalM2Defensa = parseFloat(areaM2.toFixed(4));
-      }
-    }
-  }
-
-  calcularSuperficiePeldanos(mod: any) {
-    if (!mod.medidasPeldano) {
-      return;
-    }
-
-    const valorLimpio = mod.medidasPeldano
-      .toString()
-      .toLowerCase()
-      .replace(/mm/g, '')
-      .replace(/\s/g, '');
-
-    if (valorLimpio.includes('x')) {
-      const partes = valorLimpio.split('x');
-      const largo = parseFloat(partes[0]);
-      const ancho = parseFloat(partes[1]);
-
-      if (!isNaN(largo) && !isNaN(ancho)) {
-        const areaM2 = (largo * ancho) / 1000000;
-        mod.superficieFrontalM2Peldanos = parseFloat(areaM2.toFixed(4));
-      }
-    }
-  }
-
   calcularSuperficieParagolpesDelantero(mod: any) {
     if (!mod.medidasParagolpesDelantero) {
       return;
@@ -956,8 +903,9 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   private syncAreaResistenteByMetrica(mod: any) {
     if (!mod) return;
 
-    const metricToAreaMap = [
+    const metricToAreaMap: Array<{ metricaKey: string; areaKey: string }> = [
       { metricaKey: 'metricaTalonera', areaKey: 'seccionResistenteAsEstribos' },
+      { metricaKey: 'metricaToldo', areaKey: 'seccionResistenteAsToldo' },
       {
         metricaKey: 'metricaParaTrasero',
         areaKey: 'seccionResistenteAsParagolpesTrasero',
@@ -976,41 +924,12 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         areaKey: 'seccionResistenteAsAntiempotramiento',
       },
       { metricaKey: 'metricaAletines', areaKey: 'seccionResistenteAsAletines' },
-      {
-        metricaKey: 'metricaSobrealetines',
-        areaKey: 'seccionResistenteAsSobrealetines',
-      },
-      { metricaKey: 'metricaDefensa', areaKey: 'seccionResistenteAsDefensa' },
       { metricaKey: 'metricaAleron', areaKey: 'seccionResistenteAsAleron' },
-      {
-        metricaKey: 'metricaProtectorDelantero',
-        areaKey: 'seccionResistenteAsProtectorDelantero',
-      },
-      {
-        metricaKey: 'metricaProtectorTrasero',
-        areaKey: 'seccionResistenteAsProtectorTrasero',
-      },
-      {
-        metricaKey: 'metricaSoporteRueda',
-        areaKey: 'seccionResistenteAsSoporteRueda',
-      },
-      {
-        metricaKey: 'metricaDifusor',
-        areaKey: 'seccionResistenteAsDifusor',
-      },
-      {
-        metricaKey: 'metricaPeldanos',
-        areaKey: 'seccionResistenteAsPeldanos',
-      },
-      {
-        metricaKey: 'metricasTornillosBarraTraccion',
-        areaKey: 'seccionResistenteAsBarraTraccion',
-      },
     ];
 
     metricToAreaMap.forEach(({ metricaKey, areaKey }) => {
-      if (mod[metricaKey] !== undefined) {
-        const area = this.getAreaResistenteByMetrica(mod[metricaKey]);
+      const area = this.getAreaResistenteByMetrica(mod[metricaKey]);
+      if (area != null) {
         mod[areaKey] = area;
       }
     });
@@ -1061,16 +980,6 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
   }
 
-  calcularSuperficieSobrealetines(mod: any): void {
-    if (mod.anchoSobrealetines != null && mod.altoSobrealetines != null) {
-      const ancho = Number(mod.anchoSobrealetines) / 1000;
-      const alto = Number(mod.altoSobrealetines) / 1000;
-      mod.superficieFrontalM2Sobrealetines = Number((ancho * alto).toFixed(4));
-    } else {
-      mod.superficieFrontalM2Sobrealetines = null;
-    }
-  }
-
   private syncCalidadByMetrica(mod: any): void {
     if (!mod) return;
 
@@ -1093,6 +1002,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         nombre: 'ANTIEMPOTRAMIENTO',
         metricaKey: 'metricaAntiempotramiento',
         calidadKey: 'calidadTornilloAntiempotramiento',
+      },
+      {
+        nombre: 'TOLDO',
+        metricaKey: 'metricaToldo',
+        calidadKey: 'calidadTornilloToldo',
       },
     ];
 
@@ -1188,6 +1102,247 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     } else {
       mod[targetHeightKey] = null;
     }
+  }
+
+  onAerodynamicItemMetricaChange(item: any): void {
+    if (!item) return;
+
+    const area = this.getAreaResistenteByMetrica(item.metrica);
+    item.seccionResistenteAs = area ?? item.seccionResistenteAs ?? 36.64;
+    item.calidadTornillo = this.getCalidadTornilloByMetrica(item.metrica) ?? 8.8;
+  }
+
+  onPlacaAgrupacionChange(placa: any, checked: boolean): void {
+    if (!placa) return;
+
+    placa.agruparIguales = checked;
+    if (!checked) {
+      placa.cantidad = 1;
+      return;
+    }
+
+    const cantidad = Math.trunc(Number(placa.cantidad));
+    placa.cantidad = Number.isFinite(cantidad) && cantidad > 1 ? cantidad : 2;
+  }
+
+  private createClaraboyaItem(initial: any = {}): any {
+    const item = {
+      marca: '',
+      modelo: '',
+      descripcion: '',
+      homologacion: '',
+      medidas: '',
+      pesoPiezaKg: null,
+      anchuraPiezaM: null,
+      alturaPiezaM: null,
+      metrica: null,
+      nTornillos: null,
+      calidadTornillo: 8.8,
+      seccionResistenteAs: null,
+      resTraccionMinTornillo88Kgmm2: 80,
+      cwCoefAerodinamico: 0.82,
+      densidadAireKgM3: 1.29,
+      velocidadAireV2ms: 38.89,
+      coefSeguridadK: 3,
+      curvatura: 8,
+      ...initial,
+    };
+
+    this.ensureAerodynamicItemDefaults(item, 'medidas');
+    return item;
+  }
+
+  private createPlacaSolarItem(initial: any = {}): any {
+    const item = {
+      marca: '',
+      modelo: '',
+      potencia: '',
+      dimensiones: '',
+      ubicacion: '',
+      agruparIguales: false,
+      cantidad: 1,
+      pesoPiezaKg: null,
+      anchuraPiezaM: null,
+      alturaPiezaM: null,
+      metrica: null,
+      nTornillos: null,
+      calidadTornillo: 8.8,
+      seccionResistenteAs: null,
+      resTraccionMinTornillo88Kgmm2: 80,
+      cwCoefAerodinamico: 0.82,
+      densidadAireKgM3: 1.29,
+      velocidadAireV2ms: 38.89,
+      coefSeguridadK: 3,
+      curvatura: 8,
+      ...initial,
+    };
+
+    item.agruparIguales = !!item.agruparIguales;
+    const cantidad = Math.trunc(Number(item.cantidad));
+    item.cantidad =
+      item.agruparIguales && Number.isFinite(cantidad) && cantidad > 1
+        ? cantidad
+        : 1;
+
+    this.ensureAerodynamicItemDefaults(item, 'dimensiones');
+    return item;
+  }
+
+  private ensureClaraboyaDefaults(mod: any): void {
+    if (!Array.isArray(mod.claraboyas)) {
+      mod.claraboyas = [];
+    }
+
+    if (mod.claraboyas.length === 0) {
+      const hasLegacy =
+        mod.marcaClaraboya ||
+        mod.modeloClaraboya ||
+        mod.descripcionClaraboya ||
+        mod.homologacionClaraboya ||
+        mod.cantidadClaraboya;
+
+      if (hasLegacy) {
+        mod.claraboyas.push(
+          this.createClaraboyaItem({
+            marca: mod.marcaClaraboya ?? '',
+            modelo: mod.modeloClaraboya ?? '',
+            descripcion: mod.descripcionClaraboya ?? '',
+            homologacion: mod.homologacionClaraboya ?? '',
+          }),
+        );
+      }
+    }
+
+    mod.claraboyas = mod.claraboyas.map((item: any) =>
+      this.createClaraboyaItem(item),
+    );
+  }
+
+  private ensureInstalacionElectricaDefaults(mod: any): void {
+    if (!Array.isArray(mod.placasSolares)) {
+      mod.placasSolares = [];
+    }
+
+    mod.placasSolares = mod.placasSolares.map((item: any) =>
+      this.createPlacaSolarItem(item),
+    );
+  }
+
+  private ensureIntermitentesDefaults(mod: any): void {
+    if (!mod) return;
+
+    if (!mod.detalle) {
+      mod.detalle = {
+        interDelantero: false,
+        interTrasero: false,
+        interLateral: false,
+      };
+    }
+
+    const syncLegacyFields = (
+      enabled: boolean,
+      marcajeKey: string,
+      homologacionKey: string,
+    ) => {
+      if (!enabled) return;
+
+      if (!mod[marcajeKey] && mod.marcajeIntermitentes) {
+        mod[marcajeKey] = mod.marcajeIntermitentes;
+      }
+
+      if (!mod[homologacionKey] && mod.homologacionIntermitentes) {
+        mod[homologacionKey] = mod.homologacionIntermitentes;
+      }
+    };
+
+    syncLegacyFields(
+      !!mod.detalle?.interDelantero,
+      'marcajesintermitenteDelantero',
+      'homologacionintermitenteDelantero',
+    );
+    syncLegacyFields(
+      !!mod.detalle?.interTrasero,
+      'marcajesintermitenteTrasero',
+      'homologacionintermitenteTrasero',
+    );
+    syncLegacyFields(
+      !!mod.detalle?.interLateral,
+      'marcajesintermitenteLateral',
+      'homologacionintermitenteLateral',
+    );
+  }
+
+  private ensureToldoDefaults(mod: any): void {
+    if (mod.metricaToldo == null && mod.metrica != null) {
+      mod.metricaToldo = this.toNumberOrNull(mod.metrica);
+    }
+
+    if (mod.nTornillosToldo == null && mod.nTornillos != null) {
+      mod.nTornillosToldo = this.toNumberOrNull(mod.nTornillos);
+    }
+
+    if (mod.curvaturaToldo == null) mod.curvaturaToldo = 8;
+    if (mod.cwCoefAerodinamicoToldo == null) mod.cwCoefAerodinamicoToldo = 0.82;
+    if (mod.densidadAireKgM3Toldo == null) mod.densidadAireKgM3Toldo = 1.29;
+    if (mod.velocidadAireV2msToldo == null) mod.velocidadAireV2msToldo = 38.89;
+    if (mod.coefSeguridadKToldo == null) mod.coefSeguridadKToldo = 3;
+
+    if (mod.resTraccionMinTornillo88Kgmm2Toldo == null) {
+      mod.resTraccionMinTornillo88Kgmm2Toldo = 80;
+    }
+
+    if (mod.seccionResistenteAsToldo == null) {
+      mod.seccionResistenteAsToldo =
+        this.getAreaResistenteByMetrica(mod.metricaToldo) ?? 36.64;
+    }
+
+    if (
+      mod.medidasToldo &&
+      (mod.anchuraPiezaMToldo == null || mod.alturaPiezaMToldo == null)
+    ) {
+      this.onDimensionesChange(
+        mod,
+        'medidasToldo',
+        'anchuraPiezaMToldo',
+        'alturaPiezaMToldo',
+      );
+    }
+
+    this.syncCalidadByMetrica(mod);
+  }
+
+  private ensureAerodynamicItemDefaults(item: any, sourceKey: string): void {
+    if (!item) return;
+
+    if (item.curvatura == null) item.curvatura = 8;
+    if (item.cwCoefAerodinamico == null) item.cwCoefAerodinamico = 0.82;
+    if (item.densidadAireKgM3 == null) item.densidadAireKgM3 = 1.29;
+    if (item.velocidadAireV2ms == null) item.velocidadAireV2ms = 38.89;
+    if (item.coefSeguridadK == null) item.coefSeguridadK = 3;
+
+    if (item.resTraccionMinTornillo88Kgmm2 == null) {
+      item.resTraccionMinTornillo88Kgmm2 = 80;
+    }
+
+    if (item.seccionResistenteAs == null) {
+      item.seccionResistenteAs =
+        this.getAreaResistenteByMetrica(item.metrica) ?? 36.64;
+    }
+
+    if (
+      sourceKey &&
+      item[sourceKey] &&
+      (item.anchuraPiezaM == null || item.alturaPiezaM == null)
+    ) {
+      this.onDimensionesChange(
+        item,
+        sourceKey,
+        'anchuraPiezaM',
+        'alturaPiezaM',
+      );
+    }
+
+    this.onAerodynamicItemMetricaChange(item);
   }
 
   private parseRefuerzoUbicaciones(
@@ -1292,20 +1447,59 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (tipo === 'bajo') {
       mod.mueblesBajo = mod.mueblesBajo || [];
       mod.mueblesBajo.push({
-        medidas: '',
         cajones: 0,
         ubicacionMuebleBajo: '',
+        configuracionMuebleBajo: '',
+        metricaTornillosMuebleBajo: null,
       });
     }
     if (tipo === 'alto') {
       mod.mueblesAlto = mod.mueblesAlto || [];
-      mod.mueblesAlto.push({ medidas: '', ubicacionMuebleAlto: '' });
+      mod.mueblesAlto.push({
+        ubicacionMuebleAlto: '',
+        configuracionMuebleAlto: '',
+        metricaTornillosMuebleAlto: null,
+      });
     }
     if (tipo === 'aseo') {
       mod.mueblesAseo = mod.mueblesAseo || [];
-      mod.mueblesAseo.push({ medidas: '', descripcion: '' });
+      mod.mueblesAseo.push({
+        descripcion: '',
+        configuracionMuebleAseo: '',
+        metricaTornillosMuebleAseo: null,
+      });
     }
     this.formSubmitted = false;
+  }
+
+  anadirClaraboya(mod: any): void {
+    if (!Array.isArray(mod.claraboyas)) {
+      mod.claraboyas = [];
+    }
+
+    mod.claraboyas.push(this.createClaraboyaItem());
+    this.formSubmitted = false;
+  }
+
+  borrarClaraboya(mod: any, index: number): void {
+    if (!Array.isArray(mod?.claraboyas)) return;
+    if (index < 0 || index >= mod.claraboyas.length) return;
+    mod.claraboyas.splice(index, 1);
+  }
+
+  anadirPlacaSolar(mod: any): void {
+    if (!Array.isArray(mod.placasSolares)) {
+      mod.placasSolares = [];
+    }
+
+    mod.placasSolares.push(this.createPlacaSolarItem());
+    this.formSubmitted = false;
+  }
+
+  borrarPlacaSolar(mod: any, index: number): void {
+    if (!Array.isArray(mod?.placasSolares)) return;
+    if (index < 0 || index >= mod.placasSolares.length) return;
+    mod.placasSolares.splice(index, 1);
   }
 
   borrarUltimoMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {
@@ -1318,6 +1512,20 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (tipo === 'aseo' && mod.mueblesAseo?.length > 0) {
       mod.mueblesAseo.pop();
     }
+  }
+
+  anadirReformaAdicional(mod: any): void {
+    if (!Array.isArray(mod.reformasAdicionalesItems)) {
+      mod.reformasAdicionalesItems = [];
+    }
+    mod.reformasAdicionalesItems.push({ titulo: '', descripcion: '' });
+    this.formSubmitted = false;
+  }
+
+  borrarReformaAdicional(mod: any, index: number): void {
+    if (!Array.isArray(mod?.reformasAdicionalesItems)) return;
+    if (index < 0 || index >= mod.reformasAdicionalesItems.length) return;
+    mod.reformasAdicionalesItems.splice(index, 1);
   }
 
   formularioInvalido(): boolean {
@@ -1358,6 +1566,18 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
             mod.altoRefuerzoTrasero == null ||
             mod.fondoRefuerzoTrasero == null)
         ) {
+          return true;
+        }
+      }
+
+      if (mod.nombre === 'CLARABOYA' && mod.seleccionado) {
+        if (!Array.isArray(mod.claraboyas) || mod.claraboyas.length === 0) {
+          return true;
+        }
+      }
+
+      if (mod.nombre === 'VENTANA' && mod.seleccionado) {
+        if (!Array.isArray(mod.ventanas) || mod.ventanas.length === 0) {
           return true;
         }
       }
@@ -1414,6 +1634,47 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         mod.radioNeumaticoDiscoTrasero = mod.radioNeumaticoDiscos;
         mod.anchoNeumaticoDiscoTrasero = mod.anchoNeumaticoDiscos;
         mod.perfilNeumaticoDiscoTrasero = mod.perfilNeumaticoDiscos;
+      }
+
+      if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
+        const lines: string[] = [];
+        if (Array.isArray(mod.reformasAdicionalesItems)) {
+          mod.reformasAdicionalesItems.forEach((item: any) => {
+            const descripcion = (item?.descripcion ?? '').toString();
+            descripcion
+              .split(/\r?\n/)
+              .map((line: string) => line.trim())
+              .filter((line: string) => line.length > 0)
+              .forEach((line: string) => lines.push(line));
+          });
+        }
+        mod.reformasAdicionales = lines.join('\n');
+      }
+
+      if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && Array.isArray(mod.placasSolares)) {
+        mod.placasSolares = mod.placasSolares.map((placa: any) =>
+          this.createPlacaSolarItem(placa),
+        );
+      }
+
+      if (mod.nombre === 'CLARABOYA' && Array.isArray(mod.claraboyas)) {
+        mod.claraboyas = mod.claraboyas.map((item: any) =>
+          this.createClaraboyaItem(item),
+        );
+      }
+
+      if (mod.nombre === 'TOLDO') {
+        mod.metricaToldo = this.toNumberOrNull(mod.metricaToldo ?? mod.metrica);
+        mod.nTornillosToldo = this.toNumberOrNull(
+          mod.nTornillosToldo ?? mod.nTornillos,
+        );
+      }
+
+      if (
+        mod.nombre === 'PELDAÑOS' &&
+        mod.metodoActuacionPeldanos !== 'electrico'
+      ) {
+        mod.ubicacionAccionamientoPeldanos = '';
       }
     });
     // ------------------------------------------------------

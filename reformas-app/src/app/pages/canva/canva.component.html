@@ -187,7 +187,7 @@
       <div class="table-responsive border border-top-0">
         <table class="ing-table">
           <tbody>
-            @for (label of labels; track label; let i = $index) {
+            @for (label of labels; track $index; let i = $index) {
             <tr
               (click)="selectRow(i)"
               [class.ing-row-active]="selectedIndex === i"

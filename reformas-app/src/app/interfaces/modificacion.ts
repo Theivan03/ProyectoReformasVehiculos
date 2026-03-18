@@ -1,8 +1,66 @@
 export interface Mueble {
   tipo: 'bajo' | 'alto' | 'aseo';
-  medidas: string;
+  medidas?: string;
   descripcion?: string;
+  configuracion?: string;
   peso?: number;
+}
+
+export interface ClaraboyaItem {
+  marca?: string;
+  modelo?: string;
+  descripcion?: string;
+  homologacion?: string;
+  medidas?: string;
+  pesoPiezaKg?: number;
+  anchuraPiezaM?: number;
+  alturaPiezaM?: number;
+  metrica?: number;
+  nTornillos?: number;
+  calidadTornillo?: number;
+  seccionResistenteAs?: number;
+  resTraccionMinTornillo88Kgmm2?: number;
+  cwCoefAerodinamico?: number;
+  densidadAireKgM3?: number;
+  velocidadAireV2ms?: number;
+  coefSeguridadK?: number;
+  curvatura?: number;
+}
+
+export interface PlacaSolarItem {
+  marca?: string;
+  modelo?: string;
+  potencia?: string;
+  dimensiones?: string;
+  ubicacion?: string;
+  agruparIguales?: boolean;
+  cantidad?: number;
+  pesoPiezaKg?: number;
+  anchuraPiezaM?: number;
+  alturaPiezaM?: number;
+  metrica?: number;
+  nTornillos?: number;
+  calidadTornillo?: number;
+  seccionResistenteAs?: number;
+  resTraccionMinTornillo88Kgmm2?: number;
+  cwCoefAerodinamico?: number;
+  densidadAireKgM3?: number;
+  velocidadAireV2ms?: number;
+  coefSeguridadK?: number;
+  curvatura?: number;
+}
+
+export interface VentanaItem {
+  marca?: string;
+  modelo?: string;
+  dimensiones?: string;
+  descripcion?: string;
+  homologacion?: string;
+}
+
+export interface ReformaAdicionalItem {
+  titulo?: string;
+  descripcion?: string;
 }
 
 export interface Modificacion {
@@ -21,131 +79,6 @@ export interface Modificacion {
   carreteraDesactivada?: boolean;
   clase?: string;
   superficieFrontalM2Aleron?: number;
-  radioCurvaRSobrealetines?: number;
-  pesoPiezaKgSobrealetines?: number;
-  velocidadAireV2msSobrealetines?: number;
-  densidadAireKgM3Sobrealetines?: number;
-  coefSeguridadKSobrealetines?: number;
-  coefAerodinamicoCwSobrealetines?: number;
-  resTraccionMinTornillo88Kgmm2Sobrealetines?: number;
-  superficieFrontalM2Sobrealetines?: number;
-  seccionResistenteAsSobrealetines?: number;
-  numTornillosSobrealetines?: number;
-  coefAerodinamicoCwDefensa?: number;
-  velocidadAireV2msDefensa?: number;
-  densidadAireKgM3Defensa?: number;
-  coefSeguridadKDefensa?: number;
-  superficieFrontalM2Defensa?: number;
-  calidadTornilloDefensa?: number;
-  resTraccionMinTornillo88Kgmm2Defensa?: number;
-  metricaDefensa?: number;
-  seccionResistenteAsDefensa?: number;
-  pesoDefensa?: number;
-  numTornillosDefensa?: number;
-
-  marcaProtectorDelantero?: string;
-  materialProtectorDelantero?: string;
-  pesoProtectorDelantero?: number;
-  largoProtectorDelantero?: number;
-  altoProtectorDelantero?: number;
-  metricaProtectorDelantero?: number;
-  numTornillosProtectorDelantero?: number;
-  calidadProtectorDelantero?: number;
-  superficieProtectorDelantero?: number;
-  resTraccionMinTornillo88Kgmm2ProtectorDelantero?: number;
-  seccionResistenteAsProtectorDelantero?: number;
-  velocidadAireV2msProtectorDelantero?: number;
-  densidadAireKgM3ProtectorDelantero?: number;
-  cwProtectorDelantero?: number;
-  kProtectorDelantero?: number;
-  curvaturaProtectorDelantero?: number;
-
-  marcaProtectorTrasero?: string;
-  materialProtectorTrasero?: string;
-  pesoProtectorTrasero?: number;
-  largoProtectorTrasero?: number;
-  altoProtectorTrasero?: number;
-  metricaProtectorTrasero?: number;
-  numTornillosProtectorTrasero?: number;
-  calidadProtectorTrasero?: number;
-  superficieProtectorTrasero?: number;
-  resTraccionMinTornillo88Kgmm2ProtectorTrasero?: number;
-  seccionResistenteAsProtectorTrasero?: number;
-  cwProtectorTrasero?: number;
-  velocidadAireV2msProtectorTrasero?: number;
-  densidadAireKgM3ProtectorTrasero?: number;
-  kProtectorTrasero?: number;
-  curvaturaProtectorTrasero?: number;
-
-  selProtectorDelantero?: boolean;
-  selProtectorTrasero?: boolean;
-
-  pesoSoporteRueda?: number;
-  medidasSoporteRueda?: string;
-  metricaSoporteRueda?: number;
-  numTornillosSoporteRueda?: number;
-  calidadTornilloSoporteRueda?: number;
-  resTraccionMinTornillo88Kgmm2SoporteRueda?: number;
-  seccionResistenteAsSoporteRueda?: number;
-  coefAerodinamicoCwSoporteRueda?: number;
-  velocidadAireV2msSoporteRueda?: number;
-  densidadAireKgM3SoporteRueda?: number;
-  superficieFrontalM2SoporteRueda?: number;
-  curvaturaSoporteRueda?: number;
-  coefSeguridadKSoporteRueda?: number;
-
-  pesoLipDelantero?: number;
-  metricaLipDelantero?: number;
-  numTornillosLipDelantero?: number;
-  calidadTornilloLipDelantero?: number;
-  resTraccionMinTornillo88Kgmm2LipDelantero?: number;
-  seccionResistenteAsLipDelantero?: number;
-  coefAerodinamicoCwLipDelantero?: number;
-  velocidadAireV2msLipDelantero?: number;
-  densidadAireKgM3LipDelantero?: number;
-  superficieFrontalM2LipDelantero?: number;
-  coefSeguridadKLipDelantero?: number;
-
-  pesoDifusor?: number;
-  metricaDifusor?: number;
-  numTornillosDifusor?: number;
-  calidadTornilloDifusor?: number;
-  resTraccionMinTornillo88Kgmm2Difusor?: number;
-  seccionResistenteAsDifusor?: number;
-  coefAerodinamicoCwDifusor?: number;
-  velocidadAireV2msDifusor?: number;
-  densidadAireKgM3Difusor?: number;
-  superficieFrontalM2Difusor?: number;
-  coefSeguridadKDifusor?: number;
-
-  mmtaRemolque?: number;
-  valorDKnRemolque?: number;
-
-  nTornillosBarraTraccion?: number;
-  mmaBarraTraccion?: number;
-  metricasTornillosBarraTraccion?: number;
-  numTornillosBarraTraccion?: number;
-  calidadTornilloBarraTraccion?: number;
-  resTraccionMinTornillo88Kgmm2BarraTraccion?: number;
-  seccionResistenteAsBarraTraccion?: number;
-  tipoFabricacionBarraTraccion?: string;
-  referenciaBarraTraccion?: string;
-  valorDKn?: number;
-  valorDKnFijacion?: number;
-  pesoMMTAAntiempotramiento?: number;
-
-  pesoPeldanos?: number;
-  metricaPeldanos?: number;
-  numTornillosPeldanos?: number;
-  calidadTornilloPeldanos?: number;
-  resTraccionMinTornillo88Kgmm2Peldanos?: number;
-  seccionResistenteAsPeldanos?: number;
-  coefAerodinamicoCwPeldanos?: number;
-  velocidadAireV2msPeldanos?: number;
-  densidadAireKgM3Peldanos?: number;
-  superficieFrontalM2Peldanos?: number;
-  coefSeguridadKPeldanos?: number;
-
   claseBarra?: string;
   cdgconductor?: number;
   cdgocu2?: number;
@@ -217,6 +150,9 @@ export interface Modificacion {
   homologacionintermitenteTrasero?: string;
   curvaturaintermitenteTrasero?: number;
 
+  marcajesintermitenteLateral?: string;
+  homologacionintermitenteLateral?: string;
+
   mmtaTotalSuspension?: number;
   mmta1EjeSuspension?: number;
   mmta2EjeSuspension?: number;
@@ -258,6 +194,11 @@ export interface Modificacion {
   marcaLuzMarchaAtras?: string;
   marcajeLuzMarchaAtras?: string;
   contrasenaLuzMarchaAtras?: string;
+  marcaLuz?: string;
+  referenciaLuz?: string;
+  tecnologiaLuz?: string;
+  marcajeLuz?: string;
+  contrasenaHomologacion?: string;
 
   ubicacionAntiniebla?: 'delanteros' | 'traseros' | 'ambos';
   marcaAntinieblaDel?: string;
@@ -347,6 +288,7 @@ export interface Modificacion {
   medidaNeumaticos?: string;
 
   reformasAdicionales?: string;
+  reformasAdicionalesItems?: ReformaAdicionalItem[];
 
   cumpleSalientesEstriberas?: boolean;
   marcaEstriberas?: string;
@@ -539,10 +481,13 @@ export interface Modificacion {
 
   zonaPeldano?: string;
   marcaPeldano?: string;
+  referenciaPeldanos?: string;
   materialPeldano?: string;
   medidasPeldano?: string;
+  metodoActuacionPeldanos?: 'manual' | 'electrico';
+  ubicacionAccionamientoPeldanos?: string;
 
-  ladoVentana?: 'izquierdo' | 'derecho' | 'ambos';
+  ladoVentana?: 'izquierdo' | 'derecho' | 'ambos' | 'trasero';
   medidasVentana?: string;
 
   tipoFabricacionBodyLift?: string;
@@ -738,6 +683,11 @@ export interface Modificacion {
   medidasMuebleAlto?: string;
   medidasAseo?: string;
   descripcionAseo?: string;
+  configuracionMuebleBajo?: string;
+  configuracionMuebleAlto?: string;
+  configuracionMuebleAseo?: string;
+  claraboyas?: ClaraboyaItem[];
+  ventanas?: VentanaItem[];
   marcaClaraboya?: string;
   modeloClaraboya?: string;
   descripcionClaraboya?: string;
@@ -747,6 +697,8 @@ export interface Modificacion {
   modeloVentana?: string;
   dimensionesVentana?: string;
   homologacionVentana?: string;
+  incluirHomologacionVentanaAbatible?: boolean;
+  homologacionVentanaAbatible?: string;
   litrosAguaSucia?: number;
   litrosAguaLimpia?: number;
   longitudDelantero?: number;
@@ -760,25 +712,34 @@ export interface Modificacion {
   ubicacionTomaExterior?: string;
   medidasTomaExterior?: string;
   ubicacionDuchaExterior?: string;
-  placasSolares?: {
-    marca?: string;
-    modelo?: string;
-    potencia?: string;
-    dimensiones?: string;
-    ubicacion?: string;
-  }[];
+  placasSolares?: PlacaSolarItem[];
   cantidadBaterias?: number;
   potenciaBaterias?: string;
   ubicacionBaterias?: string;
   potenciaInversor?: string;
   marcaInversor?: string;
+  homologacionInversor?: string;
   ubicacionInversor?: string;
   modeloControlador?: string;
   marcaControlador?: string;
+  homologacionControlador?: string;
   ubicacionControlador?: string;
   marcaToldo?: string;
   medidasToldo?: string;
   ubicacionToldo?: string;
+  pesoPiezaKgToldo?: number;
+  anchuraPiezaMToldo?: number;
+  alturaPiezaMToldo?: number;
+  metricaToldo?: number;
+  nTornillosToldo?: number;
+  calidadTornilloToldo?: number;
+  seccionResistenteAsToldo?: number;
+  resTraccionMinTornillo88Kgmm2Toldo?: number;
+  cwCoefAerodinamicoToldo?: number;
+  densidadAireKgM3Toldo?: number;
+  velocidadAireV2msToldo?: number;
+  coefSeguridadKToldo?: number;
+  curvaturaToldo?: number;
 
   ubicacionPorta1?: 'trasero' | 'delantero';
   ladoPorta1?: 'izquierdo' | 'derecho' | 'centro';
@@ -820,7 +781,7 @@ export interface Modificacion {
   curvaturaParagolpesTrasero?: string;
   curvaturaAletines?: string;
   curvaturaProtectoresLaterales?: string;
-  curvaturaDefensaDelantera?: number;
+  curvaturaDefensaDelantera?: string;
   curvaturaSoporteRuedaRepuesto?: string;
   curvaturaSobrealetines?: string;
   marcaSeparadores?: string;

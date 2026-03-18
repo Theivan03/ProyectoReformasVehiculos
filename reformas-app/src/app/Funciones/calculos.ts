@@ -23,27 +23,462 @@ const CELL_MARGINS = {
   right: 100,
 };
 
-function formatMedidasMueble(medidas: unknown): string {
-  if (medidas === null || medidas === undefined) {
-    return 'sin medidas';
+const AREA_RESISTENTE_POR_METRICA: Record<number, number> = {
+  4: 8.78,
+  5: 14.2,
+  6: 20.1,
+  8: 36.6,
+};
+
+const SECCION_TENSION_POR_METRICA: Record<number, number> = {
+  4: 3.24,
+  5: 5.93,
+  6: 7.97,
+  8: 15.78,
+};
+
+function toFiniteNumber(value: unknown): number {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
   }
-
-  if (typeof medidas === 'number') {
-    return Number.isFinite(medidas) ? medidas.toString() : 'sin medidas';
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value.replace(',', '.'));
+    return Number.isFinite(parsed) ? parsed : 0;
   }
+  return 0;
+}
 
-  const raw = String(medidas).trim();
-  if (!raw) {
-    return 'sin medidas';
-  }
+function toPositiveInt(value: unknown): number {
+  const parsed = Math.trunc(toFiniteNumber(value));
+  return parsed > 0 ? parsed : 0;
+}
 
-  const normalized = raw.toLowerCase().replace(/mm/g, '').replace(/\s+/g, '');
-  const parts = normalized.split('x').map((part) => part.replace(',', '.'));
-  const esFormatoDimensiones =
-    parts.length >= 2 &&
-    parts.every((part) => part !== '' && !Number.isNaN(Number(part)));
+function parseMetricaTornillo(value: unknown): number | null {
+  const parsed = Math.trunc(toFiniteNumber(value));
+  return parsed > 0 ? parsed : null;
+}
 
-  return esFormatoDimensiones ? parts.join('x') : raw;
+function getAreaResistentePorMetrica(value: unknown): number {
+  const metrica = parseMetricaTornillo(value);
+  if (metrica == null) return 0;
+  return AREA_RESISTENTE_POR_METRICA[metrica] ?? 0;
+}
+
+function getSeccionTensionPorMetrica(value: unknown): number {
+  const metrica = parseMetricaTornillo(value);
+  if (metrica == null) return 0;
+  return SECCION_TENSION_POR_METRICA[metrica] ?? 0;
+}
+
+function formatCalcNumber(value: unknown, digits = 2): string {
+  const parsed = toFiniteNumber(value);
+  if (!Number.isFinite(parsed)) return '---';
+  return parsed.toFixed(digits).toString();
+}
+
+function formatCalcInteger(value: unknown): string {
+  const parsed = toPositiveInt(value);
+  return parsed > 0 ? parsed.toString() : '---';
+}
+
+type AerodynamicCalculationConfig = {
+  title: string;
+  quantity?: number;
+  pesoPiezaKg: number;
+  anchuraPiezaM: number;
+  alturaPiezaM: number;
+  superficieFrontalM2?: number;
+  metrica: number | null;
+  nTornillos: number;
+  calidadTornillo: number;
+  seccionResistenteAs: number;
+  resTraccionMinTornillo88Kgmm2: number;
+  cwCoefAerodinamico: number;
+  densidadAireKgM3: number;
+  velocidadAireV2ms: number;
+  coefSeguridadK: number;
+  curvatura: number;
+};
+
+function appendAerodynamicCalculationSection(
+  out: (Paragraph | Table)[],
+  sectionNumber: number,
+  config: AerodynamicCalculationConfig,
+): void {
+  const quantity =
+    config.quantity != null && config.quantity > 1 ? config.quantity : 1;
+  const superficiefrontal =
+    config.superficieFrontalM2 != null
+      ? toFiniteNumber(config.superficieFrontalM2)
+      : toFiniteNumber(config.anchuraPiezaM) * toFiniteNumber(config.alturaPiezaM);
+
+  const caracteristicasRows: [string, string, string, string][] =
+    quantity > 1
+      ? [
+          [
+            'Cantidad de piezas iguales',
+            formatCalcInteger(quantity),
+            'nº tornillos totales',
+            formatCalcInteger(config.nTornillos),
+          ],
+          [
+            'Peso total del conjunto en Kg',
+            formatCalcNumber(config.pesoPiezaKg),
+            'Métrica',
+            formatCalcNumber(config.metrica),
+          ],
+          [
+            'Anchura de la pieza en m',
+            formatCalcNumber(config.anchuraPiezaM),
+            'Calidad',
+            formatCalcNumber(config.calidadTornillo),
+          ],
+          [
+            'Altura de la pieza en m',
+            formatCalcNumber(config.alturaPiezaM),
+            'As (Sección resistente)',
+            formatCalcNumber(config.seccionResistenteAs),
+          ],
+          [
+            'Superficie frontal m²',
+            formatCalcNumber(superficiefrontal),
+            'Res. Tracción Mín. tornillo 8,8 (Kg/mm2)',
+            formatCalcNumber(config.resTraccionMinTornillo88Kgmm2),
+          ],
+        ]
+      : [
+          [
+            'Peso de la pieza en Kg',
+            formatCalcNumber(config.pesoPiezaKg),
+            'nº tornillos',
+            formatCalcInteger(config.nTornillos),
+          ],
+          [
+            'Anchura de la pieza en m',
+            formatCalcNumber(config.anchuraPiezaM),
+            'Métrica',
+            formatCalcNumber(config.metrica),
+          ],
+          [
+            'Altura de la pieza en m',
+            formatCalcNumber(config.alturaPiezaM),
+            'Calidad',
+            formatCalcNumber(config.calidadTornillo),
+          ],
+          [
+            'Superficie frontal m²',
+            formatCalcNumber(superficiefrontal),
+            'As (Sección resistente)',
+            formatCalcNumber(config.seccionResistenteAs),
+          ],
+          [
+            'Coef. aerodinámico',
+            formatCalcNumber(config.cwCoefAerodinamico),
+            'Res. Tracción Mín. tornillo 8,8 (Kg/mm2)',
+            formatCalcNumber(config.resTraccionMinTornillo88Kgmm2),
+          ],
+        ];
+
+  out.push(new Paragraph({ text: '' }));
+  out.push(new Paragraph({ text: '' }));
+  out.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: '2.3.' + sectionNumber + ' ' + config.title,
+          bold: true,
+        }),
+      ],
+    }),
+  );
+  out.push(new Paragraph({ text: '' }));
+  out.push(new Paragraph({ text: '' }));
+
+  const tablaCaracteristicas = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({
+        cantSplit: true,
+        children: [
+          new TableCell({
+            margins: CELL_MARGINS,
+            columnSpan: 2,
+            shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: 'CARACTERÍSTICAS DE LA PIEZA' })],
+              }),
+            ],
+          }),
+          new TableCell({
+            margins: CELL_MARGINS,
+            columnSpan: 2,
+            shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: 'SUJECIÓN' })],
+              }),
+            ],
+          }),
+        ],
+      }),
+      ...caracteristicasRows.map(
+        ([d1, v1, d2, v2]) =>
+          new TableRow({
+            cantSplit: true,
+            children: [d1, v1, d2, v2].map(
+              (text) =>
+                new TableCell({
+                  margins: CELL_MARGINS,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [new TextRun({ text })],
+                    }),
+                  ],
+                }),
+            ),
+          }),
+      ),
+    ],
+  });
+
+  const tablaAire = new Table({
+    width: { size: 70, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({
+        cantSplit: true,
+        children: [
+          new TableCell({
+            margins: CELL_MARGINS,
+            columnSpan: 2,
+            shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      ...[
+        ['Cw=Coef. Aerodinámico', formatCalcNumber(config.cwCoefAerodinamico)],
+        ['A = área de la pieza (m²)', formatCalcNumber(superficiefrontal)],
+        ['ρ (densidad del aire (Kg/m³))', formatCalcNumber(config.densidadAireKgM3)],
+        [
+          'V² = velocidad del aire 140Km/h (m/s)',
+          formatCalcNumber(config.velocidadAireV2ms),
+        ],
+        ['R (radio de curva) m', formatCalcNumber(config.curvatura)],
+        ['K (coeficiente de seguridad)', formatCalcNumber(config.coefSeguridadK)],
+      ].map(
+        ([desc, val]) =>
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                margins: CELL_MARGINS,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: desc })],
+                  }),
+                ],
+              }),
+              new TableCell({
+                margins: CELL_MARGINS,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: val })],
+                  }),
+                ],
+              }),
+            ],
+          }),
+      ),
+    ],
+  });
+
+  const peso = 9.81 * toFiniteNumber(config.pesoPiezaKg);
+  const fuerzafrenado = toFiniteNumber(config.pesoPiezaKg) * 10;
+  const resistenciaaerodinamica =
+    0.5 *
+    toFiniteNumber(config.cwCoefAerodinamico) *
+    superficiefrontal *
+    toFiniteNumber(config.densidadAireKgM3) *
+    toFiniteNumber(config.velocidadAireV2ms) *
+    toFiniteNumber(config.velocidadAireV2ms);
+  const denominadorCurvatura = (toFiniteNumber(config.curvatura) || 1) * 100;
+  const fuerzacentrifuga =
+    toFiniteNumber(config.pesoPiezaKg) *
+    (((toFiniteNumber(config.velocidadAireV2ms) *
+      toFiniteNumber(config.velocidadAireV2ms)) /
+      denominadorCurvatura) || 0);
+  const sumadelasfuerzas =
+    peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
+
+  const tablaFuerzas = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({
+        cantSplit: true,
+        children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
+          (heading) =>
+            new TableCell({
+              margins: CELL_MARGINS,
+              verticalAlign: VerticalAlign.CENTER,
+              columnSpan: 5,
+              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: heading })],
+                }),
+              ],
+            }),
+        ),
+      }),
+      new TableRow({
+        cantSplit: true,
+        children: [
+          'Peso',
+          'Fuerza de frenado',
+          'Resistencia aerodinámica',
+          'Fuerza centrífuga',
+          'Suma de fuerzas',
+        ].map(
+          (heading) =>
+            new TableCell({
+              margins: CELL_MARGINS,
+              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: heading })],
+                }),
+              ],
+            }),
+        ),
+      }),
+      new TableRow({
+        cantSplit: true,
+        children: [
+          peso,
+          fuerzafrenado,
+          resistenciaaerodinamica,
+          fuerzacentrifuga,
+          sumadelasfuerzas,
+        ].map(
+          (val) =>
+            new TableCell({
+              margins: CELL_MARGINS,
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: formatCalcNumber(val) })],
+                }),
+              ],
+            }),
+        ),
+      }),
+    ],
+  });
+
+  const fuerzadediseno =
+    sumadelasfuerzas * toFiniteNumber(config.coefSeguridadK);
+  const fuerzamaximatornillostraccion =
+    (((0.9 *
+      toFiniteNumber(config.resTraccionMinTornillo88Kgmm2) *
+      toFiniteNumber(config.seccionResistenteAs)) /
+      1.25) *
+      toFiniteNumber(config.nTornillos)) || 0;
+  const fuerzamaximatornilloscortante =
+    (((0.5 *
+      toFiniteNumber(config.resTraccionMinTornillo88Kgmm2) *
+      toFiniteNumber(config.seccionResistenteAs)) /
+      1.25) *
+      toFiniteNumber(config.nTornillos)) || 0;
+  const comprobacion =
+    fuerzamaximatornillostraccion > 0 && fuerzamaximatornilloscortante > 0
+      ? fuerzadediseno / fuerzamaximatornilloscortante +
+        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion)
+      : Number.POSITIVE_INFINITY;
+
+  const tablaComprobacion = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({
+        cantSplit: true,
+        children: [
+          'La fuerza de diseño soportada por los anclajes (N)',
+          'Fuerza máxima que soportan los tornillos a tracción (N)',
+          'Fuerza máxima que soportan los tornillos a cortante (N)',
+          'Comprobación <= 1',
+        ].map(
+          (heading) =>
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              margins: CELL_MARGINS,
+              shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: heading, bold: true })],
+                }),
+              ],
+            }),
+        ),
+      }),
+      new TableRow({
+        cantSplit: true,
+        children: [
+          fuerzadediseno,
+          fuerzamaximatornillostraccion,
+          fuerzamaximatornilloscortante,
+          comprobacion,
+        ].map(
+          (val, i) =>
+            new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
+              margins: CELL_MARGINS,
+              shading:
+                i === 0
+                  ? undefined
+                  : i === 3 && (!Number.isFinite(comprobacion) || comprobacion > 1)
+                    ? { type: ShadingType.CLEAR, fill: 'FF0000' }
+                    : { type: ShadingType.CLEAR, fill: '00B050' },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: formatCalcNumber(val) })],
+                }),
+              ],
+            }),
+        ),
+      }),
+    ],
+  });
+
+  out.push(tablaCaracteristicas);
+  out.push(new Paragraph({ text: '' }));
+  out.push(new Paragraph({ text: '' }));
+  out.push(tablaAire);
+  out.push(new Paragraph({ text: '' }));
+  out.push(new Paragraph({ text: '' }));
+  out.push(tablaFuerzas);
+  out.push(new Paragraph({ text: '' }));
+  out.push(new Paragraph({ text: '' }));
+  out.push(tablaComprobacion);
+  out.push(new Paragraph({ text: '' }));
+  out.push(new Paragraph({ text: '' }));
 }
 
 export async function buildCalculos(
@@ -72,7 +507,6 @@ export async function buildCalculos(
     );
 
     let contador = 1;
-    let contador2 = 0;
 
     const aletines = modificaciones.find(
       (m) =>
@@ -270,272 +704,6 @@ export async function buildCalculos(
           (aletines.seccionResistenteAsAletines ?? 0)) /
           1.25) *
         (aletines.numTornillosAletines ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
-    }
-
-    const sobrealetines = modificaciones.find(
-      (m) =>
-        m.nombre === 'ALETINES Y SOBREALETINES' &&
-        m.seleccionado &&
-        m.detalle?.sobrealetines,
-    );
-    if (aletines) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Sobrealetines',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      contador++;
-
-      aletines.radioCurvaRSobrealetines =
-        (aletines.radioCurvaRSobrealetines ?? 0) * 100;
-
-      const peso = 9.81 * (aletines.pesoPiezaKgSobrealetines ?? 0);
-      const fuerzafrenado = (aletines.pesoPiezaKgSobrealetines ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (aletines.coefAerodinamicoCwSobrealetines ?? 0) *
-        (aletines.superficieFrontalM2Sobrealetines ?? 0) *
-        (aletines.densidadAireKgM3Sobrealetines ?? 0) *
-        (aletines.velocidadAireV2msSobrealetines ?? 0) *
-        (aletines.velocidadAireV2msSobrealetines ?? 0);
-      const fuerzacentrifuga =
-        (aletines.pesoPiezaKgSobrealetines ?? 0) *
-        (((aletines.velocidadAireV2msSobrealetines ?? 0) *
-          (aletines.velocidadAireV2msSobrealetines ?? 0)) /
-          (aletines.radioCurvaRSobrealetines ?? 0));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              aletines.coefAerodinamicoCwSobrealetines?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              aletines.superficieFrontalM2Sobrealetines
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              aletines.densidadAireKgM3Sobrealetines?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              aletines.velocidadAireV2msSobrealetines?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'R (radio de curva) m',
-              aletines.radioCurvaRSobrealetines?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              aletines.coefSeguridadKSobrealetines?.toFixed(2).toString() ??
-                '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (aletines.coefSeguridadKSobrealetines ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (aletines.resTraccionMinTornillo88Kgmm2Sobrealetines ?? 0) *
-          (aletines.seccionResistenteAsSobrealetines ?? 0)) /
-          1.25) *
-        (aletines.numTornillosSobrealetines ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (aletines.resTraccionMinTornillo88Kgmm2Sobrealetines ?? 0) *
-          (aletines.seccionResistenteAsSobrealetines ?? 0)) /
-          1.25) *
-        (aletines.numTornillosSobrealetines ?? 0);
       const comprobacion =
         fuerzadediseno / fuerzamaximatornilloscortante +
         fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
@@ -6866,1833 +7034,6 @@ export async function buildCalculos(
       out.push(tablaComprobacion);
     }
 
-    const peldaños = modificaciones.find(
-      (m) => m.nombre === 'PELDAÑOS' && m.seleccionado,
-    );
-    if (peldaños) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Peldaños',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      contador++;
-
-      const superficiefrontal = peldaños.superficieFrontalM2Peldanos;
-
-      const peso = 9.81 * (peldaños.pesoPeldanos ?? 0);
-      const fuerzafrenado = (peldaños.pesoPeldanos ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (peldaños.coefAerodinamicoCwPeldanos ?? 0) *
-        (superficiefrontal ?? 0) *
-        (peldaños.densidadAireKgM3Peldanos ?? 0) *
-        (peldaños.velocidadAireV2msPeldanos ?? 0) *
-        (peldaños.velocidadAireV2msPeldanos ?? 0);
-      const fuerzacentrifuga =
-        (peldaños.pesoPeldanos ?? 0) *
-        (((peldaños.velocidadAireV2msPeldanos ?? 0) *
-          (peldaños.velocidadAireV2msPeldanos ?? 0)) /
-          ((peldaños.radioCurvaRPeldanos ?? 0) * 100));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              peldaños.coefAerodinamicoCwPeldanos?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              peldaños.densidadAireKgM3Peldanos?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              peldaños.velocidadAireV2msPeldanos?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'R (radio de curva) m',
-              peldaños.radioCurvaRPeldanos?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              peldaños.coefSeguridadKPeldanos?.toFixed(2).toString() ?? '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (peldaños.coefSeguridadKPeldanos ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (peldaños.resTraccionMinTornillo88Kgmm2Peldanos ?? 0) *
-          (peldaños.seccionResistenteAsPeldanos ?? 0)) /
-          1.25) *
-        (peldaños.numTornillosPeldanos ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (peldaños.resTraccionMinTornillo88Kgmm2Peldanos ?? 0) *
-          (peldaños.seccionResistenteAsPeldanos ?? 0)) /
-          1.25) *
-        (peldaños.numTornillosPeldanos ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
-    }
-
-    const difusor = modificaciones.find(
-      (m) => m.nombre === 'DIFUSOR TRASERO' && m.seleccionado,
-    );
-    if (difusor) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Difusor trasero',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      contador++;
-
-      const superficiefrontal = difusor.superficieFrontalM2Difusor;
-
-      const peso = 9.81 * (difusor.pesoDifusor ?? 0);
-      const fuerzafrenado = (difusor.pesoDifusor ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (difusor.coefAerodinamicoCwDifusor ?? 0) *
-        (superficiefrontal ?? 0) *
-        (difusor.densidadAireKgM3Difusor ?? 0) *
-        (difusor.velocidadAireV2msDifusor ?? 0) *
-        (difusor.velocidadAireV2msDifusor ?? 0);
-      const fuerzacentrifuga =
-        (difusor.pesoDifusor ?? 0) *
-        (((difusor.velocidadAireV2msDifusor ?? 0) *
-          (difusor.velocidadAireV2msDifusor ?? 0)) /
-          ((difusor.radioCurvaRDifusor ?? 0) * 100));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              difusor.coefAerodinamicoCwDifusor?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              difusor.densidadAireKgM3Difusor?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              difusor.velocidadAireV2msDifusor?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              difusor.radioCurvaRDifusor?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              difusor.coefSeguridadKDifusor?.toFixed(2).toString() ?? '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (difusor.coefSeguridadKDifusor ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (difusor.resTraccionMinTornillo88Kgmm2Difusor ?? 0) *
-          (difusor.seccionResistenteAsDifusor ?? 0)) /
-          1.25) *
-        (difusor.numTornillosDifusor ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (difusor.resTraccionMinTornillo88Kgmm2Difusor ?? 0) *
-          (difusor.seccionResistenteAsDifusor ?? 0)) /
-          1.25) *
-        (difusor.numTornillosDifusor ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
-    }
-
-    const lipDelantero = modificaciones.find(
-      (m) => m.nombre === 'LIP DELANTERO' && m.seleccionado,
-    );
-    if (lipDelantero) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Lip delantero',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      contador++;
-
-      const superficiefrontal = lipDelantero.superficieFrontalM2LipDelantero;
-
-      const peso = 9.81 * (lipDelantero.pesoLipDelantero ?? 0);
-      const fuerzafrenado = (lipDelantero.pesoLipDelantero ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (lipDelantero.coefAerodinamicoCwLipDelantero ?? 0) *
-        (superficiefrontal ?? 0) *
-        (lipDelantero.densidadAireKgM3LipDelantero ?? 0) *
-        (lipDelantero.velocidadAireV2msLipDelantero ?? 0) *
-        (lipDelantero.velocidadAireV2msLipDelantero ?? 0);
-      const fuerzacentrifuga =
-        (lipDelantero.pesoLipDelantero ?? 0) *
-        (((lipDelantero.velocidadAireV2msLipDelantero ?? 0) *
-          (lipDelantero.velocidadAireV2msLipDelantero ?? 0)) /
-          ((lipDelantero.radioCurvaRLipDelantero ?? 0) * 100));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              lipDelantero.coefAerodinamicoCwLipDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              lipDelantero.densidadAireKgM3LipDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              lipDelantero.velocidadAireV2msLipDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              lipDelantero.radioCurvaRLipDelantero?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              lipDelantero.coefSeguridadKLipDelantero?.toFixed(2).toString() ??
-                '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (lipDelantero.coefSeguridadKLipDelantero ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (lipDelantero.resTraccionMinTornillo88Kgmm2LipDelantero ?? 0) *
-          (lipDelantero.seccionResistenteAsLipDelantero ?? 0)) /
-          1.25) *
-        (lipDelantero.numTornillosLipDelantero ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (lipDelantero.resTraccionMinTornillo88Kgmm2LipDelantero ?? 0) *
-          (lipDelantero.seccionResistenteAsLipDelantero ?? 0)) /
-          1.25) *
-        (lipDelantero.numTornillosLipDelantero ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
-    }
-
-    const protParaDelantero = modificaciones.find(
-      (m) => m.nombre === 'PROTECTORES PARAGOLPES' && m.seleccionado,
-    );
-    if (protParaDelantero?.selProtectorDelantero) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Protectores de paragolpes delanteros',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      contador++;
-
-      const superficiefrontal = protParaDelantero.superficieProtectorDelantero;
-
-      const peso = 9.81 * (protParaDelantero.pesoProtectorDelantero ?? 0);
-      const fuerzafrenado =
-        (protParaDelantero.pesoProtectorDelantero ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (protParaDelantero.cwProtectorDelantero ?? 0) *
-        (superficiefrontal ?? 0) *
-        (protParaDelantero.densidadAireKgM3ProtectorDelantero ?? 0) *
-        (protParaDelantero.velocidadAireV2msProtectorDelantero ?? 0) *
-        (protParaDelantero.velocidadAireV2msProtectorDelantero ?? 0);
-      const fuerzacentrifuga =
-        (protParaDelantero.pesoProtectorDelantero ?? 0) *
-        (((protParaDelantero.velocidadAireV2msProtectorDelantero ?? 0) *
-          (protParaDelantero.velocidadAireV2msProtectorDelantero ?? 0)) /
-          ((protParaDelantero.curvaturaProtectorDelantero ?? 0) * 100));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              protParaDelantero.cwProtectorDelantero?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              protParaDelantero.densidadAireKgM3ProtectorDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              protParaDelantero.velocidadAireV2msProtectorDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              protParaDelantero.curvaturaProtectorDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              protParaDelantero.kProtectorDelantero?.toFixed(2).toString() ??
-                '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (protParaDelantero.kProtectorDelantero ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (protParaDelantero.resTraccionMinTornillo88Kgmm2ProtectorDelantero ??
-            0) *
-          (protParaDelantero.seccionResistenteAsProtectorDelantero ?? 0)) /
-          1.25) *
-        (protParaDelantero.numTornillosProtectorDelantero ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (protParaDelantero.resTraccionMinTornillo88Kgmm2ProtectorDelantero ??
-            0) *
-          (protParaDelantero.seccionResistenteAsProtectorDelantero ?? 0)) /
-          1.25) *
-        (protParaDelantero.numTornillosProtectorDelantero ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
-    }
-
-    if (protParaDelantero?.selProtectorTrasero) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Protectores de paragolpes traseros',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      contador++;
-
-      const superficiefrontal = protParaDelantero.superficieProtectorTrasero;
-
-      const peso = 9.81 * (protParaDelantero.pesoProtectorTrasero ?? 0);
-      const fuerzafrenado = (protParaDelantero.pesoProtectorTrasero ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (protParaDelantero.cwProtectorTrasero ?? 0) *
-        (superficiefrontal ?? 0) *
-        (protParaDelantero.densidadAireKgM3ProtectorTrasero ?? 0) *
-        (protParaDelantero.velocidadAireV2msProtectorTrasero ?? 0) *
-        (protParaDelantero.velocidadAireV2msProtectorTrasero ?? 0);
-      const fuerzacentrifuga =
-        (protParaDelantero.pesoProtectorTrasero ?? 0) *
-        (((protParaDelantero.velocidadAireV2msProtectorTrasero ?? 0) *
-          (protParaDelantero.velocidadAireV2msProtectorTrasero ?? 0)) /
-          ((protParaDelantero.curvaturaProtectorTrasero ?? 0) * 100));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              protParaDelantero.cwProtectorTrasero?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              protParaDelantero.densidadAireKgM3ProtectorTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              protParaDelantero.velocidadAireV2msProtectorTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              protParaDelantero.curvaturaProtectorTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              protParaDelantero.kProtectorTrasero?.toFixed(2).toString() ??
-                '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (protParaDelantero.kProtectorTrasero ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (protParaDelantero.resTraccionMinTornillo88Kgmm2ProtectorTrasero ??
-            0) *
-          (protParaDelantero.seccionResistenteAsProtectorTrasero ?? 0)) /
-          1.25) *
-        (protParaDelantero.numTornillosProtectorTrasero ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (protParaDelantero.resTraccionMinTornillo88Kgmm2ProtectorTrasero ??
-            0) *
-          (protParaDelantero.seccionResistenteAsProtectorTrasero ?? 0)) /
-          1.25) *
-        (protParaDelantero.numTornillosProtectorTrasero ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
-    }
-
-    const defensa = modificaciones.find(
-      (m) => m.nombre === 'DEFENSA DELANTERA' && m.seleccionado,
-    );
-    if (defensa) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Defensa delantera',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      contador++;
-
-      const superficiefrontal = defensa.superficieFrontalM2Defensa;
-
-      const peso = 9.81 * (defensa.pesoDefensa ?? 0);
-      const fuerzafrenado = (defensa.pesoDefensa ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (defensa.coefAerodinamicoCwDefensa ?? 0) *
-        (superficiefrontal ?? 0) *
-        (defensa.densidadAireKgM3Defensa ?? 0) *
-        (defensa.velocidadAireV2msDefensa ?? 0) *
-        (defensa.velocidadAireV2msDefensa ?? 0);
-      const fuerzacentrifuga =
-        (defensa.pesoDefensa ?? 0) *
-        (((defensa.velocidadAireV2msDefensa ?? 0) *
-          (defensa.velocidadAireV2msDefensa ?? 0)) /
-          ((defensa.curvaturaDefensaDelantera ?? 0) * 100));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              defensa.coefAerodinamicoCwDefensa?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              defensa.densidadAireKgM3Defensa?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              defensa.velocidadAireV2msDefensa?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              defensa.curvaturaDefensaDelantera?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              defensa.coefSeguridadKDefensa?.toFixed(2).toString() ?? '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (defensa.coefSeguridadKDefensa ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (defensa.resTraccionMinTornillo88Kgmm2Defensa ?? 0) *
-          (defensa.seccionResistenteAsDefensa ?? 0)) /
-          1.25) *
-        (defensa.numTornillosDefensa ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (defensa.resTraccionMinTornillo88Kgmm2Defensa ?? 0) *
-          (defensa.seccionResistenteAsDefensa ?? 0)) /
-          1.25) *
-        (defensa.numTornillosDefensa ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
-    }
-
-    const soporteRueda = modificaciones.find(
-      (m) => m.nombre === 'SOPORTE PARA RUEDA DE REPUESTO' && m.seleccionado,
-    );
-    if (soporteRueda) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Soporte para rueda de repuesto',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      contador++;
-
-      const superficiefrontal = soporteRueda.superficieFrontalM2SoporteRueda;
-
-      const peso = 9.81 * (soporteRueda.pesoSoporteRueda ?? 0);
-      const fuerzafrenado = (soporteRueda.pesoSoporteRueda ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (soporteRueda.coefAerodinamicoCwSoporteRueda ?? 0) *
-        (superficiefrontal ?? 0) *
-        (soporteRueda.densidadAireKgM3SoporteRueda ?? 0) *
-        (soporteRueda.velocidadAireV2msSoporteRueda ?? 0) *
-        (soporteRueda.velocidadAireV2msSoporteRueda ?? 0);
-      const fuerzacentrifuga =
-        (soporteRueda.pesoSoporteRueda ?? 0) *
-        (((soporteRueda.velocidadAireV2msSoporteRueda ?? 0) *
-          (soporteRueda.velocidadAireV2msSoporteRueda ?? 0)) /
-          ((soporteRueda.curvaturaSoporteRueda ?? 0) * 100));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              soporteRueda.coefSeguridadKSoporteRueda?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              soporteRueda.densidadAireKgM3SoporteRueda
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              soporteRueda.velocidadAireV2msSoporteRueda
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              soporteRueda.curvaturaSoporteRueda?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              soporteRueda.coefSeguridadKSoporteRueda?.toFixed(2).toString() ??
-                '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (soporteRueda.coefSeguridadKSoporteRueda ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (soporteRueda.resTraccionMinTornillo88Kgmm2SoporteRueda ?? 0) *
-          (soporteRueda.seccionResistenteAsSoporteRueda ?? 0)) /
-          1.25) *
-        (soporteRueda.numTornillosSoporteRueda ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (soporteRueda.resTraccionMinTornillo88Kgmm2SoporteRueda ?? 0) *
-          (soporteRueda.seccionResistenteAsSoporteRueda ?? 0)) /
-          1.25) *
-        (soporteRueda.numTornillosSoporteRueda ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
-    }
-
     const snorkel = modificaciones.find(
       (m) => m.nombre === 'SNORKEL' && m.seleccionado,
     );
@@ -9096,6 +7437,96 @@ export async function buildCalculos(
       out.push(tablaComprobacion);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+    }
+
+    const claraboya = modificaciones.find(
+      (m) => m.nombre === 'CLARABOYA' && m.seleccionado,
+    );
+    if (claraboya && Array.isArray(claraboya.claraboyas)) {
+      claraboya.claraboyas.forEach((item, index) => {
+        appendAerodynamicCalculationSection(out, contador, {
+          title: `Claraboya ${index + 1}`,
+          pesoPiezaKg: toFiniteNumber(item?.pesoPiezaKg),
+          anchuraPiezaM: toFiniteNumber(item?.anchuraPiezaM),
+          alturaPiezaM: toFiniteNumber(item?.alturaPiezaM),
+          metrica: parseMetricaTornillo(item?.metrica),
+          nTornillos: toPositiveInt(item?.nTornillos),
+          calidadTornillo: toFiniteNumber(item?.calidadTornillo),
+          seccionResistenteAs:
+            toFiniteNumber(item?.seccionResistenteAs) ||
+            getAreaResistentePorMetrica(item?.metrica),
+          resTraccionMinTornillo88Kgmm2: toFiniteNumber(
+            item?.resTraccionMinTornillo88Kgmm2,
+          ),
+          cwCoefAerodinamico: toFiniteNumber(item?.cwCoefAerodinamico),
+          densidadAireKgM3: toFiniteNumber(item?.densidadAireKgM3),
+          velocidadAireV2ms: toFiniteNumber(item?.velocidadAireV2ms),
+          coefSeguridadK: toFiniteNumber(item?.coefSeguridadK),
+          curvatura: toFiniteNumber(item?.curvatura),
+        });
+        contador++;
+      });
+    }
+
+    const instalacionElectrica = modificaciones.find(
+      (m) => m.nombre === 'INSTALACIÓN ELÉCTRICA' && m.seleccionado,
+    );
+    if (
+      instalacionElectrica &&
+      Array.isArray(instalacionElectrica.placasSolares)
+    ) {
+      instalacionElectrica.placasSolares.forEach((placa, index) => {
+        const modelo = (placa?.modelo ?? '').toString().trim();
+
+        appendAerodynamicCalculationSection(out, contador, {
+          title: modelo ? `Placa solar ${modelo}` : `Placa solar ${index + 1}`,
+          pesoPiezaKg: toFiniteNumber(placa?.pesoPiezaKg),
+          anchuraPiezaM: toFiniteNumber(placa?.anchuraPiezaM),
+          alturaPiezaM: toFiniteNumber(placa?.alturaPiezaM),
+          metrica: parseMetricaTornillo(placa?.metrica),
+          nTornillos: toPositiveInt(placa?.nTornillos),
+          calidadTornillo: toFiniteNumber(placa?.calidadTornillo),
+          seccionResistenteAs:
+            toFiniteNumber(placa?.seccionResistenteAs) ||
+            getAreaResistentePorMetrica(placa?.metrica),
+          resTraccionMinTornillo88Kgmm2: toFiniteNumber(
+            placa?.resTraccionMinTornillo88Kgmm2,
+          ),
+          cwCoefAerodinamico: toFiniteNumber(placa?.cwCoefAerodinamico),
+          densidadAireKgM3: toFiniteNumber(placa?.densidadAireKgM3),
+          velocidadAireV2ms: toFiniteNumber(placa?.velocidadAireV2ms),
+          coefSeguridadK: toFiniteNumber(placa?.coefSeguridadK),
+          curvatura: toFiniteNumber(placa?.curvatura),
+        });
+        contador++;
+      });
+    }
+
+    const toldo = modificaciones.find(
+      (m) => m.nombre === 'TOLDO' && m.seleccionado,
+    );
+    if (toldo) {
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Toldo',
+        pesoPiezaKg: toFiniteNumber(toldo.pesoPiezaKgToldo),
+        anchuraPiezaM: toFiniteNumber(toldo.anchuraPiezaMToldo),
+        alturaPiezaM: toFiniteNumber(toldo.alturaPiezaMToldo),
+        metrica: parseMetricaTornillo(toldo.metricaToldo ?? toldo.metrica),
+        nTornillos: toPositiveInt(toldo.nTornillosToldo ?? toldo.nTornillos),
+        calidadTornillo: toFiniteNumber(toldo.calidadTornilloToldo),
+        seccionResistenteAs:
+          toFiniteNumber(toldo.seccionResistenteAsToldo) ||
+          getAreaResistentePorMetrica(toldo.metricaToldo ?? toldo.metrica),
+        resTraccionMinTornillo88Kgmm2: toFiniteNumber(
+          toldo.resTraccionMinTornillo88Kgmm2Toldo,
+        ),
+        cwCoefAerodinamico: toFiniteNumber(toldo.cwCoefAerodinamicoToldo),
+        densidadAireKgM3: toFiniteNumber(toldo.densidadAireKgM3Toldo),
+        velocidadAireV2ms: toFiniteNumber(toldo.velocidadAireV2msToldo),
+        coefSeguridadK: toFiniteNumber(toldo.coefSeguridadKToldo),
+        curvatura: toFiniteNumber(toldo.curvaturaToldo),
+      });
+      contador++;
     }
 
     const bombaFreno = modificaciones.find(
@@ -10473,76 +8904,6 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
     }
 
-    const NO_BORDERS = {
-      top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-      bottom: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-      left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-      right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-      insideVertical: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-    };
-
-    const underlineRun = (text: string) =>
-      new TextRun({
-        text,
-        underline: {},
-        bold: true,
-      });
-
-    const fmtDec = (value?: number, decimals = 2) =>
-      Number.isFinite(value)
-        ? Number(value).toLocaleString('es-ES', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
-          })
-        : '---';
-
-    const fmtInt = (value?: number) =>
-      Number.isFinite(value)
-        ? Number(value).toLocaleString('es-ES', {
-            maximumFractionDigits: 0,
-          })
-        : '---';
-
-    const makeBorderlessTable = (
-      rows: Array<[string, string]>,
-      width = 60,
-    ): Table =>
-      new Table({
-        width: { size: width, type: WidthType.PERCENTAGE },
-        borders: NO_BORDERS,
-        rows: rows.map(
-          ([label, value]) =>
-            new TableRow({
-              cantSplit: true,
-              children: [
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  width: { size: 65, type: WidthType.PERCENTAGE },
-                  borders: NO_BORDERS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.LEFT,
-                      children: [new TextRun({ text: label })],
-                    }),
-                  ],
-                }),
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  width: { size: 35, type: WidthType.PERCENTAGE },
-                  borders: NO_BORDERS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.LEFT,
-                      children: [new TextRun({ text: value })],
-                    }),
-                  ],
-                }),
-              ],
-            }),
-        ),
-      });
-
     const paradelante = modificaciones.find(
       (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado,
     );
@@ -11679,7 +10040,7 @@ export async function buildCalculos(
           }),
           // Filas de datos
           ...[
-            ['M.T.M.A. (Kg)', data.mmaDespues.toFixed(2).toString() ?? '---'],
+            ['M.T.M.A. (Kg)', data.mmaDespues.toString() ?? '---'],
             [
               'Velocidad máxima (Km/h)',
               data.velocidadMaxima.toString() ?? '---',
@@ -11727,7 +10088,6 @@ export async function buildCalculos(
         const muebles: {
           desc: string;
           peso: string;
-          medidas: string;
           tornillos: number;
         }[] = [];
 
@@ -11738,32 +10098,29 @@ export async function buildCalculos(
 
         if (modMobiliario) {
           // Muebles bajos
-          (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+          (modMobiliario.mueblesBajo || []).forEach((m: any, idx: number) => {
             muebles.push({
-              desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
+              desc: `Mueble bajo ${idx + 1}`,
               peso: m.pesoMuebleBajo || '---',
-              medidas: formatMedidasMueble(m.medidas),
-              tornillos: m.tornillos || 0,
+              tornillos: toPositiveInt(m.tornillosMuebleBajo),
             });
           });
 
           // Muebles altos
-          (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+          (modMobiliario.mueblesAlto || []).forEach((m: any, idx: number) => {
             muebles.push({
-              desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
+              desc: `Mueble alto ${idx + 1}`,
               peso: m.pesoMuebleAlto || '---',
-              medidas: formatMedidasMueble(m.medidas),
-              tornillos: m.tornillos || 0,
+              tornillos: toPositiveInt(m.tornillosMuebleAlto),
             });
           });
 
           // Aseos
-          (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+          (modMobiliario.mueblesAseo || []).forEach((m: any, idx: number) => {
             muebles.push({
-              desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
+              desc: `Aseo ${idx + 1}`,
               peso: m.pesoMuebleAseo || '---',
-              medidas: formatMedidasMueble(m.medidas),
-              tornillos: m.tornillos || 0,
+              tornillos: toPositiveInt(m.tornillosMuebleAseo),
             });
           });
         }
@@ -11906,32 +10263,36 @@ export async function buildCalculos(
             ],
           });
         }
-
-        const diametroSel = modMobiliario.diametroTornilloSeleccionado;
-
-        const muebles: { desc: string; cantidad: string }[] = [];
+        const muebles: {
+          desc: string;
+          cantidad: string;
+          metrica: number | null;
+        }[] = [];
 
         // Muebles bajos
-        (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+        (modMobiliario.mueblesBajo || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
+            desc: `Mueble bajo ${idx + 1}`,
             cantidad: m.tornillosMuebleBajo || '0',
+            metrica: parseMetricaTornillo(m.metricaTornillosMuebleBajo),
           });
         });
 
         // Muebles altos
-        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        (modMobiliario.mueblesAlto || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
+            desc: `Mueble alto ${idx + 1}`,
             cantidad: m.tornillosMuebleAlto || '0',
+            metrica: parseMetricaTornillo(m.metricaTornillosMuebleAlto),
           });
         });
 
         // Aseos
-        (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+        (modMobiliario.mueblesAseo || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
+            desc: `Aseo ${idx + 1}`,
             cantidad: m.tornillosMuebleAseo || '0',
+            metrica: parseMetricaTornillo(m.metricaTornillosMuebleAseo),
           });
         });
 
@@ -11964,7 +10325,9 @@ export async function buildCalculos(
         // Filas dinámicas
         const filas = muebles.map((mueble) => {
           const cols = ['', '', '', '', ''];
-          const idx = ['4', '5', '6', '8'].indexOf(String(diametroSel));
+          const idx = ['4', '5', '6', '8'].indexOf(
+            String(mueble.metrica ?? ''),
+          );
           if (idx !== -1) {
             cols[idx] = mueble.cantidad;
           }
@@ -12004,13 +10367,13 @@ export async function buildCalculos(
             m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
-        if (!modMobiliario || !modMobiliario.diametroTornilloSeleccionado) {
+        if (!modMobiliario) {
           return new Table({
             rows: [
               new TableRow({
                 children: [
                   new TableCell({
-                    children: [new Paragraph('Sin tornillo seleccionado')],
+                    children: [new Paragraph('Sin mobiliario seleccionado')],
                   }),
                 ],
               }),
@@ -12018,17 +10381,53 @@ export async function buildCalculos(
           });
         }
 
-        const diametroSel = modMobiliario.diametroTornilloSeleccionado;
-        const areaSel = modMobiliario.areaResistenteTornilloSeleccionado;
+        const metricasUsadas = new Set<number>();
 
-        // Aquí defines las propiedades de la tabla
+        (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+          const metrica = parseMetricaTornillo(m.metricaTornillosMuebleBajo);
+          if (metrica != null) metricasUsadas.add(metrica);
+        });
+
+        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+          const metrica = parseMetricaTornillo(m.metricaTornillosMuebleAlto);
+          if (metrica != null) metricasUsadas.add(metrica);
+        });
+
+        (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+          const metrica = parseMetricaTornillo(m.metricaTornillosMuebleAseo);
+          if (metrica != null) metricasUsadas.add(metrica);
+        });
+
+        if (metricasUsadas.size === 0) {
+          return new Table({
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [
+                      new Paragraph('Sin métricas de tornillo seleccionadas'),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          });
+        }
+
+        const metricas = Array.from(metricasUsadas).sort((a, b) => a - b);
+        const detalleAreas = metricas
+          .map(
+            (metrica) => `${getAreaResistentePorMetrica(metrica).toFixed(2)}`,
+          )
+          .join(' | ');
+
         const propiedades: [string, string][] = [
           ['Calidad', 'M8.8'],
-          ['Resistencia a cortadura (Kg)', '227,8'],
+          ['Resistencia a cortadura (Kg)', '0,6 * 80 * Ar / 1,25'],
           ['Tensión de rotura σr ≥ (Kg/mm²)', '80'],
           ['Tensión límite de elasticidad σe ≥ (Kg/mm²)', '65'],
-          ['Diámetro del tornillo (mm)', String(diametroSel)],
-          ['Área resistente Ar (mm²)', String(areaSel)],
+          ['Métricas utilizadas (mm)', metricas.join(', ')],
+          ['Áreas resistentes Ar (mm²)', detalleAreas],
           ['K', '0,6'],
           ['γMb = Coeficiente de seguridad', '1,25'],
         ];
@@ -12086,39 +10485,46 @@ export async function buildCalculos(
           });
         }
 
-        const areaResistente =
-          modMobiliario.areaResistenteTornilloSeleccionado || 0;
-
         const muebles: {
           desc: string;
           peso: number;
           tornillos: number;
+          areaResistente: number;
         }[] = [];
 
         // Muebles bajos
-        (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+        (modMobiliario.mueblesBajo || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
-            peso: parseFloat(m.pesoMuebleBajo) || 0,
-            tornillos: parseInt(m.tornillosMuebleBajo) || 0,
+            desc: `Mueble bajo ${idx + 1}`,
+            peso: toFiniteNumber(m.pesoMuebleBajo),
+            tornillos: toPositiveInt(m.tornillosMuebleBajo),
+            areaResistente: getAreaResistentePorMetrica(
+              m.metricaTornillosMuebleBajo,
+            ),
           });
         });
 
         // Muebles altos
-        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        (modMobiliario.mueblesAlto || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
-            peso: parseFloat(m.pesoMuebleAlto) || 0,
-            tornillos: parseInt(m.tornillosMuebleAlto) || 0,
+            desc: `Mueble alto ${idx + 1}`,
+            peso: toFiniteNumber(m.pesoMuebleAlto),
+            tornillos: toPositiveInt(m.tornillosMuebleAlto),
+            areaResistente: getAreaResistentePorMetrica(
+              m.metricaTornillosMuebleAlto,
+            ),
           });
         });
 
         // Aseos
-        (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+        (modMobiliario.mueblesAseo || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
-            peso: parseFloat(m.pesoMuebleAseo) || 0,
-            tornillos: parseInt(m.tornillosMuebleAseo) || 0,
+            desc: `Aseo ${idx + 1}`,
+            peso: toFiniteNumber(m.pesoMuebleAseo),
+            tornillos: toPositiveInt(m.tornillosMuebleAseo),
+            areaResistente: getAreaResistentePorMetrica(
+              m.metricaTornillosMuebleAseo,
+            ),
           });
         });
 
@@ -12152,8 +10558,9 @@ export async function buildCalculos(
         const filas = muebles.map((mueble, idx) => {
           const fuerzaInercia = (mueble.peso * 5.88) / 9.8;
           const resistenciaCortante =
-            (0.6 * 80 * areaResistente * mueble.tornillos) / 1.25;
-          const coefSeguridad = resistenciaCortante / fuerzaInercia;
+            (0.6 * 80 * mueble.areaResistente * mueble.tornillos) / 1.25;
+          const coefSeguridad =
+            fuerzaInercia > 0 ? resistenciaCortante / fuerzaInercia : 0;
 
           const valores = [
             (idx + 1).toString(),
@@ -12215,20 +10622,22 @@ export async function buildCalculos(
           });
         }
 
-        const resistenciaCortadura = 227.8;
-
-        // 🔹 Solo muebles altos
+        // Solo muebles altos
         const muebles: {
           desc: string;
           peso: number;
           tornillos: number;
+          seccionTension: number;
         }[] = [];
 
-        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        (modMobiliario.mueblesAlto || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
-            peso: parseFloat(m.pesoMuebleAlto) || 0,
-            tornillos: parseInt(m.tornillosMuebleAlto) || 0,
+            desc: `Mueble alto ${idx + 1}`,
+            peso: toFiniteNumber(m.pesoMuebleAlto),
+            tornillos: toPositiveInt(m.tornillosMuebleAlto),
+            seccionTension: getSeccionTensionPorMetrica(
+              m.metricaTornillosMuebleAlto,
+            ),
           });
         });
 
@@ -12264,7 +10673,11 @@ export async function buildCalculos(
         const filas = muebles.map((mueble, idx) => {
           const pesoPorTornillo =
             mueble.tornillos > 0 ? mueble.peso / mueble.tornillos : 0;
-          const resultado = resistenciaCortadura / pesoPorTornillo;
+          // En la plantilla Excel de mobiliario vertical se usa seccion de tension.
+          const resistenciaCortadura =
+            (0.6 * 80 * mueble.seccionTension) / 1.25;
+          const resultado =
+            pesoPorTornillo > 0 ? resistenciaCortadura / pesoPorTornillo : 0;
 
           const valores = [
             (idx + 1).toString(), // Nº
@@ -12366,7 +10779,6 @@ export async function buildCalculos(
       );
 
       contador = 1;
-      contador2 = 1;
 
       out.push(new Paragraph({ text: '' }));
 
@@ -12684,7 +11096,6 @@ export async function buildCalculos(
                       children: [
                         new TextRun({
                           text: 'CÁLCULO DEL ESFUERZO MÁXIMO CORTANTE (EMC)',
-                          bold: true,
                         }),
                       ],
                     }),
@@ -12708,7 +11119,7 @@ export async function buildCalculos(
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: h, bold: true })],
+                        children: [new TextRun({ text: h })],
                       }),
                     ],
                   }),
@@ -12727,11 +11138,9 @@ export async function buildCalculos(
                     margins: CELL_MARGINS,
                     verticalAlign: VerticalAlign.CENTER,
                     shading:
-                      i === 2 && coefSeguridad <= 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : i === 2
-                          ? { type: ShadingType.CLEAR, fill: '00B050' }
-                          : undefined,
+                      i === 2
+                        ? { type: ShadingType.CLEAR, fill: '00B050' }
+                        : undefined,
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
@@ -12794,6 +11203,7 @@ export async function buildCalculos(
         const tablaQDelanteros = new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
+            // Título
             new TableRow({
               cantSplit: true,
               children: [
@@ -12808,7 +11218,6 @@ export async function buildCalculos(
                       children: [
                         new TextRun({
                           text: 'CÁLCULO LA CARGA MÁX (Q) EN FUNCIÓN DE LA FLECHA DEL MUELLE',
-                          bold: true,
                         }),
                       ],
                     }),
@@ -12816,6 +11225,7 @@ export async function buildCalculos(
                 }),
               ],
             }),
+            // Encabezados
             new TableRow({
               cantSplit: true,
               children: [
@@ -12833,12 +11243,13 @@ export async function buildCalculos(
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: h, bold: true })],
+                        children: [new TextRun({ text: h })],
                       }),
                     ],
                   }),
               ),
             }),
+            // Valores
             new TableRow({
               cantSplit: true,
               children: [
@@ -12853,11 +11264,9 @@ export async function buildCalculos(
                     margins: CELL_MARGINS,
                     verticalAlign: VerticalAlign.CENTER,
                     shading:
-                      i === 4 && coefSeguridadK <= 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : i === 4
-                          ? { type: ShadingType.CLEAR, fill: '00B050' }
-                          : undefined,
+                      i === 4
+                        ? { type: ShadingType.CLEAR, fill: '00B050' }
+                        : undefined,
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
@@ -12900,6 +11309,7 @@ export async function buildCalculos(
         const tablaEsfuerzoDelanteros = new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
+            // Encabezado datos
             new TableRow({
               cantSplit: true,
               children: [
@@ -12916,12 +11326,13 @@ export async function buildCalculos(
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: h, bold: true })],
+                        children: [new TextRun({ text: h })],
                       }),
                     ],
                   }),
               ),
             }),
+            // Valores
             new TableRow({
               cantSplit: true,
               children: [
@@ -12935,11 +11346,9 @@ export async function buildCalculos(
                     margins: CELL_MARGINS,
                     verticalAlign: VerticalAlign.CENTER,
                     shading:
-                      i === 3 && coefSeguridadFinalK <= 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : i === 3
-                          ? { type: ShadingType.CLEAR, fill: '00B050' }
-                          : undefined,
+                      i === 3
+                        ? { type: ShadingType.CLEAR, fill: '00B050' }
+                        : undefined,
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
@@ -13242,7 +11651,6 @@ export async function buildCalculos(
                       children: [
                         new TextRun({
                           text: 'CÁLCULO LA CARGA MÁX (Q) EN FUNCIÓN DE LA FLECHA DEL MUELLE',
-                          bold: true,
                         }),
                       ],
                     }),
@@ -13268,7 +11676,7 @@ export async function buildCalculos(
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: h, bold: true })],
+                        children: [new TextRun({ text: h })],
                       }),
                     ],
                   }),
@@ -13289,11 +11697,9 @@ export async function buildCalculos(
                     margins: CELL_MARGINS,
                     verticalAlign: VerticalAlign.CENTER,
                     shading:
-                      i === 4 && coefSeguridadK <= 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : i === 4
-                          ? { type: ShadingType.CLEAR, fill: '00B050' }
-                          : undefined,
+                      i === 4
+                        ? { type: ShadingType.CLEAR, fill: '00B050' }
+                        : undefined,
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
@@ -13336,6 +11742,7 @@ export async function buildCalculos(
         const tablaEsfuerzoTraseros = new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
+            // Encabezado datos
             new TableRow({
               cantSplit: true,
               children: [
@@ -13352,12 +11759,13 @@ export async function buildCalculos(
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
-                        children: [new TextRun({ text: h, bold: true })],
+                        children: [new TextRun({ text: h })],
                       }),
                     ],
                   }),
               ),
             }),
+            // Valores
             new TableRow({
               cantSplit: true,
               children: [
@@ -13371,11 +11779,9 @@ export async function buildCalculos(
                     margins: CELL_MARGINS,
                     verticalAlign: VerticalAlign.CENTER,
                     shading:
-                      i === 3 && coefSeguridadFinalK <= 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : i === 3
-                          ? { type: ShadingType.CLEAR, fill: '00B050' }
-                          : undefined,
+                      i === 3
+                        ? { type: ShadingType.CLEAR, fill: '00B050' }
+                        : undefined,
                     children: [
                       new Paragraph({
                         alignment: AlignmentType.CENTER,
@@ -14199,1107 +12605,7 @@ export async function buildCalculos(
       }
     }
 
-    const engancheRemolque = modificaciones.find(
-      (m) =>
-        m.nombre === 'REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO' &&
-        m.seleccionado,
-    );
-
-    if (engancheRemolque) {
-      const marcaBola = engancheRemolque.marca;
-      const contrasenaHomologacion = engancheRemolque.homologacion;
-      const tipoBola = engancheRemolque.tipo;
-
-      const dKn = engancheRemolque?.valorDKnRemolque ?? 0;
-      const sKg = engancheRemolque?.mmrBarraTraccion ?? 0;
-      const tTn = engancheRemolque?.mmtaRemolque ?? 0;
-      const g = 9.81;
-
-      const dN = dKn * 1000;
-      const tKg = tTn * 1000;
-
-      const rKg =
-        Number.isFinite(dN) &&
-        Number.isFinite(tKg) &&
-        Number.isFinite(g) &&
-        g * tKg !== dN
-          ? (dN * tKg) / (g * tKg - dN)
-          : undefined;
-
-      let mmrCfKg = engancheRemolque.mmrBarraTraccion ?? 3500;
-
-      let numero = 0;
-
-      out.push(new Paragraph({ text: '' }));
-      if (contador2 === 1) {
-        numero = 5;
-      } else {
-        numero = 4;
-      }
-
-      out.push(
-        new Paragraph({
-          heading: HeadingLevel.HEADING_2,
-          children: [
-            new TextRun({
-              text: `2.${numero} CÁLCULO ENGANCHE DE REMOLQUE `,
-              color: '000000',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      // Creación de la nueva estructura de tabla
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [new TextRun({ text: 'Bola de enganche:' })],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            ['Marca', marcaBola ?? '---'],
-            ['Contraseña homologación', contrasenaHomologacion ?? '---'],
-            ['Tipo', tipoBola ?? '---'],
-          ],
-          66,
-        ),
-      );
-
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [new TextRun({ text: 'Características:' })],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            ['D', `${fmtDec(dKn, 1)} KN`],
-            ['S (Carga vertical enganche)', `${fmtInt(sKg)} Kg`],
-            ['T (MTMA)', `${fmtDec(tTn, 2)} Tn`],
-            ['g', `${fmtDec(g, 2)} m/seg2`],
-          ],
-          66,
-        ),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: 'R = D·T / (g·T − D)',
-              italics: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: `R= ${fmtDec(
-                Number.isFinite(rKg) ? Number(rKg) / 1000 : undefined,
-                2,
-              )} Tn = ${fmtInt(rKg)} Kg`,
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: `${fmtInt(rKg)} Kg > ${fmtInt(engancheRemolque.mmrEjeCentral)}Kg (MMR)`,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text:
-                'Como se ha demostrado mediante cálculo, podemos afirmar que la MMR cf del vehículo será de ' +
-                `${fmtInt(engancheRemolque.mmrEjeCentral)}Kg.`,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: `2.${numero}.2 Cálculo sistema enganche al bastidor del vehículo`,
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Para la realización de estos cálculos partiremos de la determinación de la fuerza que han de soportar los sistemas de fijación en una superficie expuesta como en nuestro caso.',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'En este punto se pretende demostrar que el sistema situado entre el chasis i la bola de remolque, es capaz de soportar la MMR cf, que el fabricante indica es la máxima que el vehículo puede remolcar.',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Esta fuerza irá repartida entre los tornillos que unen la estructura con el chasis y que consisten en un conjunto de 4 tornillos M10. Las fuerzas que sufrirán los tornillos se considerarán a tracción.',
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      const fabricacionEstructura =
-        engancheRemolque.tipoFabricacionBarraTraccion ?? 'Artesanal en hierro';
-      const referenciaEstructura =
-        engancheRemolque.referenciaBarraTraccion ?? 'Sin referencia';
-
-      mmrCfKg = Number(engancheRemolque.mmaBarraTraccion ?? 3500);
-
-      const numeroTornillos = Number(
-        engancheRemolque.nTornillosBarraTraccion ??
-          engancheRemolque.nTornillos ??
-          4,
-      );
-
-      const metrica = Number(
-        engancheRemolque.metricasTornillosBarraTraccion ??
-          engancheRemolque.metrica ??
-          16,
-      );
-
-      const calidadTexto =
-        'ISO ' +
-        (engancheRemolque.calidadTornilloBarraTraccion?.toString() ?? '8.8');
-
-      const seccionResistente = Number(
-        engancheRemolque.seccionResistenteAsBarraTraccion ?? 157,
-      );
-
-      const resistenciaTraccionMin = Number(
-        engancheRemolque.resTraccionMinTornillo88Kgmm2BarraTraccion ?? 80,
-      );
-
-      const gammaMb = Number(1.25);
-
-      const fuerzaSoportarN = mmrCfKg * 9.81;
-      const fuerzaFrenadoN = mmrCfKg * 9.81;
-      const esfuerzoMaximoTraccionN =
-        ((0.9 * resistenciaTraccionMin * seccionResistente) / gammaMb) *
-        numeroTornillos;
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [
-            new TextRun({ text: 'Estructura a chasis del enganche:' }),
-          ],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            ['Fabricación:', fabricacionEstructura],
-            ['Referencia:', referenciaEstructura],
-          ],
-          66,
-        ),
-      );
-
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [new TextRun({ text: 'Características:' })],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            [
-              'Fuerza a soportar:',
-              `${fmtInt(mmrCfKg)} Kg = ${fmtDec(fuerzaSoportarN, 0)} N`,
-            ],
-          ],
-          66,
-        ),
-      );
-
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [new TextRun({ text: 'Sujeción:' })],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            ['Nº de tornillos', fmtInt(numeroTornillos)],
-            ['Métrica', fmtInt(metrica)],
-            ['Calidad', calidadTexto],
-            ['Sección resistente', `${fmtInt(seccionResistente)} mm2`],
-            [
-              'Resistencia a tracción Mín:',
-              `${fmtDec(resistenciaTraccionMin, 2)} Kg/mm2`,
-            ],
-          ],
-          66,
-        ),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          children: [underlineRun('Fuerza de Frenado')],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Partiendo de la aceleración de frenado asumida en las consideraciones previas, dicho esfuerzo lo obtendremos mediante la expresión:',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: 'F(f) = m(Kg) * a',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: `Considerando la aceleración (a = 10,00 m/s2), sustituyendo obtenemos que:`,
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: `F(f) = ${fmtDec(fuerzaFrenadoN, 0)} N`,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          children: [
-            underlineRun('Esfuerzos máximos soportados por los tornillos'),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Los esfuerzos máximos que podrán soportar los tornillos a tracción vendrán dados mediante la siguiente fórmula:',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: 'Ft(máx) = (0,9 * fu * As / γMb) * N',
-              italics: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          children: [new TextRun({ text: 'Siendo:' })],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({ text: 'Ft(máx): ' }),
-            new TextRun({
-              text: 'La fuerza máxima que podrá soportar el grupo de tornillos a Tracción.',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({ text: 'fu: ' }),
-            new TextRun({
-              text: 'Tensión última a tracción del tornillo.',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({ text: 'As: ' }),
-            new TextRun({
-              text: 'Área resistente a tracción del tornillo.',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({ text: 'γMb: ' }),
-            new TextRun({
-              text: `Coeficiente parcial de seguridad de los tornillos (${fmtDec(
-                gammaMb,
-                2,
-              )})`,
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({ text: 'N: ' }),
-            new TextRun({
-              text: 'Número de tornillos empleados en la sujeción.',
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      const conjuntoTraccionValido = esfuerzoMaximoTraccionN > fuerzaFrenadoN;
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Sustituyendo los valores en las anteriores expresiones, obtenemos:',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'En la primera fórmula:',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: `Ft(máx)= ${fmtDec(esfuerzoMaximoTraccionN, 1)} N`,
-              bold: true,
-              italics: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Al ser los esfuerzos tracción máximos superiores a la fuerza de diseño, el conjunto de tornillos es ',
-            }),
-            new TextRun({
-              text: conjuntoTraccionValido ? 'VALIDO.' : 'NO VÁLIDO.',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      // ===== APARTADO 2.x.3 CARGA VERTICAL =====
-      const cargaVerticalKg = Number(sKg ?? 0);
-      const fuerzaVerticalN = cargaVerticalKg * 9.81;
-
-      const esfuerzoMaximoCortanteN =
-        ((0.6 * resistenciaTraccionMin * seccionResistente) / gammaMb) *
-        numeroTornillos;
-
-      const conjuntoCortanteValido = esfuerzoMaximoCortanteN > fuerzaVerticalN;
-
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: `2.${numero}.3 Cálculo sistema enganche debido a la carga vertical`,
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Para la realización de estos cálculos partiremos de la determinación de la fuerza que han de soportar los sistemas de fijación en una superficie expuesta como en nuestro caso.',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: `En este punto se pretende demostrar que el sistema es capaz de soportar una fuerza a cortante de ${fmtInt(cargaVerticalKg)}Kg.`,
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [new TextRun({ text: 'Características:' })],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            [
-              'Fuerza a soportar:',
-              `${fmtInt(cargaVerticalKg)} Kg = ${fmtDec(fuerzaVerticalN, 1)} N`,
-            ],
-          ],
-          66,
-        ),
-      );
-
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [new TextRun({ text: 'Sujeción:' })],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            ['Nº de tornillos', fmtInt(numeroTornillos)],
-            ['Métrica', fmtInt(metrica)],
-            ['Calidad', calidadTexto],
-            ['Sección resistente', `${fmtInt(seccionResistente)} mm2`],
-            [
-              'Resistencia a tracción Mín:',
-              `${fmtDec(resistenciaTraccionMin, 2)} Kg/mm2`,
-            ],
-          ],
-          66,
-        ),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: 'Fv(máx) = (0,6 * fu * As / γMb) * N',
-              italics: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: `Fv(máx)= ${fmtDec(esfuerzoMaximoCortanteN, 1)} N`,
-              bold: true,
-              italics: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Al ser los esfuerzos cortantes máximos superiores a la fuerza de diseño, el conjunto de tornillos es ',
-            }),
-            new TextRun({
-              text: conjuntoCortanteValido ? 'VALIDO' : 'NO VÁLIDO',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      contador2 = contador2 + 1;
-    }
-
-    const antiempotramiento2 = modificaciones.find(
-      (m) => m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado,
-    );
-
-    if (antiempotramiento2) {
-      const BORDE_NEGRO = {
-        style: BorderStyle.SINGLE,
-        size: 4,
-        color: '000000',
-      };
-
-      const BORDES_TABLA = {
-        top: BORDE_NEGRO,
-        bottom: BORDE_NEGRO,
-        left: BORDE_NEGRO,
-        right: BORDE_NEGRO,
-        insideHorizontal: BORDE_NEGRO,
-        insideVertical: BORDE_NEGRO,
-      };
-
-      const BORDES_CELDA = {
-        top: BORDE_NEGRO,
-        bottom: BORDE_NEGRO,
-        left: BORDE_NEGRO,
-        right: BORDE_NEGRO,
-      };
-
-      const mmtaKgAnti = Number(
-        antiempotramiento2.pesoMMTAAntiempotramiento ?? 0,
-      );
-
-      const fuerzaImpactoKg = Number(mmtaKgAnti / 2);
-
-      const fuerzaImpactoN = fuerzaImpactoKg * 9.81;
-
-      const pesoPiezaKgAnti = Number(
-        antiempotramiento2.pesoPiezaKgAntiempotramiento ?? 0,
-      );
-
-      const pesoPiezaNAnti = pesoPiezaKgAnti * 9.81;
-
-      const sumaFuerzasAntiN = pesoPiezaNAnti + fuerzaImpactoN;
-
-      const numeroTornillosAnti = Number(
-        antiempotramiento2.nTornillosAntiempotramiento ??
-          antiempotramiento2.nTornillos ??
-          4,
-      );
-
-      const metricaAnti = Number(
-        antiempotramiento2.metricaAntiempotramiento ??
-          antiempotramiento2.metrica ??
-          16,
-      );
-
-      const calidadAnti =
-        'ISO ' +
-        (antiempotramiento2.calidadTornilloAntiempotramiento?.toString() ??
-          '8.8');
-
-      const seccionResistenteAnti = Number(
-        antiempotramiento2.seccionResistenteAsAntiempotramiento ?? 157,
-      );
-
-      const resistenciaTraccionMinAnti = Number(
-        antiempotramiento2.resTraccionMinTornillo88Kgmm2Antiempotramiento ?? 80,
-      );
-
-      const gammaMbAnti = 1.25;
-
-      const fuerzaDisenoAntiN = sumaFuerzasAntiN;
-
-      const fuerzaMaximaTraccionAntiN =
-        ((0.9 * resistenciaTraccionMinAnti * seccionResistenteAnti) /
-          gammaMbAnti) *
-        numeroTornillosAnti;
-
-      const fuerzaMaximaCortanteAntiN =
-        ((0.5 * resistenciaTraccionMinAnti * seccionResistenteAnti) /
-          gammaMbAnti) *
-        numeroTornillosAnti;
-
-      const comprobacionAnti =
-        fuerzaDisenoAntiN / fuerzaMaximaCortanteAntiN +
-        fuerzaDisenoAntiN / (1.4 * fuerzaMaximaTraccionAntiN);
-
-      const esValidoAnti = comprobacionAnti <= 1;
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          heading: HeadingLevel.HEADING_2,
-          children: [
-            new TextRun({
-              text: `2.${contador2} CÁLCULOS DE RESISTENCIA A IMPACTOS`,
-              color: '000000',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: `2.${contador2}.1 Barra antiempotramiento`,
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Para realizar el cálculo de la resistencia a impactos de la barra antiempotramiento trasera se tomarán los siguientes valores característicos',
-            }),
-          ],
-        }),
-      );
-
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [new TextRun({ text: 'Características:' })],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            [
-              'Fuerza a soportar:',
-              `MMTA/2 = ${fmtInt(fuerzaImpactoKg)} Kg = ${fmtDec(
-                fuerzaImpactoN,
-                1,
-              )} N`,
-            ],
-          ],
-          66,
-        ),
-      );
-
-      out.push(
-        new Paragraph({
-          indent: { left: 700 },
-          children: [new TextRun({ text: 'Sujeción:' })],
-        }),
-      );
-
-      out.push(
-        makeBorderlessTable(
-          [
-            ['Nº de tornillos', fmtInt(numeroTornillosAnti)],
-            ['Métrica', fmtInt(metricaAnti)],
-            ['Calidad', calidadAnti],
-            ['Sección resistente', `${fmtInt(seccionResistenteAnti)} mm2`],
-            [
-              'Resistencia a tracción Mín:',
-              `${fmtDec(resistenciaTraccionMinAnti, 2)} Kg/mm2`,
-            ],
-          ],
-          66,
-        ),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-
-      const tablaFuerzasImpactoAnti = new Table({
-        width: { size: 56, type: WidthType.PERCENTAGE },
-        borders: BORDES_TABLA,
-        rows: [
-          new TableRow({
-            children: [
-              new TableCell({
-                columnSpan: 3,
-                borders: BORDES_CELDA,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'FUERZAS QUE ACTUAN SOBRE LA PIEZA (N)',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          new TableRow({
-            children: [
-              new TableCell({
-                borders: BORDES_CELDA,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
-                width: { size: 18, type: WidthType.PERCENTAGE },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: 'Peso' })],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
-                width: { size: 42, type: WidthType.PERCENTAGE },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: 'Fuerza del  impacto' })],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
-                width: { size: 40, type: WidthType.PERCENTAGE },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: 'Suma de fuerzas' })],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          new TableRow({
-            children: [
-              new TableCell({
-                borders: BORDES_CELDA,
-                margins: CELL_MARGINS,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({ text: fmtDec(pesoPiezaNAnti, 2) }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                margins: CELL_MARGINS,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({ text: fmtDec(fuerzaImpactoN, 2) }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                margins: CELL_MARGINS,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({ text: fmtDec(sumaFuerzasAntiN, 2) }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      });
-
-      out.push(tablaFuerzasImpactoAnti);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      const tablaComprobacionAntiempotramiento = new Table({
-        width: { size: 72, type: WidthType.PERCENTAGE },
-        borders: BORDES_TABLA,
-        rows: [
-          new TableRow({
-            children: [
-              new TableCell({
-                borders: BORDES_CELDA,
-                verticalAlign: VerticalAlign.CENTER,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
-                width: { size: 28, type: WidthType.PERCENTAGE },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'La fuerza de diseño soportada por los anclajes (N)',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                verticalAlign: VerticalAlign.CENTER,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
-                width: { size: 20, type: WidthType.PERCENTAGE },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'Fuerza máxima que soportan los tornillos a traccion (N)',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                verticalAlign: VerticalAlign.CENTER,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
-                width: { size: 24, type: WidthType.PERCENTAGE },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'Fuerza máxima que soportan los tornillos a cortante (N)',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                verticalAlign: VerticalAlign.CENTER,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'D9D9D9' },
-                width: { size: 12, type: WidthType.PERCENTAGE },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'comprobación <=1',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          new TableRow({
-            children: [
-              new TableCell({
-                borders: BORDES_CELDA,
-                verticalAlign: VerticalAlign.CENTER,
-                margins: CELL_MARGINS,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: fmtDec(fuerzaDisenoAntiN, 2),
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                verticalAlign: VerticalAlign.CENTER,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: '00B050' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: fmtDec(fuerzaMaximaTraccionAntiN, 1),
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                verticalAlign: VerticalAlign.CENTER,
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: '00B050' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: fmtDec(fuerzaMaximaCortanteAntiN, 2),
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                borders: BORDES_CELDA,
-                verticalAlign: VerticalAlign.CENTER,
-                margins: CELL_MARGINS,
-                shading: {
-                  type: ShadingType.CLEAR,
-                  fill: esValidoAnti ? '00B050' : 'FF0000',
-                },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: fmtDec(comprobacionAnti, 3),
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      });
-
-      out.push(tablaComprobacionAntiempotramiento);
-      out.push(new Paragraph({ text: '' }));
-
-      out.push(
-        new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          children: [
-            new TextRun({
-              text: 'Al ser la comprobación inferior o igual a 1, el conjunto de tornillos es ',
-            }),
-            new TextRun({
-              text: esValidoAnti ? 'VÁLIDO.' : 'NO VÁLIDO.',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-
-      out.push(new Paragraph({ text: '' }));
-    }
-
-    // Final
+    // 7) Texto final en cursiva
     out.push(
       new Paragraph({
         children: [
@@ -15420,7 +12726,6 @@ export async function buildCalculos(
         const muebles: {
           desc: string;
           peso: string;
-          medidas: string;
           tornillos: number;
         }[] = [];
 
@@ -15431,32 +12736,29 @@ export async function buildCalculos(
 
         if (modMobiliario) {
           // Muebles bajos
-          (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+          (modMobiliario.mueblesBajo || []).forEach((m: any, idx: number) => {
             muebles.push({
-              desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
+              desc: `Mueble bajo ${idx + 1}`,
               peso: m.pesoMuebleBajo || '---',
-              medidas: formatMedidasMueble(m.medidas),
-              tornillos: m.tornillos || 0,
+              tornillos: toPositiveInt(m.tornillosMuebleBajo),
             });
           });
 
           // Muebles altos
-          (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+          (modMobiliario.mueblesAlto || []).forEach((m: any, idx: number) => {
             muebles.push({
-              desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
+              desc: `Mueble alto ${idx + 1}`,
               peso: m.pesoMuebleAlto || '---',
-              medidas: formatMedidasMueble(m.medidas),
-              tornillos: m.tornillos || 0,
+              tornillos: toPositiveInt(m.tornillosMuebleAlto),
             });
           });
 
           // Aseos
-          (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+          (modMobiliario.mueblesAseo || []).forEach((m: any, idx: number) => {
             muebles.push({
-              desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
+              desc: `Aseo ${idx + 1}`,
               peso: m.pesoMuebleAseo || '---',
-              medidas: formatMedidasMueble(m.medidas),
-              tornillos: m.tornillos || 0,
+              tornillos: toPositiveInt(m.tornillosMuebleAseo),
             });
           });
         }
@@ -15599,32 +12901,36 @@ export async function buildCalculos(
             ],
           });
         }
-
-        const diametroSel = modMobiliario.diametroTornilloSeleccionado;
-
-        const muebles: { desc: string; cantidad: string }[] = [];
+        const muebles: {
+          desc: string;
+          cantidad: string;
+          metrica: number | null;
+        }[] = [];
 
         // Muebles bajos
-        (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+        (modMobiliario.mueblesBajo || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
+            desc: `Mueble bajo ${idx + 1}`,
             cantidad: m.tornillosMuebleBajo || '0',
+            metrica: parseMetricaTornillo(m.metricaTornillosMuebleBajo),
           });
         });
 
         // Muebles altos
-        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        (modMobiliario.mueblesAlto || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
+            desc: `Mueble alto ${idx + 1}`,
             cantidad: m.tornillosMuebleAlto || '0',
+            metrica: parseMetricaTornillo(m.metricaTornillosMuebleAlto),
           });
         });
 
         // Aseos
-        (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+        (modMobiliario.mueblesAseo || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
+            desc: `Aseo ${idx + 1}`,
             cantidad: m.tornillosMuebleAseo || '0',
+            metrica: parseMetricaTornillo(m.metricaTornillosMuebleAseo),
           });
         });
 
@@ -15657,7 +12963,9 @@ export async function buildCalculos(
         // Filas dinámicas
         const filas = muebles.map((mueble) => {
           const cols = ['', '', '', '', ''];
-          const idx = ['4', '5', '6', '8'].indexOf(String(diametroSel));
+          const idx = ['4', '5', '6', '8'].indexOf(
+            String(mueble.metrica ?? ''),
+          );
           if (idx !== -1) {
             cols[idx] = mueble.cantidad;
           }
@@ -15697,13 +13005,13 @@ export async function buildCalculos(
             m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
-        if (!modMobiliario || !modMobiliario.diametroTornilloSeleccionado) {
+        if (!modMobiliario) {
           return new Table({
             rows: [
               new TableRow({
                 children: [
                   new TableCell({
-                    children: [new Paragraph('Sin tornillo seleccionado')],
+                    children: [new Paragraph('Sin mobiliario seleccionado')],
                   }),
                 ],
               }),
@@ -15711,17 +13019,54 @@ export async function buildCalculos(
           });
         }
 
-        const diametroSel = modMobiliario.diametroTornilloSeleccionado;
-        const areaSel = modMobiliario.areaResistenteTornilloSeleccionado;
+        const metricasUsadas = new Set<number>();
 
-        // Aquí defines las propiedades de la tabla
+        (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+          const metrica = parseMetricaTornillo(m.metricaTornillosMuebleBajo);
+          if (metrica != null) metricasUsadas.add(metrica);
+        });
+
+        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+          const metrica = parseMetricaTornillo(m.metricaTornillosMuebleAlto);
+          if (metrica != null) metricasUsadas.add(metrica);
+        });
+
+        (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+          const metrica = parseMetricaTornillo(m.metricaTornillosMuebleAseo);
+          if (metrica != null) metricasUsadas.add(metrica);
+        });
+
+        if (metricasUsadas.size === 0) {
+          return new Table({
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({
+                    children: [
+                      new Paragraph('Sin métricas de tornillo seleccionadas'),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          });
+        }
+
+        const metricas = Array.from(metricasUsadas).sort((a, b) => a - b);
+        const detalleAreas = metricas
+          .map(
+            (metrica) =>
+              `${metrica}: ${getAreaResistentePorMetrica(metrica).toFixed(2)}`,
+          )
+          .join(' | ');
+
         const propiedades: [string, string][] = [
           ['Calidad', 'M8.8'],
-          ['Resistencia a cortadura (Kg)', '227,8'],
+          ['Resistencia a cortadura (Kg)', '0,6 * 80 * Ar / 1,25'],
           ['Tensión de rotura σr ≥ (Kg/mm²)', '80'],
           ['Tensión límite de elasticidad σe ≥ (Kg/mm²)', '65'],
-          ['Diámetro del tornillo (mm)', String(diametroSel)],
-          ['Área resistente Ar (mm²)', String(areaSel)],
+          ['Métricas utilizadas (mm)', metricas.join(', ')],
+          ['Áreas resistentes Ar (mm²)', detalleAreas],
           ['K', '0,6'],
           ['γMb = Coeficiente de seguridad', '1,25'],
         ];
@@ -15779,39 +13124,46 @@ export async function buildCalculos(
           });
         }
 
-        const areaResistente =
-          modMobiliario.areaResistenteTornilloSeleccionado || 0;
-
         const muebles: {
           desc: string;
           peso: number;
           tornillos: number;
+          areaResistente: number;
         }[] = [];
 
         // Muebles bajos
-        (modMobiliario.mueblesBajo || []).forEach((m: any) => {
+        (modMobiliario.mueblesBajo || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble bajo ${formatMedidasMueble(m.medidas)}`,
-            peso: parseFloat(m.pesoMuebleBajo) || 0,
-            tornillos: parseInt(m.tornillosMuebleBajo) || 0,
+            desc: `Mueble bajo ${idx + 1}`,
+            peso: toFiniteNumber(m.pesoMuebleBajo),
+            tornillos: toPositiveInt(m.tornillosMuebleBajo),
+            areaResistente: getAreaResistentePorMetrica(
+              m.metricaTornillosMuebleBajo,
+            ),
           });
         });
 
         // Muebles altos
-        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        (modMobiliario.mueblesAlto || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
-            peso: parseFloat(m.pesoMuebleAlto) || 0,
-            tornillos: parseInt(m.tornillosMuebleAlto) || 0,
+            desc: `Mueble alto ${idx + 1}`,
+            peso: toFiniteNumber(m.pesoMuebleAlto),
+            tornillos: toPositiveInt(m.tornillosMuebleAlto),
+            areaResistente: getAreaResistentePorMetrica(
+              m.metricaTornillosMuebleAlto,
+            ),
           });
         });
 
         // Aseos
-        (modMobiliario.mueblesAseo || []).forEach((m: any) => {
+        (modMobiliario.mueblesAseo || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Aseo ${formatMedidasMueble(m.medidas)}`,
-            peso: parseFloat(m.pesoMuebleAseo) || 0,
-            tornillos: parseInt(m.tornillosMuebleAseo) || 0,
+            desc: `Aseo ${idx + 1}`,
+            peso: toFiniteNumber(m.pesoMuebleAseo),
+            tornillos: toPositiveInt(m.tornillosMuebleAseo),
+            areaResistente: getAreaResistentePorMetrica(
+              m.metricaTornillosMuebleAseo,
+            ),
           });
         });
 
@@ -15845,8 +13197,9 @@ export async function buildCalculos(
         const filas = muebles.map((mueble, idx) => {
           const fuerzaInercia = (mueble.peso * 5.88) / 9.8;
           const resistenciaCortante =
-            (0.6 * 80 * areaResistente * mueble.tornillos) / 1.25;
-          const coefSeguridad = resistenciaCortante / fuerzaInercia;
+            (0.6 * 80 * mueble.areaResistente * mueble.tornillos) / 1.25;
+          const coefSeguridad =
+            fuerzaInercia > 0 ? resistenciaCortante / fuerzaInercia : 0;
 
           const valores = [
             (idx + 1).toString(),
@@ -15908,20 +13261,22 @@ export async function buildCalculos(
           });
         }
 
-        const resistenciaCortadura = 227.8;
-
-        // 🔹 Solo muebles altos
+        // Solo muebles altos
         const muebles: {
           desc: string;
           peso: number;
           tornillos: number;
+          seccionTension: number;
         }[] = [];
 
-        (modMobiliario.mueblesAlto || []).forEach((m: any) => {
+        (modMobiliario.mueblesAlto || []).forEach((m: any, idx: number) => {
           muebles.push({
-            desc: `Mueble alto ${formatMedidasMueble(m.medidas)}`,
-            peso: parseFloat(m.pesoMuebleAlto) || 0,
-            tornillos: parseInt(m.tornillosMuebleAlto) || 0,
+            desc: `Mueble alto ${idx + 1}`,
+            peso: toFiniteNumber(m.pesoMuebleAlto),
+            tornillos: toPositiveInt(m.tornillosMuebleAlto),
+            seccionTension: getSeccionTensionPorMetrica(
+              m.metricaTornillosMuebleAlto,
+            ),
           });
         });
 
@@ -15957,7 +13312,11 @@ export async function buildCalculos(
         const filas = muebles.map((mueble, idx) => {
           const pesoPorTornillo =
             mueble.tornillos > 0 ? mueble.peso / mueble.tornillos : 0;
-          const resultado = resistenciaCortadura / pesoPorTornillo;
+          // En la plantilla Excel de mobiliario vertical se usa seccion de tension.
+          const resistenciaCortadura =
+            (0.6 * 80 * mueble.seccionTension) / 1.25;
+          const resultado =
+            pesoPorTornillo > 0 ? resistenciaCortadura / pesoPorTornillo : 0;
 
           const valores = [
             (idx + 1).toString(), // Nº

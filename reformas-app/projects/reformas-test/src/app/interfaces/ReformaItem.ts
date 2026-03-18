@@ -1,4 +1,4 @@
-interface ReformaItem {
+export interface ReformaItem {
   codigo: string;
   descripcion: string;
 }

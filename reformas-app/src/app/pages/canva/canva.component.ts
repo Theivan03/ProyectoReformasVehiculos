@@ -126,6 +126,130 @@ export class CanvaComponent implements OnInit {
     return this.CANVAS_HIDDEN_MOD_RULES.some((rule) => rule(mod));
   }
 
+  private hasValue(value: unknown): boolean {
+    if (value === undefined || value === null) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    return true;
+  }
+
+  private isMobiliarioInteriorMod(mod: any, normalizedName: string): boolean {
+    return (
+      normalizedName.includes('MOBILIARIO INTERIOR') ||
+      mod?.opcionesMueble != null ||
+      Array.isArray(mod?.mueblesBajo) ||
+      Array.isArray(mod?.mueblesAlto) ||
+      Array.isArray(mod?.mueblesAseo)
+    );
+  }
+
+  private isInstalacionElectricaMod(mod: any, normalizedName: string): boolean {
+    return (
+      (normalizedName.includes('INSTALACI') && normalizedName.includes('CTRICA')) ||
+      Array.isArray(mod?.placasSolares) ||
+      this.hasValue(mod?.cantidadBaterias) ||
+      this.hasValue(mod?.potenciaBaterias) ||
+      this.hasValue(mod?.ubicacionBaterias) ||
+      this.hasValue(mod?.potenciaInversor) ||
+      this.hasValue(mod?.marcaInversor) ||
+      this.hasValue(mod?.homologacionInversor) ||
+      this.hasValue(mod?.ubicacionInversor) ||
+      this.hasValue(mod?.modeloControlador) ||
+      this.hasValue(mod?.marcaControlador) ||
+      this.hasValue(mod?.homologacionControlador) ||
+      this.hasValue(mod?.ubicacionControlador)
+    );
+  }
+
+  private buildLabelWithModel(prefix: 'Ventana' | 'Claraboya', model: any): string {
+    const modelText = (model ?? '').toString().trim();
+    return modelText ? `${prefix} ${modelText}` : prefix;
+  }
+
+  private toPositiveInt(value: any): number {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+    return Math.floor(parsed);
+  }
+
+  private expandClaraboyas(mod: any): string[] {
+    const out: string[] = [];
+
+    if (Array.isArray(mod?.claraboyas) && mod.claraboyas.length > 0) {
+      mod.claraboyas.forEach((item: any) => {
+        out.push(this.buildLabelWithModel('Claraboya', item?.modelo));
+      });
+      return out;
+    }
+
+    const legacyExists =
+      mod?.modeloClaraboya ||
+      mod?.marcaClaraboya ||
+      mod?.homologacionClaraboya ||
+      mod?.descripcionClaraboya ||
+      mod?.cantidadClaraboya;
+
+    if (!legacyExists) return out;
+
+    const qty = this.toPositiveInt(mod?.cantidadClaraboya);
+    const count = qty > 0 ? qty : 1;
+    for (let i = 0; i < count; i++) {
+      out.push(this.buildLabelWithModel('Claraboya', mod?.modeloClaraboya));
+    }
+
+    return out;
+  }
+
+  private expandVentanas(mod: any): string[] {
+    const out: string[] = [];
+
+    if (Array.isArray(mod?.ventanas) && mod.ventanas.length > 0) {
+      mod.ventanas.forEach((item: any) => {
+        out.push(this.buildLabelWithModel('Ventana', item?.modelo));
+      });
+      return out;
+    }
+
+    const legacyExists =
+      mod?.modeloVentana ||
+      mod?.marcaVentana ||
+      mod?.homologacionVentana ||
+      mod?.descripcionVentana ||
+      mod?.dimensionesVentana ||
+      mod?.cantidadVentanas;
+
+    if (!legacyExists) return out;
+
+    const qty = this.toPositiveInt(mod?.cantidadVentanas);
+    const count = qty > 0 ? qty : 1;
+    for (let i = 0; i < count; i++) {
+      out.push(this.buildLabelWithModel('Ventana', mod?.modeloVentana));
+    }
+
+    return out;
+  }
+
+  private expandReformasAdicionalesLabels(mod: any): string[] {
+    const out: string[] = [];
+    const items = Array.isArray(mod?.reformasAdicionalesItems)
+      ? mod.reformasAdicionalesItems
+      : [];
+
+    items.forEach((item: any, index: number) => {
+      const titulo = (item?.titulo ?? '').toString().trim();
+      if (titulo) {
+        out.push(titulo);
+        return;
+      }
+
+      const descripcion = (item?.descripcion ?? '').toString().trim();
+      if (descripcion) {
+        out.push(`Reforma adicional ${index + 1}`);
+      }
+    });
+
+    return out;
+  }
+
   private isCasuisticaSuspension(nombre: string | undefined): boolean {
     return (
       (nombre || '').trim().toUpperCase() ===
@@ -191,19 +315,24 @@ export class CanvaComponent implements OnInit {
       : [];
 
     for (const mod of mods) {
+      const normalizedName = this.normalizeText(mod?.nombre);
+
       if (mod?.seleccionado && this.shouldHideModInCanvas(mod)) {
         continue;
       }
 
-      if (mod?.seleccionado && mod?.nombre === 'MOBILIARIO INTERIOR VEHÃCULO') {
-        mod.mueblesBajo?.forEach((m: any) =>
-          nuevasLabels.push(`Mueble bajo (${m?.medidas || 'sin medidas'})`),
+      if (
+        mod?.seleccionado &&
+        this.isMobiliarioInteriorMod(mod, normalizedName)
+      ) {
+        mod.mueblesBajo?.forEach((_: any, idx: number) =>
+          nuevasLabels.push(`Mueble bajo ${idx + 1}`),
         );
-        mod.mueblesAlto?.forEach((m: any) =>
-          nuevasLabels.push(`Mueble alto (${m?.medidas || 'sin medidas'})`),
+        mod.mueblesAlto?.forEach((_: any, idx: number) =>
+          nuevasLabels.push(`Mueble alto ${idx + 1}`),
         );
-        mod.mueblesAseo?.forEach((m: any) =>
-          nuevasLabels.push(`Aseo (${m?.medidas || 'sin medidas'})`),
+        mod.mueblesAseo?.forEach((_: any, idx: number) =>
+          nuevasLabels.push(`Aseo ${idx + 1}`),
         );
         continue;
       }
@@ -216,7 +345,10 @@ export class CanvaComponent implements OnInit {
         continue;
       }
 
-      if (mod?.seleccionado && mod?.nombre === 'INSTALACIÃ“N ELÃ‰CTRICA') {
+      if (
+        mod?.seleccionado &&
+        this.isInstalacionElectricaMod(mod, normalizedName)
+      ) {
         const sublabels = this.expandInstalacionElectrica(mod);
         if (sublabels.length > 0) nuevasLabels.push(...sublabels);
         continue;
@@ -228,16 +360,52 @@ export class CanvaComponent implements OnInit {
         continue;
       }
 
+      if (mod?.seleccionado && normalizedName === 'CLARABOYA') {
+        const sublabels = this.expandClaraboyas(mod);
+        if (sublabels.length > 0) nuevasLabels.push(...sublabels);
+        continue;
+      }
+
+      if (mod?.seleccionado && normalizedName === 'VENTANA') {
+        const sublabels = this.expandVentanas(mod);
+        if (sublabels.length > 0) nuevasLabels.push(...sublabels);
+        continue;
+      }
+
+      if (
+        mod?.seleccionado &&
+        normalizedName === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES'
+      ) {
+        const sublabels = this.expandReformasAdicionalesLabels(mod);
+        if (sublabels.length > 0) {
+          nuevasLabels.push(...sublabels);
+        } else {
+          nuevasLabels.push(mod.nombre);
+        }
+        continue;
+      }
+
       if (mod?.seleccionado) {
         nuevasLabels.push(mod.nombre);
       }
     }
 
     if (this.markers.length > 0) {
+      const indexesByLabel = new Map<string, number[]>();
+      nuevasLabels.forEach((label, idx) => {
+        const indexes = indexesByLabel.get(label) ?? [];
+        indexes.push(idx);
+        indexesByLabel.set(label, indexes);
+      });
+      const consumedByLabel = new Map<string, number>();
+
       this.markers = this.markers
         .map((m) => {
-          const newIndex = nuevasLabels.indexOf(m.etiqueta);
-          if (newIndex !== -1) {
+          const indexes = indexesByLabel.get(m.etiqueta) ?? [];
+          const consumed = consumedByLabel.get(m.etiqueta) ?? 0;
+          if (consumed < indexes.length) {
+            const newIndex = indexes[consumed];
+            consumedByLabel.set(m.etiqueta, consumed + 1);
             return { ...m, label: (newIndex + 1).toString() };
           }
           return null;
@@ -269,27 +437,35 @@ export class CanvaComponent implements OnInit {
 
     if (Array.isArray(mod.placasSolares)) {
       mod.placasSolares.forEach((placa: any, i: number) => {
+        const marca = (placa?.marcaPlacaSolar ?? placa?.marca ?? '')
+          .toString()
+          .trim();
+        const modelo = (placa?.modeloPlacaSolar ?? placa?.modelo ?? '')
+          .toString()
+          .trim();
+        const detalle = [marca, modelo].filter(Boolean).join(' ');
+        const cantidad =
+          placa?.agruparIguales && Number(placa?.cantidad) > 1
+            ? Math.trunc(Number(placa.cantidad))
+            : 1;
         out.push(
-          `Placa solar ${i + 1} (${placa.marcaPlacaSolar || ''} ${
-            placa.modeloPlacaSolar || ''
-          })`,
+          cantidad > 1
+            ? detalle
+              ? `${cantidad} placas solares (${detalle})`
+              : `${cantidad} placas solares`
+            : detalle
+              ? `Placa solar ${i + 1} (${detalle})`
+              : `Placa solar ${i + 1}`,
         );
       });
     }
 
-    if (mod.cantidadBaterias && mod.potenciaBaterias) {
-      out.push(`BaterÃ­a ${mod.potenciaBaterias}V`);
-    }
+    // En canva siempre se posicionan por separado en instalación eléctrica.
+    out.push('Batería');
+    out.push('Inversor');
+    out.push('Controlador');
 
-    if (mod.marcaInversor || mod.potenciaInversor) {
-      out.push(`Inversor ${mod.marcaInversor || ''}`);
-    }
-
-    if (mod.marcaControlador || mod.modeloControlador) {
-      out.push(`Controlador ${mod.modeloControlador || ''}`);
-    }
-
-    if (mod.instalacionesSecundarias) {
+    if (this.hasValue(mod.instalacionesSecundarias)) {
       out.push(`Instalaciones secundarias`);
     }
 

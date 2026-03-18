@@ -31,6 +31,7 @@ import {
 } from '../Funciones/buildModificacionesParagraphs';
 import loadImage from 'blueimp-load-image';
 import { buildCalculos } from '../Funciones/calculos';
+import { ReformaItem } from '../interfaces/ReformaItem';
 
 interface ImageInfo {
   buffer: ArrayBuffer;
