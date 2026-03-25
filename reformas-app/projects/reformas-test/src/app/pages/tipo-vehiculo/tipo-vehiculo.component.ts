@@ -352,7 +352,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       };
     }
 
-    if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && !Array.isArray(mod.placasSolares)) {
+    if (
+      mod.nombre === 'INSTALACIÓN ELÉCTRICA' &&
+      !Array.isArray(mod.placasSolares)
+    ) {
       mod.placasSolares = [];
     }
 
@@ -1088,7 +1091,6 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         'CANARD',
         'TECHO SOLAR',
         'VENTANA ABATIBLE',
-        'BODY LIFT',
         'PELDAÑOS',
         'DEFENSA DELANTERA',
         'DIFUSOR TRASERO',
@@ -1113,6 +1115,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       nombre: 'SUSPENSIÓN, EJES Y RUEDAS',
       seleccionado: false,
       items: [
+        'BODY LIFT',
         'NEUMÁTICOS',
         'LLANTAS Y NEUMÁTICOS',
         'SEPARADORES DE RUEDA',

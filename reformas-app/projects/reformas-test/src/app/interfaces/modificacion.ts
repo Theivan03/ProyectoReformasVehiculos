@@ -434,6 +434,8 @@ export interface Modificacion {
   diametroExteriorDelantero?: number;
   diametroTacoDelantero?: number;
   diametroTacoTrasero?: number;
+  diametroTacoKitElevacionDelantero?: number;
+  diametroTacoKitElevacionTrasero?: number;
   discoDelantero?: boolean;
   discoFreno?: boolean;
   discoTrasero?: boolean;
@@ -446,6 +448,8 @@ export interface Modificacion {
   enclaje?: string;
   espesorTacoDelantero?: number;
   espesorTacoTrasero?: number;
+  espesorTacoKitElevacionDelantero?: number;
+  espesorTacoKitElevacionTrasero?: number;
   esLed?: boolean;
   esLedPosicion?: boolean;
 

@@ -688,7 +688,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
 
   // 1) Muelles delanteros con referencia
   if (mod) {
-    if (suspension) {
+    if (false && suspension) {
       const frasesBase = [
         `Instalación - Se instalan los elementos de la suspensión nombrados de características diferentes a los originales.`,
         `Desmontaje - Se desmontan los elementos de la suspensión que vienen de serie por otros de características diferentes a los originales.`,
@@ -712,10 +712,16 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
       indent: { left: 250 },
-      children: [new TextRun({ text: raw })],
+      children: [
+        new TextRun({
+          text: 'Sustituci\u00f3n - Se sustituyen los elementos de la suspensi\u00f3n que vienen de serie por los siguientes:',
+        }),
+      ],
     });
-    (p as any)._rawText = raw;
+    (p as any)._rawText =
+      'Sustituci\u00f3n - Se sustituyen los elementos de la suspensi\u00f3n que vienen de serie por los siguientes:';
     (p as any)._fromCasuistica = true; // 👈 marca
+    (p as any)._omitFromProyectoApartados = true;
     out.push(p);
 
     const fraseFija = new Paragraph({
@@ -729,7 +735,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     });
     (p as any)._rawText = raw;
     (p as any)._fromCasuistica = true; // 👈 marca
-    out.push(fraseFija);
+    if (false) out.push(fraseFija);
 
     if (mod.detallesMuelles?.['muelleDelanteroConRef']) {
       raw = `- Muelles delanteros marca ${mod.marcaMuelleDelanteroConRef} referencia ${mod.referenciaMuelleDelanteroConRef}.`;
@@ -1092,6 +1098,14 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       mod.detallesMuelles?.['kitElevacionTrasero']
     ) {
       // 1) LÍNEA PRINCIPAL
+      const diametroKitElevacionDelantero =
+        mod.diametroTacoKitElevacionDelantero ?? mod.diametroTacoDelantero;
+      const espesorKitElevacionDelantero =
+        mod.espesorTacoKitElevacionDelantero ?? mod.espesorTacoDelantero;
+      const diametroKitElevacionTrasero =
+        mod.diametroTacoKitElevacionTrasero ?? mod.diametroTacoTrasero;
+      const espesorKitElevacionTrasero =
+        mod.espesorTacoKitElevacionTrasero ?? mod.espesorTacoTrasero;
       const partesEjes: string[] = [];
       const marcas: string[] = [];
 
@@ -1127,8 +1141,8 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       if (mod.detallesMuelles?.['kitElevacionDelantero']) {
         raw =
           `• Muelles delanteros: taco ${mod.tipoTacoDelantero} de aluminio de Ø ` +
-          `${mod.diametroTacoDelantero} mm y ` +
-          `${mod.espesorTacoDelantero} mm de espesor ` +
+          `${diametroKitElevacionDelantero} mm y ` +
+          `${espesorKitElevacionDelantero} mm de espesor ` +
           `instalado en cada muelle delantero, marca ${mod.marcaKitElevacionDelantera}.`;
 
         pushCasuistica(
@@ -1151,7 +1165,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
               ? 'de forma rectangular de medidas '
               : ''
           }` +
-          `${mod.diametroTacoTrasero} x ${mod.espesorTacoTrasero} mm de espesor ` +
+          `${diametroKitElevacionTrasero} x ${espesorKitElevacionTrasero} mm de espesor ` +
           `sobre ballesta trasera, marca ${mod.marcaKitElevacionTrasera}.`;
 
         pushCasuistica(
@@ -1247,25 +1261,29 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) => m.nombre === 'DEFENSA DELANTERA' && m.seleccionado,
   );
   if (defensadelantera) {
-    if (Array.isArray(defensadelantera.acciones)) {
-      defensadelantera.acciones.forEach((accion: string) => {
-        const raw =
-          `- ${accion} de defensa integral delantera ${defensadelantera.marcaDefensa}` +
-          (defensadelantera.modeloDefensa
-            ? ` modelo ${defensadelantera.modeloDefensa}`
-            : '') +
-          `, fabricada con tubo de ${defensadelantera.grosorTuboDefensa} mm de acero inoxidable de dimensiones ${defensadelantera.medidasDefensa} mm.`;
+    const accionesDefensa =
+      Array.isArray(defensadelantera.acciones) &&
+      defensadelantera.acciones.length > 0
+        ? defensadelantera.acciones
+        : ['Instalación'];
 
-        const p = new Paragraph({
-          spacing: { line: 260, after: 120 },
-          indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
-        });
+    accionesDefensa.forEach((accion: string) => {
+      const raw =
+        `- ${accion} de defensa integral delantera ${defensadelantera.marcaDefensa}` +
+        (defensadelantera.modeloDefensa
+          ? ` modelo ${defensadelantera.modeloDefensa}`
+          : '') +
+        `, fabricada con tubo de ${defensadelantera.grosorTuboDefensa} mm de acero inoxidable de dimensiones ${defensadelantera.medidasDefensa} mm.`;
 
-        (p as any)._rawText = raw;
-        out.push(p);
+      const p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
       });
-    }
+
+      (p as any)._rawText = raw;
+      out.push(p);
+    });
   }
 
   //
@@ -4122,7 +4140,9 @@ export function generarDocumentoProyectoParagraphs(
 
   // Clasificación base
   const casuisticaParas = all.filter(
-    (p: any) => (p as any)._fromCasuistica === true,
+    (p: any) =>
+      (p as any)._fromCasuistica === true &&
+      (p as any)._omitFromProyectoApartados !== true,
   );
 
   const nonCasuisticaParas = all.filter(

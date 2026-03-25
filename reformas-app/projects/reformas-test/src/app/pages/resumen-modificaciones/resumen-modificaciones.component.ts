@@ -744,6 +744,17 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         this.ensureToldoDefaults(m);
       }
 
+      if (m.nombre === 'DEFENSA DELANTERA') {
+        this.ensureDefensaDelanteraDefaults(m);
+      }
+
+      if (
+        m.nombre ===
+        'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
+      ) {
+        this.ensureSuspensionCasuisticaDefaults(m);
+      }
+
       if (m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO') {
         this.ensureAngulosContactoSustitucionDiscos(m);
       }
@@ -1005,6 +1016,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       },
       {
         nombre: 'TOLDO',
+        metricaKey: 'metricaToldo',
+        calidadKey: 'calidadTornilloToldo',
+      },
+      {
+        nombre: 'DEFENSA DELANTERA',
         metricaKey: 'metricaToldo',
         calidadKey: 'calidadTornilloToldo',
       },
@@ -1311,6 +1327,47 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     this.syncCalidadByMetrica(mod);
   }
 
+  private ensureDefensaDelanteraDefaults(mod: any): void {
+    if (!mod) return;
+
+    if (mod.metricaToldo == null && mod.metrica != null) {
+      mod.metricaToldo = this.toNumberOrNull(mod.metrica);
+    }
+
+    if (mod.curvaturaDefensaDelantera == null) mod.curvaturaDefensaDelantera = 8;
+    if (mod.cwCoefAerodinamicoToldo == null) mod.cwCoefAerodinamicoToldo = 0.82;
+    if (mod.densidadAireKgM3Toldo == null) mod.densidadAireKgM3Toldo = 1.29;
+    if (mod.velocidadAireV2msToldo == null) mod.velocidadAireV2msToldo = 38.89;
+    if (mod.coefSeguridadKToldo == null) mod.coefSeguridadKToldo = 3;
+
+    if (mod.resTraccionMinTornillo88Kgmm2Toldo == null) {
+      mod.resTraccionMinTornillo88Kgmm2Toldo = 80;
+    }
+
+    if (mod.seccionResistenteAsToldo == null) {
+      mod.seccionResistenteAsToldo =
+        this.getAreaResistenteByMetrica(mod.metricaToldo) ?? 36.64;
+    }
+
+    if (
+      mod.medidasDefensa &&
+      (mod.anchuraPiezaM == null || mod.alturaPiezaM == null)
+    ) {
+      this.onDimensionesChange(
+        mod,
+        'medidasDefensa',
+        'anchuraPiezaM',
+        'alturaPiezaM',
+      );
+    }
+
+    if (!Array.isArray(mod.acciones) || mod.acciones.length === 0) {
+      mod.acciones = ['Instalación'];
+    }
+
+    this.syncCalidadByMetrica(mod);
+  }
+
   private ensureAerodynamicItemDefaults(item: any, sourceKey: string): void {
     if (!item) return;
 
@@ -1582,6 +1639,16 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         }
       }
 
+      if (
+        mod.nombre ===
+          'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR' &&
+        mod.seleccionado
+      ) {
+        if (this.hasTacosDeGomaErrors(mod) || this.hasKitElevacionErrors(mod)) {
+          return true;
+        }
+      }
+
       return false;
     });
   }
@@ -1671,6 +1738,36 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
 
       if (
+        mod.nombre ===
+        'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
+      ) {
+        mod.diametroTacoDelantero = this.toNumberOrNull(mod.diametroTacoDelantero);
+        mod.espesorTacoDelantero = this.toNumberOrNull(mod.espesorTacoDelantero);
+        mod.diametroTacoTrasero = this.toNumberOrNull(mod.diametroTacoTrasero);
+        mod.espesorTacoTrasero = this.toNumberOrNull(mod.espesorTacoTrasero);
+        mod.diametroTacoKitElevacionDelantero = this.toNumberOrNull(
+          mod.diametroTacoKitElevacionDelantero,
+        );
+        mod.espesorTacoKitElevacionDelantero = this.toNumberOrNull(
+          mod.espesorTacoKitElevacionDelantero,
+        );
+        mod.diametroTacoKitElevacionTrasero = this.toNumberOrNull(
+          mod.diametroTacoKitElevacionTrasero,
+        );
+        mod.espesorTacoKitElevacionTrasero = this.toNumberOrNull(
+          mod.espesorTacoKitElevacionTrasero,
+        );
+      }
+
+      if (mod.nombre === 'DEFENSA DELANTERA') {
+        mod.metricaToldo = this.toNumberOrNull(mod.metricaToldo ?? mod.metrica);
+        mod.nTornillos = this.toNumberOrNull(mod.nTornillos);
+        mod.pesoPiezaKg = this.toNumberOrNull(mod.pesoPiezaKg);
+        mod.anchuraPiezaM = this.toNumberOrNull(mod.anchuraPiezaM);
+        mod.alturaPiezaM = this.toNumberOrNull(mod.alturaPiezaM);
+      }
+
+      if (
         mod.nombre === 'PELDAÑOS' &&
         mod.metodoActuacionPeldanos !== 'electrico'
       ) {
@@ -1680,5 +1777,134 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     // ------------------------------------------------------
 
     this.continuar.emit(this.datosEntrada);
+  }
+
+  private ensureSuspensionCasuisticaDefaults(mod: any): void {
+    if (!mod) return;
+
+    mod.detallesMuelles = mod.detallesMuelles || {};
+
+    if (
+      mod.detallesMuelles.kitElevacionDelantero &&
+      mod.diametroTacoKitElevacionDelantero == null &&
+      mod.diametroTacoDelantero != null
+    ) {
+      mod.diametroTacoKitElevacionDelantero = mod.diametroTacoDelantero;
+    }
+
+    if (
+      mod.detallesMuelles.kitElevacionDelantero &&
+      mod.espesorTacoKitElevacionDelantero == null &&
+      mod.espesorTacoDelantero != null
+    ) {
+      mod.espesorTacoKitElevacionDelantero = mod.espesorTacoDelantero;
+    }
+
+    if (
+      mod.detallesMuelles.kitElevacionTrasero &&
+      mod.diametroTacoKitElevacionTrasero == null &&
+      mod.diametroTacoTrasero != null
+    ) {
+      mod.diametroTacoKitElevacionTrasero = mod.diametroTacoTrasero;
+    }
+
+    if (
+      mod.detallesMuelles.kitElevacionTrasero &&
+      mod.espesorTacoKitElevacionTrasero == null &&
+      mod.espesorTacoTrasero != null
+    ) {
+      mod.espesorTacoKitElevacionTrasero = mod.espesorTacoTrasero;
+    }
+  }
+
+  private isMissingValue(value: unknown): boolean {
+    return value === null || value === undefined || value === '';
+  }
+
+  isConditionalFieldInvalid(isRequired: boolean, value: unknown): boolean {
+    return this.formSubmitted && isRequired && this.isMissingValue(value);
+  }
+
+  isTacosSelectionInvalid(mod: any): boolean {
+    return (
+      this.formSubmitted &&
+      !!mod?.detallesMuelles?.tacosDeGoma &&
+      !mod?.tacosDelantero &&
+      !mod?.tacosTrasero
+    );
+  }
+
+  isKitSelectionInvalid(mod: any): boolean {
+    return (
+      this.formSubmitted &&
+      !!mod?.detallesMuelles?.kitElevacion &&
+      !mod?.detallesMuelles?.kitElevacionDelantero &&
+      !mod?.detallesMuelles?.kitElevacionTrasero
+    );
+  }
+
+  private hasTacosDeGomaErrors(mod: any): boolean {
+    if (!mod?.detallesMuelles?.tacosDeGoma) {
+      return false;
+    }
+
+    if (!mod.tacosDelantero && !mod.tacosTrasero) {
+      return true;
+    }
+
+    if (
+      mod.tacosDelantero &&
+      (this.isMissingValue(mod.diametroTacoDelantero) ||
+        this.isMissingValue(mod.espesorTacoDelantero))
+    ) {
+      return true;
+    }
+
+    if (
+      mod.tacosTrasero &&
+      (this.isMissingValue(mod.diametroTacoTrasero) ||
+        this.isMissingValue(mod.espesorTacoTrasero))
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private hasKitElevacionErrors(mod: any): boolean {
+    if (!mod?.detallesMuelles?.kitElevacion) {
+      return false;
+    }
+
+    if (
+      !mod.detallesMuelles.kitElevacionDelantero &&
+      !mod.detallesMuelles.kitElevacionTrasero
+    ) {
+      return true;
+    }
+
+    if (
+      mod.detallesMuelles.kitElevacionDelantero &&
+      (this.isMissingValue(mod.marcaKitElevacionDelantera) ||
+        this.isMissingValue(mod.tipoSuspensionDelantera) ||
+        this.isMissingValue(mod.tipoTacoDelantero) ||
+        this.isMissingValue(mod.diametroTacoKitElevacionDelantero) ||
+        this.isMissingValue(mod.espesorTacoKitElevacionDelantero))
+    ) {
+      return true;
+    }
+
+    if (
+      mod.detallesMuelles.kitElevacionTrasero &&
+      (this.isMissingValue(mod.marcaKitElevacionTrasera) ||
+        this.isMissingValue(mod.tipoSuspensionTrasera) ||
+        this.isMissingValue(mod.tipoTacoTrasero) ||
+        this.isMissingValue(mod.diametroTacoKitElevacionTrasero) ||
+        this.isMissingValue(mod.espesorTacoKitElevacionTrasero))
+    ) {
+      return true;
+    }
+
+    return false;
   }
 }

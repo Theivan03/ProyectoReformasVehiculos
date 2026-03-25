@@ -130,5 +130,16 @@
     "responsable": "Juan Bautista Torres Bañuls",
     "telefono": "965 75 75 38",
     "especialidad": "mantenimiento y reparación de vehículos a motor"
+  },
+  {
+    "nombre": "TALLERES BENIDORM",
+    "direccion": "Av. Ametlla de Mar, 9, bajo Mercaloix",
+    "poblacion": "Benidorm",
+    "provincia": "Alicante",
+    "registroIndustrial": "10-A-452-03144878",
+    "registroEspecial": "A-4194",
+    "responsable": "ALEJANDRO BENITO ",
+    "telefono": "687584420",
+    "especialidad": "mantenimiento y reparación de vehículos a motor"
   }
 ]

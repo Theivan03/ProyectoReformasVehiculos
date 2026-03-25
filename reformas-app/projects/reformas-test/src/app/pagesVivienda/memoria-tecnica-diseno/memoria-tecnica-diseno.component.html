@@ -7,6 +7,31 @@
       -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
       Arial, sans-serif;
   }
+  .drop-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+    outline: none;
+    position: relative;
+    cursor: default;
+  }
+  .drop-zone:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+  }
+  .drop-zone.dragover {
+    background-color: #eff6ff;
+    border-color: #2563eb;
+  }
+  .preview-img {
+    max-height: 250px;
+    border-radius: 0.5rem;
+    object-fit: contain;
+    width: 100%;
+  }
   .main-container {
     padding: 2rem 1rem;
   }
@@ -313,6 +338,15 @@
                   >
                     <option value="Vivienda">Vivienda</option>
                     <option value="Local Comercial">Local Comercial</option>
+                    <option value="LOCAL NO P.C.">LOCAL NO P.C.</option>
+                    <option value="LOCAL PUBLICA CONCURRENCIA">
+                      LOCAL P.C.
+                    </option>
+                    <option value="TALLER">TALLER</option>
+                    <option value="ALMACEN">ALMACEN</option>
+                    <option value="GARAJE">GARAJE</option>
+                    <option value="CAFÉ-BAR">CAFÉ-BAR</option>
+                    <option value="BAR-RESTAURANTE">BAR-RESTAURANTE</option>
                   </select>
                 </div>
                 <div class="col-md-6" *ngIf="isAutoconsumo">
@@ -406,6 +440,15 @@
               <select class="form-select" [(ngModel)]="datos.emplazamiento.uso">
                 <option value="Vivienda">Vivienda</option>
                 <option value="Local Comercial">Local Comercial</option>
+                <option value="LOCAL NO P.C.">LOCAL NO P.C.</option>
+                <option value="LOCAL PUBLICA CONCURRENCIA">
+                  LOCAL PUBLICA CONCURRENCIA
+                </option>
+                <option value="TALLER">TALLER</option>
+                <option value="ALMACEN">ALMACEN</option>
+                <option value="GARAJE">GARAJE</option>
+                <option value="CAFÉ-BAR">CAFÉ-BAR</option>
+                <option value="BAR-RESTAURANTE">BAR-RESTAURANTE</option>
               </select>
             </div>
             <div
@@ -479,7 +522,73 @@
                       ESQUEMA VIVIENDA ELECTRIFICACION BASICA
                     </option>
                     <option value="2">GRADO DE ELETRIFICACION ELEVADA</option>
+                    <option value="3">APORTAR IMAGEN MANUALMENTE</option>
                   </select>
+                </div>
+                <div
+                  class="col-12 animation-slide-in-down"
+                  *ngIf="datos.caracteristicas.esquemaUnifilar === '3'"
+                >
+                  <div
+                    class="drop-zone"
+                    #dropZoneEsquema
+                    tabindex="0"
+                    [class.dragover]="isDragOver['esquemaUnifilarImagen']"
+                    (click)="dropZoneEsquema.focus()"
+                    (dragover)="onDragOver($event, 'esquemaUnifilarImagen')"
+                    (dragleave)="onDragLeave($event, 'esquemaUnifilarImagen')"
+                    (drop)="onDrop($event, 'esquemaUnifilarImagen')"
+                    (paste)="onPaste($event, 'esquemaUnifilarImagen')"
+                  >
+                    <div *ngIf="!datos.caracteristicas.esquemaUnifilarImagen">
+                      <lucide-icon
+                        [img]="icons.ImageIcon"
+                        size="40"
+                        class="text-muted mb-2"
+                      ></lucide-icon>
+                      <p class="text-muted small mb-3">
+                        Arrastra la imagen aquí, pega con Ctrl+V tras hacer clic
+                        en el recuadro o usa el botón central para abrir el
+                        explorador.
+                      </p>
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm"
+                        (click)="
+                          $event.stopPropagation(); fileInputEsquema.click()
+                        "
+                      >
+                        Abrir explorador
+                      </button>
+                      <input
+                        type="file"
+                        #fileInputEsquema
+                        hidden
+                        accept="image/*"
+                        (change)="
+                          onFileSelected($event, 'esquemaUnifilarImagen')
+                        "
+                      />
+                    </div>
+                    <div
+                      *ngIf="datos.caracteristicas.esquemaUnifilarImagen"
+                      class="position-relative"
+                    >
+                      <img
+                        [src]="datos.caracteristicas.esquemaUnifilarImagen"
+                        class="preview-img"
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
+                        (click)="
+                          eliminarImagen('esquemaUnifilarImagen', $event)
+                        "
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Diámetro de Tubo (mm)</label>

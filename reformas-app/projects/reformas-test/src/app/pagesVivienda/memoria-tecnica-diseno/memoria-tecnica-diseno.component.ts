@@ -45,6 +45,9 @@ export class MemoriaTecnicaDisenoComponent {
   isGenerating = false;
   isSaving = false;
   isLoadingData = false;
+  isDragOver: { [key: string]: boolean } = {
+    esquemaUnifilarImagen: false,
+  };
   private autoDownloadYaEjecutado = false;
   private tipoMemoriaRuta: 'consumo' | 'autoconsumo' = 'consumo';
   private readonly apiBaseUrl = `http://${window.location.hostname || 'localhost'}:3000`;
@@ -110,6 +113,7 @@ export class MemoriaTecnicaDisenoComponent {
       tipoInstalacion: 'monofasica',
       diametroTuboMm: '32',
       esquemaUnifilar: '1',
+      esquemaUnifilarImagen: null as string | null,
     },
     fechaFirma: { dia: '', mes: '', anyo: '', lugar: '' },
   };
@@ -264,7 +268,7 @@ export class MemoriaTecnicaDisenoComponent {
 
     let base = upper.split(',')[0];
     base = base.split(
-      /\b(PISO|PTA|PUERTA|PLANTA|ESC|ESCALERA|BLOQUE|BAJO)\b/i,
+      /\b(PISO|PTA|PT|PUERTA|PLANTA|PL|ESC|ES|ESCALERA|BLOQUE|BAJO)\b/i,
     )[0];
 
     const ordinalIndex = base.search(/\d+\s*[\u00BA\u00AA]/);
@@ -313,6 +317,9 @@ export class MemoriaTecnicaDisenoComponent {
     try {
       this.actualizarDiametroTubo();
       const cargarAsset = async (url: string): Promise<ArrayBuffer> => {
+        if (url.startsWith('data:')) {
+          return fetch(url).then((res) => res.arrayBuffer());
+        }
         const res = await fetch(url);
         if (!res.ok) {
           throw new Error(
@@ -330,7 +337,15 @@ export class MemoriaTecnicaDisenoComponent {
         '2': '/assets/GRADO DE ELETRIFICACION ELEVADA.png',
       };
       const urlEsquemaF =
-        esquemaUnifilarMap[esquemaSeleccionado] || esquemaUnifilarMap['1'];
+        esquemaSeleccionado === '3'
+          ? this.datos.caracteristicas.esquemaUnifilarImagen
+          : esquemaUnifilarMap[esquemaSeleccionado] || esquemaUnifilarMap['1'];
+      if (!urlEsquemaF) {
+        alert(
+          'Debes adjuntar una imagen si seleccionas el esquema unifilar personalizado.',
+        );
+        return;
+      }
       const urlCuadroH = '/assets/cuadro.jpg';
       const urlPlanoI = '/assets/plano emplazamiento.png'; // ðŸ”¥ IMAGEN SECCIÃ“N I
 
@@ -383,6 +398,7 @@ export class MemoriaTecnicaDisenoComponent {
         this.datos.emplazamiento.provincia = this.datos.titular.provincia;
         this.datos.emplazamiento.cp = this.datos.titular.cp;
       }
+      const usoApartadoC4 = this.obtenerUsoApartadoC4();
 
       // ... (Resto de asignaciones de campos A, B, C igual que antes) ...
       const titularNombreDocumento = this.construirNombreTitularParaDocumento();
@@ -493,6 +509,10 @@ export class MemoriaTecnicaDisenoComponent {
         `TUBO DE ${this.datos.caracteristicas.diametroTuboMm} mm`,
       );
       setField(
+        'form1[0].Pagina1[0].seccion\\.c[0].C_T1[0].Fila6[0].C4_F6_C2[0]',
+        usoApartadoC4,
+      );
+      setField(
         'form1[0].Pagina1[0].seccion\\.c[0].C_T1[0].Fila6[0].C4_F6_C3[0]',
         `H07Z1(AS)CU, ${this.datos.caracteristicas.tipoCableMm2} m`,
       );
@@ -539,11 +559,16 @@ export class MemoriaTecnicaDisenoComponent {
       // N?mero de la casa (edificio)
       let numeroCasa =
         this.extraerNumeroEdificio(this.datos.emplazamiento.direccion) || '7';
+      const numeroCasaSize = 14;
+      const numeroCasaWidth = fontHand.widthOfTextAtSize(
+        numeroCasa,
+        numeroCasaSize,
+      );
 
       page5.drawText(numeroCasa, {
-        x: iX + planoDims.width / 2 - 25,
+        x: iX + planoDims.width / 2 - numeroCasaWidth / 2,
         y: iY + planoDims.height / 2,
-        size: 14,
+        size: numeroCasaSize,
         font: fontHand,
         color: colorBoli,
       });
@@ -689,6 +714,114 @@ export class MemoriaTecnicaDisenoComponent {
 
   private obtenerLocalidadEmplazamiento(): string {
     return this.datos.emplazamiento.poblacion || '';
+  }
+
+  private obtenerUsoApartadoC4(): string {
+    const usoNormalizado = String(this.datos.emplazamiento.uso || '')
+      .trim()
+      .toLowerCase();
+
+    if (usoNormalizado.includes('local publica concurrencia')) {
+      return 'LOCAL PUBLICA CONCURRENCIA';
+    }
+
+    if (
+      usoNormalizado.includes('local no p.c.') ||
+      usoNormalizado.includes('local no p.c') ||
+      usoNormalizado.includes('local no publica concurrencia')
+    ) {
+      return 'LOCAL NO PUBLICA CONCURRENCIA';
+    }
+
+    if (usoNormalizado.includes('taller')) {
+      return 'TALLER';
+    }
+
+    if (usoNormalizado.includes('almacen')) {
+      return 'ALMACEN';
+    }
+
+    if (usoNormalizado.includes('garaje')) {
+      return 'GARAJE';
+    }
+
+    if (
+      usoNormalizado.includes('cafe-bar') ||
+      usoNormalizado.includes('café-bar')
+    ) {
+      return 'CAFÉ-BAR';
+    }
+
+    if (usoNormalizado.includes('bar-restaurante')) {
+      return 'BAR-RESTAURANTE';
+    }
+
+    if (usoNormalizado.includes('local')) {
+      return 'LOCAL COMERCIAL';
+    }
+
+    return 'VIVIENDA';
+  }
+
+  onDragOver(event: DragEvent, campo: 'esquemaUnifilarImagen') {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver[campo] = true;
+  }
+
+  onDragLeave(event: DragEvent, campo: 'esquemaUnifilarImagen') {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver[campo] = false;
+  }
+
+  onDrop(event: DragEvent, campo: 'esquemaUnifilarImagen') {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver[campo] = false;
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.procesarArchivoImagen(files[0], campo);
+    }
+  }
+
+  onPaste(event: ClipboardEvent, campo: 'esquemaUnifilarImagen') {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          this.procesarArchivoImagen(file, campo);
+          break;
+        }
+      }
+    }
+  }
+
+  onFileSelected(event: Event, campo: 'esquemaUnifilarImagen') {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.procesarArchivoImagen(input.files[0], campo);
+    }
+    input.value = '';
+  }
+
+  eliminarImagen(campo: 'esquemaUnifilarImagen', event: Event) {
+    event.stopPropagation();
+    (this.datos.caracteristicas as any)[campo] = null;
+  }
+
+  private procesarArchivoImagen(
+    file: File,
+    campo: 'esquemaUnifilarImagen',
+  ) {
+    if (!file.type.match(/image\/*/)) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      (this.datos.caracteristicas as any)[campo] = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
   actualizarDiametroTubo() {

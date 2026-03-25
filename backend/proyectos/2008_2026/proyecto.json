@@ -235,7 +235,15 @@
     },
     {
       "nombre": "DEFENSA DELANTERA",
-      "seleccionado": false
+      "seleccionado": true,
+      "marcaDefensa": "a",
+      "modeloDefensa": "a",
+      "grosorTuboDefensa": 0.5,
+      "medidasDefensa": "200x800",
+      "curvaturaDefensaDelantera": "8",
+      "metricaToldo": "8",
+      "seccionResistenteAsToldo": 36.64,
+      "nTornillos": 5
     },
     {
       "nombre": "DEPÓSITO DE AGUA LIMPIA",
@@ -332,7 +340,7 @@
     },
     {
       "nombre": "INTERMITENTES",
-      "seleccionado": true,
+      "seleccionado": false,
       "detalle": {
         "interDelantero": true,
         "interTrasero": true,
@@ -354,7 +362,7 @@
     },
     {
       "nombre": "LUCES MATRÍCULA",
-      "seleccionado": true,
+      "seleccionado": false,
       "marcaLuz": "5",
       "referenciaLuz": "5",
       "tecnologiaLuz": "5",
@@ -392,7 +400,7 @@
     },
     {
       "nombre": "SNORKEL",
-      "seleccionado": true,
+      "seleccionado": false,
       "curvaturaSnorkel": 8,
       "cwCoefAerodinamicoSnorkel": 0.82,
       "densidadAireKgM3Snorkel": 1.29,
@@ -602,10 +610,10 @@
   },
   "marcadores": [
     {
-      "x": 0.3562639165592406,
-      "y": 0.3801167284486158,
-      "label": "2",
-      "etiqueta": "LUCES MATRÍCULA"
+      "x": 0.3950154302902457,
+      "y": 0.513881220916476,
+      "label": "1",
+      "etiqueta": "DEFENSA DELANTERA"
     }
   ],
   "fechaFirma": "Teulada, 5 de marzo de 2026",

@@ -70,6 +70,40 @@ function getSeccionTensionPorMetrica(value: unknown): number {
   return SECCION_TENSION_POR_METRICA[metrica] ?? 0;
 }
 
+function pickFirstValue<T>(...values: T[]): T | null {
+  return (
+    values.find(
+      (value) => value !== null && value !== undefined && value !== ('' as T),
+    ) ?? null
+  );
+}
+
+function safeDivide(numerator: number, denominator: number): number {
+  if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) {
+    return 0;
+  }
+  return numerator / denominator;
+}
+
+function formatFixed(value: number, decimals = 2): string {
+  return Number.isFinite(value) ? value.toFixed(decimals) : '0.00';
+}
+
+function parseMedidasEnMetros(
+  value: unknown,
+): { anchuraM: number; alturaM: number } {
+  const medidas = String(value ?? '')
+    .toLowerCase()
+    .replace(/mm/g, '')
+    .replace(/\s/g, '');
+  const partes = medidas.split('x');
+
+  return {
+    anchuraM: toFiniteNumber(partes[0]) / 1000,
+    alturaM: partes.length > 1 ? toFiniteNumber(partes[1]) / 1000 : 0,
+  };
+}
+
 function formatCalcNumber(value: unknown, digits = 2): string {
   const parsed = toFiniteNumber(value);
   if (!Number.isFinite(parsed)) return '---';
@@ -491,6 +525,18 @@ export async function buildCalculos(
   let url = `http://192.168.1.41:3000/imgs/firma-generada.png`;
   const response5 = await fetch(url);
   const imageBuffer5 = await response5.arrayBuffer();
+  const mmaControlMasasRaw = pickFirstValue(data?.mmaControlMasas, data?.mmaDespues);
+  const mmaEje1ControlMasasRaw = pickFirstValue(
+    data?.mmaEje1ControlMasas,
+    data?.mmaEje1Despues,
+  );
+  const mmaEje2ControlMasasRaw = pickFirstValue(
+    data?.mmaEje2ControlMasas,
+    data?.mmaEje2Despues,
+  );
+  const mmaControlMasas = toFiniteNumber(mmaControlMasasRaw);
+  const mmaEje1ControlMasas = toFiniteNumber(mmaEje1ControlMasasRaw);
+  const mmaEje2ControlMasas = toFiniteNumber(mmaEje2ControlMasasRaw);
 
   if (memoria) {
     out.push(
@@ -7529,6 +7575,64 @@ export async function buildCalculos(
       contador++;
     }
 
+    const defensaDelantera = modificaciones.find(
+      (m) => m.nombre === 'DEFENSA DELANTERA' && m.seleccionado,
+    );
+    if (defensaDelantera) {
+      const medidasDefensaParseadas = parseMedidasEnMetros(
+        defensaDelantera.medidasDefensa,
+      );
+      const anchuraDefensa =
+        toFiniteNumber((defensaDelantera as any).anchuraPiezaM) ||
+        medidasDefensaParseadas.anchuraM;
+      const alturaDefensa =
+        toFiniteNumber((defensaDelantera as any).alturaPiezaM) ||
+        medidasDefensaParseadas.alturaM;
+      const calidadTornilloDefensa = toFiniteNumber(
+        (defensaDelantera as any).calidadTornilloToldo,
+      );
+      const resTraccionDefensa = toFiniteNumber(
+        (defensaDelantera as any).resTraccionMinTornillo88Kgmm2Toldo,
+      );
+      const coefAerodinamicoDefensa = toFiniteNumber(
+        (defensaDelantera as any).cwCoefAerodinamicoToldo,
+      );
+      const densidadAireDefensa = toFiniteNumber(
+        (defensaDelantera as any).densidadAireKgM3Toldo,
+      );
+      const velocidadAireDefensa = toFiniteNumber(
+        (defensaDelantera as any).velocidadAireV2msToldo,
+      );
+      const coefSeguridadDefensa = toFiniteNumber(
+        (defensaDelantera as any).coefSeguridadKToldo,
+      );
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Defensa delantera',
+        pesoPiezaKg: toFiniteNumber((defensaDelantera as any).pesoPiezaKg),
+        anchuraPiezaM: anchuraDefensa,
+        alturaPiezaM: alturaDefensa,
+        metrica: parseMetricaTornillo(
+          defensaDelantera.metricaToldo ?? defensaDelantera.metrica,
+        ),
+        nTornillos: toPositiveInt(defensaDelantera.nTornillos),
+        calidadTornillo: calidadTornilloDefensa || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(defensaDelantera.seccionResistenteAsToldo) ||
+          getAreaResistentePorMetrica(
+            defensaDelantera.metricaToldo ?? defensaDelantera.metrica,
+          ),
+        resTraccionMinTornillo88Kgmm2: resTraccionDefensa || 80,
+        cwCoefAerodinamico: coefAerodinamicoDefensa || 0.82,
+        densidadAireKgM3: densidadAireDefensa || 1.29,
+        velocidadAireV2ms: velocidadAireDefensa || 38.89,
+        coefSeguridadK: coefSeguridadDefensa || 3,
+        curvatura:
+          toFiniteNumber(defensaDelantera.curvaturaDefensaDelantera) || 8,
+      });
+      contador++;
+    }
+
     const bombaFreno = modificaciones.find(
       (m) => m.nombre === 'SUSTITUCIÓN DE BOMBA DE FRENO' && m.seleccionado,
     );
@@ -10827,9 +10931,9 @@ export async function buildCalculos(
             }),
             // Filas de datos
             ...[
-              ['MMTA/MMA (Kg)', data.mmaDespues?.toString() ?? '---'],
-              ['MMTA/MMA eje 1', data.mmaEje1Despues?.toString() ?? '---'],
-              ['MMTA/MMA eje 2', data.mmaEje2Despues?.toString() ?? '---'],
+              ['MMTA/MMA (Kg)', String(mmaControlMasasRaw ?? '---')],
+              ['MMTA/MMA eje 1', String(mmaEje1ControlMasasRaw ?? '---')],
+              ['MMTA/MMA eje 2', String(mmaEje2ControlMasasRaw ?? '---')],
             ].map(
               ([desc, val]) =>
                 new TableRow({
@@ -10931,38 +11035,46 @@ export async function buildCalculos(
       let diametromedio = 0;
       let curvatura = 0;
       let K = 0;
+      let diametroExteriorMuelle = 0;
+      let diametroEspiraMuelle = 0;
+      let longitudLibreMuelle = 0;
+      let numeroEspirasMuelle = 0;
+      const cargaMaximaEjeDelanteroN = mmaEje1ControlMasas * 9.81;
+      const cargaMaximaEjeTraseroN = mmaEje2ControlMasas * 9.81;
 
       if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
-        diametrointerior =
-          (mod.diametroExteriorDelanteroRef ?? 0) -
-          2 * (mod.diametroEspiraDelanteroRef ?? 0);
-        diametromedio =
-          ((mod.diametroExteriorDelanteroRef ?? 0) + diametrointerior) / 2;
-        curvatura = diametromedio / (mod.diametroEspiraDelanteroRef ?? 0);
+        diametroExteriorMuelle = mod.diametroExteriorDelanteroRef ?? 0;
+        diametroEspiraMuelle = mod.diametroEspiraDelanteroRef ?? 0;
+        longitudLibreMuelle = mod.longitudLibreDelanteroRef ?? 0;
+        numeroEspirasMuelle = mod.numeroEspirasDelanteroRef ?? 0;
+        diametrointerior = diametroExteriorMuelle - 2 * diametroEspiraMuelle;
+        diametromedio = (diametroExteriorMuelle + diametrointerior) / 2;
+        curvatura = safeDivide(diametromedio, diametroEspiraMuelle);
         K =
-          (Math.pow((mod.diametroEspiraDelanteroRef ?? 0) / 1000, 4) *
+          (Math.pow(diametroEspiraMuelle / 1000, 4) *
             79500.24 *
             1000000) /
           (8 *
             (Math.pow((diametromedio ?? 0) / 1000, 3) *
-              (mod.numeroEspirasDelanteroRef ?? 0))) /
+              numeroEspirasMuelle)) /
           1000;
       }
 
       if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
-        diametrointerior =
-          (mod.diametroExteriorDelanteroSinRef ?? 0) -
-          2 * (mod.diametroEspiraDelanteroSinRef ?? 0);
-        diametromedio =
-          ((mod.diametroExteriorDelanteroSinRef ?? 0) + diametrointerior) / 2;
-        curvatura = diametromedio / (mod.diametroEspiraDelanteroSinRef ?? 0);
+        diametroExteriorMuelle = mod.diametroExteriorDelanteroSinRef ?? 0;
+        diametroEspiraMuelle = mod.diametroEspiraDelanteroSinRef ?? 0;
+        longitudLibreMuelle = mod.longitudLibreDelanteroSinRef ?? 0;
+        numeroEspirasMuelle = mod.numeroEspirasDelanteroSinRef ?? 0;
+        diametrointerior = diametroExteriorMuelle - 2 * diametroEspiraMuelle;
+        diametromedio = (diametroExteriorMuelle + diametrointerior) / 2;
+        curvatura = safeDivide(diametromedio, diametroEspiraMuelle);
         K =
-          (Math.pow((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000, 4) *
+          (Math.pow(diametroEspiraMuelle / 1000, 4) *
             79500.24 *
             1000000) /
           (8 *
             (Math.pow((diametromedio ?? 0) / 1000, 3) *
-              (mod.numeroEspirasDelanteroSinRef ?? 0))) /
+              numeroEspirasMuelle)) /
           1000;
       }
 
@@ -10999,31 +11111,30 @@ export async function buildCalculos(
             ...[
               [
                 'Diámetro exterior (Dext)',
-                mod.diametroExteriorDelanteroRef?.toFixed(2).toString() ??
-                  '---',
+                formatFixed(diametroExteriorMuelle),
               ],
               [
                 'Diámetro interior (Dint)',
-                diametrointerior.toFixed(2).toString() ?? '---',
+                formatFixed(diametrointerior),
               ],
               [
                 'Diámetro medio (Dm)',
-                diametromedio.toFixed(2).toString() ?? '---',
+                formatFixed(diametromedio),
               ],
               [
                 'Diámetro de espira (De)',
-                mod.diametroEspiraDelanteroRef?.toFixed(2).toString() ?? '---',
+                formatFixed(diametroEspiraMuelle),
               ],
               [
                 'Longitud libre (L0)',
-                mod.longitudLibreDelanteroRef?.toFixed(2).toString() ?? '---',
+                formatFixed(longitudLibreMuelle),
               ],
               [
                 'Número de espiras (n)',
-                mod.numeroEspirasDelanteroRef?.toFixed(2).toString() ?? '---',
+                formatFixed(numeroEspirasMuelle),
               ],
-              ['Curvatura (C)', curvatura.toFixed(2).toString() ?? '---'],
-              ['Rigidez (K) N/mm', K.toFixed(2).toString() ?? '---'],
+              ['Curvatura (C)', formatFixed(curvatura)],
+              ['Rigidez (K) N/mm', formatFixed(K)],
             ].map(
               ([d, v]) =>
                 new TableRow({
@@ -11056,25 +11167,29 @@ export async function buildCalculos(
         if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
           maxCortante =
             (Math.PI *
-              (((mod.diametroEspiraDelanteroRef ?? 0) / 1000) ** 3 *
+              ((diametroEspiraMuelle / 1000) ** 3 *
                 1118.34 *
                 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteDelantero = maxCortante * 2;
-          coefSeguridad =
-            maxCortanteDelantero / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
+          coefSeguridad = safeDivide(
+            maxCortanteDelantero,
+            cargaMaximaEjeDelanteroN,
+          );
         }
 
         if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
           maxCortante =
             (Math.PI *
-              (((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000) ** 3 *
+              ((diametroEspiraMuelle / 1000) ** 3 *
                 1118.34 *
                 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteDelantero = maxCortante * 2;
-          coefSeguridad =
-            maxCortanteDelantero / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
+          coefSeguridad = safeDivide(
+            maxCortanteDelantero,
+            cargaMaximaEjeDelanteroN,
+          );
         }
 
         // 5) Cálculo del esfuerzo máximo cortante (EMC) delanteros
@@ -11129,9 +11244,9 @@ export async function buildCalculos(
             new TableRow({
               cantSplit: true,
               children: [
-                maxCortante.toFixed(2).toString() ?? '---',
-                maxCortanteDelantero.toFixed(2).toString() ?? '---',
-                coefSeguridad.toFixed(2).toString() ?? '---',
+                formatFixed(maxCortante),
+                formatFixed(maxCortanteDelantero),
+                formatFixed(coefSeguridad),
               ].map(
                 (v, i) =>
                   new TableCell({
@@ -11163,40 +11278,33 @@ export async function buildCalculos(
         let coefSeguridadK = 0;
 
         if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
-          longMinMuelle =
-            (mod.numeroEspirasDelanteroRef ?? 0) *
-            (mod.diametroEspiraDelanteroRef ?? 0);
-          flechaResorte = (mod.longitudLibreDelanteroRef ?? 0) - longMinMuelle;
+          longMinMuelle = numeroEspirasMuelle * diametroEspiraMuelle;
+          flechaResorte = longitudLibreMuelle - longMinMuelle;
           cargaMaxQ =
             ((flechaResorte / 1000) *
               79500.24 *
               1000000 *
-              Math.pow((mod.diametroEspiraDelanteroRef ?? 0) / 1000, 4)) /
+              Math.pow(diametroEspiraMuelle / 1000, 4)) /
             (64 *
-              (mod.numeroEspirasDelanteroRef ?? 0) *
+              numeroEspirasMuelle *
               Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje1Q = cargaMaxQ * 2;
-          coefSeguridadK =
-            cargaMaxEje1Q / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
+          coefSeguridadK = safeDivide(cargaMaxEje1Q, cargaMaximaEjeDelanteroN);
         }
 
         if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
-          longMinMuelle =
-            (mod.numeroEspirasDelanteroSinRef ?? 0) *
-            (mod.diametroEspiraDelanteroSinRef ?? 0);
-          flechaResorte =
-            (mod.longitudLibreDelanteroSinRef ?? 0) - longMinMuelle;
+          longMinMuelle = numeroEspirasMuelle * diametroEspiraMuelle;
+          flechaResorte = longitudLibreMuelle - longMinMuelle;
           cargaMaxQ =
             ((flechaResorte / 1000) *
               79500.24 *
               1000000 *
-              Math.pow((mod.diametroEspiraDelanteroSinRef ?? 0) / 1000, 4)) /
+              Math.pow(diametroEspiraMuelle / 1000, 4)) /
             (64 *
-              (mod.numeroEspirasDelanteroSinRef ?? 0) *
+              numeroEspirasMuelle *
               Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje1Q = cargaMaxQ * 2;
-          coefSeguridadK =
-            cargaMaxEje1Q / ((mod.mmta1EjeSuspension ?? 0) * 9.81);
+          coefSeguridadK = safeDivide(cargaMaxEje1Q, cargaMaximaEjeDelanteroN);
         }
 
         // 6) Cálculo carga máx (Q) flecha delanteros
@@ -11253,11 +11361,11 @@ export async function buildCalculos(
             new TableRow({
               cantSplit: true,
               children: [
-                longMinMuelle.toFixed(2).toString() ?? '---',
-                flechaResorte.toFixed(2).toString() ?? '---',
-                cargaMaxQ.toFixed(2).toString() ?? '---',
-                cargaMaxEje1Q.toFixed(2).toString() ?? '---',
-                coefSeguridadK.toFixed(2).toString() ?? '---',
+                formatFixed(longMinMuelle),
+                formatFixed(flechaResorte),
+                formatFixed(cargaMaxQ),
+                formatFixed(cargaMaxEje1Q),
+                formatFixed(coefSeguridadK),
               ].map(
                 (v, i) =>
                   new TableCell({
@@ -11288,21 +11396,21 @@ export async function buildCalculos(
         let coefSeguridadFinalK = 0;
 
         if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
-          fuerzaMaxEjeDelantero = ((mod.mmta1EjeSuspension ?? 0) * 9.81) / 2;
+          fuerzaMaxEjeDelantero = cargaMaximaEjeDelanteroN / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
-            (Math.PI * Math.pow(mod.diametroEspiraDelanteroRef ?? 0, 3));
-          coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
+            (Math.PI * Math.pow(diametroEspiraMuelle, 3));
+          coefSeguridadFinalK = safeDivide(1118.34, esfuerzoMuelleT);
         }
 
         if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
-          fuerzaMaxEjeDelantero = ((mod.mmta1EjeSuspension ?? 0) * 9.81) / 2;
+          fuerzaMaxEjeDelantero = cargaMaximaEjeDelanteroN / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
             (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
-            (Math.PI * Math.pow(mod.diametroEspiraDelanteroSinRef ?? 0, 3));
-          coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
+            (Math.PI * Math.pow(diametroEspiraMuelle, 3));
+          coefSeguridadFinalK = safeDivide(1118.34, esfuerzoMuelleT);
         }
 
         // 7) Esfuerzo del muelle delanteros
@@ -11336,10 +11444,10 @@ export async function buildCalculos(
             new TableRow({
               cantSplit: true,
               children: [
-                fuerzaMaxEjeDelantero.toFixed(2).toString() ?? '---',
-                factorBergstrasserKb.toFixed(2).toString() ?? '---',
-                esfuerzoMuelleT.toFixed(2).toString() ?? '---',
-                coefSeguridadFinalK.toFixed(2).toString() ?? '---',
+                formatFixed(fuerzaMaxEjeDelantero),
+                formatFixed(factorBergstrasserKb),
+                formatFixed(esfuerzoMuelleT),
+                formatFixed(coefSeguridadFinalK),
               ].map(
                 (v, i) =>
                   new TableCell({
@@ -11366,36 +11474,36 @@ export async function buildCalculos(
       }
 
       if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
-        diametrointerior =
-          (mod.diametroExteriorTraseroRef ?? 0) -
-          2 * (mod.diametroEspiraTraseroRef ?? 0);
-        diametromedio =
-          ((mod.diametroExteriorTraseroRef ?? 0) + diametrointerior) / 2;
-        curvatura = diametromedio / (mod.diametroEspiraTraseroRef ?? 0);
+        diametroExteriorMuelle = mod.diametroExteriorTraseroRef ?? 0;
+        diametroEspiraMuelle = mod.diametroEspiraTraseroRef ?? 0;
+        longitudLibreMuelle = mod.longitudLibreTraseroRef ?? 0;
+        numeroEspirasMuelle = mod.numeroEspirasTraseroRef ?? 0;
+        diametrointerior = diametroExteriorMuelle - 2 * diametroEspiraMuelle;
+        diametromedio = (diametroExteriorMuelle + diametrointerior) / 2;
+        curvatura = safeDivide(diametromedio, diametroEspiraMuelle);
         K =
-          (Math.pow((mod.diametroEspiraTraseroRef ?? 0) / 1000, 4) *
+          (Math.pow(diametroEspiraMuelle / 1000, 4) *
             79500.24 *
             1000000) /
           (8 *
-            (Math.pow(diametromedio / 1000, 3) *
-              (mod.numeroEspirasTraseroRef ?? 0))) /
+            (Math.pow(diametromedio / 1000, 3) * numeroEspirasMuelle)) /
           1000;
       }
 
       if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
-        diametrointerior =
-          (mod.diametroExteriorTraseroSinRef ?? 0) -
-          2 * (mod.diametroEspiraTraseroSinRef ?? 0);
-        diametromedio =
-          ((mod.diametroExteriorTraseroSinRef ?? 0) + diametrointerior) / 2;
-        curvatura = diametromedio / (mod.diametroEspiraTraseroSinRef ?? 0);
+        diametroExteriorMuelle = mod.diametroExteriorTraseroSinRef ?? 0;
+        diametroEspiraMuelle = mod.diametroEspiraTraseroSinRef ?? 0;
+        longitudLibreMuelle = mod.longitudLibreTraseroSinRef ?? 0;
+        numeroEspirasMuelle = mod.numeroEspirasTraseroSinRef ?? 0;
+        diametrointerior = diametroExteriorMuelle - 2 * diametroEspiraMuelle;
+        diametromedio = (diametroExteriorMuelle + diametrointerior) / 2;
+        curvatura = safeDivide(diametromedio, diametroEspiraMuelle);
         K =
-          (Math.pow((mod.diametroEspiraTraseroRef ?? 0) / 1000, 4) *
+          (Math.pow(diametroEspiraMuelle / 1000, 4) *
             79500.24 *
             1000000) /
           (8 *
-            (Math.pow(diametromedio / 1000, 3) *
-              (mod.numeroEspirasTraseroRef ?? 0))) /
+            (Math.pow(diametromedio / 1000, 3) * numeroEspirasMuelle)) /
           1000;
       }
 
@@ -11432,30 +11540,30 @@ export async function buildCalculos(
             ...[
               [
                 'Diámetro exterior (Dext)',
-                mod.diametroExteriorTraseroRef?.toFixed(2).toString() ?? '---',
+                formatFixed(diametroExteriorMuelle),
               ],
               [
                 'Diámetro interior (Dint)',
-                diametrointerior.toFixed(2).toString() ?? '---',
+                formatFixed(diametrointerior),
               ],
               [
                 'Diámetro medio (Dm)',
-                diametromedio.toFixed(2).toString() ?? '---',
+                formatFixed(diametromedio),
               ],
               [
                 'Diámetro de espira (De)',
-                mod.diametroEspiraTraseroRef?.toFixed(2).toString() ?? '---',
+                formatFixed(diametroEspiraMuelle),
               ],
               [
                 'Longitud libre (L0)',
-                mod.longitudLibreTraseroRef?.toFixed(2).toString() ?? '---',
+                formatFixed(longitudLibreMuelle),
               ],
               [
                 'Número de espiras (n)',
-                mod.numeroEspirasTraseroRef?.toFixed(2).toString() ?? '---',
+                formatFixed(numeroEspirasMuelle),
               ],
-              ['Curvatura (C)', curvatura.toFixed(2).toString() ?? '---'],
-              ['Rigidez (K) N/mm', K.toFixed(2).toString() ?? '---'],
+              ['Curvatura (C)', formatFixed(curvatura)],
+              ['Rigidez (K) N/mm', formatFixed(K)],
             ].map(
               ([d, v]) =>
                 new TableRow({
@@ -11488,29 +11596,30 @@ export async function buildCalculos(
         if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
           maxCortante =
             (Math.PI *
-              (((mod.diametroEspiraTraseroRef ?? 0) / 1000) ** 3 *
+              ((diametroEspiraMuelle / 1000) ** 3 *
                 1118.34 *
                 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteTrasero = maxCortante * 2;
-          coefSeguridad =
-            maxCortanteTrasero / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
+          coefSeguridad = safeDivide(
+            maxCortanteTrasero,
+            cargaMaximaEjeTraseroN,
+          );
         }
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
           maxCortante =
             (Math.PI *
-              (((mod.diametroEspiraTraseroSinRef ?? 0) / 1000) ** 3 *
+              ((diametroEspiraMuelle / 1000) ** 3 *
                 1118.34 *
                 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteTrasero = maxCortante * 2;
-          coefSeguridad =
-            maxCortanteTrasero / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
+          coefSeguridad = safeDivide(
+            maxCortanteTrasero,
+            cargaMaximaEjeTraseroN,
+          );
         }
-        console.log('maxCortanteTrasero:', maxCortanteTrasero);
-        console.log('maxCortanteTrasero:', mod.mmta2EjeSuspension);
-
         // 9) EMC traseros
         const tablaEMCTraseros = new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
@@ -11563,9 +11672,9 @@ export async function buildCalculos(
             new TableRow({
               cantSplit: true,
               children: [
-                maxCortante.toFixed(2).toString() ?? '---',
-                maxCortanteTrasero.toFixed(2).toString() ?? '---',
-                coefSeguridad.toFixed(2).toString() ?? '---',
+                formatFixed(maxCortante),
+                formatFixed(maxCortanteTrasero),
+                formatFixed(coefSeguridad),
               ].map(
                 (v, i) =>
                   new TableCell({
@@ -11593,43 +11702,37 @@ export async function buildCalculos(
         let longMinMuelle = 0;
         let flechaResorte = 0;
         let cargaMaxQ = 0;
-        let cargaMaxEje1Q = 0;
+        let cargaMaxEje2Q = 0;
         let coefSeguridadK = 0;
 
         if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
-          longMinMuelle =
-            (mod.numeroEspirasTraseroRef ?? 0) *
-            (mod.diametroEspiraTraseroRef ?? 0);
-          flechaResorte = (mod.longitudLibreTraseroRef ?? 0) - longMinMuelle;
+          longMinMuelle = numeroEspirasMuelle * diametroEspiraMuelle;
+          flechaResorte = longitudLibreMuelle - longMinMuelle;
           cargaMaxQ =
             ((flechaResorte / 1000) *
               79500.24 *
               1000000 *
-              Math.pow((mod.diametroEspiraTraseroRef ?? 0) / 1000, 4)) /
+              Math.pow(diametroEspiraMuelle / 1000, 4)) /
             (64 *
-              (mod.numeroEspirasTraseroRef ?? 0) *
+              numeroEspirasMuelle *
               Math.pow(diametromedio / 1000 / 2, 3));
-          cargaMaxEje1Q = cargaMaxQ * 2;
-          coefSeguridadK =
-            cargaMaxEje1Q / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
+          cargaMaxEje2Q = cargaMaxQ * 2;
+          coefSeguridadK = safeDivide(cargaMaxEje2Q, cargaMaximaEjeTraseroN);
         }
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
-          longMinMuelle =
-            (mod.numeroEspirasTraseroSinRef ?? 0) *
-            (mod.diametroEspiraTraseroSinRef ?? 0);
-          flechaResorte = (mod.longitudLibreTraseroSinRef ?? 0) - longMinMuelle;
+          longMinMuelle = numeroEspirasMuelle * diametroEspiraMuelle;
+          flechaResorte = longitudLibreMuelle - longMinMuelle;
           cargaMaxQ =
             ((flechaResorte / 1000) *
               79500.24 *
               1000000 *
-              Math.pow((mod.diametroEspiraTraseroSinRef ?? 0) / 1000, 4)) /
+              Math.pow(diametroEspiraMuelle / 1000, 4)) /
             (64 *
-              (mod.numeroEspirasTraseroSinRef ?? 0) *
+              numeroEspirasMuelle *
               Math.pow(diametromedio / 1000 / 2, 3));
-          cargaMaxEje1Q = cargaMaxQ * 2;
-          coefSeguridadK =
-            cargaMaxEje1Q / ((mod.mmta2EjeSuspension ?? 0) * 9.81);
+          cargaMaxEje2Q = cargaMaxQ * 2;
+          coefSeguridadK = safeDivide(cargaMaxEje2Q, cargaMaximaEjeTraseroN);
         }
 
         // 10) Q traseros
@@ -11686,11 +11789,11 @@ export async function buildCalculos(
             new TableRow({
               cantSplit: true,
               children: [
-                longMinMuelle.toFixed(2).toString() ?? '---',
-                flechaResorte.toFixed(2).toString() ?? '---',
-                cargaMaxQ.toFixed(2).toString() ?? '---',
-                cargaMaxEje1Q.toFixed(2).toString() ?? '---',
-                coefSeguridadK.toFixed(2).toString() ?? '---',
+                formatFixed(longMinMuelle),
+                formatFixed(flechaResorte),
+                formatFixed(cargaMaxQ),
+                formatFixed(cargaMaxEje2Q),
+                formatFixed(coefSeguridadK),
               ].map(
                 (v, i) =>
                   new TableCell({
@@ -11715,27 +11818,27 @@ export async function buildCalculos(
         out.push(new Paragraph({ text: '' }));
         out.push(new Paragraph({ text: '' }));
 
-        let fuerzaMaxEjeDelantero = 0;
+        let fuerzaMaxEjeTrasero = 0;
         let factorBergstrasserKb = 0;
         let esfuerzoMuelleT = 0;
         let coefSeguridadFinalK = 0;
 
         if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
-          fuerzaMaxEjeDelantero = ((mod.mmta2EjeSuspension ?? 0) * 9.81) / 2;
+          fuerzaMaxEjeTrasero = cargaMaximaEjeTraseroN / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
-            (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
-            (Math.PI * Math.pow(mod.diametroEspiraTraseroRef ?? 0, 3));
-          coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
+            (8 * fuerzaMaxEjeTrasero * diametromedio * factorBergstrasserKb) /
+            (Math.PI * Math.pow(diametroEspiraMuelle, 3));
+          coefSeguridadFinalK = safeDivide(1118.34, esfuerzoMuelleT);
         }
 
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
-          fuerzaMaxEjeDelantero = ((mod.mmta2EjeSuspension ?? 0) * 9.81) / 2;
+          fuerzaMaxEjeTrasero = cargaMaximaEjeTraseroN / 2;
           factorBergstrasserKb = (4 * curvatura + 2) / (4 * curvatura - 3);
           esfuerzoMuelleT =
-            (8 * fuerzaMaxEjeDelantero * diametromedio * factorBergstrasserKb) /
-            (Math.PI * Math.pow(mod.diametroEspiraTraseroSinRef ?? 0, 3));
-          coefSeguridadFinalK = 1118.34 / esfuerzoMuelleT;
+            (8 * fuerzaMaxEjeTrasero * diametromedio * factorBergstrasserKb) /
+            (Math.PI * Math.pow(diametroEspiraMuelle, 3));
+          coefSeguridadFinalK = safeDivide(1118.34, esfuerzoMuelleT);
         }
 
         // 11) Esfuerzo traseros
@@ -11769,10 +11872,10 @@ export async function buildCalculos(
             new TableRow({
               cantSplit: true,
               children: [
-                fuerzaMaxEjeDelantero.toFixed(2).toString() ?? '---',
-                factorBergstrasserKb.toFixed(2).toString() ?? '---',
-                esfuerzoMuelleT.toFixed(2).toString() ?? '---',
-                coefSeguridadFinalK.toFixed(2).toString() ?? '---',
+                formatFixed(fuerzaMaxEjeTrasero),
+                formatFixed(factorBergstrasserKb),
+                formatFixed(esfuerzoMuelleT),
+                formatFixed(coefSeguridadFinalK),
               ].map(
                 (v, i) =>
                   new TableCell({
@@ -11858,15 +11961,15 @@ export async function buildCalculos(
             ...[
               [
                 'MMTA/MMA (Kg)',
-                mod.mmtaTotalSuspension?.toFixed(2).toString() ?? '---',
+                mmaControlMasas.toFixed(2).toString() ?? '---',
               ],
               [
                 'MMTA/MMA eje 1',
-                mod.mmta1EjeSuspension?.toFixed(2).toString() ?? '---',
+                mmaEje1ControlMasas.toFixed(2).toString() ?? '---',
               ],
               [
                 'MMTA/MMA eje 2',
-                mod.mmta2EjeSuspension?.toFixed(2).toString() ?? '---',
+                mmaEje2ControlMasas.toFixed(2).toString() ?? '---',
               ],
             ].map(
               ([d, v]) =>
@@ -12124,7 +12227,7 @@ export async function buildCalculos(
             rows: [
               new TableRow({
                 cantSplit: true,
-                children: ['2F=', f.toFixed(2).toString() ?? '---', 'Kg'].map(
+                children: ['F=', formatFixed(f), 'Kg'].map(
                   (txt, i) =>
                     new TableCell({
                       margins: CELL_MARGINS,
@@ -12160,7 +12263,7 @@ export async function buildCalculos(
             rows: [
               new TableRow({
                 cantSplit: true,
-                children: ['F=', f2.toFixed(2).toString() ?? '---', 'Kg'].map(
+                children: ['2F=', formatFixed(f2), 'Kg'].map(
                   (txt, i) =>
                     new TableCell({
                       margins: CELL_MARGINS,
@@ -12225,15 +12328,15 @@ export async function buildCalculos(
             ...[
               [
                 'MMTA/MMA (Kg)',
-                mod.mmtaTotalSuspension?.toFixed(2).toString() ?? '---',
+                mmaControlMasas.toFixed(2).toString() ?? '---',
               ],
               [
                 'MMTA/MMA eje 1',
-                mod.mmta1EjeSuspension?.toFixed(2).toString() ?? '---',
+                mmaEje1ControlMasas.toFixed(2).toString() ?? '---',
               ],
               [
                 'MMTA/MMA eje 2',
-                mod.mmta2EjeSuspension?.toFixed(2).toString() ?? '---',
+                mmaEje2ControlMasas.toFixed(2).toString() ?? '---',
               ],
               ['PUNTOS DE APOYO', '2'],
               ['Resistencia a compresión del nylon (Kg/cm²)', '917'],
@@ -12291,7 +12394,7 @@ export async function buildCalculos(
           );
           // 4) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 1
 
-          let resultadoEje1 = (mod.mmta1EjeSuspension ?? 0) / 2;
+          let resultadoEje1 = mmaEje1ControlMasas / 2;
 
           const tablaPesoPorTaco = new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
@@ -12456,7 +12559,7 @@ export async function buildCalculos(
 
           out.push(new Paragraph({ text: '' }));
 
-          let resultadoEje2 = (mod.mmta2EjeSuspension ?? 0) / 2;
+          let resultadoEje2 = mmaEje2ControlMasas / 2;
 
           // 6) Tabla: PESO A SOPORTAR POR CADA TACO EN EJE 2
           const tablaPesoEje2 = new Table({

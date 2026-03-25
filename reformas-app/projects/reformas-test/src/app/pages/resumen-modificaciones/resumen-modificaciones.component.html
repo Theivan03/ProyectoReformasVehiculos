@@ -223,9 +223,30 @@
     color: #000 !important;
     background-color: #f8f9fa !important;
   }
+
+  .ing-validation .form-control.ng-invalid,
+  .ing-validation .form-select.ng-invalid,
+  .ing-validation .form-check-input.ng-invalid,
+  .ing-validation .form-control.is-invalid,
+  .ing-validation .form-select.is-invalid,
+  .ing-validation .form-check-input.is-invalid {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.2);
+  }
+
+  .ing-validation .validation-block--invalid {
+    border: 1px solid #dc3545 !important;
+    background-color: rgba(220, 53, 69, 0.06);
+    padding: 0.75rem;
+  }
 </style>
 <div class="container mt-3">
-  <form #form="ngForm" (ngSubmit)="onContinuar(form)" novalidate>
+  <form
+    #form="ngForm"
+    (ngSubmit)="onContinuar(form)"
+    [class.ing-validation]="formSubmitted"
+    novalidate
+  >
     @for (mod of modificacionesSeleccionadas; track mod; let i = $index) {
       <div>
         <!-- Reducción de plazas -->
@@ -15718,46 +15739,10 @@
             <h3 class="mb-4">Casuística de Suspensión</h3>
 
             <div class="row g-3 mb-4">
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input
-                    type="number"
-                    min="0"
-                    class="form-control"
-                    placeholder="MMTA Total"
-                    [(ngModel)]="mod.mmtaTotalSuspension"
-                    name="mmtaTotalSuspension{{ i }}"
-                    required
-                  />
-                  <label>MMTA TOTAL (kg)</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input
-                    type="number"
-                    min="0"
-                    class="form-control"
-                    placeholder="MMTA 1º EJE"
-                    [(ngModel)]="mod.mmta1EjeSuspension"
-                    name="mmta1EjeSuspension{{ i }}"
-                    required
-                  />
-                  <label>MMTA 1º EJE (kg)</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input
-                    type="number"
-                    min="0"
-                    class="form-control"
-                    placeholder="MMTA 2º EJE"
-                    [(ngModel)]="mod.mmta2EjeSuspension"
-                    name="mmta2EjeSuspension{{ i }}"
-                    required
-                  />
-                  <label>MMTA 2º EJE (kg)</label>
+              <div class="col-12">
+                <div class="alert alert-light border mb-0 small">
+                  Los valores de MMTA/MMA total y por ejes se toman
+                  automáticamente del formulario general de control de masas.
                 </div>
               </div>
               <div class="col-12"><hr class="mod-sep" /></div>
@@ -16393,7 +16378,12 @@
                   <h4 class="mod-card__title">Instalación de Tacos de Goma</h4>
                 </div>
                 <div class="row g-4">
-                  <div class="col-12 d-flex gap-4">
+                  <div
+                    class="col-12 d-flex gap-4 flex-wrap validation-block"
+                    [class.validation-block--invalid]="
+                      isTacosSelectionInvalid(mod)
+                    "
+                  >
                     <div class="form-check">
                       <input
                         class="form-check-input"
@@ -16401,6 +16391,7 @@
                         id="tacosDelantero{{ i }}"
                         [(ngModel)]="mod.tacosDelantero"
                         name="tacosDelantero{{ i }}"
+                        [class.is-invalid]="isTacosSelectionInvalid(mod)"
                       />
                       <label
                         class="form-check-label"
@@ -16415,6 +16406,7 @@
                         id="tacosTrasero{{ i }}"
                         [(ngModel)]="mod.tacosTrasero"
                         name="tacosTrasero{{ i }}"
+                        [class.is-invalid]="isTacosSelectionInvalid(mod)"
                       />
                       <label class="form-check-label" for="tacosTrasero{{ i }}"
                         >Tacos Traseros</label
@@ -16438,6 +16430,12 @@
                           [(ngModel)]="mod.diametroTacoDelantero"
                           name="diametroTacoDelantero{{ i }}"
                           required
+                          [class.is-invalid]="
+                            isConditionalFieldInvalid(
+                              mod.tacosDelantero,
+                              mod.diametroTacoDelantero
+                            )
+                          "
                         />
                         <label>DIÁMETRO (mm)</label>
                       </div>
@@ -16450,6 +16448,12 @@
                           [(ngModel)]="mod.espesorTacoDelantero"
                           name="espesorTacoDelantero{{ i }}"
                           required
+                          [class.is-invalid]="
+                            isConditionalFieldInvalid(
+                              mod.tacosDelantero,
+                              mod.espesorTacoDelantero
+                            )
+                          "
                         />
                         <label>ESPESOR (mm)</label>
                       </div>
@@ -16469,6 +16473,12 @@
                           [(ngModel)]="mod.diametroTacoTrasero"
                           name="diametroTacoTrasero{{ i }}"
                           required
+                          [class.is-invalid]="
+                            isConditionalFieldInvalid(
+                              mod.tacosTrasero,
+                              mod.diametroTacoTrasero
+                            )
+                          "
                         />
                         <label>DIÁMETRO (mm)</label>
                       </div>
@@ -16481,6 +16491,12 @@
                           [(ngModel)]="mod.espesorTacoTrasero"
                           name="espesorTacoTrasero{{ i }}"
                           required
+                          [class.is-invalid]="
+                            isConditionalFieldInvalid(
+                              mod.tacosTrasero,
+                              mod.espesorTacoTrasero
+                            )
+                          "
                         />
                         <label>ESPESOR (mm)</label>
                       </div>
@@ -16495,7 +16511,10 @@
                   <h4 class="mod-card__title">Kit de Elevación</h4>
                 </div>
                 <div class="row g-4">
-                  <div class="col-12 d-flex gap-4">
+                  <div
+                    class="col-12 d-flex gap-4 flex-wrap validation-block"
+                    [class.validation-block--invalid]="isKitSelectionInvalid(mod)"
+                  >
                     <div class="form-check">
                       <input
                         class="form-check-input"
@@ -16503,6 +16522,7 @@
                         id="kitElevacionDelantero{{ i }}"
                         [(ngModel)]="mod.detallesMuelles.kitElevacionDelantero"
                         name="kitElevacionDelantero{{ i }}"
+                        [class.is-invalid]="isKitSelectionInvalid(mod)"
                       />
                       <label
                         class="form-check-label"
@@ -16517,6 +16537,7 @@
                         id="kitElevacionTrasero{{ i }}"
                         [(ngModel)]="mod.detallesMuelles.kitElevacionTrasero"
                         name="kitElevacionTrasero{{ i }}"
+                        [class.is-invalid]="isKitSelectionInvalid(mod)"
                       />
                       <label
                         class="form-check-label"
@@ -16541,7 +16562,7 @@
                               class="form-control"
                               placeholder="Marca"
                               [(ngModel)]="mod.marcaKitElevacionDelantera"
-                              name="marcaKitElevacion{{ i }}"
+                              name="marcaKitElevacionDelantera{{ i }}"
                               required
                             />
                             <label>MARCA</label>
@@ -16554,6 +16575,12 @@
                               [(ngModel)]="mod.tipoSuspensionDelantera"
                               name="tipoSuspensionDelantera{{ i }}"
                               required
+                              [class.is-invalid]="
+                                isConditionalFieldInvalid(
+                                  mod.detallesMuelles.kitElevacionDelantero,
+                                  mod.tipoSuspensionDelantera
+                                )
+                              "
                             >
                               <option value="" disabled selected>
                                 -- SELECCIONAR --
@@ -16571,6 +16598,12 @@
                               [(ngModel)]="mod.tipoTacoDelantero"
                               name="tipoTacoDelantero{{ i }}"
                               required
+                              [class.is-invalid]="
+                                isConditionalFieldInvalid(
+                                  mod.detallesMuelles.kitElevacionDelantero,
+                                  mod.tipoTacoDelantero
+                                )
+                              "
                             >
                               <option value="" disabled selected>
                                 -- SELECCIONAR --
@@ -16588,9 +16621,17 @@
                               min="0"
                               class="form-control"
                               placeholder="Diam"
-                              [(ngModel)]="mod.diametroTacoDelantero"
-                              name="diametroTacoDelantero{{ i }}"
+                              [(ngModel)]="
+                                mod.diametroTacoKitElevacionDelantero
+                              "
+                              name="diametroTacoKitElevacionDelantero{{ i }}"
                               required
+                              [class.is-invalid]="
+                                isConditionalFieldInvalid(
+                                  mod.detallesMuelles.kitElevacionDelantero,
+                                  mod.diametroTacoKitElevacionDelantero
+                                )
+                              "
                             />
                             <label>DIÁM. (mm)</label>
                           </div>
@@ -16602,9 +16643,17 @@
                               min="0"
                               class="form-control"
                               placeholder="Espesor"
-                              [(ngModel)]="mod.espesorTacoDelantero"
-                              name="espesorTacoDelantero{{ i }}"
+                              [(ngModel)]="
+                                mod.espesorTacoKitElevacionDelantero
+                              "
+                              name="espesorTacoKitElevacionDelantero{{ i }}"
                               required
+                              [class.is-invalid]="
+                                isConditionalFieldInvalid(
+                                  mod.detallesMuelles.kitElevacionDelantero,
+                                  mod.espesorTacoKitElevacionDelantero
+                                )
+                              "
                             />
                             <label>ESPESOR (mm)</label>
                           </div>
@@ -16638,6 +16687,12 @@
                               [(ngModel)]="mod.tipoSuspensionTrasera"
                               name="tipoSuspensionTrasera{{ i }}"
                               required
+                              [class.is-invalid]="
+                                isConditionalFieldInvalid(
+                                  mod.detallesMuelles.kitElevacionTrasero,
+                                  mod.tipoSuspensionTrasera
+                                )
+                              "
                             >
                               <option value="" disabled selected>
                                 -- SELECCIONAR --
@@ -16655,6 +16710,12 @@
                               [(ngModel)]="mod.tipoTacoTrasero"
                               name="tipoTacoTrasero{{ i }}"
                               required
+                              [class.is-invalid]="
+                                isConditionalFieldInvalid(
+                                  mod.detallesMuelles.kitElevacionTrasero,
+                                  mod.tipoTacoTrasero
+                                )
+                              "
                             >
                               <option value="" disabled selected>
                                 -- SELECCIONAR --
@@ -16672,9 +16733,15 @@
                               min="0"
                               class="form-control"
                               placeholder="Diam"
-                              [(ngModel)]="mod.diametroTacoTrasero"
-                              name="diametroTacoTrasero{{ i }}"
+                              [(ngModel)]="mod.diametroTacoKitElevacionTrasero"
+                              name="diametroTacoKitElevacionTrasero{{ i }}"
                               required
+                              [class.is-invalid]="
+                                isConditionalFieldInvalid(
+                                  mod.detallesMuelles.kitElevacionTrasero,
+                                  mod.diametroTacoKitElevacionTrasero
+                                )
+                              "
                             />
                             <label>DIÁM. (mm)</label>
                           </div>
@@ -16686,9 +16753,15 @@
                               min="0"
                               class="form-control"
                               placeholder="Espesor"
-                              [(ngModel)]="mod.espesorTacoTrasero"
-                              name="espesorTacoTrasero{{ i }}"
+                              [(ngModel)]="mod.espesorTacoKitElevacionTrasero"
+                              name="espesorTacoKitElevacionTrasero{{ i }}"
                               required
+                              [class.is-invalid]="
+                                isConditionalFieldInvalid(
+                                  mod.detallesMuelles.kitElevacionTrasero,
+                                  mod.espesorTacoKitElevacionTrasero
+                                )
+                              "
                             />
                             <label>ESPESOR (mm)</label>
                           </div>
@@ -16720,7 +16793,7 @@
                   </h6>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <div class="form-floating">
                     <input
                       type="text"
@@ -16734,7 +16807,7 @@
                     <label>MARCA</label>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <div class="form-floating">
                     <input
                       type="text"
@@ -16772,6 +16845,14 @@
                       class="form-control"
                       placeholder="Medidas"
                       [(ngModel)]="mod.medidasDefensa"
+                      (ngModelChange)="
+                        onDimensionesChange(
+                          mod,
+                          'medidasDefensa',
+                          'anchuraPiezaM',
+                          'alturaPiezaM'
+                        )
+                      "
                       name="medidasDefensa{{ i }}"
                       required
                       [class.is-invalid]="formSubmitted && !mod.medidasDefensa"
@@ -16782,10 +16863,27 @@
                 <div class="col-md-4">
                   <div class="form-floating">
                     <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="Peso"
+                      [(ngModel)]="mod.pesoPiezaKg"
+                      name="pesoPiezaKgDefensa{{ i }}"
+                      required
+                      [class.is-invalid]="
+                        formSubmitted && mod.pesoPiezaKg == null
+                      "
+                    />
+                    <label>PESO (Kg)</label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input
                       type="text"
                       class="form-control"
                       placeholder="Ratio"
-                      value="8"
                       [(ngModel)]="mod.curvaturaDefensaDelantera"
                       name="curvaturaDefensaDelantera{{ i }}"
                       required
@@ -16794,6 +16892,44 @@
                       "
                     />
                     <label>RATIO CURVATURA MÍN.</label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0"
+                      class="form-control"
+                      placeholder="Ancho"
+                      [(ngModel)]="mod.anchuraPiezaM"
+                      name="anchuraDefensa{{ i }}"
+                      required
+                      readonly
+                      [class.is-invalid]="
+                        formSubmitted && mod.anchuraPiezaM == null
+                      "
+                    />
+                    <label>ANCHO (m)</label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0"
+                      class="form-control"
+                      placeholder="Alto"
+                      [(ngModel)]="mod.alturaPiezaM"
+                      name="alturaDefensa{{ i }}"
+                      required
+                      readonly
+                      [class.is-invalid]="
+                        formSubmitted && mod.alturaPiezaM == null
+                      "
+                    />
+                    <label>ALTO (m)</label>
                   </div>
                 </div>
 
@@ -16837,11 +16973,135 @@
                       class="form-control"
                       placeholder="Nº"
                       [(ngModel)]="mod.nTornillos"
-                      name="nTornillos"
+                      name="nTornillosDefensa{{ i }}"
                       required
                       [class.is-invalid]="formSubmitted && !mod.nTornillos"
                     />
                     <label>Nº TORNILLOS</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.1"
+                      class="form-control"
+                      placeholder="Calidad"
+                      [(ngModel)]="mod.calidadTornilloToldo"
+                      name="calidadDefensa{{ i }}"
+                      required
+                      readonly
+                      [class.is-invalid]="
+                        formSubmitted && mod.calidadTornilloToldo == null
+                      "
+                    />
+                    <label>CALIDAD TORNILLO</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="As"
+                      [(ngModel)]="mod.seccionResistenteAsToldo"
+                      name="asDefensa{{ i }}"
+                      required
+                      readonly
+                      [class.is-invalid]="
+                        formSubmitted && mod.seccionResistenteAsToldo == null
+                      "
+                    />
+                    <label>As (SECCIÓN)</label>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-floating">
+                    <select
+                      class="form-select"
+                      [(ngModel)]="mod.resTraccionMinTornillo88Kgmm2Toldo"
+                      name="resistenciaDefensa{{ i }}"
+                      required
+                    >
+                      <option [ngValue]="null" disabled>
+                        -- SELECCIONAR --
+                      </option>
+                      <option [ngValue]="80">80</option>
+                      <option [ngValue]="25">25</option>
+                    </select>
+                    <label>RESISTENCIA TRACCIÓN MÍN. (Kg/mm²)</label>
+                  </div>
+                </div>
+
+                <div class="col-12"><hr class="mod-sep" /></div>
+
+                <div class="col-12">
+                  <h6
+                    class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                  >
+                    Cálculo Resistencia (Presión Aire)
+                  </h6>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="Cw"
+                      [(ngModel)]="mod.cwCoefAerodinamicoToldo"
+                      name="cwDefensa{{ i }}"
+                      required
+                    />
+                    <label>Cw</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.0001"
+                      min="0"
+                      class="form-control"
+                      placeholder="p"
+                      [(ngModel)]="mod.densidadAireKgM3Toldo"
+                      name="densidadDefensa{{ i }}"
+                      required
+                    />
+                    <label>p</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="V2"
+                      [(ngModel)]="mod.velocidadAireV2msToldo"
+                      name="velocidadDefensa{{ i }}"
+                      required
+                    />
+                    <label>V² (m/s)</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="form-control"
+                      placeholder="K"
+                      [(ngModel)]="mod.coefSeguridadKToldo"
+                      name="seguridadDefensa{{ i }}"
+                      required
+                    />
+                    <label>K</label>
                   </div>
                 </div>
               </div>
