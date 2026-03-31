@@ -3008,7 +3008,7 @@
                       </h6>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                       <div class="form-floating">
                         <select
                           class="form-select"
@@ -3030,7 +3030,26 @@
                         <label>MÉTRICA TORNILLOS</label>
                       </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Diámetro"
+                          [(ngModel)]="mod.diametroPernoCmCabrestante"
+                          name="diametroPernoCmCabrestante{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.diametroPernoCmCabrestante == null
+                          "
+                        />
+                        <label>DIÁMETRO PERNO (cm)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
                       <div class="form-floating">
                         <input
                           type="number"
@@ -8232,6 +8251,28 @@
                       />
                       <label for="medidasBarras-{{ i }}"
                         >DIMENSIONES (LxAxH)</label
+                      >
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        class="form-control"
+                        id="curvaturaBarras-{{ i }}"
+                        placeholder="Radio curvatura"
+                        [(ngModel)]="mod.curvaturaBarras"
+                        name="curvaturaBarras{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.curvaturaBarras == null
+                        "
+                      />
+                      <label for="curvaturaBarras-{{ i }}"
+                        >RADIO CURVATURA</label
                       >
                     </div>
                   </div>
@@ -20993,7 +21034,7 @@
                         >#{{ j + 1 }}</span
                       >
                       <div class="row g-3 pt-4">
-                        <div class="col-12">
+                        <div class="col-12 col-md-8">
                           <div class="form-floating">
                             <input
                               type="text"
@@ -21007,6 +21048,26 @@
                               "
                             />
                             <label>TÍTULO (CANVA / TABLA)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="1"
+                              min="0"
+                              class="form-control"
+                              placeholder="Radio de curvatura"
+                              [ngModel]="reforma.curvatura ?? 8"
+                              (ngModelChange)="reforma.curvatura = $event"
+                              name="reformaAdicionalCurvatura{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && reforma.curvatura == null
+                              "
+                            />
+                            <label>RADIO CURVATURA</label>
                           </div>
                         </div>
 

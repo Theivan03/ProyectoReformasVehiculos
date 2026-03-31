@@ -43,7 +43,7 @@
     "id": 1772621314751,
     "mismaDireccion": false,
     "titular": {
-      "nombre": "VIA SOCIAL VICTORIA SL",
+      "nombre": "CAFETERIA GRANJA VICTORIA SL",
       "apellidos": "",
       "nif": "B24648057",
       "domicilio": "PLAZA DE LA INMACULADA, NUM 3, PLANTA 11, PUERTA D",
@@ -58,27 +58,29 @@
       "poblacion": "GANDIA",
       "provincia": "VALENCIA",
       "cp": "46728",
+      "cups": "",
       "refCatastral": "7582805YJ3178S0001TM",
       "uso": "Vivienda",
       "superficie": 277,
       "planoImagen": null
     },
     "caracteristicas": {
-      "potenciaInstalada": 14.4,
+      "potenciaInstalada": 12,
       "tipoCableMm2": "10",
       "tipoInstalacion": "monofasica",
       "diametroTuboMm": "32",
-      "esquemaUnifilar": "1"
+      "esquemaUnifilar": "2",
+      "esquemaUnifilarImagen": null
     },
     "fechaFirma": {
-      "dia": "4",
+      "dia": "26",
       "mes": "Marzo",
       "anyo": "2026",
       "lugar": "TEULADA"
     },
     "fechaCreacion": "2026-03-04T10:48:34.751Z",
     "tipoMemoria": "consumo",
-    "fechaEdicion": "2026-03-04T14:58:03.561Z"
+    "fechaEdicion": "2026-03-26T12:25:36.357Z"
   },
   {
     "id": 1772623101655,
@@ -670,5 +672,90 @@
       "lugar": "TEULADA"
     },
     "fechaCreacion": "2026-03-25T11:38:33.602Z"
+  },
+  {
+    "id": 1774606576670,
+    "tipoMemoria": "consumo",
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "ANGEL",
+      "apellidos": "RAMOS MALLET",
+      "nif": "20948142H",
+      "domicilio": "CARRER COVATELLES 26",
+      "cp": "46780",
+      "poblacion": "OLIVA",
+      "provincia": "VALENCIA",
+      "telefono": "676875461",
+      "correo": "FACTURACIO@ELECTRICITATIVAN.COM"
+    },
+    "emplazamiento": {
+      "direccion": "CAMINO VELL DE DENIA, PORTAL 90, Bajo",
+      "poblacion": "OLIVA",
+      "provincia": "VALENCIA",
+      "cp": "46780",
+      "cups": "",
+      "refCatastral": "46183A012001430000HR",
+      "uso": "Vivienda",
+      "superficie": 132,
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": 7.3,
+      "tipoCableMm2": "10",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "2",
+      "esquemaUnifilarImagen": null
+    },
+    "fechaFirma": {
+      "dia": "27",
+      "mes": "Marzo",
+      "anyo": "2026",
+      "lugar": "TEULADA"
+    },
+    "fechaCreacion": "2026-03-27T10:16:16.670Z",
+    "fechaEdicion": "2026-03-27T10:20:10.014Z"
+  },
+  {
+    "id": 1774864620373,
+    "tipoMemoria": "consumo",
+    "mismaDireccion": false,
+    "titular": {
+      "nombre": "VIA SOCIAL VICTORIA SL",
+      "apellidos": "",
+      "nif": "B24648057",
+      "domicilio": "PLAZA DE LA INMACULADA, NUM 3, PLANTA 11, PUERTA D",
+      "cp": "24001",
+      "poblacion": "LEON",
+      "provincia": "LEON",
+      "telefono": "616772757",
+      "correo": "facturacio@electricitativan.com"
+    },
+    "emplazamiento": {
+      "direccion": "C/ CARRER DEL BRUC, 78, 2",
+      "poblacion": "MARCHUQUERA",
+      "provincia": "VALENCIA",
+      "cp": "46728",
+      "cups": "",
+      "refCatastral": "7582805YJ3178S0001TM",
+      "uso": "Vivienda",
+      "superficie": 277,
+      "planoImagen": null
+    },
+    "caracteristicas": {
+      "potenciaInstalada": 12,
+      "tipoCableMm2": "10",
+      "tipoInstalacion": "monofasica",
+      "diametroTuboMm": "32",
+      "esquemaUnifilar": "2",
+      "esquemaUnifilarImagen": null
+    },
+    "fechaFirma": {
+      "dia": "30",
+      "mes": "Marzo",
+      "anyo": "2026",
+      "lugar": "Oliva"
+    },
+    "fechaCreacion": "2026-03-30T09:57:00.373Z"
   }
 ]

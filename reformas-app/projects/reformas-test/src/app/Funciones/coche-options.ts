@@ -4,6 +4,7 @@ export const COCHE_OPTION_TEXTS = [
   'Los anclajes del paragolpes delantero son los originales, no modificándose la altura libre.',
   'El sistema de remolcado delantero y trasero no se ve impedido tras la reforma.',
   'Ninguna pieza asociada a las reformas presenta aristas vivas o cortantes peligrosas.',
+  'Ninguna de las piezas instaladas entorpece la entrada del flujo de aire al motor para su respectiva refrigeración.',
 ];
 
 export function getCocheOptionTexts(opcionesCoche: unknown): string[] {

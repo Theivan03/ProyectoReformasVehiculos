@@ -20,6 +20,7 @@ import {
 import saveAs from 'file-saver';
 import { Modificacion } from '../interfaces/modificacion';
 import { buildModificacionesParagraphs } from '../Funciones/buildModificacionesParagraphs';
+import { getCocheOptionTexts } from '../Funciones/coche-options';
 import loadImage from 'blueimp-load-image';
 
 interface ImageInfo {
@@ -32,6 +33,7 @@ interface ImageInfo {
 export async function generarDocumentoFinalObra(data: any): Promise<void> {
   const ingeniero = data.ingenieroSeleccionado;
   const modificaciones: Modificacion[] = data.modificaciones;
+  const textosCoche = getCocheOptionTexts(data.opcionesCoche);
 
   // 1) Header
   const header = new Header({
@@ -879,17 +881,15 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
             'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
           ];
 
-          const bullets: Paragraph[] = textos
-            .map((txt, i) =>
-              data.opcionesCoche[i]
-                ? new Paragraph({
-                    bullet: { level: 0 },
-                    spacing: { before: 240, after: 120 },
-                    children: [new TextRun({ text: txt })],
-                  })
-                : null,
-            )
-            .filter((p): p is Paragraph => p != null);
+          void textos;
+          const bullets: Paragraph[] = textosCoche.map(
+            (txt) =>
+              new Paragraph({
+                bullet: { level: 0 },
+                spacing: { before: 240, after: 120 },
+                children: [new TextRun({ text: txt })],
+              }),
+          );
 
           const fraseFinal = new Paragraph({
             spacing: { before: 240, after: 120 },

@@ -299,20 +299,22 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           new TableRow({
             children: [
               new TableCell({
-                margins: { top: 100, bottom: 100, left: 200, right: 200 },
+                margins: { top: 40, bottom: 40, left: 180, right: 180 },
                 children: [
                   new Paragraph({
                     text: String(label),
                     alignment: AlignmentType.LEFT,
+                    spacing: { before: 0, after: 0 },
                   }),
                 ],
               }),
               new TableCell({
-                margins: { top: 100, bottom: 100, left: 200, right: 200 },
+                margins: { top: 40, bottom: 40, left: 180, right: 180 },
                 children: [
                   new Paragraph({
                     text: String(value),
                     alignment: AlignmentType.LEFT,
+                    spacing: { before: 0, after: 0 },
                   }),
                 ],
               }),
@@ -422,7 +424,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
             // 1) Definición de elementos (Datos del código 2)
             const elementos: Array<{
               nombreMod: string;
-              etiqueta: string;
+              etiqueta: string | ((m: any) => string);
               key: string; // Usamos string para evitar problemas de tipado estricto en el snippet
               condition?: (m: any) => boolean;
             }> = [
@@ -462,6 +464,11 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 key: 'curvaturaSoporteRuedaRepuesto',
               },
               {
+                nombreMod: 'BARRAS ANTIVUELCO',
+                etiqueta: 'Barras antivuelco',
+                key: 'curvaturaBarras',
+              },
+              {
                 nombreMod: 'ALERÓN',
                 etiqueta: 'Alerón',
                 key: 'curvaturaAleron',
@@ -496,7 +503,10 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
               },
               {
                 nombreMod: 'ESTRIBOS LATERALES O TALONERAS',
-                etiqueta: 'Estribos laterales o taloneras',
+                etiqueta: (m) =>
+                  m?.detalle?.estribosotaloneras === 'taloneras'
+                    ? 'Taloneras'
+                    : 'Estribos laterales',
                 key: 'radioCurvaREstribos',
               },
               {
@@ -585,6 +595,10 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
               'INSTALACIÓN ELÉCTRICA',
             );
 
+            const campoLibreMod = findSelectedMod(
+              'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES',
+            );
+
             const claraboyaRows = (
               Array.isArray(claraboyaMod?.claraboyas)
                 ? claraboyaMod.claraboyas
@@ -625,6 +639,18 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
               .filter((row): row is TableRow => row !== null);
 
             // 2) Construcción de filas (Lógica del código 1 adaptada para ser dinámica)
+            const campoLibreRows = (
+              Array.isArray(campoLibreMod?.reformasAdicionalesItems)
+                ? campoLibreMod.reformasAdicionalesItems
+                : []
+            )
+              .map((item: any, index: number) => {
+                const titulo = (item?.titulo ?? '').toString().trim();
+                const etiqueta = titulo || `Reforma adicional ${index + 1}`;
+                return buildCurvaturaRow(etiqueta, item?.curvatura);
+              })
+              .filter((row): row is TableRow => row !== null);
+
             const dataRows = [
               ...elementos
                 .map(({ nombreMod, etiqueta, key, condition }) => {
@@ -633,11 +659,15 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                   if (!mod) return null;
                   if (condition && !condition(mod)) return null;
 
-                  return buildCurvaturaRow(etiqueta, (mod as any)[key]);
+                  const etiquetaFinal =
+                    typeof etiqueta === 'function' ? etiqueta(mod) : etiqueta;
+
+                  return buildCurvaturaRow(etiquetaFinal, (mod as any)[key]);
                 })
                 .filter((row): row is TableRow => row !== null),
               ...claraboyaRows,
               ...placasRows,
+              ...campoLibreRows,
             ];
 
             // Si no hay filas, devolvemos array vacío (no se pinta tabla)
@@ -891,16 +921,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
               }),
           );
 
-          const fraseFinal = new Paragraph({
-            spacing: { before: 240, after: 120 },
-            children: [
-              new TextRun({
-                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo de aire al motor para su respectiva refrigeración.',
-              }),
-            ],
-          });
-
-          return [...bullets, fraseFinal];
+          return [...bullets];
         })()
       : []),
 

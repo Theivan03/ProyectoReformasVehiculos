@@ -114,6 +114,13 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     asientosDelanteros: 0,
     asientos2Fila: 0,
     asientos3Fila: 0,
+    mmaControlMasas: null,
+    mmaEje1ControlMasas: null,
+    mmaEje2ControlMasas: null,
+    cargaVerticalAcoplControlMasas: null,
+    asientosDelanterosControlMasas: null,
+    asientos2FilaControlMasas: null,
+    asientos3FilaControlMasas: null,
     cargaUtilTotal: 0,
     distanciaEntreEjes: 0,
     ocupantesAdicionales: 0,
@@ -173,6 +180,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
           this.generarReferencia(anyo);
         }
 
+        this.syncControlMasasDefaults();
         this.intentarNormalizarListas();
 
         const p = Number(this.datosIniciales?.paginaActual);
@@ -276,6 +284,54 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     }
   }
 
+  private tieneValor(value: unknown): boolean {
+    return value !== null && value !== undefined && value !== '';
+  }
+
+  private syncControlMasasDefaults(): void {
+    const mappings: Array<{ target: string; sources: string[] }> = [
+      { target: 'mmaControlMasas', sources: ['mmaDespues'] },
+      { target: 'mmaEje1ControlMasas', sources: ['mmaEje1Despues'] },
+      { target: 'mmaEje2ControlMasas', sources: ['mmaEje2Despues'] },
+      {
+        target: 'cargaVerticalAcoplControlMasas',
+        sources: ['cargaverticalDespues', 'cargavertical'],
+      },
+      {
+        target: 'asientosDelanterosControlMasas',
+        sources: ['asientosDelanteros'],
+      },
+      { target: 'asientos2FilaControlMasas', sources: ['asientos2Fila'] },
+      { target: 'asientos3FilaControlMasas', sources: ['asientos3Fila'] },
+    ];
+
+    mappings.forEach(({ target, sources }) => {
+      if (this.tieneValor(this.datos[target])) return;
+
+      const sourceValue = sources
+        .map((source) => this.datos[source])
+        .find((value) => this.tieneValor(value));
+
+      if (sourceValue !== undefined) {
+        this.datos[target] = sourceValue;
+      }
+    });
+  }
+
+  private getControlMasasNumber(
+    controlKey: string,
+    ...fallbackKeys: string[]
+  ): number {
+    for (const key of [controlKey, ...fallbackKeys]) {
+      const value = this.datos[key];
+      if (this.tieneValor(value)) {
+        return Number(value) || 0;
+      }
+    }
+
+    return 0;
+  }
+
   onCambioTaller(nuevoTaller: any) {
     // Esto actualiza la vista inmediatamente
     this.datos.tallerSeleccionado = nuevoTaller;
@@ -316,8 +372,11 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     const n = (v: any) => Number(v) || 0;
     const PESO_OCUPANTE = 75;
 
-    const mma = n(this.datos.mmaDespues);
-    const mmaEje2 = n(this.datos.mmaEje2Despues);
+    const mma = this.getControlMasasNumber('mmaControlMasas', 'mmaDespues');
+    const mmaEje2 = this.getControlMasasNumber(
+      'mmaEje2ControlMasas',
+      'mmaEje2Despues',
+    );
     const distanciaEntreEjes = n(this.datos.distanciaEntreEjes);
 
     const taraDelante = n(this.datos.taraDelante);
@@ -328,9 +387,17 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         : n(this.datos.taraTotal);
 
     const ocupantesAdicionales = n(this.datos.ocupantesAdicionales);
-    const ocupDelTotal = n(this.datos.asientosDelanteros) * PESO_OCUPANTE;
-    const ocup2Total = n(this.datos.asientos2Fila) * PESO_OCUPANTE;
-    const ocup3Total = n(this.datos.asientos3Fila) * PESO_OCUPANTE;
+    const ocupDelTotal =
+      this.getControlMasasNumber(
+        'asientosDelanterosControlMasas',
+        'asientosDelanteros',
+      ) * PESO_OCUPANTE;
+    const ocup2Total =
+      this.getControlMasasNumber('asientos2FilaControlMasas', 'asientos2Fila') *
+      PESO_OCUPANTE;
+    const ocup3Total =
+      this.getControlMasasNumber('asientos3FilaControlMasas', 'asientos3Fila') *
+      PESO_OCUPANTE;
     const totalKgOcupAdicionales = ocupantesAdicionales * PESO_OCUPANTE;
 
     const masaRealTotal = taraTotal + PESO_OCUPANTE;
@@ -357,8 +424,11 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       ocup3.tras +
       cargaUtil.tras;
 
-    const cargaVerticalAcopl =
-      n(this.datos.cargaverticalDespues) || n(this.datos.cargavertical);
+    const cargaVerticalAcopl = this.getControlMasasNumber(
+      'cargaVerticalAcoplControlMasas',
+      'cargaverticalDespues',
+      'cargavertical',
+    );
     const cargaUtilSinVerticalTotal = cargaUtilTotal - cargaVerticalAcopl;
     const cargaUtilSinVertical = repartirPorEjes(
       cargaUtilSinVerticalTotal,
@@ -420,6 +490,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
 
   siguiente(): void {
     const n = (v: any) => Number(v) || 0;
+    this.syncControlMasasDefaults();
     const taraDelante = n(this.datos.taraDelante);
     const taraDetras = n(this.datos.taraDetras);
     const taraTotal =
@@ -430,7 +501,9 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     const totalKgOcupAdicionales = n(this.datos.ocupantesAdicionales) * 75;
     this.datos.taraTotal = taraTotal;
     this.datos.cargaUtilTotal =
-      n(this.datos.mmaDespues) - masaRealTotal - totalKgOcupAdicionales;
+      this.getControlMasasNumber('mmaControlMasas', 'mmaDespues') -
+      masaRealTotal -
+      totalKgOcupAdicionales;
 
     // Validaciones reglamentarias informativas
     this.comprobarCondicionesCarga();

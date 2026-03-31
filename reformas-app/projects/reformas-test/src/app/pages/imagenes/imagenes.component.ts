@@ -156,11 +156,11 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.procesando) return;
 
     const fileList = Array.from(files).filter((f) =>
-      f.type.startsWith('image/')
+      f.type.startsWith('image/'),
     );
     if (fileList.length === 0) return;
 
-    if (this.postImages.length + fileList.length > 30) {
+    if (this.postImages.length + fileList.length > 50) {
       this.errorPostImagesCount = true;
       return;
     }
@@ -169,10 +169,10 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.procesando = true;
     try {
       const blobs = await Promise.all(
-        fileList.map((f) => this.normalizeAndCompress(f))
+        fileList.map((f) => this.normalizeAndCompress(f)),
       );
       const previews = await Promise.all(
-        blobs.map((b) => this.blobToDataUrl(b))
+        blobs.map((b) => this.blobToDataUrl(b)),
       );
 
       this.postImages.push(...blobs);
@@ -243,12 +243,12 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
       this.prevImagesB64 = [...this.datosEntrada.prevImagesB64];
       this.prevPreviews = [...this.prevImagesB64];
       this.prevImages = await Promise.all(
-        this.prevImagesB64.map((b64) => this.dataUrlToBlob(b64))
+        this.prevImagesB64.map((b64) => this.dataUrlToBlob(b64)),
       );
     } else if (Array.isArray(this.datosEntrada?.prevImages)) {
       this.prevImages = this.datosEntrada.prevImages;
       this.prevPreviews = await Promise.all(
-        this.prevImages.map((b) => this.blobToDataUrl(b))
+        this.prevImages.map((b) => this.blobToDataUrl(b)),
       );
       this.prevImagesB64 = [...this.prevPreviews];
     }
@@ -257,12 +257,12 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
       this.postImagesB64 = [...this.datosEntrada.postImagesB64];
       this.postPreviews = [...this.postImagesB64];
       this.postImages = await Promise.all(
-        this.postImagesB64.map((b64) => this.dataUrlToBlob(b64))
+        this.postImagesB64.map((b64) => this.dataUrlToBlob(b64)),
       );
     } else if (Array.isArray(this.datosEntrada?.postImages)) {
       this.postImages = this.datosEntrada.postImages;
       this.postPreviews = await Promise.all(
-        this.postImages.map((b) => this.blobToDataUrl(b))
+        this.postImages.map((b) => this.blobToDataUrl(b)),
       );
       this.postImagesB64 = [...this.postPreviews];
     }
@@ -324,10 +324,10 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
               blob ? resolve(blob) : reject('Error creando Blob comprimido');
             },
             mimeType,
-            0.7
+            0.7,
           );
         },
-        { canvas: true, orientation: true, maxWidth: 1600, maxHeight: 1600 }
+        { canvas: true, orientation: true, maxWidth: 1600, maxHeight: 1600 },
       );
     });
   }
@@ -411,7 +411,7 @@ export class ImagenesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.postPreviews.splice(index, 1);
     this.postImages.splice(index, 1);
     this.postImagesB64.splice(index, 1);
-    if (this.postImages.length <= 30) {
+    if (this.postImages.length <= 50) {
       this.errorPostImagesCount = false;
     }
     this.emitAutosave();

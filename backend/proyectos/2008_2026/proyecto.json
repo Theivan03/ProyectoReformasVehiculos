@@ -1,65 +1,8 @@
 {
-  "tipoVehiculo": "camper",
+  "tipoVehiculo": "coche",
   "modificaciones": [
     {
-      "nombre": "SUSTITUCIÓN DE DISCOS DE FRENO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "PLANCHA CAPÓ",
-      "seleccionado": false
-    },
-    {
-      "nombre": "CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES",
-      "seleccionado": false,
-      "reformasAdicionalesItems": []
-    },
-    {
-      "nombre": "TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR",
-      "seleccionado": false,
-      "anotacion": "",
-      "detallesMuelles": {
-        "muelleDelanteroConRef": false,
-        "muelleDelanteroSinRef": false,
-        "ballestaDelantera": false,
-        "ballestaTrasera": false,
-        "amortiguadorDelantero": false,
-        "muelleTraseroConRef": false,
-        "muelleTraseroSinRef": false,
-        "amortiguadorTrasero": false,
-        "tacosDeGoma": false,
-        "kitElevacion": false
-      }
-    },
-    {
-      "nombre": "SEPARADORES DE RUEDA",
-      "seleccionado": false
-    },
-    {
-      "nombre": "SOPORTES PARA LUCES DE USO ESPECÍFICO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "ANTIEMPOTRAMIENTO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "NEUMÁTICOS",
-      "seleccionado": false,
-      "anotacion1": false,
-      "anotacion2": false
-    },
-    {
-      "nombre": "MATRÍCULA Y PORTAMATRÍCULA",
-      "seleccionado": false,
-      "detalle": {
-        "instalacionPorta": false,
-        "reubicacionTrasera": false,
-        "cambioUbicacionDelantera": false
-      }
-    },
-    {
-      "nombre": "BARRA DE DIRECCIÓN",
+      "nombre": "3ª LUZ DE FRENO",
       "seleccionado": false
     },
     {
@@ -107,16 +50,65 @@
       "seleccionado": false
     },
     {
+      "nombre": "ALETINES Y SOBREALETINES",
+      "seleccionado": false,
+      "detalle": {
+        "aletines": false,
+        "sobrealetines": false
+      }
+    },
+    {
       "nombre": "AMORTIGUADOR DE DIRECCIÓN",
       "seleccionado": false
     },
     {
-      "nombre": "SUSTITUCIÓN DE EJES",
-      "seleccionado": false,
+      "nombre": "ANTIEMPOTRAMIENTO",
+      "seleccionado": true,
+      "seccionResistenteAsAntiempotramiento": 36.64,
+      "resTraccionMinTornillo88Kgmm2Antiempotramiento": 80,
+      "cwCoefAerodinamicoAntiempotramiento": 0.82,
+      "densidadAireKgM3Antiempotramiento": 1.29,
+      "velocidadAireV2msAntiempotramiento": 38.89,
+      "radioCurvaRAntiempotramiento": 8,
+      "coefSeguridadKAntiempotramiento": 3,
       "detalle": {
-        "sustitucionEjeTrasero": false,
-        "sustitucionEjeDelantero": false
-      }
+        "aletines": false,
+        "sobrealetines": false
+      },
+      "calidadTornilloAntiempotramiento": 8.8,
+      "acciones": [
+        "Instalación"
+      ],
+      "medidasAntiempotramiento": "530x830",
+      "superficieFrontalM2Antiempotramiento": 0.4399,
+      "metricaAntiempotramiento": 8,
+      "nTornillosAntiempotramiento": 8,
+      "pesoPiezaKgAntiempotramiento": 2,
+      "nTornillos": 8
+    },
+    {
+      "nombre": "ANTINIEBLA",
+      "seleccionado": false,
+      "acciones": [
+        "Instalación"
+      ],
+      "ubicacionAntiniebla": "ambos",
+      "marcaAntinieblaDel": "5",
+      "homologacionAntinieblaDel": "5",
+      "metricaAntinieblaDel": "5",
+      "nTornillosAntinieblaDel": 5,
+      "marcaAntinieblaTras": "9",
+      "homologacionAntinieblaTras": "9",
+      "metricaAntinieblaTras": "9",
+      "nTornillosAntinieblaTras": 9
+    },
+    {
+      "nombre": "AUMENTO DE PLAZAS",
+      "seleccionado": false
+    },
+    {
+      "nombre": "BARRA DE DIRECCIÓN",
+      "seleccionado": false
     },
     {
       "nombre": "BARRA PARA REGULAR LA CONVERGENCIA DE LAS RUEDAS (alineamiento)",
@@ -128,38 +120,33 @@
     },
     {
       "nombre": "CABRESTANTE",
-      "seleccionado": false
+      "seleccionado": true,
+      "metricaCabrestante": 8,
+      "tensionMinCortanteKgCm2Cabrestante": 3100,
+      "tensionMinCortanteChasisKgCm2Cabrestante": 1948.06,
+      "materialPernoCabrestante": "Acero 8.8",
+      "materialPernoChasisCabrestante": "Acero 8.8",
+      "detalle": {
+        "aletines": false,
+        "sobrealetines": false
+      },
+      "capacidadCabrestanteKg": 6120,
+      "marcaCabrestante": "s",
+      "capacidadCabrestanteLb": 5000,
+      "nTornillos": 4,
+      "nPernosChasisCabrestante": 4,
+      "diametroPernoChasisMmCabrestante": 10,
+      "acciones": [
+        "Instalación"
+      ],
+      "diametroPernoCmCabrestante": 1
     },
     {
       "nombre": "CALANDRA",
       "seleccionado": false
     },
     {
-      "nombre": "SOPORTE PARA RUEDA DE REPUESTO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "ESTRIBOS LATERALES O TALONERAS",
-      "seleccionado": false,
-      "detalle": {
-        "estribosotaloneras": false,
-        "anotacionAntideslizante": "2"
-      }
-    },
-    {
-      "nombre": "ALETINES Y SOBREALETINES",
-      "seleccionado": false,
-      "detalle": {
-        "aletines": false,
-        "sobrealetines": false
-      }
-    },
-    {
-      "nombre": "PARAGOLPES DELANTERO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "PARAGOLPES TRASERO",
+      "nombre": "DEFENSA DELANTERA",
       "seleccionado": false
     },
     {
@@ -167,194 +154,52 @@
       "seleccionado": false
     },
     {
-      "nombre": "SUSTITUCIÓN DE VOLANTE",
+      "nombre": "DIURNAS",
       "seleccionado": false
     },
     {
-      "nombre": "REDUCCIÓN DE MMA",
-      "seleccionado": false
-    },
-    {
-      "nombre": "REDUCCIÓN DE MMTA",
-      "seleccionado": false
-    },
-    {
-      "nombre": "PANEL RELOJES",
-      "seleccionado": false
-    },
-    {
-      "nombre": "ANTENA",
-      "seleccionado": false
-    },
-    {
-      "nombre": "AUMENTO O DISMINUCIÓN DE PLAZAS",
-      "seleccionado": false,
-      "tipoCambio": null
-    },
-    {
-      "nombre": "BANQUETA",
-      "seleccionado": false
-    },
-    {
-      "nombre": "BOMBA DE AGUA",
-      "seleccionado": false
-    },
-    {
-      "nombre": "CALEFACCIÓN ESTACIONARIA",
-      "seleccionado": false
-    },
-    {
-      "nombre": "CAMBIO DE CLASIFICACIÓN",
-      "seleccionado": false
-    },
-    {
-      "nombre": "CLARABOYA",
-      "seleccionado": false,
-      "claraboyas": [
-        {
-          "marca": "5",
-          "modelo": "5",
-          "descripcion": "5",
-          "homologacion": "5",
-          "medidas": "200x800",
-          "pesoPiezaKg": 5,
-          "anchuraPiezaM": 0.2,
-          "alturaPiezaM": 0.8,
-          "metrica": "8",
-          "nTornillos": 5,
-          "calidadTornillo": 8.8,
-          "seccionResistenteAs": 36.64,
-          "resTraccionMinTornillo88Kgmm2": 80,
-          "cwCoefAerodinamico": 0.82,
-          "densidadAireKgM3": 1.29,
-          "velocidadAireV2ms": 38.89,
-          "coefSeguridadK": 3,
-          "curvatura": 8
-        }
+      "nombre": "ESTRIBOS LATERALES O TALONERAS",
+      "seleccionado": true,
+      "detalle": {
+        "estribosotaloneras": "estribos",
+        "anotacionAntideslizante": "2"
+      },
+      "coefAerodinamicoEstribos": 0.82,
+      "calidadTornilloEstribos": 8.8,
+      "seccionResistenteAsEstribos": 36.64,
+      "resTraccionMinTornillo88Kgmm2Estribos": 80,
+      "densidadAireKgM3Estribos": 1.29,
+      "velocidadAireV2msEstribos": 38.89,
+      "radioCurvaREstribos": 8,
+      "coefSeguridadKEstribos": 3,
+      "marcataloneras": "a",
+      "materialEstribos": "acero",
+      "dimensionesTaloneras": "530x830",
+      "anchuraMEstribos": 0.53,
+      "alturaMEstribos": 0.83,
+      "pesoPiezaKgEstribos": 8,
+      "metricaTalonera": "8",
+      "nTornillosEstribos": 8,
+      "acciones": [
+        "Instalación"
       ]
     },
     {
-      "nombre": "DEFENSA DELANTERA",
-      "seleccionado": true,
-      "marcaDefensa": "a",
-      "modeloDefensa": "a",
-      "grosorTuboDefensa": 0.5,
-      "medidasDefensa": "200x800",
-      "curvaturaDefensaDelantera": "8",
-      "metricaToldo": "8",
-      "seccionResistenteAsToldo": 36.64,
-      "nTornillos": 5
-    },
-    {
-      "nombre": "DEPÓSITO DE AGUA LIMPIA",
+      "nombre": "FAROS DELANTEROS PRINCIPALES",
       "seleccionado": false
-    },
-    {
-      "nombre": "DEPÓSITO DE AGUA SUCIA",
-      "seleccionado": false
-    },
-    {
-      "nombre": "DUCHA EXTERIOR",
-      "seleccionado": false,
-      "anotacion": false
-    },
-    {
-      "nombre": "ENGANCHE REMOLQUE",
-      "seleccionado": false
-    },
-    {
-      "nombre": "INSTALACIÓN DE BASES GIRATORIAS",
-      "seleccionado": false
-    },
-    {
-      "nombre": "INSTALACIÓN DE TERMO",
-      "seleccionado": false,
-      "anotacion": false
     },
     {
       "nombre": "INTERCOOLER",
       "seleccionado": false
     },
     {
-      "nombre": "INSTALACIÓN ELÉCTRICA",
-      "seleccionado": false,
-      "anotacion": false,
-      "placasSolares": [
-        {
-          "marca": "5",
-          "modelo": "5",
-          "potencia": "5",
-          "dimensiones": "200x800",
-          "ubicacion": "5",
-          "agruparIguales": true,
-          "cantidad": 2,
-          "pesoPiezaKg": 5,
-          "anchuraPiezaM": 0.2,
-          "alturaPiezaM": 0.8,
-          "metrica": "8",
-          "nTornillos": 5,
-          "calidadTornillo": 8.8,
-          "seccionResistenteAs": 36.64,
-          "resTraccionMinTornillo88Kgmm2": 80,
-          "cwCoefAerodinamico": 0.82,
-          "densidadAireKgM3": 1.29,
-          "velocidadAireV2ms": 38.89,
-          "coefSeguridadK": 3,
-          "curvatura": 8
-        },
-        {
-          "marca": "5",
-          "modelo": "5",
-          "potencia": "5",
-          "dimensiones": "200x800",
-          "ubicacion": "5",
-          "agruparIguales": false,
-          "cantidad": 1,
-          "pesoPiezaKg": 5,
-          "anchuraPiezaM": 0.2,
-          "alturaPiezaM": 0.8,
-          "metrica": "8",
-          "nTornillos": 5,
-          "calidadTornillo": 8.8,
-          "seccionResistenteAs": 36.64,
-          "resTraccionMinTornillo88Kgmm2": 80,
-          "cwCoefAerodinamico": 0.82,
-          "densidadAireKgM3": 1.29,
-          "velocidadAireV2ms": 38.89,
-          "coefSeguridadK": 3,
-          "curvatura": 8
-        }
-      ],
-      "cantidadBaterias": 5,
-      "potenciaBaterias": "5",
-      "ubicacionBaterias": "5",
-      "marcaInversor": "5",
-      "potenciaInversor": "5",
-      "homologacionInversor": "5",
-      "ubicacionInversor": "5",
-      "marcaControlador": "5",
-      "modeloControlador": "5",
-      "homologacionControlador": "5",
-      "ubicacionControlador": "5",
-      "instalacionesSecundarias": "5"
-    },
-    {
       "nombre": "INTERMITENTES",
       "seleccionado": false,
       "detalle": {
-        "interDelantero": true,
-        "interTrasero": true,
-        "interLateral": true
-      },
-      "marcajesintermitenteDelantero": "5",
-      "homologacionintermitenteDelantero": "55",
-      "marcajesintermitenteTrasero": "5",
-      "homologacionintermitenteTrasero": "55",
-      "marcajesintermitenteLateral": "5",
-      "homologacionintermitenteLateral": "5",
-      "acciones": [
-        "Instalación"
-      ]
+        "interDelantero": false,
+        "interTrasero": false,
+        "interLateral": false
+      }
     },
     {
       "nombre": "LUCES DE LARGO ALCANCE",
@@ -362,12 +207,7 @@
     },
     {
       "nombre": "LUCES MATRÍCULA",
-      "seleccionado": false,
-      "marcaLuz": "5",
-      "referenciaLuz": "5",
-      "tecnologiaLuz": "5",
-      "marcajeLuz": "5",
-      "contrasenaHomologacion": "5"
+      "seleccionado": false
     },
     {
       "nombre": "LUZ DE CRUCE",
@@ -379,86 +219,143 @@
     },
     {
       "nombre": "LUZ MARCHA ATRÁS",
-      "seleccionado": false
+      "seleccionado": false,
+      "marcaLuzMarchaAtras": "7",
+      "referenciaLuzMarchaAtras": "7",
+      "tecnologiaLuzMarchaAtras": "7",
+      "marcajeLuzMarchaAtras": "7",
+      "contrasenaLuzMarchaAtras": "7",
+      "mandosOriginalesLuzMarchaAtras": true
     },
     {
-      "nombre": "MOBILIARIO INTERIOR VEHÍCULO",
+      "nombre": "MATRÍCULA Y PORTAMATRÍCULA",
       "seleccionado": false,
-      "opcionesMueble": {
-        "muebleBajo": false,
-        "muebleAlto": false,
-        "aseo": false
+      "detalle": {
+        "instalacionPorta": false,
+        "reubicacionTrasera": false,
+        "cambioUbicacionDelantera": false
       }
     },
     {
-      "nombre": "REGISTRO DE LLENADO DE AGUA",
+      "nombre": "NEUMÁTICOS",
+      "seleccionado": false,
+      "anotacion1": false,
+      "anotacion2": false
+    },
+    {
+      "nombre": "PANEL RELOJES",
       "seleccionado": false
     },
     {
-      "nombre": "REVESTIMIENTO INTERIOR",
+      "nombre": "PARAGOLPES DELANTERO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "PARAGOLPES TRASERO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "PILOTO TRASERO",
+      "seleccionado": false,
+      "detalle": {
+        "luzPosicionFreno": false,
+        "intermitente": false,
+        "marchaAtras": false,
+        "catadioptrico": false
+      }
+    },
+    {
+      "nombre": "PLANCHA CAPÓ",
+      "seleccionado": false
+    },
+    {
+      "nombre": "PROTECTORES PARAGOLPES",
+      "seleccionado": false
+    },
+    {
+      "nombre": "REDUCCIÓN DE MMA",
+      "seleccionado": false
+    },
+    {
+      "nombre": "REDUCCIÓN DE MMTA",
+      "seleccionado": false
+    },
+    {
+      "nombre": "REDUCCIÓN DE PLAZAS",
+      "seleccionado": false
+    },
+    {
+      "nombre": "REFUERZO PARAGOLPES",
+      "seleccionado": false
+    },
+    {
+      "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "SEPARADORES DE RUEDA",
       "seleccionado": false
     },
     {
       "nombre": "SNORKEL",
+      "seleccionado": false
+    },
+    {
+      "nombre": "SOPORTE PARA RUEDA DE REPUESTO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "SOPORTES PARA LUCES DE USO ESPECÍFICO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "SUSTITUCIÓN DE DISCOS DE FRENO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "SUSTITUCIÓN DE EJES",
       "seleccionado": false,
-      "curvaturaSnorkel": 8,
-      "cwCoefAerodinamicoSnorkel": 0.82,
-      "densidadAireKgM3Snorkel": 1.29,
-      "velocidadAireV2msSnorkel": 38.89,
-      "coefSeguridadKSnorkel": 3,
-      "resTraccionMinTornillo88Kgmm2Snorkel": 80,
-      "seccionResistenteAsSnorkel": 36.64,
-      "calidadTornilloSnorkel": 8.8,
-      "acciones": [
-        "Instalación"
-      ],
-      "marcaSnorkel": "5",
-      "materialSnorkel": "goma",
-      "medidasSnorkel": "200x800",
-      "anchuraPiezaMSnorkel": 0.2,
-      "alturaPiezaMSnorkel": 0.8,
-      "metricaSnorkel": "8",
-      "pesoPiezaKgSnorkel": 5,
-      "nTornillosSnorkel": 5
+      "detalle": {
+        "sustitucionEjeTrasero": false,
+        "sustitucionEjeDelantero": false
+      }
     },
     {
       "nombre": "SUSTITUCIÓN DE SISTEMA DE ESCAPE",
       "seleccionado": false
     },
     {
-      "nombre": "SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL",
+      "nombre": "SUSTITUCIÓN DE VOLANTE",
       "seleccionado": false
     },
     {
-      "nombre": "TECHO ELEVABLE",
-      "seleccionado": false
-    },
-    {
-      "nombre": "TOLDO",
+      "nombre": "TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR",
       "seleccionado": false,
-      "curvaturaToldo": 8,
-      "cwCoefAerodinamicoToldo": 0.82,
-      "densidadAireKgM3Toldo": 1.29,
-      "velocidadAireV2msToldo": 38.89,
-      "coefSeguridadKToldo": 3,
-      "resTraccionMinTornillo88Kgmm2Toldo": 80,
-      "seccionResistenteAsToldo": 36.64,
-      "calidadTornilloToldo": 8.8,
-      "marcaToldo": "5",
-      "medidasToldo": "200x800",
-      "anchuraPiezaMToldo": 0.2,
-      "alturaPiezaMToldo": 0.8,
-      "ubicacionToldo": "5",
-      "pesoPiezaKgToldo": 5,
-      "metricaToldo": 8,
-      "nTornillosToldo": 5
+      "anotacion": "",
+      "detallesMuelles": {
+        "muelleDelanteroConRef": false,
+        "muelleDelanteroSinRef": false,
+        "ballestaDelantera": false,
+        "ballestaTrasera": false,
+        "amortiguadorDelantero": false,
+        "muelleTraseroConRef": false,
+        "muelleTraseroSinRef": false,
+        "amortiguadorTrasero": false,
+        "tacosDeGoma": false,
+        "kitElevacion": false
+      }
     },
     {
-      "nombre": "TOMA EXTERIOR 230V",
-      "seleccionado": false
+      "nombre": "CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES",
+      "seleccionado": false,
+      "reformasAdicionalesItems": []
     },
     {
-      "nombre": "VENTANA",
+      "nombre": "VENTANA LATERAL",
       "seleccionado": false
     }
   ],
@@ -610,10 +507,10 @@
   },
   "marcadores": [
     {
-      "x": 0.3950154302902457,
-      "y": 0.513881220916476,
+      "x": 0.340547703180212,
+      "y": 0.31740265237020315,
       "label": "1",
-      "etiqueta": "DEFENSA DELANTERA"
+      "etiqueta": "ANTIEMPOTRAMIENTO"
     }
   ],
   "fechaFirma": "Teulada, 5 de marzo de 2026",
@@ -636,5 +533,20 @@
   ],
   "postImages": [
     {}
+  ],
+  "mmaControlMasas": 0,
+  "mmaEje1ControlMasas": 0,
+  "mmaEje2ControlMasas": 0,
+  "cargaVerticalAcoplControlMasas": 0,
+  "asientosDelanterosControlMasas": 0,
+  "asientos2FilaControlMasas": 0,
+  "asientos3FilaControlMasas": 0,
+  "opcionesCoche": [
+    true,
+    false,
+    false,
+    false,
+    false,
+    true
   ]
 }

@@ -250,7 +250,7 @@ app.post(
   '/guardar-proyecto',
   upload.fields([
     { name: 'prevImage', maxCount: 4 },
-    { name: 'postImage', maxCount: 30 },
+    { name: 'postImage', maxCount: 50 },
   ]),
   (req, res) => {
     try {

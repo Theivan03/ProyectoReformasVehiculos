@@ -29,9 +29,10 @@ import {
   generarDocumentoProyectoParagraphs,
   generarTablaLeyenda,
 } from '../Funciones/buildModificacionesParagraphs';
-import type { ReformaItem } from '../interfaces/ReformaItem';
+import { getCocheOptionTexts } from '../Funciones/coche-options';
 import loadImage from 'blueimp-load-image';
 import { buildCalculos } from '../Funciones/calculos';
+import { ReformaItem } from '../interfaces/ReformaItem';
 
 interface ImageInfo {
   buffer: ArrayBuffer;
@@ -89,6 +90,21 @@ export function keepTableTogether(table: Table): Table {
     ...tableOptions,
     rows: newRows,
   });
+}
+
+function buildCocheOptionParagraphs(data: any): Paragraph[] {
+  if (data.tipoVehiculo !== 'coche') {
+    return [];
+  }
+
+  return getCocheOptionTexts(data.opcionesCoche).map(
+    (texto) =>
+      new Paragraph({
+        bullet: { level: 0 },
+        spacing: { line: 260, after: 120 },
+        children: [new TextRun({ text: texto })],
+      }),
+  );
 }
 
 async function applyTransparency(
@@ -156,6 +172,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   let tipo = data.tipoVehiculo;
   let alto;
   let alto2;
+  let ancho = 500;
 
   let url = `http://192.168.1.41:3000/imgs/${tipo}.png`;
   const response3 = await fetch(url);
@@ -2407,6 +2424,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     return Number.isFinite(parsed) ? parsed : 0;
   };
 
+  const pickFirstValue = (...values: any[]) =>
+    values.find(
+      (value) => value !== null && value !== undefined && value !== '',
+    ) ?? null;
+
   const formatCalc = (value: number): string => {
     if (!Number.isFinite(value)) return '-';
     return Number(value.toFixed(0)).toString();
@@ -2414,6 +2436,41 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
   const PESO_OCUPANTE = 75;
   const distanciaEntreEjes = toNumber(data.distanciaEntreEjes);
+  const mmaControlMasasRaw = pickFirstValue(
+    data.mmaControlMasas,
+    data.mmaDespues,
+  );
+  const mmaEje1ControlMasasRaw = pickFirstValue(
+    data.mmaEje1ControlMasas,
+    data.mmaEje1Despues,
+  );
+  const mmaEje2ControlMasasRaw = pickFirstValue(
+    data.mmaEje2ControlMasas,
+    data.mmaEje2Despues,
+  );
+  const cargaVerticalAcoplControlMasasRaw = pickFirstValue(
+    data.cargaVerticalAcoplControlMasas,
+    data.cargaverticalDespues,
+    data.cargavertical,
+  );
+  const asientosDelanterosControlMasasRaw = pickFirstValue(
+    data.asientosDelanterosControlMasas,
+    data.asientosDelanteros,
+  );
+  const asientos2FilaControlMasasRaw = pickFirstValue(
+    data.asientos2FilaControlMasas,
+    data.asientos2Fila,
+  );
+  const asientos3FilaControlMasasRaw = pickFirstValue(
+    data.asientos3FilaControlMasas,
+    data.asientos3Fila,
+  );
+  const mmaControlMasas = toNumber(mmaControlMasasRaw);
+  const mmaEje1ControlMasas = toNumber(mmaEje1ControlMasasRaw);
+  const mmaEje2ControlMasas = toNumber(mmaEje2ControlMasasRaw);
+  const cargaVerticalAcoplControlMasas = toNumber(
+    cargaVerticalAcoplControlMasasRaw,
+  );
 
   const taraDelante = toNumber(data.taraDelante);
   const taraDetras = toNumber(data.taraDetras);
@@ -2424,9 +2481,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       : taraTotalIntroducida;
 
   const ocupantesAdicionales = toNumber(data.ocupantesAdicionales);
-  const ocupDelTotal = toNumber(data.asientosDelanteros) * PESO_OCUPANTE;
-  const ocup2Total = toNumber(data.asientos2Fila) * PESO_OCUPANTE;
-  const ocup3Total = toNumber(data.asientos3Fila) * PESO_OCUPANTE;
+  const ocupDelTotal =
+    toNumber(asientosDelanterosControlMasasRaw) * PESO_OCUPANTE;
+  const ocup2Total = toNumber(asientos2FilaControlMasasRaw) * PESO_OCUPANTE;
+  const ocup3Total = toNumber(asientos3FilaControlMasasRaw) * PESO_OCUPANTE;
   const totalKgOcupAdicionales = ocupantesAdicionales * PESO_OCUPANTE;
 
   // Hoja "TOTALES": Masa Real = Tara total + 75 kg (conductor)
@@ -2434,7 +2492,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
   // Hoja "TOTALES": Carga útil = MMA - Masa Real - (75 * ocupantes adicionales)
   const cargaUtilTotal =
-    toNumber(data.mmaDespues) - masaRealTotal - totalKgOcupAdicionales;
+    mmaControlMasas - masaRealTotal - totalKgOcupAdicionales;
 
   const repartirPorEjes = (pesoTotal: number, distanciaCDG: number) => {
     if (!distanciaEntreEjes || !Number.isFinite(pesoTotal)) {
@@ -2473,7 +2531,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const sumaTras =
     masaRealTras + ocupDelTras + ocup2Tras + ocup3Tras + cargaUtilTras;
 
-  const cargaVerticalAcopl = toNumber(data.cdgcargavert);
+  const cargaVerticalAcopl = cargaVerticalAcoplControlMasas;
   const vertical = repartirPorEjes(
     cargaVerticalAcopl,
     toNumber(data.cdgcargavert),
@@ -2854,7 +2912,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.asientosDelanteros?.toString() ?? '-',
+                      text: String(asientosDelanterosControlMasasRaw ?? '-'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2877,7 +2935,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: String(data.mmaDespues ?? '---'),
+                      text: String(mmaControlMasasRaw ?? '---'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2895,7 +2953,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.asientos2Fila?.toString() ?? '-',
+                      text: String(asientos2FilaControlMasasRaw ?? '-'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2918,7 +2976,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: String(data.mmaEje1Despues ?? '---'),
+                      text: String(mmaEje1ControlMasasRaw ?? '---'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2936,7 +2994,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: data.asientos3Fila?.toString() ?? '-',
+                      text: String(asientos3FilaControlMasasRaw ?? '-'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -2959,7 +3017,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   margins: { top: 40, bottom: 40, left: 40, right: 40 },
                   children: [
                     new Paragraph({
-                      text: String(data.mmaEje2Despues ?? '---'),
+                      text: String(mmaEje2ControlMasasRaw ?? '---'),
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
@@ -3732,19 +3790,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(data.mmaDespues ?? '-') }),
-                      ],
-                    }),
-                  ],
-                }),
-                new TableCell({
-                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [
                         new TextRun({
-                          text: String(data.mmaEje1Despues ?? '-'),
+                          text: String(mmaControlMasasRaw ?? '-'),
                         }),
                       ],
                     }),
@@ -3757,7 +3804,20 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.mmaEje2Despues ?? '-'),
+                          text: String(mmaEje1ControlMasasRaw ?? '-'),
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: String(mmaEje2ControlMasasRaw ?? '-'),
                         }),
                       ],
                     }),
@@ -3772,15 +3832,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           spacing: { before: 120, after: 120 },
           children: [
             new TextRun(
-              'A continuación realizaremos de nuevo el reparto de cargas teniendo en cuenta una carga vertical en el punto de acoplamiento de ',
+              `A continuación realizaremos de nuevo el reparto de cargas teniendo en cuenta una carga vertical en el punto de acoplamiento de ${formatCalc(cargaVerticalAcoplControlMasas)} kg.`,
             ),
-            new TextRun({
-              text: 'LO QUE MARQUE LA HOMOLOGACIÓN O 4% DE LA MMR',
-              color: 'FF0000',
-              bold: false,
-              allCaps: false,
-            }),
-            new TextRun('.'),
           ],
         }),
 
@@ -4397,19 +4450,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     new Paragraph({
                       alignment: AlignmentType.CENTER,
                       children: [
-                        new TextRun({ text: String(data.mmaDespues ?? '-') }),
-                      ],
-                    }),
-                  ],
-                }),
-                new TableCell({
-                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [
                         new TextRun({
-                          text: String(data.mmaEje1Despues ?? '-'),
+                          text: String(mmaControlMasasRaw ?? '-'),
                         }),
                       ],
                     }),
@@ -4422,7 +4464,20 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                       alignment: AlignmentType.CENTER,
                       children: [
                         new TextRun({
-                          text: String(data.mmaEje2Despues ?? '-'),
+                          text: String(mmaEje1ControlMasasRaw ?? '-'),
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: String(mmaEje2ControlMasasRaw ?? '-'),
                         }),
                       ],
                     }),
@@ -4469,8 +4524,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
 
       let punto2_2_adicional: ConcatArray<Paragraph | Table> = [];
 
-      const mma = toNumber(data.mmaDespues);
-      const mmaEje2 = toNumber(data.mmaEje2Despues);
+      const mma = mmaControlMasas;
+      const mmaEje2 = mmaEje2ControlMasas;
       const totalCarga = Math.max(sumaTotal, sumaTotalConVertical);
 
       // Comprobaciones reglamentarias
@@ -4518,9 +4573,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new Paragraph({
           spacing: { after: 240 },
           children: [
-            new TextRun(
-              'Por este motivo, el técnico que suscribe no considera necesario realizar el reparto de masas por ejes.',
-            ),
             new TextRun(
               'La tara del vehículo después de la reforma se encuentra dentro de tolerancias respecto al vehículo de serie. ',
             ),
@@ -4624,9 +4676,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       'Si en el transcurso del trabajo, y para buen fin de éste, fuese menester ejecutar cualquier clase de obra que no estuviese especificada, el taller estará obligado a ejecutarla con arreglo a las condiciones que señale la dirección facultativa, sin tener derecho a reclamación alguna.',
       'La Dirección Facultativa se reservará el derecho de mandar retirar de la obra los materiales que a su juicio no reúnan las condiciones, y si éstos estuviesen montados, el taller estaría obligado a sustituirlos sin ningún tipo de indemnización.',
       'La reforma no podrá efectuarse en ningún caso cuando implique riesgo de interferencia entre partes móviles del vehículo.',
-      'Se mantienen los anclajes de remolque originales del vehículo.',
       'Debe asegurarse el correcto par de apriete de todos los tornillos, de forma que no exista riesgo de desprendimiento de los componentes instalados.',
-      'Los añadidos en carrocería no contienen ángulos penetrantes ni aristas vivas. Con radios de curvatura de las piezas mínimos de 2,5 mm.',
       'El montaje de los muelles se realizará siguiendo las instrucciones de montaje fijadas por el fabricante.',
       'Se certifica que no ha sido afectado ningún otro elemento de la suspensión del vehículo (salvo recambios), ni se ha manipulado el resto de componentes del vehículo.',
       'Se mantienen los parámetros de dirección originales del vehículo. Ajustándose a la normativa UNE 26-192-87.',
@@ -4637,6 +4687,21 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           children: [new TextRun({ text: texto })],
         }),
     ),
+
+    ...buildCocheOptionParagraphs(data),
+
+    ...(data.tipoVehiculo === 'coche'
+      ? [
+          new Paragraph({
+            spacing: { line: 260, after: 120 },
+            children: [
+              new TextRun({
+                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo de aire al motor para su respectiva refrigeración.',
+              }),
+            ],
+          }),
+        ]
+      : []),
 
     ...[
       'Los elementos elásticos sustituidos del sistema de suspensión han sido ubicados en los emplazamientos de que disponían los originales.',
@@ -5087,12 +5152,14 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     }),
   ];
 
-  if (tipo === 'camper' || tipo === 'coche') {
+  if (tipo === 'camper') {
     alto = 250;
     alto2 = 350;
+    ancho = 600;
   } else {
     alto = 350;
     alto2 = 350;
+    ancho = 500;
   }
 
   const punto5 = [
@@ -5304,7 +5371,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new ImageRun({
           data: imageBuffer4,
           transformation: {
-            width: 600,
+            width: ancho,
             height: alto2,
           },
           type: 'png',

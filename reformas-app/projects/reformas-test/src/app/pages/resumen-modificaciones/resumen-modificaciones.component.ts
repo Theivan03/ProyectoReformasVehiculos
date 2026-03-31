@@ -303,10 +303,22 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
             .split(/\r?\n/)
             .map((line: string) => line.trim())
             .filter((line: string) => line.length > 0)
-            .map((line: string, index: number) => ({
-              titulo: `Reforma adicional ${index + 1}`,
-              descripcion: line,
-            }));
+            .map((line: string, index: number) =>
+              this.createReformaAdicionalItem({
+                titulo: `Reforma adicional ${index + 1}`,
+                descripcion: line,
+              }),
+            );
+        }
+
+        m.reformasAdicionalesItems = m.reformasAdicionalesItems.map((item: any) =>
+          this.createReformaAdicionalItem(item),
+        );
+      }
+
+      if (m.nombre === 'BARRAS ANTIVUELCO') {
+        if (m.curvaturaBarras == null) {
+          m.curvaturaBarras = 8;
         }
       }
 
@@ -538,7 +550,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
       if (m.nombre === 'CABRESTANTE') {
         if (m.metricaCabrestante == null) {
-          m.metricaCabrestante = 80;
+          m.metricaCabrestante = 8;
+        }
+        if (m.diametroPernoCmCabrestante == null) {
+          m.diametroPernoCmCabrestante = 1;
         }
         if (m.tensionMinCortanteKgCm2Cabrestante == null) {
           m.tensionMinCortanteKgCm2Cabrestante = 3100;
@@ -1204,6 +1219,18 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     return item;
   }
 
+  private createReformaAdicionalItem(initial: any = {}): any {
+    const item = {
+      titulo: '',
+      descripcion: '',
+      curvatura: 8,
+      ...initial,
+    };
+
+    if (item.curvatura == null) item.curvatura = 8;
+    return item;
+  }
+
   private ensureClaraboyaDefaults(mod: any): void {
     if (!Array.isArray(mod.claraboyas)) {
       mod.claraboyas = [];
@@ -1575,7 +1602,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (!Array.isArray(mod.reformasAdicionalesItems)) {
       mod.reformasAdicionalesItems = [];
     }
-    mod.reformasAdicionalesItems.push({ titulo: '', descripcion: '' });
+    mod.reformasAdicionalesItems.push(this.createReformaAdicionalItem());
     this.formSubmitted = false;
   }
 
@@ -1666,6 +1693,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     // --- CORRECCIÓN: Mapeo de datos si es SOLO TRASEROS ---
     this.modificacionesSeleccionadas.forEach((mod) => {
+      if (mod.nombre === 'CABRESTANTE') {
+        mod.diametroPernoCmCabrestante =
+          this.toNumberOrNull(mod.diametroPernoCmCabrestante) ?? 1;
+      }
+
       if (
         mod.nombre === 'ANTIEMPOTRAMIENTO' &&
         mod.nTornillosAntiempotramiento != null
@@ -1706,6 +1738,15 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
         const lines: string[] = [];
         if (Array.isArray(mod.reformasAdicionalesItems)) {
+          mod.reformasAdicionalesItems = mod.reformasAdicionalesItems.map(
+            (item: any) => {
+              const normalizedItem = this.createReformaAdicionalItem(item);
+              normalizedItem.curvatura =
+                this.toNumberOrNull(normalizedItem.curvatura) ?? 8;
+              return normalizedItem;
+            },
+          );
+
           mod.reformasAdicionalesItems.forEach((item: any) => {
             const descripcion = (item?.descripcion ?? '').toString();
             descripcion
@@ -1716,6 +1757,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           });
         }
         mod.reformasAdicionales = lines.join('\n');
+      }
+
+      if (mod.nombre === 'BARRAS ANTIVUELCO') {
+        mod.curvaturaBarras = this.toNumberOrNull(mod.curvaturaBarras) ?? 8;
       }
 
       if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && Array.isArray(mod.placasSolares)) {

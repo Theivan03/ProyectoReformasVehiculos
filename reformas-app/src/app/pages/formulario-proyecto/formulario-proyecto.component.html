@@ -589,6 +589,49 @@
           />
         </div>
 
+        <div class="col-12 mt-2">
+          <h6>Valores específicos para control de masas</h6>
+        </div>
+        <div
+          class="col-md-4"
+          *ngFor="
+            let campo of [
+              { label: 'MMA', model: 'mmaControlMasas' },
+              { label: 'MMA eje 1', model: 'mmaEje1ControlMasas' },
+              { label: 'MMA eje 2', model: 'mmaEje2ControlMasas' },
+              {
+                label: 'Carga vert. Acopl.',
+                model: 'cargaVerticalAcoplControlMasas'
+              },
+              {
+                label: 'Asientos delanteros (sin cond.)',
+                model: 'asientosDelanterosControlMasas'
+              },
+              {
+                label: 'Asientos 2ª fila',
+                model: 'asientos2FilaControlMasas'
+              },
+              {
+                label: 'Asientos 3ª fila',
+                model: 'asientos3FilaControlMasas'
+              }
+            ]
+          "
+        >
+          <label class="form-label">{{ campo.label }} *</label>
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="datos[campo.model]"
+            [name]="campo.model"
+            #ctrl="ngModel"
+            required
+            [class.is-invalid]="ctrl.invalid && ctrl.touched"
+            (ngModelChange)="comprobarCondicionesCarga()"
+          />
+          <div class="invalid-feedback">CAMPO OBLIGATORIO</div>
+        </div>
+
         <div class="col-md-4">
           <label class="form-label"
             >Distancia CDG eje delantero conductor *</label

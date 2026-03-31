@@ -55,7 +55,7 @@ export function buildModificacionesParagraphs(
   );
   if (remolquehomologado) {
     (remolquehomologado.acciones || []).forEach((accion: string) => {
-      const raw = `- ${accion} de enganche de remolque homologado en emplazamiento también homologado, consistente en: soporte marca ${remolquehomologado.marcaBarra}, tipo ${remolquehomologado.tipoBarra}, clase ${remolquehomologado.tipoBarra}, contraseña de homologación ${remolquehomologado.tipoBarra}, para una MMR en remolques de eje central ${remolquehomologado.mmrEjeCentral} kg y de barra de tracción ${remolquehomologado.mmrBarraTraccion} kg.`;
+      const raw = `- ${accion} de enganche de remolque homologado en emplazamiento también homologado, consistente en: soporte marca ${remolquehomologado.marcaBarra}, tipo ${remolquehomologado.tipoBarra}, clase ${remolquehomologado.claseBarra}, contraseña de homologación ${remolquehomologado.homologacionBarra}, para una MMR en remolques de eje central ${remolquehomologado.mmrEjeCentral} kg y de barra de tracción ${remolquehomologado.mmrBarraTraccion} kg.`;
 
       const p = new Paragraph({
         spacing: { line: 260, after: 120 },
@@ -2093,15 +2093,15 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     if (Array.isArray(luzantiniebla?.acciones)) {
       luzantiniebla.acciones.forEach((accion: string) => {
         // Creamos un array para guardar las frases que generaremos en esta vuelta del bucle
-        const itemsGenerados: string[] = [];
+        const descripcionesAntiniebla: string[] = [];
 
         // 1. CASO DELANTEROS (Si es 'delanteros' o 'ambos')
         if (
           luzantiniebla.ubicacionAntiniebla === 'delanteros' ||
           luzantiniebla.ubicacionAntiniebla === 'ambos'
         ) {
-          itemsGenerados.push(
-            `${accion} de luces antiniebla delanteras marca ${luzantiniebla.marcaAntinieblaDel} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaDel}`,
+          descripcionesAntiniebla.push(
+            `delanteras marca ${luzantiniebla.marcaAntinieblaDel} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaDel}, accionada desde los mandos originales`,
           );
         }
 
@@ -2110,25 +2110,29 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
           luzantiniebla.ubicacionAntiniebla === 'traseros' ||
           luzantiniebla.ubicacionAntiniebla === 'ambos'
         ) {
-          itemsGenerados.push(
-            `${accion} de luces antiniebla traseras marca ${luzantiniebla.marcaAntinieblaTras} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaTras}`,
+          descripcionesAntiniebla.push(
+            `traseras marca ${luzantiniebla.marcaAntinieblaTras} con contraseña de homologación ${luzantiniebla.homologacionAntinieblaTras}, accionada desde los mandos originales`,
           );
         }
 
         // 3. Renderizamos los párrafos
         // Si seleccionó "Ambos", esto generará dos líneas separadas (una para delantera, una para trasera)
-        itemsGenerados.forEach((texto) => {
-          const raw = `- ${texto}.`;
+        if (descripcionesAntiniebla.length === 0) return;
 
-          const p = new Paragraph({
-            spacing: { line: 260, after: 120 },
-            indent: { left: 400 },
-            children: [new TextRun({ text: raw })],
-          });
+        const fraseAntiniebla = `${accion} de luces antiniebla ${descripcionesAntiniebla.join(
+          ' y ',
+        )}.`;
 
-          (p as any)._rawText = raw;
-          out.push(p);
+        const raw = `- ${fraseAntiniebla}`;
+
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
         });
+
+        (p as any)._rawText = raw;
+        out.push(p);
       });
     }
   }
@@ -2289,8 +2293,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         homologacion:
           intermitentes.homologacionintermitenteDelantero ||
           intermitentes.homologacionIntermitentes,
-        notaFinal:
-          ' Los intermitentes delanteros originales quedan inhabilitados.',
+        notaFinal: ' ',
       },
       {
         enabled: !!intermitentes.detalle?.interTrasero,

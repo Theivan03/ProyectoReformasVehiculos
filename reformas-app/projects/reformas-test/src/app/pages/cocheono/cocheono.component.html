@@ -160,102 +160,109 @@
   }
 </style>
 
-@if ( (datosEntrada?.tipoVehiculo || '').toLowerCase() === 'coche' ) {
-<div id="ing-safety-wrapper" class="container mt-4">
-  <form #form="ngForm" (ngSubmit)="onContinuar(form)" novalidate>
-    <h4 class="ing-header-title">Protocolo de Seguridad y Normativa</h4>
+@if ((datosEntrada?.tipoVehiculo || "").toLowerCase() === "coche") {
+  <div id="ing-safety-wrapper" class="container mt-4">
+    <form #form="ngForm" (ngSubmit)="onContinuar(form)" novalidate>
+      <h4 class="ing-header-title">Protocolo de Seguridad y Normativa</h4>
 
-    <div class="ing-check-group">
-      <div class="ing-check-row" [class.checked]="opcionesCoche[0]">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [(ngModel)]="opcionesCoche[0]"
-          name="opt0"
-          id="opt0"
-          (ngModelChange)="onCambioOpcion()"
-        />
-        <label class="ing-check-label" for="opt0">
-          El vehículo dispone de sistema de frenado ABS.
-        </label>
+      <div class="ing-check-group">
+        <div class="ing-check-row" [class.checked]="opcionesCoche[0]">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="opcionesCoche[0]"
+            name="opt0"
+            id="opt0"
+            (ngModelChange)="onCambioOpcion()"
+          />
+          <label class="ing-check-label" for="opt0">
+            El vehículo dispone de sistema de frenado ABS.
+          </label>
+        </div>
+
+        <div class="ing-check-row" [class.checked]="opcionesCoche[1]">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="opcionesCoche[1]"
+            name="opt1"
+            id="opt1"
+            (ngModelChange)="onCambioOpcion()"
+          />
+          <label class="ing-check-label" for="opt1">
+            Se cumple en todo caso con la normativa de salientes exteriores.
+          </label>
+        </div>
+
+        <div class="ing-check-row" [class.checked]="opcionesCoche[2]">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="opcionesCoche[2]"
+            name="opt2"
+            id="opt2"
+            (ngModelChange)="onCambioOpcion()"
+          />
+          <label class="ing-check-label" for="opt2">
+            Los anclajes del paragolpes delantero son los originales, no
+            modificándose la altura libre.
+          </label>
+        </div>
+
+        <div class="ing-check-row" [class.checked]="opcionesCoche[3]">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="opcionesCoche[3]"
+            name="opt3"
+            id="opt3"
+            (ngModelChange)="onCambioOpcion()"
+          />
+          <label class="ing-check-label" for="opt3">
+            El sistema de remolcado delantero y trasero no se ve impedido tras
+            la reforma.
+          </label>
+        </div>
+
+        <div class="ing-check-row" [class.checked]="opcionesCoche[4]">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="opcionesCoche[4]"
+            name="opt4"
+            id="opt4"
+            (ngModelChange)="onCambioOpcion()"
+          />
+          <label class="ing-check-label" for="opt4">
+            Ninguna pieza asociada a las reformas presenta aristas vivas o
+            cortantes peligrosas.
+          </label>
+        </div>
+
+        <div class="ing-check-row" [class.checked]="opcionesCoche[5]">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="opcionesCoche[5]"
+            name="opt5"
+            id="opt5"
+            (ngModelChange)="onCambioOpcion()"
+          />
+          <label class="ing-check-label" for="opt5">
+            Ninguna de las piezas instaladas entorpece la entrada del flujo de
+            aire al motor para su respectiva refrigeración.
+          </label>
+        </div>
       </div>
 
-      <div class="ing-check-row" [class.checked]="opcionesCoche[1]">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [(ngModel)]="opcionesCoche[1]"
-          name="opt1"
-          id="opt1"
-          (ngModelChange)="onCambioOpcion()"
-        />
-        <label class="ing-check-label" for="opt1">
-          Se cumple en todo caso con la normativa de salientes exteriores.
-        </label>
+      <div class="ing-nav-container">
+        <button type="button" class="btn btn-ing-prev" (click)="onVolver()">
+          <i class="bi bi-arrow-left"></i> VOLVER
+        </button>
+        <button type="submit" class="btn btn-ing-next">
+          CONTINUAR <i class="bi bi-arrow-right"></i>
+        </button>
       </div>
-
-      <div class="ing-check-row" [class.checked]="opcionesCoche[2]">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [(ngModel)]="opcionesCoche[2]"
-          name="opt2"
-          id="opt2"
-          (ngModelChange)="onCambioOpcion()"
-        />
-        <label class="ing-check-label" for="opt2">
-          Los anclajes del paragolpes delantero son los originales, no
-          modificándose la altura libre.
-        </label>
-      </div>
-
-      <div class="ing-check-row" [class.checked]="opcionesCoche[3]">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [(ngModel)]="opcionesCoche[3]"
-          name="opt3"
-          id="opt3"
-          (ngModelChange)="onCambioOpcion()"
-        />
-        <label class="ing-check-label" for="opt3">
-          El sistema de remolcado delantero y trasero no se ve impedido tras la
-          reforma.
-        </label>
-      </div>
-
-      <div class="ing-check-row" [class.checked]="opcionesCoche[4]">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          [(ngModel)]="opcionesCoche[4]"
-          name="opt4"
-          id="opt4"
-          (ngModelChange)="onCambioOpcion()"
-        />
-        <label class="ing-check-label" for="opt4">
-          Ninguna pieza asociada a las reformas presenta aristas vivas o
-          cortantes peligrosas.
-        </label>
-      </div>
-    </div>
-
-    <!--
-    @if (form.submitted && !anyOpcionCocheSeleccionada()) {
-    <div class="ing-error-box">
-      <i class="bi bi-exclamation-octagon-fill"></i>
-      DEBE MARCAR AL MENOS UNA CONDICIÓN PARA CONTINUAR.
-    </div>
-    } -->
-
-    <div class="ing-nav-container">
-      <button type="button" class="btn btn-ing-prev" (click)="onVolver()">
-        <i class="bi bi-arrow-left"></i> VOLVER
-      </button>
-      <button type="submit" class="btn btn-ing-next">
-        CONTINUAR <i class="bi bi-arrow-right"></i>
-      </button>
-    </div>
-  </form>
-</div>
+    </form>
+  </div>
 }
