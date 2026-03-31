@@ -18,8 +18,8 @@ export class CocheonoComponent implements OnInit {
   /** Autosave continuo */
   @Output() autosave = new EventEmitter<any>();
 
-  /** Solo para coche: las 5 condiciones a marcar */
-  opcionesCoche: boolean[] = [false, false, false, false, false];
+  /** Solo para coche: las condiciones a marcar */
+  opcionesCoche: boolean[] = [false, false, false, false, false, false];
 
   ngOnInit(): void {
     console.log('CocheonoComponent ngOnInit', this.datosEntrada);
@@ -29,22 +29,14 @@ export class CocheonoComponent implements OnInit {
       .toLowerCase();
 
     // Carga estado previo si existe
-    if (
-      Array.isArray(this.datosEntrada?.opcionesCoche) &&
-      this.datosEntrada.opcionesCoche.length === 5
-    ) {
-      this.opcionesCoche = [...this.datosEntrada.opcionesCoche];
+    if (Array.isArray(this.datosEntrada?.opcionesCoche)) {
+      this.opcionesCoche = this.opcionesCoche.map((_, index) =>
+        Boolean(this.datosEntrada.opcionesCoche[index]),
+      );
     }
 
     // Primer autosave al entrar (por si recargan)
     this.emitAutosave();
-
-    // Si NO es coche, saltamos este componente automáticamente (guardando antes)
-    // if (tipo !== 'coche') {
-    //   this.datosEntrada.opcionesCoche = this.opcionesCoche;
-    //   this.emitAutosave();
-    //   this.continuar.emit(this.datosEntrada);
-    // }
   }
 
   /** Emite snapshot seguro */
@@ -87,11 +79,6 @@ export class CocheonoComponent implements OnInit {
       return;
     }
 
-    // Para coche: requiere al menos una opción
-    // if (this.anyOpcionCocheSeleccionada()) {
     this.continuar.emit(this.datosEntrada);
-    // } else {
-    //   form?.control.markAllAsTouched();
-    // }
   }
 }

@@ -61,6 +61,7 @@ export interface VentanaItem {
 export interface ReformaAdicionalItem {
   titulo?: string;
   descripcion?: string;
+  curvatura?: number;
 }
 
 export interface Modificacion {
@@ -478,6 +479,7 @@ export interface Modificacion {
   materialBarras?: string;
   diametroTuboBarras?: number;
   medidasBarras?: string;
+  curvaturaBarras?: number;
 
   ubicacionTecho?: string;
   medidasTecho?: string;

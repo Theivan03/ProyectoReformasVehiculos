@@ -303,10 +303,22 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
             .split(/\r?\n/)
             .map((line: string) => line.trim())
             .filter((line: string) => line.length > 0)
-            .map((line: string, index: number) => ({
-              titulo: `Reforma adicional ${index + 1}`,
-              descripcion: line,
-            }));
+            .map((line: string, index: number) =>
+              this.createReformaAdicionalItem({
+                titulo: `Reforma adicional ${index + 1}`,
+                descripcion: line,
+              }),
+            );
+        }
+
+        m.reformasAdicionalesItems = m.reformasAdicionalesItems.map((item: any) =>
+          this.createReformaAdicionalItem(item),
+        );
+      }
+
+      if (m.nombre === 'BARRAS ANTIVUELCO') {
+        if (m.curvaturaBarras == null) {
+          m.curvaturaBarras = 8;
         }
       }
 
@@ -538,7 +550,10 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
       if (m.nombre === 'CABRESTANTE') {
         if (m.metricaCabrestante == null) {
-          m.metricaCabrestante = 80;
+          m.metricaCabrestante = 8;
+        }
+        if (m.diametroPernoCmCabrestante == null) {
+          m.diametroPernoCmCabrestante = 1;
         }
         if (m.tensionMinCortanteKgCm2Cabrestante == null) {
           m.tensionMinCortanteKgCm2Cabrestante = 3100;
@@ -1125,8 +1140,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     const area = this.getAreaResistenteByMetrica(item.metrica);
     item.seccionResistenteAs = area ?? item.seccionResistenteAs ?? 36.64;
-    item.calidadTornillo =
-      this.getCalidadTornilloByMetrica(item.metrica) ?? 8.8;
+    item.calidadTornillo = this.getCalidadTornilloByMetrica(item.metrica) ?? 8.8;
   }
 
   onPlacaAgrupacionChange(placa: any, checked: boolean): void {
@@ -1202,6 +1216,18 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         : 1;
 
     this.ensureAerodynamicItemDefaults(item, 'dimensiones');
+    return item;
+  }
+
+  private createReformaAdicionalItem(initial: any = {}): any {
+    const item = {
+      titulo: '',
+      descripcion: '',
+      curvatura: 8,
+      ...initial,
+    };
+
+    if (item.curvatura == null) item.curvatura = 8;
     return item;
   }
 
@@ -1335,8 +1361,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       mod.metricaToldo = this.toNumberOrNull(mod.metrica);
     }
 
-    if (mod.curvaturaDefensaDelantera == null)
-      mod.curvaturaDefensaDelantera = 8;
+    if (mod.curvaturaDefensaDelantera == null) mod.curvaturaDefensaDelantera = 8;
     if (mod.cwCoefAerodinamicoToldo == null) mod.cwCoefAerodinamicoToldo = 0.82;
     if (mod.densidadAireKgM3Toldo == null) mod.densidadAireKgM3Toldo = 1.29;
     if (mod.velocidadAireV2msToldo == null) mod.velocidadAireV2msToldo = 38.89;
@@ -1577,7 +1602,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (!Array.isArray(mod.reformasAdicionalesItems)) {
       mod.reformasAdicionalesItems = [];
     }
-    mod.reformasAdicionalesItems.push({ titulo: '', descripcion: '' });
+    mod.reformasAdicionalesItems.push(this.createReformaAdicionalItem());
     this.formSubmitted = false;
   }
 
@@ -1668,6 +1693,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     // --- CORRECCIÓN: Mapeo de datos si es SOLO TRASEROS ---
     this.modificacionesSeleccionadas.forEach((mod) => {
+      if (mod.nombre === 'CABRESTANTE') {
+        mod.diametroPernoCmCabrestante =
+          this.toNumberOrNull(mod.diametroPernoCmCabrestante) ?? 1;
+      }
+
       if (
         mod.nombre === 'ANTIEMPOTRAMIENTO' &&
         mod.nTornillosAntiempotramiento != null
@@ -1708,6 +1738,15 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
         const lines: string[] = [];
         if (Array.isArray(mod.reformasAdicionalesItems)) {
+          mod.reformasAdicionalesItems = mod.reformasAdicionalesItems.map(
+            (item: any) => {
+              const normalizedItem = this.createReformaAdicionalItem(item);
+              normalizedItem.curvatura =
+                this.toNumberOrNull(normalizedItem.curvatura) ?? 8;
+              return normalizedItem;
+            },
+          );
+
           mod.reformasAdicionalesItems.forEach((item: any) => {
             const descripcion = (item?.descripcion ?? '').toString();
             descripcion
@@ -1720,10 +1759,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         mod.reformasAdicionales = lines.join('\n');
       }
 
-      if (
-        mod.nombre === 'INSTALACIÓN ELÉCTRICA' &&
-        Array.isArray(mod.placasSolares)
-      ) {
+      if (mod.nombre === 'BARRAS ANTIVUELCO') {
+        mod.curvaturaBarras = this.toNumberOrNull(mod.curvaturaBarras) ?? 8;
+      }
+
+      if (mod.nombre === 'INSTALACIÓN ELÉCTRICA' && Array.isArray(mod.placasSolares)) {
         mod.placasSolares = mod.placasSolares.map((placa: any) =>
           this.createPlacaSolarItem(placa),
         );
@@ -1746,12 +1786,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         mod.nombre ===
         'TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR'
       ) {
-        mod.diametroTacoDelantero = this.toNumberOrNull(
-          mod.diametroTacoDelantero,
-        );
-        mod.espesorTacoDelantero = this.toNumberOrNull(
-          mod.espesorTacoDelantero,
-        );
+        mod.diametroTacoDelantero = this.toNumberOrNull(mod.diametroTacoDelantero);
+        mod.espesorTacoDelantero = this.toNumberOrNull(mod.espesorTacoDelantero);
         mod.diametroTacoTrasero = this.toNumberOrNull(mod.diametroTacoTrasero);
         mod.espesorTacoTrasero = this.toNumberOrNull(mod.espesorTacoTrasero);
         mod.diametroTacoKitElevacionDelantero = this.toNumberOrNull(
@@ -1830,10 +1866,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     return value === null || value === undefined || value === '';
   }
 
-  public isConditionalFieldInvalid(
-    isRequired: boolean,
-    value: unknown,
-  ): boolean {
+  isConditionalFieldInvalid(isRequired: boolean, value: unknown): boolean {
     return this.formSubmitted && isRequired && this.isMissingValue(value);
   }
 

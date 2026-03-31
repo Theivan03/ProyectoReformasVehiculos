@@ -79,7 +79,11 @@ function pickFirstValue<T>(...values: T[]): T | null {
 }
 
 function safeDivide(numerator: number, denominator: number): number {
-  if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) {
+  if (
+    !Number.isFinite(numerator) ||
+    !Number.isFinite(denominator) ||
+    denominator === 0
+  ) {
     return 0;
   }
   return numerator / denominator;
@@ -89,9 +93,10 @@ function formatFixed(value: number, decimals = 2): string {
   return Number.isFinite(value) ? value.toFixed(decimals) : '0.00';
 }
 
-function parseMedidasEnMetros(
-  value: unknown,
-): { anchuraM: number; alturaM: number } {
+function parseMedidasEnMetros(value: unknown): {
+  anchuraM: number;
+  alturaM: number;
+} {
   const medidas = String(value ?? '')
     .toLowerCase()
     .replace(/mm/g, '')
@@ -144,7 +149,8 @@ function appendAerodynamicCalculationSection(
   const superficiefrontal =
     config.superficieFrontalM2 != null
       ? toFiniteNumber(config.superficieFrontalM2)
-      : toFiniteNumber(config.anchuraPiezaM) * toFiniteNumber(config.alturaPiezaM);
+      : toFiniteNumber(config.anchuraPiezaM) *
+        toFiniteNumber(config.alturaPiezaM);
 
   const caracteristicasRows: [string, string, string, string][] =
     quantity > 1
@@ -241,7 +247,9 @@ function appendAerodynamicCalculationSection(
             children: [
               new Paragraph({
                 alignment: AlignmentType.CENTER,
-                children: [new TextRun({ text: 'CARACTERÍSTICAS DE LA PIEZA' })],
+                children: [
+                  new TextRun({ text: 'CARACTERÍSTICAS DE LA PIEZA' }),
+                ],
               }),
             ],
           }),
@@ -305,13 +313,19 @@ function appendAerodynamicCalculationSection(
       ...[
         ['Cw=Coef. Aerodinámico', formatCalcNumber(config.cwCoefAerodinamico)],
         ['A = área de la pieza (m²)', formatCalcNumber(superficiefrontal)],
-        ['ρ (densidad del aire (Kg/m³))', formatCalcNumber(config.densidadAireKgM3)],
+        [
+          'ρ (densidad del aire (Kg/m³))',
+          formatCalcNumber(config.densidadAireKgM3),
+        ],
         [
           'V² = velocidad del aire 140Km/h (m/s)',
           formatCalcNumber(config.velocidadAireV2ms),
         ],
         ['R (radio de curva) m', formatCalcNumber(config.curvatura)],
-        ['K (coeficiente de seguridad)', formatCalcNumber(config.coefSeguridadK)],
+        [
+          'K (coeficiente de seguridad)',
+          formatCalcNumber(config.coefSeguridadK),
+        ],
       ].map(
         ([desc, val]) =>
           new TableRow({
@@ -353,9 +367,9 @@ function appendAerodynamicCalculationSection(
   const denominadorCurvatura = (toFiniteNumber(config.curvatura) || 1) * 100;
   const fuerzacentrifuga =
     toFiniteNumber(config.pesoPiezaKg) *
-    (((toFiniteNumber(config.velocidadAireV2ms) *
+    ((toFiniteNumber(config.velocidadAireV2ms) *
       toFiniteNumber(config.velocidadAireV2ms)) /
-      denominadorCurvatura) || 0);
+      denominadorCurvatura || 0);
   const sumadelasfuerzas =
     peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
@@ -429,17 +443,17 @@ function appendAerodynamicCalculationSection(
   const fuerzadediseno =
     sumadelasfuerzas * toFiniteNumber(config.coefSeguridadK);
   const fuerzamaximatornillostraccion =
-    (((0.9 *
+    ((0.9 *
       toFiniteNumber(config.resTraccionMinTornillo88Kgmm2) *
       toFiniteNumber(config.seccionResistenteAs)) /
       1.25) *
-      toFiniteNumber(config.nTornillos)) || 0;
+      toFiniteNumber(config.nTornillos) || 0;
   const fuerzamaximatornilloscortante =
-    (((0.5 *
+    ((0.5 *
       toFiniteNumber(config.resTraccionMinTornillo88Kgmm2) *
       toFiniteNumber(config.seccionResistenteAs)) /
       1.25) *
-      toFiniteNumber(config.nTornillos)) || 0;
+      toFiniteNumber(config.nTornillos) || 0;
   const comprobacion =
     fuerzamaximatornillostraccion > 0 && fuerzamaximatornilloscortante > 0
       ? fuerzadediseno / fuerzamaximatornilloscortante +
@@ -486,7 +500,8 @@ function appendAerodynamicCalculationSection(
               shading:
                 i === 0
                   ? undefined
-                  : i === 3 && (!Number.isFinite(comprobacion) || comprobacion > 1)
+                  : i === 3 &&
+                      (!Number.isFinite(comprobacion) || comprobacion > 1)
                     ? { type: ShadingType.CLEAR, fill: 'FF0000' }
                     : { type: ShadingType.CLEAR, fill: '00B050' },
               children: [
@@ -525,7 +540,10 @@ export async function buildCalculos(
   let url = `http://192.168.1.41:3000/imgs/firma-generada.png`;
   const response5 = await fetch(url);
   const imageBuffer5 = await response5.arrayBuffer();
-  const mmaControlMasasRaw = pickFirstValue(data?.mmaControlMasas, data?.mmaDespues);
+  const mmaControlMasasRaw = pickFirstValue(
+    data?.mmaControlMasas,
+    data?.mmaDespues,
+  );
   const mmaEje1ControlMasasRaw = pickFirstValue(
     data?.mmaEje1ControlMasas,
     data?.mmaEje1Despues,
@@ -7973,6 +7991,25 @@ export async function buildCalculos(
       contador++;
 
       // 2) Tabla de características del material y elementos de unión
+      const metricaCabrestante = parseMetricaTornillo(
+        cabrestante.metricaCabrestante,
+      );
+      const numeroTornillosCabrestante = toPositiveInt(
+        cabrestante.nTornillosCabrestante ?? cabrestante.nTornillos,
+      );
+      const diametroPernoCabrestanteCm =
+        toFiniteNumber(cabrestante.diametroPernoCmCabrestante) ||
+        (metricaCabrestante ? metricaCabrestante / 10 : 0);
+      const numeroPernosChasisCabrestante = toPositiveInt(
+        cabrestante.nPernosChasisCabrestante,
+      );
+      const diametroPernoChasisCabrestanteCm =
+        toFiniteNumber(cabrestante.diametroPernoChasisMmCabrestante) / 10;
+      const seccionPernosChasisCabrestante =
+        Math.PI *
+        Math.pow(diametroPernoChasisCabrestanteCm / 2, 2) *
+        numeroPernosChasisCabrestante;
+
       const tablaMaterialCabrestante = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
@@ -8005,10 +8042,10 @@ export async function buildCalculos(
                 '---',
             ],
             [
-              'Diámetro de cada perno (cm)',
-              ((cabrestante.diametroPernoChasisMmCabrestante ?? 0) * 10)
-                .toFixed(2)
-                .toString() ?? '---',
+              'Diámetro equivalente de cada perno (cm)',
+              diametroPernoCabrestanteCm
+                ? formatFixed(diametroPernoCabrestanteCm)
+                : '---',
             ],
             [
               'Material del perno',
@@ -8051,15 +8088,14 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
 
-      let tensioncortante =
-        (cabrestante.capacidadCabrestanteKg ?? 0) /
-        (Math.PI *
-          (((((cabrestante.diametroPernoChasisMmCabrestante ?? 0) * 10) / 2) *
-            ((cabrestante.diametroPernoChasisMmCabrestante ?? 0) * 10)) /
-            2) *
-          (cabrestante.nPernosChasisCabrestante ?? 0));
-      let coeficienteseguridad =
-        (cabrestante.tensionMinCortanteKgCm2Cabrestante ?? 0) / tensioncortante;
+      let tensioncortante = safeDivide(
+        cabrestante.capacidadCabrestanteKg ?? 0,
+        seccionPernosChasisCabrestante,
+      );
+      let coeficienteseguridad = safeDivide(
+        cabrestante.tensionMinCortanteKgCm2Cabrestante ?? 0,
+        tensioncortante,
+      );
 
       // 3) Tabla de tensión cortante soportada por los pernos
       const tablaTensionPernos = new Table({
@@ -8090,28 +8126,27 @@ export async function buildCalculos(
           ...[
             [
               'Número de pernos',
-              cabrestante.nPernosChasisCabrestante?.toFixed(2).toString() ??
-                '---',
+              formatCalcInteger(numeroPernosChasisCabrestante),
             ],
             [
-              'Diámetro de cada perno',
-              cabrestante.diametroPernoChasisMmCabrestante
-                ?.toFixed(2)
-                .toString() ?? '---',
+              'Diámetro de cada perno (mm)',
+              diametroPernoCabrestanteCm * 10
+                ? formatFixed(diametroPernoCabrestanteCm * 10)
+                : '---',
             ],
             [
               'Material del perno',
-              cabrestante.materialPernoCabrestante ?? '---',
+              cabrestante.materialPernoChasisCabrestante ?? '---',
             ],
             [
               'Tensión mín., rotura cortante acero (Kg/cm²)',
-              cabrestante.tensionMinCortanteChasisKgCm2Cabrestante
+              cabrestante.tensionMinCortanteKgCm2Cabrestante
                 ?.toFixed(2)
                 .toString() ?? '---',
             ],
             [
               'Tensión cortante ejercida por el tiro del cabrestante sobre los pernos de unión a la estructura de soporte de éste (Kg/cm2)',
-              '2482.82',
+              formatFixed(tensioncortante),
             ],
           ].map(
             ([desc, val]) =>
@@ -8184,7 +8219,7 @@ export async function buildCalculos(
         new Paragraph({
           children: [
             new TextRun({
-              text: 'La tensión cortante de rotura es inferior a la mínima tensión cortante de los pernos, por lo que el técnico que suscribe considera suficiente los anclajes elegidos para la aplicación de cargas a realizar.',
+              text: 'La tensión cortante ejercida por el tiro del cabrestante es inferior a la tensión mínima cortante de los pernos, por lo que el técnico que suscribe considera suficientes los anclajes elegidos para la aplicación de cargas a realizar.',
             }),
           ],
         }),
@@ -8638,6 +8673,12 @@ export async function buildCalculos(
         (Number.isFinite(anchuraAntiM) && Number.isFinite(alturaAntiM)
           ? anchuraAntiM * alturaAntiM
           : undefined);
+      const superficiefrontalAntiempotramientoCalculada = toFiniteNumber(
+        superficiefrontalAntiempotramiento,
+      );
+      const radioCurvaAntiempotramiento =
+        (toFiniteNumber(antiempotramiento.radioCurvaRAntiempotramiento) || 1) *
+        100;
       const numeroTornillosAntiempotramiento =
         numeroTornillosAntiempotramientoRaw ?? 0;
 
@@ -8705,8 +8746,11 @@ export async function buildCalculos(
             ],
             [
               'Superficie frontal m²',
-              superficiefrontalAntiempotramiento?.toFixed(2).toString() ??
-                '---',
+              superficiefrontalAntiempotramientoCalculada > 0
+                ? superficiefrontalAntiempotramientoCalculada
+                    .toFixed(2)
+                    .toString()
+                : '---',
               'As (Sección resistente)',
               antiempotramiento.seccionResistenteAsAntiempotramiento
                 ?.toFixed(2)
@@ -8804,9 +8848,11 @@ export async function buildCalculos(
             ],
             [
               'A =area de la pieza (m2)',
-              antiempotramiento.superficieFrontalM2Antiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
+              superficiefrontalAntiempotramientoCalculada > 0
+                ? superficiefrontalAntiempotramientoCalculada
+                    .toFixed(2)
+                    .toString()
+                : '---',
             ],
             [
               'p (densidad del aire (Kg/m3))',
@@ -8822,7 +8868,7 @@ export async function buildCalculos(
             ],
             [
               'R (radio de curva) m',
-              antiempotramiento.radioCurvaRAntiempotramiento
+              ((antiempotramiento.radioCurvaRAntiempotramiento ?? 0) * 100)
                 ?.toFixed(2)
                 .toString() ?? '---',
             ],
@@ -8870,7 +8916,7 @@ export async function buildCalculos(
       let resistenciaaerodinamica =
         0.5 *
         (antiempotramiento.cwCoefAerodinamicoAntiempotramiento ?? 0) *
-        (antiempotramiento.superficieFrontalM2Antiempotramiento ?? 0) *
+        superficiefrontalAntiempotramientoCalculada *
         (antiempotramiento.densidadAireKgM3Antiempotramiento ?? 0) *
         (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0) *
         (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0);
@@ -8878,7 +8924,7 @@ export async function buildCalculos(
         (antiempotramiento.pesoPiezaKgAntiempotramiento ?? 0) *
         (((antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0) *
           (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0)) /
-          (antiempotramiento.radioCurvaRAntiempotramiento ?? 0));
+          radioCurvaAntiempotramiento);
       let sumadelasfuerzas =
         peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
@@ -9767,6 +9813,8 @@ export async function buildCalculos(
       let superficiefrontal =
         (estribostaloneras.anchuraMEstribos ?? 0) *
         (estribostaloneras.alturaMEstribos ?? 0);
+      const radioCurvaEstribos =
+        (toFiniteNumber(estribostaloneras.radioCurvaREstribos) || 1) * 100;
 
       // 2) Tabla de características de la pieza y sujeción
       const tablaEstribos = new Table({
@@ -9965,7 +10013,7 @@ export async function buildCalculos(
         (estribostaloneras.pesoPiezaKgEstribos ?? 0) *
         (((estribostaloneras.velocidadAireV2msEstribos ?? 0) *
           (estribostaloneras.velocidadAireV2msEstribos ?? 0)) /
-          (estribostaloneras.radioCurvaREstribos ?? 0));
+          radioCurvaEstribos);
       let sumadelasfuerzas =
         peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
 
@@ -11051,12 +11099,9 @@ export async function buildCalculos(
         diametromedio = (diametroExteriorMuelle + diametrointerior) / 2;
         curvatura = safeDivide(diametromedio, diametroEspiraMuelle);
         K =
-          (Math.pow(diametroEspiraMuelle / 1000, 4) *
-            79500.24 *
-            1000000) /
+          (Math.pow(diametroEspiraMuelle / 1000, 4) * 79500.24 * 1000000) /
           (8 *
-            (Math.pow((diametromedio ?? 0) / 1000, 3) *
-              numeroEspirasMuelle)) /
+            (Math.pow((diametromedio ?? 0) / 1000, 3) * numeroEspirasMuelle)) /
           1000;
       }
 
@@ -11069,12 +11114,9 @@ export async function buildCalculos(
         diametromedio = (diametroExteriorMuelle + diametrointerior) / 2;
         curvatura = safeDivide(diametromedio, diametroEspiraMuelle);
         K =
-          (Math.pow(diametroEspiraMuelle / 1000, 4) *
-            79500.24 *
-            1000000) /
+          (Math.pow(diametroEspiraMuelle / 1000, 4) * 79500.24 * 1000000) /
           (8 *
-            (Math.pow((diametromedio ?? 0) / 1000, 3) *
-              numeroEspirasMuelle)) /
+            (Math.pow((diametromedio ?? 0) / 1000, 3) * numeroEspirasMuelle)) /
           1000;
       }
 
@@ -11109,30 +11151,12 @@ export async function buildCalculos(
             }),
             // Filas
             ...[
-              [
-                'Diámetro exterior (Dext)',
-                formatFixed(diametroExteriorMuelle),
-              ],
-              [
-                'Diámetro interior (Dint)',
-                formatFixed(diametrointerior),
-              ],
-              [
-                'Diámetro medio (Dm)',
-                formatFixed(diametromedio),
-              ],
-              [
-                'Diámetro de espira (De)',
-                formatFixed(diametroEspiraMuelle),
-              ],
-              [
-                'Longitud libre (L0)',
-                formatFixed(longitudLibreMuelle),
-              ],
-              [
-                'Número de espiras (n)',
-                formatFixed(numeroEspirasMuelle),
-              ],
+              ['Diámetro exterior (Dext)', formatFixed(diametroExteriorMuelle)],
+              ['Diámetro interior (Dint)', formatFixed(diametrointerior)],
+              ['Diámetro medio (Dm)', formatFixed(diametromedio)],
+              ['Diámetro de espira (De)', formatFixed(diametroEspiraMuelle)],
+              ['Longitud libre (L0)', formatFixed(longitudLibreMuelle)],
+              ['Número de espiras (n)', formatFixed(numeroEspirasMuelle)],
               ['Curvatura (C)', formatFixed(curvatura)],
               ['Rigidez (K) N/mm', formatFixed(K)],
             ].map(
@@ -11167,9 +11191,7 @@ export async function buildCalculos(
         if (mod?.detallesMuelles?.['muelleDelanteroConRef']) {
           maxCortante =
             (Math.PI *
-              ((diametroEspiraMuelle / 1000) ** 3 *
-                1118.34 *
-                1000000)) /
+              ((diametroEspiraMuelle / 1000) ** 3 * 1118.34 * 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteDelantero = maxCortante * 2;
           coefSeguridad = safeDivide(
@@ -11181,9 +11203,7 @@ export async function buildCalculos(
         if (mod?.detallesMuelles?.['muelleDelanteroSinRef']) {
           maxCortante =
             (Math.PI *
-              ((diametroEspiraMuelle / 1000) ** 3 *
-                1118.34 *
-                1000000)) /
+              ((diametroEspiraMuelle / 1000) ** 3 * 1118.34 * 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteDelantero = maxCortante * 2;
           coefSeguridad = safeDivide(
@@ -11285,9 +11305,7 @@ export async function buildCalculos(
               79500.24 *
               1000000 *
               Math.pow(diametroEspiraMuelle / 1000, 4)) /
-            (64 *
-              numeroEspirasMuelle *
-              Math.pow(diametromedio / 1000 / 2, 3));
+            (64 * numeroEspirasMuelle * Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje1Q = cargaMaxQ * 2;
           coefSeguridadK = safeDivide(cargaMaxEje1Q, cargaMaximaEjeDelanteroN);
         }
@@ -11300,9 +11318,7 @@ export async function buildCalculos(
               79500.24 *
               1000000 *
               Math.pow(diametroEspiraMuelle / 1000, 4)) /
-            (64 *
-              numeroEspirasMuelle *
-              Math.pow(diametromedio / 1000 / 2, 3));
+            (64 * numeroEspirasMuelle * Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje1Q = cargaMaxQ * 2;
           coefSeguridadK = safeDivide(cargaMaxEje1Q, cargaMaximaEjeDelanteroN);
         }
@@ -11482,11 +11498,8 @@ export async function buildCalculos(
         diametromedio = (diametroExteriorMuelle + diametrointerior) / 2;
         curvatura = safeDivide(diametromedio, diametroEspiraMuelle);
         K =
-          (Math.pow(diametroEspiraMuelle / 1000, 4) *
-            79500.24 *
-            1000000) /
-          (8 *
-            (Math.pow(diametromedio / 1000, 3) * numeroEspirasMuelle)) /
+          (Math.pow(diametroEspiraMuelle / 1000, 4) * 79500.24 * 1000000) /
+          (8 * (Math.pow(diametromedio / 1000, 3) * numeroEspirasMuelle)) /
           1000;
       }
 
@@ -11499,11 +11512,8 @@ export async function buildCalculos(
         diametromedio = (diametroExteriorMuelle + diametrointerior) / 2;
         curvatura = safeDivide(diametromedio, diametroEspiraMuelle);
         K =
-          (Math.pow(diametroEspiraMuelle / 1000, 4) *
-            79500.24 *
-            1000000) /
-          (8 *
-            (Math.pow(diametromedio / 1000, 3) * numeroEspirasMuelle)) /
+          (Math.pow(diametroEspiraMuelle / 1000, 4) * 79500.24 * 1000000) /
+          (8 * (Math.pow(diametromedio / 1000, 3) * numeroEspirasMuelle)) /
           1000;
       }
 
@@ -11538,30 +11548,12 @@ export async function buildCalculos(
             }),
             // Filas
             ...[
-              [
-                'Diámetro exterior (Dext)',
-                formatFixed(diametroExteriorMuelle),
-              ],
-              [
-                'Diámetro interior (Dint)',
-                formatFixed(diametrointerior),
-              ],
-              [
-                'Diámetro medio (Dm)',
-                formatFixed(diametromedio),
-              ],
-              [
-                'Diámetro de espira (De)',
-                formatFixed(diametroEspiraMuelle),
-              ],
-              [
-                'Longitud libre (L0)',
-                formatFixed(longitudLibreMuelle),
-              ],
-              [
-                'Número de espiras (n)',
-                formatFixed(numeroEspirasMuelle),
-              ],
+              ['Diámetro exterior (Dext)', formatFixed(diametroExteriorMuelle)],
+              ['Diámetro interior (Dint)', formatFixed(diametrointerior)],
+              ['Diámetro medio (Dm)', formatFixed(diametromedio)],
+              ['Diámetro de espira (De)', formatFixed(diametroEspiraMuelle)],
+              ['Longitud libre (L0)', formatFixed(longitudLibreMuelle)],
+              ['Número de espiras (n)', formatFixed(numeroEspirasMuelle)],
               ['Curvatura (C)', formatFixed(curvatura)],
               ['Rigidez (K) N/mm', formatFixed(K)],
             ].map(
@@ -11596,9 +11588,7 @@ export async function buildCalculos(
         if (mod?.detallesMuelles?.['muelleTraseroConRef']) {
           maxCortante =
             (Math.PI *
-              ((diametroEspiraMuelle / 1000) ** 3 *
-                1118.34 *
-                1000000)) /
+              ((diametroEspiraMuelle / 1000) ** 3 * 1118.34 * 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteTrasero = maxCortante * 2;
           coefSeguridad = safeDivide(
@@ -11610,9 +11600,7 @@ export async function buildCalculos(
         if (mod?.detallesMuelles?.['muelleTraseroSinRef']) {
           maxCortante =
             (Math.PI *
-              ((diametroEspiraMuelle / 1000) ** 3 *
-                1118.34 *
-                1000000)) /
+              ((diametroEspiraMuelle / 1000) ** 3 * 1118.34 * 1000000)) /
             (8 * (diametromedio / 1000));
           maxCortanteTrasero = maxCortante * 2;
           coefSeguridad = safeDivide(
@@ -11713,9 +11701,7 @@ export async function buildCalculos(
               79500.24 *
               1000000 *
               Math.pow(diametroEspiraMuelle / 1000, 4)) /
-            (64 *
-              numeroEspirasMuelle *
-              Math.pow(diametromedio / 1000 / 2, 3));
+            (64 * numeroEspirasMuelle * Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje2Q = cargaMaxQ * 2;
           coefSeguridadK = safeDivide(cargaMaxEje2Q, cargaMaximaEjeTraseroN);
         }
@@ -11728,9 +11714,7 @@ export async function buildCalculos(
               79500.24 *
               1000000 *
               Math.pow(diametroEspiraMuelle / 1000, 4)) /
-            (64 *
-              numeroEspirasMuelle *
-              Math.pow(diametromedio / 1000 / 2, 3));
+            (64 * numeroEspirasMuelle * Math.pow(diametromedio / 1000 / 2, 3));
           cargaMaxEje2Q = cargaMaxQ * 2;
           coefSeguridadK = safeDivide(cargaMaxEje2Q, cargaMaximaEjeTraseroN);
         }
@@ -11959,10 +11943,7 @@ export async function buildCalculos(
               ],
             }),
             ...[
-              [
-                'MMTA/MMA (Kg)',
-                mmaControlMasas.toFixed(2).toString() ?? '---',
-              ],
+              ['MMTA/MMA (Kg)', mmaControlMasas.toFixed(2).toString() ?? '---'],
               [
                 'MMTA/MMA eje 1',
                 mmaEje1ControlMasas.toFixed(2).toString() ?? '---',
@@ -12326,10 +12307,7 @@ export async function buildCalculos(
               ],
             }),
             ...[
-              [
-                'MMTA/MMA (Kg)',
-                mmaControlMasas.toFixed(2).toString() ?? '---',
-              ],
+              ['MMTA/MMA (Kg)', mmaControlMasas.toFixed(2).toString() ?? '---'],
               [
                 'MMTA/MMA eje 1',
                 mmaEje1ControlMasas.toFixed(2).toString() ?? '---',

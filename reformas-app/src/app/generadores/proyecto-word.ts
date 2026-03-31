@@ -1791,7 +1791,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           (() => {
             const elementos: Array<{
               nombreMod: string;
-              etiqueta: string;
+              etiqueta: string | ((m: any) => string);
               key: string;
               condition?: (m: any) => boolean;
             }> = [
@@ -1831,6 +1831,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 key: 'curvaturaSoporteRuedaRepuesto',
               },
               {
+                nombreMod: 'BARRAS ANTIVUELCO',
+                etiqueta: 'Barras antivuelco',
+                key: 'curvaturaBarras',
+              },
+              {
                 nombreMod: 'ALERÓN',
                 etiqueta: 'Alerón',
                 key: 'curvaturaAleron',
@@ -1865,7 +1870,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               },
               {
                 nombreMod: 'ESTRIBOS LATERALES O TALONERAS',
-                etiqueta: 'Estribos laterales o taloneras',
+                etiqueta: (m) =>
+                  m?.detalle?.estribosotaloneras === 'taloneras'
+                    ? 'Taloneras'
+                    : 'Estribos laterales',
                 key: 'radioCurvaREstribos',
               },
               {
@@ -1954,6 +1962,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               'INSTALACIÓN ELÉCTRICA',
             );
 
+            const campoLibreMod = findSelectedMod(
+              'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES',
+            );
+
             const claraboyaRows = (
               Array.isArray(claraboyaMod?.claraboyas)
                 ? claraboyaMod.claraboyas
@@ -1993,6 +2005,18 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               })
               .filter((row): row is TableRow => row !== null);
 
+            const campoLibreRows = (
+              Array.isArray(campoLibreMod?.reformasAdicionalesItems)
+                ? campoLibreMod.reformasAdicionalesItems
+                : []
+            )
+              .map((item: any, index: number) => {
+                const titulo = (item?.titulo ?? '').toString().trim();
+                const etiqueta = titulo || `Reforma adicional ${index + 1}`;
+                return buildCurvaturaRow(etiqueta, item?.curvatura);
+              })
+              .filter((row): row is TableRow => row !== null);
+
             const dataRows = [
               ...elementos
                 .map(({ nombreMod, etiqueta, key, condition }) => {
@@ -2001,11 +2025,15 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   if (!mod) return null;
                   if (condition && !condition(mod)) return null;
 
-                  return buildCurvaturaRow(etiqueta, (mod as any)[key]);
+                  const etiquetaFinal =
+                    typeof etiqueta === 'function' ? etiqueta(mod) : etiqueta;
+
+                  return buildCurvaturaRow(etiquetaFinal, (mod as any)[key]);
                 })
                 .filter((row): row is TableRow => row !== null),
               ...claraboyaRows,
               ...placasRows,
+              ...campoLibreRows,
             ];
 
             if (dataRows.length === 0) {
@@ -4689,19 +4717,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     ),
 
     ...buildCocheOptionParagraphs(data),
-
-    ...(data.tipoVehiculo === 'coche'
-      ? [
-          new Paragraph({
-            spacing: { line: 260, after: 120 },
-            children: [
-              new TextRun({
-                text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo de aire al motor para su respectiva refrigeración.',
-              }),
-            ],
-          }),
-        ]
-      : []),
 
     ...[
       'Los elementos elásticos sustituidos del sistema de suspensión han sido ubicados en los emplazamientos de que disponían los originales.',
