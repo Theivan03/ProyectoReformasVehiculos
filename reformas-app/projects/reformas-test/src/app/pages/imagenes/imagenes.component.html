@@ -293,16 +293,16 @@
         </div>
       </div>
     </div>
-    <div class="ing-nav-container">
-      <button class="btn btn-ing-prev" (click)="back()">
-        <i class="bi bi-arrow-left"></i> ANTERIOR
+    <div class="ing-wizard-footer">
+      <button class="btn ing-wizard-btn-back" (click)="back()">
+        <i class="bi bi-arrow-left"></i> VOLVER
       </button>
       <button
-        class="btn btn2 btn-ing-next"
+        class="btn ing-wizard-btn-next"
         [disabled]="isValidPreview(prevPreviews) < 4 || procesando"
         (click)="next()"
       >
-        SIGUIENTE <i class="bi bi-arrow-right"></i>
+        CONTINUAR <i class="bi bi-arrow-right"></i>
       </button>
     </div>
   </ng-container>
@@ -380,16 +380,16 @@
       IMÁGENES PERMITIDAS.
     </div>
 
-    <div class="ing-nav-container">
-      <button class="btn btn-ing-prev" (click)="back()">
-        <i class="bi bi-arrow-left"></i> ANTERIOR
+    <div class="ing-wizard-footer">
+      <button class="btn ing-wizard-btn-back" (click)="back()">
+        <i class="bi bi-arrow-left"></i> VOLVER
       </button>
       <button
-        class="btn btn2 btn-ing-success"
+        class="btn ing-wizard-btn-next"
         [disabled]="postImages.length === 0 || procesando"
         (click)="onSave()"
       >
-        GUARDAR IMÁGENES <i class="bi bi-check-lg"></i>
+        CONTINUAR <i class="bi bi-arrow-right"></i>
       </button>
     </div>
   </ng-container>

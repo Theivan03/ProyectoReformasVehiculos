@@ -249,12 +249,12 @@
     </div>
   </div>
 
-  <div class="ing-nav-container">
-    <button class="btn btn-ing-prev" (click)="onBack()">
+  <div class="ing-wizard-footer">
+    <button class="btn ing-wizard-btn-back" (click)="onBack()">
       <i class="bi bi-arrow-left"></i> VOLVER
     </button>
     <button
-      class="btn btn-ing-next"
+      class="btn ing-wizard-btn-next"
       [disabled]="labels.length > 0 && markers.length === 0"
       (click)="onContinue()"
     >

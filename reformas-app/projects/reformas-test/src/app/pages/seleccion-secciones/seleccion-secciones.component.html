@@ -160,13 +160,13 @@
     }
   </ul>
 
-  <div class="ing-form-footer">
-    <button type="button" class="btn btn-ing-back" (click)="onVolver()">
+  <div class="ing-wizard-footer">
+    <button type="button" class="btn ing-wizard-btn-back" (click)="onVolver()">
       <i class="bi bi-arrow-left"></i> VOLVER
     </button>
 
     <button
-      class="btn btn-ing-submit"
+      class="btn ing-wizard-btn-next"
       [disabled]="seccionesSeleccionadas.length === 0"
       (click)="enviarSeleccion()"
     >
