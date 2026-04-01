@@ -19807,7 +19807,7 @@
                   <button
                     type="button"
                     class="btn btn-success btn-sm"
-                    (click)="mod.ventanas.push({})"
+                    (click)="anadirVentana(mod)"
                   >
                     <i class="bi bi-plus-lg me-1"></i> AÑADIR VENTANA
                   </button>
@@ -19930,7 +19930,7 @@
                           <button
                             type="button"
                             class="btn btn-outline-danger btn-sm"
-                            (click)="mod.ventanas.splice(j, 1)"
+                            (click)="borrarVentana(mod, j)"
                           >
                             <i class="bi bi-trash me-1"></i> ELIMINAR VENTANA
                           </button>

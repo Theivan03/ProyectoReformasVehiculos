@@ -64,6 +64,125 @@ export interface ReformaAdicionalItem {
   curvatura?: number;
 }
 
+export interface MuebleBajoItem {
+  cajones?: number;
+  ubicacionMuebleBajo?: string;
+  configuracionMuebleBajo?: string;
+  pesoMuebleBajo?: number | string;
+  tornillosMuebleBajo?: number | string;
+  metricaTornillosMuebleBajo?: number | null;
+}
+
+export interface MuebleAltoItem {
+  ubicacionMuebleAlto?: string;
+  configuracionMuebleAlto?: string;
+  pesoMuebleAlto?: number | string;
+  tornillosMuebleAlto?: number | string;
+  metricaTornillosMuebleAlto?: number | null;
+}
+
+export interface MuebleAseoItem {
+  descripcion?: string;
+  configuracionMuebleAseo?: string;
+  pesoMuebleAseo?: number | string;
+  tornillosMuebleAseo?: number | string;
+  metricaTornillosMuebleAseo?: number | null;
+}
+
+export type ReformaCampoCompartidoGrupo =
+  | 'claraboya'
+  | 'ventana'
+  | 'placaSolar'
+  | 'reformaAdicional'
+  | 'muebleBajo'
+  | 'muebleAlto'
+  | 'muebleAseo';
+
+export interface ReformaCampoCompartidoDefinicion {
+  grupo: ReformaCampoCompartidoGrupo;
+  campos: readonly string[];
+}
+
+export const REFORMA_CAMPOS_COMPARTIDOS: readonly ReformaCampoCompartidoDefinicion[] =
+  [
+    {
+      grupo: 'claraboya',
+      campos: [
+        'marca',
+        'modelo',
+        'descripcion',
+        'homologacion',
+        'medidas',
+        'pesoPiezaKg',
+        'metrica',
+        'nTornillos',
+        'resTraccionMinTornillo88Kgmm2',
+        'cwCoefAerodinamico',
+        'densidadAireKgM3',
+        'velocidadAireV2ms',
+        'coefSeguridadK',
+        'curvatura',
+      ],
+    },
+    {
+      grupo: 'ventana',
+      campos: ['homologacion', 'marca', 'modelo', 'dimensiones', 'descripcion'],
+    },
+    {
+      grupo: 'placaSolar',
+      campos: [
+        'marca',
+        'modelo',
+        'potencia',
+        'dimensiones',
+        'ubicacion',
+        'pesoPiezaKg',
+        'metrica',
+        'nTornillos',
+        'resTraccionMinTornillo88Kgmm2',
+        'cwCoefAerodinamico',
+        'densidadAireKgM3',
+        'velocidadAireV2ms',
+        'coefSeguridadK',
+        'curvatura',
+      ],
+    },
+    {
+      grupo: 'reformaAdicional',
+      campos: ['titulo', 'descripcion', 'curvatura'],
+    },
+    {
+      grupo: 'muebleBajo',
+      campos: [
+        'ubicacionMuebleBajo',
+        'configuracionMuebleBajo',
+        'pesoMuebleBajo',
+        'tornillosMuebleBajo',
+        'metricaTornillosMuebleBajo',
+      ],
+    },
+    {
+      grupo: 'muebleAlto',
+      campos: [
+        'ubicacionMuebleAlto',
+        'configuracionMuebleAlto',
+        'pesoMuebleAlto',
+        'tornillosMuebleAlto',
+        'metricaTornillosMuebleAlto',
+      ],
+    },
+    {
+      grupo: 'muebleAseo',
+      campos: [
+        'descripcion',
+        'configuracionMuebleAseo',
+        'pesoMuebleAseo',
+        'tornillosMuebleAseo',
+        'metricaTornillosMuebleAseo',
+      ],
+    },
+  ] as const;
+
 export interface Modificacion {
   acciones?: string[];
   anotacion?: string | boolean;

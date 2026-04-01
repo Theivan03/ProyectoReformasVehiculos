@@ -4,11 +4,22 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import {
+  ReformaCampoCompartidoGrupo,
+} from '../../interfaces/modificacion';
+import { DatosReformaService } from '../../services/datos-reforma.service';
+
+interface EntidadCompartidaRegistro {
+  grupo: ReformaCampoCompartidoGrupo;
+  entidad: Record<string, any>;
+}
 
 @Component({
   selector: 'app-resumen-modificaciones',
@@ -17,7 +28,9 @@ import { FormsModule, NgForm } from '@angular/forms';
   templateUrl: './resumen-modificaciones.component.html',
   styleUrls: ['./resumen-modificaciones.component.css'],
 })
-export class ResumenModificacionesComponent implements OnInit, OnChanges {
+export class ResumenModificacionesComponent
+  implements OnInit, OnChanges, OnDestroy
+{
   @Input() datosEntrada: any = {};
   @Output() volver = new EventEmitter<any>();
   @Output() continuar = new EventEmitter<any>();
@@ -123,6 +136,14 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   ];
 
   modificacionesSeleccionadas: any[] = [];
+  private estadoCompartidoSub?: Subscription;
+  private readonly proxiesCamposCompartidos = new WeakMap<object, any>();
+  private readonly targetsCamposCompartidos = new WeakMap<object, object>();
+  private readonly camposAutorellenados = new WeakMap<object, Map<string, any>>();
+  private readonly camposLimpiadosManualmente = new WeakMap<object, Set<string>>();
+  private sincronizandoCamposCompartidos = false;
+
+  constructor(private readonly datosReformaService: DatosReformaService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('--- DEBUG: ngOnChanges disparado ---', changes);
@@ -133,11 +154,22 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.estadoCompartidoSub = this.datosReformaService.estadoCompartido$.subscribe(
+      () => {
+        if (this.sincronizandoCamposCompartidos) return;
+        this.aplicarEstadoCompartidoActual();
+      },
+    );
+
     console.log(
       '--- DEBUG: ngOnInit disparado ---  datosEntrada en resumen modificaciones:',
       this.datosEntrada,
     );
     this.rebuild();
+  }
+
+  ngOnDestroy(): void {
+    this.estadoCompartidoSub?.unsubscribe();
   }
 
   private rebuild() {
@@ -235,6 +267,16 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
           });
         }
 
+        m.mueblesBajo = (m.mueblesBajo || []).map((mueble: any) =>
+          this.createMuebleItem('bajo', mueble),
+        );
+        m.mueblesAlto = (m.mueblesAlto || []).map((mueble: any) =>
+          this.createMuebleItem('alto', mueble),
+        );
+        m.mueblesAseo = (m.mueblesAseo || []).map((mueble: any) =>
+          this.createMuebleItem('aseo', mueble),
+        );
+
         this.onDiametroTornilloChange(m);
       }
 
@@ -256,29 +298,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
 
       if (m.nombre === 'VENTANA') {
-        if (!Array.isArray(m.ventanas)) {
-          m.ventanas = [];
-        }
-
-        if (m.ventanas.length === 0) {
-          const hasLegacy =
-            m.descripcionVentana ||
-            m.marcaVentana ||
-            m.modeloVentana ||
-            m.dimensionesVentana ||
-            m.homologacionVentana ||
-            m.cantidadVentanas;
-
-          if (hasLegacy) {
-            m.ventanas.push({
-              descripcion: m.descripcionVentana ?? '',
-              marca: m.marcaVentana ?? '',
-              modelo: m.modeloVentana ?? '',
-              dimensiones: m.dimensionesVentana ?? '',
-              homologacion: m.homologacionVentana ?? '',
-            });
-          }
-        }
+        this.ensureVentanaDefaults(m);
       }
 
       if (m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
@@ -746,7 +766,297 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       this.syncCalidadByMetrica(m);
     });
 
+    this.rebuildCamposCompartidos();
     console.groupEnd();
+  }
+
+  private rebuildCamposCompartidos(): void {
+    const entidades = this.collectSharedEntities();
+
+    this.sincronizandoCamposCompartidos = true;
+    try {
+      this.datosReformaService.resetEstadoCompartido();
+
+      entidades.forEach(({ grupo, entidad }) => {
+        const target = this.unwrapSharedEntity(entidad);
+        this.aplicarValoresCompartidosEnEntidad(grupo, target);
+        this.datosReformaService.capturarEntidadCompartida(grupo, target, true);
+      });
+    } finally {
+      this.sincronizandoCamposCompartidos = false;
+    }
+  }
+
+  private aplicarEstadoCompartidoActual(): void {
+    this.sincronizandoCamposCompartidos = true;
+    try {
+      this.collectSharedEntities().forEach(({ grupo, entidad }) => {
+        this.aplicarValoresCompartidosEnEntidad(
+          grupo,
+          this.unwrapSharedEntity(entidad),
+        );
+      });
+    } finally {
+      this.sincronizandoCamposCompartidos = false;
+    }
+  }
+
+  private collectSharedEntities(): EntidadCompartidaRegistro[] {
+    const entidades: EntidadCompartidaRegistro[] = [];
+
+    this.modificacionesSeleccionadas.forEach((mod) => {
+      if (mod.nombre === 'CLARABOYA') {
+        this.agregarEntidadesCompartidas(
+          entidades,
+          'claraboya',
+          mod.claraboyas,
+        );
+      }
+
+      if (mod.nombre === 'VENTANA') {
+        this.agregarEntidadesCompartidas(entidades, 'ventana', mod.ventanas);
+      }
+
+      if (mod.nombre === 'INSTALACIÃ“N ELÃ‰CTRICA') {
+        this.agregarEntidadesCompartidas(
+          entidades,
+          'placaSolar',
+          mod.placasSolares,
+        );
+      }
+
+      if (mod.nombre === 'MOBILIARIO INTERIOR VEHÃCULO') {
+        this.agregarEntidadesCompartidas(
+          entidades,
+          'muebleBajo',
+          mod.mueblesBajo,
+        );
+        this.agregarEntidadesCompartidas(
+          entidades,
+          'muebleAlto',
+          mod.mueblesAlto,
+        );
+        this.agregarEntidadesCompartidas(
+          entidades,
+          'muebleAseo',
+          mod.mueblesAseo,
+        );
+      }
+
+      if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
+        this.agregarEntidadesCompartidas(
+          entidades,
+          'reformaAdicional',
+          mod.reformasAdicionalesItems,
+        );
+      }
+    });
+
+    return entidades;
+  }
+
+  private agregarEntidadesCompartidas(
+    registros: EntidadCompartidaRegistro[],
+    grupo: ReformaCampoCompartidoGrupo,
+    entidades: any[],
+  ): void {
+    if (!Array.isArray(entidades)) return;
+
+    entidades.forEach((entidad) => {
+      if (!entidad || typeof entidad !== 'object') return;
+      registros.push({ grupo, entidad });
+    });
+  }
+
+  private aplicarValoresCompartidosEnEntidad(
+    grupo: ReformaCampoCompartidoGrupo,
+    entidad: Record<string, any>,
+  ): void {
+    const valoresCompartidos = this.datosReformaService.getGrupoCompartido(grupo);
+
+    Object.entries(valoresCompartidos).forEach(([campo, valor]) => {
+      if (!this.debeAutorrellenarseCampo(entidad, campo)) return;
+
+      const siguienteValor = this.clonarValorCompartido(valor);
+      entidad[campo] = siguienteValor;
+      this.marcarCampoAutorellenado(entidad, campo, siguienteValor);
+      this.limpiarCampoLimpiadoManual(entidad, campo);
+    });
+  }
+
+  private debeAutorrellenarseCampo(
+    entidad: Record<string, any>,
+    campo: string,
+  ): boolean {
+    if (this.estaCampoLimpiadoManual(entidad, campo)) {
+      return false;
+    }
+
+    const valorActual = entidad[campo];
+    if (this.isMissingValue(valorActual)) {
+      return true;
+    }
+
+    const valorAutorellenado = this.obtenerCampoAutorellenado(entidad, campo);
+    return (
+      valorAutorellenado !== undefined &&
+      this.sonValoresIguales(valorActual, valorAutorellenado)
+    );
+  }
+
+  private wrapEntidadCompartida<T extends Record<string, any>>(
+    grupo: ReformaCampoCompartidoGrupo,
+    entidad: T,
+  ): T {
+    const target = this.unwrapSharedEntity(entidad) as T;
+    const proxyExistente = this.proxiesCamposCompartidos.get(target);
+    if (proxyExistente) {
+      return proxyExistente as T;
+    }
+
+    const proxy = new Proxy(target, {
+      set: (rawTarget, prop, value, receiver) => {
+        const valorAnterior = Reflect.get(rawTarget, prop, receiver);
+        const actualizado = Reflect.set(rawTarget, prop, value, receiver);
+
+        if (
+          actualizado &&
+          typeof prop === 'string' &&
+          this.datosReformaService.esCampoCompartido(grupo, prop) &&
+          !this.sonValoresIguales(valorAnterior, value)
+        ) {
+          this.onCambioCampoCompartido(grupo, rawTarget, prop, value);
+        }
+
+        return actualizado;
+      },
+    });
+
+    this.proxiesCamposCompartidos.set(target, proxy);
+    this.targetsCamposCompartidos.set(proxy, target);
+    return proxy as T;
+  }
+
+  private unwrapSharedEntity<T>(entidad: T): T {
+    if (!entidad || typeof entidad !== 'object') {
+      return entidad;
+    }
+
+    return (this.targetsCamposCompartidos.get(entidad as object) ?? entidad) as T;
+  }
+
+  private onCambioCampoCompartido(
+    grupo: ReformaCampoCompartidoGrupo,
+    entidad: Record<string, any>,
+    campo: string,
+    valor: any,
+  ): void {
+    if (this.sincronizandoCamposCompartidos) return;
+
+    if (this.isMissingValue(valor)) {
+      this.marcarCampoLimpiadoManual(entidad, campo);
+      this.limpiarCampoAutorellenado(entidad, campo);
+    } else {
+      this.limpiarCampoLimpiadoManual(entidad, campo);
+
+      const valorAutorellenado = this.obtenerCampoAutorellenado(entidad, campo);
+      if (
+        valorAutorellenado !== undefined &&
+        !this.sonValoresIguales(valorAutorellenado, valor)
+      ) {
+        this.limpiarCampoAutorellenado(entidad, campo);
+      }
+    }
+
+    this.datosReformaService.capturarEntidadCompartida(grupo, entidad, true);
+  }
+
+  private registrarCamposCompartidosPorDefecto(
+    grupo: ReformaCampoCompartidoGrupo,
+    entidad: Record<string, any>,
+    inicial: Record<string, any>,
+    defaults: Record<string, any>,
+  ): void {
+    this.limpiarMetadatosCamposCompartidos(grupo, entidad);
+
+    this.datosReformaService.getCamposCompartidos(grupo).forEach((campo) => {
+      if (!this.isMissingValue(inicial?.[campo])) return;
+      if (this.isMissingValue(defaults?.[campo])) return;
+
+      this.marcarCampoAutorellenado(
+        entidad,
+        campo,
+        this.clonarValorCompartido(entidad[campo]),
+      );
+    });
+  }
+
+  private limpiarMetadatosCamposCompartidos(
+    grupo: ReformaCampoCompartidoGrupo,
+    entidad: Record<string, any>,
+  ): void {
+    this.datosReformaService.getCamposCompartidos(grupo).forEach((campo) => {
+      this.limpiarCampoAutorellenado(entidad, campo);
+      this.limpiarCampoLimpiadoManual(entidad, campo);
+    });
+  }
+
+  private marcarCampoAutorellenado(
+    entidad: Record<string, any>,
+    campo: string,
+    valor: any,
+  ): void {
+    const campos = this.camposAutorellenados.get(entidad) ?? new Map<string, any>();
+    campos.set(campo, this.clonarValorCompartido(valor));
+    this.camposAutorellenados.set(entidad, campos);
+  }
+
+  private obtenerCampoAutorellenado(
+    entidad: Record<string, any>,
+    campo: string,
+  ): any {
+    return this.camposAutorellenados.get(entidad)?.get(campo);
+  }
+
+  private limpiarCampoAutorellenado(
+    entidad: Record<string, any>,
+    campo: string,
+  ): void {
+    this.camposAutorellenados.get(entidad)?.delete(campo);
+  }
+
+  private marcarCampoLimpiadoManual(
+    entidad: Record<string, any>,
+    campo: string,
+  ): void {
+    const campos =
+      this.camposLimpiadosManualmente.get(entidad) ?? new Set<string>();
+    campos.add(campo);
+    this.camposLimpiadosManualmente.set(entidad, campos);
+  }
+
+  private estaCampoLimpiadoManual(
+    entidad: Record<string, any>,
+    campo: string,
+  ): boolean {
+    return this.camposLimpiadosManualmente.get(entidad)?.has(campo) ?? false;
+  }
+
+  private limpiarCampoLimpiadoManual(
+    entidad: Record<string, any>,
+    campo: string,
+  ): void {
+    this.camposLimpiadosManualmente.get(entidad)?.delete(campo);
+  }
+
+  private sonValoresIguales(actual: unknown, siguiente: unknown): boolean {
+    return JSON.stringify(actual) === JSON.stringify(siguiente);
+  }
+
+  private clonarValorCompartido(valor: any): any {
+    if (Array.isArray(valor)) return [...valor];
+    if (valor && typeof valor === 'object') return { ...valor };
+    return valor;
   }
 
   getTornilloActivo(mod: any) {
@@ -1130,8 +1440,99 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     placa.cantidad = Number.isFinite(cantidad) && cantidad > 1 ? cantidad : 2;
   }
 
+  private createMuebleItem(
+    tipo: 'bajo' | 'alto' | 'aseo',
+    initial: any = {},
+  ): any {
+    const incoming = { ...(this.unwrapSharedEntity(initial) || {}) };
+    const item = this.unwrapSharedEntity(initial) || {};
+
+    if (tipo === 'bajo') {
+      const defaults = {
+        cajones: 0,
+        ubicacionMuebleBajo: '',
+        configuracionMuebleBajo: '',
+        pesoMuebleBajo: '',
+        tornillosMuebleBajo: '',
+        metricaTornillosMuebleBajo: null,
+      };
+
+      Object.assign(item, defaults, incoming);
+      this.registrarCamposCompartidosPorDefecto(
+        'muebleBajo',
+        item,
+        incoming,
+        defaults,
+      );
+      this.aplicarValoresCompartidosEnEntidad('muebleBajo', item);
+      return this.wrapEntidadCompartida('muebleBajo', item);
+    }
+
+    if (tipo === 'alto') {
+      const defaults = {
+        ubicacionMuebleAlto: '',
+        configuracionMuebleAlto: '',
+        pesoMuebleAlto: '',
+        tornillosMuebleAlto: '',
+        metricaTornillosMuebleAlto: null,
+      };
+
+      Object.assign(item, defaults, incoming);
+      this.registrarCamposCompartidosPorDefecto(
+        'muebleAlto',
+        item,
+        incoming,
+        defaults,
+      );
+      this.aplicarValoresCompartidosEnEntidad('muebleAlto', item);
+      return this.wrapEntidadCompartida('muebleAlto', item);
+    }
+
+    const defaults = {
+      descripcion: '',
+      configuracionMuebleAseo: '',
+      pesoMuebleAseo: '',
+      tornillosMuebleAseo: '',
+      metricaTornillosMuebleAseo: null,
+    };
+
+    Object.assign(item, defaults, incoming);
+    this.registrarCamposCompartidosPorDefecto(
+      'muebleAseo',
+      item,
+      incoming,
+      defaults,
+    );
+    this.aplicarValoresCompartidosEnEntidad('muebleAseo', item);
+    return this.wrapEntidadCompartida('muebleAseo', item);
+  }
+
+  private createVentanaItem(initial: any = {}): any {
+    const incoming = { ...(this.unwrapSharedEntity(initial) || {}) };
+    const item = this.unwrapSharedEntity(initial) || {};
+    const defaults = {
+      homologacion: '',
+      marca: '',
+      modelo: '',
+      dimensiones: '',
+      descripcion: '',
+    };
+
+    Object.assign(item, defaults, incoming);
+    this.registrarCamposCompartidosPorDefecto(
+      'ventana',
+      item,
+      incoming,
+      defaults,
+    );
+    this.aplicarValoresCompartidosEnEntidad('ventana', item);
+    return this.wrapEntidadCompartida('ventana', item);
+  }
+
   private createClaraboyaItem(initial: any = {}): any {
-    const item = {
+    const incoming = { ...(this.unwrapSharedEntity(initial) || {}) };
+    const item = this.unwrapSharedEntity(initial) || {};
+    const defaults = {
       marca: '',
       modelo: '',
       descripcion: '',
@@ -1150,15 +1551,24 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       velocidadAireV2ms: 38.89,
       coefSeguridadK: 3,
       curvatura: 8,
-      ...initial,
     };
+    Object.assign(item, defaults, incoming);
 
+    this.registrarCamposCompartidosPorDefecto(
+      'claraboya',
+      item,
+      incoming,
+      defaults,
+    );
+    this.aplicarValoresCompartidosEnEntidad('claraboya', item);
     this.ensureAerodynamicItemDefaults(item, 'medidas');
-    return item;
+    return this.wrapEntidadCompartida('claraboya', item);
   }
 
   private createPlacaSolarItem(initial: any = {}): any {
-    const item = {
+    const incoming = { ...(this.unwrapSharedEntity(initial) || {}) };
+    const item = this.unwrapSharedEntity(initial) || {};
+    const defaults = {
       marca: '',
       modelo: '',
       potencia: '',
@@ -1179,8 +1589,8 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       velocidadAireV2ms: 38.89,
       coefSeguridadK: 3,
       curvatura: 8,
-      ...initial,
     };
+    Object.assign(item, defaults, incoming);
 
     item.agruparIguales = !!item.agruparIguales;
     const cantidad = Math.trunc(Number(item.cantidad));
@@ -1189,20 +1599,36 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         ? cantidad
         : 1;
 
+    this.registrarCamposCompartidosPorDefecto(
+      'placaSolar',
+      item,
+      incoming,
+      defaults,
+    );
+    this.aplicarValoresCompartidosEnEntidad('placaSolar', item);
     this.ensureAerodynamicItemDefaults(item, 'dimensiones');
-    return item;
+    return this.wrapEntidadCompartida('placaSolar', item);
   }
 
   private createReformaAdicionalItem(initial: any = {}): any {
-    const item = {
+    const incoming = { ...(this.unwrapSharedEntity(initial) || {}) };
+    const item = this.unwrapSharedEntity(initial) || {};
+    const defaults = {
       titulo: '',
       descripcion: '',
       curvatura: 8,
-      ...initial,
     };
+    Object.assign(item, defaults, incoming);
 
+    this.registrarCamposCompartidosPorDefecto(
+      'reformaAdicional',
+      item,
+      incoming,
+      defaults,
+    );
+    this.aplicarValoresCompartidosEnEntidad('reformaAdicional', item);
     if (item.curvatura == null) item.curvatura = 8;
-    return item;
+    return this.wrapEntidadCompartida('reformaAdicional', item);
   }
 
   private ensureClaraboyaDefaults(mod: any): void {
@@ -1232,6 +1658,38 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     mod.claraboyas = mod.claraboyas.map((item: any) =>
       this.createClaraboyaItem(item),
+    );
+  }
+
+  private ensureVentanaDefaults(mod: any): void {
+    if (!Array.isArray(mod.ventanas)) {
+      mod.ventanas = [];
+    }
+
+    if (mod.ventanas.length === 0) {
+      const hasLegacy =
+        mod.descripcionVentana ||
+        mod.marcaVentana ||
+        mod.modeloVentana ||
+        mod.dimensionesVentana ||
+        mod.homologacionVentana ||
+        mod.cantidadVentanas;
+
+      if (hasLegacy) {
+        mod.ventanas.push(
+          this.createVentanaItem({
+            descripcion: mod.descripcionVentana ?? '',
+            marca: mod.marcaVentana ?? '',
+            modelo: mod.modeloVentana ?? '',
+            dimensiones: mod.dimensionesVentana ?? '',
+            homologacion: mod.homologacionVentana ?? '',
+          }),
+        );
+      }
+    }
+
+    mod.ventanas = mod.ventanas.map((item: any) =>
+      this.createVentanaItem(item),
     );
   }
 
@@ -1564,29 +2022,17 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   anadirMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {
     if (tipo === 'bajo') {
       mod.mueblesBajo = mod.mueblesBajo || [];
-      mod.mueblesBajo.push({
-        cajones: 0,
-        ubicacionMuebleBajo: '',
-        configuracionMuebleBajo: '',
-        metricaTornillosMuebleBajo: null,
-      });
+      mod.mueblesBajo.push(this.createMuebleItem('bajo'));
     }
     if (tipo === 'alto') {
       mod.mueblesAlto = mod.mueblesAlto || [];
-      mod.mueblesAlto.push({
-        ubicacionMuebleAlto: '',
-        configuracionMuebleAlto: '',
-        metricaTornillosMuebleAlto: null,
-      });
+      mod.mueblesAlto.push(this.createMuebleItem('alto'));
     }
     if (tipo === 'aseo') {
       mod.mueblesAseo = mod.mueblesAseo || [];
-      mod.mueblesAseo.push({
-        descripcion: '',
-        configuracionMuebleAseo: '',
-        metricaTornillosMuebleAseo: null,
-      });
+      mod.mueblesAseo.push(this.createMuebleItem('aseo'));
     }
+    this.rebuildCamposCompartidos();
     this.formSubmitted = false;
   }
 
@@ -1596,6 +2042,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
 
     mod.claraboyas.push(this.createClaraboyaItem());
+    this.rebuildCamposCompartidos();
     this.formSubmitted = false;
   }
 
@@ -1603,6 +2050,24 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (!Array.isArray(mod?.claraboyas)) return;
     if (index < 0 || index >= mod.claraboyas.length) return;
     mod.claraboyas.splice(index, 1);
+    this.rebuildCamposCompartidos();
+  }
+
+  anadirVentana(mod: any): void {
+    if (!Array.isArray(mod.ventanas)) {
+      mod.ventanas = [];
+    }
+
+    mod.ventanas.push(this.createVentanaItem());
+    this.rebuildCamposCompartidos();
+    this.formSubmitted = false;
+  }
+
+  borrarVentana(mod: any, index: number): void {
+    if (!Array.isArray(mod?.ventanas)) return;
+    if (index < 0 || index >= mod.ventanas.length) return;
+    mod.ventanas.splice(index, 1);
+    this.rebuildCamposCompartidos();
   }
 
   anadirPlacaSolar(mod: any): void {
@@ -1611,6 +2076,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     }
 
     mod.placasSolares.push(this.createPlacaSolarItem());
+    this.rebuildCamposCompartidos();
     this.formSubmitted = false;
   }
 
@@ -1618,6 +2084,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (!Array.isArray(mod?.placasSolares)) return;
     if (index < 0 || index >= mod.placasSolares.length) return;
     mod.placasSolares.splice(index, 1);
+    this.rebuildCamposCompartidos();
   }
 
   borrarUltimoMueble(mod: any, tipo: 'bajo' | 'alto' | 'aseo') {
@@ -1630,6 +2097,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (tipo === 'aseo' && mod.mueblesAseo?.length > 0) {
       mod.mueblesAseo.pop();
     }
+    this.rebuildCamposCompartidos();
   }
 
   anadirReformaAdicional(mod: any): void {
@@ -1637,6 +2105,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       mod.reformasAdicionalesItems = [];
     }
     mod.reformasAdicionalesItems.push(this.createReformaAdicionalItem());
+    this.rebuildCamposCompartidos();
     this.formSubmitted = false;
   }
 
@@ -1644,6 +2113,53 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     if (!Array.isArray(mod?.reformasAdicionalesItems)) return;
     if (index < 0 || index >= mod.reformasAdicionalesItems.length) return;
     mod.reformasAdicionalesItems.splice(index, 1);
+    this.rebuildCamposCompartidos();
+  }
+
+  private detachSharedProxies(): void {
+    this.modificacionesSeleccionadas.forEach((mod) => {
+      if (Array.isArray(mod.claraboyas)) {
+        mod.claraboyas = mod.claraboyas.map((item: any) =>
+          this.unwrapSharedEntity(item),
+        );
+      }
+
+      if (Array.isArray(mod.ventanas)) {
+        mod.ventanas = mod.ventanas.map((item: any) =>
+          this.unwrapSharedEntity(item),
+        );
+      }
+
+      if (Array.isArray(mod.placasSolares)) {
+        mod.placasSolares = mod.placasSolares.map((item: any) =>
+          this.unwrapSharedEntity(item),
+        );
+      }
+
+      if (Array.isArray(mod.mueblesBajo)) {
+        mod.mueblesBajo = mod.mueblesBajo.map((item: any) =>
+          this.unwrapSharedEntity(item),
+        );
+      }
+
+      if (Array.isArray(mod.mueblesAlto)) {
+        mod.mueblesAlto = mod.mueblesAlto.map((item: any) =>
+          this.unwrapSharedEntity(item),
+        );
+      }
+
+      if (Array.isArray(mod.mueblesAseo)) {
+        mod.mueblesAseo = mod.mueblesAseo.map((item: any) =>
+          this.unwrapSharedEntity(item),
+        );
+      }
+
+      if (Array.isArray(mod.reformasAdicionalesItems)) {
+        mod.reformasAdicionalesItems = mod.reformasAdicionalesItems.map(
+          (item: any) => this.unwrapSharedEntity(item),
+        );
+      }
+    });
   }
 
   formularioInvalido(): boolean {
@@ -1715,6 +2231,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
   }
 
   onVolver(): void {
+    this.detachSharedProxies();
     this.volver.emit(this.datosEntrada);
   }
 
@@ -1867,6 +2384,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
     });
     // ------------------------------------------------------
 
+    this.detachSharedProxies();
     this.continuar.emit(this.datosEntrada);
   }
 
