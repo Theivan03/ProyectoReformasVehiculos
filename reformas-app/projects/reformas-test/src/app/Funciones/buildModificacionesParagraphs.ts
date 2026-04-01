@@ -1570,9 +1570,15 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   );
 
   if (peldanos) {
-    const referenciaTexto = peldanos.referenciaPeldanos
-      ? `, referencia ${peldanos.referenciaPeldanos}`
-      : '';
+    const usaMarcaReferencia =
+      peldanos.tipoFabricacionPeldanos !== 'artesanal';
+    const referenciaTexto =
+      usaMarcaReferencia && peldanos.referenciaPeldanos
+        ? `, referencia ${peldanos.referenciaPeldanos}`
+        : '';
+    const descripcionFabricacion = usaMarcaReferencia
+      ? `de la marca ${peldanos.marcaPeldano}${referenciaTexto}`
+      : 'de fabricación artesanal';
     const metodoActuacion = (peldanos.metodoActuacionPeldanos || '')
       .toString()
       .trim()
@@ -1592,7 +1598,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       metodoActuacion === 'electrico'
         ? ` Este componente se acciona en parado mediante botón instalado en el interior del vehículo, ${ubicacionAccionamiento}.`
         : '';
-    const raw = `- Instalación de peldaño en ${peldanos.zonaPeldano}, de la marca ${peldanos.marcaPeldano}${referenciaTexto}, fabricado en ${peldanos.materialPeldano}, de medidas ${peldanos.medidasPeldano}mm${metodoTexto}.${notaMetodoElectrico}`;
+    const raw = `- Instalación de peldaño en ${peldanos.zonaPeldano}, ${descripcionFabricacion}, fabricado en ${peldanos.materialPeldano}, de medidas ${peldanos.medidasPeldano}mm${metodoTexto}.${notaMetodoElectrico}`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },

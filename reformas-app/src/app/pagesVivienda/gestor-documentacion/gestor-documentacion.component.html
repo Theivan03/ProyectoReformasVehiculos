@@ -322,6 +322,7 @@
                   <input
                     type="checkbox"
                     [(ngModel)]="$any(datosGlobales_gestor)[check.key]"
+                    (ngModelChange)="onCambioCheck_gestor(check.key)"
                     class="form-check-input mt-0"
                     style="width: 1.25em; height: 1.25em"
                   />
@@ -350,36 +351,59 @@
                 </h3>
 
                 <div class="row g-3 mb-2">
-                  <div class="col-md-5">
-                    <label class="form-label small fw-bold text-secondary"
-                      >Nombre</label
-                    >
-                    <input
-                      type="text"
-                      [(ngModel)]="datosGlobales_gestor.titular_nombre"
-                      class="form-control"
-                    />
-                  </div>
-                  <div class="col-md-7">
-                    <label class="form-label small fw-bold text-secondary"
-                      >Apellidos</label
-                    >
-                    <input
-                      type="text"
-                      [(ngModel)]="datosGlobales_gestor.titular_apellidos"
-                      class="form-control"
-                    />
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label small fw-bold text-secondary"
-                      >DNI / NIE</label
-                    >
-                    <input
-                      type="text"
-                      [(ngModel)]="datosGlobales_gestor.titular_dni_nif"
-                      class="form-control"
-                    />
-                  </div>
+                  @if (datosGlobales_gestor.check_es_empresa) {
+                    <div class="col-md-8">
+                      <label class="form-label small fw-bold text-secondary"
+                        >Razón Social</label
+                      >
+                      <input
+                        type="text"
+                        [(ngModel)]="datosGlobales_gestor.titular_nombre"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label small fw-bold text-secondary"
+                        >CIF</label
+                      >
+                      <input
+                        type="text"
+                        [(ngModel)]="datosGlobales_gestor.titular_dni_nif"
+                        class="form-control"
+                      />
+                    </div>
+                  } @else {
+                    <div class="col-md-5">
+                      <label class="form-label small fw-bold text-secondary"
+                        >Nombre</label
+                      >
+                      <input
+                        type="text"
+                        [(ngModel)]="datosGlobales_gestor.titular_nombre"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-md-7">
+                      <label class="form-label small fw-bold text-secondary"
+                        >Apellidos</label
+                      >
+                      <input
+                        type="text"
+                        [(ngModel)]="datosGlobales_gestor.titular_apellidos"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label small fw-bold text-secondary"
+                        >DNI / NIE</label
+                      >
+                      <input
+                        type="text"
+                        [(ngModel)]="datosGlobales_gestor.titular_dni_nif"
+                        class="form-control"
+                      />
+                    </div>
+                  }
                 </div>
                 <br />
                 <br />
@@ -397,12 +421,17 @@
                       >
                       <select
                         [(ngModel)]="datosGlobales_gestor.titular_tipo_via"
-                        class="form-select"
+                        (ngModelChange)="
+                          onCambioTipoVia_gestor('titular_tipo_via')
+                        "
+                        class="form-select text-uppercase"
                       >
                         @for (via of listaTiposVia_gestor; track via) {
-                          <option [value]="via.toLowerCase()">{{ via }}</option>
+                          <option [value]="via.toUpperCase()">
+                            {{ via.toUpperCase() }}
+                          </option>
                         }
-                        <option value="otro">Otro</option>
+                        <option value="OTRO">OTRO</option>
                       </select>
                     </div>
                     <div class="col-md-9">
@@ -605,10 +634,15 @@
                     </label>
                     <select
                       [(ngModel)]="datosGlobales_gestor.vivienda_tipo_via"
-                      class="form-select"
+                      (ngModelChange)="
+                        onCambioTipoVia_gestor('vivienda_tipo_via')
+                      "
+                      class="form-select text-uppercase"
                     >
                       @for (via of listaTiposVia_gestor; track via) {
-                        <option [value]="via.toLowerCase()">{{ via }}</option>
+                        <option [value]="via.toUpperCase()">
+                          {{ via.toUpperCase() }}
+                        </option>
                       }
                     </select>
                   </div>
@@ -738,6 +772,18 @@
                           <option value="rustico">Rústico</option>
                         </select>
                       </div>
+                      @if (
+                        datosGlobales_gestor.vivienda_tipo_suelo === "rustico"
+                      ) {
+                        <div class="col-12">
+                          <div
+                            class="alert alert-warning border border-warning shadow-sm fw-bold mb-0"
+                            role="alert"
+                          >
+                            Ojo! Para realizar el CCU habrá que realizar un DIC
+                          </div>
+                        </div>
+                      }
                       <div class="col-md-6">
                         <label class="form-label small fw-bold text-secondary">
                           Año Const.
@@ -754,7 +800,7 @@
                     @if (ver_ccu_completo) {
                       <div class="col-md-4">
                         <label class="form-label small fw-bold text-secondary">
-                          Sup. Total
+                          Sup. Total (parcela)
                         </label>
                         <div class="input-group">
                           <input
@@ -770,7 +816,7 @@
                       </div>
                       <div class="col-md-4">
                         <label class="form-label small fw-bold text-secondary">
-                          Sup. Const.
+                          Sup. Const. (vivienda)
                         </label>
                         <div class="input-group">
                           <input
@@ -787,7 +833,7 @@
                       </div>
                       <div class="col-md-4">
                         <label class="form-label small fw-bold text-secondary">
-                          Sup. Útil
+                          Sup. Útil (vivienda)
                         </label>
                         <div class="input-group">
                           <input
@@ -1217,7 +1263,7 @@
                     </div>
                     <div class="col-md-6">
                       <label class="form-label small fw-bold text-secondary">
-                        Nº Arrendatarios
+                        Nº Arrendatarios (habitaciones x2)
                       </label>
                       <input
                         type="number"
@@ -1562,43 +1608,53 @@
                 seleccionar qué documentos generar.
               </div>
             } @else {
-              <div class="d-flex flex-column gap-3 mt-4">
-                <div class="card shadow-sm border-light">
-                  <div
-                    class="card-body d-flex align-items-center justify-content-between p-3"
-                  >
-                    <div class="d-flex align-items-center">
-                      <lucide-icon
-                        [img]="icons_gestor.FileText"
-                        class="text-danger me-3"
-                        size="32"
-                      ></lucide-icon>
-                      <div>
-                        <h4 class="h6 fw-bold mb-0">
-                          Autoliquidaciones y Trámites
-                        </h4>
-                        <p class="small text-muted mb-0">
-                          Incluye todos los enlaces a los pagos y a los trámites
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      (click)="
-                        generarDocumentoRepresentacionCCU2ocu(
-                          'del Certificado de Compatibilidad Urbanística para vivienda turística'
-                        )
-                      "
-                      class="btn btn-dark btn-sm d-flex align-items-center"
-                    >
-                      <lucide-icon
-                        [img]="icons_gestor.Download"
-                        size="16"
-                        class="me-2"
-                      ></lucide-icon>
-                      Descargar documento
-                    </button>
+              <div class="d-flex flex-column gap-4 mt-4">
+                @if (datosGlobales_gestor.servicio_seleccion_ccu) {
+                  <div class="section-header-styled mt-0 mb-0">
+                    <lucide-icon
+                      [img]="icons_gestor.FileText"
+                      size="20"
+                    ></lucide-icon>
+                    CCU
                   </div>
-                </div>
+                  <div class="card shadow-sm border-light">
+                    <div
+                      class="card-body d-flex align-items-center justify-content-between p-3"
+                    >
+                      <div class="d-flex align-items-center">
+                        <lucide-icon
+                          [img]="icons_gestor.FileText"
+                          class="text-danger me-3"
+                          size="32"
+                        ></lucide-icon>
+                        <div>
+                          <h4 class="h6 fw-bold mb-0">
+                            Autoliquidaciones y Trámites
+                          </h4>
+                          <p class="small text-muted mb-0">
+                            Incluye todos los enlaces a los pagos y a los
+                            trámites
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        (click)="
+                          generarDocumentoRepresentacionCCU2ocu(
+                            'del Certificado de Compatibilidad Urbanística para vivienda turística'
+                          )
+                        "
+                        class="btn btn-dark btn-sm d-flex align-items-center"
+                      >
+                        <lucide-icon
+                          [img]="icons_gestor.Download"
+                          size="16"
+                          class="me-2"
+                        ></lucide-icon>
+                        Descargar documento
+                      </button>
+                    </div>
+                  </div>
+                }
                 @if (datosGlobales_gestor.servicio_seleccion_ccu) {
                   <div class="card shadow-sm border-light">
                     <div
@@ -1667,6 +1723,13 @@
                 @if (
                   datosGlobales_gestor.servicio_seleccion_segunda_ocupacion
                 ) {
+                  <div class="section-header-styled mt-0 mb-0">
+                    <lucide-icon
+                      [img]="icons_gestor.FileText"
+                      size="20"
+                    ></lucide-icon>
+                    2ª Ocupación
+                  </div>
                   <div class="card shadow-sm border-light">
                     <div
                       class="card-body d-flex align-items-center justify-content-between p-3"
@@ -1825,6 +1888,13 @@
                   </div>
                 }
                 @if (datosGlobales_gestor.servicio_seleccion_cee) {
+                  <div class="section-header-styled mt-0 mb-0">
+                    <lucide-icon
+                      [img]="icons_gestor.FileText"
+                      size="20"
+                    ></lucide-icon>
+                    CEE
+                  </div>
                   <div class="card shadow-sm border-light">
                     <div
                       class="card-body d-flex align-items-center justify-content-between p-3"
@@ -1881,6 +1951,13 @@
                   </div>
                 }
                 @if (datosGlobales_gestor.servicio_seleccion_registro_vt) {
+                  <div class="section-header-styled mt-0 mb-0">
+                    <lucide-icon
+                      [img]="icons_gestor.FileText"
+                      size="20"
+                    ></lucide-icon>
+                    VT
+                  </div>
                   <div class="card shadow-sm border-light">
                     <div
                       class="card-body d-flex align-items-center justify-content-between p-3"
@@ -1914,6 +1991,13 @@
                   </div>
                 }
                 @if (datosGlobales_gestor.servicio_seleccion_nra) {
+                  <div class="section-header-styled mt-0 mb-0">
+                    <lucide-icon
+                      [img]="icons_gestor.FileText"
+                      size="20"
+                    ></lucide-icon>
+                    NRA
+                  </div>
                   <div class="card shadow-sm border-light">
                     <div
                       class="card-body d-flex align-items-center justify-content-between p-3"

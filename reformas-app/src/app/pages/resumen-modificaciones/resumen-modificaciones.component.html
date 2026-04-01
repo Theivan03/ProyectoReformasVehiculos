@@ -2594,7 +2594,7 @@
                       !isRefuerzoUbicacionSelected(mod, "trasero")
                     ) {
                       <div class="text-danger small mt-1">
-                        Debes seleccionar al menos una ubicaciÃ³n.
+                        Debes seleccionar al menos una ubicación.
                       </div>
                     }
                   </div>
@@ -8435,37 +8435,71 @@
 
                   <div class="col-md-4">
                     <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="marcaPeldano-{{ i }}"
-                        placeholder="Marca"
-                        [(ngModel)]="mod.marcaPeldano"
-                        name="marcaPeldano{{ i }}"
+                      <select
+                        class="form-select"
+                        id="tipoFabricacionPeldanos-{{ i }}"
+                        [(ngModel)]="mod.tipoFabricacionPeldanos"
+                        name="tipoFabricacionPeldanos{{ i }}"
                         required
-                        [class.is-invalid]="formSubmitted && !mod.marcaPeldano"
-                      />
-                      <label for="marcaPeldano-{{ i }}">MARCA</label>
+                        [class.is-invalid]="
+                          formSubmitted && !mod.tipoFabricacionPeldanos
+                        "
+                      >
+                        <option [ngValue]="null" disabled>
+                          -- SELECCIONAR --
+                        </option>
+                        <option value="marcaReferencia">
+                          MARCA Y REFERENCIA
+                        </option>
+                        <option value="artesanal">ARTESANAL</option>
+                      </select>
+                      <label for="tipoFabricacionPeldanos-{{ i }}"
+                        >TIPO DE FABRICACIÓN</label
+                      >
                     </div>
                   </div>
 
-                  <div class="col-md-4">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="referenciaPeldanos-{{ i }}"
-                        placeholder="Referencia"
-                        [(ngModel)]="mod.referenciaPeldanos"
-                        name="referenciaPeldanos{{ i }}"
-                        required
-                        [class.is-invalid]="
-                          formSubmitted && !mod.referenciaPeldanos
-                        "
-                      />
-                      <label for="referenciaPeldanos-{{ i }}">REFERENCIA</label>
+                  @if (mod.tipoFabricacionPeldanos === "marcaReferencia") {
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="marcaPeldano-{{ i }}"
+                          placeholder="Marca"
+                          [(ngModel)]="mod.marcaPeldano"
+                          name="marcaPeldano{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.tipoFabricacionPeldanos === 'marcaReferencia' &&
+                            !mod.marcaPeldano
+                          "
+                        />
+                        <label for="marcaPeldano-{{ i }}">MARCA</label>
+                      </div>
                     </div>
-                  </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="referenciaPeldanos-{{ i }}"
+                          placeholder="Referencia"
+                          [(ngModel)]="mod.referenciaPeldanos"
+                          name="referenciaPeldanos{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.tipoFabricacionPeldanos === 'marcaReferencia' &&
+                            !mod.referenciaPeldanos
+                          "
+                        />
+                        <label for="referenciaPeldanos-{{ i }}">REFERENCIA</label>
+                      </div>
+                    </div>
+                  }
 
                   <div class="col-md-4">
                     <div class="form-floating">
@@ -8493,6 +8527,14 @@
                         id="medidasPeldano-{{ i }}"
                         placeholder="Medidas"
                         [(ngModel)]="mod.medidasPeldano"
+                        (ngModelChange)="
+                          onDimensionesChange(
+                            mod,
+                            'medidasPeldano',
+                            'anchuraPiezaMPeldanos',
+                            'alturaPiezaMPeldanos'
+                          )
+                        "
                         name="medidasPeldano{{ i }}"
                         required
                         [class.is-invalid]="
@@ -8562,21 +8604,289 @@
                     </div>
                   }
 
-                  <div class="form-floating">
-                    <input
-                      type="number"
-                      step="1"
-                      min="0"
-                      class="form-control"
-                      placeholder="R"
-                      [(ngModel)]="mod.radioCurvaRPeldanos"
-                      name="radioCurvaRPeldanos{{ i }}"
-                      required
-                      [class.is-invalid]="
-                        formSubmitted && mod.radioCurvaRPeldanos == null
-                      "
-                    />
-                    <label>R (m)</label>
+                  <div class="col-12 mt-4">
+                    <h6
+                      class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                    >
+                      Características de la Pieza
+                    </h6>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="Peso"
+                        [(ngModel)]="mod.pesoPiezaKgPeldanos"
+                        name="pesoPiezaKgPeldanos{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.pesoPiezaKgPeldanos == null
+                        "
+                      />
+                      <label>PESO (Kg)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="Ancho"
+                        [(ngModel)]="mod.anchuraPiezaMPeldanos"
+                        name="anchuraPiezaMPeldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted && mod.anchuraPiezaMPeldanos == null
+                        "
+                      />
+                      <label>ANCHO (m)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="Alto"
+                        [(ngModel)]="mod.alturaPiezaMPeldanos"
+                        name="alturaPiezaMPeldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted && mod.alturaPiezaMPeldanos == null
+                        "
+                      />
+                      <label>ALTO (m)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="R"
+                        [(ngModel)]="mod.radioCurvaRPeldanos"
+                        name="radioCurvaRPeldanos{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.radioCurvaRPeldanos == null
+                        "
+                      />
+                      <label>R (m)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 mt-4">
+                    <h6
+                      class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                    >
+                      Cálculo Resistencia (Presión Aire)
+                    </h6>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="Cw"
+                        [(ngModel)]="mod.coefAerodinamicoPeldanos"
+                        name="coefAerodinamicoPeldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted && mod.coefAerodinamicoPeldanos == null
+                        "
+                      />
+                      <label>Cw (COEF.)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.0001"
+                        min="0"
+                        class="form-control"
+                        placeholder="Densidad"
+                        [(ngModel)]="mod.densidadAireKgM3Peldanos"
+                        name="densidadAireKgM3Peldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted && mod.densidadAireKgM3Peldanos == null
+                        "
+                      />
+                      <label>p (DENSIDAD)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="V2"
+                        [(ngModel)]="mod.velocidadAireV2msPeldanos"
+                        name="velocidadAireV2msPeldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted &&
+                          mod.velocidadAireV2msPeldanos == null
+                        "
+                      />
+                      <label>V₂ (m/s)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="K"
+                        [(ngModel)]="mod.coefSeguridadKPeldanos"
+                        name="coefSeguridadKPeldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted && mod.coefSeguridadKPeldanos == null
+                        "
+                      />
+                      <label>K (SEGURIDAD)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 mt-4">
+                    <h6
+                      class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                    >
+                      Datos de Sujeción
+                    </h6>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        min="0"
+                        class="form-control"
+                        placeholder="Nº"
+                        [(ngModel)]="mod.nTornillosPeldanos"
+                        name="nTornillosPeldanos{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.nTornillosPeldanos == null
+                        "
+                      />
+                      <label>Nº TORNILLOS</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <select
+                        class="form-select"
+                        [(ngModel)]="mod.metricaPeldanos"
+                        (ngModelChange)="onMetricaChange(mod)"
+                        name="metricaPeldanos{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && mod.metricaPeldanos == null
+                        "
+                      >
+                        <option [ngValue]="null" disabled selected>
+                          -- SELECCIONAR --
+                        </option>
+                        @for (num of metricasTornillos; track num) {
+                          <option [value]="num">{{ num }}</option>
+                        }
+                      </select>
+                      <label>MÉTRICA TORNILLOS</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.1"
+                        class="form-control"
+                        placeholder="Calidad"
+                        [(ngModel)]="mod.calidadTornilloPeldanos"
+                        name="calidadTornilloPeldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted && mod.calidadTornilloPeldanos == null
+                        "
+                      />
+                      <label>CALIDAD TORNILLO</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="As"
+                        [(ngModel)]="mod.seccionResistenteAsPeldanos"
+                        name="seccionResistenteAsPeldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted &&
+                          mod.seccionResistenteAsPeldanos == null
+                        "
+                      />
+                      <label>As (SECCIÓN)</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="form-control"
+                        placeholder="Resistencia"
+                        [(ngModel)]="mod.resTraccionMinTornillo88Kgmm2Peldanos"
+                        name="resTraccionMinTornillo88Kgmm2Peldanos{{ i }}"
+                        required
+                        readonly
+                        [class.is-invalid]="
+                          formSubmitted &&
+                          mod.resTraccionMinTornillo88Kgmm2Peldanos == null
+                        "
+                      />
+                      <label>RESISTENCIA TRACCIÓN MÍN. (Kg/mm²)</label>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -19205,7 +19515,7 @@
                           <h6
                             class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-0"
                           >
-                            CÃ¡lculo de Fijaciones
+                            Cálculo de Fijaciones
                           </h6>
                         </div>
 
@@ -19250,7 +19560,7 @@
                                 <option [value]="num">{{ num }}</option>
                               }
                             </select>
-                            <label>MÃ‰TRICA TORNILLOS</label>
+                            <label>MÉTRICA TORNILLOS</label>
                           </div>
                         </div>
 
@@ -19260,7 +19570,7 @@
                               type="number"
                               min="0"
                               class="form-control"
-                              placeholder="NÂº"
+                              placeholder="Nº"
                               [(ngModel)]="claraboyaItem.nTornillos"
                               name="nTornillosClaraboya{{ i }}-{{ j }}"
                               required
@@ -19269,7 +19579,7 @@
                                 claraboyaItem.nTornillos == null
                               "
                             />
-                            <label>NÂº TORNILLOS</label>
+                            <label>Nº TORNILLOS</label>
                           </div>
                         </div>
 
@@ -19371,7 +19681,7 @@
                                 claraboyaItem.seccionResistenteAs == null
                               "
                             />
-                            <label>As (SECCIÃ“N)</label>
+                            <label>As (SECCIÓN)</label>
                           </div>
                         </div>
 
@@ -19391,7 +19701,7 @@
                               <option [ngValue]="80">80</option>
                               <option [ngValue]="25">25</option>
                             </select>
-                            <label>RESISTENCIA TRACCIÃ“N MÃN. (Kg/mmÂ²)</label>
+                            <label>RESISTENCIA TRACCIÓN MÍN. (Kg/mm²)</label>
                           </div>
                         </div>
 
@@ -19439,7 +19749,7 @@
                               name="velocidadClaraboya{{ i }}-{{ j }}"
                               required
                             />
-                            <label>Vâ‚‚ (m/s)</label>
+                            <label>V₂ (m/s)</label>
                           </div>
                         </div>
 

@@ -247,6 +247,8 @@ export class GestorDocumentacionComponent implements OnInit {
             ...this.datosGlobales_gestor,
             ...vivienda,
           };
+          this.normalizarTitularEmpresa();
+          this.normalizarTiposVia();
           this.normalizarSaneamientoSeleccion();
         }
         this.isLoading = false;
@@ -287,12 +289,27 @@ export class GestorDocumentacionComponent implements OnInit {
     datos[key] = !datos[key];
   }
 
+  public onCambioCheck_gestor(key: string) {
+    if (key === 'check_es_empresa') {
+      this.normalizarTitularEmpresa();
+    }
+  }
+
+  public onCambioTipoVia_gestor(
+    campo: 'titular_tipo_via' | 'vivienda_tipo_via',
+  ) {
+    const datos = this.datosGlobales_gestor as any;
+    if (typeof datos[campo] === 'string') {
+      datos[campo] = datos[campo].toUpperCase();
+    }
+  }
+
   onCambioAlcantarilladoPublico() {
     const datos = this.datosGlobales_gestor;
     if (datos.vivienda_alcantarillado_publico) {
       datos.vivienda_dispone_depuradora_oxidacion_total = false;
     } else if (!datos.vivienda_dispone_depuradora_oxidacion_total) {
-      // Siempre debe haber una opciÃ³n activa
+      // Siempre debe haber una opción activa
       datos.vivienda_alcantarillado_publico = true;
     }
   }
@@ -302,7 +319,7 @@ export class GestorDocumentacionComponent implements OnInit {
     if (datos.vivienda_dispone_depuradora_oxidacion_total) {
       datos.vivienda_alcantarillado_publico = false;
     } else if (!datos.vivienda_alcantarillado_publico) {
-      // Siempre debe haber una opciÃ³n activa
+      // Siempre debe haber una opción activa
       datos.vivienda_dispone_depuradora_oxidacion_total = true;
     }
   }
@@ -469,7 +486,24 @@ export class GestorDocumentacionComponent implements OnInit {
     );
   }
 
+  private normalizarTitularEmpresa() {
+    if (this.datosGlobales_gestor.check_es_empresa) {
+      this.datosGlobales_gestor.titular_apellidos = '';
+    }
+  }
+
+  private normalizarTiposVia() {
+    this.onCambioTipoVia_gestor('titular_tipo_via');
+    this.onCambioTipoVia_gestor('vivienda_tipo_via');
+  }
+
+  private prepararDatosAntesDeSalida() {
+    this.normalizarTitularEmpresa();
+    this.normalizarTiposVia();
+  }
+
   finalizarExpediente_gestor() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
 
     if (this.esModoEdicion && this.idViviendaEditar) {
@@ -553,6 +587,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarDocumentoRepresentacionCCU2ocu(frase: string) {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarRepresentacionCCU2ocu(
@@ -568,6 +603,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarCertificadoSegundaOcupacion() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarCertificadoSegundaOcupacion(
@@ -582,6 +618,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarCertificadoSegundaOcupacionV2() {
+    this.prepararDatosAntesDeSalida();
     console.log(
       'Generando certificado segunda ocupacion V2',
       this.datosGlobales_gestor,
@@ -600,6 +637,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarDocumentoRepresentacionCEE() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarRepresentacionCEE(
@@ -614,6 +652,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarDocumentoActaVisitaCEE() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarActaVisita(this.datosGlobales_gestor);
@@ -626,6 +665,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarDeclaracionTecnico() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarDeclaracionResponsableTecnico(
@@ -640,6 +680,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarMemoriaTecnica() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarMemoriaTecnica(
@@ -654,6 +695,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarAnexoDecretoOcupacion() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarAnexoDecretoOcupacion(
@@ -668,6 +710,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   async generarRegistroVTCoselleria() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarRegistroVTPDF(
@@ -693,6 +736,7 @@ export class GestorDocumentacionComponent implements OnInit {
     }
   }
   async generarGuiaPresentacionTelematica() {
+    this.prepararDatosAntesDeSalida();
     this.isLoading = true;
     try {
       await this.documentoService.generarGuiaPresentacionNRA(

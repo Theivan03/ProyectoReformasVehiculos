@@ -84,15 +84,11 @@ export class CanvaComponent implements OnInit {
     intermitenteDelantero: 'Intermitente delantero',
     intermitenteTrasero: 'Intermitente trasero',
     catadioptrico: 'Catadióptrico',
-    luzMatricula: 'Luz de matrÃ­cula',
+    luzMatricula: 'Luz de matrí­cula',
     luzAntinieblas: 'Luz antinieblas',
     luzFreno: 'Luz de freno',
   };
 
-  /**
-   * Modificaciones que no deben mostrarse en el canva (tabla y numeracion).
-   * Para ampliar en el futuro, anade nombres o reglas en CANVAS_HIDDEN_MOD_RULES.
-   */
   private readonly CANVAS_HIDDEN_MOD_NAMES = [
     'AUMENTO DE PLAZAS',
     'REDUCCION DE PLAZAS',
@@ -144,7 +140,8 @@ export class CanvaComponent implements OnInit {
 
   private isInstalacionElectricaMod(mod: any, normalizedName: string): boolean {
     return (
-      (normalizedName.includes('INSTALACI') && normalizedName.includes('CTRICA')) ||
+      (normalizedName.includes('INSTALACI') &&
+        normalizedName.includes('CTRICA')) ||
       Array.isArray(mod?.placasSolares) ||
       this.hasValue(mod?.cantidadBaterias) ||
       this.hasValue(mod?.potenciaBaterias) ||
@@ -160,7 +157,10 @@ export class CanvaComponent implements OnInit {
     );
   }
 
-  private buildLabelWithModel(prefix: 'Ventana' | 'Claraboya', model: any): string {
+  private buildLabelWithModel(
+    prefix: 'Ventana' | 'Claraboya',
+    model: any,
+  ): string {
     const modelText = (model ?? '').toString().trim();
     return modelText ? `${prefix} ${modelText}` : prefix;
   }
@@ -297,7 +297,7 @@ export class CanvaComponent implements OnInit {
     const ingeniero = this.datosEntrada?.ingeniero || {};
 
     this.nombreIngeniero = ingeniero.nombre;
-    this.numColegiado = 'Col nÂº ' + ingeniero.numero + ' ' + ingeniero.colegio;
+    this.numColegiado = 'Col nº ' + ingeniero.numero + ' ' + ingeniero.colegio;
     this.tituloIngeniero = 'EL ' + ingeniero.titulacion;
 
     if (this.tipoVehiculoAnterior && tipoActual !== this.tipoVehiculoAnterior) {

@@ -7,47 +7,24 @@
     },
     {
       "nombre": "ALERÓN",
-      "seleccionado": false
-    },
-    {
-      "nombre": "LIP DELANTERO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "CANARD",
-      "seleccionado": false
-    },
-    {
-      "nombre": "CAMBIO DE ASIENTOS",
-      "seleccionado": false
-    },
-    {
-      "nombre": "BARRAS ANTIVUELCO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "TECHO SOLAR",
-      "seleccionado": false
-    },
-    {
-      "nombre": "PELDAÑOS",
-      "seleccionado": false
-    },
-    {
-      "nombre": "VENTANA ABATIBLE",
-      "seleccionado": false
-    },
-    {
-      "nombre": "BODY LIFT",
-      "seleccionado": false
-    },
-    {
-      "nombre": "LATIGUILLOS",
-      "seleccionado": false
-    },
-    {
-      "nombre": "MOTOR",
-      "seleccionado": false
+      "seleccionado": true,
+      "coefAerodinamicoCwAleron": 0.82,
+      "velocidadAireV2msAleron": 38.89,
+      "densidadAireKgM3Aleron": 1.29,
+      "coefSeguridadKAleron": 3,
+      "curvaturaAleron": 8,
+      "calidadTornilloAleron": 8.8,
+      "resTraccionMinTornillo88Kgmm2Aleron": 80,
+      "metricaAleron": 4,
+      "seccionResistenteAsAleron": 8.78,
+      "ubicacionAleron": "5",
+      "materialAleron": "5",
+      "pesoAleron": "5",
+      "marcaAleron": "5",
+      "referenciaAleron": "5",
+      "medidasAleron": "5x5",
+      "numTornillosAleron": 5,
+      "superficieFrontalM2Aleron": 0
     },
     {
       "nombre": "ALETINES Y SOBREALETINES",
@@ -63,7 +40,7 @@
     },
     {
       "nombre": "ANTIEMPOTRAMIENTO",
-      "seleccionado": true,
+      "seleccionado": false,
       "seccionResistenteAsAntiempotramiento": 36.64,
       "resTraccionMinTornillo88Kgmm2Antiempotramiento": 80,
       "cwCoefAerodinamicoAntiempotramiento": 0.82,
@@ -104,7 +81,10 @@
     },
     {
       "nombre": "AUMENTO DE PLAZAS",
-      "seleccionado": false
+      "seleccionado": true,
+      "descripcionAumento": "5",
+      "plazasAntesAumento": 5,
+      "plazasDespuesAumento": 5
     },
     {
       "nombre": "BARRA DE DIRECCIÓN",
@@ -119,8 +99,16 @@
       "seleccionado": false
     },
     {
+      "nombre": "BARRAS ANTIVUELCO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "BODY LIFT",
+      "seleccionado": false
+    },
+    {
       "nombre": "CABRESTANTE",
-      "seleccionado": true,
+      "seleccionado": false,
       "metricaCabrestante": 8,
       "tensionMinCortanteKgCm2Cabrestante": 3100,
       "tensionMinCortanteChasisKgCm2Cabrestante": 1948.06,
@@ -146,6 +134,19 @@
       "seleccionado": false
     },
     {
+      "nombre": "CAMBIO DE ASIENTOS",
+      "seleccionado": false
+    },
+    {
+      "nombre": "CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES",
+      "seleccionado": false,
+      "reformasAdicionalesItems": []
+    },
+    {
+      "nombre": "CANARD",
+      "seleccionado": false
+    },
+    {
       "nombre": "DEFENSA DELANTERA",
       "seleccionado": false
     },
@@ -159,7 +160,7 @@
     },
     {
       "nombre": "ESTRIBOS LATERALES O TALONERAS",
-      "seleccionado": true,
+      "seleccionado": false,
       "detalle": {
         "estribosotaloneras": "estribos",
         "anotacionAntideslizante": "2"
@@ -202,6 +203,14 @@
       }
     },
     {
+      "nombre": "LATIGUILLOS",
+      "seleccionado": false
+    },
+    {
+      "nombre": "LIP DELANTERO",
+      "seleccionado": false
+    },
+    {
       "nombre": "LUCES DE LARGO ALCANCE",
       "seleccionado": false
     },
@@ -237,6 +246,10 @@
       }
     },
     {
+      "nombre": "MOTOR",
+      "seleccionado": false
+    },
+    {
       "nombre": "NEUMÁTICOS",
       "seleccionado": false,
       "anotacion1": false,
@@ -253,6 +266,31 @@
     {
       "nombre": "PARAGOLPES TRASERO",
       "seleccionado": false
+    },
+    {
+      "nombre": "PELDAÑOS",
+      "seleccionado": false,
+      "metodoActuacionPeldanos": "manual",
+      "ubicacionAccionamientoPeldanos": "",
+      "referenciaPeldanos": "a",
+      "marcaPeldano": "a",
+      "tipoFabricacionPeldanos": "marcaReferencia",
+      "radioCurvaRPeldanos": 8,
+      "coefAerodinamicoPeldanos": 0.82,
+      "densidadAireKgM3Peldanos": 1.29,
+      "velocidadAireV2msPeldanos": 38.89,
+      "coefSeguridadKPeldanos": 3,
+      "resTraccionMinTornillo88Kgmm2Peldanos": 80,
+      "seccionResistenteAsPeldanos": 36.64,
+      "calidadTornilloPeldanos": 8.8,
+      "zonaPeldano": "a",
+      "materialPeldano": "a",
+      "medidasPeldano": "200x800",
+      "anchuraPiezaMPeldanos": 0.2,
+      "alturaPiezaMPeldanos": 0.8,
+      "pesoPiezaKgPeldanos": 5,
+      "nTornillosPeldanos": 8,
+      "metricaPeldanos": 8
     },
     {
       "nombre": "PILOTO TRASERO",
@@ -282,7 +320,10 @@
     },
     {
       "nombre": "REDUCCIÓN DE PLAZAS",
-      "seleccionado": false
+      "seleccionado": true,
+      "enclaje": "5",
+      "plazasAntes": 5,
+      "plazasDespues": 5
     },
     {
       "nombre": "REFUERZO PARAGOLPES",
@@ -302,7 +343,26 @@
     },
     {
       "nombre": "SNORKEL",
-      "seleccionado": false
+      "seleccionado": false,
+      "curvaturaSnorkel": 8,
+      "cwCoefAerodinamicoSnorkel": 0.82,
+      "densidadAireKgM3Snorkel": 1.29,
+      "velocidadAireV2msSnorkel": 38.89,
+      "coefSeguridadKSnorkel": 3,
+      "resTraccionMinTornillo88Kgmm2Snorkel": 80,
+      "seccionResistenteAsSnorkel": 36.64,
+      "calidadTornilloSnorkel": 8.8,
+      "acciones": [
+        "Instalación"
+      ],
+      "marcaSnorkel": "a",
+      "materialSnorkel": "goma",
+      "medidasSnorkel": "200x800",
+      "anchuraPiezaMSnorkel": 0.2,
+      "alturaPiezaMSnorkel": 0.8,
+      "metricaSnorkel": "8",
+      "pesoPiezaKgSnorkel": 5,
+      "nTornillosSnorkel": 8
     },
     {
       "nombre": "SOPORTE PARA RUEDA DE REPUESTO",
@@ -333,6 +393,10 @@
       "seleccionado": false
     },
     {
+      "nombre": "TECHO SOLAR",
+      "seleccionado": false
+    },
+    {
       "nombre": "TODA LA CASUÍSTICA DE MUELLES, BALLESTAS Y AMORTIGUADORES QUE SE PUEDEN DAR",
       "seleccionado": false,
       "anotacion": "",
@@ -350,9 +414,8 @@
       }
     },
     {
-      "nombre": "CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES",
-      "seleccionado": false,
-      "reformasAdicionalesItems": []
+      "nombre": "VENTANA ABATIBLE",
+      "seleccionado": false
     },
     {
       "nombre": "VENTANA LATERAL",
@@ -426,8 +489,8 @@
   "mmrsinfrenos": 0,
   "cargavertical": 0,
   "clasificacionAntes": "---",
-  "plazasDespues": 0,
-  "plazasAntes": 0,
+  "plazasDespues": "3",
+  "plazasAntes": "5",
   "longitudDespues": 0,
   "anchuraDespues": 0,
   "alturaDespues": 0,
@@ -507,10 +570,10 @@
   },
   "marcadores": [
     {
-      "x": 0.340547703180212,
+      "x": 0.33524734982332155,
       "y": 0.31740265237020315,
       "label": "1",
-      "etiqueta": "ANTIEMPOTRAMIENTO"
+      "etiqueta": "ALERÓN"
     }
   ],
   "fechaFirma": "Teulada, 5 de marzo de 2026",

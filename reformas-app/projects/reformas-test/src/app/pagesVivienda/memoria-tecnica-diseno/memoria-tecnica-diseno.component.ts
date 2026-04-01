@@ -82,13 +82,17 @@ export class MemoriaTecnicaDisenoComponent {
   datos = {
     id: null,
     tipoMemoria: 'consumo',
-    // NUEVO: Control de direcciÃ³n
+    // NUEVO: Control de dirección
     mismaDireccion: false, // Por defecto false (pide las dos)
 
     titular: {
       nombre: '',
       apellidos: '',
       nif: '',
+      tieneRepresentante: false,
+      representanteNombre: '',
+      representanteApellidos: '',
+      representanteDniNie: '',
       domicilio: '',
       cp: '',
       poblacion: '',
@@ -185,9 +189,9 @@ export class MemoriaTecnicaDisenoComponent {
     });
   }
 
-  // ðŸ”¥ LÃ“GICA DE NAVEGACIÃ“N MODIFICADA
+  // LÓGICA DE NAVEGACIÓN MODIFICADA
   avanzarPaso() {
-    // Si estamos en Paso 1 y es la misma direcciÃ³n, saltamos el Paso 2 (Emplazamiento)
+    // Si estamos en Paso 1 y es la misma dirección, saltamos el Paso 2 (Emplazamiento)
     if (this.pasoActual === 1 && this.datos.mismaDireccion) {
       this.pasoActual = 3;
     } else if (this.pasoActual < this.totalPasos) {
@@ -196,7 +200,7 @@ export class MemoriaTecnicaDisenoComponent {
   }
 
   retrocederPaso() {
-    // Si estamos en Paso 3 y es la misma direcciÃ³n, volvemos al Paso 1
+    // Si estamos en Paso 3 y es la misma dirección, volvemos al Paso 1
     if (this.pasoActual === 3 && this.datos.mismaDireccion) {
       this.pasoActual = 1;
     } else if (this.pasoActual > 1) {
@@ -296,14 +300,14 @@ export class MemoriaTecnicaDisenoComponent {
         this.isSaving = false;
         if (response.id) {
           this.datos.id = response.id; // Guardamos el ID por si le da a guardar otra vez (para editar)
-          alert('âœ… Datos guardados correctamente en el servidor.');
+          alert('Datos guardados correctamente en el servidor.');
         }
       },
       error: (error) => {
         this.isSaving = false;
         console.error('Error al guardar:', error);
         alert(
-          'âŒ Error al conectar con el servidor. Revisa que estÃ© encendido.',
+          'Error al conectar con el servidor. Revisa que esté encendido.',
         );
       },
     });
@@ -347,7 +351,7 @@ export class MemoriaTecnicaDisenoComponent {
         return;
       }
       const urlCuadroH = '/assets/cuadro.jpg';
-      const urlPlanoI = '/assets/plano emplazamiento.png'; // ðŸ”¥ IMAGEN SECCIÃ“N I
+      const urlPlanoI = '/assets/plano emplazamiento.png'; // Imagen sección I
 
       const [existingPdfBytes, esquemaFBytes, cuadroHBytes, planoIBytes] =
         await Promise.all([
@@ -360,10 +364,10 @@ export class MemoriaTecnicaDisenoComponent {
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       const form = pdfDoc.getForm();
 
-      // Fuente EstÃ¡ndar (Estilo tÃ©cnico/mÃ¡quina)
+      // Fuente estándar (estilo técnico/máquina)
       const fontHand = await pdfDoc.embedFont(StandardFonts.CourierBoldOblique);
 
-      // Incrustar imÃ¡genes
+      // Incrustar imágenes
       let esquemaImageF;
       try {
         esquemaImageF = await pdfDoc.embedPng(esquemaFBytes);
@@ -411,6 +415,18 @@ export class MemoriaTecnicaDisenoComponent {
         this.datos.titular.nif,
       );
       setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_REP_NOM[0]',
+        this.datos.titular.tieneRepresentante
+          ? this.construirNombreRepresentanteParaDocumento()
+          : '',
+      );
+      setField(
+        'form1[0].Pagina1[0].seccion\\.a[0].A_REP_NIF[0]',
+        this.datos.titular.tieneRepresentante
+          ? this.datos.titular.representanteDniNie
+          : '',
+      );
+      setField(
         'form1[0].Pagina1[0].seccion\\.a[0].A_TIT_DOM[0]',
         this.datos.titular.domicilio,
       );
@@ -445,7 +461,7 @@ export class MemoriaTecnicaDisenoComponent {
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_TEL[0]',
-        this.datos.emplazamiento.cups,
+        this.datos.titular.telefono,
       );
       setField(
         'form1[0].Pagina1[0].seccion\\.b[0].B_PROV[0]',
@@ -525,7 +541,7 @@ export class MemoriaTecnicaDisenoComponent {
       const page5 = pages[4];
       const { width, height } = page5.getSize();
 
-      // 1. ESQUEMA UNIFILAR (SecciÃ³n F)
+      // 1. ESQUEMA UNIFILAR (Sección F)
       const esquemaDims = esquemaImageF.scaleToFit(520, 150);
       page5.drawImage(esquemaImageF, {
         x: width / 2 - esquemaDims.width / 2,
@@ -534,7 +550,7 @@ export class MemoriaTecnicaDisenoComponent {
         height: esquemaDims.height,
       });
 
-      // 2. CROQUIS TRAZADO (SecciÃ³n H - Imagen JPG)
+      // 2. CROQUIS TRAZADO (Sección H - Imagen JPG)
       const cuadroDims = cuadroImageH.scaleToFit(480, 110);
       page5.drawImage(cuadroImageH, {
         x: width / 2 - cuadroDims.width / 2,
@@ -543,7 +559,7 @@ export class MemoriaTecnicaDisenoComponent {
         height: cuadroDims.height,
       });
 
-      // 3. PLANO EMPLAZAMIENTO (SecciÃ³n I - Imagen PNG + Texto Superpuesto)
+      // 3. PLANO EMPLAZAMIENTO (Sección I - Imagen PNG + Texto Superpuesto)
       const planoDims = planoImageI.scaleToFit(350, 150);
       const iX = width / 2 - planoDims.width / 2;
       const iY = 75;
@@ -612,6 +628,13 @@ export class MemoriaTecnicaDisenoComponent {
   private construirNombreTitularParaDocumento(): string {
     const apellidos = (this.datos.titular.apellidos || '').trim();
     const nombre = (this.datos.titular.nombre || '').trim();
+
+    return [apellidos, nombre].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+  }
+
+  private construirNombreRepresentanteParaDocumento(): string {
+    const apellidos = (this.datos.titular.representanteApellidos || '').trim();
+    const nombre = (this.datos.titular.representanteNombre || '').trim();
 
     return [apellidos, nombre].filter(Boolean).join(' ').replace(/\s+/g, ' ');
   }

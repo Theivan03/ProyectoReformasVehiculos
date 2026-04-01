@@ -413,7 +413,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
           this.debeEjecutarAutoDownload(id, autoDownloadToken)
         ) {
           this.autoDownloadYaEjecutado = true;
-          setTimeout(() => this.generarPDF(), 0);
+          setTimeout(() => this.generarPDFIDs(), 0);
         }
       },
       error: (err) => {
@@ -2285,7 +2285,11 @@ export class MemoriaTecnicaAutoconsumoComponent {
       const blobDocumentoPdf = new Blob([documentoFinalBytesPdf as any], {
         type: 'application/pdf',
       });
-      saveAs(blobDocumentoPdf, 'MAPEO_CAMPOS_MTDAC.pdf');
+      const titularNombreDocumento = this.construirNombreTitularParaDocumento();
+      saveAs(
+        blobDocumentoPdf,
+        `MTD_${titularNombreDocumento || 'Documento'}.pdf`,
+      );
     } catch (errorGeneracionPdf) {
       alert('Error al generar el documento.');
     } finally {
@@ -3074,7 +3078,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
     documentXml = documentXml
       .replace('CONSTRUCCIONES JUST SA', this.escaparXml(titularManual))
       .replace(
-        'AVENIDA LLAURADOR, 31-5, 1Âº 2',
+        'AVENIDA LLAURADOR, 31-5, 1º 2',
         this.escaparXml(direccionManual),
       )
       .replace('46780', this.escaparXml(cpManual))

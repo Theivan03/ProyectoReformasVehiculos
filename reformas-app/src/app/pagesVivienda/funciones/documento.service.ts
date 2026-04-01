@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import {
   Document,
   Packer,
@@ -37,6 +37,30 @@ export class DocumentoService {
     return await blob.arrayBuffer();
   }
 
+  private limpiarNombreArchivo(valor: any): string {
+    if (valor === null || valor === undefined) return '';
+    return String(valor)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .replace(/_+/g, '_');
+  }
+
+  private construirNombreArchivo(
+    partes: Array<string | null | undefined>,
+    extension: 'docx' | 'pdf',
+  ): string {
+    const partesLimpias = partes
+      .map((parte) => this.limpiarNombreArchivo(parte))
+      .filter(Boolean);
+
+    const nombreBase =
+      partesLimpias.length > 0 ? partesLimpias.join('_') : 'Documento';
+
+    return `${nombreBase}.${extension}`;
+  }
+
   async generarCertificadoSegundaOcupacionV2(datos: any): Promise<void> {
     const response = await fetch('assets/logo.png');
     const imageBuffer = await response.arrayBuffer();
@@ -44,8 +68,8 @@ export class DocumentoService {
     const logoImage = new ImageRun({
       data: imageBuffer,
       transformation: {
-        width: 175,
-        height: 75,
+        width: 150,
+        height: 64,
       },
       type: 'png',
     });
@@ -163,6 +187,49 @@ export class DocumentoService {
       const font = 'Arial';
       const size = 22; // 11pt
       const lineSpacing = 360; // 1.5 líneas
+      const parrafosDistribucion =
+        listaPlantas_vivienda.length > 0
+          ? [
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 120 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({
+                    text: 'Que la vivienda se distribuye en:',
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+              ...listaPlantas_vivienda.map(
+                (planta: any) =>
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    spacing: { line: lineSpacing, after: 120 },
+                    indent: { left: 1080 },
+                    children: [
+                      new TextRun({
+                        text: `- ${planta.tipo}: compuesta de ${planta.descripcion}.`,
+                        font,
+                        size,
+                      }),
+                    ],
+                  }),
+              ),
+            ]
+          : [
+              new Paragraph({
+                alignment: AlignmentType.JUSTIFIED,
+                spacing: { line: lineSpacing, after: 200 },
+                indent: { left: 720, hanging: 360 },
+                children: [
+                  new TextRun({ text: '- ', font, size, bold: true }),
+                  new TextRun({ text: descripcionDistribucion, font, size }),
+                ],
+              }),
+            ];
 
       // Definición del Header (Logo y contacto)
       const headerContent = new Table({
@@ -219,7 +286,7 @@ export class DocumentoService {
 
               // Columna 2
               new TableCell({
-                width: { size: 60, type: WidthType.PERCENTAGE },
+                width: { size: 58, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 100, right: 100 },
                 children: [
@@ -238,9 +305,9 @@ export class DocumentoService {
 
               // Columna 3
               new TableCell({
-                width: { size: 20, type: WidthType.PERCENTAGE },
+                width: { size: 22, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                margins: { top: 100, bottom: 100, left: 60, right: 220 },
                 children: [
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
@@ -465,12 +532,10 @@ export class DocumentoService {
                 children: [
                   new TextRun({ text: '- ', font, size, bold: true }),
                   new TextRun({
-                    text: 'Que tiene una superficie construida, con inclusión de su participación en elementos comunes de ',
-                    font,
-                    size,
-                  }),
-                  new TextRun({
-                    text: supConstruida + ' m².',
+                    text:
+                      'Que tiene una superficie útil de ' +
+                      datos.vivienda_superficie_util +
+                      ' m².',
                     font,
                     size,
                   }),
@@ -478,15 +543,7 @@ export class DocumentoService {
               }),
 
               // 7. Distribución
-              new Paragraph({
-                alignment: AlignmentType.JUSTIFIED,
-                spacing: { line: lineSpacing, after: 200 },
-                indent: { left: 720, hanging: 360 },
-                children: [
-                  new TextRun({ text: '- ', font, size, bold: true }),
-                  new TextRun({ text: descripcionDistribucion, font, size }),
-                ],
-              }),
+              ...parrafosDistribucion,
 
               // 8. Antigüedad y Legalidad
               new Paragraph({
@@ -537,98 +594,11 @@ export class DocumentoService {
               new Paragraph({
                 alignment: AlignmentType.JUSTIFIED,
                 spacing: { line: lineSpacing, after: 400 },
-                pageBreakBefore: true,
                 children: [
                   new TextRun({
                     text: 'Y para que conste, se firma el presente Certificado Técnico a los efectos de tramitación de la Licencia Municipal de Ocupación, según lo establecido en el artículo 34 de la Ley 3/2004 de 30 de junio, de la Generalitat Valenciana, de Ordenación y Fomento de la Calidad en la Edificación.',
                     font,
                     size,
-                  }),
-                ],
-              }),
-
-              // --- RECUADRO DECLARACIÓN RESPONSABLE (Página 2 forzada o natural) ---
-              // Usamos una Tabla con bordes simples para crear el recuadro
-              new Table({
-                width: { size: 100, type: WidthType.PERCENTAGE },
-                rows: [
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        borders: {
-                          top: { style: BorderStyle.SINGLE, size: 4 }, // Borde negro estándar
-                          bottom: { style: BorderStyle.SINGLE, size: 4 },
-                          left: { style: BorderStyle.SINGLE, size: 4 },
-                          right: { style: BorderStyle.SINGLE, size: 4 },
-                        },
-                        margins: {
-                          top: 200,
-                          bottom: 200,
-                          left: 200,
-                          right: 200,
-                        },
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.JUSTIFIED,
-                            spacing: { after: 200 },
-                            children: [
-                              new TextRun({
-                                text: 'EL PRESENTE TRABAJO NO ESTÁ INCLUIDO EN NINGUNO DE LOS CASOS DEL ARTÍCULO 2 DEL REAL DECRETO 1000/2010, DE 5 DE AGOSTO, SOBRE VISADO COLEGIAL OBLIGATORIO. ',
-                                font,
-                                size,
-                              }),
-                              new TextRun({
-                                text: 'Declaro bajo mi responsabilidad que:',
-                                font,
-                                size,
-                              }),
-                            ],
-                          }),
-                          // Ítem 1 del recuadro con guion
-                          new Paragraph({
-                            alignment: AlignmentType.JUSTIFIED,
-                            spacing: { after: 100 },
-                            indent: { left: 300, hanging: 300 },
-                            children: [
-                              new TextRun({ text: '-', font, size }),
-                              new TextRun({
-                                text: `Poseo la titulación de ${tituloTecnico}. Estando colegiado con número ${numColegiado} en ${colegioTecnico}`,
-                                font,
-                                size,
-                              }),
-                            ],
-                          }),
-                          // Ítem 2 del recuadro con guion
-                          new Paragraph({
-                            alignment: AlignmentType.JUSTIFIED,
-                            spacing: { after: 100 },
-                            indent: { left: 300, hanging: 300 },
-                            children: [
-                              new TextRun({ text: '-', font, size }),
-                              new TextRun({
-                                text: 'De acuerdo con las atribuciones profesionales de esta titulación, tengo competencia para la redacción y firma de la presente Certificado Técnico.',
-                                font,
-                                size,
-                              }),
-                            ],
-                          }),
-                          // Ítem 3 del recuadro con guion
-                          new Paragraph({
-                            alignment: AlignmentType.JUSTIFIED,
-                            spacing: { after: 100 },
-                            indent: { left: 300, hanging: 300 },
-                            children: [
-                              new TextRun({ text: '-', font, size }),
-                              new TextRun({
-                                text: 'No estoy Inhabilitado, ni administrativamente ni judicialmente, para la redacción/firma/dirección del presente trabajo profesional.',
-                                font,
-                                size,
-                              }),
-                            ],
-                          }),
-                        ],
-                      }),
-                    ],
                   }),
                 ],
               }),
@@ -671,8 +641,17 @@ export class DocumentoService {
 
       // --- 3. DESCARGA ---
       const blob = await Packer.toBlob(doc);
-      const nombreArchivoClean = nombreCliente.replace(/[^a-zA-Z0-9]/g, '_');
-      saveAs(blob, `Certificado_Segunda_Ocupacion_${nombreArchivoClean}.docx`);
+      saveAs(
+        blob,
+        this.construirNombreArchivo(
+          [
+            'SEGUNDA_OCUPACION',
+            'CERTIFICADO_HABITABILIDAD_LARGO',
+            nombreCliente,
+          ],
+          'docx',
+        ),
+      );
     } catch (error) {
       console.error('Error generando Certificado:', error);
     }
@@ -690,7 +669,10 @@ export class DocumentoService {
       ).toUpperCase();
       const tituloTecnico = tecnico.titulo || 'Arquitecto Técnico';
       const numColegiado = tecnico.numColegiado || tecnico.numero || '.......';
-      const colegioTecnico = tecnico.universidad;
+      const colegioTecnico =
+        tecnico.colegio ||
+        tecnico.universidad ||
+        'Colegio Oficial de Arquitectos Técnicos de Alicante';
 
       const nombreCliente =
         `${datos.titular_nombre} ${datos.titular_apellidos}`.toUpperCase();
@@ -908,10 +890,28 @@ export class DocumentoService {
 
               new Paragraph({
                 alignment: AlignmentType.CENTER,
-                spacing: { after: 1200 },
+                spacing: { before: 600, after: 1700 },
                 children: [
                   new TextRun({
-                    text: `${municipioFirma}, ${fechaTexto}`,
+                    text: `En ${municipioFirma}, a ${fechaTexto}`,
+                    font,
+                    size,
+                  }),
+                ],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: nombreTecnico, font, size })],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [new TextRun({ text: tituloTecnico, font, size })],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: `Col. ${numColegiado} en ${colegioTecnico}`,
                     font,
                     size,
                   }),
@@ -923,8 +923,17 @@ export class DocumentoService {
       });
 
       const blob = await Packer.toBlob(doc);
-      const nombreArchivoClean = nombreCliente.replace(/[^a-zA-Z0-9]/g, '_');
-      saveAs(blob, `Certificado_Segunda_Ocupacion_${nombreArchivoClean}.docx`);
+      saveAs(
+        blob,
+        this.construirNombreArchivo(
+          [
+            'SEGUNDA_OCUPACION',
+            'CERTIFICADO_HABITABILIDAD_CORTO',
+            nombreCliente,
+          ],
+          'docx',
+        ),
+      );
     } catch (error) {
       console.error('Error generando Certificado 2ª Ocupación:', error);
     }
@@ -973,6 +982,26 @@ export class DocumentoService {
         domicilioCompleto =
           datos.vivienda_direccion_completa ||
           '..........................................................................................';
+      }
+
+      let domicilioTitularCompleto =
+        '..........................................................................................';
+      if (datos.titular_nombre_via) {
+        domicilioTitularCompleto = `${datos.titular_tipo_via} ${datos.titular_nombre_via}`;
+        if (datos.titular_numero)
+          domicilioTitularCompleto += `, Nº ${datos.titular_numero}`;
+        if (datos.titular_piso)
+          domicilioTitularCompleto += `, Piso ${datos.titular_piso}`;
+        if (datos.titular_puerta)
+          domicilioTitularCompleto += `, Pta ${datos.titular_puerta}`;
+
+        const cpTitular = datos.titular_codigo_postal || '';
+        const pobTitular = datos.titular_poblacion || '';
+        const provTitular = datos.titular_provincia || '';
+
+        if (cpTitular || pobTitular)
+          domicilioTitularCompleto += `, ${cpTitular} ${pobTitular}`;
+        if (provTitular) domicilioTitularCompleto += ` (${provTitular})`;
       }
 
       const municipioFirma = datos.vivienda_poblacion || 'Teulada';
@@ -1029,6 +1058,51 @@ export class DocumentoService {
       const font = 'Arial';
       const size = 22;
       const lineSpacing = 360;
+      const esEmpresaEnCCU = !!datos.check_es_empresa && !esSegundaOcupacion;
+      const nombreEmpresa =
+        `${datos.titular_nombre || ''} ${datos.titular_apellidos || ''}`.trim() ||
+        '................................................';
+      const cifEmpresa = datos.titular_dni_nif || '...................';
+      const domicilioEmpresa = domicilioTitularCompleto.includes(
+        '................................',
+      )
+        ? domicilioCompleto
+        : domicilioTitularCompleto;
+      const childrenParrafoOtorgante = esEmpresaEnCCU
+        ? [
+            new TextRun({ text: 'D/\u00d1A. ', font, size }),
+            new TextRun({ text: nombreOtorgante, font, size }),
+            new TextRun({
+              text: ', MAYOR DE EDAD, PROVISTO DE N.I.E N\u00ba ',
+              font,
+              size,
+            }),
+            new TextRun({ text: dniOtorgante, font, size }),
+            new TextRun({ text: ', CON DOMICILIO EN ', font, size }),
+            new TextRun({ text: domicilioEmpresa, font, size }),
+            new TextRun({
+              text: ' actuando como representante de la empresa ',
+              font,
+              size,
+            }),
+            new TextRun({ text: nombreEmpresa, font, size }),
+            new TextRun({ text: ' con CIF ', font, size }),
+            new TextRun({ text: cifEmpresa, font, size }),
+            new TextRun({ text: '.', font, size }),
+          ]
+        : [
+            new TextRun({ text: 'D./D\u00f1a. ', font, size }),
+            new TextRun({ text: nombreOtorgante, font, size }),
+            new TextRun({
+              text: ', mayor de edad, provisto de N.I.E. / D.N.I. n\u00ba ',
+              font,
+              size,
+            }),
+            new TextRun({ text: dniOtorgante, font, size }),
+            new TextRun({ text: ', con domicilio en ', font, size }),
+            new TextRun({ text: domicilioCompleto, font, size }),
+            new TextRun({ text: '.', font, size }),
+          ];
 
       const doc = new Document({
         sections: [
@@ -1054,19 +1128,7 @@ export class DocumentoService {
               new Paragraph({
                 alignment: AlignmentType.JUSTIFIED,
                 spacing: { after: 300, line: lineSpacing },
-                children: [
-                  new TextRun({ text: 'D./Dña. ', font, size }),
-                  new TextRun({ text: nombreOtorgante, font, size }),
-                  new TextRun({
-                    text: ', mayor de edad, provisto de N.I.E. / D.N.I. nº ',
-                    font,
-                    size,
-                  }),
-                  new TextRun({ text: dniOtorgante, font, size }),
-                  new TextRun({ text: ', con domicilio en ', font, size }),
-                  new TextRun({ text: domicilioCompleto, font, size }),
-                  new TextRun({ text: '.', font, size }),
-                ],
+                children: childrenParrafoOtorgante,
               }),
 
               // DECLARA
@@ -1098,19 +1160,27 @@ export class DocumentoService {
                   }),
                   new TextRun({ text: repDireccion, font, size }),
                   new TextRun({
-                    text: ', para que se entiendan con éste todas las actuaciones administrativas correspondientes al expediente, en el cual ostento condición de interesado, relativo a la obtención ',
+                    text: ', para que se entiendan con éste todas las actuaciones administrativas correspondientes al expediente, en el cual ostento condición de interesado, ',
                     font,
                     size,
+                  }),
+                  new TextRun({
+                    text: 'relativo a la obtención ',
+                    font,
+                    size,
+                    bold: true,
                   }),
                   new TextRun({
                     text: frase || 'del trámite correspondiente',
                     font,
                     size,
+                    bold: true,
                   }),
                   new TextRun({
                     text: ' de la vivienda sita ',
                     font,
                     size,
+                    bold: true,
                   }),
                   new TextRun({
                     text: domicilioCompleto,
@@ -1199,8 +1269,17 @@ export class DocumentoService {
       });
 
       const blob = await Packer.toBlob(doc);
-      const nombreArchivoClean = nombreOtorgante.replace(/[^a-zA-Z0-9]/g, '_');
-      saveAs(blob, `Representacion_${nombreArchivoClean}.docx`);
+      saveAs(
+        blob,
+        this.construirNombreArchivo(
+          [
+            esSegundaOcupacion ? 'SEGUNDA_OCUPACION' : 'CCU',
+            'REPRESENTACION',
+            nombreOtorgante,
+          ],
+          'docx',
+        ),
+      );
     } catch (error) {
       console.error('Error en DocumentoService:', error);
       throw error;
@@ -1394,8 +1473,13 @@ export class DocumentoService {
       });
 
       const blob = await Packer.toBlob(doc);
-      const nombreArchivoClean = nombreOtorgante.replace(/[^a-zA-Z0-9]/g, '_');
-      saveAs(blob, `Representacion_CEE_IVACE_${nombreArchivoClean}.docx`);
+      saveAs(
+        blob,
+        this.construirNombreArchivo(
+          ['CEE', 'REPRESENTACION_IVACE', nombreOtorgante],
+          'docx',
+        ),
+      );
     } catch (error) {
       console.error('Error generando DOCX (CEE):', error);
       throw error;
@@ -1493,9 +1577,9 @@ export class DocumentoService {
 
       // Estilos
       const font = 'Arial';
-      const size = 20; // 10pt
-      const sizeTitle = 24; // 12pt
-      const lineSpacing = 300;
+      const size = 18; // 9pt
+      const sizeTitle = 22; // 11pt
+      const lineSpacing = 280;
 
       const doc = new Document({
         sections: [
@@ -1646,7 +1730,7 @@ export class DocumentoService {
               // PÁRRAFO 4 (Consecuencias)
               new Paragraph({
                 alignment: AlignmentType.JUSTIFIED,
-                spacing: { after: 600, line: lineSpacing },
+                spacing: { after: 400, line: lineSpacing },
                 children: [
                   new TextRun({
                     text: 'El propietario/promotor mediante la firma de la presente acta, conoce que el IVACE, es el órgano competente para la certificación de la eficiencia energética de edificios en la Comunitat Valenciana, así como para supervisar, ente otras, las actividades de trámite y registro de la certificación, y cuantas actividades de comprobación fueran necesarias para el cumplimiento de las disposiciones aplicables a la certificación energética de edificios, de conformidad con lo establecido en el Decreto 39/2015, de 2 de abril, del Consell, por el que se regula la certificación de la eficiencia energética de los edificios. Si IVACE comprobara, tras el correspondiente procedimiento, que no se ha realizado la visita al inmueble, con el consiguiente incumplimiento del procedimiento establecido en el artículo 6.5 del real Decreto 390/2021, ',
@@ -1670,7 +1754,7 @@ export class DocumentoService {
               // FECHA FINAL
               new Paragraph({
                 alignment: AlignmentType.RIGHT,
-                spacing: { after: 800 },
+                spacing: { after: 300 },
                 children: [
                   new TextRun({
                     text: `${datos.vivienda_poblacion}, a fecha ${fechaTexto}`,
@@ -1692,6 +1776,32 @@ export class DocumentoService {
                   insideHorizontal: { style: BorderStyle.NONE },
                 },
                 rows: [
+                  new TableRow({
+                    children: [
+                      new TableCell({
+                        width: { size: 50, type: WidthType.PERCENTAGE },
+                        children: [new Paragraph({ text: '' })],
+                      }),
+                      new TableCell({
+                        width: { size: 50, type: WidthType.PERCENTAGE },
+                        children: [
+                          firmaImageBuffer
+                            ? new Paragraph({
+                                alignment: AlignmentType.CENTER,
+                                spacing: { after: 40 },
+                                children: [
+                                  new ImageRun({
+                                    data: firmaImageBuffer,
+                                    transformation: { width: 180, height: 100 },
+                                    type: 'png',
+                                  }),
+                                ],
+                              })
+                            : new Paragraph({ text: '' }),
+                        ],
+                      }),
+                    ],
+                  }),
                   new TableRow({
                     children: [
                       // COLUMNA IZQUIERDA: PROPIETARIO
@@ -1731,7 +1841,7 @@ export class DocumentoService {
                               new TextRun({
                                 text: 'TÉCNICO COMPETENTE',
                                 font,
-                                size: 18,
+                                size: 16,
                                 bold: true,
                               }),
                             ],
@@ -1742,24 +1852,10 @@ export class DocumentoService {
                               new TextRun({
                                 text: `D.N.I./N.I.E.: ${repDNI}`,
                                 font,
-                                size: 18,
+                                size: 16,
                               }),
                             ],
                           }),
-                          // FIRMA IMAGEN (CONDICIONAL)
-                          firmaImageBuffer
-                            ? new Paragraph({
-                                alignment: AlignmentType.CENTER,
-                                spacing: { before: 200 },
-                                children: [
-                                  new ImageRun({
-                                    data: firmaImageBuffer,
-                                    transformation: { width: 100, height: 60 },
-                                    type: 'png',
-                                  }),
-                                ],
-                              })
-                            : new Paragraph({ text: '' }),
                         ],
                       }),
                     ],
@@ -1772,8 +1868,13 @@ export class DocumentoService {
       });
 
       const blob = await Packer.toBlob(doc);
-      const nombreArchivoClean = nombreOtorgante.replace(/[^a-zA-Z0-9]/g, '_');
-      saveAs(blob, `Acta_Visita_CEE_${nombreArchivoClean}.docx`);
+      saveAs(
+        blob,
+        this.construirNombreArchivo(
+          ['CEE', 'ACTA_VISITA', nombreOtorgante],
+          'docx',
+        ),
+      );
     } catch (error) {
       console.error('Error generando Acta Visita:', error);
       throw error;
@@ -1896,9 +1997,14 @@ export class DocumentoService {
 
       // 7. Descargar (SOLUCIÓN ERROR TS)
       // Usamos 'as any' para evitar el error de tipado estricto entre Uint8Array y BlobPart
-      const nombreArchivo = `Declaracion_Responsable_${
-        tecnico.nombre || 'Tecnico'
-      }.pdf`;
+      const nombreArchivo = this.construirNombreArchivo(
+        [
+          'SEGUNDA_OCUPACION',
+          'DECLARACION_RESPONSABLE_TECNICO',
+          tecnico.nombre || 'Tecnico',
+        ],
+        'pdf',
+      );
       const blob = new Blob([pdfBytesModificado as any], {
         type: 'application/pdf',
       });
@@ -2227,8 +2333,8 @@ export class DocumentoService {
                               new ImageRun({
                                 data: logoEmpresaBuffer,
                                 transformation: {
-                                  width: 215,
-                                  height: 125,
+                                  width: 235,
+                                  height: 110,
                                 },
                                 type: 'png',
                               }),
@@ -2248,9 +2354,10 @@ export class DocumentoService {
                       }),
                       new TableCell({
                         width: { size: 50, type: WidthType.PERCENTAGE },
-                        verticalAlign: AlignmentType.CENTER,
+                        verticalAlign: VerticalAlign.CENTER,
                         children: [
                           new Paragraph({
+                            alignment: AlignmentType.CENTER,
                             children: [
                               new TextRun({
                                 text: `☎ ${ingTlf.replace('☎', '').trim()}`,
@@ -2260,6 +2367,7 @@ export class DocumentoService {
                             ],
                           }),
                           new Paragraph({
+                            alignment: AlignmentType.CENTER,
                             children: [
                               new TextRun({
                                 text: `✉ ${ingEmail.replace('✉', '').trim()}`,
@@ -2269,6 +2377,7 @@ export class DocumentoService {
                             ],
                           }),
                           new Paragraph({
+                            alignment: AlignmentType.CENTER,
                             children: [
                               new TextRun({
                                 text: `💻 ${ingWeb}`,
@@ -2278,6 +2387,7 @@ export class DocumentoService {
                             ],
                           }),
                           new Paragraph({
+                            alignment: AlignmentType.CENTER,
                             children: [
                               new TextRun({
                                 text: `Colegiado ${ingNumColegiado} - ${ingColegio}`,
@@ -2400,7 +2510,7 @@ export class DocumentoService {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: 'Certificado de Compatibilidad Urbanística de Vivienda Turística',
+                                text: 'Certificado de Compatibilidad Urbanística para solicitar la licencia de Vivienda Turística',
                                 font: 'Arial',
                                 size: 24,
                               }),
@@ -3425,8 +3535,13 @@ export class DocumentoService {
 
       // 5. GUARDAR Y DESCARGAR
       const blob = await Packer.toBlob(doc);
-      const nombreArchivoClean = titularNombre.replace(/[^a-zA-Z0-9]/g, '_');
-      saveAs(blob, `Memoria_Tecnica_${nombreArchivoClean}.docx`);
+      saveAs(
+        blob,
+        this.construirNombreArchivo(
+          ['CCU', 'MEMORIA_TECNICA', titularNombre],
+          'docx',
+        ),
+      );
     } catch (error) {
       console.error('Error generando Memoria Técnica:', error);
       throw error;
@@ -3585,6 +3700,8 @@ export class DocumentoService {
       };
 
       const year = parseInt(datos.vivienda_ano_construccion || '0', 10);
+      const currentYear = new Date().getFullYear();
+      const antiguedadVivienda = year > 0 ? currentYear - year : null;
 
       const crearDocumentoAislado = async (
         nombreArchivoSalida: string,
@@ -3619,6 +3736,19 @@ export class DocumentoService {
               safeGetCheckBox(form, 'C si') ||
               safeGetCheckBox(form, 'Check Box1');
             check?.check();
+          } catch {}
+        }
+
+        if (antiguedadVivienda !== null) {
+          try {
+            const checkOpcion1 = safeGetCheckBox(form, 'Check Box28');
+            const checkOpcion2 = safeGetCheckBox(form, 'Check Box29');
+
+            checkOpcion1?.uncheck();
+            checkOpcion2?.uncheck();
+
+            if (antiguedadVivienda > 50) checkOpcion2?.check();
+            else checkOpcion1?.check();
           } catch {}
         }
 
@@ -4501,10 +4631,13 @@ export class DocumentoService {
 
       // GENERAR DOC
       const blob = await Packer.toBlob(doc);
-      const nombreLimpio = dInteresado.nombre
-        ? dInteresado.nombre.replace(/[^a-zA-Z0-9]/g, '_')
-        : 'Registro';
-      saveAs(blob, `Registro_VT_Conselleria_${nombreLimpio}.docx`);
+      saveAs(
+        blob,
+        this.construirNombreArchivo(
+          ['VT', 'REGISTRO_CONSELLERIA', dInteresado.nombre || 'Registro'],
+          'docx',
+        ),
+      );
     } catch (error) {
       console.error('Error generando Registro VT:', error);
       throw error;
@@ -4529,6 +4662,7 @@ export class DocumentoService {
       nombre: toUpper(datos.titular_nombre),
       apellidos: toUpper(datos.titular_apellidos),
       dni: toUpper(datos.titular_dni_nif),
+      esEmpresa: !!datos.check_es_empresa,
       tipoVia: toUpper(datos.titular_tipo_via),
       nombreVia: toUpper(datos.titular_nombre_via),
       numero: toUpper(datos.titular_numero),
@@ -4556,6 +4690,10 @@ export class DocumentoService {
         }
       : { ...dTitular };
 
+    const dEntidadInteresada = dTitular.esEmpresa
+      ? { ...dTitular }
+      : dInteresado;
+
     const dViviendaDireccion = {
       tipoVia: toUpper(datos.vivienda_tipo_via || dInteresado.tipoVia || ''),
       nombreVia: toUpper(
@@ -4575,11 +4713,17 @@ export class DocumentoService {
     };
 
     // Gestión de nombres compuestos
-    const intApellidos = dInteresado.apellidos || '';
+    const intApellidos = dEntidadInteresada.apellidos || '';
     // Si hay apellidos, intentamos separar el primero del resto. Si no, lo dejamos todo en el primero.
     const intParts = intApellidos.split(' ');
-    const intApellido1 = intParts[0] || '';
-    const intApellido2 = intParts.slice(1).join(' ') || '';
+    const intApellido1 = dTitular.esEmpresa
+      ? dEntidadInteresada.nombre
+      : intParts[0] || '';
+    const intApellido2 = dTitular.esEmpresa
+      ? ''
+      : intParts.slice(1).join(' ') || '';
+    const intNombre = dTitular.esEmpresa ? '' : dEntidadInteresada.nombre;
+    const intDocumento = dTitular.esEmpresa ? dTitular.dni : dInteresado.dni;
 
     // Mapeo Representante
     let dRep: any = {};
@@ -4699,7 +4843,7 @@ export class DocumentoService {
       <div class="row">
         <div class="col" style="width: 18%">
           <div class="label"><span class="req">*</span> DNI/NIF/NIE</div>
-          <div class="input-box">${dInteresado.dni}</div>
+          <div class="input-box">${intDocumento}</div>
         </div>
         <div class="col" style="width: 38%">
           <div class="label"><span class="req">*</span> Primer Apellido o Razón Social</div>
@@ -4711,7 +4855,7 @@ export class DocumentoService {
         </div>
         <div class="col" style="width: 22%">
           <div class="label">Nombre</div>
-          <div class="input-box">${dInteresado.nombre}</div>
+          <div class="input-box">${intNombre}</div>
         </div>
       </div>
 
@@ -4932,7 +5076,10 @@ export class DocumentoService {
 
     const opt: any = {
       margin: [10, 10],
-      filename: `RREGISTRO_VT_PRIMERA_PARTE.pdf`,
+      filename: this.construirNombreArchivo(
+        ['VT', 'REGISTRO_PRIMERA_PARTE', dTitular.nombre || 'Registro'],
+        'pdf',
+      ),
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -4959,6 +5106,7 @@ export class DocumentoService {
       nombre: toUpper(datos.titular_nombre),
       apellidos: toUpper(datos.titular_apellidos),
       dni: toUpper(datos.titular_dni_nif),
+      esEmpresa: !!datos.check_es_empresa,
       tipoVia: toUpper(datos.titular_tipo_via),
       nombreVia: toUpper(datos.titular_nombre_via),
       numero: toUpper(datos.titular_numero),
@@ -5059,6 +5207,19 @@ export class DocumentoService {
         datos.vivienda_numero_plazas_totales ||
         parseInt(datos.vivienda_cantidad_dormitorios || '0') * 2,
     };
+
+    const esSueloRustico = dVivienda.tipoSuelo
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .includes('RUSTIC');
+    const titularPrimerApellidoORazonSocial = dTitular.esEmpresa
+      ? dTitular.nombre
+      : dTitular.apellidos.split(' ')[0];
+    const titularSegundoApellido = dTitular.esEmpresa
+      ? ''
+      : dTitular.apellidos.split(' ').slice(1).join(' ');
+    const titularNombreDocumento = dTitular.esEmpresa ? '' : dTitular.nombre;
+    const titularTipoDocumento = dTitular.esEmpresa ? 'CIF' : 'NIF';
 
     // HELPERS
     const checkHtml = (checked: boolean) =>
@@ -5209,19 +5370,14 @@ export class DocumentoService {
 
       <div class="header-section"><div class="header-letter">K</div><div class="header-title">Datos de la persona propietaria de la vivienda</div></div>
       <div class="row">
-        <div class="col" style="width: 15%"><div class="label"><span class="req">*</span> TIPO DOCUMENTO</div><div class="input-box relative is-select">NIF</div></div>
+        <div class="col" style="width: 15%"><div class="label"><span class="req">*</span> TIPO DOCUMENTO</div><div class="input-box relative is-select">${titularTipoDocumento}</div></div>
         <div class="col" style="width: 15%"><div class="label"><span class="req">*</span> DOCUMENTO</div><div class="input-box">${
           dTitular.dni
         }</div></div>
-        <div class="col" style="width: 35%"><div class="label"><span class="req">*</span> PRIMER APELLIDO O RAZÓN SOCIAL</div><div class="input-box">${
-          dTitular.apellidos.split(' ')[0]
-        }</div></div>
-        <div class="col" style="width: 15%"><div class="label">SEGUNDO APELLIDO</div><div class="input-box">${dTitular.apellidos
-          .split(' ')
-          .slice(1)
-          .join(' ')}</div></div>
+        <div class="col" style="width: 35%"><div class="label"><span class="req">*</span> PRIMER APELLIDO O RAZÓN SOCIAL</div><div class="input-box">${titularPrimerApellidoORazonSocial}</div></div>
+        <div class="col" style="width: 15%"><div class="label">SEGUNDO APELLIDO</div><div class="input-box">${titularSegundoApellido}</div></div>
         <div class="col" style="width: 20%"><div class="label">NOMBRE</div><div class="input-box">${
-          dTitular.nombre
+          titularNombreDocumento
         }</div></div>
       </div>
       <div class="row">
@@ -5360,8 +5516,8 @@ export class DocumentoService {
          <div>
             <div class="label"><span class="req">*</span> MODALIDAD RURAL</div>
             <div class="radio-container" style="margin-top: 5px;">
-                <div class="radio-option">${radioHtml(false)} SÍ</div>
-                <div class="radio-option">${radioHtml(true)} NO</div>
+                <div class="radio-option">${radioHtml(esSueloRustico)} SÍ</div>
+                <div class="radio-option">${radioHtml(!esSueloRustico)} NO</div>
             </div>
          </div>
          <div>
@@ -5632,7 +5788,7 @@ export class DocumentoService {
         <span class="info-text">SOLO MARCAR EN LOS CASOS DE SOLICITAR LA ESPECIALIDAD RURAL Y CONTAR CON EL CERTIFICADO ACREDITATIVO Y RESTO REQUISITOS DEL ARTÍCULO 68 DEL DECRETO 10/21. RESULTA OBLIGATORIO ADJUNTAR EL CORRESPONDIENTE CERTIFICADO ACREDITATIVO EN EL PASO 3 DOCUMENTAR.</span>
       </div>
       <div class="check-row">${checkHtml(
-        false,
+        esSueloRustico,
       )} <span class="check-label-black" style="color:#888;">En el caso de ostentar la especialidad rural, que cumple con las prescripciones previstas en el artículo 68 del Decreto 10/2021, de 22 de enero, del Consell, por el que se regula el alojamiento turístico en la Comunidad Valenciana.</span></div>
 
       <div class="info-blue">
@@ -5660,10 +5816,10 @@ export class DocumentoService {
 
     const opt: any = {
       margin: [10, 10],
-      filename: `REGISTRO_VT_SEGUNDA_PARTE_${dTitular.nombre.replace(
-        /[^a-zA-Z0-9]/g,
-        '_',
-      )}.pdf`,
+      filename: this.construirNombreArchivo(
+        ['VT', 'REGISTRO_SEGUNDA_PARTE', dTitular.nombre || 'Registro'],
+        'pdf',
+      ),
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -5683,7 +5839,23 @@ export class DocumentoService {
     // DATOS DE CONTACTO (INGENIERO)
     const contactTlf = (ingeniero.tlf || '').replace(/[^0-9\s]/g, '').trim();
     const contactEmail = (ingeniero.correoEmpresa || '').toLowerCase().trim();
-    const lugarFirma = toUpper(ingeniero.poblacion || 'Valencia');
+    const fechaNraRaw = datos.usar_fechas_distintas
+      ? datos.fechas_tramites?.['servicio_seleccion_nra']
+      : datos.fecha_global;
+    const fechaNra = fechaNraRaw ? new Date(fechaNraRaw) : new Date();
+    const fechaNraFormateada = `${fechaNra
+      .getDate()
+      .toString()
+      .padStart(2, '0')}/${(fechaNra.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}/${fechaNra.getFullYear()}`;
+    const lugarFirma = toUpper(
+      datos.titular_poblacion ||
+        datos.vivienda_poblacion ||
+        ingeniero.localidad ||
+        ingeniero.poblacion ||
+        'Valencia',
+    );
     const nombreIngeniero = toUpper(
       ingeniero.nombre || 'LUIS SERRANO ARTESERO',
     ); // Fallback visual
@@ -5714,7 +5886,11 @@ export class DocumentoService {
         datos.vivienda_es_turistica === true ||
         datos.vivienda_es_turistica === 'SI',
       licencia: toUpper(datos.vivienda_numero_vt || ''),
-      plazas: datos.vivienda_numero_plazas_totales || '4',
+      arrendatarios:
+        datos.vivienda_num_arrendatarios ||
+        datos.vivienda_numero_plazas_totales ||
+        parseInt(datos.vivienda_cantidad_dormitorios || '0', 10) * 2 ||
+        '4',
     };
 
     // Registro de Destino
@@ -6050,7 +6226,7 @@ export class DocumentoService {
 
         <div class="reg_form_label_text">NÚMERO MÁXIMO DE ARRENDATARIOS (*)</div>
         <div class="reg_form_input_field" style="width: 60px; margin-bottom: 15px;">${
-          dVivienda.plazas
+          dVivienda.arrendatarios
         }</div>
 
         <div class="reg_form_units_question">¿La Unidad cuenta con equipamiento, mobiliario y enseres adecuados para atender el uso de la unidad de carácter temporal de acuerdo con el Reglamento (UE) 2024/1028...? (*)</div>
@@ -6112,7 +6288,7 @@ export class DocumentoService {
             </div>
             <div class="reg_form_col_container">
                 <div class="reg_form_label_text">FECHA (*)</div>
-                <div class="reg_form_input_field">DD/MM/AAAA</div>
+                <div class="reg_form_input_field">${fechaNraFormateada}</div>
             </div>
         </div>
         <div class="reg_form_row_wrapper" style="margin-top:10px;">
@@ -6135,7 +6311,7 @@ export class DocumentoService {
         <div class="reg_form_row_wrapper">
             <div class="reg_form_col_container" style="flex:1">
                 <div class="reg_form_label_text">Fecha del documento</div>
-                <div class="reg_form_input_field">DD/MM/AAAA</div>
+                <div class="reg_form_input_field">${fechaNraFormateada}</div>
             </div>
             <div class="reg_form_col_container" style="flex:2">
                 <div class="reg_form_label_text">Referencia del documento <span style="font-weight:normal; color:#888;">(Máximo 40 caracteres)</span></div>
@@ -6192,7 +6368,7 @@ export class DocumentoService {
             <span class="reg_form_step_badge">6</span> Adjunte la documentación
         </div>
         <div style="font-size: 11px; color: #444; margin-bottom: 20px;">Por favor, adjunte los archivos necesarios para la presentación.</div>
-        <div class="reg_form_warning_yellow"><strong>AVISO IMPORTANTE:</strong> Si desea realizar la presentación como vivienda turística, es obligatorio adjuntar también el documento de VT correspondiente.</div>
+        <div class="reg_form_warning_yellow"><strong>AVISO IMPORTANTE:</strong> Es obligatorio adjuntar el documento que acabamos de descargar firmado por el cliente tanto si es turístico como si es no turístico. Si desea realizar la presentación como vivienda turística, es obligatorio adjuntar también el documento de VT correspondiente. En caso de que sea una vivienda en una comunidad/urbanización se deberá aportar el permiso concedido por la comunidad.</div>
         <div class="reg_form_warning_red">Debe adjuntar al menos un archivo para enviar la presentación.</div>
 
         <div class="reg_form_dropzone">
@@ -6301,13 +6477,15 @@ export class DocumentoService {
     element.innerHTML = htmlContent;
 
     const tipoNombre = dVivienda.esTuristico
-      ? 'formulario_instancia_presentacion_turistico'
-      : 'formulario_instancia_presentacion_no_turistico';
-    const nombreLimpio = dTitular.nombre.replace(/[^a-zA-Z0-9]/g, '_');
+      ? 'PRESENTACION_TURISTICO'
+      : 'PRESENTACION_NO_TURISTICO';
 
     const opt: any = {
       margin: [12, 12, 12, 12],
-      filename: `${tipoNombre}_${nombreLimpio}.pdf`,
+      filename: this.construirNombreArchivo(
+        ['NRA', tipoNombre, dTitular.nombre || 'Registro'],
+        'pdf',
+      ),
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },

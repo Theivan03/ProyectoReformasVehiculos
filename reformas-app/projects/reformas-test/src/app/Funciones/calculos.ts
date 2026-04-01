@@ -7503,6 +7503,44 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
     }
 
+    const peldanos = modificaciones.find(
+      (m) => m.nombre === 'PELDAÑOS' && m.seleccionado,
+    );
+    if (peldanos) {
+      const medidasPeldanosParseadas = parseMedidasEnMetros(
+        peldanos.medidasPeldano,
+      );
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Peldaños',
+        pesoPiezaKg: toFiniteNumber(peldanos.pesoPiezaKgPeldanos),
+        anchuraPiezaM:
+          toFiniteNumber(peldanos.anchuraPiezaMPeldanos) ||
+          medidasPeldanosParseadas.anchuraM,
+        alturaPiezaM:
+          toFiniteNumber(peldanos.alturaPiezaMPeldanos) ||
+          medidasPeldanosParseadas.alturaM,
+        metrica: parseMetricaTornillo(peldanos.metricaPeldanos),
+        nTornillos: toPositiveInt(peldanos.nTornillosPeldanos),
+        calidadTornillo: toFiniteNumber(peldanos.calidadTornilloPeldanos) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(peldanos.seccionResistenteAsPeldanos) ||
+          getAreaResistentePorMetrica(peldanos.metricaPeldanos),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(peldanos.resTraccionMinTornillo88Kgmm2Peldanos) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(peldanos.coefAerodinamicoPeldanos) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(peldanos.densidadAireKgM3Peldanos) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(peldanos.velocidadAireV2msPeldanos) || 38.89,
+        coefSeguridadK:
+          toFiniteNumber(peldanos.coefSeguridadKPeldanos) || 3,
+        curvatura: toFiniteNumber(peldanos.radioCurvaRPeldanos) || 8,
+      });
+      contador++;
+    }
+
     const claraboya = modificaciones.find(
       (m) => m.nombre === 'CLARABOYA' && m.seleccionado,
     );

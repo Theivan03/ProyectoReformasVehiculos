@@ -19,7 +19,7 @@ export class AdminGestionUsuariosComponent implements OnInit {
   };
   mensajeAdminPanel: string = '';
 
-  private apiUrlAdminPanel = 'http://localhost:3000/api';
+  private apiUrlAdminPanel = `http://${window.location.hostname || 'localhost'}:3000/api`;
 
   constructor(private httpAdminPanel: HttpClient) {}
 

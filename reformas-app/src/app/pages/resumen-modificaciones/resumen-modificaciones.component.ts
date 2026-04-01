@@ -248,15 +248,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
       }
 
       if (m.nombre === 'PELDAÑOS') {
-        if (!m.metodoActuacionPeldanos) {
-          m.metodoActuacionPeldanos = 'manual';
-        }
-        if (m.ubicacionAccionamientoPeldanos === undefined) {
-          m.ubicacionAccionamientoPeldanos = '';
-        }
-        if (m.referenciaPeldanos === undefined) {
-          m.referenciaPeldanos = '';
-        }
+        this.ensurePeldanosDefaults(m);
       }
 
       if (m.nombre === 'CLARABOYA') {
@@ -408,31 +400,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         // }
       }
       if (m.nombre === 'PELDAÑOS') {
-        // if (m.velocidadAireV2msAletines == null) {
-        //   m.velocidadAireV2msAletines = 38.89;
-        // }
-        // if (m.densidadAireKgM3Aletines == null) {
-        //   m.densidadAireKgM3Aletines = 1.29;
-        // }
-        // if (m.radioCurvaRAletines == null) {
-        //   m.radioCurvaRAletines = 8;
-        // }
-        if (m.radioCurvaRPeldanos == null) {
-          m.radioCurvaRPeldanos = 8;
-        }
-        // if (m.coefSeguridadKAletines == null) {
-        //   m.coefSeguridadKAletines = 3;
-        // }
-        // if (m.coefAerodinamicoCwAletines == null) {
-        //   m.coefAerodinamicoCwAletines = 0.82;
-        // }
-        // if (m.resTraccionMinTornillo88Kgmm2Aletines == null) {
-        //   m.resTraccionMinTornillo88Kgmm2Aletines = 80;
-        // }
-        // if (m.seccionResistenteAsAletines == null) {
-        //   m.seccionResistenteAsAletines =
-        //     this.getAreaResistenteByMetrica(m.metricaAletines) ?? 36.64;
-        // }
+        this.ensurePeldanosDefaults(m);
       }
       if (m.nombre === 'CALANDRA') {
         // if (m.velocidadAireV2msAletines == null) {
@@ -931,6 +899,7 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
 
     const metricToAreaMap: Array<{ metricaKey: string; areaKey: string }> = [
       { metricaKey: 'metricaTalonera', areaKey: 'seccionResistenteAsEstribos' },
+      { metricaKey: 'metricaPeldanos', areaKey: 'seccionResistenteAsPeldanos' },
       { metricaKey: 'metricaToldo', areaKey: 'seccionResistenteAsToldo' },
       {
         metricaKey: 'metricaParaTrasero',
@@ -1018,6 +987,11 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         nombre: 'SNORKEL',
         metricaKey: 'metricaSnorkel',
         calidadKey: 'calidadTornilloSnorkel',
+      },
+      {
+        nombre: 'PELDAÑOS',
+        metricaKey: 'metricaPeldanos',
+        calidadKey: 'calidadTornilloPeldanos',
       },
       {
         nombre: 'PARAGOLPES DELANTERO',
@@ -1348,6 +1322,66 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         'medidasToldo',
         'anchuraPiezaMToldo',
         'alturaPiezaMToldo',
+      );
+    }
+
+    this.syncCalidadByMetrica(mod);
+  }
+
+  private ensurePeldanosDefaults(mod: any): void {
+    if (!mod) return;
+
+    if (!mod.metodoActuacionPeldanos) {
+      mod.metodoActuacionPeldanos = 'manual';
+    }
+    if (mod.ubicacionAccionamientoPeldanos === undefined) {
+      mod.ubicacionAccionamientoPeldanos = '';
+    }
+    if (mod.referenciaPeldanos === undefined) {
+      mod.referenciaPeldanos = '';
+    }
+    if (mod.marcaPeldano === undefined) {
+      mod.marcaPeldano = '';
+    }
+    if (mod.tipoFabricacionPeldanos == null) {
+      mod.tipoFabricacionPeldanos =
+        mod.marcaPeldano || mod.referenciaPeldanos ? 'marcaReferencia' : null;
+    }
+    if (mod.radioCurvaRPeldanos == null) {
+      mod.radioCurvaRPeldanos = 8;
+    }
+    if (mod.coefAerodinamicoPeldanos == null) {
+      mod.coefAerodinamicoPeldanos = 0.82;
+    }
+    if (mod.densidadAireKgM3Peldanos == null) {
+      mod.densidadAireKgM3Peldanos = 1.29;
+    }
+    if (mod.velocidadAireV2msPeldanos == null) {
+      mod.velocidadAireV2msPeldanos = 38.89;
+    }
+    if (mod.coefSeguridadKPeldanos == null) {
+      mod.coefSeguridadKPeldanos = 3;
+    }
+    if (mod.resTraccionMinTornillo88Kgmm2Peldanos == null) {
+      mod.resTraccionMinTornillo88Kgmm2Peldanos = 80;
+    }
+    if (mod.metricaPeldanos == null && mod.metricaTalonera != null) {
+      mod.metricaPeldanos = this.toNumberOrNull(mod.metricaTalonera);
+    }
+    if (mod.seccionResistenteAsPeldanos == null) {
+      mod.seccionResistenteAsPeldanos =
+        this.getAreaResistenteByMetrica(mod.metricaPeldanos) ?? 36.64;
+    }
+
+    if (
+      mod.medidasPeldano &&
+      (mod.anchuraPiezaMPeldanos == null || mod.alturaPiezaMPeldanos == null)
+    ) {
+      this.onDimensionesChange(
+        mod,
+        'medidasPeldano',
+        'anchuraPiezaMPeldanos',
+        'alturaPiezaMPeldanos',
       );
     }
 
@@ -1780,6 +1814,18 @@ export class ResumenModificacionesComponent implements OnInit, OnChanges {
         mod.nTornillosToldo = this.toNumberOrNull(
           mod.nTornillosToldo ?? mod.nTornillos,
         );
+      }
+
+      if (mod.nombre === 'PELDAÑOS') {
+        mod.metricaPeldanos = this.toNumberOrNull(mod.metricaPeldanos);
+        mod.nTornillosPeldanos = this.toNumberOrNull(mod.nTornillosPeldanos);
+        mod.pesoPiezaKgPeldanos = this.toNumberOrNull(mod.pesoPiezaKgPeldanos);
+        mod.anchuraPiezaMPeldanos = this.toNumberOrNull(
+          mod.anchuraPiezaMPeldanos,
+        );
+        mod.alturaPiezaMPeldanos = this.toNumberOrNull(mod.alturaPiezaMPeldanos);
+        mod.radioCurvaRPeldanos = this.toNumberOrNull(mod.radioCurvaRPeldanos) ?? 8;
+        this.ensurePeldanosDefaults(mod);
       }
 
       if (

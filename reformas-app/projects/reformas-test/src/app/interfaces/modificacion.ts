@@ -486,12 +486,25 @@ export interface Modificacion {
   homologacionTecho?: string;
 
   zonaPeldano?: string;
+  tipoFabricacionPeldanos?: 'marcaReferencia' | 'artesanal';
   marcaPeldano?: string;
   referenciaPeldanos?: string;
   materialPeldano?: string;
   medidasPeldano?: string;
   metodoActuacionPeldanos?: 'manual' | 'electrico';
   ubicacionAccionamientoPeldanos?: string;
+  pesoPiezaKgPeldanos?: number;
+  anchuraPiezaMPeldanos?: number;
+  alturaPiezaMPeldanos?: number;
+  metricaPeldanos?: number;
+  nTornillosPeldanos?: number;
+  calidadTornilloPeldanos?: number;
+  seccionResistenteAsPeldanos?: number;
+  resTraccionMinTornillo88Kgmm2Peldanos?: number;
+  coefAerodinamicoPeldanos?: number;
+  densidadAireKgM3Peldanos?: number;
+  velocidadAireV2msPeldanos?: number;
+  coefSeguridadKPeldanos?: number;
 
   ladoVentana?: 'izquierdo' | 'derecho' | 'ambos' | 'trasero';
   medidasVentana?: string;

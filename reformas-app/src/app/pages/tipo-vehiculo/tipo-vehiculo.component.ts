@@ -45,6 +45,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
 
   // Snapshot para detectar cambios sin tocar el HTML
   private snapshotMods = '';
+  private readonly comparadorAlfabetico = new Intl.Collator('es', {
+    sensitivity: 'base',
+    numeric: true,
+  });
 
   detallesMuellesOpciones = [
     { key: 'muelleDelanteroConRef', label: 'Muelle delantero con referencia' },
@@ -84,9 +88,11 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     // Si el cliente ya eligió un tipo, usamos ese tipo pero con VUESTRA lista (como admin)
     if (this.datosPrevios?.tipoVehiculo) {
       this.tipoVehiculo = this.datosPrevios.tipoVehiculo;
-      this.modificaciones = this.obtenerModificacionesPorTipo(
-        this.tipoVehiculo,
-      ).map((m) => this.normalizarModificacion(m));
+      this.modificaciones = this.ordenarModificacionesAlfabeticamente(
+        this.obtenerModificacionesPorTipo(this.tipoVehiculo).map((m) =>
+          this.normalizarModificacion(m),
+        ),
+      );
     } else {
       // Si no hay tipo, empezamos vacío
       this.tipoVehiculo = '';
@@ -108,7 +114,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     const plantillaCompleta = this.obtenerModificacionesPorTipo(tipo);
 
     // 2. Recorremos la plantilla y buscamos si hay datos guardados para cada ítem
-    return plantillaCompleta.map((modBase) => {
+    const modificaciones = plantillaCompleta.map((modBase) => {
       const encontrada = guardadas.find((g) => g.nombre === modBase.nombre);
 
       if (encontrada) {
@@ -119,6 +125,8 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         return this.normalizarModificacion(modBase);
       }
     });
+
+    return this.ordenarModificacionesAlfabeticamente(modificaciones);
   }
 
   ngOnInit(): void {
@@ -173,8 +181,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
         );
       } else if (Array.isArray(nuevos.modificaciones)) {
         // Fallback por si no hay tipo definido aún (raro, pero posible)
-        this.modificaciones = nuevos.modificaciones.map((mod: any) =>
-          this.normalizarModificacion(mod),
+        this.modificaciones = this.ordenarModificacionesAlfabeticamente(
+          nuevos.modificaciones.map((mod: any) =>
+            this.normalizarModificacion(mod),
+          ),
         );
       }
       this.refreshSnapshot();
@@ -390,10 +400,20 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     });
   }
 
+  private ordenarModificacionesAlfabeticamente(
+    modificaciones: Modificacion[],
+  ): Modificacion[] {
+    return [...modificaciones].sort((a, b) =>
+      this.comparadorAlfabetico.compare(a?.nombre ?? '', b?.nombre ?? ''),
+    );
+  }
+
   onTipoCambio(): void {
-    this.modificaciones = this.obtenerModificacionesPorTipo(
-      this.tipoVehiculo,
-    ).map((mod) => this.normalizarModificacion(mod));
+    this.modificaciones = this.ordenarModificacionesAlfabeticamente(
+      this.obtenerModificacionesPorTipo(this.tipoVehiculo).map((mod) =>
+        this.normalizarModificacion(mod),
+      ),
+    );
 
     this.erroresSubopciones = new Array(this.modificaciones.length).fill(false);
     this.refreshSnapshot();

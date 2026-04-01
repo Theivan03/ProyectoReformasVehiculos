@@ -406,7 +406,7 @@
           ></lucide-angular>
           <span
             ><strong class="text-dark">{{
-              viv.vivienda_tipo_via | titlecase
+              viv.vivienda_tipo_via | uppercase
             }}</strong>
             {{ viv.vivienda_nombre_via }} {{ viv.vivienda_numero }}</span
           >
@@ -466,7 +466,7 @@
             style="width: 18px; height: 18px; color: var(--color-success)"
           ></lucide-angular>
           <span
-            >{{ viv.vivienda_tipo_via | titlecase }}
+            >{{ viv.vivienda_tipo_via | uppercase }}
             {{ viv.vivienda_nombre_via }} {{ viv.vivienda_numero }}</span
           >
         </div>
@@ -499,7 +499,7 @@
             style="width: 20px; height: 20px"
           ></lucide-angular>
           <span
-            >{{ viviendaSeleccionada.vivienda_tipo_via | titlecase }}
+            >{{ viviendaSeleccionada.vivienda_tipo_via | uppercase }}
             {{ viviendaSeleccionada.vivienda_nombre_via }}
             {{ viviendaSeleccionada.vivienda_numero }},
             {{ viviendaSeleccionada.vivienda_poblacion }}</span
@@ -722,6 +722,36 @@
             class="text-danger me-2"
           ></lucide-angular>
           Representación 2ª Ocupación</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      <button class="doc-btn" (click)="generarCertificadoSegundaOcupacion()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Certificado técnico de habitabilidad (versión acortada)</span
+        >
+        <lucide-angular
+          [img]="icons.Download"
+          size="16"
+          class="text-muted"
+        ></lucide-angular>
+      </button>
+      <button class="doc-btn" (click)="generarCertificadoSegundaOcupacionV2()">
+        <span
+          ><lucide-angular
+            [img]="icons.FileText"
+            size="16"
+            class="text-danger me-2"
+          ></lucide-angular>
+          Certificado técnico de habitabilidad (versión alargada)</span
         >
         <lucide-angular
           [img]="icons.Download"

@@ -260,6 +260,34 @@ export class GestorTrelloComponent implements OnInit {
     }
   }
 
+  async generarCertificadoSegundaOcupacion() {
+    this.isLoading = true;
+    try {
+      await this.documentoService.generarCertificadoSegundaOcupacion(
+        this.viviendaSeleccionada
+      );
+      this.isLoading = false;
+    } catch (err) {
+      console.error(err);
+      alert('Error al generar certificado.');
+      this.isLoading = false;
+    }
+  }
+
+  async generarCertificadoSegundaOcupacionV2() {
+    this.isLoading = true;
+    try {
+      await this.documentoService.generarCertificadoSegundaOcupacionV2(
+        this.viviendaSeleccionada
+      );
+      this.isLoading = false;
+    } catch (err) {
+      console.error(err);
+      alert('Error al generar certificado.');
+      this.isLoading = false;
+    }
+  }
+
   async generarMemoriaTecnica() {
     this.isLoading = true;
     try {

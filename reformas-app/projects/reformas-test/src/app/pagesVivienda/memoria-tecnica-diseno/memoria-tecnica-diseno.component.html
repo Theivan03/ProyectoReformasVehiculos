@@ -233,6 +233,57 @@
             />
           </div>
 
+          <div class="col-12">
+            <div class="form-check form-switch bg-light p-3 rounded border d-flex align-items-center">
+              <input
+                class="form-check-input me-3"
+                type="checkbox"
+                role="switch"
+                id="tieneRepresentanteCheck"
+                [(ngModel)]="datos.titular.tieneRepresentante"
+                style="width: 3em; height: 1.5em"
+              />
+              <label
+                class="form-check-label fw-bold cursor-pointer"
+                for="tieneRepresentanteCheck"
+              >
+                El titular actúa mediante representante
+              </label>
+            </div>
+          </div>
+
+          <div class="col-12" *ngIf="datos.titular.tieneRepresentante">
+            <div class="card border-warning-subtle bg-warning-subtle bg-opacity-10 p-3">
+              <h6 class="fw-bold mb-3">Datos del representante</h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Nombre del representante</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="datos.titular.representanteNombre"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Apellidos del representante</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="datos.titular.representanteApellidos"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">DNI / NIE del representante</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="datos.titular.representanteDniNie"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="col-12"><hr class="text-muted opacity-25" /></div>
 
           <div class="col-md-12">
