@@ -247,7 +247,7 @@ export class DocumentoService {
             children: [
               // Columna 1
               new TableCell({
-                width: { size: 20, type: WidthType.PERCENTAGE },
+                width: { size: 30, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 100, right: 100 },
                 children: [
@@ -286,7 +286,7 @@ export class DocumentoService {
 
               // Columna 2
               new TableCell({
-                width: { size: 58, type: WidthType.PERCENTAGE },
+                width: { size: 48, type: WidthType.PERCENTAGE },
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 100, right: 100 },
                 children: [
