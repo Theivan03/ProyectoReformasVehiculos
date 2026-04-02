@@ -7,7 +7,7 @@ import { Observable, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthSeguridadGlobalService {
-  private apiUrlAuthService = 'http://192.168.1.41:3000/api';
+  private apiUrlAuthService = '/api';
 
   constructor(
     private httpAuthService: HttpClient,

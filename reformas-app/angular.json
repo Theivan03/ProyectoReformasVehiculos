@@ -53,6 +53,11 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "host": "0.0.0.0",
+            "port": 4200,
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "reformas-app:build:production"
@@ -229,7 +234,8 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "host": "0.0.0.0",
-            "port": 4400
+            "port": 4400,
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {

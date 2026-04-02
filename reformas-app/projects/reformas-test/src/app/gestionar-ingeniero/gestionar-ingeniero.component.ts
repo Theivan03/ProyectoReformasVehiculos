@@ -48,7 +48,7 @@ export class GestionarIngenieroComponent {
   }
 
   cargarIngenieros(): void {
-    this.http.get<any>('http://192.168.1.41:3000/ingenieros').subscribe({
+    this.http.get<any>('/ingenieros').subscribe({
       next: (data) => {
         this.ingenieros = Array.isArray(data) ? data : [data];
       },
@@ -82,7 +82,7 @@ export class GestionarIngenieroComponent {
     this.progreso = 0;
     this.animateProgress(60);
 
-    this.http.get<any>('http://192.168.1.41:3000/ingenieros').subscribe({
+    this.http.get<any>('/ingenieros').subscribe({
       next: (data) => {
         const ingenieros = Array.isArray(data) ? data : [data];
         const nombre = this.formularioIngeniero.nombre;
@@ -113,7 +113,7 @@ export class GestionarIngenieroComponent {
         }
 
         this.http
-          .post('http://192.168.1.41:3000/ingenieros', ingenieros)
+          .post('/ingenieros', ingenieros)
           .subscribe({
             next: () => {
               this.animateProgress(100);
@@ -156,7 +156,7 @@ export class GestionarIngenieroComponent {
     this.animateProgress(70);
 
     this.http
-      .delete(`http://192.168.1.41:3000/ingenieros/${nombreCodificado}`)
+      .delete(`/ingenieros/${nombreCodificado}`)
       .subscribe({
         next: () => {
           this.animateProgress(100);

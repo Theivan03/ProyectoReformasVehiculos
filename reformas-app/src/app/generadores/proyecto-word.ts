@@ -174,15 +174,15 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   let alto2;
   let ancho = 500;
 
-  let url = `http://192.168.1.41:3000/imgs/${tipo}.png`;
+  let url = `/imgs/${tipo}.png`;
   const response3 = await fetch(url);
   const imageBuffer3 = await response3.arrayBuffer();
 
-  url = `http://192.168.1.41:3000/imgs/planos/plano-generado-proyecto${data.numeroProyecto}.png`;
+  url = `/imgs/planos/plano-generado-proyecto${data.numeroProyecto}.png`;
   const response4 = await fetch(url);
   const imageBuffer4 = await response4.arrayBuffer();
 
-  url = `http://192.168.1.41:3000/imgs/firma-generada.png`;
+  url = `/imgs/firma-generada.png`;
   const response5 = await fetch(url);
   const imageBuffer5 = await response5.arrayBuffer();
 
@@ -1667,7 +1667,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     data.codigosDetallados ?? {},
   ).flat() as ReformaItem[];
 
-  const tamañosResp = await fetch('http://192.168.1.41:3000/image-sizes');
+  const tamañosResp = await fetch('/image-sizes');
   const tamaños = await tamañosResp.json();
 
   let alturaAcumulada = 0;
@@ -1686,7 +1686,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     const codigoStr = codigoObj.codigo;
     const nombreBase = codigoStr.replace('.', '-');
     const nombreArchivo = `${nombreBase}.png`;
-    const url = `http://192.168.1.41:3000/imgs/${nombreArchivo}`;
+    const url = `/imgs/${nombreArchivo}`;
 
     const tamaño = tamaños.find(
       (img: { nombre: string }) => img.nombre === nombreArchivo,

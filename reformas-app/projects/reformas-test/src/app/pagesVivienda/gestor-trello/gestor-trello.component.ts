@@ -100,7 +100,7 @@ export class GestorTrelloComponent implements OnInit {
 
   cargarViviendas() {
     this.isLoading = true;
-    this.http.get<any[]>('http://192.168.1.41:3000/api/viviendas').subscribe({
+    this.http.get<any[]>('/api/viviendas').subscribe({
       next: (data) => {
         this.listaViviendas = data || [];
         this.isLoading = false;
@@ -162,7 +162,7 @@ export class GestorTrelloComponent implements OnInit {
     if (!silencioso) this.isLoading = true;
 
     this.http
-      .put(`http://192.168.1.41:3000/api/viviendas/${vivienda.id}`, vivienda)
+      .put(`/api/viviendas/${vivienda.id}`, vivienda)
       .subscribe({
         next: () => {
           this.cargarViviendas();

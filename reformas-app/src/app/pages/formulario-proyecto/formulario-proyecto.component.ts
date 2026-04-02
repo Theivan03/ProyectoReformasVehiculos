@@ -217,7 +217,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
   }
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://192.168.1.41:3000/talleres').subscribe({
+    this.http.get<any[]>('/talleres').subscribe({
       next: (data) => {
         this.talleres = data;
         this.intentarNormalizarListas();
@@ -225,7 +225,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       error: (err) => console.error('Error al cargar talleres:', err),
     });
 
-    this.http.get<any[]>('http://192.168.1.41:3000/ingenieros').subscribe({
+    this.http.get<any[]>('/ingenieros').subscribe({
       next: (data) => {
         this.ingenieros = Array.isArray(data) ? data : [data];
         this.intentarNormalizarListas();
@@ -238,7 +238,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         .get<{
           siguiente: number;
           año: string;
-        }>('http://192.168.1.41:3000/ultimo-proyecto')
+        }>('/ultimo-proyecto')
         .subscribe({
           next: (data) => {
             this.año = data.año;

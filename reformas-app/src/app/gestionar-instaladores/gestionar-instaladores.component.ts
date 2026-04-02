@@ -32,7 +32,7 @@ export class GestionarInstaladoresComponent {
   }
 
   cargarInstaladores(): void {
-    this.http.get<any>('http://192.168.1.41:3000/instaladores').subscribe({
+    this.http.get<any>('/instaladores').subscribe({
       next: (data) => {
         this.instaladores = Array.isArray(data) ? data : [data];
       },
@@ -67,7 +67,7 @@ export class GestionarInstaladoresComponent {
     this.progreso = 0;
     this.animateProgress(60);
 
-    this.http.get<any>('http://192.168.1.41:3000/instaladores').subscribe({
+    this.http.get<any>('/instaladores').subscribe({
       next: (data) => {
         const instaladores = Array.isArray(data) ? data : [data];
         const nombre = this.formularioInstalador.empresaInstaladoraOInstalador;
@@ -100,7 +100,7 @@ export class GestionarInstaladoresComponent {
         }
 
         this.http
-          .post('http://192.168.1.41:3000/instaladores', instaladores)
+          .post('/instaladores', instaladores)
           .subscribe({
             next: () => {
               this.animateProgress(100);
@@ -143,7 +143,7 @@ export class GestionarInstaladoresComponent {
     this.animateProgress(70);
 
     this.http
-      .delete(`http://192.168.1.41:3000/instaladores/${nombreCodificado}`)
+      .delete(`/instaladores/${nombreCodificado}`)
       .subscribe({
         next: () => {
           this.animateProgress(100);

@@ -50,7 +50,7 @@ export class MemoriaTecnicaDisenoComponent {
   };
   private autoDownloadYaEjecutado = false;
   private tipoMemoriaRuta: 'consumo' | 'autoconsumo' = 'consumo';
-  private readonly apiBaseUrl = `http://${window.location.hostname || 'localhost'}:3000`;
+  private readonly apiBaseUrl = '';
 
   icons = {
     FileText,

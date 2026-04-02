@@ -537,7 +537,7 @@ export async function buildCalculos(
 ): Promise<(Paragraph | Table)[]> {
   const out: (Paragraph | Table)[] = [];
 
-  let url = `http://192.168.1.41:3000/imgs/firma-generada.png`;
+  let url = `/imgs/firma-generada.png`;
   const response5 = await fetch(url);
   const imageBuffer5 = await response5.arrayBuffer();
   const mmaControlMasasRaw = pickFirstValue(

@@ -429,7 +429,7 @@ export class MemoriasListaComponent implements OnInit {
   guardandoDetalle = false;
   descargandoDetalle = false;
 
-  private readonly apiBaseUrl = `http://${window.location.hostname || 'localhost'}:3000`;
+  private readonly apiBaseUrl = '';
 
   readonly meses = [
     'Enero',

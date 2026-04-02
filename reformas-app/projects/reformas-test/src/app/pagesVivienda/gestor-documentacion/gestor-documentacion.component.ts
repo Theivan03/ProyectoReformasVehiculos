@@ -239,7 +239,7 @@ export class GestorDocumentacionComponent implements OnInit {
 
   cargarDatosParaEditar(id: number) {
     this.isLoading = true;
-    this.http.get<any[]>('http://192.168.1.41:3000/api/viviendas').subscribe({
+    this.http.get<any[]>('/api/viviendas').subscribe({
       next: (data) => {
         const vivienda = data.find((v) => v.id === id);
         if (vivienda) {
@@ -261,7 +261,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   cargarIngenieros(): void {
-    this.http.get<any>('http://192.168.1.41:3000/ingenieros').subscribe({
+    this.http.get<any>('/ingenieros').subscribe({
       next: (data) => {
         this.listaIngenieros_gestor = Array.isArray(data) ? data : [data];
       },
@@ -273,7 +273,7 @@ export class GestorDocumentacionComponent implements OnInit {
   }
 
   cargarArquitectos(): void {
-    this.http.get<any>('http://192.168.1.41:3000/arquitectos').subscribe({
+    this.http.get<any>('/arquitectos').subscribe({
       next: (data) => {
         this.listaArquitectos_gestor = Array.isArray(data) ? data : [data];
       },
@@ -509,7 +509,7 @@ export class GestorDocumentacionComponent implements OnInit {
     if (this.esModoEdicion && this.idViviendaEditar) {
       this.http
         .put(
-          `http://192.168.1.41:3000/api/viviendas/${this.idViviendaEditar}`,
+          `/api/viviendas/${this.idViviendaEditar}`,
           this.datosGlobales_gestor,
         )
         .subscribe({
@@ -530,7 +530,7 @@ export class GestorDocumentacionComponent implements OnInit {
       };
 
       this.http
-        .post('http://192.168.1.41:3000/api/viviendas', datosNuevos)
+        .post('/api/viviendas', datosNuevos)
         .subscribe({
           next: () => {
             this.isLoading = false;

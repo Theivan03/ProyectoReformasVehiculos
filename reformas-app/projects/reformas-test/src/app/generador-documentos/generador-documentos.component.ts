@@ -136,7 +136,7 @@ export class GeneradorDocumentosComponent implements OnInit {
   }
 
   guardarDB() {
-    const url = 'http://192.168.1.41:3000/guardar-proyecto';
+    const url = '/guardar-proyecto';
 
     const form = new FormData();
     form.append('metadata', JSON.stringify(this.reformaData));

@@ -1091,7 +1091,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
   ];
 
   const codigosImagenes = Object.values(data.codigosDetallados ?? {}).flat();
-  const tamañosResp = await fetch('http://192.168.1.41:3000/image-sizes');
+  const tamañosResp = await fetch('/image-sizes');
   const tamaños = await tamañosResp.json();
 
   let alturaAcumulada = 0;
@@ -1108,7 +1108,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
     const codigoStr = (codigo as { codigo: string }).codigo;
     const nombreBase = codigoStr.replace('.', '-');
     const nombreArchivo = `${nombreBase}.png`;
-    const url = `http://192.168.1.41:3000/imgs/${nombreArchivo}`;
+    const url = `/imgs/${nombreArchivo}`;
     const tamaño = tamaños.find(
       (img: { nombre: string }) => img.nombre === nombreArchivo,
     );

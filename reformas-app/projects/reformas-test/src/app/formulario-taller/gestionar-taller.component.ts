@@ -38,7 +38,7 @@ export class GestionarTallerComponent {
   }
 
   cargarTalleres(): void {
-    this.http.get<any>('http://192.168.1.41:3000/talleres').subscribe({
+    this.http.get<any>('/talleres').subscribe({
       next: (data) => {
         this.talleres = Array.isArray(data) ? data : [data];
       },
@@ -72,7 +72,7 @@ export class GestionarTallerComponent {
     this.progreso = 0;
     this.animateProgress(60);
 
-    this.http.get<any>('http://192.168.1.41:3000/talleres').subscribe({
+    this.http.get<any>('/talleres').subscribe({
       next: (data) => {
         const talleres = Array.isArray(data) ? data : [data];
         const nombre = this.formularioTaller.nombre;
@@ -97,7 +97,7 @@ export class GestionarTallerComponent {
         }
 
         this.http
-          .post('http://192.168.1.41:3000/talleres', talleres)
+          .post('/talleres', talleres)
           .subscribe({
             next: () => {
               this.animateProgress(100);
@@ -140,7 +140,7 @@ export class GestionarTallerComponent {
     this.animateProgress(70);
 
     this.http
-      .delete(`http://192.168.1.41:3000/talleres/${nombreCodificado}`)
+      .delete(`/talleres/${nombreCodificado}`)
       .subscribe({
         next: () => {
           this.animateProgress(100);

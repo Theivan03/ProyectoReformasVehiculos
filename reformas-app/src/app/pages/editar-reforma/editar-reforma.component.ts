@@ -19,7 +19,7 @@ import { GeneradorDocumentosComponent } from '../../generador-documentos/generad
   styleUrl: './editar-reforma.component.css',
 })
 export class EditarReformaComponent implements OnInit {
-  private readonly apiBase = 'http://192.168.1.41:3000';
+  private readonly apiBase = '';
 
   proyectos: any[] = [];
   cargando = false;
@@ -64,7 +64,7 @@ export class EditarReformaComponent implements OnInit {
       },
       error: (err) => {
         this.error =
-          'No se pudieron cargar los proyectos. ¿El servidor en 192.168.1.41:3000 está encendido y accesible desde este dispositivo?';
+          'No se pudieron cargar los proyectos. Verifica que el backend esté levantado en el puerto 3000.';
         this.cargando = false;
       },
     });

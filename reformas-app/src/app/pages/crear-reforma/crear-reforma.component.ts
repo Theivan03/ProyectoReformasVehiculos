@@ -395,7 +395,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.proyectoCargado = false;
     this.http
       .get(
-        `http://192.168.1.41:3000/proyectos/${id}/proyecto.json?cache_bust=${new Date().getTime()}`
+        `/proyectos/${id}/proyecto.json?cache_bust=${new Date().getTime()}`
       )
       .subscribe({
         next: (data: any) => {

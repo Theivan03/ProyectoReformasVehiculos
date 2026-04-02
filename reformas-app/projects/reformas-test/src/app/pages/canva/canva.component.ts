@@ -1,4 +1,4 @@
-﻿import {
+import {
   Component,
   ElementRef,
   EventEmitter,
@@ -287,7 +287,7 @@ export class CanvaComponent implements OnInit {
     this.fechaFirma = this.calcularFechaHoy();
     this.firmaUrl =
       this.datosEntrada?.firmaUrl ||
-      'http://192.168.1.41:3000/imgs/firma-generada.png';
+      '/imgs/firma-generada.png';
 
     const tipoActual = (this.datosEntrada?.tipoVehiculo || '')
       .toString()
@@ -419,13 +419,13 @@ export class CanvaComponent implements OnInit {
     let url = '';
     switch (tipoActual) {
       case 'camper':
-        url = 'http://192.168.1.41:3000/imgs/camper2.png';
+        url = '/imgs/camper2.png';
         break;
       case 'moto':
-        url = 'http://192.168.1.41:3000/imgs/moto.png';
+        url = '/imgs/moto.png';
         break;
       default:
-        url = 'http://192.168.1.41:3000/imgs/coche.png';
+        url = '/imgs/coche.png';
     }
     this.cargarImagenComoBase64(url).then((base64) => (this.imageSrc = base64));
 
@@ -579,7 +579,7 @@ export class CanvaComponent implements OnInit {
       const imagenBase64 = canvas.toDataURL('image/png');
 
       this.http
-        .post('http://192.168.1.41:3000/guardar-imagen-plano', {
+        .post('/guardar-imagen-plano', {
           imagenBase64,
           nombreArchivo: `plano-generado-proyecto${this.datosEntrada.numeroProyecto}.png`,
         })
@@ -598,7 +598,7 @@ export class CanvaComponent implements OnInit {
       const imagenBase64 = canvas.toDataURL('image/png');
 
       this.http
-        .post('http://192.168.1.41:3000/guardar-firma', {
+        .post('/guardar-firma', {
           imagenBase64,
           nombreArchivo: 'firma-generada.png',
         })
