@@ -434,6 +434,11 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 key: 'curvaturaSnorkel',
               },
               {
+                nombreMod: 'LUCES DE LARGO ALCANCE',
+                etiqueta: 'Luces de largo alcance',
+                key: 'curvaturaLargoAlcance',
+              },
+              {
                 nombreMod: 'PARAGOLPES DELANTERO',
                 etiqueta: 'Paragolpes delantero',
                 key: 'radioCurvaRParagolpesDelantero',

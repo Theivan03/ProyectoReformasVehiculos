@@ -998,6 +998,20 @@ export interface Modificacion {
   densidadAireKgM3Snorkel?: number;
   velocidadAireV2msSnorkel?: number;
   coefSeguridadKSnorkel?: number;
+  medidasLargoAlcance?: string;
+  pesoPiezaKgLargoAlcance?: number;
+  anchuraPiezaMLargoAlcance?: number;
+  metricaLargoAlcance?: number;
+  alturaPiezaMLargoAlcance?: number;
+  nTornillosLargoAlcance?: number;
+  calidadTornilloLargoAlcance?: number;
+  seccionResistenteAsLargoAlcance?: number;
+  resTraccionMinTornillo88Kgmm2LargoAlcance?: number;
+  cwCoefAerodinamicoLargoAlcance?: number;
+  densidadAireKgM3LargoAlcance?: number;
+  velocidadAireV2msLargoAlcance?: number;
+  coefSeguridadKLargoAlcance?: number;
+  curvaturaLargoAlcance?: number;
 
   diametroPernoCmCabrestante?: number;
   materialPernoCabrestante?: string;

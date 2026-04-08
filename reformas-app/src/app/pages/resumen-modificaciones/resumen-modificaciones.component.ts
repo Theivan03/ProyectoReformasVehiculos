@@ -743,6 +743,10 @@ export class ResumenModificacionesComponent
         this.ensureSnorkelDefaults(m);
       }
 
+      if (m.nombre === 'LUCES DE LARGO ALCANCE') {
+        this.ensureLargoAlcanceDefaults(m);
+      }
+
       if (m.nombre === 'TOLDO') {
         this.ensureToldoDefaults(m);
       }
@@ -1219,6 +1223,10 @@ export class ResumenModificacionesComponent
         metricaKey: 'metricaLucesEspecificas',
         areaKey: 'seccionResistenteAsLucesEspecificas',
       },
+      {
+        metricaKey: 'metricaLargoAlcance',
+        areaKey: 'seccionResistenteAsLargoAlcance',
+      },
       { metricaKey: 'metricaSnorkel', areaKey: 'seccionResistenteAsSnorkel' },
       {
         metricaKey: 'metricaParaDelantero',
@@ -1275,6 +1283,46 @@ export class ResumenModificacionesComponent
     this.syncCalidadByMetrica(mod);
   }
 
+  private ensureLargoAlcanceDefaults(mod: any): void {
+    if (!mod) return;
+
+    if (mod.curvaturaLargoAlcance == null) mod.curvaturaLargoAlcance = 8;
+    if (mod.cwCoefAerodinamicoLargoAlcance == null)
+      mod.cwCoefAerodinamicoLargoAlcance = 0.82;
+    if (mod.densidadAireKgM3LargoAlcance == null)
+      mod.densidadAireKgM3LargoAlcance = 1.29;
+    if (mod.velocidadAireV2msLargoAlcance == null)
+      mod.velocidadAireV2msLargoAlcance = 38.89;
+    if (mod.coefSeguridadKLargoAlcance == null)
+      mod.coefSeguridadKLargoAlcance = 3;
+
+    if (mod.resTraccionMinTornillo88Kgmm2LargoAlcance == null) {
+      mod.resTraccionMinTornillo88Kgmm2LargoAlcance = 80;
+    }
+
+    if (mod.seccionResistenteAsLargoAlcance == null) {
+      mod.seccionResistenteAsLargoAlcance =
+        this.getAreaResistenteByMetrica(mod.metricaLargoAlcance) ?? 36.64;
+    }
+
+    if (
+      mod.medidasLargoAlcance &&
+      (
+        mod.anchuraPiezaMLargoAlcance == null ||
+        mod.alturaPiezaMLargoAlcance == null
+      )
+    ) {
+      this.onDimensionesChange(
+        mod,
+        'medidasLargoAlcance',
+        'anchuraPiezaMLargoAlcance',
+        'alturaPiezaMLargoAlcance',
+      );
+    }
+
+    this.syncCalidadByMetrica(mod);
+  }
+
   calcularSuperficieAletines(mod: any): void {
     if (mod.anchoAletines != null && mod.altoAletines != null) {
       const ancho = Number(mod.anchoAletines) / 1000;
@@ -1297,6 +1345,11 @@ export class ResumenModificacionesComponent
         nombre: 'SNORKEL',
         metricaKey: 'metricaSnorkel',
         calidadKey: 'calidadTornilloSnorkel',
+      },
+      {
+        nombre: 'LUCES DE LARGO ALCANCE',
+        metricaKey: 'metricaLargoAlcance',
+        calidadKey: 'calidadTornilloLargoAlcance',
       },
       {
         nombre: 'PELDAÑOS',

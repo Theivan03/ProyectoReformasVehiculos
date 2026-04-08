@@ -160,13 +160,19 @@
     }
   </ul>
 
-  <div class="ing-wizard-footer">
-    <button type="button" class="btn ing-wizard-btn-back" (click)="onVolver()">
+  <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+    <button
+      type="button"
+      class="btn px-4 py-2 text-uppercase fw-semibold"
+      style="background-color: #e9ecef; border: 1px solid #ced4da; color: #495057;"
+      (click)="onVolver()"
+    >
       <i class="bi bi-arrow-left"></i> VOLVER
     </button>
 
     <button
-      class="btn ing-wizard-btn-next"
+      class="btn px-4 py-2 text-uppercase fw-semibold ms-auto"
+      style="background-color: #0d6efd; border: 1px solid #0d6efd; color: #ffffff;"
       [disabled]="seccionesSeleccionadas.length === 0"
       (click)="enviarSeleccion()"
     >

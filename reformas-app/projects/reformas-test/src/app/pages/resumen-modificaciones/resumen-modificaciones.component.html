@@ -4956,7 +4956,8 @@
               <div class="mod-card__header">
                 <h4 class="mod-card__title">Luces de Largo Alcance</h4>
                 <span class="mod-card__hint"
-                  >Faros adicionales de carretera</span
+                  >Faros adicionales de carretera - Homologación y cálculos de
+                  fijación</span
                 >
               </div>
 
@@ -5067,8 +5068,6 @@
                       </div>
                     </div>
 
-                    <div class="col-12"><hr class="mod-sep" /></div>
-
                     <div class="col-md-4">
                       <div class="form-floating">
                         <input
@@ -5113,6 +5112,327 @@
                           "
                         />
                         <label>ÍNDICE REF. (pdl/ud)</label>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Medidas"
+                          [(ngModel)]="mod.medidasLargoAlcance"
+                          (ngModelChange)="
+                            onDimensionesChange(
+                              mod,
+                              'medidasLargoAlcance',
+                              'anchuraPiezaMLargoAlcance',
+                              'alturaPiezaMLargoAlcance'
+                            )
+                          "
+                          name="medidasLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && !mod.medidasLargoAlcance
+                          "
+                        />
+                        <label>MEDIDAS (mm) (200x200...)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <select
+                          class="form-select"
+                          [(ngModel)]="mod.metricaLargoAlcance"
+                          (ngModelChange)="onMetricaChange(mod)"
+                          name="metricaLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.metricaLargoAlcance == null
+                          "
+                        >
+                          <option [ngValue]="null" disabled selected>
+                            -- SELECCIONAR --
+                          </option>
+                          @for (num of metricasTornillos; track num) {
+                            <option [value]="num">{{ num }}</option>
+                          }
+                        </select>
+                        <label>MÉTRICA TORNILLOS</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                      <h6
+                        class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                      >
+                        Características de la Pieza
+                      </h6>
+                    </div>
+
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Peso"
+                          [(ngModel)]="mod.pesoPiezaKgLargoAlcance"
+                          name="pesoPiezaKgLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.pesoPiezaKgLargoAlcance == null
+                          "
+                        />
+                        <label>PESO (Kg)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Ancho"
+                          [(ngModel)]="mod.anchuraPiezaMLargoAlcance"
+                          name="anchuraPiezaMLargoAlcance{{ i }}"
+                          required
+                          readonly
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.anchuraPiezaMLargoAlcance == null
+                          "
+                        />
+                        <label>ANCHO (m)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Alto"
+                          [(ngModel)]="mod.alturaPiezaMLargoAlcance"
+                          name="alturaPiezaMLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.alturaPiezaMLargoAlcance == null
+                          "
+                        />
+                        <label>ALTO (m)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Curvatura"
+                          [ngModel]="mod.curvaturaLargoAlcance ?? 8"
+                          (ngModelChange)="mod.curvaturaLargoAlcance = $event"
+                          name="curvaturaLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted && mod.curvaturaLargoAlcance == null
+                          "
+                        />
+                        <label>RATIO CURVATURA</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                      <h6
+                        class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                      >
+                        Cálculo Resistencia (Presión Aire)
+                      </h6>
+                    </div>
+
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="Cw"
+                          [ngModel]="mod.cwCoefAerodinamicoLargoAlcance ?? 0.82"
+                          (ngModelChange)="
+                            mod.cwCoefAerodinamicoLargoAlcance = $event
+                          "
+                          name="cwCoefAerodinamicoLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.cwCoefAerodinamicoLargoAlcance == null
+                          "
+                        />
+                        <label>Cw (COEF.)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.0001"
+                          min="0"
+                          class="form-control"
+                          placeholder="Densidad"
+                          [ngModel]="mod.densidadAireKgM3LargoAlcance ?? 1.29"
+                          (ngModelChange)="
+                            mod.densidadAireKgM3LargoAlcance = $event
+                          "
+                          name="densidadAireKgM3LargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.densidadAireKgM3LargoAlcance == null
+                          "
+                        />
+                        <label>p (DENSIDAD)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="V2"
+                          [ngModel]="mod.velocidadAireV2msLargoAlcance ?? 38.89"
+                          (ngModelChange)="
+                            mod.velocidadAireV2msLargoAlcance = $event
+                          "
+                          name="velocidadAireV2msLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.velocidadAireV2msLargoAlcance == null
+                          "
+                        />
+                        <label>V₂ (m/s)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="K"
+                          [ngModel]="mod.coefSeguridadKLargoAlcance ?? 3"
+                          (ngModelChange)="
+                            mod.coefSeguridadKLargoAlcance = $event
+                          "
+                          name="coefSeguridadKLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.coefSeguridadKLargoAlcance == null
+                          "
+                        />
+                        <label>K (SEGURIDAD)</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                      <h6
+                        class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                      >
+                        Datos de Sujeción
+                      </h6>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          min="0"
+                          class="form-control"
+                          placeholder="Nº"
+                          [(ngModel)]="mod.nTornillosLargoAlcance"
+                          name="nTornillosLargoAlcance{{ i }}"
+                          required
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.nTornillosLargoAlcance == null
+                          "
+                        />
+                        <label>Nº TORNILLOS</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.1"
+                          class="form-control"
+                          placeholder="Calidad"
+                          [(ngModel)]="mod.calidadTornilloLargoAlcance"
+                          name="calidadTornilloLargoAlcance{{ i }}"
+                          required
+                          readonly
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.calidadTornilloLargoAlcance == null
+                          "
+                        />
+                        <label>CALIDAD TORNILLO</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          class="form-control"
+                          placeholder="As"
+                          [ngModel]="mod.seccionResistenteAsLargoAlcance ?? 36.64"
+                          (ngModelChange)="
+                            mod.seccionResistenteAsLargoAlcance = $event
+                          "
+                          name="seccionResistenteAsLargoAlcance{{ i }}"
+                          required
+                          readonly
+                          [class.is-invalid]="
+                            formSubmitted &&
+                            mod.seccionResistenteAsLargoAlcance == null
+                          "
+                        />
+                        <label>As (SECCIÓN)</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <select
+                          class="form-select"
+                          [ngModel]="
+                            mod.resTraccionMinTornillo88Kgmm2LargoAlcance ?? 80
+                          "
+                          (ngModelChange)="
+                            mod.resTraccionMinTornillo88Kgmm2LargoAlcance = $event
+                          "
+                          name="resTraccionMinTornillo88Kgmm2LargoAlcance{{ i }}"
+                          required
+                        >
+                          <option [ngValue]="null" disabled>
+                            -- SELECCIONAR --
+                          </option>
+                          <option [ngValue]="80">80</option>
+                          <option [ngValue]="25">25</option>
+                        </select>
+                        <label>RESISTENCIA TRACCIÓN MÍN. (Kg/mm²)</label>
                       </div>
                     </div>
                   </div>
@@ -21418,12 +21738,21 @@
       </div>
     }
 
-    <div class="ing-wizard-footer">
-      <button type="button" class="btn ing-wizard-btn-back" (click)="onVolver()">
+    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+      <button
+        type="button"
+        class="btn px-4 py-2 text-uppercase fw-semibold"
+        style="background-color: #e9ecef; border: 1px solid #ced4da; color: #495057;"
+        (click)="onVolver()"
+      >
         <i class="bi bi-arrow-left"></i> VOLVER
       </button>
 
-      <button type="submit" class="btn ing-wizard-btn-next">
+      <button
+        type="submit"
+        class="btn px-4 py-2 text-uppercase fw-semibold ms-auto"
+        style="background-color: #0d6efd; border: 1px solid #0d6efd; color: #ffffff;"
+      >
         CONTINUAR <i class="bi bi-arrow-right"></i>
       </button>
     </div>

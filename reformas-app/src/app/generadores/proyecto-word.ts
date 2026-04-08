@@ -170,9 +170,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const modificaciones: Modificacion[] = data.modificaciones;
 
   let tipo = data.tipoVehiculo;
-  let alto;
   let alto2;
   let ancho = 500;
+  let altoPlano12 = 350;
+  let anchoPlano12 = 500;
+  let altoPlano1 = 350;
+  let anchoPlano1 = 500;
 
   let url = `/imgs/${tipo}.png`;
   const response3 = await fetch(url);
@@ -1799,6 +1802,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 nombreMod: 'SNORKEL',
                 etiqueta: 'Snorkel',
                 key: 'curvaturaSnorkel',
+              },
+              {
+                nombreMod: 'LUCES DE LARGO ALCANCE',
+                etiqueta: 'Luces de largo alcance',
+                key: 'curvaturaLargoAlcance',
               },
               {
                 nombreMod: 'PARAGOLPES DELANTERO',
@@ -5168,13 +5176,26 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   ];
 
   if (tipo === 'camper') {
-    alto = 250;
     alto2 = 350;
     ancho = 600;
-  } else {
-    alto = 350;
+    altoPlano12 = 267;
+    anchoPlano12 = 456;
+    altoPlano1 = 254;
+    anchoPlano1 = 433;
+  } else if (tipo === 'coche' || tipo === 'moto') {
     alto2 = 350;
     ancho = 500;
+    altoPlano12 = 280;
+    anchoPlano12 = 400;
+    altoPlano1 = 266;
+    anchoPlano1 = 380;
+  } else {
+    alto2 = 350;
+    ancho = 500;
+    altoPlano12 = alto2;
+    anchoPlano12 = ancho;
+    altoPlano1 = altoPlano12;
+    anchoPlano1 = anchoPlano12;
   }
 
   const punto5 = [
@@ -5216,8 +5237,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new ImageRun({
           data: imageBuffer3,
           transformation: {
-            width: 350,
-            height: alto,
+            width: anchoPlano1,
+            height: altoPlano1,
           },
           type: 'png',
         }),
@@ -5300,8 +5321,8 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new ImageRun({
           data: imageBuffer3,
           transformation: {
-            width: 350,
-            height: alto,
+            width: anchoPlano12,
+            height: altoPlano12,
           },
           type: 'png',
         }),

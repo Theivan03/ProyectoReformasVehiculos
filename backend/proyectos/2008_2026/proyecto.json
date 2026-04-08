@@ -1,30 +1,9 @@
 {
-  "tipoVehiculo": "coche",
+  "tipoVehiculo": "camper",
   "modificaciones": [
     {
-      "nombre": "3ª LUZ DE FRENO",
-      "seleccionado": false
-    },
-    {
       "nombre": "ALERÓN",
-      "seleccionado": true,
-      "coefAerodinamicoCwAleron": 0.82,
-      "velocidadAireV2msAleron": 38.89,
-      "densidadAireKgM3Aleron": 1.29,
-      "coefSeguridadKAleron": 3,
-      "curvaturaAleron": 8,
-      "calidadTornilloAleron": 8.8,
-      "resTraccionMinTornillo88Kgmm2Aleron": 80,
-      "metricaAleron": 4,
-      "seccionResistenteAsAleron": 8.78,
-      "ubicacionAleron": "5",
-      "materialAleron": "5",
-      "pesoAleron": "5",
-      "marcaAleron": "5",
-      "referenciaAleron": "5",
-      "medidasAleron": "5x5",
-      "numTornillosAleron": 5,
-      "superficieFrontalM2Aleron": 0
+      "seleccionado": false
     },
     {
       "nombre": "ALETINES Y SOBREALETINES",
@@ -39,52 +18,21 @@
       "seleccionado": false
     },
     {
+      "nombre": "ANTENA",
+      "seleccionado": false
+    },
+    {
       "nombre": "ANTIEMPOTRAMIENTO",
-      "seleccionado": false,
-      "seccionResistenteAsAntiempotramiento": 36.64,
-      "resTraccionMinTornillo88Kgmm2Antiempotramiento": 80,
-      "cwCoefAerodinamicoAntiempotramiento": 0.82,
-      "densidadAireKgM3Antiempotramiento": 1.29,
-      "velocidadAireV2msAntiempotramiento": 38.89,
-      "radioCurvaRAntiempotramiento": 8,
-      "coefSeguridadKAntiempotramiento": 3,
-      "detalle": {
-        "aletines": false,
-        "sobrealetines": false
-      },
-      "calidadTornilloAntiempotramiento": 8.8,
-      "acciones": [
-        "Instalación"
-      ],
-      "medidasAntiempotramiento": "530x830",
-      "superficieFrontalM2Antiempotramiento": 0.4399,
-      "metricaAntiempotramiento": 8,
-      "nTornillosAntiempotramiento": 8,
-      "pesoPiezaKgAntiempotramiento": 2,
-      "nTornillos": 8
+      "seleccionado": false
     },
     {
-      "nombre": "ANTINIEBLA",
+      "nombre": "AUMENTO O DISMINUCIÓN DE PLAZAS",
       "seleccionado": false,
-      "acciones": [
-        "Instalación"
-      ],
-      "ubicacionAntiniebla": "ambos",
-      "marcaAntinieblaDel": "5",
-      "homologacionAntinieblaDel": "5",
-      "metricaAntinieblaDel": "5",
-      "nTornillosAntinieblaDel": 5,
-      "marcaAntinieblaTras": "9",
-      "homologacionAntinieblaTras": "9",
-      "metricaAntinieblaTras": "9",
-      "nTornillosAntinieblaTras": 9
+      "tipoCambio": null
     },
     {
-      "nombre": "AUMENTO DE PLAZAS",
-      "seleccionado": true,
-      "descripcionAumento": "5",
-      "plazasAntesAumento": 5,
-      "plazasDespuesAumento": 5
+      "nombre": "BANQUETA",
+      "seleccionado": false
     },
     {
       "nombre": "BARRA DE DIRECCIÓN",
@@ -107,34 +55,27 @@
       "seleccionado": false
     },
     {
+      "nombre": "BOMBA DE AGUA",
+      "seleccionado": false
+    },
+    {
       "nombre": "CABRESTANTE",
-      "seleccionado": false,
-      "metricaCabrestante": 8,
-      "tensionMinCortanteKgCm2Cabrestante": 3100,
-      "tensionMinCortanteChasisKgCm2Cabrestante": 1948.06,
-      "materialPernoCabrestante": "Acero 8.8",
-      "materialPernoChasisCabrestante": "Acero 8.8",
-      "detalle": {
-        "aletines": false,
-        "sobrealetines": false
-      },
-      "capacidadCabrestanteKg": 6120,
-      "marcaCabrestante": "s",
-      "capacidadCabrestanteLb": 5000,
-      "nTornillos": 4,
-      "nPernosChasisCabrestante": 4,
-      "diametroPernoChasisMmCabrestante": 10,
-      "acciones": [
-        "Instalación"
-      ],
-      "diametroPernoCmCabrestante": 1
+      "seleccionado": false
     },
     {
       "nombre": "CALANDRA",
       "seleccionado": false
     },
     {
+      "nombre": "CALEFACCIÓN ESTACIONARIA",
+      "seleccionado": false
+    },
+    {
       "nombre": "CAMBIO DE ASIENTOS",
+      "seleccionado": false
+    },
+    {
+      "nombre": "CAMBIO DE CLASIFICACIÓN",
       "seleccionado": false
     },
     {
@@ -147,7 +88,19 @@
       "seleccionado": false
     },
     {
+      "nombre": "CLARABOYA",
+      "seleccionado": false
+    },
+    {
       "nombre": "DEFENSA DELANTERA",
+      "seleccionado": false
+    },
+    {
+      "nombre": "DEPÓSITO DE AGUA LIMPIA",
+      "seleccionado": false
+    },
+    {
+      "nombre": "DEPÓSITO DE AGUA SUCIA",
       "seleccionado": false
     },
     {
@@ -155,39 +108,36 @@
       "seleccionado": false
     },
     {
-      "nombre": "DIURNAS",
+      "nombre": "DUCHA EXTERIOR",
+      "seleccionado": false,
+      "anotacion": false
+    },
+    {
+      "nombre": "ENGANCHE REMOLQUE",
       "seleccionado": false
     },
     {
       "nombre": "ESTRIBOS LATERALES O TALONERAS",
       "seleccionado": false,
       "detalle": {
-        "estribosotaloneras": "estribos",
+        "estribosotaloneras": false,
         "anotacionAntideslizante": "2"
-      },
-      "coefAerodinamicoEstribos": 0.82,
-      "calidadTornilloEstribos": 8.8,
-      "seccionResistenteAsEstribos": 36.64,
-      "resTraccionMinTornillo88Kgmm2Estribos": 80,
-      "densidadAireKgM3Estribos": 1.29,
-      "velocidadAireV2msEstribos": 38.89,
-      "radioCurvaREstribos": 8,
-      "coefSeguridadKEstribos": 3,
-      "marcataloneras": "a",
-      "materialEstribos": "acero",
-      "dimensionesTaloneras": "530x830",
-      "anchuraMEstribos": 0.53,
-      "alturaMEstribos": 0.83,
-      "pesoPiezaKgEstribos": 8,
-      "metricaTalonera": "8",
-      "nTornillosEstribos": 8,
-      "acciones": [
-        "Instalación"
-      ]
+      }
     },
     {
-      "nombre": "FAROS DELANTEROS PRINCIPALES",
+      "nombre": "INSTALACIÓN DE BASES GIRATORIAS",
       "seleccionado": false
+    },
+    {
+      "nombre": "INSTALACIÓN DE TERMO",
+      "seleccionado": false,
+      "anotacion": false
+    },
+    {
+      "nombre": "INSTALACIÓN ELÉCTRICA",
+      "seleccionado": false,
+      "anotacion": false,
+      "placasSolares": []
     },
     {
       "nombre": "INTERCOOLER",
@@ -228,13 +178,7 @@
     },
     {
       "nombre": "LUZ MARCHA ATRÁS",
-      "seleccionado": false,
-      "marcaLuzMarchaAtras": "7",
-      "referenciaLuzMarchaAtras": "7",
-      "tecnologiaLuzMarchaAtras": "7",
-      "marcajeLuzMarchaAtras": "7",
-      "contrasenaLuzMarchaAtras": "7",
-      "mandosOriginalesLuzMarchaAtras": true
+      "seleccionado": false
     },
     {
       "nombre": "MATRÍCULA Y PORTAMATRÍCULA",
@@ -243,6 +187,15 @@
         "instalacionPorta": false,
         "reubicacionTrasera": false,
         "cambioUbicacionDelantera": false
+      }
+    },
+    {
+      "nombre": "MOBILIARIO INTERIOR VEHÍCULO",
+      "seleccionado": false,
+      "opcionesMueble": {
+        "muebleBajo": false,
+        "muebleAlto": false,
+        "aseo": false
       }
     },
     {
@@ -269,45 +222,31 @@
     },
     {
       "nombre": "PELDAÑOS",
-      "seleccionado": false,
+      "seleccionado": true,
       "metodoActuacionPeldanos": "manual",
       "ubicacionAccionamientoPeldanos": "",
-      "referenciaPeldanos": "a",
-      "marcaPeldano": "a",
-      "tipoFabricacionPeldanos": "marcaReferencia",
+      "referenciaPeldanos": "",
+      "marcaPeldano": "",
+      "tipoFabricacionPeldanos": "artesanal",
       "radioCurvaRPeldanos": 8,
       "coefAerodinamicoPeldanos": 0.82,
       "densidadAireKgM3Peldanos": 1.29,
       "velocidadAireV2msPeldanos": 38.89,
       "coefSeguridadKPeldanos": 3,
       "resTraccionMinTornillo88Kgmm2Peldanos": 80,
-      "seccionResistenteAsPeldanos": 36.64,
+      "seccionResistenteAsPeldanos": 115.52,
       "calidadTornilloPeldanos": 8.8,
-      "zonaPeldano": "a",
-      "materialPeldano": "a",
-      "medidasPeldano": "200x800",
-      "anchuraPiezaMPeldanos": 0.2,
-      "alturaPiezaMPeldanos": 0.8,
-      "pesoPiezaKgPeldanos": 5,
-      "nTornillosPeldanos": 8,
-      "metricaPeldanos": 8
-    },
-    {
-      "nombre": "PILOTO TRASERO",
-      "seleccionado": false,
-      "detalle": {
-        "luzPosicionFreno": false,
-        "intermitente": false,
-        "marchaAtras": false,
-        "catadioptrico": false
-      }
+      "zonaPeldano": "q",
+      "materialPeldano": "q",
+      "medidasPeldano": "20x5",
+      "anchuraPiezaMPeldanos": 0.02,
+      "alturaPiezaMPeldanos": 0.005,
+      "pesoPiezaKgPeldanos": 3,
+      "metricaPeldanos": 14,
+      "nTornillosPeldanos": 3
     },
     {
       "nombre": "PLANCHA CAPÓ",
-      "seleccionado": false
-    },
-    {
-      "nombre": "PROTECTORES PARAGOLPES",
       "seleccionado": false
     },
     {
@@ -319,22 +258,11 @@
       "seleccionado": false
     },
     {
-      "nombre": "REDUCCIÓN DE PLAZAS",
-      "seleccionado": true,
-      "enclaje": "5",
-      "plazasAntes": 5,
-      "plazasDespues": 5
-    },
-    {
-      "nombre": "REFUERZO PARAGOLPES",
+      "nombre": "REGISTRO DE LLENADO DE AGUA",
       "seleccionado": false
     },
     {
-      "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO",
+      "nombre": "REVESTIMIENTO INTERIOR",
       "seleccionado": false
     },
     {
@@ -343,26 +271,7 @@
     },
     {
       "nombre": "SNORKEL",
-      "seleccionado": false,
-      "curvaturaSnorkel": 8,
-      "cwCoefAerodinamicoSnorkel": 0.82,
-      "densidadAireKgM3Snorkel": 1.29,
-      "velocidadAireV2msSnorkel": 38.89,
-      "coefSeguridadKSnorkel": 3,
-      "resTraccionMinTornillo88Kgmm2Snorkel": 80,
-      "seccionResistenteAsSnorkel": 36.64,
-      "calidadTornilloSnorkel": 8.8,
-      "acciones": [
-        "Instalación"
-      ],
-      "marcaSnorkel": "a",
-      "materialSnorkel": "goma",
-      "medidasSnorkel": "200x800",
-      "anchuraPiezaMSnorkel": 0.2,
-      "alturaPiezaMSnorkel": 0.8,
-      "metricaSnorkel": "8",
-      "pesoPiezaKgSnorkel": 5,
-      "nTornillosSnorkel": 8
+      "seleccionado": false
     },
     {
       "nombre": "SOPORTE PARA RUEDA DE REPUESTO",
@@ -370,6 +279,10 @@
     },
     {
       "nombre": "SOPORTES PARA LUCES DE USO ESPECÍFICO",
+      "seleccionado": false
+    },
+    {
+      "nombre": "SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL",
       "seleccionado": false
     },
     {
@@ -390,6 +303,10 @@
     },
     {
       "nombre": "SUSTITUCIÓN DE VOLANTE",
+      "seleccionado": false
+    },
+    {
+      "nombre": "TECHO ELEVABLE",
       "seleccionado": false
     },
     {
@@ -414,11 +331,19 @@
       }
     },
     {
-      "nombre": "VENTANA ABATIBLE",
+      "nombre": "TOLDO",
       "seleccionado": false
     },
     {
-      "nombre": "VENTANA LATERAL",
+      "nombre": "TOMA EXTERIOR 230V",
+      "seleccionado": false
+    },
+    {
+      "nombre": "VENTANA",
+      "seleccionado": false
+    },
+    {
+      "nombre": "VENTANA ABATIBLE",
       "seleccionado": false
     }
   ],
@@ -570,10 +495,10 @@
   },
   "marcadores": [
     {
-      "x": 0.33524734982332155,
-      "y": 0.31740265237020315,
+      "x": 0.30126176803781396,
+      "y": 0.4179746036753687,
       "label": "1",
-      "etiqueta": "ALERÓN"
+      "etiqueta": "PELDAÑOS"
     }
   ],
   "fechaFirma": "Teulada, 5 de marzo de 2026",

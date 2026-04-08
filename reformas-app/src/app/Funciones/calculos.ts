@@ -7503,6 +7503,52 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
     }
 
+    const lucesLargoAlcance = modificaciones.find(
+      (m) => m.nombre === 'LUCES DE LARGO ALCANCE' && m.seleccionado,
+    );
+    if (lucesLargoAlcance) {
+      const medidasLargoAlcanceParseadas = parseMedidasEnMetros(
+        lucesLargoAlcance.medidasLargoAlcance,
+      );
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Luces de largo alcance',
+        pesoPiezaKg: toFiniteNumber(
+          lucesLargoAlcance.pesoPiezaKgLargoAlcance,
+        ),
+        anchuraPiezaM:
+          toFiniteNumber(lucesLargoAlcance.anchuraPiezaMLargoAlcance) ||
+          medidasLargoAlcanceParseadas.anchuraM,
+        alturaPiezaM:
+          toFiniteNumber(lucesLargoAlcance.alturaPiezaMLargoAlcance) ||
+          medidasLargoAlcanceParseadas.alturaM,
+        metrica: parseMetricaTornillo(lucesLargoAlcance.metricaLargoAlcance),
+        nTornillos: toPositiveInt(lucesLargoAlcance.nTornillosLargoAlcance),
+        calidadTornillo:
+          toFiniteNumber(lucesLargoAlcance.calidadTornilloLargoAlcance) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(lucesLargoAlcance.seccionResistenteAsLargoAlcance) ||
+          getAreaResistentePorMetrica(lucesLargoAlcance.metricaLargoAlcance),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            lucesLargoAlcance.resTraccionMinTornillo88Kgmm2LargoAlcance,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(lucesLargoAlcance.cwCoefAerodinamicoLargoAlcance) ||
+          0.82,
+        densidadAireKgM3:
+          toFiniteNumber(lucesLargoAlcance.densidadAireKgM3LargoAlcance) ||
+          1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(lucesLargoAlcance.velocidadAireV2msLargoAlcance) ||
+          38.89,
+        coefSeguridadK:
+          toFiniteNumber(lucesLargoAlcance.coefSeguridadKLargoAlcance) || 3,
+        curvatura: toFiniteNumber(lucesLargoAlcance.curvaturaLargoAlcance) || 8,
+      });
+      contador++;
+    }
+
     const peldanos = modificaciones.find(
       (m) => m.nombre === 'PELDAÑOS' && m.seleccionado,
     );
