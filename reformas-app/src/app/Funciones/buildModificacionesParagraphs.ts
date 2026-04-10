@@ -16,6 +16,7 @@ export function buildModificacionesParagraphs(
   data: any,
   suspension: any,
 ): Paragraph[] {
+  modificaciones = Array.isArray(modificaciones) ? modificaciones : [];
   const out: Paragraph[] = [];
   let mod: Modificacion;
   let raw;

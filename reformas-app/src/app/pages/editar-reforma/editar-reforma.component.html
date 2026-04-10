@@ -266,6 +266,7 @@
       *ngIf="mostrandoGeneradorDocumentos"
       [reformaData]="proyectoDataCompleto"
       [esEdicion]="true"
+      [proyectoId]="proyectoSeleccionado?.id || null"
       (volverAlFormulario)="cerrarGeneradorDocumentos()"
     ></app-generador-documentos>
 

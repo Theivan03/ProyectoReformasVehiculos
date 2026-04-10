@@ -9,12 +9,22 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
+const BACKEND_ROOT = __dirname;
+const PROYECTOS_DIR = path.join(BACKEND_ROOT, 'proyectos');
+const ULTIMO_PROYECTO_PATH = path.join(BACKEND_ROOT, 'ultimoProyecto.json');
+const TALLERES_PATH = path.join(BACKEND_ROOT, 'talleres.json');
+const INGENIEROS_PATH = path.join(BACKEND_ROOT, 'ingenieros.json');
+const ARQUITECTOS_PATH = path.join(BACKEND_ROOT, 'arquitectos.json');
+const INSTALADORES_PATH = path.join(BACKEND_ROOT, 'instaladores.json');
+const UPLOADS_DOCX_DIR = path.join(BACKEND_ROOT, 'uploads_docx');
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Aumentado límite por si las imágenes base64 son grandes
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-const uploadDocx = multer({ dest: 'uploads_docx/' });
+fs.mkdirSync(UPLOADS_DOCX_DIR, { recursive: true });
+
+const uploadDocx = multer({ dest: UPLOADS_DOCX_DIR });
 const multerDocx = multer({ storage: multer.memoryStorage() });
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -47,6 +57,61 @@ const guardarUsuariosEnDisco = () => {
   }
 };
 
+const readJsonFile = (filePath, fallback = null) => {
+  try {
+    if (!fs.existsSync(filePath)) return fallback;
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch (error) {
+    console.error(`Error leyendo JSON en ${filePath}:`, error);
+    return fallback;
+  }
+};
+
+const readJsonArrayFile = (filePath) => {
+  const data = readJsonFile(filePath, []);
+  if (Array.isArray(data)) return data;
+  return data ? [data] : [];
+};
+
+const writeJsonFile = (filePath, data) => {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+};
+
+const resolveProjectDirById = (id) => {
+  const safeId = String(id || '').trim();
+  if (!safeId) return null;
+
+  const proyectosRoot = path.resolve(PROYECTOS_DIR);
+  const resolvedDir = path.resolve(path.join(proyectosRoot, safeId));
+
+  if (resolvedDir === proyectosRoot || !resolvedDir.startsWith(proyectosRoot + path.sep)) {
+    return null;
+  }
+
+  return resolvedDir;
+};
+
+const removeFilesIfExist = (...files) => {
+  files.filter(Boolean).forEach((filePath) => {
+    fs.rm(filePath, { force: true }, (error) => {
+      if (error) {
+        console.warn(`No se pudo borrar ${filePath}:`, error.message);
+      }
+    });
+  });
+};
+
+const getLibreOfficeExecutable = () => {
+  const candidates = [
+    process.env.LIBREOFFICE_PATH,
+    'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+    'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe',
+  ].filter(Boolean);
+
+  return candidates.find((candidate) => fs.existsSync(candidate)) || null;
+};
+
 const crearUsuarioAdminPorDefecto = async () => {
   const saltAdmin = await bcrypt.genSalt(10);
   const passwordHashedAdmin = await bcrypt.hash('220177', saltAdmin);
@@ -70,6 +135,19 @@ crearUsuarioAdminPorDefecto();
 
 app.post('/api/registro', async (req, res) => {
   const { usuarioRegistroApp, passwordRegistroApp, tipoUsuarioApp } = req.body;
+  const usuarioNormalizado = String(usuarioRegistroApp || '').trim();
+
+  if (!usuarioNormalizado || !passwordRegistroApp || !tipoUsuarioApp) {
+    return res.status(400).json({ error: 'Faltan datos obligatorios del usuario' });
+  }
+
+  const usuarioDuplicado = baseDeDatosUsuariosServidor.some(
+    (u) => String(u.usuario || '').trim().toLowerCase() === usuarioNormalizado.toLowerCase()
+  );
+
+  if (usuarioDuplicado) {
+    return res.status(409).json({ error: 'El usuario ya existe' });
+  }
 
   const saltServidor = await bcrypt.genSalt(10);
   const passwordHashedServidor = await bcrypt.hash(passwordRegistroApp, saltServidor);
@@ -82,7 +160,7 @@ app.post('/api/registro', async (req, res) => {
 
   const nuevoUsuarioServidor = {
     id: siguienteId,
-    usuario: usuarioRegistroApp,
+    usuario: usuarioNormalizado,
     password: passwordHashedServidor,
     rol: tipoUsuarioApp
   };
@@ -134,19 +212,17 @@ app.delete('/api/usuarios/:id', (req, res) => {
 });
 
 // --- GESTIÓN DE TALLERES ---
-const ULTIMO_PROYECTO_PATH = path.join(__dirname, 'ultimoProyecto.json');
 
 app.get('/talleres', (req, res) => {
   try {
-    const data = fs.readFileSync('./talleres.json', 'utf-8');
-    res.json(JSON.parse(data));
+    res.json(readJsonArrayFile(TALLERES_PATH));
   } catch (error) {
     res.json([]);
   }
 });
 
 app.post('/talleres', (req, res) => {
-  fs.writeFileSync('./talleres.json', JSON.stringify(req.body, null, 2));
+  writeJsonFile(TALLERES_PATH, req.body);
   res.status(200).send({ message: 'Talleres actualizados' });
 });
 
@@ -154,18 +230,17 @@ app.delete('/talleres/:nombre', (req, res) => {
   const nombreAEliminar = decodeURIComponent(req.params.nombre).trim().toLowerCase();
 
   try {
-    const data = fs.readFileSync('./talleres.json', 'utf-8');
-    let talleres = JSON.parse(data);
+    const talleres = readJsonArrayFile(TALLERES_PATH);
 
     const talleresFiltrados = talleres.filter(
-      t => t.nombre.trim().toLowerCase() !== nombreAEliminar
+      t => String(t?.nombre || '').trim().toLowerCase() !== nombreAEliminar
     );
 
     if (talleres.length === talleresFiltrados.length) {
       return res.status(404).send({ message: 'Taller no encontrado para eliminar' });
     }
 
-    fs.writeFileSync('./talleres.json', JSON.stringify(talleresFiltrados, null, 2));
+    writeJsonFile(TALLERES_PATH, talleresFiltrados);
     res.status(200).send({ message: 'Taller eliminado correctamente' });
   } catch (error) {
     res.status(500).send({ message: 'Error al eliminar taller' });
@@ -254,13 +329,43 @@ app.post(
   ]),
   (req, res) => {
     try {
-      let metadata = JSON.parse(req.body.metadata);
-      const num = String(metadata.numeroProyecto);
-      const numActual = Number(num);
-      const añoAhora = new Date().getFullYear().toString();
-      const esEdicion = String(req.body.esEdicion || '').toLowerCase() === 'true';
+      const metadata = JSON.parse(req.body.metadata || '{}');
+      if (!metadata || typeof metadata !== 'object') {
+        return res.status(400).json({ error: 'Metadata de proyecto invalida' });
+      }
 
-      const projectDir = path.join(__dirname, 'proyectos', num + "_" + añoAhora);
+      const num = String(metadata.numeroProyecto || '').trim();
+      if (!num) {
+        return res.status(400).json({ error: 'El numero de proyecto es obligatorio' });
+      }
+      const numActual = Number(num);
+      const anyoAhora = new Date().getFullYear().toString();
+      const esEdicion = String(req.body.esEdicion || '').toLowerCase() === 'true';
+      const proyectoIdOriginal = String(req.body.proyectoId || '').trim();
+      let anyoProyecto = anyoAhora;
+      let previousProjectDir = null;
+
+      if (esEdicion && proyectoIdOriginal) {
+        previousProjectDir = resolveProjectDirById(proyectoIdOriginal);
+        if (!previousProjectDir) {
+          return res.status(400).json({ error: 'ID de proyecto invalido' });
+        }
+
+        const yearFromId = path.basename(previousProjectDir).split('_').pop();
+        if (/^\d{4}$/.test(yearFromId || '')) {
+          anyoProyecto = yearFromId;
+        }
+      }
+
+      const projectDir = path.join(PROYECTOS_DIR, `${num}_${anyoProyecto}`);
+
+      if (
+        previousProjectDir &&
+        path.resolve(previousProjectDir) !== path.resolve(projectDir) &&
+        fs.existsSync(previousProjectDir)
+      ) {
+        fs.rmSync(previousProjectDir, { recursive: true, force: true });
+      }
       
       // Si la carpeta existe, la limpiamos para sobreescribir (edición)
       if (fs.existsSync(projectDir)) {
@@ -279,27 +384,23 @@ app.post(
       fs.mkdirSync(postDir, { recursive: true });
 
       // Guardar imágenes previas
-      const prevFiles = req.files['prevImage'] || [];
+      const prevFiles = req.files?.['prevImage'] || [];
       prevFiles.forEach((file, idx) => {
         const fn = file.originalname || `prev-${idx}.png`;
         fs.writeFileSync(path.join(prevDir, fn), file.buffer);
       });
 
       // Guardar imágenes posteriores
-      const postFiles = req.files['postImage'] || [];
+      const postFiles = req.files?.['postImage'] || [];
       postFiles.forEach((file, idx) => {
         const fn = file.originalname || `post-${idx}.png`;
         fs.writeFileSync(path.join(postDir, fn), file.buffer);
       });
 
       if (!esEdicion && Number.isFinite(numActual) && numActual > 0) {
-        const newCounter = { ultimo: num, año: añoAhora };
-        fs.writeFileSync(
-          ULTIMO_PROYECTO_PATH,
-          JSON.stringify(newCounter, null, 2),
-          'utf-8'
-        );
-        console.log(`Contador actualizado a: ${num} (${añoAhora})`);
+        const newCounter = { ultimo: num, año: anyoAhora };
+        writeJsonFile(ULTIMO_PROYECTO_PATH, newCounter);
+        console.log(`Contador actualizado a: ${num} (${anyoAhora})`);
       } else {
         console.log(`Guardado en modo edición detectado (Proyecto ${num}). El contador no se modifica.`);
       }
@@ -340,17 +441,28 @@ app.get('/ultimo-proyecto', (req, res) => {
 
 // --- CONVERSIÓN DOCX -> PDF ---
 app.post('/convertir-docx-a-pdf', uploadDocx.single('doc'), (req, res) => {
+  if (!req.file?.path) {
+    return res.status(400).json({ error: 'No se ha recibido ningun archivo DOCX' });
+  }
+
+  const libreOfficeExecutable = getLibreOfficeExecutable();
+  if (!libreOfficeExecutable) {
+    removeFilesIfExist(req.file.path);
+    return res.status(500).json({ error: 'LibreOffice no esta disponible en el servidor' });
+  }
+
   const docxPath = path.resolve(req.file.path);
   const outputDir = path.join(__dirname, 'pdf_generados');
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
   const pdfPath = path.join(outputDir, path.parse(docxPath).name + '.pdf');
-  const comando = `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"` +
+  const comando = `"${libreOfficeExecutable}"` +
     ` --headless --convert-to pdf "${docxPath}" --outdir "${outputDir}"`;
 
   exec(comando, (err, stdout, stderr) => {
-    if (err) {
+    if (err || !fs.existsSync(pdfPath)) {
       console.error('Error convirtiendo a PDF:', stderr || err);
+      removeFilesIfExist(docxPath, pdfPath);
       return res.status(500).json({ error: 'Fallo al convertir a PDF' });
     }
 
@@ -358,40 +470,49 @@ app.post('/convertir-docx-a-pdf', uploadDocx.single('doc'), (req, res) => {
       if (sendErr) {
         console.error('Error enviando el PDF:', sendErr);
       }
-      [docxPath, pdfPath].forEach((file) => {
-        fs.rm(file, { force: true }, (rmErr) => {
-          if (rmErr) {
-            console.warn(`No se pudo borrar ${file}:`, rmErr.message);
-          }
-        });
-      });
+      removeFilesIfExist(docxPath, pdfPath);
     });
   });
 });
 
 app.get('/proyectos', (req, res) => {
-  const proyectosDir = path.join(__dirname, 'proyectos');
-  if (!fs.existsSync(proyectosDir)) {
+  if (!fs.existsSync(PROYECTOS_DIR)) {
       return res.json([]);
   }
-  const carpetas = fs.readdirSync(proyectosDir);
+  const carpetas = fs.readdirSync(PROYECTOS_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
 
   let proyectos = carpetas.map(carpeta => {
-    const pjPath = path.join(proyectosDir, carpeta, 'proyecto.json');
+    const pjPath = path.join(PROYECTOS_DIR, carpeta, 'proyecto.json');
     if (fs.existsSync(pjPath)) {
-      const json = JSON.parse(fs.readFileSync(pjPath, 'utf-8'));
-      return {
-        id: carpeta,
-        nombre: json.referenciaProyecto,
-        marca: json.marca || '---',
-        matricula: json.matricula || '---',
-        propietario: json.propietario || '---',
-        numeroProyecto: json.numeroProyecto || 0,
-        enviadoPorCliente: json.enviadoPorCliente || false,
-      };
+      try {
+        const json = JSON.parse(fs.readFileSync(pjPath, 'utf-8'));
+        return {
+          id: carpeta,
+          nombre: json.referenciaProyecto || carpeta,
+          marca: json.marca || '---',
+          matricula: json.matricula || '---',
+          propietario: json.propietario || '---',
+          numeroProyecto: json.numeroProyecto || 0,
+          enviadoPorCliente: json.enviadoPorCliente || false,
+        };
+      } catch (error) {
+        console.warn(`Proyecto omitido por JSON invalido: ${carpeta}`, error);
+      }
     } else {
-      return { id: carpeta, nombre: carpeta, enviadoPorCliente: false };
+      return { id: carpeta, nombre: carpeta, enviadoPorCliente: false, numeroProyecto: 0 };
     }
+
+    return {
+      id: carpeta,
+      nombre: carpeta,
+      marca: '---',
+      matricula: '---',
+      propietario: '---',
+      numeroProyecto: 0,
+      enviadoPorCliente: false,
+    };
   });
 
   proyectos.sort((a, b) => Number(b.numeroProyecto) - Number(a.numeroProyecto));
@@ -421,8 +542,12 @@ app.get('/proyectos', (req, res) => {
 });
 
 app.get('/proyectos/:id/proyecto.json', (req, res) => {
-  const id = req.params.id;
-  const pjPath = path.join(__dirname, 'proyectos', id, 'proyecto.json');
+  const projectDir = resolveProjectDirById(req.params.id);
+  if (!projectDir) {
+    return res.status(400).json({ error: 'ID de proyecto invalido' });
+  }
+
+  const pjPath = path.join(projectDir, 'proyecto.json');
 
   if (!fs.existsSync(pjPath)) {
     return res.status(404).json({ error: 'Proyecto no encontrado' });
@@ -438,11 +563,9 @@ app.get('/proyectos/:id/proyecto.json', (req, res) => {
 });
 
 app.delete('/proyectos/:id', (req, res) => {
-  const id = req.params.id;
-  const proyectosDir = path.resolve(path.join(__dirname, 'proyectos'));
-  const projectDir = path.resolve(path.join(proyectosDir, id));
+  const projectDir = resolveProjectDirById(req.params.id);
 
-  if (projectDir !== proyectosDir && !projectDir.startsWith(proyectosDir + path.sep)) {
+  if (!projectDir) {
     return res.status(400).json({ error: 'Ruta de proyecto invalida' });
   }
 
@@ -543,10 +666,10 @@ app.use(
 // --- INGENIEROS, ARQUITECTOS E INSTALADORES ---
 app.get('/ingenieros', (req, res) => {
   try {
-    if (!fs.existsSync('./ingenieros.json')) {
+    if (!fs.existsSync(INGENIEROS_PATH)) {
         return res.json([]);
     }
-    const raw = fs.readFileSync('./ingenieros.json', 'utf-8');
+    const raw = fs.readFileSync(INGENIEROS_PATH, 'utf-8');
     const data = JSON.parse(raw);
 
     const lista = Array.isArray(data) ? data : [data];
@@ -559,10 +682,10 @@ app.get('/ingenieros', (req, res) => {
 
 app.get('/arquitectos', (req, res) => {
   try {
-    if (!fs.existsSync('./arquitectos.json')) {
+    if (!fs.existsSync(ARQUITECTOS_PATH)) {
         return res.json([]);
     }
-    const raw = fs.readFileSync('./arquitectos.json', 'utf-8');
+    const raw = fs.readFileSync(ARQUITECTOS_PATH, 'utf-8');
     const data = JSON.parse(raw);
 
     const lista = Array.isArray(data) ? data : [data];
@@ -575,10 +698,10 @@ app.get('/arquitectos', (req, res) => {
 
 app.get('/instaladores', (req, res) => {
   try {
-    if (!fs.existsSync('./instaladores.json')) {
+    if (!fs.existsSync(INSTALADORES_PATH)) {
         return res.json([]);
     }
-    const raw = fs.readFileSync('./instaladores.json', 'utf-8');
+    const raw = fs.readFileSync(INSTALADORES_PATH, 'utf-8');
     const data = JSON.parse(raw);
 
     const lista = Array.isArray(data) ? data : [data];
@@ -591,7 +714,7 @@ app.get('/instaladores', (req, res) => {
 
 app.post('/ingenieros', (req, res) => {
   try {
-    fs.writeFileSync('./ingenieros.json', JSON.stringify(req.body, null, 2));
+    writeJsonFile(INGENIEROS_PATH, req.body);
     res.status(200).send({ message: 'Ingenieros actualizados' });
   } catch (err) {
     console.error('Error guardando ingenieros:', err);
@@ -601,7 +724,7 @@ app.post('/ingenieros', (req, res) => {
 
 app.post('/arquitectos', (req, res) => {
   try {
-    fs.writeFileSync('./arquitectos.json', JSON.stringify(req.body, null, 2));
+    writeJsonFile(ARQUITECTOS_PATH, req.body);
     res.status(200).send({ message: 'Ingenieros actualizados' });
   } catch (err) {
     console.error('Error guardando arquitectos:', err);
@@ -611,7 +734,7 @@ app.post('/arquitectos', (req, res) => {
 
 app.post('/instaladores', (req, res) => {
   try {
-    fs.writeFileSync('./instaladores.json', JSON.stringify(req.body, null, 2));
+    writeJsonFile(INSTALADORES_PATH, req.body);
     res.status(200).send({ message: 'Instaladores actualizados' });
   } catch (err) {
     console.error('Error guardando instaladores:', err);
@@ -625,7 +748,7 @@ app.delete('/ingenieros/:nombre', (req, res) => {
       .trim()
       .toLowerCase();
 
-    const raw = fs.readFileSync('./ingenieros.json', 'utf-8');
+    const raw = fs.readFileSync(INGENIEROS_PATH, 'utf-8');
     let ingenieros = JSON.parse(raw);
     if (!Array.isArray(ingenieros)) ingenieros = [ingenieros];
 
@@ -633,7 +756,7 @@ app.delete('/ingenieros/:nombre', (req, res) => {
       (i) => i.nombre.trim().toLowerCase() !== nombreAEliminar
     );
 
-    fs.writeFileSync('./ingenieros.json', JSON.stringify(filtrados, null, 2));
+    writeJsonFile(INGENIEROS_PATH, filtrados);
     res.status(200).send({ message: 'Ingeniero eliminado correctamente' });
   } catch (err) {
     console.error('Error al eliminar ingeniero:', err);
@@ -647,7 +770,7 @@ app.delete('/arquitectos/:nombre', (req, res) => {
       .trim()
       .toLowerCase();
 
-    const raw = fs.readFileSync('./arquitectos.json', 'utf-8');
+    const raw = fs.readFileSync(ARQUITECTOS_PATH, 'utf-8');
     let arquitectos = JSON.parse(raw);
     if (!Array.isArray(arquitectos)) arquitectos = [arquitectos];
 
@@ -655,7 +778,7 @@ app.delete('/arquitectos/:nombre', (req, res) => {
       (i) => i.nombre.trim().toLowerCase() !== nombreAEliminar
     );
 
-    fs.writeFileSync('./arquitectos.json', JSON.stringify(filtrados, null, 2));
+    writeJsonFile(ARQUITECTOS_PATH, filtrados);
     res.status(200).send({ message: 'Arquitecto eliminado correctamente' });
   } catch (err) {
     console.error('Error al eliminar arquitecto:', err);
@@ -669,11 +792,11 @@ app.delete('/instaladores/:nombre', (req, res) => {
       .trim()
       .toLowerCase();
 
-    if (!fs.existsSync('./instaladores.json')) {
+    if (!fs.existsSync(INSTALADORES_PATH)) {
       return res.status(200).send({ message: 'No hay instaladores guardados' });
     }
 
-    const raw = fs.readFileSync('./instaladores.json', 'utf-8');
+    const raw = fs.readFileSync(INSTALADORES_PATH, 'utf-8');
     let instaladores = JSON.parse(raw);
     if (!Array.isArray(instaladores)) instaladores = [instaladores];
 
@@ -684,7 +807,7 @@ app.delete('/instaladores/:nombre', (req, res) => {
           .toLowerCase() !== nombreAEliminar
     );
 
-    fs.writeFileSync('./instaladores.json', JSON.stringify(filtrados, null, 2));
+    writeJsonFile(INSTALADORES_PATH, filtrados);
     res.status(200).send({ message: 'Instalador eliminado correctamente' });
   } catch (err) {
     console.error('Error al eliminar instalador:', err);

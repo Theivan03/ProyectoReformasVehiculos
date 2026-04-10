@@ -95,7 +95,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   editMode = false;
   vieneDePosterior = false;
 
-  private editId: string | null = null;
+  editId: string | null = null;
   private storageKey = STORAGE_PREFIX;
 
   private editNavDone = false;
