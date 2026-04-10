@@ -44,6 +44,7 @@ export class GeneradorDocumentosComponent implements OnInit {
   ];
 
   @Input() reformaData: any;
+  @Input() esEdicion = false;
   @Output() volverAlFormulario = new EventEmitter<void>();
 
   constructor(
@@ -140,6 +141,7 @@ export class GeneradorDocumentosComponent implements OnInit {
 
     const form = new FormData();
     form.append('metadata', JSON.stringify(this.reformaData));
+    form.append('esEdicion', String(this.esEdicion));
 
     if (Array.isArray(this.reformaData.prevImages)) {
       this.reformaData.prevImages.forEach((file: File, idx: number) => {

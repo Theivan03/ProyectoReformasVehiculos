@@ -179,7 +179,7 @@
         >
           <div class="position-sticky pt-4">
             <!-- SECCIÓN 1: COCHE (Y ADMIN) -->
-            <ng-container *ngIf="esAdmin || esRolCoche">
+            <ng-container *ngIf="esAdmin || esRolCoche || esRolVivienda">
               <h6 class="sidebar-heading px-4 mb-2 text-uppercase fw-bold">
                 Gestión Principal
               </h6>
@@ -205,12 +205,12 @@
             </ng-container>
 
             <!-- SECCIÓN 2: BASE DE DATOS (ADMIN Y COCHE - Talleres) -->
-            <ng-container *ngIf="esAdmin">
+            <ng-container>
               <h6 class="sidebar-heading px-4 mt-4 mb-2 text-uppercase fw-bold">
                 Base de Datos
               </h6>
               <ul class="nav flex-column">
-                <li class="nav-item">
+                <li class="nav-item" *ngIf="esAdmin">
                   <a
                     class="nav-link sidebar-link nav-link-admin d-flex align-items-center"
                     routerLink="/admin"
@@ -226,7 +226,7 @@
                     <span class="me-2">⚙️</span> Talleres
                   </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" *ngIf="esAdmin">
                   <a
                     class="nav-link sidebar-link nav-link-admin d-flex align-items-center"
                     routerLink="/ingenieros"
@@ -234,7 +234,7 @@
                     <span class="me-2">🔧</span> Ingenieros
                   </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" *ngIf="esAdmin">
                   <a
                     class="nav-link sidebar-link nav-link-admin d-flex align-items-center"
                     routerLink="/arquitectos"
@@ -242,7 +242,7 @@
                     <span class="me-2">🏗️</span> Arquitectos
                   </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" *ngIf="esAdmin">
                   <a
                     class="nav-link sidebar-link nav-link-admin d-flex align-items-center"
                     routerLink="/instaladores"
@@ -254,7 +254,7 @@
             </ng-container>
 
             <!-- SECCIÓN 3: VIVIENDA (Y ADMIN) -->
-            <ng-container *ngIf="esAdmin || esRolVivienda">
+            <ng-container *ngIf="esAdmin || esRolVivienda || esRolCoche">
               <h6 class="sidebar-heading px-4 mt-4 mb-2 text-uppercase fw-bold">
                 Base de Datos
               </h6>

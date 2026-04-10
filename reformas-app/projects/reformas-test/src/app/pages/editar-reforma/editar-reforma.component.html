@@ -265,6 +265,7 @@
     <app-generador-documentos
       *ngIf="mostrandoGeneradorDocumentos"
       [reformaData]="proyectoDataCompleto"
+      [esEdicion]="true"
       (volverAlFormulario)="cerrarGeneradorDocumentos()"
     ></app-generador-documentos>
 
@@ -328,6 +329,13 @@
                 <i class="bi bi-file-earmark-word me-2"></i> Descargar
                 Documentación
               </button>
+              <button
+                type="button"
+                class="btn btn-danger py-2"
+                (click)="eliminarExpedienteSeleccionado()"
+              >
+                <i class="bi bi-trash3 me-2"></i> BORRAR EXPEDIENTE
+              </button>
             </div>
           </div>
         </div>
@@ -383,6 +391,14 @@
                 data-bs-dismiss="modal"
               >
                 <i class="bi bi-pencil-square me-2"></i> EDITAR REFORMA
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-danger py-2"
+                (click)="eliminarExpedienteSeleccionado()"
+              >
+                <i class="bi bi-trash3 me-2"></i> BORRAR EXPEDIENTE
               </button>
 
               <button

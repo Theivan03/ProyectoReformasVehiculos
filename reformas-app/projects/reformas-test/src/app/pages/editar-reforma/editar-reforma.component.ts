@@ -213,4 +213,61 @@ export class EditarReformaComponent implements OnInit {
     this.mostrandoGeneradorDocumentos = false;
     this.proyectoDataCompleto = null;
   }
+
+  eliminarExpedienteSeleccionado() {
+    if (!this.proyectoSeleccionado?.id) return;
+
+    const nombre = this.proyectoSeleccionado?.nombre || 'este expediente';
+    const confirmado = window.confirm(
+      `¿Seguro que quieres eliminar ${nombre}? Esta acción no se puede deshacer.`
+    );
+
+    if (!confirmado) return;
+
+    this.cargando = true;
+    this.error = null;
+
+    this.http
+      .delete<{ message?: string }>(
+        `${this.apiBase}/proyectos/${this.proyectoSeleccionado.id}`
+      )
+      .subscribe({
+        next: (response) => {
+          this.cargando = false;
+          this.cerrarModalSeleccion();
+          this.mostrandoGeneradorDocumentos = false;
+          this.proyectoDataCompleto = null;
+          localStorage.removeItem('proyectoSeleccionado');
+          localStorage.removeItem('proyectoSeleccionadoId');
+          this.proyectoSeleccionado = null;
+          alert(response?.message || 'Expediente eliminado correctamente');
+          this.buscar();
+        },
+        error: (err) => {
+          console.error('Error eliminando expediente:', err);
+          this.cargando = false;
+          this.error = 'No se pudo eliminar el expediente seleccionado.';
+          alert('No se pudo eliminar el expediente.');
+        },
+      });
+  }
+
+  private cerrarModalSeleccion() {
+    const modalId = this.proyectoSeleccionado?.enviadoPorCliente
+      ? 'modalSelectorProyecto'
+      : 'modalSelectorProyectoInterno';
+    const modalEl = document.getElementById(modalId);
+    const instance = this.proyectoSeleccionado?.enviadoPorCliente
+      ? this.modalSelectorProyectoExternoInstance
+      : this.modalSelectorProyectoInternoInstance;
+
+    if (instance) {
+      instance.hide();
+      return;
+    }
+
+    if (modalEl) {
+      Modal.getInstance(modalEl)?.hide();
+    }
+  }
 }

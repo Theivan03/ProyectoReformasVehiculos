@@ -49,7 +49,7 @@ const guardarUsuariosEnDisco = () => {
 
 const crearUsuarioAdminPorDefecto = async () => {
   const saltAdmin = await bcrypt.genSalt(10);
-  const passwordHashedAdmin = await bcrypt.hash('123456', saltAdmin);
+  const passwordHashedAdmin = await bcrypt.hash('220177', saltAdmin);
 
   const usuarioAdmin = {
     id: 1,
@@ -61,7 +61,7 @@ const crearUsuarioAdminPorDefecto = async () => {
   const existeAdmin = baseDeDatosUsuariosServidor.find(u => u.usuario === 'admin');
   if (!existeAdmin) {
     baseDeDatosUsuariosServidor.push(usuarioAdmin);
-    console.log('--> Usuario ADMIN creado: admin / 123456');
+    console.log('--> Usuario ADMIN creado: admin / 220177');
     guardarUsuariosEnDisco();
   }
 };
@@ -256,7 +256,9 @@ app.post(
     try {
       let metadata = JSON.parse(req.body.metadata);
       const num = String(metadata.numeroProyecto);
+      const numActual = Number(num);
       const añoAhora = new Date().getFullYear().toString();
+      const esEdicion = String(req.body.esEdicion || '').toLowerCase() === 'true';
 
       const projectDir = path.join(__dirname, 'proyectos', num + "_" + añoAhora);
       
@@ -290,24 +292,7 @@ app.post(
         fs.writeFileSync(path.join(postDir, fn), file.buffer);
       });
 
-      // --- LÓGICA DE CONTADOR CORREGIDA ---
-      let ultimoGuardado = 0;
-      let añoGuardado = añoAhora;
-
-      // 1. Leemos el contador actual si existe
-      if (fs.existsSync(ULTIMO_PROYECTO_PATH)) {
-        const raw = fs.readFileSync(ULTIMO_PROYECTO_PATH, 'utf-8');
-        const data = JSON.parse(raw);
-        ultimoGuardado = Number(data.ultimo);
-        añoGuardado = data.año;
-      }
-
-      // 2. Solo actualizamos el contador si:
-      //    a) El año ha cambiado (reseteo a lo que venga).
-      //    b) Es el mismo año PERO el número que guardamos es MAYOR que el último registrado (es uno nuevo).
-      const numActual = Number(num);
-
-      if (añoAhora !== añoGuardado || numActual > ultimoGuardado) {
+      if (!esEdicion && Number.isFinite(numActual) && numActual > 0) {
         const newCounter = { ultimo: num, año: añoAhora };
         fs.writeFileSync(
           ULTIMO_PROYECTO_PATH,
@@ -316,9 +301,8 @@ app.post(
         );
         console.log(`Contador actualizado a: ${num} (${añoAhora})`);
       } else {
-        console.log(`Edición detectada (Proyecto ${num}). El contador se mantiene en ${ultimoGuardado}.`);
+        console.log(`Guardado en modo edición detectado (Proyecto ${num}). El contador no se modifica.`);
       }
-      // -------------------------------------
 
       return res.json({
         message: 'Proyecto guardado correctamente',
@@ -450,6 +434,69 @@ app.get('/proyectos/:id/proyecto.json', (req, res) => {
   } catch (err) {
     console.error('Error leyendo proyecto:', err);
     res.status(500).json({ error: 'No se pudo leer el proyecto' });
+  }
+});
+
+app.delete('/proyectos/:id', (req, res) => {
+  const id = req.params.id;
+  const proyectosDir = path.resolve(path.join(__dirname, 'proyectos'));
+  const projectDir = path.resolve(path.join(proyectosDir, id));
+
+  if (projectDir !== proyectosDir && !projectDir.startsWith(proyectosDir + path.sep)) {
+    return res.status(400).json({ error: 'Ruta de proyecto invalida' });
+  }
+
+  if (!fs.existsSync(projectDir)) {
+    return res.status(404).json({ error: 'Proyecto no encontrado' });
+  }
+
+  try {
+    let referenciaProyecto = '';
+    let numeroProyecto = '';
+    const pjPath = path.join(projectDir, 'proyecto.json');
+
+    if (fs.existsSync(pjPath)) {
+      try {
+        const proyecto = JSON.parse(fs.readFileSync(pjPath, 'utf-8'));
+        referenciaProyecto = String(proyecto?.referenciaProyecto || '').trim();
+        numeroProyecto = String(proyecto?.numeroProyecto || '').trim();
+      } catch (error) {
+        console.warn('No se pudo leer proyecto.json antes de eliminar el expediente:', error);
+      }
+    }
+
+    fs.rmSync(projectDir, { recursive: true, force: true });
+
+    if (referenciaProyecto) {
+      const referenciaSanitizada = referenciaProyecto
+        .replace(/[\/\\:*?"<>|]/g, '-')
+        .trim();
+      const docxPath = path.join(
+        __dirname,
+        'documentos_generados',
+        `${referenciaSanitizada}.docx`
+      );
+      if (fs.existsSync(docxPath)) {
+        fs.rmSync(docxPath, { force: true });
+      }
+    }
+
+    if (numeroProyecto) {
+      const planoPath = path.join(
+        __dirname,
+        'imgs',
+        'planos',
+        `plano-generado-proyecto${numeroProyecto}.png`
+      );
+      if (fs.existsSync(planoPath)) {
+        fs.rmSync(planoPath, { force: true });
+      }
+    }
+
+    res.json({ message: 'Expediente eliminado correctamente' });
+  } catch (error) {
+    console.error('Error eliminando proyecto:', error);
+    res.status(500).json({ error: 'No se pudo eliminar el expediente' });
   }
 });
 

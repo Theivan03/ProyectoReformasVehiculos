@@ -217,6 +217,7 @@
   @if (mostrarGenerador) {
   <app-generador-documentos
     [reformaData]="datosGenerales || {}"
+    [esEdicion]="editMode"
     (volverAlFormulario)="onVolverDesdeGenerador($event)"
   >
   </app-generador-documentos>
