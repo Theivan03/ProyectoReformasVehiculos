@@ -216,7 +216,7 @@
   <!-- 10) GENERADOR -->
   @if (mostrarGenerador) {
   <app-generador-documentos
-    [reformaData]="datosGenerales || {}"
+    [reformaData]="datosParaGenerador"
     [esEdicion]="editMode"
     [proyectoId]="editId"
     (volverAlFormulario)="onVolverDesdeGenerador($event)"

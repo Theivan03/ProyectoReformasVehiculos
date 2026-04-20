@@ -1,5 +1,6 @@
 import {
   Component,
+  ChangeDetectorRef,
   ElementRef,
   EventEmitter,
   Input,
@@ -11,12 +12,14 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import html2canvas from 'html2canvas';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 interface Marker {
   x: number;
   y: number;
   label: string;
   etiqueta: string;
+  labelIndex?: number;
 }
 
 interface DetallesMuelles {
@@ -64,7 +67,10 @@ export class CanvaComponent implements OnInit {
   private tipoVehiculoAnterior = '';
   private etiquetasAnteriores: string[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   private readonly SUSP_LABELS: Record<keyof DetallesMuelles, string> = {
     muelleDelanteroConRef: 'Muelle delantero (con referencia)',
@@ -171,6 +177,72 @@ export class CanvaComponent implements OnInit {
     return Math.floor(parsed);
   }
 
+  private clamp01(value: any): number {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return 0;
+    return Math.max(0, Math.min(1, parsed));
+  }
+
+  private parseMarkerIndex(marker: any): number {
+    const explicitIndex = Number(marker?.labelIndex);
+    if (Number.isInteger(explicitIndex) && explicitIndex >= 0) {
+      return explicitIndex;
+    }
+
+    const parsedLabel = Number(marker?.label);
+    if (Number.isInteger(parsedLabel) && parsedLabel > 0) {
+      return parsedLabel - 1;
+    }
+
+    return -1;
+  }
+
+  private normalizarMarcadoresGuardados(
+    source: any[],
+    labels: string[],
+  ): Marker[] {
+    const indexesByLabel = new Map<string, number[]>();
+    labels.forEach((label, idx) => {
+      const indexes = indexesByLabel.get(label) ?? [];
+      indexes.push(idx);
+      indexesByLabel.set(label, indexes);
+    });
+
+    const consumedByLabel = new Map<string, number>();
+
+    const normalized: Marker[] = [];
+
+    source.forEach((marker) => {
+        if (!marker) return;
+
+        const etiquetaGuardada = (marker?.etiqueta ?? '').toString();
+        let resolvedIndex = this.parseMarkerIndex(marker);
+
+        if (resolvedIndex < 0 || resolvedIndex >= labels.length) {
+          const indexes = indexesByLabel.get(etiquetaGuardada) ?? [];
+          const consumed = consumedByLabel.get(etiquetaGuardada) ?? 0;
+          if (consumed < indexes.length) {
+            resolvedIndex = indexes[consumed];
+            consumedByLabel.set(etiquetaGuardada, consumed + 1);
+          }
+        }
+
+        if (resolvedIndex < 0 || resolvedIndex >= labels.length) {
+          return;
+        }
+
+        normalized.push({
+          x: this.clamp01(marker?.x),
+          y: this.clamp01(marker?.y),
+          label: String(resolvedIndex + 1),
+          etiqueta: labels[resolvedIndex] ?? etiquetaGuardada,
+          labelIndex: resolvedIndex,
+        });
+      });
+
+    return normalized;
+  }
+
   private expandClaraboyas(mod: any): string[] {
     const out: string[] = [];
 
@@ -271,7 +343,7 @@ export class CanvaComponent implements OnInit {
   private snapshot(): any {
     return {
       ...(this.datosEntrada || {}),
-      marcadores: this.markers,
+      marcadores: this.markers.map((marker) => ({ ...marker })),
       fechaFirma: this.fechaFirma,
       firmaUrl: this.firmaUrl,
     };
@@ -306,7 +378,9 @@ export class CanvaComponent implements OnInit {
     this.tipoVehiculoAnterior = tipoActual;
 
     if (Array.isArray(this.datosEntrada?.marcadores)) {
-      this.markers = [...this.datosEntrada.marcadores];
+      this.markers = this.datosEntrada.marcadores.map((marker: any) => ({
+        ...marker,
+      }));
     }
 
     const nuevasLabels: string[] = [];
@@ -390,31 +464,12 @@ export class CanvaComponent implements OnInit {
       }
     }
 
-    if (this.markers.length > 0) {
-      const indexesByLabel = new Map<string, number[]>();
-      nuevasLabels.forEach((label, idx) => {
-        const indexes = indexesByLabel.get(label) ?? [];
-        indexes.push(idx);
-        indexesByLabel.set(label, indexes);
-      });
-      const consumedByLabel = new Map<string, number>();
-
-      this.markers = this.markers
-        .map((m) => {
-          const indexes = indexesByLabel.get(m.etiqueta) ?? [];
-          const consumed = consumedByLabel.get(m.etiqueta) ?? 0;
-          if (consumed < indexes.length) {
-            const newIndex = indexes[consumed];
-            consumedByLabel.set(m.etiqueta, consumed + 1);
-            return { ...m, label: (newIndex + 1).toString() };
-          }
-          return null;
-        })
-        .filter((m) => m !== null) as Marker[];
-    }
-
     this.labels = nuevasLabels;
     this.etiquetasAnteriores = [...nuevasLabels];
+    this.markers = this.normalizarMarcadoresGuardados(
+      this.markers,
+      this.labels,
+    );
 
     let url = '';
     switch (tipoActual) {
@@ -540,6 +595,7 @@ export class CanvaComponent implements OnInit {
       y: Math.max(0, Math.min(1, y)),
       label: (this.selectedIndex + 1).toString(),
       etiqueta: this.labels[this.selectedIndex],
+      labelIndex: this.selectedIndex,
     });
 
     this.emitAutosave();
@@ -558,51 +614,128 @@ export class CanvaComponent implements OnInit {
     this.volver.emit(this.snapshot());
   }
 
-  onContinue(): void {
+  async onContinue(): Promise<void> {
     this.datosEntrada.marcadores = this.markers;
     this.datosEntrada.fechaFirma = this.fechaFirma;
     this.datosEntrada.firmaUrl = this.firmaUrl;
 
     this.emitAutosave();
-    this.guardarImagen();
-    this.guardarFirma();
+    try {
+      await Promise.all([this.guardarImagen(), this.guardarFirma()]);
+    } catch (error) {
+      console.error('Error guardando recursos del plano:', error);
+      alert(
+        'No se pudo guardar correctamente el plano o la firma. Inténtalo de nuevo.',
+      );
+      return;
+    }
 
     this.continuar.emit(this.snapshot());
   }
 
-  private guardarImagen() {
-    const originalClass = this.canvasContainer?.nativeElement.className;
-    this.canvasContainer?.nativeElement.classList.remove('border');
-
-    html2canvas(this.canvasContainer!.nativeElement).then((canvas) => {
-      this.canvasContainer!.nativeElement.className = originalClass;
-      const imagenBase64 = canvas.toDataURL('image/png');
-
-      this.http
-        .post('/guardar-imagen-plano', {
-          imagenBase64,
-          nombreArchivo: `plano-generado-proyecto${this.datosEntrada.numeroProyecto}.png`,
-        })
-        .subscribe((res) => console.log('Imagen guardada:', res));
-    });
+  private async esperarRepintado(): Promise<void> {
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   }
 
-  private guardarFirma() {
+  private async esperarImagenLista(): Promise<HTMLImageElement> {
+    const imgEl = this.imgRef.nativeElement;
+    if (imgEl.complete && imgEl.naturalWidth > 0) {
+      return imgEl;
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const onLoad = () => {
+        imgEl.removeEventListener('load', onLoad);
+        imgEl.removeEventListener('error', onError);
+        resolve();
+      };
+      const onError = () => {
+        imgEl.removeEventListener('load', onLoad);
+        imgEl.removeEventListener('error', onError);
+        reject(new Error('No se pudo cargar la imagen base del plano.'));
+      };
+
+      imgEl.addEventListener('load', onLoad);
+      imgEl.addEventListener('error', onError);
+    });
+
+    return imgEl;
+  }
+
+  private async renderizarPlanoConMarcadores(): Promise<string> {
+    this.cdr.detectChanges();
+    await this.esperarRepintado();
+
+    const imgEl = await this.esperarImagenLista();
+    const width = imgEl.naturalWidth || imgEl.width;
+    const height = imgEl.naturalHeight || imgEl.height;
+
+    if (!width || !height) {
+      throw new Error('La imagen base del plano no tiene dimensiones válidas.');
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('No se pudo obtener el contexto 2D para el plano.');
+    }
+
+    ctx.drawImage(imgEl, 0, 0, width, height);
+
+    const markerDiameter = Math.max(18, Math.round(Math.min(width, height) * 0.04));
+    const markerRadius = markerDiameter / 2;
+    const fontSize = Math.max(12, Math.round(markerDiameter * 0.62));
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `600 ${fontSize}px Arial`;
+
+    this.markers.forEach((marker) => {
+      const x = Math.max(markerRadius, Math.min(width - markerRadius, marker.x * width));
+      const y = Math.max(markerRadius, Math.min(height - markerRadius, marker.y * height));
+
+      ctx.beginPath();
+      ctx.fillStyle = '#212529';
+      ctx.arc(x, y, markerRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(String(marker.label || ''), x, y);
+    });
+
+    return canvas.toDataURL('image/png');
+  }
+
+  private async guardarImagen(): Promise<void> {
+    const imagenBase64 = await this.renderizarPlanoConMarcadores();
+
+    await firstValueFrom(
+      this.http.post('/guardar-imagen-plano', {
+        imagenBase64,
+        nombreArchivo: `plano-generado-proyecto${this.datosEntrada.numeroProyecto}.png`,
+      }),
+    );
+  }
+
+  private async guardarFirma(): Promise<void> {
     const el = this.firmaRef.nativeElement;
 
-    html2canvas(el, {
+    const canvas = await html2canvas(el, {
       scale: 2,
       useCORS: true,
       backgroundColor: null,
-    }).then((canvas) => {
-      const imagenBase64 = canvas.toDataURL('image/png');
-
-      this.http
-        .post('/guardar-firma', {
-          imagenBase64,
-          nombreArchivo: 'firma-generada.png',
-        })
-        .subscribe(() => console.log('Firma guardada'));
     });
+    const imagenBase64 = canvas.toDataURL('image/png');
+
+    await firstValueFrom(
+      this.http.post('/guardar-firma', {
+        imagenBase64,
+        nombreArchivo: 'firma-generada.png',
+      }),
+    );
   }
 }

@@ -15,7 +15,7 @@ export class AppComponent {
 
   constructor(
     private router: Router,
-    private authService: AuthSeguridadGlobalService
+    private authService: AuthSeguridadGlobalService,
   ) {}
 
   get usuarioLogueado(): boolean {

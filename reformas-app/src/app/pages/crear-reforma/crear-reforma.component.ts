@@ -145,6 +145,71 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     };
   }
 
+  get datosParaGenerador(): any {
+    return this.buildPayloadCompartido();
+  }
+
+  private buildPayloadCompartido(): any {
+    const proyecto = this.datosProyecto || {};
+    const generales = this.datosGenerales || {};
+    const tipoVehiculo = this.datosGuardadosTipoVehiculo || {};
+    const resumen = this.datosResumenModificaciones || {};
+
+    const merged = {
+      ...proyecto,
+      ...generales,
+      ...tipoVehiculo,
+      ...resumen,
+    };
+
+    const modificacionesFuente =
+      Array.isArray(resumen.modificaciones) && resumen.modificaciones.length > 0
+        ? resumen.modificaciones
+        : Array.isArray(generales.modificaciones) &&
+            generales.modificaciones.length > 0
+          ? generales.modificaciones
+          : Array.isArray(tipoVehiculo.modificaciones) &&
+              tipoVehiculo.modificaciones.length > 0
+            ? tipoVehiculo.modificaciones
+            : Array.isArray(proyecto.modificaciones)
+              ? proyecto.modificaciones
+              : [];
+
+    const marcadoresFuente = Array.isArray(resumen.marcadores)
+      ? resumen.marcadores
+      : Array.isArray(generales.marcadores)
+        ? generales.marcadores
+        : Array.isArray(tipoVehiculo.marcadores)
+          ? tipoVehiculo.marcadores
+          : Array.isArray(proyecto.marcadores)
+            ? proyecto.marcadores
+            : [];
+
+    return {
+      ...merged,
+      tipoVehiculo:
+        merged.tipoVehiculo ||
+        generales.tipoVehiculo ||
+        tipoVehiculo.tipoVehiculo ||
+        proyecto.tipoVehiculo ||
+        '',
+      modificaciones: modificacionesFuente.map((mod: any) => ({ ...(mod || {}) })),
+      marcadores: marcadoresFuente.map((marker: any) => ({ ...(marker || {}) })),
+      prevImagesB64: Array.isArray(merged.prevImagesB64)
+        ? [...merged.prevImagesB64]
+        : [],
+      postImagesB64: Array.isArray(merged.postImagesB64)
+        ? [...merged.postImagesB64]
+        : [],
+      prevImages: Array.isArray(merged.prevImages) ? [...merged.prevImages] : [],
+      postImages: Array.isArray(merged.postImages) ? [...merged.postImages] : [],
+    };
+  }
+
+  private syncPayloadResumen() {
+    this.payloadResumen = this.buildPayloadCompartido();
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -469,6 +534,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   }
 
   private persist() {
+    this.syncPayloadResumen();
     // 🔥 PROTECCIÓN CRÍTICA:
     // Si estamos editando un proyecto y aún no ha terminado de cargar (proyectoCargado es false),
     // PROHIBIDO guardar, porque sobrescribiríamos los datos buenos con el estado vacío inicial.
@@ -595,6 +661,24 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       ...(saved?.datosGenerales || {}),
     };
 
+    if (this.editId && Object.keys(base).length > 0) {
+      const camposCanonicos = [
+        'marcadores',
+        'firmaUrl',
+        'fechaFirma',
+        'prevImagesB64',
+        'postImagesB64',
+      ];
+
+      camposCanonicos.forEach((campo) => {
+        if (base[campo] !== undefined) {
+          this.datosGenerales[campo] = Array.isArray(base[campo])
+            ? [...base[campo]]
+            : base[campo];
+        }
+      });
+    }
+
     if (this.datosFormularioGuardados) {
       this.datosGenerales = {
         ...this.datosGenerales,
@@ -632,9 +716,16 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     }
 
     this.datosResumenModificaciones =
-      base.datosResumenModificaciones ||
-      saved?.datosResumenModificaciones ||
-      {};
+      this.editId && Object.keys(base).length > 0
+        ? {
+            ...base,
+            ...(base.datosResumenModificaciones || {}),
+          }
+        : base.datosResumenModificaciones ||
+          saved?.datosResumenModificaciones ||
+          {};
+
+    this.syncPayloadResumen();
   }
 
   // ... [Métodos de navegación (onContinuar, onVolverDesdeSeleccion...) se mantienen igual] ...
@@ -1015,6 +1106,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       marcadores:
         data.marcadores ?? this.datosGuardadosTipoVehiculo?.marcadores,
     };
+    this.datosResumenModificaciones = {
+      ...(this.datosResumenModificaciones || {}),
+      ...data,
+    };
     this.persist();
   }
   onVolverDesdeCanva(event?: any) {
@@ -1061,7 +1156,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.origenImagenes = 'anterior';
 
     // 🔥 CORRECCIÓN: Actualizar el payload que se enviará al componente de imágenes
-    this.payloadResumen = { ...(this.datosResumenModificaciones || {}) };
+    this.syncPayloadResumen();
 
     this.navigate('imagenes');
   }
@@ -1111,7 +1206,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.origenImagenes = 'siguiente';
 
     // 🔥 CORRECCIÓN: Cargar los datos guardados (incluidas las imágenes) para enviarlos
-    this.payloadResumen = { ...(this.datosResumenModificaciones || {}) };
+    this.syncPayloadResumen();
 
     this.navigate('imagenes');
   }

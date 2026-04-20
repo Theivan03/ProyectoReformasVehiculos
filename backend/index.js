@@ -24,7 +24,17 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 fs.mkdirSync(UPLOADS_DOCX_DIR, { recursive: true });
 
-const uploadDocx = multer({ dest: UPLOADS_DOCX_DIR });
+const uploadDocxStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, UPLOADS_DOCX_DIR),
+  filename: (_req, file, cb) => {
+    const extensionOriginal = path.extname(file.originalname || '').toLowerCase();
+    const extension = extensionOriginal === '.docx' ? extensionOriginal : '.docx';
+    const nombreTemporal = `${Date.now()}-${Math.round(Math.random() * 1e9)}${extension}`;
+    cb(null, nombreTemporal);
+  },
+});
+
+const uploadDocx = multer({ storage: uploadDocxStorage });
 const multerDocx = multer({ storage: multer.memoryStorage() });
 const upload = multer({
   storage: multer.memoryStorage(),

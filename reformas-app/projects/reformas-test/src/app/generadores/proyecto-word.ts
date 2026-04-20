@@ -41,6 +41,12 @@ interface ImageInfo {
   mimeType: string;
 }
 
+interface PlanoMarker {
+  x: number;
+  y: number;
+  label: string;
+}
+
 export function keepTableTogether(table: Table): Table {
   // Use the public API to access rows; fallback to private if necessary
 
@@ -158,6 +164,95 @@ async function applyTransparency(
   return newBlob.arrayBuffer();
 }
 
+function getPlanoBaseUrl(tipoVehiculo: unknown): string {
+  const tipo = String(tipoVehiculo || '')
+    .trim()
+    .toLowerCase();
+
+  switch (tipo) {
+    case 'camper':
+      return '/imgs/camper2.png';
+    case 'moto':
+      return '/imgs/moto.png';
+    default:
+      return '/imgs/coche.png';
+  }
+}
+
+async function loadHtmlImage(url: string): Promise<HTMLImageElement> {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error(`No se pudo cargar la imagen ${url}`));
+    img.src = url;
+  });
+
+  return img;
+}
+
+async function renderPlanoProyectoBuffer(data: any): Promise<ArrayBuffer> {
+  const baseUrl = getPlanoBaseUrl(data?.tipoVehiculo);
+  const img = await loadHtmlImage(baseUrl);
+  const width = img.naturalWidth || img.width;
+  const height = img.naturalHeight || img.height;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('No se pudo obtener el contexto 2D del plano del proyecto');
+  }
+
+  ctx.drawImage(img, 0, 0, width, height);
+
+  const markers: PlanoMarker[] = Array.isArray(data?.marcadores)
+    ? data.marcadores
+    : [];
+  const markerDiameter = Math.max(
+    18,
+    Math.round(Math.min(width, height) * 0.04),
+  );
+  const markerRadius = markerDiameter / 2;
+  const fontSize = Math.max(12, Math.round(markerDiameter * 0.62));
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `600 ${fontSize}px Arial`;
+
+  markers.forEach((marker) => {
+    const x = Math.max(
+      markerRadius,
+      Math.min(width - markerRadius, Number(marker?.x || 0) * width),
+    );
+    const y = Math.max(
+      markerRadius,
+      Math.min(height - markerRadius, Number(marker?.y || 0) * height),
+    );
+
+    ctx.beginPath();
+    ctx.fillStyle = '#212529';
+    ctx.arc(x, y, markerRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(String(marker?.label || ''), x, y);
+  });
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, 'image/png'),
+  );
+
+  if (!blob) {
+    throw new Error('No se pudo convertir el plano del proyecto a PNG');
+  }
+
+  return blob.arrayBuffer();
+}
+
 export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   console.log('Info para generar el docx:', data);
   const ingeniero = data.ingenieroSeleccionado;
@@ -181,9 +276,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const response3 = await fetch(url);
   const imageBuffer3 = await response3.arrayBuffer();
 
-  url = `/imgs/planos/plano-generado-proyecto${data.numeroProyecto}.png`;
-  const response4 = await fetch(url);
-  const imageBuffer4 = await response4.arrayBuffer();
+  const imageBuffer4 = await renderPlanoProyectoBuffer(data);
 
   url = `/imgs/firma-generada.png`;
   const response5 = await fetch(url);
@@ -231,7 +324,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       bottom: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
       left: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
       right: { style: BorderStyle.SINGLE, size: 12, color: '000000' },
-      insideVertical: { style: BorderStyle.DOTTED, size: 1, color: '000000' },
+      insideVertical: { style: BorderStyle.NONE, size: 1, color: '000000' },
       insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
     },
     rows: [
@@ -742,11 +835,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                     alignment: AlignmentType.CENTER,
                     children: [
                       new TextRun({
-                        text:
-                          'Marca ' +
-                          data.marca +
-                          ' Denominación ' +
-                          data.modelo,
+                        text: 'Marca ' + data.marca + ' Modelo ' + data.modelo,
                         bold: true,
                         size: 16,
                       }),
@@ -5095,14 +5184,29 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new TableRow({
           children: [
             new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
               margins: { left: 100, right: 100, top: 40, bottom: 40 },
-              children: [new Paragraph('Materiales usados en la reforma')],
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({ text: 'Materiales usados en la reforma' }),
+                  ],
+                }),
+              ],
             }),
             new TableCell({
               verticalAlign: VerticalAlign.CENTER,
               margins: { left: 100, right: 100, top: 40, bottom: 40 },
               children: [
-                new Paragraph(data.materialesUsados?.toString() ?? '-'),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({
+                      text: data.materialesUsados?.toString() ?? '-',
+                    }),
+                  ],
+                }),
               ],
             }),
           ],
@@ -5111,13 +5215,26 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new TableRow({
           children: [
             new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
               margins: { left: 100, right: 100, top: 40, bottom: 40 },
-              children: [new Paragraph('Mano de obra')],
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: 'Mano de obra' })],
+                }),
+              ],
             }),
             new TableCell({
               verticalAlign: VerticalAlign.CENTER,
               margins: { left: 100, right: 100, top: 40, bottom: 40 },
-              children: [new Paragraph(data.manoDeObra?.toString() ?? '-')],
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({ text: data.manoDeObra?.toString() ?? '-' }),
+                  ],
+                }),
+              ],
             }),
           ],
         }),
@@ -5125,9 +5242,11 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
         new TableRow({
           children: [
             new TableCell({
+              verticalAlign: VerticalAlign.CENTER,
               margins: { left: 100, right: 100, top: 40, bottom: 40 },
               children: [
                 new Paragraph({
+                  alignment: AlignmentType.CENTER,
                   children: [
                     new TextRun({ text: 'Total presupuesto', bold: true }),
                   ],
@@ -5139,6 +5258,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               margins: { left: 100, right: 100, top: 40, bottom: 40 },
               children: [
                 new Paragraph({
+                  alignment: AlignmentType.CENTER,
                   children: [
                     new TextRun({
                       text: data.totalPresupuesto?.toString() ?? '-',

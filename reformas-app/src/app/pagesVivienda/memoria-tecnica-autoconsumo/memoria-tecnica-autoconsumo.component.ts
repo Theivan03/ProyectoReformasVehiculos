@@ -26,7 +26,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import PizZip from 'pizzip';
 import saveAs from 'file-saver';
 import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
-import { firstValueFrom } from 'rxjs';
 
 type CaracteristicaAutoconsumoExclusiva =
   | 'tipoInstalacionAutoconsumo'
@@ -2360,36 +2359,38 @@ export class MemoriaTecnicaAutoconsumoComponent {
   }
 
   private extraerNumeroEdificio(direccionCompleta: string): string {
-    if (!direccionCompleta) return '';
-    const upper = direccionCompleta.toUpperCase();
+    const direccion = String(direccionCompleta || '').trim();
+    if (!direccion) return '';
+    const upper = direccion.toUpperCase();
 
     if (/\bS\s*\/\s*N\b/.test(upper)) return 'S/N';
 
-    const parts = direccionCompleta
+    let base = direccion.split(
+      /\b(PISO|PTA|PUERTA|PLANTA|ESC|ESCALERA|BLOQUE|BAJO)\b/i,
+    )[0];
+    base = base
+      .replace(/,\s*\d+\s*[\u00BA\u00AA].*$/i, '')
+      .replace(/\b\d+\s*[\u00BA\u00AA]\b.*$/i, '')
+      .trim();
+
+    const marcado = base.match(
+      /\b(?:NUM(?:ERO)?|N[\u00BA\u00B0O]?)\.?\s*(\d+[A-Z]?)\b/i,
+    );
+    if (marcado && marcado[1]) return marcado[1].toUpperCase();
+
+    const partes = base
       .split(',')
       .map((p) => p.trim())
       .filter(Boolean);
-    if (parts.length >= 2) {
-      const numMatch = parts[1].match(/\d+/);
-      if (numMatch) return numMatch[0];
+    for (const parte of partes) {
+      const numMatch = parte.match(/\b(\d+[A-Z]?)\b/i);
+      if (numMatch && numMatch[1]) {
+        return numMatch[1].toUpperCase();
+      }
     }
 
-    const marcado = upper.match(/\bN[\u00BA\u00B0O]?\s*\.?\s*(\d+)\b/);
-    if (marcado && marcado[1]) return marcado[1];
-
-    let base = upper.split(',')[0];
-    base = base.split(
-      /\b(PISO|PTA|PUERTA|PLANTA|ESC|ESCALERA|BLOQUE|BAJO)\b/i,
-    )[0];
-
-    const ordinalIndex = base.search(/\d+\s*[\u00BA\u00AA]/);
-    if (ordinalIndex !== -1) {
-      base = base.slice(0, ordinalIndex);
-    }
-
-    const nums = base.match(/\d+/g);
-    if (!nums || nums.length === 0) return '';
-    return nums[nums.length - 1];
+    const numMatch = base.match(/\b(\d+[A-Z]?)\b/i);
+    return numMatch && numMatch[1] ? numMatch[1].toUpperCase() : '';
   }
 
   guardarEnServidor() {
@@ -2807,9 +2808,10 @@ export class MemoriaTecnicaAutoconsumoComponent {
       // N?mero de la casa (edificio)
       let numeroCasa =
         this.extraerNumeroEdificio(this.datos.emplazamiento.direccion) || '7';
+      const numeroCasaWidth = fontHand.widthOfTextAtSize(numeroCasa, 14);
 
       page5.drawText(numeroCasa, {
-        x: iX + planoDims.width / 2 - 25,
+        x: iX + planoDims.width / 2 - numeroCasaWidth / 2,
         y: iY + planoDims.height / 2,
         size: 14,
         font: fontHand,
@@ -3031,7 +3033,17 @@ export class MemoriaTecnicaAutoconsumoComponent {
     const apellidos = (this.datos.titular.apellidos || '').trim();
     const nombre = (this.datos.titular.nombre || '').trim();
 
-    return [apellidos, nombre].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+    return this.formatearNombreParaDocumento(apellidos, nombre);
+  }
+
+  private formatearNombreParaDocumento(
+    apellidos: string,
+    nombre: string,
+  ): string {
+    if (apellidos && nombre) {
+      return `${apellidos}, ${nombre}`.replace(/\s+/g, ' ').trim();
+    }
+    return (apellidos || nombre).replace(/\s+/g, ' ').trim();
   }
 
   private async generarManualUsoMantenimiento(
@@ -3039,7 +3051,13 @@ export class MemoriaTecnicaAutoconsumoComponent {
   ): Promise<void> {
     const plantillaUrl =
       '/assets/MANUAL DE USO Y MANTENIMIENTO DE INSTALACION ELECTRICA.docx';
-    const arrayBuffer = await fetch(plantillaUrl).then((r) => r.arrayBuffer());
+    const plantillaResponse = await fetch(plantillaUrl);
+    if (!plantillaResponse.ok) {
+      throw new Error(
+        `No se pudo cargar la plantilla del manual (HTTP ${plantillaResponse.status})`,
+      );
+    }
+    const arrayBuffer = await plantillaResponse.arrayBuffer();
     const zip = new PizZip(arrayBuffer);
 
     const documentXmlFile = zip.file('word/document.xml');
@@ -3096,25 +3114,7 @@ export class MemoriaTecnicaAutoconsumoComponent {
     const nombreLimpio = this.limpiarNombreArchivo(
       titularNombreDocumento || 'Documento',
     );
-    const pdfBlob = await this.convertirDocxAPdf(
-      docxBlob,
-      `MANUAL_USO_Y_MANTENIMIENTO_${nombreLimpio}.docx`,
-    );
-    saveAs(pdfBlob, `MANUAL_USO_Y_MANTENIMIENTO_${nombreLimpio}.pdf`);
-  }
-
-  private async convertirDocxAPdf(
-    docxBlob: Blob,
-    nombreArchivoDocx: string,
-  ): Promise<Blob> {
-    const formData = new FormData();
-    formData.append('doc', docxBlob, nombreArchivoDocx);
-
-    return firstValueFrom(
-      this.http.post(`${this.apiBaseUrl}/convertir-docx-a-pdf`, formData, {
-        responseType: 'blob',
-      }),
-    );
+    saveAs(docxBlob, `MANUAL_USO_Y_MANTENIMIENTO_${nombreLimpio}.docx`);
   }
 
   private escaparXml(value: string): string {

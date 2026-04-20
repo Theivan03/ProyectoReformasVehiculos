@@ -61,6 +61,45 @@ export class DocumentoService {
     return `${nombreBase}.${extension}`;
   }
 
+  private cerrarFrase(texto: any): string {
+    const limpio = String(texto || '').trim();
+    if (!limpio) return '';
+    return /[.!?]$/.test(limpio) ? limpio : `${limpio}.`;
+  }
+
+  private descripcionPlantaLinea(planta: any): string {
+    const tipo = String(planta?.tipo || '').trim();
+    const descripcion = String(planta?.descripcion || '').trim();
+    const esSinPlanta = !tipo || tipo.toLowerCase() === 'sin planta';
+
+    if (esSinPlanta) {
+      return descripcion;
+    }
+
+    if (!descripcion) {
+      return `Planta ${tipo}`;
+    }
+
+    return `Planta ${tipo}: ${descripcion}`;
+  }
+
+  private descripcionPlantaBullet(planta: any): string {
+    const tipo = String(planta?.tipo || '').trim();
+    const descripcion = String(planta?.descripcion || '').trim();
+    const esSinPlanta = !tipo || tipo.toLowerCase() === 'sin planta';
+
+    if (esSinPlanta) {
+      const descripcionCerrada = this.cerrarFrase(descripcion);
+      return descripcionCerrada ? `- ${descripcionCerrada}` : '';
+    }
+
+    if (!descripcion) {
+      return `- ${tipo}.`;
+    }
+
+    return `- ${tipo}: compuesta de ${this.cerrarFrase(descripcion)}`;
+  }
+
   async generarCertificadoSegundaOcupacionV2(datos: any): Promise<void> {
     const response = await fetch('assets/logo.png');
     const imageBuffer = await response.arrayBuffer();
@@ -138,11 +177,15 @@ export class DocumentoService {
       const anoConstruccion = datos.vivienda_ano_construccion;
       let descripcionDistribucion = '';
       const listaPlantas_vivienda = datos.vivienda_lista_plantas || [];
+      const descripcionesPlantas = listaPlantas_vivienda
+        .map((planta: any) => this.descripcionPlantaLinea(planta))
+        .filter(Boolean);
+      const bulletPlantas = listaPlantas_vivienda
+        .map((planta: any) => this.descripcionPlantaBullet(planta))
+        .filter(Boolean);
 
-      if (listaPlantas_vivienda.length > 0) {
-        const textoPlantas = listaPlantas_vivienda
-          .map((planta: any) => `Planta ${planta.tipo}: ${planta.descripcion}`)
-          .join('. ');
+      if (descripcionesPlantas.length > 0) {
+        const textoPlantas = descripcionesPlantas.join('. ');
         descripcionDistribucion = `Que la vivienda se distribuye en: ${textoPlantas}.`;
       } else {
         const numHabitaciones = datos.vivienda_cantidad_dormitorios || 'varias';
@@ -188,7 +231,7 @@ export class DocumentoService {
       const size = 22; // 11pt
       const lineSpacing = 360; // 1.5 líneas
       const parrafosDistribucion =
-        listaPlantas_vivienda.length > 0
+        bulletPlantas.length > 0
           ? [
               new Paragraph({
                 alignment: AlignmentType.JUSTIFIED,
@@ -203,15 +246,15 @@ export class DocumentoService {
                   }),
                 ],
               }),
-              ...listaPlantas_vivienda.map(
-                (planta: any) =>
+              ...bulletPlantas.map(
+                (textoPlanta: string) =>
                   new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { line: lineSpacing, after: 120 },
                     indent: { left: 1080 },
                     children: [
                       new TextRun({
-                        text: `- ${planta.tipo}: compuesta de ${planta.descripcion}.`,
+                        text: textoPlanta,
                         font,
                         size,
                       }),
@@ -1464,7 +1507,7 @@ export class DocumentoService {
               new Paragraph({
                 spacing: { before: 1500 },
                 children: [
-                  new TextRun({ text: `Firmado: ${fechaTexto}`, font, size }),
+                  new TextRun({ text: 'Firmado:', font, size }),
                 ],
               }),
             ],
@@ -3043,19 +3086,22 @@ export class DocumentoService {
                   }),
                 ],
               }),
-              ...(datos.vivienda_lista_plantas || []).map(
-                (planta: any) =>
+              ...(datos.vivienda_lista_plantas || [])
+                .map((planta: any) => this.descripcionPlantaBullet(planta))
+                .filter(Boolean)
+                .map(
+                  (textoPlanta: string) =>
                   new Paragraph({
                     spacing: { line: lineSpacing },
                     children: [
                       new TextRun({
-                        text: `- ${planta.tipo}: compuesta de ${planta.descripcion}.`,
+                        text: textoPlanta,
                         font,
                         size: sizeCuerpo,
                       }),
                     ],
                   }),
-              ),
+                ),
 
               new Paragraph({
                 alignment: AlignmentType.JUSTIFIED,

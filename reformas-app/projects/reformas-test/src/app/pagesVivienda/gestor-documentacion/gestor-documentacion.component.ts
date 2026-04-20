@@ -179,6 +179,7 @@ export class GestorDocumentacionComponent implements OnInit {
     'Ático',
     'Buhardilla',
     'Piso',
+    'Sin planta',
   ];
   listaArquitectos_gestor: any[] = [];
   listaIngenieros_gestor: any[] = [];

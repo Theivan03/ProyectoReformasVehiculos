@@ -131,6 +131,18 @@ export class GeneradorDocumentosComponent implements OnInit {
     generarDocumentoMemoria(this.reformaData);
   }
 
+  private clearDraftStorage() {
+    const storageKey = this.proyectoId
+      ? `reforma-wizard-v1-${this.proyectoId}`
+      : 'reforma-wizard-v1-nueva';
+
+    try {
+      localStorage.removeItem(storageKey);
+    } catch (error) {
+      console.warn('No se pudo limpiar el borrador local del proyecto:', error);
+    }
+  }
+
   confirmarDeclaracion() {
     const dataCompleta = {
       ...this.reformaData,
@@ -174,6 +186,7 @@ export class GeneradorDocumentosComponent implements OnInit {
           if (event.type === HttpEventType.UploadProgress && event.total) {
             this.progreso = Math.round((100 * event.loaded) / event.total);
           } else if (event.type === HttpEventType.Response) {
+            this.clearDraftStorage();
             alert(`Proyecto ${event.body.proyecto} guardado correctamente`);
             this.progreso = -1;
           }

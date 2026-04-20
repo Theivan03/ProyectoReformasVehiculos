@@ -11,12 +11,12 @@ export class AuthSeguridadGlobalService {
 
   constructor(
     private httpAuthService: HttpClient,
-    private routerAuthService: Router
+    private routerAuthService: Router,
   ) {}
 
   loginUsuarioAuthService(
     usuarioLoginInput: string,
-    passwordLoginInput: string
+    passwordLoginInput: string,
   ): Observable<any> {
     return this.httpAuthService
       .post<any>(`${this.apiUrlAuthService}/login`, {
@@ -28,10 +28,10 @@ export class AuthSeguridadGlobalService {
           if (respuestaServidor && respuestaServidor.token) {
             localStorage.setItem(
               'tokenCifradoAppSegura',
-              respuestaServidor.token
+              respuestaServidor.token,
             );
           }
-        })
+        }),
       );
   }
 
@@ -42,7 +42,7 @@ export class AuthSeguridadGlobalService {
 
   estaAutenticadoAuthService(): boolean {
     const tokenGuardadoAuthService = localStorage.getItem(
-      'tokenCifradoAppSegura'
+      'tokenCifradoAppSegura',
     );
     return !!tokenGuardadoAuthService;
   }
