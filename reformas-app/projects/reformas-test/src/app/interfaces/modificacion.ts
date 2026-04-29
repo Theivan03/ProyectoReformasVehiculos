@@ -149,7 +149,7 @@ export const REFORMA_CAMPOS_COMPARTIDOS: readonly ReformaCampoCompartidoDefinici
     },
     {
       grupo: 'reformaAdicional',
-      campos: ['titulo', 'descripcion', 'curvatura'],
+      campos: [],
     },
     {
       grupo: 'muebleBajo',

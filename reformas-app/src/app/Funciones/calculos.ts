@@ -7098,10 +7098,10 @@ export async function buildCalculos(
       out.push(tablaComprobacion);
     }
 
-    const snorkel = modificaciones.find(
-      (m) => m.nombre === 'SNORKEL' && m.seleccionado,
-    );
-    if (snorkel) {
+    const snorkel =
+      modificaciones.find((m) => m.nombre === 'SNORKEL' && m.seleccionado)!;
+    // Legacy block kept disabled while the common aerodynamic helper drives output.
+    if (false && snorkel) {
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
 
@@ -7501,6 +7501,165 @@ export async function buildCalculos(
       out.push(tablaComprobacion);
       out.push(new Paragraph({ text: '' }));
       out.push(new Paragraph({ text: '' }));
+    }
+
+    const snorkelCalc = modificaciones.find(
+      (m) => m.nombre === 'SNORKEL' && m.seleccionado,
+    );
+    if (snorkelCalc) {
+      const medidasSnorkelParseadas = parseMedidasEnMetros(
+        snorkelCalc.medidasSnorkel,
+      );
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Snorkel',
+        pesoPiezaKg: toFiniteNumber(snorkelCalc.pesoPiezaKgSnorkel),
+        anchuraPiezaM:
+          toFiniteNumber(snorkelCalc.anchuraPiezaMSnorkel) ||
+          medidasSnorkelParseadas.anchuraM,
+        alturaPiezaM:
+          toFiniteNumber(snorkelCalc.alturaPiezaMSnorkel) ||
+          medidasSnorkelParseadas.alturaM,
+        metrica: parseMetricaTornillo(snorkelCalc.metricaSnorkel),
+        nTornillos: toPositiveInt(snorkelCalc.nTornillosSnorkel),
+        calidadTornillo:
+          toFiniteNumber(snorkelCalc.calidadTornilloSnorkel) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(snorkelCalc.seccionResistenteAsSnorkel) ||
+          getAreaResistentePorMetrica(snorkelCalc.metricaSnorkel),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(snorkelCalc.resTraccionMinTornillo88Kgmm2Snorkel) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(snorkelCalc.cwCoefAerodinamicoSnorkel) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(snorkelCalc.densidadAireKgM3Snorkel) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(snorkelCalc.velocidadAireV2msSnorkel) || 38.89,
+        coefSeguridadK: toFiniteNumber(snorkelCalc.coefSeguridadKSnorkel) || 3,
+        curvatura: toFiniteNumber(snorkelCalc.curvaturaSnorkel) || 8,
+      });
+      contador++;
+    }
+
+    const lipDelanteroCalc = modificaciones.find(
+      (m) => m.nombre === 'LIP DELANTERO' && m.seleccionado,
+    );
+    if (lipDelanteroCalc) {
+      const medidasLipDelanteroParseadas = parseMedidasEnMetros(
+        lipDelanteroCalc.medidasLipDelantero,
+      );
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Lip delantero',
+        pesoPiezaKg: toFiniteNumber(lipDelanteroCalc.pesoPiezaKgLipDelantero),
+        anchuraPiezaM:
+          toFiniteNumber(lipDelanteroCalc.anchuraPiezaMLipDelantero) ||
+          medidasLipDelanteroParseadas.anchuraM,
+        alturaPiezaM:
+          toFiniteNumber(lipDelanteroCalc.alturaPiezaMLipDelantero) ||
+          medidasLipDelanteroParseadas.alturaM,
+        metrica: parseMetricaTornillo(lipDelanteroCalc.metricaLipDelantero),
+        nTornillos: toPositiveInt(lipDelanteroCalc.nTornillosLipDelantero),
+        calidadTornillo:
+          toFiniteNumber(lipDelanteroCalc.calidadTornilloLipDelantero) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(lipDelanteroCalc.seccionResistenteAsLipDelantero) ||
+          getAreaResistentePorMetrica(lipDelanteroCalc.metricaLipDelantero),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            lipDelanteroCalc.resTraccionMinTornillo88Kgmm2LipDelantero,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(lipDelanteroCalc.cwCoefAerodinamicoLipDelantero) ||
+          0.82,
+        densidadAireKgM3:
+          toFiniteNumber(lipDelanteroCalc.densidadAireKgM3LipDelantero) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(lipDelanteroCalc.velocidadAireV2msLipDelantero) ||
+          38.89,
+        coefSeguridadK:
+          toFiniteNumber(lipDelanteroCalc.coefSeguridadKLipDelantero) || 3,
+        curvatura: toFiniteNumber(lipDelanteroCalc.radioCurvaRLipDelantero) || 8,
+      });
+      contador++;
+    }
+
+    const barrasAntivuelcoCalc = modificaciones.find(
+      (m) => m.nombre === 'BARRAS ANTIVUELCO' && m.seleccionado,
+    );
+    if (barrasAntivuelcoCalc) {
+      const medidasBarrasParseadas = parseMedidasEnMetros(
+        barrasAntivuelcoCalc.medidasBarras,
+      );
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Barras antivuelco',
+        pesoPiezaKg: toFiniteNumber(barrasAntivuelcoCalc.pesoPiezaKgBarras),
+        anchuraPiezaM:
+          toFiniteNumber(barrasAntivuelcoCalc.anchuraPiezaMBarras) ||
+          medidasBarrasParseadas.anchuraM,
+        alturaPiezaM:
+          toFiniteNumber(barrasAntivuelcoCalc.alturaPiezaMBarras) ||
+          medidasBarrasParseadas.alturaM,
+        metrica: parseMetricaTornillo(barrasAntivuelcoCalc.metricaBarras),
+        nTornillos: toPositiveInt(barrasAntivuelcoCalc.nTornillosBarras),
+        calidadTornillo:
+          toFiniteNumber(barrasAntivuelcoCalc.calidadTornilloBarras) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(barrasAntivuelcoCalc.seccionResistenteAsBarras) ||
+          getAreaResistentePorMetrica(barrasAntivuelcoCalc.metricaBarras),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            barrasAntivuelcoCalc.resTraccionMinTornillo88Kgmm2Barras,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(barrasAntivuelcoCalc.cwCoefAerodinamicoBarras) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(barrasAntivuelcoCalc.densidadAireKgM3Barras) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(barrasAntivuelcoCalc.velocidadAireV2msBarras) || 38.89,
+        coefSeguridadK:
+          toFiniteNumber(barrasAntivuelcoCalc.coefSeguridadKBarras) || 3,
+        curvatura: toFiniteNumber(barrasAntivuelcoCalc.curvaturaBarras) || 8,
+      });
+      contador++;
+    }
+
+    const difusorTraseroCalc = modificaciones.find(
+      (m) => m.nombre === 'DIFUSOR TRASERO' && m.seleccionado,
+    );
+    if (difusorTraseroCalc) {
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Difusor trasero',
+        pesoPiezaKg: toFiniteNumber(difusorTraseroCalc.pesoPiezaKgDifusor),
+        anchuraPiezaM:
+          toFiniteNumber(difusorTraseroCalc.anchuraPiezaMDifusor) ||
+          toFiniteNumber(difusorTraseroCalc.largoDifusor) / 1000,
+        alturaPiezaM:
+          toFiniteNumber(difusorTraseroCalc.alturaPiezaMDifusor) ||
+          toFiniteNumber(difusorTraseroCalc.altoDifusor) / 1000,
+        metrica: parseMetricaTornillo(difusorTraseroCalc.metricaDifusor),
+        nTornillos: toPositiveInt(difusorTraseroCalc.nTornillosDifusor),
+        calidadTornillo:
+          toFiniteNumber(difusorTraseroCalc.calidadTornilloDifusor) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(difusorTraseroCalc.seccionResistenteAsDifusor) ||
+          getAreaResistentePorMetrica(difusorTraseroCalc.metricaDifusor),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            difusorTraseroCalc.resTraccionMinTornillo88Kgmm2Difusor,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(difusorTraseroCalc.cwCoefAerodinamicoDifusor) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(difusorTraseroCalc.densidadAireKgM3Difusor) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(difusorTraseroCalc.velocidadAireV2msDifusor) || 38.89,
+        coefSeguridadK:
+          toFiniteNumber(difusorTraseroCalc.coefSeguridadKDifusor) || 3,
+        curvatura: toFiniteNumber(difusorTraseroCalc.radioCurvaRDifusor) || 8,
+      });
+      contador++;
     }
 
     const lucesLargoAlcance = modificaciones.find(

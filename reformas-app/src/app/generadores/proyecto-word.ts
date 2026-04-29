@@ -5740,6 +5740,9 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   }
 
   const anexosPorsteriores = await generarPosteriores(data);
+  const calculosProyecto = (await buildCalculos(data.modificaciones, data, true))
+    .flat()
+    .map((child) => (child instanceof Table ? keepTableTogether(child) : child));
 
   const section2 = {
     properties: {
@@ -5761,7 +5764,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       ...punto1_7_Conclusion,
       ...punto2,
       ...punto2_2,
-      ...(await buildCalculos(data.modificaciones, data, true)),
+      ...calculosProyecto,
       ...punto3,
       ...punto4,
       ...punto5,

@@ -180,7 +180,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
           this.generarReferencia(anyo);
         }
 
-        this.syncControlMasasDefaults();
         this.intentarNormalizarListas();
 
         const p = Number(this.datosIniciales?.paginaActual);
@@ -188,15 +187,27 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
           this.paginaActual = this.clampToTotal(p);
         }
       } else {
-        if (this.datosIniciales.tipoVehiculo !== undefined) {
-          this.datos.tipoVehiculo = this.datosIniciales.tipoVehiculo;
+        this.datos = { ...this.datos, ...this.datosIniciales };
+
+        if (this.datos.taller && !this.datos.tallerSeleccionado) {
+          this.datos.tallerSeleccionado = this.datos.taller;
         }
-        if (this.datosIniciales.modificaciones !== undefined) {
-          this.datos.modificaciones = this.datosIniciales.modificaciones;
+        if (this.datos.ingeniero && !this.datos.ingenieroSeleccionado) {
+          this.datos.ingenieroSeleccionado = this.datos.ingeniero;
         }
-        if (this.datosIniciales.reformasPrevias !== undefined) {
-          this.datos.reformasPrevias = this.datosIniciales.reformasPrevias;
+
+        if (this.datos.fechaProyecto) {
+          this.datos.fechaProyecto = this.datos.fechaProyecto
+            .toString()
+            .slice(0, 10);
         }
+        if (this.datos.fechaMatriculacion) {
+          this.datos.fechaMatriculacion = this.datos.fechaMatriculacion
+            .toString()
+            .slice(0, 10);
+        }
+
+        this.intentarNormalizarListas();
       }
     }
 
@@ -279,7 +290,7 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
       );
       if (encontrado) {
         this.datos.ingenieroSeleccionado = encontrado;
-        this.datos.ingenieroSeleccionado = encontrado;
+        this.datos.ingeniero = encontrado;
       }
     }
   }
@@ -490,7 +501,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
 
   siguiente(): void {
     const n = (v: any) => Number(v) || 0;
-    this.syncControlMasasDefaults();
     const taraDelante = n(this.datos.taraDelante);
     const taraDetras = n(this.datos.taraDetras);
     const taraTotal =
@@ -499,7 +509,6 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         : n(this.datos.taraTotal);
     const masaRealTotal = taraTotal + 75;
     const totalKgOcupAdicionales = n(this.datos.ocupantesAdicionales) * 75;
-    this.datos.taraTotal = taraTotal;
     this.datos.cargaUtilTotal =
       this.getControlMasasNumber('mmaControlMasas', 'mmaDespues') -
       masaRealTotal -

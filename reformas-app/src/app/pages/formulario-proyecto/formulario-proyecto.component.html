@@ -564,11 +564,11 @@
             type="number"
             class="form-control"
             [(ngModel)]="datos.taraTotal"
-            name="masaRealDespues"
-            #masaRealDespuesField="ngModel"
+            name="taraTotal"
+            #taraTotalField="ngModel"
             required
             [class.is-invalid]="
-              masaRealDespuesField.invalid && masaRealDespuesField.touched
+              taraTotalField.invalid && taraTotalField.touched
             "
           />
         </div>
@@ -578,11 +578,11 @@
             type="number"
             class="form-control"
             [(ngModel)]="datos.taraDelante"
-            name="mmaEje1Despues"
-            #mmaEje1DespuesField="ngModel"
+            name="taraDelante"
+            #taraDelanteField="ngModel"
             required
             [class.is-invalid]="
-              mmaEje1DespuesField.invalid && mmaEje1DespuesField.touched
+              taraDelanteField.invalid && taraDelanteField.touched
             "
           />
         </div>
@@ -592,11 +592,11 @@
             type="number"
             class="form-control"
             [(ngModel)]="datos.taraDetras"
-            name="mmaEje2Despues"
-            #mmaEje2DespuesField="ngModel"
+            name="taraDetras"
+            #taraDetrasField="ngModel"
             required
             [class.is-invalid]="
-              mmaEje2DespuesField.invalid && mmaEje2DespuesField.touched
+              taraDetrasField.invalid && taraDetrasField.touched
             "
           />
         </div>
@@ -664,12 +664,12 @@
           <input
             type="number"
             class="form-control"
-            [(ngModel)]="datos[campo.model]"
+            [ngModel]="datos[campo.model] ?? 0"
+            (ngModelChange)="datos[campo.model] = $event; comprobarCondicionesCarga()"
             [name]="campo.model"
             #ctrl="ngModel"
             required
             [class.is-invalid]="ctrl.invalid && ctrl.touched"
-            (ngModelChange)="comprobarCondicionesCarga()"
           />
           <div class="invalid-feedback">CAMPO OBLIGATORIO</div>
         </div>

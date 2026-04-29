@@ -149,7 +149,7 @@ export const REFORMA_CAMPOS_COMPARTIDOS: readonly ReformaCampoCompartidoDefinici
     },
     {
       grupo: 'reformaAdicional',
-      campos: ['titulo', 'descripcion', 'curvatura'],
+      campos: [],
     },
     {
       grupo: 'muebleBajo',
@@ -998,6 +998,42 @@ export interface Modificacion {
   densidadAireKgM3Snorkel?: number;
   velocidadAireV2msSnorkel?: number;
   coefSeguridadKSnorkel?: number;
+  pesoPiezaKgLipDelantero?: number;
+  anchuraPiezaMLipDelantero?: number;
+  metricaLipDelantero?: number;
+  alturaPiezaMLipDelantero?: number;
+  nTornillosLipDelantero?: number;
+  calidadTornilloLipDelantero?: number;
+  seccionResistenteAsLipDelantero?: number;
+  resTraccionMinTornillo88Kgmm2LipDelantero?: number;
+  cwCoefAerodinamicoLipDelantero?: number;
+  densidadAireKgM3LipDelantero?: number;
+  velocidadAireV2msLipDelantero?: number;
+  coefSeguridadKLipDelantero?: number;
+  pesoPiezaKgDifusor?: number;
+  anchuraPiezaMDifusor?: number;
+  metricaDifusor?: number;
+  alturaPiezaMDifusor?: number;
+  nTornillosDifusor?: number;
+  calidadTornilloDifusor?: number;
+  seccionResistenteAsDifusor?: number;
+  resTraccionMinTornillo88Kgmm2Difusor?: number;
+  cwCoefAerodinamicoDifusor?: number;
+  densidadAireKgM3Difusor?: number;
+  velocidadAireV2msDifusor?: number;
+  coefSeguridadKDifusor?: number;
+  pesoPiezaKgBarras?: number;
+  anchuraPiezaMBarras?: number;
+  metricaBarras?: number;
+  alturaPiezaMBarras?: number;
+  nTornillosBarras?: number;
+  calidadTornilloBarras?: number;
+  seccionResistenteAsBarras?: number;
+  resTraccionMinTornillo88Kgmm2Barras?: number;
+  cwCoefAerodinamicoBarras?: number;
+  densidadAireKgM3Barras?: number;
+  velocidadAireV2msBarras?: number;
+  coefSeguridadKBarras?: number;
   medidasLargoAlcance?: string;
   pesoPiezaKgLargoAlcance?: number;
   anchuraPiezaMLargoAlcance?: number;

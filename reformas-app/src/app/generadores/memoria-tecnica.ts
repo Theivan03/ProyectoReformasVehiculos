@@ -777,6 +777,13 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
   const ocup3Total = (data.asientos3Fila ?? 0) * 75;
   const cargaUtilTotal = Number(data.cargaUtilTotal ?? 0);
   const masaRealTotal = Number(data.masaRealDespues ?? 0) + 75;
+  const taraDelante = Number(data.taraDelante ?? 0);
+  const taraDetras = Number(data.taraDetras ?? 0);
+  const taraTotalIntroducida = Number(data.taraTotal ?? 0);
+  const taraTotal =
+    taraDelante + taraDetras > 0
+      ? taraDelante + taraDetras
+      : taraTotalIntroducida;
 
   const masaRealDel = Math.round(masaRealTotal * reparto.masaReal.del);
   const masaRealTras = masaRealTotal - masaRealDel;
@@ -1259,7 +1266,7 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
                 margins: { top: 40, bottom: 40, left: 40, right: 40 },
                 children: [
                   new Paragraph({
-                    text: data.taraTotal?.toString() ?? '-',
+                    text: taraTotal.toString() ?? '-',
                     alignment: AlignmentType.CENTER,
                   }),
                 ],
