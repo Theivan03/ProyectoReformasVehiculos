@@ -488,6 +488,19 @@ export class CanvaComponent implements OnInit {
   }
 
   private expandInstalacionElectrica(mod: any): string[] {
+    const hasValue = (value: unknown): boolean => {
+      if (value === undefined || value === null) return false;
+      if (typeof value === 'string') return value.trim().length > 0;
+      if (typeof value === 'number') return Number.isFinite(value);
+      if (Array.isArray(value)) return value.some((item) => hasValue(item));
+      if (typeof value === 'object') {
+        return Object.values(value as Record<string, unknown>).some((item) =>
+          hasValue(item),
+        );
+      }
+      return Boolean(value);
+    };
+
     const out: string[] = [];
 
     if (Array.isArray(mod.placasSolares)) {
@@ -498,6 +511,14 @@ export class CanvaComponent implements OnInit {
         const modelo = (placa?.modeloPlacaSolar ?? placa?.modelo ?? '')
           .toString()
           .trim();
+        const potencia = (placa?.potencia ?? '').toString().trim();
+        const dimensiones = (placa?.dimensiones ?? '').toString().trim();
+        const ubicacion = (placa?.ubicacion ?? '').toString().trim();
+
+        if (!hasValue(placa) && !marca && !modelo && !potencia && !dimensiones && !ubicacion) {
+          return;
+        }
+
         const detalle = [marca, modelo].filter(Boolean).join(' ');
         const cantidad =
           placa?.agruparIguales && Number(placa?.cantidad) > 1
@@ -515,13 +536,24 @@ export class CanvaComponent implements OnInit {
       });
     }
 
-    // En canva siempre se posicionan por separado en instalación eléctrica.
-    out.push('Batería');
-    out.push('Inversor');
-    out.push('Controlador');
+    const hasBateriaData = hasValue(mod.cantidadBaterias) || hasValue(mod.potenciaBaterias) || hasValue(mod.ubicacionBaterias);
+    const hasInversorData = hasValue(mod.potenciaInversor) || hasValue(mod.marcaInversor) || hasValue(mod.homologacionInversor) || hasValue(mod.ubicacionInversor);
+    const hasControladorData = hasValue(mod.modeloControlador) || hasValue(mod.marcaControlador) || hasValue(mod.homologacionControlador) || hasValue(mod.ubicacionControlador);
 
-    if (this.hasValue(mod.instalacionesSecundarias)) {
-      out.push(`Instalaciones secundarias`);
+    if (hasBateriaData) {
+      out.push('Batería');
+    }
+
+    if (hasInversorData) {
+      out.push('Inversor');
+    }
+
+    if (hasControladorData) {
+      out.push('Controlador');
+    }
+
+    if (hasValue(mod.instalacionesSecundarias)) {
+      out.push('Instalaciones secundarias');
     }
 
     return out;

@@ -11,11 +11,31 @@
     },
     {
       "nombre": "ALETINES Y SOBREALETINES",
-      "seleccionado": false,
+      "seleccionado": true,
       "detalle": {
-        "aletines": false,
+        "aletines": true,
         "sobrealetines": false
-      }
+      },
+      "velocidadAireV2msAletines": 38.89,
+      "densidadAireKgM3Aletines": 1.29,
+      "radioCurvaRAletines": 8,
+      "curvaturaSobrealetines": 8,
+      "coefSeguridadKAletines": 3,
+      "coefAerodinamicoCwAletines": 0.82,
+      "resTraccionMinTornillo88Kgmm2Aletines": 80,
+      "superficieFrontalM2Aletines": 0.0029,
+      "seccionResistenteAsAletines": 14.19,
+      "acciones": [
+        "Instalación"
+      ],
+      "marcaAletines": "5",
+      "referenciaAletines": "5",
+      "anchoAletines": 50,
+      "altoAletines": 59,
+      "metricaAletines": "5",
+      "posicionAletines": "delantero",
+      "numTornillosAletines": 6,
+      "pesoPiezaKgAletines": 6
     },
     {
       "nombre": "AMORTIGUADOR DE DIRECCIÓN",
@@ -340,7 +360,7 @@
       "x": 0.5512367491166078,
       "y": 0.42801213318284426,
       "label": "2",
-      "etiqueta": "DIFUSOR TRASERO",
+      "etiqueta": "BARRAS ANTIVUELCO",
       "labelIndex": 1
     }
   ],
@@ -525,5 +545,6 @@
   ],
   "fechaFirma": "Teulada, 3 de abril de 2026",
   "firmaUrl": "/imgs/firma-generada.png",
-  "step": 2
+  "step": 2,
+  "enviadoPorCliente": false
 }

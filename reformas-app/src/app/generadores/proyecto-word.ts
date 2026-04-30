@@ -2514,9 +2514,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
             spacing: { line: 260, after: 120 },
             children: [
               new TextRun({
-                text: `Velocidad máxima: ${data.velocidadMaxima} Km/h = ${(
-                  data.velocidadMaxima / 3.6
-                ).toFixed(2)} m/s`,
+                text: `Velocidad máxima: 140 Km/h = 38.89 m/s`,
               }),
             ],
           }),

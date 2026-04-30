@@ -577,8 +577,36 @@ export async function buildCalculos(
         m.nombre === 'ALETINES Y SOBREALETINES' &&
         m.seleccionado &&
         m.detalle?.aletines,
-    );
+    )!;
     if (aletines) {
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Aletines',
+        pesoPiezaKg: toFiniteNumber(aletines.pesoPiezaKgAletines),
+        anchuraPiezaM: toFiniteNumber(aletines.anchoAletines),
+        alturaPiezaM: toFiniteNumber(aletines.altoAletines),
+        superficieFrontalM2: toFiniteNumber(aletines.superficieFrontalM2Aletines),
+        metrica: parseMetricaTornillo(aletines.metricaAletines),
+        nTornillos: toPositiveInt(aletines.numTornillosAletines),
+        calidadTornillo: toFiniteNumber(aletines.calidadTornilloAleron) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(aletines.seccionResistenteAsAletines) ||
+          getAreaResistentePorMetrica(aletines.metricaAletines),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(aletines.resTraccionMinTornillo88Kgmm2Aletines) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(aletines.coefAerodinamicoCwAletines) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(aletines.densidadAireKgM3Aletines) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(aletines.velocidadAireV2msAletines) || 38.89,
+        coefSeguridadK: toFiniteNumber(aletines.coefSeguridadKAletines) || 3,
+        curvatura: toFiniteNumber(aletines.radioCurvaRAletines) || 8,
+      });
+
+      contador++;
+    }
+
+    if (false && aletines) {
       out.push(new Paragraph({ text: '' }));
       out.push(
         new Paragraph({
@@ -10395,7 +10423,7 @@ export async function buildCalculos(
       // 1) Título centrado
       out.push(
         new Paragraph({
-          alignment: AlignmentType.RIGHT,
+          alignment: AlignmentType.LEFT,
           children: [
             new TextRun({
               text:
@@ -10746,6 +10774,35 @@ export async function buildCalculos(
           });
         });
 
+        if (filas.length === 0) {
+          return new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+              header,
+              new TableRow({
+                cantSplit: true,
+                children: [
+                  new TableCell({
+                    columnSpan: 8,
+                    margins: CELL_MARGINS,
+                    verticalAlign: VerticalAlign.CENTER,
+                    children: [
+                      new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [
+                          new TextRun({
+                            text: 'Sin muebles altos configurados para calcular esta tabla',
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          });
+        }
+
         return new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [header, ...filas],
@@ -10997,24 +11054,14 @@ export async function buildCalculos(
       out.push(new Paragraph({ text: '' }));
 
       // 9) Tabla: ESFUERZOS VERTICALES
-      function generarTablaVerticales(data: any): Table {
+      function generarTablaVerticales(data: any): Table | null {
         const modMobiliario = data.modificaciones.find(
           (m: any) =>
             m.nombre === 'MOBILIARIO INTERIOR VEHÍCULO' && m.seleccionado,
         );
 
         if (!modMobiliario) {
-          return new Table({
-            rows: [
-              new TableRow({
-                children: [
-                  new TableCell({
-                    children: [new Paragraph('Sin mobiliario seleccionado')],
-                  }),
-                ],
-              }),
-            ],
-          });
+          return null;
         }
 
         // Solo muebles altos
@@ -11103,6 +11150,10 @@ export async function buildCalculos(
           });
         });
 
+        if (filas.length === 0) {
+          return null;
+        }
+
         return new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [header, ...filas],
@@ -11110,9 +11161,12 @@ export async function buildCalculos(
       }
 
       // Y en el out:
-      out.push(generarTablaVerticales(data));
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
+      const tablaVerticales = generarTablaVerticales(data);
+      if (tablaVerticales) {
+        out.push(tablaVerticales);
+        out.push(new Paragraph({ text: '' }));
+        out.push(new Paragraph({ text: '' }));
+      }
     }
 
     out.push(

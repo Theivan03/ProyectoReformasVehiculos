@@ -369,6 +369,10 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       mod.placasSolares = [];
     }
 
+    if (mod.nombre === 'INSTALACIÓN ELÉCTRICA') {
+      mod.anotacion = mod.anotacion === true;
+    }
+
     if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
       if (!Array.isArray(mod.reformasAdicionalesItems)) {
         mod.reformasAdicionalesItems = [];
@@ -1347,7 +1351,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
       }
 
       if (mod.nombre === 'INSTALACIÓN ELÉCTRICA') {
-        invalido = mod.anotacion === undefined;
+        invalido = false;
       }
 
       if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {
@@ -1448,7 +1452,7 @@ export class TipoVehiculoComponent implements OnInit, OnChanges, DoCheck {
     }
 
     if (mod.nombre === 'INSTALACIÓN ELÉCTRICA') {
-      invalido = mod.anotacion === undefined;
+      invalido = false;
     }
 
     if (mod.nombre === 'ESTRIBOS LATERALES O TALONERAS') {

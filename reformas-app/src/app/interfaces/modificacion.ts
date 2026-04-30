@@ -289,6 +289,7 @@ export interface Modificacion {
   cargaEquivalenteGeneralNeumaticos?: number;
 
   ubicacionDiscos?: 'delanteros' | 'traseros' | 'ambos';
+  modificaPinzasDiscos?: boolean;
   sonIguales?: boolean;
   marcaDiscos?: string;
   modeloDiscos?: string;

@@ -141,6 +141,8 @@ export class ResumenModificacionesComponent
   private readonly targetsCamposCompartidos = new WeakMap<object, object>();
   private readonly camposAutorellenados = new WeakMap<object, Map<string, any>>();
   private readonly camposLimpiadosManualmente = new WeakMap<object, Set<string>>();
+  private readonly backupPinzasDiscos = new WeakMap<object, Record<string, any>>();
+  private readonly estadoPinzasDiscos = new WeakMap<object, boolean>();
   private sincronizandoCamposCompartidos = false;
 
   constructor(private readonly datosReformaService: DatosReformaService) {}
@@ -326,6 +328,15 @@ export class ResumenModificacionesComponent
         m.reformasAdicionalesItems = m.reformasAdicionalesItems.map((item: any) =>
           this.createReformaAdicionalItem(item),
         );
+      }
+
+      if (m.nombre === 'SUSTITUCIÓN DE DISCOS DE FRENO') {
+        if (typeof m.modificaPinzasDiscos === 'string') {
+          m.modificaPinzasDiscos = m.modificaPinzasDiscos === 'true';
+        }
+        if (m.modificaPinzasDiscos == null) {
+          m.modificaPinzasDiscos = this.tieneDatosPinzasDiscos(m);
+        }
       }
 
       if (m.nombre === 'BARRAS ANTIVUELCO') {
@@ -1023,6 +1034,8 @@ export class ResumenModificacionesComponent
   onFrenosChange(mod: any) {
     this.ensureAngulosContactoSustitucionDiscos(mod);
 
+    this.syncPinzasDiscos(mod);
+
     if (mod.sonIguales) {
       // Datos básicos
       mod.marcaDiscoTrasero = mod.marcaDiscos;
@@ -1033,17 +1046,70 @@ export class ResumenModificacionesComponent
 
       // Datos de cálculo (Técnicos)
       mod.numDiscosTrasero = mod.numDiscosDelantero; // NUEVO
-      mod.numPinzasTraseras = mod.numPinzasDelanteras; // NUEVO
+      if (mod.modificaPinzasDiscos !== false) {
+        mod.numPinzasTraseras = mod.numPinzasDelanteras; // NUEVO
+      }
       mod.diametroExteriorDiscoTrasero = mod.diametroExteriorDiscos;
       mod.diametroInteriorDiscoTrasero = mod.diametroInteriorDiscos;
-      mod.diametroBombaDiscoTrasero = mod.diametroBombaDiscos;
-      mod.dimensionPistonDiscoTrasero = mod.dimensionPistonDiscos;
-      mod.numPistonesDiscoTrasero = mod.numPistonesDiscos;
+      if (mod.modificaPinzasDiscos !== false) {
+        mod.diametroBombaDiscoTrasero = mod.diametroBombaDiscos;
+        mod.dimensionPistonDiscoTrasero = mod.dimensionPistonDiscos;
+        mod.numPistonesDiscoTrasero = mod.numPistonesDiscos;
+      }
       mod.anguloContactoDiscoTrasero = mod.anguloContactoDiscos;
       mod.perfilNeumaticoDiscoTrasero = mod.perfilNeumaticoDiscos;
       mod.anchoNeumaticoDiscoTrasero = mod.anchoNeumaticoDiscos;
       mod.radioEfectivoDiscoTrasero = mod.radioEfectivoDiscos;
     }
+  }
+
+  private tieneDatosPinzasDiscos(mod: any): boolean {
+    return [
+      mod?.numPinzasDelanteras,
+      mod?.numPinzasTraseras,
+      mod?.diametroBombaDiscos,
+      mod?.dimensionPistonDiscos,
+      mod?.numPistonesDiscos,
+      mod?.diametroBombaDiscoTrasero,
+      mod?.dimensionPistonDiscoTrasero,
+      mod?.numPistonesDiscoTrasero,
+    ].some((valor) => valor !== undefined && valor !== null && valor !== '');
+  }
+
+  private obtenerBackupPinzasDiscos(mod: any): Record<string, any> {
+    return {
+      numPinzasDelanteras: mod?.numPinzasDelanteras ?? null,
+      numPinzasTraseras: mod?.numPinzasTraseras ?? null,
+      diametroBombaDiscos: mod?.diametroBombaDiscos ?? null,
+      dimensionPistonDiscos: mod?.dimensionPistonDiscos ?? null,
+      numPistonesDiscos: mod?.numPistonesDiscos ?? null,
+      diametroBombaDiscoTrasero: mod?.diametroBombaDiscoTrasero ?? null,
+      dimensionPistonDiscoTrasero: mod?.dimensionPistonDiscoTrasero ?? null,
+      numPistonesDiscoTrasero: mod?.numPistonesDiscoTrasero ?? null,
+    };
+  }
+
+  private aplicarBackupPinzasDiscos(mod: any, backup: Record<string, any>): void {
+    if (!mod || !backup) return;
+    Object.assign(mod, backup);
+  }
+
+  private limpiarDatosPinzasDiscos(mod: any): void {
+    if (!mod) return;
+
+    mod.numPinzasDelanteras = null;
+    mod.numPinzasTraseras = null;
+    mod.diametroBombaDiscos = null;
+    mod.dimensionPistonDiscos = null;
+    mod.numPistonesDiscos = null;
+    mod.diametroBombaDiscoTrasero = null;
+    mod.dimensionPistonDiscoTrasero = null;
+    mod.numPistonesDiscoTrasero = null;
+  }
+
+  private syncPinzasDiscos(mod: any): void {
+    if (!mod) return;
+    this.estadoPinzasDiscos.set(mod, mod.modificaPinzasDiscos !== false);
   }
 
   private ensureAngulosContactoSustitucionDiscos(mod: any): void {
@@ -1758,7 +1824,7 @@ export class ResumenModificacionesComponent
     const defaults = {
       titulo: '',
       descripcion: '',
-      curvatura: 8,
+      curvatura: null,
     };
     Object.assign(item, defaults, incoming);
 
@@ -1769,7 +1835,6 @@ export class ResumenModificacionesComponent
       defaults,
     );
     this.aplicarValoresCompartidosEnEntidad('reformaAdicional', item);
-    if (item.curvatura == null) item.curvatura = 8;
     return this.wrapEntidadCompartida('reformaAdicional', item);
   }
 
@@ -2428,14 +2493,21 @@ export class ResumenModificacionesComponent
         mod.perfilNeumaticoDiscoTrasero = mod.perfilNeumaticoDiscos;
       }
 
+      if (mod.nombre === 'SUSTITUCIÃ“N DE DISCOS DE FRENO') {
+        if (mod.ubicacionDiscos === 'traseros' && mod.modificaPinzasDiscos !== false) {
+          mod.numPinzasTraseras = mod.numPinzasDelanteras;
+        }
+      }
+
       if (mod.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES') {
         const lines: string[] = [];
         if (Array.isArray(mod.reformasAdicionalesItems)) {
           mod.reformasAdicionalesItems = mod.reformasAdicionalesItems.map(
             (item: any) => {
               const normalizedItem = this.createReformaAdicionalItem(item);
-              normalizedItem.curvatura =
-                this.toNumberOrNull(normalizedItem.curvatura) ?? 8;
+              normalizedItem.curvatura = this.toNumberOrNull(
+                normalizedItem.curvatura,
+              );
               return normalizedItem;
             },
           );

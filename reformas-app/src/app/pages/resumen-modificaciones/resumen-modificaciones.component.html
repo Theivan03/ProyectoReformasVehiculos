@@ -6879,6 +6879,28 @@
                 </div>
 
                 @if (mod.ubicacionDiscos) {
+                  <div class="row mb-4">
+                    <div class="col-12 col-md-6 col-lg-4">
+                      <div class="form-floating">
+                        <select
+                          class="form-select"
+                          [ngModel]="mod.modificaPinzasDiscos"
+                          (ngModelChange)="
+                            mod.modificaPinzasDiscos = $event;
+                            onFrenosChange(mod)
+                          "
+                          name="modificaPinzasDiscos{{ i }}"
+                        >
+                          <option [ngValue]="true">Sí</option>
+                          <option [ngValue]="false">No</option>
+                        </select>
+                        <label>¿TAMBIÉN SE MODIFICAN LAS PINZAS?</label>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                @if (mod.ubicacionDiscos) {
                   <h6 class="text-primary border-bottom pb-2 mb-3">
                     @if (mod.ubicacionDiscos === "traseros") {
                       DATOS EJE TRASERO (SISTEMA NUEVO)
@@ -6894,10 +6916,8 @@
                           type="text"
                           class="form-control"
                           placeholder="Marca"
-                          [ngModel]="mod.marcaDiscos"
-                          (ngModelChange)="
-                            (mod.marcaDiscos); onFrenosChange(mod)
-                          "
+                          [(ngModel)]="mod.marcaDiscos"
+                          (ngModelChange)="onFrenosChange(mod)"
                           name="marcaDiscos{{ i }}"
                           required
                           [class.is-invalid]="formSubmitted && !mod.marcaDiscos"
@@ -6911,10 +6931,8 @@
                           type="text"
                           class="form-control"
                           placeholder="Modelo"
-                          [ngModel]="mod.modeloDiscos"
-                          (ngModelChange)="
-                            (mod.modeloDiscos); onFrenosChange(mod)
-                          "
+                          [(ngModel)]="mod.modeloDiscos"
+                          (ngModelChange)="onFrenosChange(mod)"
                           name="modeloDiscos{{ i }}"
                         />
                         <label>MODELO</label>
@@ -6926,10 +6944,8 @@
                           type="text"
                           class="form-control"
                           placeholder="Referencia"
-                          [ngModel]="mod.referenciaDiscos"
-                          (ngModelChange)="
-                            (mod.referenciaDiscos); onFrenosChange(mod)
-                          "
+                          [(ngModel)]="mod.referenciaDiscos"
+                          (ngModelChange)="onFrenosChange(mod)"
                           name="referenciaDiscos{{ i }}"
                           required
                           [class.is-invalid]="
@@ -6945,10 +6961,8 @@
                           type="number"
                           class="form-control"
                           placeholder="Diámetro"
-                          [ngModel]="mod.diametroDiscos"
-                          (ngModelChange)="
-                            (mod.diametroDiscos); onFrenosChange(mod)
-                          "
+                          [(ngModel)]="mod.diametroDiscos"
+                          (ngModelChange)="onFrenosChange(mod)"
                           name="diametroDiscos{{ i }}"
                           required
                           [class.is-invalid]="
@@ -6964,10 +6978,8 @@
                           type="number"
                           class="form-control"
                           placeholder="Espesor"
-                          [ngModel]="mod.espesorDiscos"
-                          (ngModelChange)="
-                            (mod.espesorDiscos); onFrenosChange(mod)
-                          "
+                          [(ngModel)]="mod.espesorDiscos"
+                          (ngModelChange)="onFrenosChange(mod)"
                           name="espesorDiscos{{ i }}"
                           required
                           [class.is-invalid]="
@@ -6989,41 +7001,36 @@
                               type="number"
                               class="form-control"
                               placeholder="Nº Discos"
-                              [ngModel]="mod.numDiscosDelantero"
-                              (ngModelChange)="
-                                (mod.numDiscosDelantero); onFrenosChange(mod)
-                              "
+                              [(ngModel)]="mod.numDiscosDelantero"
+                              (ngModelChange)="onFrenosChange(mod)"
                               name="numDiscosDelantero{{ i }}"
                             />
                             <label>Nº DISCOS (x EJE)</label>
                           </div>
                         </div>
-                        <div class="col-md-4">
-                          <div class="form-floating">
-                            <input
-                              type="number"
-                              class="form-control"
-                              placeholder="Nº Pinzas"
-                              [ngModel]="mod.numPinzasDelanteras"
-                              (ngModelChange)="
-                                (mod.numPinzasDelanteras); onFrenosChange(mod)
-                              "
-                              name="numPinzasDelanteras{{ i }}"
-                            />
-                            <label>Nº PINZAS (x EJE)</label>
+                        @if (mod.modificaPinzasDiscos) {
+                          <div class="col-md-4">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                class="form-control"
+                                placeholder="Nº Pinzas"
+                                [(ngModel)]="mod.numPinzasDelanteras"
+                                (ngModelChange)="onFrenosChange(mod)"
+                                name="numPinzasDelanteras{{ i }}"
+                              />
+                              <label>Nº PINZAS (x EJE)</label>
+                            </div>
                           </div>
-                        </div>
+                        }
                         <div class="col-md-4">
                           <div class="form-floating">
                             <input
                               type="number"
                               class="form-control"
                               placeholder="Diámetro Exterior (m)"
-                              [ngModel]="mod.diametroExteriorDiscos"
-                              (ngModelChange)="
-                                (mod.diametroExteriorDiscos);
-                                onFrenosChange(mod)
-                              "
+                              [(ngModel)]="mod.diametroExteriorDiscos"
+                              (ngModelChange)="onFrenosChange(mod)"
                               name="diametroExteriorDiscos{{ i }}"
                             />
                             <label>DIÁM. EXTERIOR (m)</label>
@@ -7035,71 +7042,62 @@
                               type="number"
                               class="form-control"
                               placeholder="Diámetro Interior (m)"
-                              [ngModel]="mod.diametroInteriorDiscos"
-                              (ngModelChange)="
-                                (mod.diametroInteriorDiscos);
-                                onFrenosChange(mod)
-                              "
+                              [(ngModel)]="mod.diametroInteriorDiscos"
+                              (ngModelChange)="onFrenosChange(mod)"
                               name="diametroInteriorDiscos{{ i }}"
                             />
                             <label>DIÁM. INTERIOR (m)</label>
                           </div>
                         </div>
-                        <div class="col-md-4">
-                          <div class="form-floating">
-                            <input
-                              type="number"
-                              class="form-control"
-                              placeholder="Diámetro Bomba"
-                              [ngModel]="mod.diametroBombaDiscos"
-                              (ngModelChange)="
-                                (mod.diametroBombaDiscos); onFrenosChange(mod)
-                              "
-                              name="diametroBombaDiscos{{ i }}"
-                            />
-                            <label>DIÁM. BOMBA</label>
+                        @if (mod.modificaPinzasDiscos) {
+                          <div class="col-md-4">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                class="form-control"
+                                placeholder="Diámetro Bomba"
+                                [(ngModel)]="mod.diametroBombaDiscos"
+                                (ngModelChange)="onFrenosChange(mod)"
+                                name="diametroBombaDiscos{{ i }}"
+                              />
+                              <label>DIÁM. BOMBA</label>
+                            </div>
                           </div>
-                        </div>
-                        <div class="col-md-4">
-                          <div class="form-floating">
-                            <input
-                              type="number"
-                              class="form-control"
-                              placeholder="Dimensión Pistón (m)"
-                              [ngModel]="mod.dimensionPistonDiscos"
-                              (ngModelChange)="
-                                (mod.dimensionPistonDiscos); onFrenosChange(mod)
-                              "
-                              name="dimensionPistonDiscos{{ i }}"
-                            />
-                            <label>DIM. PISTÓN (m)</label>
+                          <div class="col-md-4">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                class="form-control"
+                                placeholder="Dimensión Pistón (m)"
+                                [(ngModel)]="mod.dimensionPistonDiscos"
+                                (ngModelChange)="onFrenosChange(mod)"
+                                name="dimensionPistonDiscos{{ i }}"
+                              />
+                              <label>DIM. PISTÓN (m)</label>
+                            </div>
                           </div>
-                        </div>
-                        <div class="col-md-4">
-                          <div class="form-floating">
-                            <input
-                              type="number"
-                              class="form-control"
-                              placeholder="Número Pistones"
-                              [ngModel]="mod.numPistonesDiscos"
-                              (ngModelChange)="
-                                (mod.numPistonesDiscos); onFrenosChange(mod)
-                              "
-                              name="numPistonesDiscos{{ i }}"
-                            />
-                            <label>Nº PISTONES (x PINZA)</label>
+                          <div class="col-md-4">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                class="form-control"
+                                placeholder="Número Pistones"
+                                [(ngModel)]="mod.numPistonesDiscos"
+                                (ngModelChange)="onFrenosChange(mod)"
+                                name="numPistonesDiscos{{ i }}"
+                              />
+                              <label>Nº PISTONES (x PINZA)</label>
+                            </div>
                           </div>
-                        </div>
+                        }
                         <div class="col-md-4">
                           <div class="form-floating">
                             <input
                               type="number"
                               class="form-control"
                               placeholder="Ángulo Contacto"
-                              [ngModel]="mod.anguloContactoDiscos"
-                              (ngModelChange)="
-                                (mod.anguloContactoDiscos); onFrenosChange(mod)
-                              "
+                              [(ngModel)]="mod.anguloContactoDiscos"
+                              (ngModelChange)="onFrenosChange(mod)"
                               name="anguloContactoDiscos{{ i }}"
                             />
                             <label>ÁNGULO CONTACTO</label>
@@ -7111,10 +7109,8 @@
                               type="number"
                               class="form-control"
                               placeholder="Radio Neumático"
-                              [ngModel]="mod.radioNeumaticoDiscos"
-                              (ngModelChange)="
-                                (mod.radioNeumaticoDiscos); onFrenosChange(mod)
-                              "
+                              [(ngModel)]="mod.radioNeumaticoDiscos"
+                              (ngModelChange)="onFrenosChange(mod)"
                               name="radioNeumaticoDiscos{{ i }}"
                             />
                             <label>RADIO NEUMÁTICO</label>
@@ -7126,10 +7122,8 @@
                               type="number"
                               class="form-control"
                               placeholder="Ancho Neumático"
-                              [ngModel]="mod.anchoNeumaticoDiscos"
-                              (ngModelChange)="
-                                (mod.anchoNeumaticoDiscos); onFrenosChange(mod)
-                              "
+                              [(ngModel)]="mod.anchoNeumaticoDiscos"
+                              (ngModelChange)="onFrenosChange(mod)"
                               name="anchoNeumaticoDiscos{{ i }}"
                             />
                             <label>ANCHO NEUMÁTICO (mm)</label>
@@ -7141,10 +7135,8 @@
                               type="number"
                               class="form-control"
                               placeholder="Perfil Neumático"
-                              [ngModel]="mod.perfilNeumaticoDiscos"
-                              (ngModelChange)="
-                                (mod.perfilNeumaticoDiscos); onFrenosChange(mod)
-                              "
+                              [(ngModel)]="mod.perfilNeumaticoDiscos"
+                              (ngModelChange)="onFrenosChange(mod)"
                               name="perfilNeumaticoDiscos{{ i }}"
                             />
                             <label>PERFIL NEUMÁTICO (mm)</label>
@@ -7268,19 +7260,21 @@
                                 <label>Nº DISCOS (x EJE)</label>
                               </div>
                             </div>
-                            <div class="col-md-4">
-                              <div class="form-floating">
-                                <input
-                                  type="number"
-                                  class="form-control"
-                                  placeholder="Nº Pinzas"
-                                  [(ngModel)]="mod.numPinzasTraseras"
-                                  name="numPinzasTraseras{{ i }}"
-                                  [readonly]="mod.sonIguales"
-                                />
-                                <label>Nº PINZAS (x EJE)</label>
+                            @if (mod.modificaPinzasDiscos) {
+                              <div class="col-md-4">
+                                <div class="form-floating">
+                                  <input
+                                    type="number"
+                                    class="form-control"
+                                    placeholder="Nº Pinzas"
+                                    [(ngModel)]="mod.numPinzasTraseras"
+                                    name="numPinzasTraseras{{ i }}"
+                                    [readonly]="mod.sonIguales"
+                                  />
+                                  <label>Nº PINZAS (x EJE)</label>
+                                </div>
                               </div>
-                            </div>
+                            }
                             <div class="col-md-4">
                               <div class="form-floating">
                                 <input
@@ -7307,45 +7301,47 @@
                                 <label>DIÁM. INTERIOR (m)</label>
                               </div>
                             </div>
-                            <div class="col-md-4">
-                              <div class="form-floating">
-                                <input
-                                  type="number"
-                                  class="form-control"
-                                  placeholder="Diámetro Bomba"
-                                  [(ngModel)]="mod.diametroBombaDiscoTrasero"
-                                  name="diametroBombaDiscoTrasero{{ i }}"
-                                  [readonly]="mod.sonIguales"
-                                />
-                                <label>DIÁM. BOMBA</label>
+                            @if (mod.modificaPinzasDiscos) {
+                              <div class="col-md-4">
+                                <div class="form-floating">
+                                  <input
+                                    type="number"
+                                    class="form-control"
+                                    placeholder="Diámetro Bomba"
+                                    [(ngModel)]="mod.diametroBombaDiscoTrasero"
+                                    name="diametroBombaDiscoTrasero{{ i }}"
+                                    [readonly]="mod.sonIguales"
+                                  />
+                                  <label>DIÁM. BOMBA</label>
+                                </div>
                               </div>
-                            </div>
-                            <div class="col-md-4">
-                              <div class="form-floating">
-                                <input
-                                  type="number"
-                                  class="form-control"
-                                  placeholder="Dimensión Pistón (m)"
-                                  [(ngModel)]="mod.dimensionPistonDiscoTrasero"
-                                  name="dimensionPistonDiscoTrasero{{ i }}"
-                                  [readonly]="mod.sonIguales"
-                                />
-                                <label>DIM. PISTÓN (m)</label>
+                              <div class="col-md-4">
+                                <div class="form-floating">
+                                  <input
+                                    type="number"
+                                    class="form-control"
+                                    placeholder="Dimensión Pistón (m)"
+                                    [(ngModel)]="mod.dimensionPistonDiscoTrasero"
+                                    name="dimensionPistonDiscoTrasero{{ i }}"
+                                    [readonly]="mod.sonIguales"
+                                  />
+                                  <label>DIM. PISTÓN (m)</label>
+                                </div>
                               </div>
-                            </div>
-                            <div class="col-md-4">
-                              <div class="form-floating">
-                                <input
-                                  type="number"
-                                  class="form-control"
-                                  placeholder="Número Pistones"
-                                  [(ngModel)]="mod.numPistonesDiscoTrasero"
-                                  name="numPistonesDiscoTrasero{{ i }}"
-                                  [readonly]="mod.sonIguales"
-                                />
-                                <label>Nº PISTONES (x PINZA)</label>
+                              <div class="col-md-4">
+                                <div class="form-floating">
+                                  <input
+                                    type="number"
+                                    class="form-control"
+                                    placeholder="Número Pistones"
+                                    [(ngModel)]="mod.numPistonesDiscoTrasero"
+                                    name="numPistonesDiscoTrasero{{ i }}"
+                                    [readonly]="mod.sonIguales"
+                                  />
+                                  <label>Nº PISTONES (x PINZA)</label>
+                                </div>
                               </div>
-                            </div>
+                            }
                             <div class="col-md-4">
                               <div class="form-floating">
                                 <input
@@ -22542,13 +22538,8 @@
                               min="0"
                               class="form-control"
                               placeholder="Radio de curvatura"
-                              [ngModel]="reforma.curvatura ?? 8"
-                              (ngModelChange)="reforma.curvatura = $event"
+                              [(ngModel)]="reforma.curvatura"
                               name="reformaAdicionalCurvatura{{ i }}-{{ j }}"
-                              required
-                              [class.is-invalid]="
-                                formSubmitted && reforma.curvatura == null
-                              "
                             />
                             <label>RADIO CURVATURA</label>
                           </div>

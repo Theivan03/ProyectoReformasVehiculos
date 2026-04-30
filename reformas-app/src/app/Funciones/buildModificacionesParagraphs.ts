@@ -504,7 +504,10 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       espesor: number,
     ) => {
       const txtModelo = modelo ? ` modelo ${modelo}` : '';
-      return `Sustitución de discos de freno en el ${eje} marca ${marca}${txtModelo} con referencia ${ref} de ${diam} mm de diámetro y ${espesor} mm de espesor, igual que los que incorpora el vehículo de origen y no modificando ningún otro componente del sistema de frenado.`;
+      const textoPinzas = discos.modificaPinzasDiscos
+        ? `, incluyendo también la modificación de las pinzas de freno del ${eje}.`
+        : ' y no modificando ningún otro componente del sistema de frenado.';
+      return `Sustitución de discos de freno en el ${eje} marca ${marca}${txtModelo} con referencia ${ref} de ${diam} mm de diámetro y ${espesor} mm de espesor, igual que los que incorpora el vehículo de origen${textoPinzas}`;
     };
 
     const parrafosDiscos: string[] = [];
@@ -3992,7 +3995,59 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (m) => m.nombre === 'INSTALACIÓN ELÉCTRICA' && m.seleccionado,
   );
   if (instalacionelectrica) {
-    raw = `- Instalación de sistema solar fotovoltaico compuesto por:`;
+    const hasValue = (value: unknown): boolean => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'string') return value.trim().length > 0;
+      if (typeof value === 'number') return Number.isFinite(value);
+      if (typeof value === 'boolean') return value;
+      if (Array.isArray(value)) return value.some((item) => hasValue(item));
+      if (typeof value === 'object') {
+        return Object.values(value as Record<string, unknown>).some((item) =>
+          hasValue(item),
+        );
+      }
+      return true;
+    };
+    const hasAny = (values: unknown[]): boolean =>
+      values.some((value) => hasValue(value));
+    const hasPlacaData = Array.isArray(instalacionelectrica.placasSolares)
+      ? instalacionelectrica.placasSolares.some((placa: any) =>
+          hasValue(placa),
+        )
+      : false;
+    const hasBateriaData = hasAny([
+      instalacionelectrica.cantidadBaterias,
+      instalacionelectrica.potenciaBaterias,
+      instalacionelectrica.ubicacionBaterias,
+    ]);
+    const hasInversorData = hasAny([
+      instalacionelectrica.potenciaInversor,
+      instalacionelectrica.marcaInversor,
+      instalacionelectrica.homologacionInversor,
+      instalacionelectrica.ubicacionInversor,
+    ]);
+    const hasControladorData = hasAny([
+      instalacionelectrica.modeloControlador,
+      instalacionelectrica.marcaControlador,
+      instalacionelectrica.homologacionControlador,
+      instalacionelectrica.ubicacionControlador,
+    ]);
+    const hasSecundariasData = hasValue(
+      instalacionelectrica.instalacionesSecundarias,
+    );
+    const hasNotaData = instalacionelectrica.anotacion === true;
+
+    if (
+      !hasPlacaData &&
+      !hasBateriaData &&
+      !hasInversorData &&
+      !hasControladorData &&
+      !hasSecundariasData &&
+      !hasNotaData
+    ) {
+      // Sin datos útiles, no se genera el bloque eléctrico.
+    } else {
+      raw = `- Instalación eléctrica compuesta por:`;
 
     let p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -4002,106 +4057,117 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     (p as any)._rawText = raw;
     out.push(p);
 
-    if (Array.isArray(instalacionelectrica.placasSolares)) {
-      instalacionelectrica.placasSolares.forEach((placa: any) => {
-        const cantidad =
-          placa?.agruparIguales && Number(placa?.cantidad) > 1
-            ? Math.trunc(Number(placa.cantidad))
-            : 1;
-        const sujeto =
-          cantidad > 1
-            ? `${cantidad} placas solares monocristalinas`
-            : 'Placa solar monocristalina';
-        const situacion = cantidad > 1 ? 'situadas' : 'situada';
+      if (Array.isArray(instalacionelectrica.placasSolares)) {
+        instalacionelectrica.placasSolares
+          .filter((placa: any) =>
+            hasAny([
+              placa?.marca,
+              placa?.modelo,
+              placa?.potencia,
+              placa?.dimensiones,
+              placa?.ubicacion,
+            ]),
+          )
+          .forEach((placa: any) => {
+            const cantidad =
+              placa?.agruparIguales && Number(placa?.cantidad) > 1
+                ? Math.trunc(Number(placa.cantidad))
+                : 1;
+            const sujeto =
+              cantidad > 1
+                ? `${cantidad} placas solares monocristalinas`
+                : 'Placa solar monocristalina';
+            const situacion = cantidad > 1 ? 'situadas' : 'situada';
 
-        raw = `o Placa solar monocristalina marca ${
-          placa.marca || ''
-        } modelo ${placa.modelo || ''} de ${
-          placa.potencia || ''
-        }W de dimensiones ${placa.dimensiones || ''}mm situada en ${
-          placa.ubicacion || ''
-        } del vehículo.`;
+            raw = `o ${sujeto} marca ${placa.marca || ''} modelo ${
+              placa.modelo || ''
+            } de ${placa.potencia || ''}W de dimensiones ${
+              placa.dimensiones || ''
+            }mm ${situacion} en ${placa.ubicacion || ''} del vehículo.`;
 
-        raw = `o ${sujeto} marca ${placa.marca || ''} modelo ${
-          placa.modelo || ''
-        } de ${placa.potencia || ''}W de dimensiones ${
-          placa.dimensiones || ''
-        }mm ${situacion} en ${placa.ubicacion || ''} del vehículo.`;
+            const pPlaca = new Paragraph({
+              spacing: { line: 260, after: 120 },
+              indent: { left: 600 },
+              children: [new TextRun({ text: raw })],
+            });
+            (pPlaca as any)._rawText = raw;
+            out.push(pPlaca);
+          });
+      }
 
-        const pPlaca = new Paragraph({
+      if (hasBateriaData) {
+        raw = `o ${instalacionelectrica.cantidadBaterias} batería auxiliar de ${instalacionelectrica.potenciaBaterias}V situada en ${instalacionelectrica.ubicacionBaterias}.`;
+
+        p = new Paragraph({
           spacing: { line: 260, after: 120 },
           indent: { left: 600 },
           children: [new TextRun({ text: raw })],
         });
-        (pPlaca as any)._rawText = raw;
-        out.push(pPlaca);
-      });
-    }
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
 
-    raw = `o ${instalacionelectrica.cantidadBaterias} batería auxiliar de ${instalacionelectrica.potenciaBaterias}V situada en ${instalacionelectrica.ubicacionBaterias}.`;
+      if (hasInversorData) {
+        const homologacionInversorTexto = instalacionelectrica.homologacionInversor
+          ? ` con contraseña de homologación ${instalacionelectrica.homologacionInversor}`
+          : '';
+        raw = `o Inversor ${instalacionelectrica.potenciaInversor} marca ${instalacionelectrica.marcaInversor}${homologacionInversorTexto} situado en ${instalacionelectrica.ubicacionInversor}.`;
 
-    p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 600 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
-
-    const homologacionInversorTexto = instalacionelectrica.homologacionInversor
-      ? ` con contraseña de homologación ${instalacionelectrica.homologacionInversor}`
-      : '';
-    raw = `o Inversor ${instalacionelectrica.potenciaInversor} marca ${instalacionelectrica.marcaInversor}${homologacionInversorTexto} situado en ${instalacionelectrica.ubicacionInversor}.`;
-
-    p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 600 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
-
-    const homologacionControladorTexto =
-      instalacionelectrica.homologacionControlador
-        ? ` con contraseña de homologación ${instalacionelectrica.homologacionControlador}`
-        : '';
-    raw = `o Controlador de carga solar ${instalacionelectrica.modeloControlador} marca ${instalacionelectrica.marcaControlador}${homologacionControladorTexto} situado en ${instalacionelectrica.ubicacionControlador}.`;
-
-    p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 600 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
-
-    out.push(
-      new Paragraph({
-        spacing: { line: 260, after: 120 },
-        children: [
-          new TextRun({ text: 'NOTA: ', bold: true }),
-          new TextRun({
-            text: 'Estos componentes únicamente podrán funcionar en estacionario, con el vehículo parado, mediante relé. Esta instalación es independiente de la principal y se desconecta automáticamente al arrancar el vehículo mediante relé.',
-          }),
-        ],
-      }),
-    );
-
-    if (instalacionelectrica.instalacionesSecundarias) {
-      const lines = instalacionelectrica.instalacionesSecundarias
-        .split(/\r?\n/)
-        .map((l) => l.trim())
-        .filter((l) => l.length);
-      lines.forEach((line) => {
-        raw = `- ${line}`;
-        const sec = new Paragraph({
-          spacing: { line: 260, after: 60 },
-          indent: { left: 400 },
+        p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 600 },
           children: [new TextRun({ text: raw })],
         });
-        (sec as any)._rawText = raw;
-        out.push(sec);
-      });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      if (hasControladorData) {
+        const homologacionControladorTexto =
+          instalacionelectrica.homologacionControlador
+            ? ` con contraseña de homologación ${instalacionelectrica.homologacionControlador}`
+            : '';
+        raw = `o Controlador de carga solar ${instalacionelectrica.modeloControlador} marca ${instalacionelectrica.marcaControlador}${homologacionControladorTexto} situado en ${instalacionelectrica.ubicacionControlador}.`;
+
+        p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 600 },
+          children: [new TextRun({ text: raw })],
+        });
+        (p as any)._rawText = raw;
+        out.push(p);
+      }
+
+      if (instalacionelectrica.anotacion === true) {
+        out.push(
+          new Paragraph({
+            spacing: { line: 260, after: 120 },
+            children: [
+              new TextRun({ text: 'NOTA: ', bold: true }),
+              new TextRun({
+                text: 'Estos componentes únicamente podrán funcionar en estacionario, con el vehículo parado, mediante relé. Esta instalación es independiente de la principal y se desconecta automáticamente al arrancar el vehículo mediante relé.',
+              }),
+            ],
+          }),
+        );
+      }
+
+      if (hasSecundariasData) {
+        const lines = (instalacionelectrica.instalacionesSecundarias ?? '')
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .filter((l) => l.length);
+        lines.forEach((line) => {
+          raw = `- ${line}`;
+          const sec = new Paragraph({
+            spacing: { line: 260, after: 60 },
+            indent: { left: 400 },
+            children: [new TextRun({ text: raw })],
+          });
+          (sec as any)._rawText = raw;
+          out.push(sec);
+        });
+      }
     }
   }
 
@@ -4577,7 +4643,81 @@ function buildLabelsFromMods(data: any): string[] {
     }
 
     if (mod?.seleccionado && isInstalacionElectricaMod(mod, normalizedName)) {
-      const sublabels = expandInstalacionElectrica(mod);
+      const hasValueDeep = (value: unknown): boolean => {
+        if (value === undefined || value === null) return false;
+        if (typeof value === 'string') return value.trim().length > 0;
+        if (typeof value === 'number') return Number.isFinite(value);
+        if (typeof value === 'boolean') return value;
+        if (Array.isArray(value)) {
+          return value.some((item) => hasValueDeep(item));
+        }
+        if (typeof value === 'object') {
+          return Object.values(value as Record<string, unknown>).some((item) =>
+            hasValueDeep(item),
+          );
+        }
+        return true;
+      };
+
+      const sublabels: string[] = [];
+
+      if (Array.isArray(mod.placasSolares)) {
+        mod.placasSolares
+          .filter((placa: any) =>
+            hasValueDeep({
+              marca: placa?.marcaPlacaSolar ?? placa?.marca,
+              modelo: placa?.modeloPlacaSolar ?? placa?.modelo,
+              potencia: placa?.potencia,
+              dimensiones: placa?.dimensiones,
+              ubicacion: placa?.ubicacion,
+            }),
+          )
+          .forEach((placa: any, i: number) => {
+            const marca = (placa?.marcaPlacaSolar ?? placa?.marca ?? '')
+              .toString()
+              .trim();
+            const modelo = (placa?.modeloPlacaSolar ?? placa?.modelo ?? '')
+              .toString()
+              .trim();
+            const detalle = [marca, modelo].filter(Boolean).join(' ');
+            const cantidad =
+              placa?.agruparIguales && Number(placa?.cantidad) > 1
+                ? Math.trunc(Number(placa.cantidad))
+                : 1;
+            sublabels.push(
+              cantidad > 1
+                ? detalle
+                  ? `${cantidad} placas solares (${detalle})`
+                  : `${cantidad} placas solares`
+                : detalle
+                  ? `Placa solar ${i + 1} (${detalle})`
+                  : `Placa solar ${i + 1}`,
+            );
+          });
+      }
+
+      const hasBateriaData =
+        hasValueDeep(mod.cantidadBaterias) ||
+        hasValueDeep(mod.potenciaBaterias) ||
+        hasValueDeep(mod.ubicacionBaterias);
+      const hasInversorData =
+        hasValueDeep(mod.potenciaInversor) ||
+        hasValueDeep(mod.marcaInversor) ||
+        hasValueDeep(mod.homologacionInversor) ||
+        hasValueDeep(mod.ubicacionInversor);
+      const hasControladorData =
+        hasValueDeep(mod.modeloControlador) ||
+        hasValueDeep(mod.marcaControlador) ||
+        hasValueDeep(mod.homologacionControlador) ||
+        hasValueDeep(mod.ubicacionControlador);
+
+      if (hasBateriaData) sublabels.push('Batería');
+      if (hasInversorData) sublabels.push('Inversor');
+      if (hasControladorData) sublabels.push('Controlador');
+      if (hasValueDeep(mod.instalacionesSecundarias)) {
+        sublabels.push('Instalaciones secundarias');
+      }
+
       if (sublabels.length > 0) labels.push(...sublabels);
       continue;
     }
