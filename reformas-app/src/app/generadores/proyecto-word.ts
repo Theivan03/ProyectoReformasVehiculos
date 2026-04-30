@@ -48,53 +48,55 @@ interface PlanoMarker {
 }
 
 export function keepTableTogether(table: Table): Table {
-  // Use the public API to access rows; fallback to private if necessary
+  const tableOptions = (table as any).options || {};
+  const tableRows: TableRow[] = tableOptions.rows || [];
 
-  const rows: TableRow[] =
-    (table as any).rows || (table as any).root?.[0]?.children || [];
+  if (!tableRows || tableRows.length === 0) {
+    return table;
+  }
 
-  const newRows = rows.map((row: TableRow, rowIdx: number) => {
-    const isLastRow = rowIdx === rows.length - 1;
+  const newTableRows = tableRows.map((tableRow: any, rowIdx: number) => {
+    const isLastRowTable = rowIdx === tableRows.length - 1;
+    const tableRowOptions = tableRow.options || {};
+    const tableCellChildren = tableRowOptions.children || [];
 
-    // Get row options safely
-    const rowOptions = (row as any).options || {};
-    const rowChildren: TableCell[] =
-      rowOptions.children || (row as any).children || [];
-
-    // Asegura cantSplit a nivel de fila
-    const newRow = new TableRow({
-      ...rowOptions,
+    const newTableRow = new TableRow({
+      ...tableRowOptions,
       cantSplit: true,
-      children: rowChildren.map((cell: TableCell) => {
-        const cellOptions = (cell as any).options || {};
-        const paragraphs: Paragraph[] =
-          cellOptions.children || (cell as any).children || [];
+      children: tableCellChildren.map((tableCell: any) => {
+        const tableCellOptions = tableCell.options || {};
+        const tableParagraphsChildren = tableCellOptions.children || [];
 
-        const newParagraphs = paragraphs.map((p: Paragraph) => {
-          const opts = (p as any).options || {};
-          return new Paragraph({
-            ...opts,
-            // Mantén unidas las líneas y pega con la siguiente fila
-            keepLines: true,
-            keepNext: !isLastRow, // en la última fila lo dejamos false
-          });
-        });
+        const newTableParagraphsChildren = tableParagraphsChildren.map(
+          (paragraphComponent: any) => {
+            if (
+              paragraphComponent instanceof Paragraph ||
+              (paragraphComponent.options && paragraphComponent.root)
+            ) {
+              const paragraphOptions = paragraphComponent.options || {};
+              return new Paragraph({
+                ...paragraphOptions,
+                keepLines: true,
+                keepNext: !isLastRowTable,
+              });
+            }
+            return paragraphComponent;
+          },
+        );
 
         return new TableCell({
-          ...cellOptions,
-          children: newParagraphs,
+          ...tableCellOptions,
+          children: newTableParagraphsChildren,
         });
       }),
     });
 
-    return newRow;
+    return newTableRow;
   });
 
-  // Get table options safely
-  const tableOptions = (table as any).options || {};
   return new Table({
     ...tableOptions,
-    rows: newRows,
+    rows: newTableRows,
   });
 }
 
@@ -5740,9 +5742,13 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   }
 
   const anexosPorsteriores = await generarPosteriores(data);
-  const calculosProyecto = (await buildCalculos(data.modificaciones, data, true))
+  const calculosProyecto = (
+    await buildCalculos(data.modificaciones, data, true)
+  )
     .flat()
-    .map((child) => (child instanceof Table ? keepTableTogether(child) : child));
+    .map((child) =>
+      child instanceof Table ? keepTableTogether(child) : child,
+    );
 
   const section2 = {
     properties: {
