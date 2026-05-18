@@ -124,6 +124,7 @@ export class GestorDocumentacionComponent implements OnInit {
     vivienda_cantidad_dormitorios: 0,
     vivienda_numero_vt: '',
     vivienda_tipo_edificacion: '',
+    vivienda_licencia_anterior: '',
 
     tecnico_arquitecto_seleccionado: null as any,
     tecnico_ingeniero_seleccionado: null as any,
@@ -156,7 +157,13 @@ export class GestorDocumentacionComponent implements OnInit {
     notas_fase_nra: '',
   };
 
-  listaOpcionesLinderos_gestor = ['Vivienda', 'Terreno no construido', 'Nada'];
+  listaOpcionesLinderos_gestor = [
+    'Vivienda',
+    'Terreno no construido',
+    'Nada',
+    'Vial público',
+    'Comercio',
+  ];
   listaTiposVia_gestor = [
     'Calle',
     'Avenida',

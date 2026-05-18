@@ -650,6 +650,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 : []
             )
               .map((item: any, index: number) => {
+                if (!item?.tieneCurvatura) return null;
                 const titulo = (item?.titulo ?? '').toString().trim();
                 const etiqueta = titulo || `Reforma adicional ${index + 1}`;
                 return buildCurvaturaRow(etiqueta, item?.curvatura);

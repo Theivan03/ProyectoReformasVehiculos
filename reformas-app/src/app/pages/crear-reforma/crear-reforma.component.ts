@@ -107,17 +107,22 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   };
 
   get datosParaTipoVehiculo(): any {
+    // Prioridad: datosGenerales (siempre actualizado por mergeGenerales),
+    // luego datosGuardadosTipoVehiculo, luego datosProyecto.
     return {
       tipoVehiculo:
-        this.datosGuardadosTipoVehiculo?.tipoVehiculo ||
         this.datosGenerales?.tipoVehiculo ||
+        this.datosGuardadosTipoVehiculo?.tipoVehiculo ||
         this.datosProyecto?.tipoVehiculo ||
         '',
       modificaciones:
-        this.datosGuardadosTipoVehiculo?.modificaciones ||
-        this.datosGenerales?.modificaciones ||
-        this.datosProyecto?.modificaciones ||
-        [],
+        (Array.isArray(this.datosGenerales?.modificaciones) &&
+        this.datosGenerales.modificaciones.length > 0
+          ? this.datosGenerales.modificaciones
+          : Array.isArray(this.datosGuardadosTipoVehiculo?.modificaciones) &&
+              this.datosGuardadosTipoVehiculo.modificaciones.length > 0
+            ? this.datosGuardadosTipoVehiculo.modificaciones
+            : this.datosProyecto?.modificaciones) || [],
       enviadoPorCliente: this.datosProyecto?.enviadoPorCliente ?? false,
     };
   }
@@ -125,17 +130,22 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   private generarPayloadResumenActualizado() {
     const base = this.datosGenerales || {};
 
-    let mods = this.datosGuardadosTipoVehiculo?.modificaciones;
+    // Misma prioridad que buildPayloadCompartido: datosGenerales primero.
+    let mods = this.datosGenerales?.modificaciones;
     if (!mods || mods.length === 0) {
-      mods = this.datosGenerales?.modificaciones;
+      mods = this.datosGuardadosTipoVehiculo?.modificaciones;
+    }
+    if (!mods || mods.length === 0) {
+      mods = this.datosResumenModificaciones?.modificaciones;
     }
     if (!mods || mods.length === 0) {
       mods = this.datosProyecto?.modificaciones;
     }
     mods = Array.isArray(mods) ? mods : [];
 
-    let tipo = this.datosGuardadosTipoVehiculo?.tipoVehiculo;
-    if (!tipo) tipo = this.datosGenerales?.tipoVehiculo;
+    let tipo = this.datosGenerales?.tipoVehiculo;
+    if (!tipo) tipo = this.datosGuardadosTipoVehiculo?.tipoVehiculo;
+    if (!tipo) tipo = this.datosResumenModificaciones?.tipoVehiculo;
     if (!tipo) tipo = this.datosProyecto?.tipoVehiculo;
 
     return {
@@ -155,30 +165,35 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     const tipoVehiculo = this.datosGuardadosTipoVehiculo || {};
     const resumen = this.datosResumenModificaciones || {};
 
+    // datosGenerales se mantiene actualizado en cada handler (vía mergeGenerales
+    // o asignación directa), por lo que tiene siempre la versión más reciente.
+    // datosResumenModificaciones puede quedar stale si el usuario edita un paso
+    // anterior (p. ej. tipo-vehiculo) sin volver a pasar por el resumen.
     const merged = {
       ...proyecto,
-      ...generales,
-      ...tipoVehiculo,
       ...resumen,
+      ...tipoVehiculo,
+      ...generales,
     };
 
     const modificacionesFuente =
-      Array.isArray(resumen.modificaciones) && resumen.modificaciones.length > 0
-        ? resumen.modificaciones
-        : Array.isArray(generales.modificaciones) &&
-            generales.modificaciones.length > 0
-          ? generales.modificaciones
-          : Array.isArray(tipoVehiculo.modificaciones) &&
-              tipoVehiculo.modificaciones.length > 0
-            ? tipoVehiculo.modificaciones
+      Array.isArray(generales.modificaciones) &&
+      generales.modificaciones.length > 0
+        ? generales.modificaciones
+        : Array.isArray(tipoVehiculo.modificaciones) &&
+            tipoVehiculo.modificaciones.length > 0
+          ? tipoVehiculo.modificaciones
+          : Array.isArray(resumen.modificaciones) &&
+              resumen.modificaciones.length > 0
+            ? resumen.modificaciones
             : Array.isArray(proyecto.modificaciones)
               ? proyecto.modificaciones
               : [];
 
-    const marcadoresFuente = Array.isArray(resumen.marcadores)
-      ? resumen.marcadores
-      : Array.isArray(generales.marcadores)
-        ? generales.marcadores
+    const marcadoresFuente = Array.isArray(generales.marcadores)
+      ? generales.marcadores
+      : Array.isArray(resumen.marcadores)
+        ? resumen.marcadores
         : Array.isArray(tipoVehiculo.marcadores)
           ? tipoVehiculo.marcadores
           : Array.isArray(proyecto.marcadores)
@@ -188,9 +203,9 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     return {
       ...merged,
       tipoVehiculo:
-        merged.tipoVehiculo ||
         generales.tipoVehiculo ||
         tipoVehiculo.tipoVehiculo ||
+        resumen.tipoVehiculo ||
         proyecto.tipoVehiculo ||
         '',
       modificaciones: modificacionesFuente.map((mod: any) => ({ ...(mod || {}) })),
@@ -850,8 +865,10 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.vieneDePosterior = true;
     const pagina =
       event?.pagina ?? event?.paginaActual ?? datos?.paginaActual ?? 1;
-    if (datos)
+    if (datos) {
       this.datosFormularioGuardados = { ...datos, paginaActual: pagina };
+      this.mergeGenerales(datos);
+    }
     this.persist();
     this.navigate('subseleccion');
   }
@@ -938,11 +955,19 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
       ...event,
       enviadoPorCliente: false,
     };
+    this.sincronizarTipoYMods(event);
     this.persist();
   }
   onVolverDesdeTipoVehiculo(event?: any) {
-    if (event?.datos) this.datosGuardadosTipoVehiculo = event.datos;
-    else if (event) this.datosGuardadosTipoVehiculo = event;
+    const datos = event?.datos ?? event;
+    if (datos) {
+      this.datosGuardadosTipoVehiculo = {
+        ...(this.datosGuardadosTipoVehiculo || {}),
+        ...datos,
+      };
+      this.mergeGenerales(datos);
+      this.sincronizarTipoYMods(datos);
+    }
     this.persist();
     if (this.datosGenerales?.reformasPrevias === true) {
       this.navigate('reformas-previas');
@@ -979,6 +1004,7 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         ...datosEntrantes,
         enviadoPorCliente: false,
       };
+      this.sincronizarTipoYMods(datosEntrantes);
     }
 
     const modsReales = Array.isArray(datosEntrantes.modificaciones)
@@ -1003,19 +1029,29 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
   }
 
   onVolverDesdeResumenModificaciones(event?: any) {
-    if (event?.datos) this.datosResumenModificaciones = event.datos;
-    else if (event) this.datosResumenModificaciones = event;
+    const datos = event?.datos ?? event;
+    if (datos) {
+      this.datosResumenModificaciones = {
+        ...(this.datosResumenModificaciones || {}),
+        ...datos,
+      };
+      this.mergeGenerales(datos);
+    }
     this.datosGuardadosTipoVehiculo = {
       ...(this.datosGuardadosTipoVehiculo || {}),
       tipoVehiculo:
-        event?.tipoVehiculo ??
+        datos?.tipoVehiculo ??
         this.datosResumenModificaciones?.tipoVehiculo ??
         this.datosGuardadosTipoVehiculo?.tipoVehiculo,
       modificaciones:
-        event?.modificaciones ??
+        datos?.modificaciones ??
         this.datosResumenModificaciones?.modificaciones ??
         this.datosGuardadosTipoVehiculo?.modificaciones,
     };
+    this.sincronizarTipoYMods({
+      tipoVehiculo: this.datosGuardadosTipoVehiculo.tipoVehiculo,
+      modificaciones: this.datosGuardadosTipoVehiculo.modificaciones,
+    });
     this.persist();
     this.navigate('tipo-vehiculo');
   }
@@ -1026,6 +1062,20 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
         ...event,
       };
       this.mergeGenerales(event);
+      // Propagar también a tipo-vehiculo y formulario para que back-navigation
+      // muestre la versión más reciente con los detalles editados.
+      this.datosGuardadosTipoVehiculo = {
+        ...(this.datosGuardadosTipoVehiculo || {}),
+        tipoVehiculo:
+          event.tipoVehiculo ?? this.datosGuardadosTipoVehiculo?.tipoVehiculo,
+        modificaciones: Array.isArray(event.modificaciones)
+          ? event.modificaciones
+          : this.datosGuardadosTipoVehiculo?.modificaciones,
+      };
+      this.sincronizarTipoYMods({
+        tipoVehiculo: event.tipoVehiculo,
+        modificaciones: event.modificaciones,
+      });
     }
     this.persist();
     this.navigate('seleccion');
@@ -1167,6 +1217,43 @@ export class CrearReformaComponent implements OnInit, OnDestroy {
     this.datosGenerales = { ...this.datosGenerales, ...event };
     if (!this.datosGenerales.tipoVehiculo && TIPO_ACTUAL) {
       this.datosGenerales.tipoVehiculo = TIPO_ACTUAL;
+    }
+  }
+
+  /**
+   * Propaga los cambios de tipoVehiculo/modificaciones a TODOS los buckets de
+   * estado para que ningún paso quede con datos obsoletos al navegar. Cubre el
+   * caso de edición: si el usuario cambia algo en tipo-vehiculo y avanza al
+   * resumen, este último mostraba la versión previa porque
+   * datosResumenModificaciones se cargaba del servidor en restore() y nunca se
+   * refrescaba.
+   */
+  private sincronizarTipoYMods(event: {
+    tipoVehiculo?: string;
+    modificaciones?: any[];
+  }): void {
+    if (!event) return;
+
+    if (typeof event.tipoVehiculo === 'string') {
+      this.datosResumenModificaciones = {
+        ...(this.datosResumenModificaciones || {}),
+        tipoVehiculo: event.tipoVehiculo,
+      };
+      this.datosFormularioGuardados = {
+        ...(this.datosFormularioGuardados || {}),
+        tipoVehiculo: event.tipoVehiculo,
+      };
+    }
+
+    if (Array.isArray(event.modificaciones)) {
+      this.datosResumenModificaciones = {
+        ...(this.datosResumenModificaciones || {}),
+        modificaciones: event.modificaciones,
+      };
+      this.datosFormularioGuardados = {
+        ...(this.datosFormularioGuardados || {}),
+        modificaciones: event.modificaciones,
+      };
     }
   }
   onAutosaveImagenes(event: any) {

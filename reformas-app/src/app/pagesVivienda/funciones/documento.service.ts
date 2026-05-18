@@ -3617,8 +3617,14 @@ export class DocumentoService {
         : datos.titular_dni_nif;
 
       const tecnico = datos.tecnico_ingeniero_seleccionado || {};
-      const repNombre = tecnico.nombre || '';
-      const repDni = tecnico.dni || '';
+      // Si el cliente firma con su propia firma digital, no actúa ningún
+      // representante: la Sección D del Anexo I debe quedar vacía.
+      const repNombre = datos.check_firma_digital_disponible
+        ? ''
+        : tecnico.nombre || '';
+      const repDni = datos.check_firma_digital_disponible
+        ? ''
+        : tecnico.dni || '';
       const contDireccion = tecnico.direccionFiscal || '';
       const contCP = tecnico.codigoPostal || '';
       const contMunicipio = tecnico.localidad || '';
@@ -3720,6 +3726,12 @@ export class DocumentoService {
           refCatastral,
 
         '2_3': 'NO PROCEDE',
+
+        // Página 2 del Anexo I: número de licencia/declaración de ocupación
+        // anterior (si existe). Se rellena con el dato introducido en el
+        // formulario; si está vacío el campo queda en blanco.
+        'N LicenciaDeclaración Ocupación anteriorRow1':
+          datos.vivienda_licencia_anterior || '',
 
         'Nombre Edificio': direccionCompleta,
         Dirección_2: calle,

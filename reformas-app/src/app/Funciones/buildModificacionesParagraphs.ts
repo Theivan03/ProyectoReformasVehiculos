@@ -111,9 +111,18 @@ export function buildModificacionesParagraphs(
 
   if (neumaticos) {
     // --- PÁRRAFO PRINCIPAL ---
-    const medidaNeumatico = neumaticos.medidaNeumaticos || '---';
-    const medidaLlantas = neumaticos.medidaLlantas || '---';
-    const raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${medidaNeumatico}, montados sobre llantas de medidas ${medidaLlantas}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
+    let raw: string;
+    if (neumaticos.neumaticosDistintosEjes) {
+      const neumDel = neumaticos.medidaNeumaticoDelantero || '---';
+      const llantaDel = neumaticos.medidaLlantaDelantera || '---';
+      const neumTras = neumaticos.medidaNeumaticoTrasero || '---';
+      const llantaTras = neumaticos.medidaLlantaTrasera || '---';
+      raw = `- Sustitución de neumáticos por otros homologados de medidas no equivalentes: en el eje delantero ${neumDel} montados sobre llantas de medidas ${llantaDel}, y en el eje trasero ${neumTras} montados sobre llantas de medidas ${llantaTras}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
+    } else {
+      const medidaNeumatico = neumaticos.medidaNeumaticos || '---';
+      const medidaLlantas = neumaticos.medidaLlantas || '---';
+      raw = `- Sustitución de neumáticos en ambos ejes por otros homologados de medidas no equivalentes ${medidaNeumatico}, montados sobre llantas de medidas ${medidaLlantas}, asegurando la compatibilidad llanta-neumático y la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
+    }
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -266,8 +275,27 @@ export function buildModificacionesParagraphs(
       m.detalle?.aletines,
   );
   if (aletines) {
+    const esArtesanalAletines =
+      aletines.tipoFabricacionAletines === 'artesanal';
+    const anchosDistintosAle =
+      aletines.posicionAletines === 'delantero y trasero' &&
+      aletines.anchosDistintosAletines;
+
+    let descripcionPiezaAle: string;
+    if (esArtesanalAletines) {
+      descripcionPiezaAle = `artesanales, fabricados en ${aletines.materialAletines || '---'}, ${
+        anchosDistintosAle
+          ? `con ${aletines.anchoDelanteroAletines} mm de ancho en el eje delantero y ${aletines.anchoTraseroAletines} mm de ancho en el eje trasero, y una altura de ${aletines.altoAletines} mm`
+          : `de medidas ${aletines.anchoAletines}x${aletines.altoAletines} mm`
+      }`;
+    } else if (anchosDistintosAle) {
+      descripcionPiezaAle = `marca ${aletines.marcaDelanteroAletines || '---'}, referencia ${aletines.referenciaDelanteroAletines || '---'} y ${aletines.anchoDelanteroAletines} mm de ancho en el eje delantero, y marca ${aletines.marcaTraseroAletines || '---'}, referencia ${aletines.referenciaTraseroAletines || '---'} y ${aletines.anchoTraseroAletines} mm de ancho en el eje trasero, de material plástico ABS y una altura de ${aletines.altoAletines} mm`;
+    } else {
+      descripcionPiezaAle = `marca ${aletines.marcaAletines || '---'}, referencia ${aletines.referenciaAletines || '---'}, de material plástico ABS y medidas de ${aletines.anchoAletines}x${aletines.altoAletines} mm`;
+    }
+
     (aletines.acciones || []).forEach((accion: string) => {
-      const raw = `- ${accion} de los aletines originales por otros en eje ${aletines.posicionAletines}, marca ${aletines.marcaAletines}, referencia ${aletines.referenciaAletines}, de material plástico ABS y medidas de ${aletines.anchoAletines}x${aletines.altoAletines} mm. Se asegura la no interferencia entre el neumático y ningún punto de la carrocería.`;
+      const raw = `- ${accion} de los aletines originales por otros en eje ${aletines.posicionAletines}, ${descripcionPiezaAle}. Se asegura la no interferencia entre el neumático y ningún punto de la carrocería.`;
 
       const p = new Paragraph({
         spacing: { line: 260, after: 120 },
@@ -287,8 +315,22 @@ export function buildModificacionesParagraphs(
       m.detalle?.sobrealetines,
   );
   if (sobrealetines) {
+    const esArtesanalSob =
+      !sobrealetines.tipoFabricacionSobrealetines ||
+      sobrealetines.tipoFabricacionSobrealetines === 'artesanal';
+    const descripcionOrigenSob = esArtesanalSob
+      ? `fabricados en ${sobrealetines.materialSobrealetines || 'goma'} de forma artesanal`
+      : `de la marca ${sobrealetines.marcaSobreletines || '---'}, referencia ${sobrealetines.referenciaSobreletines || '---'}`;
+
+    const anchosDistintosSob =
+      sobrealetines.posicionSobrealetines === 'delantero y trasero' &&
+      sobrealetines.anchosDistintosSobrealetines;
+    const descripcionMedidasSob = anchosDistintosSob
+      ? `, con ${sobrealetines.anchoDelanteroSobrealetines} mm de ancho en el eje delantero y ${sobrealetines.anchoTraseroSobrealetines} mm de ancho en el eje trasero`
+      : `, de ${sobrealetines.anchoSobrealetines} mm de ancho`;
+
     (sobrealetines.acciones || []).forEach((accion: string) => {
-      const raw = `- ${accion} de sobrealetines en eje ${sobrealetines.posicionSobrealetines}, fabricados en goma de forma artesanal de ${sobrealetines.anchoSobrealetines} mm de ancho, asegurando la no interferencia entre el neumático y ningún punto de la carrocería.`;
+      const raw = `- ${accion} de sobrealetines en eje ${sobrealetines.posicionSobrealetines}, ${descripcionOrigenSob}${descripcionMedidasSob}, asegurando la no interferencia entre el neumático y ningún punto de la carrocería.`;
 
       const p = new Paragraph({
         spacing: { line: 260, after: 120 },
@@ -461,8 +503,10 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   let fraseEscape = '';
 
   if (escape) {
+    const baseEscape = `Sustitución del silencioso final de escape, por otro de la marca ${escape.marcaEscape} con referencia ${escape.referenciaEscape} y contraseña de homologación ${escape.contrasenaHomologacionEscape}`;
+
     if (escape.cambiaSoloSilencioso) {
-      fraseEscape = `Modificación de las características del sistema de escape mediante la modificación del tramo de salida, cambiando su configuración de salida original compuesta por ${escape.tipoSalidaOriginalEscape} en ${escape.ubicacionOriginalEscape}, a ${escape.tipoSalidaNuevaEscape} ${escape.ubicacionNuevaEscape}. Esta reforma no supone modificación de potencia del vehículo.`;
+      fraseEscape = `${baseEscape}, modificando el tramo de salida y cambiando su configuración de salida original compuesta por ${escape.tipoSalidaOriginalEscape} en ${escape.ubicacionOriginalEscape}, a ${escape.tipoSalidaNuevaEscape} ${escape.ubicacionNuevaEscape}. Esta reforma no supone modificación de potencia del vehículo.`;
     } else {
       let infoGeometria =
         ', sin variar el número de salidas ni la ubicación original del mismo';
@@ -475,7 +519,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         infoGeometria = `, modificando el número de salidas a ${escape.numeroSalidasEscape} y la ubicación a ${escape.descripcionUbicacionEscape}`;
       }
 
-      fraseEscape = `Sustitución del silencioso final de escape, por otro de la marca ${escape.marcaEscape} con referencia ${escape.referenciaEscape} y contraseña de homologación ${escape.contrasenaHomologacionEscape}${infoGeometria}.`;
+      fraseEscape = `${baseEscape}${infoGeometria}.`;
     }
     const raw = `- ${fraseEscape}`;
 
@@ -756,61 +800,6 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
 
       const indentLeft = 620;
       const spacing = {};
-
-      // Subpárrafos (viñetas)
-      const p1 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`,
-          ),
-        ],
-      });
-      (p1 as any)._rawText =
-        `• Diámetro exterior: ${mod.diametroExteriorDelanteroRef} mm`;
-      (p1 as any)._fromCasuistica = true; // 👈 marca
-      out.push(p1);
-
-      const p2 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`,
-          ),
-        ],
-      });
-      (p2 as any)._rawText =
-        `• Longitud de muelle: ${mod.longitudLibreDelanteroRef} mm`;
-      (p2 as any)._fromCasuistica = true;
-      out.push(p2);
-
-      const p3 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`,
-          ),
-        ],
-      });
-      (p3 as any)._rawText =
-        `• Diámetro de la espira: ${mod.diametroEspiraDelanteroRef} mm`;
-      (p3 as any)._fromCasuistica = true;
-      out.push(p3);
-
-      const p4 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(`• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`),
-        ],
-      });
-      (p4 as any)._rawText =
-        `• Número de espiras: ${mod.numeroEspirasDelanteroRef}.`;
-      (p4 as any)._fromCasuistica = true;
-      out.push(p4);
     }
 
     // 2) Muelles delanteros sin referencia
@@ -904,136 +893,6 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
 
       const indentLeft = 620;
       const spacing = {};
-
-      // Subpárrafos (viñetas)
-      const p1 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`,
-          ),
-        ],
-      });
-      (p1 as any)._rawText =
-        `• Diámetro exterior: ${mod.diametroExteriorTraseroRef} mm`;
-      (p1 as any)._fromCasuistica = true; // 👈 marca
-      out.push(p1);
-
-      const p2 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`,
-          ),
-        ],
-      });
-      (p2 as any)._rawText =
-        `• Longitud de muelle: ${mod.longitudLibreTraseroRef} mm`;
-      (p2 as any)._fromCasuistica = true;
-      out.push(p2);
-
-      const p3 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`,
-          ),
-        ],
-      });
-      (p3 as any)._rawText =
-        `• Diámetro de la espira: ${mod.diametroEspiraTraseroRef} mm`;
-      (p3 as any)._fromCasuistica = true;
-      out.push(p3);
-
-      const p4 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(`• Número de espiras: ${mod.numeroEspirasTraseroRef}.`),
-        ],
-      });
-      (p4 as any)._rawText =
-        `• Número de espiras: ${mod.numeroEspirasTraseroRef}.`;
-      (p4 as any)._fromCasuistica = true;
-      out.push(p4);
-    }
-
-    // 2.2) Muelles traseros sin referencia
-    if (mod.detallesMuelles?.['muelleTraseroSinRef']) {
-      raw = `- Muelles traseros marca ${mod.marcaMuelleTraseroSinRef}, sin referencia de dimensiones:`;
-
-      // Párrafo principal
-      const p = new Paragraph({
-        spacing: { line: 260, before: 120, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
-      });
-      (p as any)._rawText = raw;
-      (p as any)._fromCasuistica = true; // 👈 marca
-      out.push(p);
-
-      const indentLeft = 620;
-      const spacing = {};
-
-      // Subpárrafos (viñetas)
-      const p1 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Diámetro exterior: ${mod.diametroExteriorTraseroSinRef} mm`,
-          ),
-        ],
-      });
-      (p1 as any)._rawText =
-        `• Diámetro exterior: ${mod.diametroExteriorTraseroSinRef} mm`;
-      (p1 as any)._fromCasuistica = true; // 👈 marca
-      out.push(p1);
-
-      const p2 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Longitud de muelle: ${mod.longitudLibreTraseroSinRef} mm`,
-          ),
-        ],
-      });
-      (p2 as any)._rawText =
-        `• Longitud de muelle: ${mod.longitudLibreTraseroSinRef} mm`;
-      (p2 as any)._fromCasuistica = true;
-      out.push(p2);
-
-      const p3 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Diámetro de la espira: ${mod.diametroEspiraTraseroSinRef} mm`,
-          ),
-        ],
-      });
-      (p3 as any)._rawText =
-        `• Diámetro de la espira: ${mod.diametroEspiraTraseroSinRef} mm`;
-      (p3 as any)._fromCasuistica = true;
-      out.push(p3);
-
-      const p4 = new Paragraph({
-        indent: { left: indentLeft },
-        spacing,
-        children: [
-          new TextRun(
-            `• Número de espiras: ${mod.numeroEspirasTraseroSinRef}.`,
-          ),
-        ],
-      });
-      (p4 as any)._rawText =
-        `• Número de espiras: ${mod.numeroEspirasTraseroSinRef}.`;
-      (p4 as any)._fromCasuistica = true;
-      out.push(p4);
     }
 
     // 3) Ballesta delantera
@@ -1574,8 +1433,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   );
 
   if (peldanos) {
-    const usaMarcaReferencia =
-      peldanos.tipoFabricacionPeldanos !== 'artesanal';
+    const usaMarcaReferencia = peldanos.tipoFabricacionPeldanos !== 'artesanal';
     const referenciaTexto =
       usaMarcaReferencia && peldanos.referenciaPeldanos
         ? `, referencia ${peldanos.referenciaPeldanos}`
@@ -4011,9 +3869,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     const hasAny = (values: unknown[]): boolean =>
       values.some((value) => hasValue(value));
     const hasPlacaData = Array.isArray(instalacionelectrica.placasSolares)
-      ? instalacionelectrica.placasSolares.some((placa: any) =>
-          hasValue(placa),
-        )
+      ? instalacionelectrica.placasSolares.some((placa: any) => hasValue(placa))
       : false;
     const hasBateriaData = hasAny([
       instalacionelectrica.cantidadBaterias,
@@ -4049,13 +3905,13 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     } else {
       raw = `- Instalación eléctrica compuesta por:`;
 
-    let p = new Paragraph({
-      spacing: { line: 260, after: 120 },
-      indent: { left: 400 },
-      children: [new TextRun({ text: raw })],
-    });
-    (p as any)._rawText = raw;
-    out.push(p);
+      let p = new Paragraph({
+        spacing: { line: 260, after: 120 },
+        indent: { left: 400 },
+        children: [new TextRun({ text: raw })],
+      });
+      (p as any)._rawText = raw;
+      out.push(p);
 
       if (Array.isArray(instalacionelectrica.placasSolares)) {
         instalacionelectrica.placasSolares
@@ -4108,9 +3964,10 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       }
 
       if (hasInversorData) {
-        const homologacionInversorTexto = instalacionelectrica.homologacionInversor
-          ? ` con contraseña de homologación ${instalacionelectrica.homologacionInversor}`
-          : '';
+        const homologacionInversorTexto =
+          instalacionelectrica.homologacionInversor
+            ? ` con contraseña de homologación ${instalacionelectrica.homologacionInversor}`
+            : '';
         raw = `o Inversor ${instalacionelectrica.potenciaInversor} marca ${instalacionelectrica.marcaInversor}${homologacionInversorTexto} situado en ${instalacionelectrica.ubicacionInversor}.`;
 
         p = new Paragraph({

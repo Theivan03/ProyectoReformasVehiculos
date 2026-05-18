@@ -559,7 +559,7 @@ export async function buildCalculos(
   if (memoria) {
     out.push(
       new Paragraph({
-        heading: HeadingLevel.HEADING_2,
+        heading: HeadingLevel.HEADING_3,
         children: [
           new TextRun({
             text: '2.3 CÁLCULO DE ESFUERZOS Y RESISTENCIA DE LAS FIJACIONES',
@@ -579,12 +579,9 @@ export async function buildCalculos(
         m.detalle?.aletines,
     )!;
     if (aletines) {
-      appendAerodynamicCalculationSection(out, contador, {
-        title: 'Aletines',
+      const baseConfigAletines = {
         pesoPiezaKg: toFiniteNumber(aletines.pesoPiezaKgAletines),
-        anchuraPiezaM: toFiniteNumber(aletines.anchoAletines),
         alturaPiezaM: toFiniteNumber(aletines.altoAletines),
-        superficieFrontalM2: toFiniteNumber(aletines.superficieFrontalM2Aletines),
         metrica: parseMetricaTornillo(aletines.metricaAletines),
         nTornillos: toPositiveInt(aletines.numTornillosAletines),
         calidadTornillo: toFiniteNumber(aletines.calidadTornilloAleron) || 8.8,
@@ -601,9 +598,43 @@ export async function buildCalculos(
           toFiniteNumber(aletines.velocidadAireV2msAletines) || 38.89,
         coefSeguridadK: toFiniteNumber(aletines.coefSeguridadKAletines) || 3,
         curvatura: toFiniteNumber(aletines.radioCurvaRAletines) || 8,
-      });
+      };
 
-      contador++;
+      const anchosDistintosAletinesCalc =
+        aletines.posicionAletines === 'delantero y trasero' &&
+        aletines.anchosDistintosAletines;
+
+      if (anchosDistintosAletinesCalc) {
+        appendAerodynamicCalculationSection(out, contador, {
+          ...baseConfigAletines,
+          title: 'Aletines delanteros',
+          anchuraPiezaM: toFiniteNumber(aletines.anchoDelanteroAletines),
+          superficieFrontalM2: toFiniteNumber(
+            aletines.superficieFrontalM2AletinesDelantero,
+          ),
+        });
+        contador++;
+
+        appendAerodynamicCalculationSection(out, contador, {
+          ...baseConfigAletines,
+          title: 'Aletines traseros',
+          anchuraPiezaM: toFiniteNumber(aletines.anchoTraseroAletines),
+          superficieFrontalM2: toFiniteNumber(
+            aletines.superficieFrontalM2AletinesTrasero,
+          ),
+        });
+        contador++;
+      } else {
+        appendAerodynamicCalculationSection(out, contador, {
+          ...baseConfigAletines,
+          title: 'Aletines',
+          anchuraPiezaM: toFiniteNumber(aletines.anchoAletines),
+          superficieFrontalM2: toFiniteNumber(
+            aletines.superficieFrontalM2Aletines,
+          ),
+        });
+        contador++;
+      }
     }
 
     if (false && aletines) {
@@ -6874,256 +6905,36 @@ export async function buildCalculos(
       (m) => m.nombre === 'ALERÓN' && m.seleccionado,
     );
     if (aleron) {
-      out.push(new Paragraph({ text: '' }));
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Alerón',
-              bold: true,
-            }),
-          ],
-        }),
-      );
+      const medidasAleronParseadas = parseMedidasEnMetros(aleron.medidasAleron);
 
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Alerón',
+        pesoPiezaKg: toFiniteNumber(aleron.pesoAleron),
+        anchuraPiezaM:
+          toFiniteNumber(aleron.anchuraAleron) ||
+          medidasAleronParseadas.anchuraM,
+        alturaPiezaM:
+          toFiniteNumber(aleron.alturaAleron) ||
+          medidasAleronParseadas.alturaM,
+        superficieFrontalM2: toFiniteNumber(aleron.superficieFrontalM2Aleron),
+        metrica: parseMetricaTornillo(aleron.metricaAleron),
+        nTornillos: toPositiveInt(aleron.numTornillosAleron),
+        calidadTornillo: toFiniteNumber(aleron.calidadTornilloAleron) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(aleron.seccionResistenteAsAleron) ||
+          getAreaResistentePorMetrica(aleron.metricaAleron),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(aleron.resTraccionMinTornillo88Kgmm2Aleron) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(aleron.coefAerodinamicoCwAleron) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(aleron.densidadAireKgM3Aleron) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(aleron.velocidadAireV2msAleron) || 38.89,
+        coefSeguridadK: toFiniteNumber(aleron.coefSeguridadKAleron) || 3,
+        curvatura: toFiniteNumber(aleron.curvaturaAleron) || 8,
+      });
       contador++;
-
-      const superficiefrontal = aleron.superficieFrontalM2Aleron;
-
-      const peso = 9.81 * (aleron.pesoAleron ?? 0);
-      const fuerzafrenado = (aleron.pesoAleron ?? 0) * 10;
-      const resistenciaaerodinamica =
-        0.5 *
-        (aleron.coefAerodinamicoCwAleron ?? 0) *
-        (superficiefrontal ?? 0) *
-        (aleron.densidadAireKgM3Aleron ?? 0) *
-        (aleron.velocidadAireV2msAleron ?? 0) *
-        (aleron.velocidadAireV2msAleron ?? 0);
-      const fuerzacentrifuga =
-        (aleron.pesoAleron ?? 0) *
-        (((aleron.velocidadAireV2msAleron ?? 0) *
-          (aleron.velocidadAireV2msAleron ?? 0)) /
-          ((aleron.curvaturaAleron ?? 0) * 100));
-      const sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaCaracteristicas = new Table({
-        width: { size: 70, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-                columnSpan: 2,
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              aleron.coefAerodinamicoCwAleron?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³)',
-              aleron.densidadAireKgM3Aleron?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              aleron.velocidadAireV2msAleron?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              aleron.curvaturaAleron?.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              aleron.coefSeguridadKAleron?.toFixed(2).toString() ?? '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [
-                      new Paragraph({
-                        text: desc,
-                        alignment: AlignmentType.CENTER,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    verticalAlign: AlignmentType.CENTER,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-
-      const tablaFuerzas = new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: ['FUERZAS QUE ACTÚAN SOBRE LA PIEZA (N)'].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  verticalAlign: VerticalAlign.CENTER,
-                  columnSpan: 5,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (t) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (v) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      const fuerzadediseno =
-        sumadelasfuerzas * (aleron.coefSeguridadKAleron ?? 0);
-      const fuerzamaximatornillostraccion =
-        ((0.9 *
-          (aleron.resTraccionMinTornillo88Kgmm2Aleron ?? 0) *
-          (aleron.seccionResistenteAsAleron ?? 0)) /
-          1.25) *
-        (aleron.numTornillosAleron ?? 0);
-      const fuerzamaximatornilloscortante =
-        ((0.5 *
-          (aleron.resTraccionMinTornillo88Kgmm2Aleron ?? 0) *
-          (aleron.seccionResistenteAsAleron ?? 0)) /
-          1.25) *
-        (aleron.numTornillosAleron ?? 0);
-      const comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (t) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: t, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (v, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: v })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-
-      out.push(tablaCaracteristicas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(tablaComprobacion);
     }
 
     const snorkel =
@@ -8505,1912 +8316,242 @@ export async function buildCalculos(
         m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado,
     );
     if (soporteslucesespecificas) {
-      // 1) Título dinámico basado en contador
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Soporte faros de trabajo',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-      out.push(new Paragraph({ text: '' }));
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Soporte faros de trabajo',
+        pesoPiezaKg: toFiniteNumber(
+          soporteslucesespecificas.pesoPiezaKgLucesEspecificas,
+        ),
+        anchuraPiezaM: toFiniteNumber(
+          soporteslucesespecificas.anchuraPiezaMLucesEspecificas,
+        ),
+        alturaPiezaM: toFiniteNumber(
+          soporteslucesespecificas.alturaPiezaMLucesEspecificas,
+        ),
+        metrica: parseMetricaTornillo(
+          soporteslucesespecificas.metricaLucesEspecificas,
+        ),
+        nTornillos: toPositiveInt(
+          soporteslucesespecificas.nTornillosLucesEspecificas,
+        ),
+        calidadTornillo:
+          toFiniteNumber(
+            soporteslucesespecificas.calidadTornilloLucesEspecificas,
+          ) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(
+            soporteslucesespecificas.seccionResistenteAsLucesEspecificas,
+          ) ||
+          getAreaResistentePorMetrica(
+            soporteslucesespecificas.metricaLucesEspecificas,
+          ),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(
+            soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas,
+          ) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(
+            soporteslucesespecificas.densidadAireKgM3LucesEspecificas,
+          ) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(
+            soporteslucesespecificas.velocidadAireV2msLucesEspecificas,
+          ) || 38.89,
+        coefSeguridadK:
+          toFiniteNumber(
+            soporteslucesespecificas.coefSeguridadKLucesEspecificas,
+          ) || 3,
+        curvatura:
+          toFiniteNumber(
+            soporteslucesespecificas.radioCurvaRLucesEspecificas,
+          ) || 8,
+      });
       contador++;
-
-      let superficiefrontal =
-        (soporteslucesespecificas.anchuraPiezaMLucesEspecificas ?? 0) *
-        (soporteslucesespecificas.alturaPiezaMLucesEspecificas ?? 0);
-
-      // 2) Tabla de características de la pieza y sujeción
-      const tablaSoporteFaros = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          // Encabezados
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS DE LA PIEZA',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: 'SUJECIÓN' })],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          // Filas de datos
-          ...[
-            [
-              'Peso de la pieza en Kg',
-              soporteslucesespecificas.pesoPiezaKgLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'nº tornillos',
-              soporteslucesespecificas.nTornillosLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Anchura de la pieza en m',
-              soporteslucesespecificas.anchuraPiezaMLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'Métrica',
-              Number(soporteslucesespecificas.metricaLucesEspecificas)
-                ?.toFixed(2)
-                .toString() ?? '---',
-              '---',
-            ],
-            [
-              'Altura de la pieza en m',
-              soporteslucesespecificas.alturaPiezaMLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'Calidad',
-              soporteslucesespecificas.calidadTornilloLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Superficie frontal m²',
-              superficiefrontal.toFixed(2).toString() ?? '---',
-              'As (Sección resistente)',
-              soporteslucesespecificas.seccionResistenteAsLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Coef. aerodinámico',
-              soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-          ].map(
-            ([d1, v1, d2, v2]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: d1,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: v1,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: d2,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: v2,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaSoporteFaros);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      // 3) Tabla de características para presión del aire
-      const tablaAire = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³))',
-              soporteslucesespecificas.densidadAireKgM3LucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              soporteslucesespecificas.velocidadAireV2msLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              (
-                (soporteslucesespecificas.radioCurvaRLucesEspecificas ?? 0) *
-                100
-              )
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              soporteslucesespecificas.coefSeguridadKLucesEspecificas
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: desc,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: val,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaAire);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let peso =
-        9.81 * (soporteslucesespecificas.pesoPiezaKgLucesEspecificas ?? 0);
-      let fuerzafrenado =
-        (soporteslucesespecificas.pesoPiezaKgLucesEspecificas ?? 0) * 10;
-      let resistenciaaerodinamica =
-        0.5 *
-        (soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas ?? 0) *
-        superficiefrontal *
-        (soporteslucesespecificas.densidadAireKgM3LucesEspecificas ?? 0) *
-        (soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0) *
-        (soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0);
-      let fuerzacentrifuga =
-        (soporteslucesespecificas.pesoPiezaKgLucesEspecificas ?? 0) *
-        (((soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0) *
-          (soporteslucesespecificas.velocidadAireV2msLucesEspecificas ?? 0)) /
-          ((soporteslucesespecificas.radioCurvaRLucesEspecificas ?? 0) * 100));
-      let sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      // 4) Tabla de fuerzas que actúan sobre la pieza
-      const tablaFuerzas = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (val) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      text: val,
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaFuerzas);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let fuerzadediseno =
-        sumadelasfuerzas *
-        (soporteslucesespecificas.coefSeguridadKLucesEspecificas ?? 0);
-      let fuerzamaximatornillostraccion =
-        ((0.9 *
-          (soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas ??
-            0) *
-          (soporteslucesespecificas.seccionResistenteAsLucesEspecificas ?? 0)) /
-          1.25) *
-        (soporteslucesespecificas.nTornillosLucesEspecificas ?? 0);
-      let fuerzamaximatornilloscortante =
-        ((0.5 *
-          (soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas ??
-            0) *
-          (soporteslucesespecificas.seccionResistenteAsLucesEspecificas ?? 0)) /
-          1.25) *
-        (soporteslucesespecificas.nTornillosLucesEspecificas ?? 0);
-      let comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      // 5) Tabla de comprobación
-      const tablaComprobacion = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              '',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (val, i) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      text: val,
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaComprobacion);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
     }
 
     const antiempotramiento = modificaciones.find(
       (m) => m.nombre === 'ANTIEMPOTRAMIENTO' && m.seleccionado,
     );
     if (antiempotramiento) {
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Antiempotramiento',
-              bold: true,
-            }),
-          ],
-        }),
+      const medidasAntiempotramientoParseadas = parseMedidasEnMetros(
+        antiempotramiento.medidasAntiempotramiento,
       );
-      out.push(new Paragraph({ text: '' }));
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Antiempotramiento',
+        pesoPiezaKg: toFiniteNumber(
+          antiempotramiento.pesoPiezaKgAntiempotramiento,
+        ),
+        anchuraPiezaM: medidasAntiempotramientoParseadas.anchuraM,
+        alturaPiezaM: medidasAntiempotramientoParseadas.alturaM,
+        superficieFrontalM2: toFiniteNumber(
+          antiempotramiento.superficieFrontalM2Antiempotramiento,
+        ),
+        metrica: parseMetricaTornillo(
+          antiempotramiento.metricaAntiempotramiento,
+        ),
+        nTornillos: toPositiveInt(
+          antiempotramiento.nTornillosAntiempotramiento ??
+            antiempotramiento.nTornillos,
+        ),
+        calidadTornillo:
+          toFiniteNumber(antiempotramiento.calidadTornilloAntiempotramiento) ||
+          8.8,
+        seccionResistenteAs:
+          toFiniteNumber(
+            antiempotramiento.seccionResistenteAsAntiempotramiento,
+          ) ||
+          getAreaResistentePorMetrica(
+            antiempotramiento.metricaAntiempotramiento,
+          ),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            antiempotramiento.resTraccionMinTornillo88Kgmm2Antiempotramiento,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(
+            antiempotramiento.cwCoefAerodinamicoAntiempotramiento,
+          ) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(antiempotramiento.densidadAireKgM3Antiempotramiento) ||
+          1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(
+            antiempotramiento.velocidadAireV2msAntiempotramiento,
+          ) || 38.89,
+        coefSeguridadK:
+          toFiniteNumber(antiempotramiento.coefSeguridadKAntiempotramiento) ||
+          3,
+        curvatura:
+          toFiniteNumber(antiempotramiento.radioCurvaRAntiempotramiento) || 8,
+      });
       contador++;
-
-      const numeroTornillosAntiempotramientoRaw =
-        antiempotramiento.nTornillosAntiempotramiento ??
-        antiempotramiento.nTornillos;
-      const metricaAntiempotramientoRaw =
-        antiempotramiento.metricaAntiempotramiento;
-      const medidasAnti = String(
-        antiempotramiento.medidasAntiempotramiento ?? '',
-      )
-        .toLowerCase()
-        .replace(/mm/g, '')
-        .replace(/\s/g, '');
-      const partesMedidasAnti = medidasAnti.split('x');
-      const anchuraAntiM = Number.parseFloat(partesMedidasAnti[0]) / 1000;
-      const alturaAntiM =
-        partesMedidasAnti.length > 1
-          ? Number.parseFloat(partesMedidasAnti[1]) / 1000
-          : Number.NaN;
-      const superficiefrontalAntiempotramiento =
-        antiempotramiento.superficieFrontalM2Antiempotramiento ??
-        (Number.isFinite(anchuraAntiM) && Number.isFinite(alturaAntiM)
-          ? anchuraAntiM * alturaAntiM
-          : undefined);
-      const superficiefrontalAntiempotramientoCalculada = toFiniteNumber(
-        superficiefrontalAntiempotramiento,
-      );
-      const radioCurvaAntiempotramiento =
-        (toFiniteNumber(antiempotramiento.radioCurvaRAntiempotramiento) || 1) *
-        100;
-      const numeroTornillosAntiempotramiento =
-        numeroTornillosAntiempotramientoRaw ?? 0;
-
-      const tablaAntiempotramiento = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS DE LA PIEZA',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: 'SUJECIÓN' })],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Peso de la pieza en Kg',
-              antiempotramiento.pesoPiezaKgAntiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'nº tornillos',
-              numeroTornillosAntiempotramientoRaw?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'Anchura de la pieza en m',
-              Number.isFinite(anchuraAntiM)
-                ? anchuraAntiM.toFixed(2).toString()
-                : '---',
-              'Métrica',
-              metricaAntiempotramientoRaw?.toString() ?? '---',
-            ],
-            [
-              'Altura de la pieza en m',
-              Number.isFinite(alturaAntiM)
-                ? alturaAntiM.toFixed(2).toString()
-                : '---',
-              'Calidad',
-              antiempotramiento.calidadTornilloAntiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Superficie frontal m²',
-              superficiefrontalAntiempotramientoCalculada > 0
-                ? superficiefrontalAntiempotramientoCalculada
-                    .toFixed(2)
-                    .toString()
-                : '---',
-              'As (Sección resistente)',
-              antiempotramiento.seccionResistenteAsAntiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Coef. aerodinámico',
-              antiempotramiento.cwCoefAerodinamicoAntiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              antiempotramiento.resTraccionMinTornillo88Kgmm2Antiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-          ].map(
-            ([d1, v1, d2, v2]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: d1,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: v1,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: d2,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: v2,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaAntiempotramiento);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      const tablaAireAntiempotramiento = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERISTICAS PARA FUERZA PRODUCIDA POR PRESION DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinamico',
-              antiempotramiento.cwCoefAerodinamicoAntiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'A =area de la pieza (m2)',
-              superficiefrontalAntiempotramientoCalculada > 0
-                ? superficiefrontalAntiempotramientoCalculada
-                    .toFixed(2)
-                    .toString()
-                : '---',
-            ],
-            [
-              'p (densidad del aire (Kg/m3))',
-              antiempotramiento.densidadAireKgM3Antiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V2 = velocidad del aire 140Km/h (m/s)',
-              antiempotramiento.velocidadAireV2msAntiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              ((antiempotramiento.radioCurvaRAntiempotramiento ?? 0) * 100)
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              antiempotramiento.coefSeguridadKAntiempotramiento
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: desc,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: val,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaAireAntiempotramiento);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let peso = 9.81 * (antiempotramiento.pesoPiezaKgAntiempotramiento ?? 0);
-      let fuerzafrenado =
-        (antiempotramiento.pesoPiezaKgAntiempotramiento ?? 0) * 10;
-      let resistenciaaerodinamica =
-        0.5 *
-        (antiempotramiento.cwCoefAerodinamicoAntiempotramiento ?? 0) *
-        superficiefrontalAntiempotramientoCalculada *
-        (antiempotramiento.densidadAireKgM3Antiempotramiento ?? 0) *
-        (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0) *
-        (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0);
-      let fuerzacentrifuga =
-        (antiempotramiento.pesoPiezaKgAntiempotramiento ?? 0) *
-        (((antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0) *
-          (antiempotramiento.velocidadAireV2msAntiempotramiento ?? 0)) /
-          radioCurvaAntiempotramiento);
-      let sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      const tablaFuerzasAntiempotramiento = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinamica',
-              'Fuerza centrifuga',
-              'Suma de fuerzas',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (val) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [new Paragraph(val)],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaFuerzasAntiempotramiento);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let fuerzadediseno =
-        sumadelasfuerzas *
-        (antiempotramiento.coefSeguridadKAntiempotramiento ?? 0);
-      let fuerzamaximatornillostraccion =
-        ((0.9 *
-          (antiempotramiento.resTraccionMinTornillo88Kgmm2Antiempotramiento ??
-            0) *
-          (antiempotramiento.seccionResistenteAsAntiempotramiento ?? 0)) /
-          1.25) *
-        numeroTornillosAntiempotramiento;
-      let fuerzamaximatornilloscortante =
-        ((0.5 *
-          (antiempotramiento.resTraccionMinTornillo88Kgmm2Antiempotramiento ??
-            0) *
-          (antiempotramiento.seccionResistenteAsAntiempotramiento ?? 0)) /
-          1.25) *
-        numeroTornillosAntiempotramiento;
-      let comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      const tablaComprobacionAntiempotramiento = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza maxima que soportan los tornillos a traccion (N)',
-              'Fuerza maxima que soportan los tornillos a cortante (N)',
-              '',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (val, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: val })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaComprobacionAntiempotramiento);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
     }
 
     const paradelante = modificaciones.find(
       (m) => m.nombre === 'PARAGOLPES DELANTERO' && m.seleccionado,
     );
     if (paradelante) {
-      // 1) Título dinámico
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Paragolpes delantero',
-              bold: true,
-            }),
-          ],
-        }),
+      const medidasParadelanteParseadas = parseMedidasEnMetros(
+        paradelante.medidasParagolpesDelantero,
       );
-      out.push(new Paragraph({ text: '' }));
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Paragolpes delantero',
+        pesoPiezaKg: toFiniteNumber(paradelante.pesoPiezaKgParagolpesDelantero),
+        anchuraPiezaM: medidasParadelanteParseadas.anchuraM,
+        alturaPiezaM: medidasParadelanteParseadas.alturaM,
+        superficieFrontalM2: toFiniteNumber(
+          paradelante.superficieFrontalM2ParagolpesDelantero,
+        ),
+        metrica: parseMetricaTornillo(paradelante.metricaParaDelantero),
+        nTornillos: toPositiveInt(paradelante.ntornillosParaDelantero),
+        calidadTornillo:
+          toFiniteNumber(paradelante.calidadTornilloParagolpesDelantero) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(paradelante.seccionResistenteAsParagolpesDelantero) ||
+          getAreaResistentePorMetrica(paradelante.metricaParaDelantero),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            paradelante.resTraccionMinTornillo88Kgmm2ParagolpesDelantero,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(paradelante.cwCoefAerodinamicoParagolpesDelantero) ||
+          0.82,
+        densidadAireKgM3:
+          toFiniteNumber(paradelante.densidadAireKgM3ParagolpesDelantero) ||
+          1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(paradelante.velocidadAireV2msParagolpesDelantero) ||
+          38.89,
+        coefSeguridadK:
+          toFiniteNumber(paradelante.coefSeguridadKParagolpesDelantero) || 3,
+        curvatura:
+          toFiniteNumber(paradelante.radioCurvaRParagolpesDelantero) || 8,
+      });
       contador++;
-
-      // 2) Tabla de características para presión del aire
-      const numeroTornillosParagolpesDelanteroRaw =
-        paradelante.ntornillosParaDelantero;
-      const metricaParagolpesDelanteroRaw = paradelante.metricaParaDelantero;
-      const medidasParagolpesDelantero = String(
-        paradelante.medidasParagolpesDelantero ?? '',
-      )
-        .toLowerCase()
-        .replace(/mm/g, '')
-        .replace(/\s/g, '');
-      const partesMedidasParagolpesDelantero =
-        medidasParagolpesDelantero.split('x');
-      const anchuraParagolpesDelanteroM =
-        Number.parseFloat(partesMedidasParagolpesDelantero[0]) / 1000;
-      const alturaParagolpesDelanteroM =
-        partesMedidasParagolpesDelantero.length > 1
-          ? Number.parseFloat(partesMedidasParagolpesDelantero[1]) / 1000
-          : Number.NaN;
-      const superficiefrontalParagolpesDelantero =
-        paradelante.superficieFrontalM2ParagolpesDelantero ??
-        (Number.isFinite(anchuraParagolpesDelanteroM) &&
-        Number.isFinite(alturaParagolpesDelanteroM)
-          ? anchuraParagolpesDelanteroM * alturaParagolpesDelanteroM
-          : undefined);
-
-      const tablaParagolpesDelantero = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    children: [
-                      new TextRun({ text: 'CARACTERÍSTICAS DE LA PIEZA' }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    children: [new TextRun({ text: 'SUJECIÓN' })],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Peso de la pieza en Kg',
-              paradelante.pesoPiezaKgParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'nº tornillos',
-              numeroTornillosParagolpesDelanteroRaw?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'Anchura de la pieza en m',
-              Number.isFinite(anchuraParagolpesDelanteroM)
-                ? anchuraParagolpesDelanteroM.toFixed(2).toString()
-                : '---',
-              'Métrica',
-              metricaParagolpesDelanteroRaw?.toString() ?? '---',
-            ],
-            [
-              'Altura de la pieza en m',
-              Number.isFinite(alturaParagolpesDelanteroM)
-                ? alturaParagolpesDelanteroM.toFixed(2).toString()
-                : '---',
-              'Calidad',
-              paradelante.calidadTornilloParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Superficie frontal m²',
-              superficiefrontalParagolpesDelantero?.toFixed(2).toString() ??
-                '---',
-              'As (Sección resistente)',
-              paradelante.seccionResistenteAsParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Coef. aerodinámico',
-              paradelante.cwCoefAerodinamicoParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              paradelante.resTraccionMinTornillo88Kgmm2ParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-          ].map(
-            ([d1, v1, d2, v2]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(d1)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(v1)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(d2)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(v2)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaParagolpesDelantero);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-      const tablaAireParagolpes = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              paradelante.cwCoefAerodinamicoParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              paradelante.superficieFrontalM2ParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³))',
-              paradelante.densidadAireKgM3ParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              paradelante.velocidadAireV2msParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              paradelante.radioCurvaRParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              paradelante.coefSeguridadKParagolpesDelantero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: desc,
-                      }),
-                    ],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [
-                      new Paragraph({
-                        alignment: AlignmentType.CENTER,
-                        text: val,
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaAireParagolpes);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let peso = 9.81 * (paradelante.pesoPiezaKgParagolpesDelantero ?? 0);
-      let fuerzafrenado =
-        (paradelante.pesoPiezaKgParagolpesDelantero ?? 0) * 10;
-      let resistenciaaerodinamica =
-        0.5 *
-        (paradelante.cwCoefAerodinamicoParagolpesDelantero ?? 0) *
-        (paradelante.superficieFrontalM2ParagolpesDelantero ?? 0) *
-        (paradelante.densidadAireKgM3ParagolpesDelantero ?? 0) *
-        (paradelante.velocidadAireV2msParagolpesDelantero ?? 0) *
-        (paradelante.velocidadAireV2msParagolpesDelantero ?? 0);
-      let fuerzacentrifuga =
-        (paradelante.pesoPiezaKgParagolpesDelantero ?? 0) *
-        (((paradelante.velocidadAireV2msParagolpesDelantero ?? 0) *
-          (paradelante.velocidadAireV2msParagolpesDelantero ?? 0)) /
-          ((paradelante.radioCurvaRParagolpesDelantero ?? 0) * 100));
-      let sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      // 3) Tabla de fuerzas que actúan sobre la pieza
-      const tablaFuerzasParagolpes = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (val) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [new Paragraph(val)],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaFuerzasParagolpes);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let fuerzadediseno =
-        sumadelasfuerzas * (paradelante.coefSeguridadKParagolpesDelantero ?? 0);
-      let fuerzamaximatornillostraccion =
-        ((0.9 *
-          (paradelante.resTraccionMinTornillo88Kgmm2ParagolpesDelantero ?? 0) *
-          (paradelante.seccionResistenteAsParagolpesDelantero ?? 0)) /
-          1.25) *
-        (paradelante.ntornillosParaDelantero ?? 0);
-      let fuerzamaximatornilloscortante =
-        ((0.5 *
-          (paradelante.resTraccionMinTornillo88Kgmm2ParagolpesDelantero ?? 0) *
-          (paradelante.seccionResistenteAsParagolpesDelantero ?? 0)) /
-          1.25) *
-        (paradelante.ntornillosParaDelantero ?? 0);
-      let comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      // 4) Tabla de comprobación
-      const tablaComprobacionParagolpes = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              '',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(2).toString() ?? '---',
-            ].map(
-              (val, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: val })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaComprobacionParagolpes);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
     }
 
     const paratras = modificaciones.find(
       (m) => m.nombre === 'PARAGOLPES TRASERO' && m.seleccionado,
     );
     if (paratras) {
-      // 1) Título dinámico
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: '2.3.' + contador + ' Paragolpes trasero',
-              bold: true,
-            }),
-          ],
-        }),
+      const medidasParatrasParseadas = parseMedidasEnMetros(
+        paratras.medidasParagolpesTrasero,
       );
-      out.push(new Paragraph({ text: '' }));
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: 'Paragolpes trasero',
+        pesoPiezaKg: toFiniteNumber(paratras.pesoPiezaKgParagolpesTrasero),
+        anchuraPiezaM:
+          toFiniteNumber(paratras.anchuraMParagolpesTrasero) ||
+          medidasParatrasParseadas.anchuraM,
+        alturaPiezaM:
+          toFiniteNumber(paratras.alturaMParagolpesTrasero) ||
+          medidasParatrasParseadas.alturaM,
+        metrica: parseMetricaTornillo(paratras.metricaParaTrasero),
+        nTornillos: toPositiveInt(paratras.nTornillosParagolpesTrasero),
+        calidadTornillo:
+          toFiniteNumber(paratras.calidadTornilloParagolpesTrasero) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(paratras.seccionResistenteAsParagolpesTrasero) ||
+          getAreaResistentePorMetrica(paratras.metricaParaTrasero),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(paratras.coefAerodinamicoParagolpesTrasero) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(paratras.densidadAireKgM3ParagolpesTrasero) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(paratras.velocidadAireV2msParagolpesTrasero) || 38.89,
+        coefSeguridadK:
+          toFiniteNumber(paratras.coefSeguridadKParagolpesTrasero) || 3,
+        curvatura: toFiniteNumber(paratras.radioCurvaRParagolpesTrasero) || 8,
+      });
       contador++;
-
-      let superficiefrontal =
-        (paratras.anchuraMParagolpesTrasero ?? 0) *
-        (paratras.alturaMParagolpesTrasero ?? 0);
-
-      // 2) Tabla de características de la pieza y sujeción
-      const tablaParagolpesTrasero = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          // Encabezados
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS DE LA PIEZA',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    children: [new TextRun({ text: 'SUJECIÓN' })],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          // Filas de datos
-          ...[
-            [
-              'Peso de la pieza en Kg',
-              paratras.pesoPiezaKgParagolpesTrasero?.toFixed(2).toString() ??
-                '---',
-              'nº tornillos',
-              paratras.nTornillosParagolpesTrasero?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'Anchura de la pieza en m',
-              paratras.anchuraMParagolpesTrasero?.toFixed(2).toString() ??
-                '---',
-              'Métrica',
-              paratras.metricaParaTrasero?.toString() ?? '---',
-            ],
-            [
-              'Altura de la pieza en m',
-              paratras.alturaMParagolpesTrasero?.toFixed(2).toString() ?? '---',
-              'Calidad',
-              paratras.calidadTornilloParagolpesTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Superficie frontal m²',
-              superficiefrontal.toFixed(2).toString() ?? '---',
-              'As (Sección resistente)',
-              paratras.seccionResistenteAsParagolpesTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Coef. aerodinámico',
-              paratras.coefAerodinamicoParagolpesTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-          ].map(
-            ([d1, v1, d2, v2]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(d1)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(v1)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(d2)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(v2)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaParagolpesTrasero);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      // 3) Tabla de características para presión del aire
-      const tablaAireParagolpesTrasero = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              paratras.coefAerodinamicoParagolpesTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³))',
-              paratras.densidadAireKgM3ParagolpesTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              paratras.velocidadAireV2msParagolpesTrasero
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              paratras.radioCurvaRParagolpesTrasero?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              paratras.coefSeguridadKParagolpesTrasero?.toFixed(2).toString() ??
-                '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(desc)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaAireParagolpesTrasero);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let peso = 9.81 * (paratras.pesoPiezaKgParagolpesTrasero ?? 0);
-      let fuerzafrenado = (paratras.pesoPiezaKgParagolpesTrasero ?? 0) * 10;
-      let resistenciaaerodinamica =
-        0.5 *
-        (paratras.coefAerodinamicoParagolpesTrasero ?? 0) *
-        superficiefrontal *
-        (paratras.densidadAireKgM3ParagolpesTrasero ?? 0) *
-        (paratras.velocidadAireV2msParagolpesTrasero ?? 0) *
-        (paratras.velocidadAireV2msParagolpesTrasero ?? 0);
-      let fuerzacentrifuga =
-        (paratras.pesoPiezaKgParagolpesTrasero ?? 0) *
-        (((paratras.velocidadAireV2msParagolpesTrasero ?? 0) *
-          (paratras.velocidadAireV2msParagolpesTrasero ?? 0)) /
-          (paratras.radioCurvaRParagolpesTrasero ?? 0));
-      let sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      // 4) Tabla de fuerzas que actúan sobre la pieza
-      const tablaFuerzasParagolpesTrasero = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      children: [new TextRun({ text: heading, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (val) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [new Paragraph(val)],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaFuerzasParagolpesTrasero);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let fuerzadediseno =
-        sumadelasfuerzas * (paratras.coefSeguridadKParagolpesTrasero ?? 0);
-      let fuerzamaximatornillostraccion =
-        ((0.9 *
-          (paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero ?? 0) *
-          (paratras.seccionResistenteAsParagolpesTrasero ?? 0)) /
-          1.25) *
-        (paratras.nTornillosParagolpesTrasero ?? 0);
-      let fuerzamaximatornilloscortante =
-        ((0.5 *
-          (paratras.resTraccionMinTornillo88Kgmm2ParagolpesTrasero ?? 0) *
-          (paratras.seccionResistenteAsParagolpesTrasero ?? 0)) /
-          1.25) *
-        (paratras.nTornillosParagolpesTrasero ?? 0);
-      let comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      // 5) Tabla de comprobación
-      const tablaComprobacionParagolpesTrasero = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              '',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(3).toString() ?? '---',
-            ].map(
-              (val, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: val })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaComprobacionParagolpesTrasero);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
     }
 
     const estribostaloneras = modificaciones.find(
       (m) => m.nombre === 'ESTRIBOS LATERALES O TALONERAS' && m.seleccionado,
     );
     if (estribostaloneras) {
-      const tipo = estribostaloneras.detalle
+      const tipoEstribos = estribostaloneras.detalle
         ?.estribosotaloneras as unknown as string;
-      const isTaloneras = tipo === 'taloneras';
-      // 1) Título dinámico
-      out.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: isTaloneras
-                ? '2.3.' + contador + ' Taloneras'
-                : '2.3.' + contador + ' Estribos laterales',
-              bold: true,
-            }),
-          ],
-        }),
-      );
-      out.push(new Paragraph({ text: '' }));
+      const tituloEstribos =
+        tipoEstribos === 'taloneras' ? 'Taloneras' : 'Estribos laterales';
+
+      appendAerodynamicCalculationSection(out, contador, {
+        title: tituloEstribos,
+        pesoPiezaKg: toFiniteNumber(estribostaloneras.pesoPiezaKgEstribos),
+        anchuraPiezaM: toFiniteNumber(estribostaloneras.anchuraMEstribos),
+        alturaPiezaM: toFiniteNumber(estribostaloneras.alturaMEstribos),
+        metrica: parseMetricaTornillo(estribostaloneras.metricaTalonera),
+        nTornillos: toPositiveInt(estribostaloneras.nTornillosEstribos),
+        calidadTornillo:
+          toFiniteNumber(estribostaloneras.calidadTornilloEstribos) || 8.8,
+        seccionResistenteAs:
+          toFiniteNumber(estribostaloneras.seccionResistenteAsEstribos) ||
+          getAreaResistentePorMetrica(estribostaloneras.metricaTalonera),
+        resTraccionMinTornillo88Kgmm2:
+          toFiniteNumber(
+            estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos,
+          ) || 80,
+        cwCoefAerodinamico:
+          toFiniteNumber(estribostaloneras.coefAerodinamicoEstribos) || 0.82,
+        densidadAireKgM3:
+          toFiniteNumber(estribostaloneras.densidadAireKgM3Estribos) || 1.29,
+        velocidadAireV2ms:
+          toFiniteNumber(estribostaloneras.velocidadAireV2msEstribos) || 38.89,
+        coefSeguridadK:
+          toFiniteNumber(estribostaloneras.coefSeguridadKEstribos) || 3,
+        curvatura: toFiniteNumber(estribostaloneras.radioCurvaREstribos) || 8,
+      });
       contador++;
-
-      let superficiefrontal =
-        (estribostaloneras.anchuraMEstribos ?? 0) *
-        (estribostaloneras.alturaMEstribos ?? 0);
-      const radioCurvaEstribos =
-        (toFiniteNumber(estribostaloneras.radioCurvaREstribos) || 1) * 100;
-
-      // 2) Tabla de características de la pieza y sujeción
-      const tablaEstribos = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          // Encabezados
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS DE LA PIEZA',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    children: [new TextRun({ text: 'SUJECIÓN' })],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          // Filas de datos
-          ...[
-            [
-              'Peso de la pieza en Kg',
-              estribostaloneras.pesoPiezaKgEstribos?.toFixed(2).toString() ??
-                '---',
-              'nº tornillos',
-              estribostaloneras.nTornillosEstribos?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'Anchura de la pieza en m',
-              estribostaloneras.anchuraMEstribos?.toFixed(2).toString() ??
-                '---',
-              'Métrica',
-              estribostaloneras.metricaTalonera?.toString() ?? '---',
-            ],
-            [
-              'Altura de la pieza en m',
-              estribostaloneras.alturaMEstribos?.toFixed(2).toString() ?? '---',
-              'Calidad',
-              estribostaloneras.calidadTornilloEstribos
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Superficie frontal m²',
-              superficiefrontal.toFixed(2).toString() ?? '---',
-              'As (Sección resistente)',
-              estribostaloneras.seccionResistenteAsEstribos
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'Coef. aerodinámico',
-              estribostaloneras.coefAerodinamicoEstribos
-                ?.toFixed(2)
-                .toString() ?? '---',
-              'Res. Tracción Mín tornillo 8,8 (Kg/mm2)',
-              estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-          ].map(
-            ([d1, v1, d2, v2]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(d1)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(v1)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(d2)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(v2)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaEstribos);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      // 3) Tabla de características para presión del aire
-      const tablaAireEstribos = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              new TableCell({
-                margins: CELL_MARGINS,
-                columnSpan: 2,
-                shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                children: [
-                  new Paragraph({
-                    children: [
-                      new TextRun({
-                        text: 'CARACTERÍSTICAS PARA FUERZA PRODUCIDA POR PRESIÓN DEL AIRE',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          }),
-          ...[
-            [
-              'Cw=Coef. Aerodinámico',
-              estribostaloneras.coefAerodinamicoEstribos
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'A =área de la pieza (m²)',
-              superficiefrontal.toFixed(2).toString() ?? '---',
-            ],
-            [
-              'ρ (densidad del aire (Kg/m³))',
-              estribostaloneras.densidadAireKgM3Estribos
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'V² = velocidad del aire 140Km/h (m/s)',
-              estribostaloneras.velocidadAireV2msEstribos
-                ?.toFixed(2)
-                .toString() ?? '---',
-            ],
-            [
-              'R (radio de curva) m',
-              estribostaloneras.radioCurvaREstribos?.toFixed(2).toString() ??
-                '---',
-            ],
-            [
-              'K (coeficiente de seguridad)',
-              estribostaloneras.coefSeguridadKEstribos?.toFixed(2).toString() ??
-                '---',
-            ],
-          ].map(
-            ([desc, val]) =>
-              new TableRow({
-                cantSplit: true,
-                children: [
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(desc)],
-                  }),
-                  new TableCell({
-                    margins: CELL_MARGINS,
-                    children: [new Paragraph(val)],
-                  }),
-                ],
-              }),
-          ),
-        ],
-      });
-      out.push(tablaAireEstribos);
-      out.push(new Paragraph({ text: '' }));
-
-      let peso = 9.81 * (estribostaloneras.pesoPiezaKgEstribos ?? 0);
-      let fuerzafrenado = (estribostaloneras.pesoPiezaKgEstribos ?? 0) * 10;
-      let resistenciaaerodinamica =
-        0.5 *
-        (estribostaloneras.coefAerodinamicoEstribos ?? 0) *
-        superficiefrontal *
-        (estribostaloneras.densidadAireKgM3Estribos ?? 0) *
-        (estribostaloneras.velocidadAireV2msEstribos ?? 0) *
-        (estribostaloneras.velocidadAireV2msEstribos ?? 0);
-      let fuerzacentrifuga =
-        (estribostaloneras.pesoPiezaKgEstribos ?? 0) *
-        (((estribostaloneras.velocidadAireV2msEstribos ?? 0) *
-          (estribostaloneras.velocidadAireV2msEstribos ?? 0)) /
-          radioCurvaEstribos);
-      let sumadelasfuerzas =
-        peso + fuerzafrenado + resistenciaaerodinamica + fuerzacentrifuga;
-
-      // 4) Tabla de fuerzas que actúan sobre la pieza
-      const tablaFuerzasEstribos = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'Peso',
-              'Fuerza de frenado',
-              'Resistencia aerodinámica',
-              'Fuerza centrífuga',
-              'Suma de fuerzas',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      children: [new TextRun({ text: heading })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              peso.toFixed(2).toString() ?? '---',
-              fuerzafrenado.toFixed(2).toString() ?? '---',
-              resistenciaaerodinamica.toFixed(2).toString() ?? '---',
-              fuerzacentrifuga.toFixed(2).toString() ?? '---',
-              sumadelasfuerzas.toFixed(2).toString() ?? '---',
-            ].map(
-              (val) =>
-                new TableCell({
-                  margins: CELL_MARGINS,
-                  children: [new Paragraph(val)],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaFuerzasEstribos);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
-
-      let fuerzadediseno =
-        sumadelasfuerzas * (estribostaloneras.coefSeguridadKEstribos ?? 0);
-      let fuerzamaximatornillostraccion =
-        ((0.9 *
-          (estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos ?? 0) *
-          (estribostaloneras.seccionResistenteAsEstribos ?? 0)) /
-          1.25) *
-        (estribostaloneras.nTornillosEstribos ?? 0);
-      let fuerzamaximatornilloscortante =
-        ((0.5 *
-          (estribostaloneras.resTraccionMinTornillo88Kgmm2Estribos ?? 0) *
-          (estribostaloneras.seccionResistenteAsEstribos ?? 0)) /
-          1.25) *
-        (estribostaloneras.nTornillosEstribos ?? 0);
-      let comprobacion =
-        fuerzadediseno / fuerzamaximatornilloscortante +
-        fuerzadediseno / (1.4 * fuerzamaximatornillostraccion);
-
-      // 5) Tabla de comprobación
-      const tablaComprobacionEstribos = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            cantSplit: true,
-            children: [
-              'La fuerza de diseño soportada por los anclajes (N)',
-              'Fuerza máxima que soportan los tornillos a tracción (N)',
-              'Fuerza máxima que soportan los tornillos a cortante (N)',
-              'Comprobación <= 1',
-            ].map(
-              (heading) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading: { type: ShadingType.CLEAR, fill: 'C0C0C0' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: heading, bold: true })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-          new TableRow({
-            cantSplit: true,
-            children: [
-              fuerzadediseno.toFixed(2).toString() ?? '---',
-              fuerzamaximatornillostraccion.toFixed(2).toString() ?? '---',
-              fuerzamaximatornilloscortante.toFixed(2).toString() ?? '---',
-              comprobacion.toFixed(3).toString() ?? '---',
-            ].map(
-              (val, i) =>
-                new TableCell({
-                  verticalAlign: VerticalAlign.CENTER,
-                  margins: CELL_MARGINS,
-                  shading:
-                    i === 0
-                      ? undefined
-                      : i === 3 && comprobacion > 1
-                        ? { type: ShadingType.CLEAR, fill: 'FF0000' }
-                        : { type: ShadingType.CLEAR, fill: '00B050' },
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      children: [new TextRun({ text: val })],
-                    }),
-                  ],
-                }),
-            ),
-          }),
-        ],
-      });
-      out.push(tablaComprobacionEstribos);
-      out.push(new Paragraph({ text: '' }));
-      out.push(new Paragraph({ text: '' }));
     }
 
     const mobil = modificaciones.find(
@@ -11216,7 +9357,7 @@ export async function buildCalculos(
 
       out.push(
         new Paragraph({
-          heading: HeadingLevel.HEADING_2,
+          heading: HeadingLevel.HEADING_3,
           children: [
             new TextRun({
               text: '2.4 CÁLCULO DEL SISTEMA DE SUSPENSIÓN ',

@@ -625,36 +625,122 @@
                 >
               </div>
 
-              <div class="col-6">
-                <div class="form-floating">
+              <div class="col-12">
+                <div class="form-check form-switch mb-3">
                   <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Medida de neumáticos"
-                    [(ngModel)]="mod.medidaNeumaticos"
-                    name="medidaNeumaticos{{ i }}"
-                    required
-                    [class.is-invalid]="formSubmitted && !mod.medidaNeumaticos"
+                    class="form-check-input"
+                    type="checkbox"
+                    id="neumaticosDistintosEjes{{ i }}"
+                    [(ngModel)]="mod.neumaticosDistintosEjes"
+                    name="neumaticosDistintosEjes{{ i }}"
                   />
-                  <label>MEDIDA DE LOS NEUMÁTICOS</label>
+                  <label
+                    class="form-check-label"
+                    for="neumaticosDistintosEjes{{ i }}"
+                  >
+                    ¿Distintos neumáticos en eje delantero y trasero?
+                  </label>
                 </div>
               </div>
 
               <div class="row g-3">
-                <div class="col-6">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Medida de llanta"
-                      [(ngModel)]="mod.medidaLlantas"
-                      name="medidaLlantas{{ i }}"
-                      required
-                      [class.is-invalid]="formSubmitted && !mod.medidaLlantas"
-                    />
-                    <label>MEDIDA DE LAS LLANTAS</label>
+                @if (!mod.neumaticosDistintosEjes) {
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Medida de neumáticos"
+                        [(ngModel)]="mod.medidaNeumaticos"
+                        name="medidaNeumaticos{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaNeumaticos
+                        "
+                      />
+                      <label>MEDIDA DE LOS NEUMÁTICOS</label>
+                    </div>
                   </div>
-                </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Medida de llanta"
+                        [(ngModel)]="mod.medidaLlantas"
+                        name="medidaLlantas{{ i }}"
+                        required
+                        [class.is-invalid]="formSubmitted && !mod.medidaLlantas"
+                      />
+                      <label>MEDIDA DE LAS LLANTAS</label>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Medida neumático delantero"
+                        [(ngModel)]="mod.medidaNeumaticoDelantero"
+                        name="medidaNeumaticoDelantero{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaNeumaticoDelantero
+                        "
+                      />
+                      <label>MEDIDA NEUMÁTICO DELANTERO</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Medida llanta delantera"
+                        [(ngModel)]="mod.medidaLlantaDelantera"
+                        name="medidaLlantaDelantera{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaLlantaDelantera
+                        "
+                      />
+                      <label>MEDIDA LLANTA DELANTERA</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Medida neumático trasero"
+                        [(ngModel)]="mod.medidaNeumaticoTrasero"
+                        name="medidaNeumaticoTrasero{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaNeumaticoTrasero
+                        "
+                      />
+                      <label>MEDIDA NEUMÁTICO TRASERO</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Medida llanta trasera"
+                        [(ngModel)]="mod.medidaLlantaTrasera"
+                        name="medidaLlantaTrasera{{ i }}"
+                        required
+                        [class.is-invalid]="
+                          formSubmitted && !mod.medidaLlantaTrasera
+                        "
+                      />
+                      <label>MEDIDA LLANTA TRASERA</label>
+                    </div>
+                  </div>
+                }
                 @if (mod.anotacion2) {
                   <div class="col-12">
                     <hr class="mod-sep" />
@@ -948,75 +1034,175 @@
 
                   <div class="col-12 col-md-8">
                     <div class="row g-3">
-                      <div class="col-md-6">
-                        <div class="form-floating">
-                          <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Marca"
-                            [(ngModel)]="mod.marcaAletines"
-                            name="marcaAletines{{ i }}"
-                            required
-                            [class.is-invalid]="
-                              formSubmitted && !mod.marcaAletines
-                            "
-                          />
-                          <label>MARCA</label>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="form-floating">
-                          <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Referencia"
-                            [(ngModel)]="mod.referenciaAletines"
-                            name="referenciaAletines{{ i }}"
-                            required
-                            [class.is-invalid]="
-                              formSubmitted && !mod.referenciaAletines
-                            "
-                          />
-                          <label>REFERENCIA</label>
+                      <div class="col-12">
+                        <label
+                          class="form-label fw-bold small mb-2 text-uppercase"
+                          >Origen de la pieza</label
+                        >
+                        <div class="d-flex gap-3">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="tipoFabricacionAletines{{ i }}"
+                              id="tipoFabAletinesMarca{{ i }}"
+                              value="marca"
+                              [(ngModel)]="mod.tipoFabricacionAletines"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="tipoFabAletinesMarca{{ i }}"
+                            >
+                              De marca / comercial
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="tipoFabricacionAletines{{ i }}"
+                              id="tipoFabAletinesArt{{ i }}"
+                              value="artesanal"
+                              [(ngModel)]="mod.tipoFabricacionAletines"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="tipoFabAletinesArt{{ i }}"
+                            >
+                              Artesanales
+                            </label>
+                          </div>
                         </div>
                       </div>
 
-                      <div class="col-md-4">
-                        <div class="form-floating">
-                          <input
-                            type="number"
-                            min="0"
-                            class="form-control"
-                            placeholder="Ancho"
-                            [(ngModel)]="mod.anchoAletines"
-                            (ngModelChange)="calcularSuperficieAletines(mod)"
-                            name="anchoAletines{{ i }}"
-                            required
-                            [class.is-invalid]="
-                              formSubmitted && mod.anchoAletines == null
-                            "
-                          />
-                          <label>ANCHO (mm)</label>
+                      @if (
+                        !mod.tipoFabricacionAletines ||
+                        mod.tipoFabricacionAletines === "marca"
+                      ) {
+                        @if (
+                          mod.posicionAletines === "delantero y trasero" &&
+                          mod.anchosDistintosAletines
+                        ) {
+                          <div class="col-md-6">
+                            <div class="form-floating">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Marca delantero"
+                                [(ngModel)]="mod.marcaDelanteroAletines"
+                                name="marcaDelanteroAletines{{ i }}"
+                                required
+                                [class.is-invalid]="
+                                  formSubmitted && !mod.marcaDelanteroAletines
+                                "
+                              />
+                              <label>MARCA DELANTERO</label>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-floating">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Referencia delantero"
+                                [(ngModel)]="mod.referenciaDelanteroAletines"
+                                name="referenciaDelanteroAletines{{ i }}"
+                                required
+                                [class.is-invalid]="
+                                  formSubmitted &&
+                                  !mod.referenciaDelanteroAletines
+                                "
+                              />
+                              <label>REFERENCIA DELANTERO</label>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-floating">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Marca trasero"
+                                [(ngModel)]="mod.marcaTraseroAletines"
+                                name="marcaTraseroAletines{{ i }}"
+                                required
+                                [class.is-invalid]="
+                                  formSubmitted && !mod.marcaTraseroAletines
+                                "
+                              />
+                              <label>MARCA TRASERO</label>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-floating">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Referencia trasero"
+                                [(ngModel)]="mod.referenciaTraseroAletines"
+                                name="referenciaTraseroAletines{{ i }}"
+                                required
+                                [class.is-invalid]="
+                                  formSubmitted &&
+                                  !mod.referenciaTraseroAletines
+                                "
+                              />
+                              <label>REFERENCIA TRASERO</label>
+                            </div>
+                          </div>
+                        } @else {
+                          <div class="col-md-6">
+                            <div class="form-floating">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Marca"
+                                [(ngModel)]="mod.marcaAletines"
+                                name="marcaAletines{{ i }}"
+                                required
+                                [class.is-invalid]="
+                                  formSubmitted && !mod.marcaAletines
+                                "
+                              />
+                              <label>MARCA</label>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-floating">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Referencia"
+                                [(ngModel)]="mod.referenciaAletines"
+                                name="referenciaAletines{{ i }}"
+                                required
+                                [class.is-invalid]="
+                                  formSubmitted && !mod.referenciaAletines
+                                "
+                              />
+                              <label>REFERENCIA</label>
+                            </div>
+                          </div>
+                        }
+                      }
+                      @if (mod.tipoFabricacionAletines === "artesanal") {
+                        <div class="col-12">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Material (ej: plástico ABS)"
+                              [(ngModel)]="mod.materialAletines"
+                              name="materialAletines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !mod.materialAletines
+                              "
+                            />
+                            <label>MATERIAL</label>
+                          </div>
                         </div>
-                      </div>
-                      <div class="col-md-4">
-                        <div class="form-floating">
-                          <input
-                            type="number"
-                            min="0"
-                            class="form-control"
-                            placeholder="Alto"
-                            [(ngModel)]="mod.altoAletines"
-                            (ngModelChange)="calcularSuperficieAletines(mod)"
-                            name="altoAletines{{ i }}"
-                            required
-                            [class.is-invalid]="
-                              formSubmitted && mod.altoAletines == null
-                            "
-                          />
-                          <label>ALTO (mm)</label>
-                        </div>
-                      </div>
+                      }
+
                       <div class="col-md-4">
                         <div class="form-floating">
                           <select
@@ -1036,6 +1222,114 @@
                             <option value="delantero y trasero">Ambos</option>
                           </select>
                           <label>POSICIÓN</label>
+                        </div>
+                      </div>
+
+                      @if (mod.posicionAletines === "delantero y trasero") {
+                        <div class="col-md-8 d-flex align-items-center">
+                          <div class="form-check form-switch">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="anchosDistintosAletines{{ i }}"
+                              [(ngModel)]="mod.anchosDistintosAletines"
+                              name="anchosDistintosAletines{{ i }}"
+                              (ngModelChange)="
+                                calcularSuperficieAletines(mod)
+                              "
+                            />
+                            <label
+                              class="form-check-label"
+                              for="anchosDistintosAletines{{ i }}"
+                            >
+                              ¿Anchura distinta delante y detrás?
+                            </label>
+                          </div>
+                        </div>
+                      }
+
+                      @if (
+                        mod.posicionAletines === "delantero y trasero" &&
+                        mod.anchosDistintosAletines
+                      ) {
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho delantero"
+                              [(ngModel)]="mod.anchoDelanteroAletines"
+                              (ngModelChange)="
+                                calcularSuperficieAletines(mod)
+                              "
+                              name="anchoDelanteroAletines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                mod.anchoDelanteroAletines == null
+                              "
+                            />
+                            <label>ANCHO DELANTERO (mm)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho trasero"
+                              [(ngModel)]="mod.anchoTraseroAletines"
+                              (ngModelChange)="
+                                calcularSuperficieAletines(mod)
+                              "
+                              name="anchoTraseroAletines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                mod.anchoTraseroAletines == null
+                              "
+                            />
+                            <label>ANCHO TRASERO (mm)</label>
+                          </div>
+                        </div>
+                      } @else {
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho"
+                              [(ngModel)]="mod.anchoAletines"
+                              (ngModelChange)="calcularSuperficieAletines(mod)"
+                              name="anchoAletines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && mod.anchoAletines == null
+                              "
+                            />
+                            <label>ANCHO (mm)</label>
+                          </div>
+                        </div>
+                      }
+                      <div class="col-md-4">
+                        <div class="form-floating">
+                          <input
+                            type="number"
+                            min="0"
+                            class="form-control"
+                            placeholder="Alto"
+                            [(ngModel)]="mod.altoAletines"
+                            (ngModelChange)="calcularSuperficieAletines(mod)"
+                            name="altoAletines{{ i }}"
+                            required
+                            [class.is-invalid]="
+                              formSubmitted && mod.altoAletines == null
+                            "
+                          />
+                          <label>ALTO (mm)</label>
                         </div>
                       </div>
                       <div class="col-md-8">
@@ -1098,25 +1392,73 @@
                           <label>PESO PIEZA (Kg)</label>
                         </div>
                       </div>
-                      <div class="col-md-4">
-                        <div class="form-floating">
-                          <input
-                            type="number"
-                            step="0.0001"
-                            class="form-control"
-                            placeholder="Superficie"
-                            [(ngModel)]="mod.superficieFrontalM2Aletines"
-                            name="superficieFrontalM2Aletines{{ i }}"
-                            readonly
-                            [class.is-invalid]="
-                              formSubmitted &&
-                              (mod.anchoAletines == null ||
-                                mod.altoAletines == null)
-                            "
-                          />
-                          <label>SUPERFICIE FRONTAL (m²)</label>
+                      @if (
+                        mod.posicionAletines === "delantero y trasero" &&
+                        mod.anchosDistintosAletines
+                      ) {
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.0001"
+                              class="form-control"
+                              placeholder="Superficie delantera"
+                              [(ngModel)]="
+                                mod.superficieFrontalM2AletinesDelantero
+                              "
+                              name="superficieFrontalM2AletinesDelantero{{ i }}"
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                (mod.anchoDelanteroAletines == null ||
+                                  mod.altoAletines == null)
+                              "
+                            />
+                            <label>SUPERFICIE FRONTAL DELANTERA (m²)</label>
+                          </div>
                         </div>
-                      </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.0001"
+                              class="form-control"
+                              placeholder="Superficie trasera"
+                              [(ngModel)]="
+                                mod.superficieFrontalM2AletinesTrasero
+                              "
+                              name="superficieFrontalM2AletinesTrasero{{ i }}"
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                (mod.anchoTraseroAletines == null ||
+                                  mod.altoAletines == null)
+                              "
+                            />
+                            <label>SUPERFICIE FRONTAL TRASERA (m²)</label>
+                          </div>
+                        </div>
+                      } @else {
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.0001"
+                              class="form-control"
+                              placeholder="Superficie"
+                              [(ngModel)]="mod.superficieFrontalM2Aletines"
+                              name="superficieFrontalM2Aletines{{ i }}"
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                (mod.anchoAletines == null ||
+                                  mod.altoAletines == null)
+                              "
+                            />
+                            <label>SUPERFICIE FRONTAL (m²)</label>
+                          </div>
+                        </div>
+                      }
 
                       <div class="col-md-4">
                         <div class="form-floating">
@@ -1350,56 +1692,184 @@
 
                   <div class="col-12 col-md-8">
                     <div class="row g-3">
-                      <div class="col-md-6">
-                        <div class="form-floating">
-                          <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Marca"
-                            [(ngModel)]="mod.marcaSobreletines"
-                            name="marcaSobreletines{{ i }}"
-                            required
-                            [class.is-invalid]="
-                              formSubmitted && !mod.marcaSobreletines
-                            "
-                          />
-                          <label>MARCA</label>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="form-floating">
-                          <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Referencia"
-                            [(ngModel)]="mod.referenciaSobreletines"
-                            name="referenciaSobreletines{{ i }}"
-                            required
-                            [class.is-invalid]="
-                              formSubmitted && !mod.referenciaSobreletines
-                            "
-                          />
-                          <label>REFERENCIA</label>
+                      <div class="col-12">
+                        <label
+                          class="form-label fw-bold small mb-2 text-uppercase"
+                          >Origen de la pieza</label
+                        >
+                        <div class="d-flex gap-3">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="tipoFabricacionSobrealetines{{ i }}"
+                              id="tipoFabSobrealetinesMarca{{ i }}"
+                              value="marca"
+                              [(ngModel)]="mod.tipoFabricacionSobrealetines"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="tipoFabSobrealetinesMarca{{ i }}"
+                            >
+                              De marca / comercial
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="tipoFabricacionSobrealetines{{ i }}"
+                              id="tipoFabSobrealetinesArt{{ i }}"
+                              value="artesanal"
+                              [(ngModel)]="mod.tipoFabricacionSobrealetines"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="tipoFabSobrealetinesArt{{ i }}"
+                            >
+                              Artesanales
+                            </label>
+                          </div>
                         </div>
                       </div>
 
-                      <div class="col-md-4">
-                        <div class="form-floating">
-                          <input
-                            type="number"
-                            min="0"
-                            class="form-control"
-                            placeholder="Ancho"
-                            [(ngModel)]="mod.anchoSobrealetines"
-                            name="anchoSobrealetines{{ i }}"
-                            required
-                            [class.is-invalid]="
-                              formSubmitted && mod.anchoSobrealetines == null
-                            "
-                          />
-                          <label>ANCHO (mm)</label>
+                      @if (
+                        !mod.tipoFabricacionSobrealetines ||
+                        mod.tipoFabricacionSobrealetines === "marca"
+                      ) {
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Marca"
+                              [(ngModel)]="mod.marcaSobreletines"
+                              name="marcaSobreletines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !mod.marcaSobreletines
+                              "
+                            />
+                            <label>MARCA</label>
+                          </div>
                         </div>
-                      </div>
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Referencia"
+                              [(ngModel)]="mod.referenciaSobreletines"
+                              name="referenciaSobreletines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !mod.referenciaSobreletines
+                              "
+                            />
+                            <label>REFERENCIA</label>
+                          </div>
+                        </div>
+                      }
+                      @if (mod.tipoFabricacionSobrealetines === "artesanal") {
+                        <div class="col-12">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Material (ej: goma)"
+                              [(ngModel)]="mod.materialSobrealetines"
+                              name="materialSobrealetines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !mod.materialSobrealetines
+                              "
+                            />
+                            <label>MATERIAL</label>
+                          </div>
+                        </div>
+                      }
+
+                      @if (
+                        mod.posicionSobrealetines === "delantero y trasero"
+                      ) {
+                        <div class="col-12">
+                          <div class="form-check form-switch">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="anchosDistintosSobrealetines{{ i }}"
+                              [(ngModel)]="mod.anchosDistintosSobrealetines"
+                              name="anchosDistintosSobrealetines{{ i }}"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="anchosDistintosSobrealetines{{ i }}"
+                            >
+                              ¿Anchura distinta delante y detrás?
+                            </label>
+                          </div>
+                        </div>
+                      }
+
+                      @if (
+                        mod.posicionSobrealetines === "delantero y trasero" &&
+                        mod.anchosDistintosSobrealetines
+                      ) {
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho delantero"
+                              [(ngModel)]="mod.anchoDelanteroSobrealetines"
+                              name="anchoDelanteroSobrealetines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                mod.anchoDelanteroSobrealetines == null
+                              "
+                            />
+                            <label>ANCHO DELANTERO (mm)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho trasero"
+                              [(ngModel)]="mod.anchoTraseroSobrealetines"
+                              name="anchoTraseroSobrealetines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                mod.anchoTraseroSobrealetines == null
+                              "
+                            />
+                            <label>ANCHO TRASERO (mm)</label>
+                          </div>
+                        </div>
+                      } @else {
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho"
+                              [(ngModel)]="mod.anchoSobrealetines"
+                              name="anchoSobrealetines{{ i }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && mod.anchoSobrealetines == null
+                              "
+                            />
+                            <label>ANCHO (mm)</label>
+                          </div>
+                        </div>
+                      }
                       <div class="col-md-4">
                         <div class="form-floating">
                           <input
@@ -22531,18 +23001,45 @@
                         </div>
 
                         <div class="col-12 col-md-4">
-                          <div class="form-floating">
+                          <div class="form-check form-switch mb-2">
                             <input
-                              type="number"
-                              step="1"
-                              min="0"
-                              class="form-control"
-                              placeholder="Radio de curvatura"
-                              [(ngModel)]="reforma.curvatura"
-                              name="reformaAdicionalCurvatura{{ i }}-{{ j }}"
+                              class="form-check-input"
+                              type="checkbox"
+                              id="reformaAdicionalTieneCurvatura{{ i }}-{{ j }}"
+                              [(ngModel)]="reforma.tieneCurvatura"
+                              name="reformaAdicionalTieneCurvatura{{ i }}-{{ j }}"
+                              (ngModelChange)="
+                                !reforma.tieneCurvatura &&
+                                  (reforma.curvatura = null)
+                              "
                             />
-                            <label>RADIO CURVATURA</label>
+                            <label
+                              class="form-check-label"
+                              for="reformaAdicionalTieneCurvatura{{ i }}-{{ j }}"
+                            >
+                              ¿Tiene radio de curvatura?
+                            </label>
                           </div>
+                          @if (reforma.tieneCurvatura) {
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                step="1"
+                                min="0"
+                                class="form-control"
+                                placeholder="Radio de curvatura"
+                                [(ngModel)]="reforma.curvatura"
+                                name="reformaAdicionalCurvatura{{ i }}-{{ j }}"
+                                required
+                                [class.is-invalid]="
+                                  formSubmitted &&
+                                  reforma.tieneCurvatura &&
+                                  reforma.curvatura == null
+                                "
+                              />
+                              <label>RADIO CURVATURA</label>
+                            </div>
+                          }
                         </div>
 
                         <div class="col-12">

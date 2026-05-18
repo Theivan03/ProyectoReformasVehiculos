@@ -1069,6 +1069,32 @@
                     }
                   </div>
                 }
+                @if (
+                  datosGlobales_gestor.servicio_seleccion_segunda_ocupacion
+                ) {
+                  <div class="section-header-styled animation-fade-in">
+                    <lucide-icon
+                      [img]="icons_gestor.FileText"
+                      size="20"
+                    ></lucide-icon>
+                    Datos 2ª Ocupación
+                  </div>
+                  <div class="row g-3 animation-fade-in">
+                    <div class="col-md-12">
+                      <label class="form-label small fw-bold text-secondary">
+                        Nº Licencia/Declaración Ocupación anterior (si existe)
+                      </label>
+                      <input
+                        type="text"
+                        [(ngModel)]="
+                          datosGlobales_gestor.vivienda_licencia_anterior
+                        "
+                        class="form-control"
+                        placeholder="Dejar vacío si no existe licencia anterior"
+                      />
+                    </div>
+                  </div>
+                }
                 @if (ver_empresas_suministros || ver_alcantarillado) {
                   <div class="section-header-styled animation-fade-in">
                     <lucide-icon

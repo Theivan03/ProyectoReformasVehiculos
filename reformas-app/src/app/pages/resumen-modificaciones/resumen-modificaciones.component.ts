@@ -1464,12 +1464,39 @@ export class ResumenModificacionesComponent
   }
 
   calcularSuperficieAletines(mod: any): void {
-    if (mod.anchoAletines != null && mod.altoAletines != null) {
-      const ancho = Number(mod.anchoAletines) / 1000;
-      const alto = Number(mod.altoAletines) / 1000;
-      mod.superficieFrontalM2Aletines = Number((ancho * alto).toFixed(4));
-    } else {
+    const alto =
+      mod.altoAletines != null ? Number(mod.altoAletines) / 1000 : null;
+
+    if (
+      mod.posicionAletines === 'delantero y trasero' &&
+      mod.anchosDistintosAletines
+    ) {
+      const anchoDel =
+        mod.anchoDelanteroAletines != null
+          ? Number(mod.anchoDelanteroAletines) / 1000
+          : null;
+      const anchoTras =
+        mod.anchoTraseroAletines != null
+          ? Number(mod.anchoTraseroAletines) / 1000
+          : null;
+      mod.superficieFrontalM2AletinesDelantero =
+        anchoDel != null && alto != null
+          ? Number((anchoDel * alto).toFixed(4))
+          : null;
+      mod.superficieFrontalM2AletinesTrasero =
+        anchoTras != null && alto != null
+          ? Number((anchoTras * alto).toFixed(4))
+          : null;
       mod.superficieFrontalM2Aletines = null;
+    } else {
+      mod.superficieFrontalM2AletinesDelantero = null;
+      mod.superficieFrontalM2AletinesTrasero = null;
+      if (mod.anchoAletines != null && alto != null) {
+        const ancho = Number(mod.anchoAletines) / 1000;
+        mod.superficieFrontalM2Aletines = Number((ancho * alto).toFixed(4));
+      } else {
+        mod.superficieFrontalM2Aletines = null;
+      }
     }
   }
 
@@ -1824,6 +1851,7 @@ export class ResumenModificacionesComponent
     const defaults = {
       titulo: '',
       descripcion: '',
+      tieneCurvatura: false,
       curvatura: null,
     };
     Object.assign(item, defaults, incoming);

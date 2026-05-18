@@ -2110,6 +2110,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 : []
             )
               .map((item: any, index: number) => {
+                if (!item?.tieneCurvatura) return null;
                 const titulo = (item?.titulo ?? '').toString().trim();
                 const etiqueta = titulo || `Reforma adicional ${index + 1}`;
                 return buildCurvaturaRow(etiqueta, item?.curvatura);
@@ -4740,19 +4741,19 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
           bold: true,
           size: 32,
         }),
-        new Paragraph({
-          text: '',
-          spacing: { before: 120 },
-        }),
       ],
+    }),
+    new Paragraph({
+      text: '',
+      spacing: { before: 120 },
     }),
 
     new Paragraph({
       spacing: { before: 240, after: 120 },
-      heading: HeadingLevel.HEADING_4,
+      heading: HeadingLevel.HEADING_3,
       children: [
         new TextRun({
-          text: '1. CALIDAD DE LOS MATERIALES EMPLEADOS',
+          text: '3.1 CALIDAD DE LOS MATERIALES EMPLEADOS',
           color: '000000',
           bold: true,
           size: 25,
@@ -4781,10 +4782,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     new Paragraph({
       spacing: { before: 240, after: 120 },
 
-      heading: HeadingLevel.HEADING_4,
+      heading: HeadingLevel.HEADING_3,
       children: [
         new TextRun({
-          text: '2. NORMAS DE EJECUCIÓN',
+          text: '3.2 NORMAS DE EJECUCIÓN',
           bold: true,
           size: 25,
           color: '000000',
@@ -4833,10 +4834,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     new Paragraph({
       spacing: { before: 240, after: 120 },
 
-      heading: HeadingLevel.HEADING_4,
+      heading: HeadingLevel.HEADING_3,
       children: [
         new TextRun({
-          text: '3. CERTIFICADOS Y AUTORIZACIONES.REQUSITOS DEL INFORME DE CONFORMIDAD',
+          text: '3.3 CERTIFICADOS Y AUTORIZACIONES. REQUISITOS DEL INFORME DE CONFORMIDAD',
           color: '000000',
           bold: true,
           size: 25,
@@ -4858,10 +4859,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     new Paragraph({
       spacing: { before: 240, after: 120 },
 
-      heading: HeadingLevel.HEADING_4,
+      heading: HeadingLevel.HEADING_3,
       children: [
         new TextRun({
-          text: '4. TALLER EJECUTOR',
+          text: '3.4 TALLER EJECUTOR',
           color: '000000',
           bold: true,
           size: 25,

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/^    if \\\\\\(false && \\(soporteslucesespecificas|antiempotramiento|paradelante|estribostaloneras\\)\\\\\\)/{print NR\": START \"$0; depth=1; next} depth>=1{for\\(i=1;i<=length\\($0\\);i++\\){c=substr\\($0,i,1\\); if\\(c==\"{\"\\)depth++; else if\\(c==\"}\"\\){depth--; if\\(depth==0\\){print NR\": END \"$0; next_line=1; break}}}}' src/app/Funciones/calculos.ts)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

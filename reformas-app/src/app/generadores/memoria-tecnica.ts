@@ -804,10 +804,16 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
   const sumaTras =
     masaRealTras + ocupDelTras + ocup2Tras + ocup3Tras + cargaUtilTras;
 
-  function limpiarYParsear(valor: string): number | null {
-    const limpio = valor?.replace(',', '.').trim();
-    if (!limpio || limpio === '---' || isNaN(Number(limpio))) return null;
-    return parseFloat(limpio);
+  function limpiarYParsear(valor: any): number | null {
+    if (valor === null || valor === undefined) return null;
+
+    // Convertimos todo a string para evitar errores en .replace()
+    const texto = String(valor).trim();
+    if (!texto || texto === '---') return null;
+
+    const limpio = texto.replace(',', '.');
+
+    return isNaN(Number(limpio)) ? null : parseFloat(limpio);
   }
 
   const momAntes = limpiarYParsear(data.momAntes);
@@ -3432,8 +3438,8 @@ export async function generarDocumentoMemoria(data: any): Promise<void> {
   const blob = await Packer.toBlob(doc);
   saveAs(
     blob,
-    `${data.referenciaProyecto.replace('PTRV', 'MT') || ''} MEMORIA TECNICA ${
-      data.marca
-    } ${data.modelo} ${data.matricula}.docx`,
+    `${String(data.referenciaProyecto ?? '').replace('PTRV', 'MT')} MEMORIA TECNICA ${
+      data.marca ?? ''
+    } ${data.modelo ?? ''} ${data.matricula ?? ''}.docx`,
   );
 }
