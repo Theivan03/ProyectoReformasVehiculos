@@ -61,6 +61,44 @@ export class DocumentoService {
     return `${nombreBase}.${extension}`;
   }
 
+  /**
+   * Construye la dirección de la vivienda a partir de los campos por separado,
+   * separando cada elemento (vía, número, escalera, piso, puerta y opcional
+   * localidad) por comas. Por defecto se devuelve en MAYÚSCULAS.
+   */
+  private construirDireccionVivienda(
+    datos: any,
+    opts: { mayusculas?: boolean; incluirLocalidad?: boolean } = {},
+  ): string {
+    const { mayusculas = true, incluirLocalidad = false } = opts;
+
+    const partes: string[] = [];
+    const via = `${datos.vivienda_tipo_via || ''} ${
+      datos.vivienda_nombre_via || ''
+    }`.trim();
+    if (via) partes.push(via);
+    if (datos.vivienda_numero) partes.push(`Nº ${datos.vivienda_numero}`);
+    if (datos.vivienda_escalera) partes.push(`Esc. ${datos.vivienda_escalera}`);
+    if (datos.vivienda_piso) partes.push(`Piso ${datos.vivienda_piso}`);
+    if (datos.vivienda_puerta) partes.push(`Pta ${datos.vivienda_puerta}`);
+
+    if (incluirLocalidad) {
+      const cp = datos.vivienda_codigo_postal || '';
+      const pob = datos.vivienda_poblacion || '';
+      const prov = datos.vivienda_provincia || '';
+      const cpPob = `${cp} ${pob}`.trim();
+      if (cpPob) partes.push(cpPob);
+      if (prov) partes.push(`(${prov})`);
+    }
+
+    let direccion = partes.join(', ');
+    if (!via && datos.vivienda_direccion_completa) {
+      direccion = datos.vivienda_direccion_completa;
+    }
+
+    return mayusculas ? direccion.toUpperCase() : direccion;
+  }
+
   private cerrarFrase(texto: any): string {
     const limpio = String(texto || '').trim();
     if (!limpio) return '';
@@ -161,7 +199,7 @@ export class DocumentoService {
         const cp = datos.vivienda_codigo_postal || '';
         const pob = datos.vivienda_poblacion || '';
         const prov = datos.vivienda_provincia || '';
-        if (cp || pob) direccionVivienda += `, ${cp}-${pob}`;
+        if (cp || pob) direccionVivienda += ` - ${cp} ${pob}`;
         if (prov) direccionVivienda += ` (${prov})`;
       } else {
         direccionVivienda =
@@ -737,7 +775,7 @@ export class DocumentoService {
         const pob = datos.vivienda_poblacion || '';
         const prov = datos.vivienda_provincia || '';
 
-        if (cp || pob) direccionVivienda += `, ${cp} ${pob}`;
+        if (cp || pob) direccionVivienda += ` - ${cp} ${pob}`;
         if (prov) direccionVivienda += ` (${prov})`;
       } else {
         direccionVivienda =
@@ -988,6 +1026,10 @@ export class DocumentoService {
       let nombreOtorgante = '';
       let dniOtorgante = '';
 
+      // En este documento el otorgante es la persona física que firma. Si el
+      // propietario es una empresa, dicha persona actúa como su representante
+      // (la empresa se nombra aparte en el párrafo "representante de la
+      // empresa"); por eso aquí se usa la persona representante si existe.
       if (datos.existe_interesado_representante) {
         nombreOtorgante =
           `${datos.interesada_nombre} ${datos.interesada_apellidos}`.trim();
@@ -1019,13 +1061,16 @@ export class DocumentoService {
         const pob = datos.vivienda_poblacion || '';
         const prov = datos.vivienda_provincia || '';
 
-        if (cp || pob) domicilioCompleto += `, ${cp} ${pob}`;
+        if (cp || pob) domicilioCompleto += ` - ${cp} ${pob}`;
         if (prov) domicilioCompleto += ` (${prov})`;
       } else {
         domicilioCompleto =
           datos.vivienda_direccion_completa ||
           '..........................................................................................';
       }
+      // El emplazamiento de la vivienda debe figurar en MAYÚSCULAS, igual que
+      // el resto del documento.
+      domicilioCompleto = domicilioCompleto.toUpperCase();
 
       let domicilioTitularCompleto =
         '..........................................................................................';
@@ -1046,6 +1091,7 @@ export class DocumentoService {
           domicilioTitularCompleto += `, ${cpTitular} ${pobTitular}`;
         if (provTitular) domicilioTitularCompleto += ` (${provTitular})`;
       }
+      domicilioTitularCompleto = domicilioTitularCompleto.toUpperCase();
 
       const municipioFirma = datos.vivienda_poblacion || 'Teulada';
 
@@ -1335,7 +1381,13 @@ export class DocumentoService {
 
       let nombreOtorgante = '';
       let dniOtorgante = '';
-      if (datos.existe_interesado_representante) {
+      if (datos.check_es_empresa) {
+        // El propietario es una empresa: figura siempre la razón social y el
+        // CIF como otorgante, nunca el nombre de la persona representante.
+        nombreOtorgante =
+          `${datos.titular_nombre} ${datos.titular_apellidos}`.trim();
+        dniOtorgante = datos.titular_dni_nif;
+      } else if (datos.existe_interesado_representante) {
         nombreOtorgante =
           `${datos.interesada_nombre} ${datos.interesada_apellidos}`.trim();
         dniOtorgante = datos.interesada_dni_nif;
@@ -1364,13 +1416,15 @@ export class DocumentoService {
         const pob = datos.vivienda_poblacion || '';
         const prov = datos.vivienda_provincia || '';
 
-        if (cp || pob) domicilioCompleto += `, ${cp} ${pob}`;
+        if (cp || pob) domicilioCompleto += ` - ${cp} ${pob}`;
         if (prov) domicilioCompleto += ` (${prov})`;
       } else {
         domicilioCompleto =
           datos.vivienda_direccion_completa ||
           '..........................................................................................';
       }
+      // El emplazamiento de la vivienda debe figurar en MAYÚSCULAS.
+      domicilioCompleto = domicilioCompleto.toUpperCase();
       const municipioFirma = datos.vivienda_poblacion || 'Teulada';
 
       const response = await fetch('assets/ivace.jpg');
@@ -1506,9 +1560,7 @@ export class DocumentoService {
               // Firma
               new Paragraph({
                 spacing: { before: 1500 },
-                children: [
-                  new TextRun({ text: 'Firmado:', font, size }),
-                ],
+                children: [new TextRun({ text: 'Firmado:', font, size })],
               }),
             ],
           },
@@ -1549,7 +1601,13 @@ export class DocumentoService {
       let nombreOtorgante = '';
       let dniOtorgante = '';
 
-      if (datos.existe_interesado_representante) {
+      if (datos.check_es_empresa) {
+        // El propietario es una empresa: figura siempre la razón social y el
+        // CIF como otorgante, nunca el nombre de la persona representante.
+        nombreOtorgante =
+          `${datos.titular_nombre} ${datos.titular_apellidos}`.trim();
+        dniOtorgante = datos.titular_dni_nif;
+      } else if (datos.existe_interesado_representante) {
         nombreOtorgante =
           `${datos.interesada_nombre} ${datos.interesada_apellidos}`.trim();
         dniOtorgante = datos.interesada_dni_nif;
@@ -1576,13 +1634,15 @@ export class DocumentoService {
         const cp = datos.vivienda_codigo_postal || '';
         const pob = datos.vivienda_poblacion || '';
         const prov = datos.vivienda_provincia || '';
-        if (cp || pob) domicilioCompleto += `, ${cp} ${pob}`;
+        if (cp || pob) domicilioCompleto += ` - ${cp} ${pob}`;
         if (prov) domicilioCompleto += ` (${prov})`;
       } else {
         domicilioCompleto =
           datos.vivienda_direccion_completa ||
           '..........................................................................................';
       }
+      // El emplazamiento de la vivienda debe figurar en MAYÚSCULAS.
+      domicilioCompleto = domicilioCompleto.toUpperCase();
       const refCatastral =
         datos.vivienda_referencia_catastral || '.............................';
 
@@ -2091,9 +2151,9 @@ export class DocumentoService {
       ]
         .filter(Boolean)
         .join(', ');
-      const direccionCorta = `C/ ${calle}${
-        detalleDireccion ? ` ${detalleDireccion}` : ''
-      }`;
+      const direccionCorta = this.construirDireccionVivienda(datos, {
+        mayusculas: true,
+      });
       const direccionLarga = `${direccionCorta}, en el término municipal de ${poblacion}, provincia de ${provincia}.`;
       const direccionCompletaPortada = `${direccionCorta}\n${cp} - ${poblacion} (${provincia})`;
       const refCatastral = datos.vivienda_referencia_catastral || '';
@@ -3091,16 +3151,16 @@ export class DocumentoService {
                 .filter(Boolean)
                 .map(
                   (textoPlanta: string) =>
-                  new Paragraph({
-                    spacing: { line: lineSpacing },
-                    children: [
-                      new TextRun({
-                        text: textoPlanta,
-                        font,
-                        size: sizeCuerpo,
-                      }),
-                    ],
-                  }),
+                    new Paragraph({
+                      spacing: { line: lineSpacing },
+                      children: [
+                        new TextRun({
+                          text: textoPlanta,
+                          font,
+                          size: sizeCuerpo,
+                        }),
+                      ],
+                    }),
                 ),
 
               new Paragraph({
@@ -3608,13 +3668,20 @@ export class DocumentoService {
               .trim()
               .toUpperCase();
 
-      let declNombre = datos.existe_interesado_representante
-        ? `${datos.interesada_nombre} ${datos.interesada_apellidos}`
-        : `${datos.titular_nombre} ${datos.titular_apellidos}`;
+      // Si el propietario es una empresa, el declarante es siempre la empresa
+      // (razón social + CIF); el nombre de la persona solo figura como
+      // representante en su sección correspondiente.
+      let declNombre = datos.check_es_empresa
+        ? `${datos.titular_nombre} ${datos.titular_apellidos}`
+        : datos.existe_interesado_representante
+          ? `${datos.interesada_nombre} ${datos.interesada_apellidos}`
+          : `${datos.titular_nombre} ${datos.titular_apellidos}`;
 
-      let declDni = datos.existe_interesado_representante
-        ? datos.interesada_dni_nif
-        : datos.titular_dni_nif;
+      let declDni = datos.check_es_empresa
+        ? datos.titular_dni_nif
+        : datos.existe_interesado_representante
+          ? datos.interesada_dni_nif
+          : datos.titular_dni_nif;
 
       const tecnico = datos.tecnico_ingeniero_seleccionado || {};
       // Si el cliente firma con su propia firma digital, no actúa ningún
@@ -4057,10 +4124,21 @@ export class DocumentoService {
         dInteresado = { ...dTitular };
       }
 
-      // Separar apellidos interesado
-      const intApellidos = dInteresado.apellidos || '';
-      const intApellido1 = intApellidos.split(' ')[0] || intApellidos;
-      const intApellido2 = intApellidos.split(' ').slice(1).join(' ') || '';
+      // Si el propietario es una empresa, la persona/entidad interesada es la
+      // propia empresa (razón social en "primer apellido", CIF en documento y
+      // nombre vacío). El nombre de la persona solo figura como representante
+      // en la Sección D.
+      const esEmpresa = !!datos.check_es_empresa;
+      const dEntidadInteresada = esEmpresa ? { ...dTitular } : dInteresado;
+      const intApellidos = dEntidadInteresada.apellidos || '';
+      const intApellido1 = esEmpresa
+        ? dEntidadInteresada.nombre
+        : intApellidos.split(' ')[0] || intApellidos;
+      const intApellido2 = esEmpresa
+        ? ''
+        : intApellidos.split(' ').slice(1).join(' ') || '';
+      const intNombre = esEmpresa ? '' : dEntidadInteresada.nombre;
+      const intDocumento = esEmpresa ? dTitular.dni : dInteresado.dni;
 
       // Lógica Representante
       let dRep: any = {};
@@ -4355,7 +4433,7 @@ export class DocumentoService {
 
               // Fila 1: DNI (20) | Apell1 (35) | Apell2 (20) | Nombre (25)
               crearFila([
-                crearInput('DNI/NIF/NIE', dInteresado.dni, 20, true),
+                crearInput('DNI/NIF/NIE', intDocumento, 20, true),
                 crearInput(
                   'PRIMER APELLIDO O RAZÓN SOCIAL',
                   intApellido1,
@@ -4363,7 +4441,7 @@ export class DocumentoService {
                   true,
                 ),
                 crearInput('SEGUNDO APELLIDO', intApellido2, 20),
-                crearInput('NOMBRE', dInteresado.nombre, 25), // Nombre solo si es persona física
+                crearInput('NOMBRE', intNombre, 25), // Nombre solo si es persona física
               ]),
 
               // Fila 2: Tipo Via (20) | Nombre Via (80)
@@ -5228,20 +5306,12 @@ export class DocumentoService {
 
     // VIVIENDA (Apartado M extendido)
     // Construimos la dirección completa para el campo "DIRECCIÓN" del apartado M
-    const direccionVivienda = `${toUpper(
-      datos.vivienda_tipo_via || '',
-    )} ${toUpper(datos.vivienda_nombre_via || '')} ${toUpper(
-      datos.vivienda_numero || '',
-    )} ${toUpper(
-      datos.vivienda_escalera ? `Esc. ${datos.vivienda_escalera}` : '',
-    )} ${toUpper(datos.vivienda_piso || '')} ${toUpper(
-      datos.vivienda_puerta || '',
-    )}`.trim();
+    const direccionVivienda = this.construirDireccionVivienda(datos);
 
     const dVivienda = {
       nombreComercial: toUpper(datos.vivienda_nombre_comercial || ''),
       refCatastral: toUpper(datos.vivienda_referencia_catastral),
-      cru: '', // CRU SIEMPRE VACÍO
+      cru: toUpper(datos.vivienda_cru || ''),
       fechaCompra: formatFecha(datos.vivienda_fecha_ultima_compra),
       icuCodigo: toUpper(datos.vivienda_codigo_seguridad_icu),
       icuFecha: formatFecha(datos.vivienda_fecha_emision_icu),
@@ -5924,15 +5994,12 @@ export class DocumentoService {
       nombre: toUpper(datos.titular_nombre),
       apellidos: toUpper(datos.titular_apellidos),
       dni: toUpper(datos.titular_dni_nif),
-      esEmpresa: datos.titular_dni_nif && datos.titular_dni_nif.length > 9,
+      esEmpresa: !!datos.check_es_empresa,
     };
 
     // DATOS VIVIENDA
     const dVivienda = {
-      direccion: toUpper(
-        datos.vivienda_direccion_completa ||
-          `${datos.vivienda_tipo_via} ${datos.vivienda_nombre_via} ${datos.vivienda_numero} ${datos.vivienda_escalera ? `Esc. ${datos.vivienda_escalera}` : ''} ${datos.vivienda_piso} ${datos.vivienda_puerta}`,
-      ),
+      direccion: this.construirDireccionVivienda(datos),
       cp: datos.vivienda_codigo_postal || '',
       provincia: toUpper(datos.vivienda_provincia || ''),
       municipio: toUpper(datos.vivienda_poblacion || ''),

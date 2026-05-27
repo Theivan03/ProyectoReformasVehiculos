@@ -318,7 +318,7 @@
     "vivienda_es_estudio": false,
     "vivienda_cantidad_dormitorios": 3,
     "vivienda_numero_vt": "CV-VUT0519771-A",
-    "vivienda_tipo_edificacion": "un edificio de viviendas",
+    "vivienda_tipo_edificacion": "una vivienda unifamiliar",
     "tecnico_arquitecto_seleccionado": {
       "nombre": "JUAN FAUS ALFONSO",
       "dni": "20036064M",
@@ -374,6 +374,7 @@
     "notas_fase_cee": "",
     "notas_fase_registro_vt": "",
     "notas_fase_nra": "",
-    "fechaCreacion": "2026-03-30T11:05:52.082Z"
+    "fechaCreacion": "2026-03-30T11:05:52.082Z",
+    "vivienda_licencia_anterior": ""
   }
 ]

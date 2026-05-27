@@ -79,7 +79,7 @@ export class GestorDocumentacionComponent implements OnInit {
     titular_puerta: '',
     titular_codigo_postal: '',
     titular_poblacion: '',
-    titular_provincia: 'Alcante',
+    titular_provincia: 'Alicante',
 
     existe_interesado_representante: false,
     interesada_nombre: '',
@@ -173,6 +173,7 @@ export class GestorDocumentacionComponent implements OnInit {
     'Carretera',
     'Ronda',
     'Pasaje',
+    'Ptda.',
   ];
   listaTiposPlanta_gestor = [
     'Sótano',

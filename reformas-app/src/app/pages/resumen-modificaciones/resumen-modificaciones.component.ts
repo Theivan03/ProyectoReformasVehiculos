@@ -561,31 +561,7 @@ export class ResumenModificacionesComponent
         }
       }
       if (m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO') {
-        if (m.calidadTornilloLucesEspecificas == null) {
-          m.calidadTornilloLucesEspecificas = 8.8;
-        }
-        if (m.seccionResistenteAsLucesEspecificas == null) {
-          m.seccionResistenteAsLucesEspecificas =
-            this.getAreaResistenteByMetrica(m.metricaLucesEspecificas) ?? 36.64;
-        }
-        if (m.resTraccionMinTornillo88Kgmm2LucesEspecificas == null) {
-          m.resTraccionMinTornillo88Kgmm2LucesEspecificas = 80;
-        }
-        if (m.cwCoefAerodinamicoLucesEspecificas == null) {
-          m.cwCoefAerodinamicoLucesEspecificas = 0.82;
-        }
-        if (m.densidadAireKgM3LucesEspecificas == null) {
-          m.densidadAireKgM3LucesEspecificas = 1.29;
-        }
-        if (m.velocidadAireV2msLucesEspecificas == null) {
-          m.velocidadAireV2msLucesEspecificas = 38.89;
-        }
-        if (m.radioCurvaRLucesEspecificas == null) {
-          m.radioCurvaRLucesEspecificas = 8;
-        }
-        if (m.coefSeguridadKLucesEspecificas == null) {
-          m.coefSeguridadKLucesEspecificas = 3;
-        }
+        this.ensureLucesEspecificasDefaults(m);
         if (!m.detalle) {
           m.detalle = { aletines: false, sobrealetines: false };
         }
@@ -1845,6 +1821,31 @@ export class ResumenModificacionesComponent
     return this.wrapEntidadCompartida('placaSolar', item);
   }
 
+  private createLuzEspecificaItem(initial: any = {}): any {
+    const incoming = { ...(this.unwrapSharedEntity(initial) || {}) };
+    const item = this.unwrapSharedEntity(initial) || {};
+    const defaults = {
+      ubicacion: '',
+      medidas: '',
+      pesoPiezaKg: null,
+      anchuraPiezaM: null,
+      alturaPiezaM: null,
+      metrica: null,
+      nTornillos: null,
+      calidadTornillo: 8.8,
+      seccionResistenteAs: null,
+      resTraccionMinTornillo88Kgmm2: 80,
+      cwCoefAerodinamico: 0.82,
+      densidadAireKgM3: 1.29,
+      velocidadAireV2ms: 38.89,
+      coefSeguridadK: 3,
+      curvatura: 8,
+    };
+    Object.assign(item, defaults, incoming);
+    this.ensureAerodynamicItemDefaults(item, 'medidas');
+    return item;
+  }
+
   private createReformaAdicionalItem(initial: any = {}): any {
     const incoming = { ...(this.unwrapSharedEntity(initial) || {}) };
     const item = this.unwrapSharedEntity(initial) || {};
@@ -1935,6 +1936,48 @@ export class ResumenModificacionesComponent
 
     mod.placasSolares = mod.placasSolares.map((item: any) =>
       this.createPlacaSolarItem(item),
+    );
+  }
+
+  private ensureLucesEspecificasDefaults(mod: any): void {
+    if (!Array.isArray(mod.lucesEspecificasItems)) {
+      mod.lucesEspecificasItems = [];
+    }
+
+    if (mod.lucesEspecificasItems.length === 0) {
+      const hasLegacy =
+        mod.ubicacionLucesEspecificas ||
+        mod.medidasLucesEspecificas ||
+        mod.pesoPiezaKgLucesEspecificas != null ||
+        mod.metricaLucesEspecificas != null;
+
+      if (hasLegacy) {
+        mod.lucesEspecificasItems.push(
+          this.createLuzEspecificaItem({
+            ubicacion: mod.ubicacionLucesEspecificas ?? '',
+            medidas: mod.medidasLucesEspecificas ?? '',
+            pesoPiezaKg: mod.pesoPiezaKgLucesEspecificas ?? null,
+            anchuraPiezaM: mod.anchuraPiezaMLucesEspecificas ?? null,
+            alturaPiezaM: mod.alturaPiezaMLucesEspecificas ?? null,
+            metrica: mod.metricaLucesEspecificas ?? null,
+            nTornillos: mod.nTornillosLucesEspecificas ?? null,
+            calidadTornillo: mod.calidadTornilloLucesEspecificas ?? 8.8,
+            seccionResistenteAs:
+              mod.seccionResistenteAsLucesEspecificas ?? null,
+            resTraccionMinTornillo88Kgmm2:
+              mod.resTraccionMinTornillo88Kgmm2LucesEspecificas ?? 80,
+            cwCoefAerodinamico: mod.cwCoefAerodinamicoLucesEspecificas ?? 0.82,
+            densidadAireKgM3: mod.densidadAireKgM3LucesEspecificas ?? 1.29,
+            velocidadAireV2ms: mod.velocidadAireV2msLucesEspecificas ?? 38.89,
+            coefSeguridadK: mod.coefSeguridadKLucesEspecificas ?? 3,
+            curvatura: mod.radioCurvaRLucesEspecificas ?? 8,
+          }),
+        );
+      }
+    }
+
+    mod.lucesEspecificasItems = mod.lucesEspecificasItems.map((item: any) =>
+      this.createLuzEspecificaItem(item),
     );
   }
 
@@ -2319,6 +2362,23 @@ export class ResumenModificacionesComponent
     if (!Array.isArray(mod?.placasSolares)) return;
     if (index < 0 || index >= mod.placasSolares.length) return;
     mod.placasSolares.splice(index, 1);
+    this.rebuildCamposCompartidos();
+  }
+
+  anadirLuzEspecifica(mod: any): void {
+    if (!Array.isArray(mod.lucesEspecificasItems)) {
+      mod.lucesEspecificasItems = [];
+    }
+
+    mod.lucesEspecificasItems.push(this.createLuzEspecificaItem());
+    this.rebuildCamposCompartidos();
+    this.formSubmitted = false;
+  }
+
+  borrarLuzEspecifica(mod: any, index: number): void {
+    if (!Array.isArray(mod?.lucesEspecificasItems)) return;
+    if (index < 0 || index >= mod.lucesEspecificasItems.length) return;
+    mod.lucesEspecificasItems.splice(index, 1);
     this.rebuildCamposCompartidos();
   }
 

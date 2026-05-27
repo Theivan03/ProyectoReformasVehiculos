@@ -50,6 +50,24 @@ export interface PlacaSolarItem {
   curvatura?: number;
 }
 
+export interface LuzEspecificaItem {
+  ubicacion?: string;
+  medidas?: string;
+  pesoPiezaKg?: number;
+  anchuraPiezaM?: number;
+  alturaPiezaM?: number;
+  metrica?: number;
+  nTornillos?: number;
+  calidadTornillo?: number;
+  seccionResistenteAs?: number;
+  resTraccionMinTornillo88Kgmm2?: number;
+  cwCoefAerodinamico?: number;
+  densidadAireKgM3?: number;
+  velocidadAireV2ms?: number;
+  coefSeguridadK?: number;
+  curvatura?: number;
+}
+
 export interface VentanaItem {
   marca?: string;
   modelo?: string;
@@ -1082,6 +1100,7 @@ export interface Modificacion {
   nPernosChasisCabrestante?: number;
 
   metricaLuces?: number;
+  lucesEspecificasItems?: LuzEspecificaItem[];
   metricaLucesEspecificas?: number;
   pesoPiezaKgLucesEspecificas?: number;
   anchuraPiezaMLucesEspecificas?: number;

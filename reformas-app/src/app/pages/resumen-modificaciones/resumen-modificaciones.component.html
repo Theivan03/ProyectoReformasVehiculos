@@ -3995,12 +3995,12 @@
               </div>
 
               <div class="row g-4">
-                <div class="col-12 col-md-4 border-end">
+                <div class="col-12">
                   <label
                     class="form-label d-block mb-2 fw-bold text-uppercase small"
                     >Tipo de acción</label
                   >
-                  <div class="d-flex flex-column gap-2">
+                  <div class="d-flex flex-wrap gap-3">
                     <div class="form-check">
                       <input
                         class="form-check-input"
@@ -4070,336 +4070,393 @@
                   </div>
                 </div>
 
-                <div class="col-12 col-md-8">
-                  <div class="row g-3">
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Ubicación"
-                          [(ngModel)]="mod.ubicacionLucesEspecificas"
-                          name="ubicacionLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted && !mod.ubicacionLucesEspecificas
-                          "
-                        />
-                        <label>UBICACIÓN</label>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Medidas"
-                          [(ngModel)]="mod.medidasLucesEspecificas"
-                          (ngModelChange)="
-                            onDimensionesChange(
-                              mod,
-                              'medidasLucesEspecificas',
-                              'anchuraPiezaMLucesEspecificas',
-                              'alturaPiezaMLucesEspecificas'
-                            )
-                          "
-                          name="medidasLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted && !mod.medidasLucesEspecificas
-                          "
-                        />
-                        <label>MEDIDAS (mm) (200x200...)</label>
-                      </div>
-                    </div>
+                <div class="col-12"><hr class="mod-sep" /></div>
 
-                    <div class="col-12"><hr class="mod-sep" /></div>
+                <div
+                  class="col-12 d-flex justify-content-between align-items-center"
+                >
+                  <h6 class="text-uppercase text-muted small fw-bold mb-0">
+                    Luces de trabajo específico
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-success btn-sm"
+                    (click)="anadirLuzEspecifica(mod)"
+                  >
+                    <i class="bi bi-plus-lg me-1"></i> AÑADIR LUZ
+                  </button>
+                </div>
 
-                    <div class="col-12">
-                      <h6
-                        class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                @if (
+                  !mod.lucesEspecificasItems ||
+                  mod.lucesEspecificasItems.length === 0
+                ) {
+                  <div class="col-12">
+                    <div class="text-muted small fst-italic">
+                      No hay luces añadidas.
+                    </div>
+                  </div>
+                }
+
+                @if (
+                  formSubmitted &&
+                  (!mod.lucesEspecificasItems ||
+                    mod.lucesEspecificasItems.length === 0)
+                ) {
+                  <div class="col-12">
+                    <div class="text-danger small">
+                      Añade al menos una luz.
+                    </div>
+                  </div>
+                }
+
+                @for (
+                  luzItem of mod.lucesEspecificasItems;
+                  track $index;
+                  let j = $index
+                ) {
+                  <div class="col-12">
+                    <div class="p-3 border bg-light position-relative">
+                      <span
+                        class="position-absolute top-0 end-0 badge bg-secondary rounded-0 m-2"
+                        >#{{ j + 1 }}</span
                       >
-                        Características de la Pieza
-                      </h6>
-                    </div>
+                      <div class="row g-3 pt-4">
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Ubicación"
+                              [(ngModel)]="luzItem.ubicacion"
+                              name="ubicacionLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !luzItem.ubicacion
+                              "
+                            />
+                            <label>UBICACIÓN</label>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Medidas"
+                              [(ngModel)]="luzItem.medidas"
+                              (ngModelChange)="
+                                onDimensionesChange(
+                                  luzItem,
+                                  'medidas',
+                                  'anchuraPiezaM',
+                                  'alturaPiezaM'
+                                )
+                              "
+                              name="medidasLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !luzItem.medidas
+                              "
+                            />
+                            <label>MEDIDAS (mm) (200x200...)</label>
+                          </div>
+                        </div>
 
-                    <div class="col-md-4">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          class="form-control"
-                          placeholder="Peso"
-                          [(ngModel)]="mod.pesoPiezaKgLucesEspecificas"
-                          name="pesoPiezaKgLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.pesoPiezaKgLucesEspecificas == null
-                          "
-                        />
-                        <label>PESO (Kg)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.001"
-                          min="0"
-                          class="form-control"
-                          placeholder="Ancho"
-                          [(ngModel)]="mod.anchuraPiezaMLucesEspecificas"
-                          name="anchuraPiezaMLucesEspecificas{{ i }}"
-                          required
-                          readonly
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.anchuraPiezaMLucesEspecificas == null
-                          "
-                        />
-                        <label>ANCHO (m)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.001"
-                          min="0"
-                          class="form-control"
-                          placeholder="Alto"
-                          [(ngModel)]="mod.alturaPiezaMLucesEspecificas"
-                          name="alturaPiezaMLucesEspecificas{{ i }}"
-                          required
-                          readonly
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.alturaPiezaMLucesEspecificas == null
-                          "
-                        />
-                        <label>ALTO (m)</label>
-                      </div>
-                    </div>
+                        <div class="col-12"><hr class="mod-sep" /></div>
 
-                    <div class="col-12"><hr class="mod-sep" /></div>
+                        <div class="col-12">
+                          <h6
+                            class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                          >
+                            Características de la Pieza
+                          </h6>
+                        </div>
 
-                    <div class="col-12">
-                      <h6
-                        class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
-                      >
-                        Sujeción
-                      </h6>
-                    </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="Peso"
+                              [(ngModel)]="luzItem.pesoPiezaKg"
+                              name="pesoPiezaKgLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && luzItem.pesoPiezaKg == null
+                              "
+                            />
+                            <label>PESO (Kg)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.001"
+                              min="0"
+                              class="form-control"
+                              placeholder="Ancho"
+                              [(ngModel)]="luzItem.anchuraPiezaM"
+                              name="anchuraPiezaMLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted && luzItem.anchuraPiezaM == null
+                              "
+                            />
+                            <label>ANCHO (m)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.001"
+                              min="0"
+                              class="form-control"
+                              placeholder="Alto"
+                              [(ngModel)]="luzItem.alturaPiezaM"
+                              name="alturaPiezaMLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              readonly
+                              [class.is-invalid]="
+                                formSubmitted && luzItem.alturaPiezaM == null
+                              "
+                            />
+                            <label>ALTO (m)</label>
+                          </div>
+                        </div>
 
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <select
-                          class="form-select"
-                          id="pgd-metricaLucesEspecificas-{{ i }}"
-                          [(ngModel)]="mod.metricaLucesEspecificas"
-                          (ngModelChange)="onMetricaChange(mod)"
-                          name="metricaLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted && mod.metricaLucesEspecificas == null
-                          "
-                        >
-                          <option [ngValue]="null" disabled>
-                            -- SELECCIONAR --
-                          </option>
-                          @for (num of metricasTornillos; track num) {
-                            <option [value]="num">{{ num }}</option>
-                          }
-                        </select>
-                        <label>MÉTRICA TORNILLOS</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          min="0"
-                          class="form-control"
-                          placeholder="Nº"
-                          [(ngModel)]="mod.nTornillosLucesEspecificas"
-                          name="nTornillosLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.nTornillosLucesEspecificas == null
-                          "
-                        />
-                        <label>Nº TORNILLOS</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Calidad"
-                          [(ngModel)]="mod.calidadTornilloLucesEspecificas"
-                          name="calidadTornilloLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            !mod.calidadTornilloLucesEspecificas
-                          "
-                        />
-                        <label>CALIDAD</label>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          class="form-control"
-                          placeholder="As"
-                          [(ngModel)]="mod.seccionResistenteAsLucesEspecificas"
-                          name="seccionResistenteAsLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.seccionResistenteAsLucesEspecificas == null
-                          "
-                        />
-                        <label>As (SECCIÓN)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-floating">
-                        <select
-                          class="form-select"
-                          id="estr-rest-{{ i }}"
-                          [(ngModel)]="
-                            mod.resTraccionMinTornillo88Kgmm2LucesEspecificas
-                          "
-                          name="resTraccionMinTornillo88Kgmm2LucesEspecificas{{
-                            i
-                          }}"
-                          required
-                        >
-                          <option [ngValue]="null" disabled>
-                            -- SELECCIONAR --
-                          </option>
-                          <option [ngValue]="80">80</option>
-                          <option [ngValue]="25">25</option>
-                        </select>
-                        <label>RES. TRACCIÓN MÍN.</label>
-                      </div>
-                    </div>
+                        <div class="col-12"><hr class="mod-sep" /></div>
 
-                    <div class="col-12"><hr class="mod-sep" /></div>
+                        <div class="col-12">
+                          <h6
+                            class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                          >
+                            Sujeción
+                          </h6>
+                        </div>
 
-                    <div class="col-12">
-                      <h6
-                        class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
-                      >
-                        Cálculo Resistencia (Presión Aire)
-                      </h6>
-                    </div>
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <select
+                              class="form-select"
+                              id="pgd-metricaLucesEspecificas-{{ i }}-{{ j }}"
+                              [(ngModel)]="luzItem.metrica"
+                              (ngModelChange)="
+                                onAerodynamicItemMetricaChange(luzItem)
+                              "
+                              name="metricaLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && luzItem.metrica == null
+                              "
+                            >
+                              <option [ngValue]="null" disabled>
+                                -- SELECCIONAR --
+                              </option>
+                              @for (num of metricasTornillos; track num) {
+                                <option [value]="num">{{ num }}</option>
+                              }
+                            </select>
+                            <label>MÉTRICA TORNILLOS</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              min="0"
+                              class="form-control"
+                              placeholder="Nº"
+                              [(ngModel)]="luzItem.nTornillos"
+                              name="nTornillosLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && luzItem.nTornillos == null
+                              "
+                            />
+                            <label>Nº TORNILLOS</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Calidad"
+                              [(ngModel)]="luzItem.calidadTornillo"
+                              name="calidadTornilloLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && !luzItem.calidadTornillo
+                              "
+                            />
+                            <label>CALIDAD</label>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="As"
+                              [(ngModel)]="luzItem.seccionResistenteAs"
+                              name="seccionResistenteAsLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                luzItem.seccionResistenteAs == null
+                              "
+                            />
+                            <label>As (SECCIÓN)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-floating">
+                            <select
+                              class="form-select"
+                              id="estr-rest-{{ i }}-{{ j }}"
+                              [(ngModel)]="
+                                luzItem.resTraccionMinTornillo88Kgmm2
+                              "
+                              name="resTraccionMinTornillo88Kgmm2LucesEspecificas{{
+                                i
+                              }}-{{ j }}"
+                              required
+                            >
+                              <option [ngValue]="null" disabled>
+                                -- SELECCIONAR --
+                              </option>
+                              <option [ngValue]="80">80</option>
+                              <option [ngValue]="25">25</option>
+                            </select>
+                            <label>RES. TRACCIÓN MÍN.</label>
+                          </div>
+                        </div>
 
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          class="form-control"
-                          placeholder="Cw"
-                          [(ngModel)]="mod.cwCoefAerodinamicoLucesEspecificas"
-                          name="cwCoefAerodinamicoLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.cwCoefAerodinamicoLucesEspecificas == null
-                          "
-                        />
-                        <label>Cw (COEF.)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.0001"
-                          min="0"
-                          class="form-control"
-                          placeholder="Densidad"
-                          [(ngModel)]="mod.densidadAireKgM3LucesEspecificas"
-                          name="densidadAireKgM3LucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.densidadAireKgM3LucesEspecificas == null
-                          "
-                        />
-                        <label>p (DENSIDAD)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          class="form-control"
-                          placeholder="V2"
-                          [(ngModel)]="mod.velocidadAireV2msLucesEspecificas"
-                          name="velocidadAireV2msLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.velocidadAireV2msLucesEspecificas == null
-                          "
-                        />
-                        <label>V₂ (m/s)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.001"
-                          min="0"
-                          class="form-control"
-                          placeholder="R"
-                          [(ngModel)]="mod.radioCurvaRLucesEspecificas"
-                          name="radioCurvaRLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.radioCurvaRLucesEspecificas == null
-                          "
-                        />
-                        <label>R (m)</label>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          class="form-control"
-                          placeholder="K"
-                          [(ngModel)]="mod.coefSeguridadKLucesEspecificas"
-                          name="coefSeguridadKLucesEspecificas{{ i }}"
-                          required
-                          [class.is-invalid]="
-                            formSubmitted &&
-                            mod.coefSeguridadKLucesEspecificas == null
-                          "
-                        />
-                        <label>K (SEGURIDAD)</label>
+                        <div class="col-12"><hr class="mod-sep" /></div>
+
+                        <div class="col-12">
+                          <h6
+                            class="text-uppercase text-muted small fw-bold border-bottom pb-1 mb-3"
+                          >
+                            Cálculo Resistencia (Presión Aire)
+                          </h6>
+                        </div>
+
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="Cw"
+                              [(ngModel)]="luzItem.cwCoefAerodinamico"
+                              name="cwCoefAerodinamicoLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                luzItem.cwCoefAerodinamico == null
+                              "
+                            />
+                            <label>Cw (COEF.)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.0001"
+                              min="0"
+                              class="form-control"
+                              placeholder="Densidad"
+                              [(ngModel)]="luzItem.densidadAireKgM3"
+                              name="densidadAireKgM3LucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                luzItem.densidadAireKgM3 == null
+                              "
+                            />
+                            <label>p (DENSIDAD)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="V2"
+                              [(ngModel)]="luzItem.velocidadAireV2ms"
+                              name="velocidadAireV2msLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted &&
+                                luzItem.velocidadAireV2ms == null
+                              "
+                            />
+                            <label>V₂ (m/s)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.001"
+                              min="0"
+                              class="form-control"
+                              placeholder="R"
+                              [(ngModel)]="luzItem.curvatura"
+                              name="radioCurvaRLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && luzItem.curvatura == null
+                              "
+                            />
+                            <label>R (m)</label>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              class="form-control"
+                              placeholder="K"
+                              [(ngModel)]="luzItem.coefSeguridadK"
+                              name="coefSeguridadKLucesEspecificas{{ i }}-{{ j }}"
+                              required
+                              [class.is-invalid]="
+                                formSubmitted && luzItem.coefSeguridadK == null
+                              "
+                            />
+                            <label>K (SEGURIDAD)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-12 text-end">
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            (click)="borrarLuzEspecifica(mod, j)"
+                          >
+                            <i class="bi bi-trash me-1"></i> ELIMINAR LUZ
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                }
               </div>
             </section>
           </div>

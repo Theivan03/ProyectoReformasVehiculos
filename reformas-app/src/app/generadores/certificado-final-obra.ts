@@ -30,6 +30,31 @@ interface ImageInfo {
   mimeType: string;
 }
 
+// Devuelve la lista de luces de trabajo específico. Usa el array nuevo
+// (lucesEspecificasItems) o reconstruye uno desde los campos planos antiguos.
+function resolveLucesEspecificasItems(mod: any): any[] {
+  // Si el array nuevo existe (aunque esté vacío) es la fuente de verdad.
+  if (Array.isArray(mod?.lucesEspecificasItems)) {
+    return mod.lucesEspecificasItems;
+  }
+
+  const hasLegacy =
+    mod?.ubicacionLucesEspecificas ||
+    mod?.medidasLucesEspecificas ||
+    mod?.pesoPiezaKgLucesEspecificas != null ||
+    mod?.metricaLucesEspecificas != null;
+
+  if (!hasLegacy) return [];
+
+  return [
+    {
+      ubicacion: mod.ubicacionLucesEspecificas,
+      medidas: mod.medidasLucesEspecificas,
+      curvatura: mod.radioCurvaRLucesEspecificas,
+    },
+  ];
+}
+
 export async function generarDocumentoFinalObra(data: any): Promise<void> {
   const ingeniero = data.ingenieroSeleccionado;
   const modificaciones: Modificacion[] = data.modificaciones;
@@ -502,11 +527,6 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 key: 'radioCurvaRAntiempotramiento',
               },
               {
-                nombreMod: 'SOPORTES PARA LUCES DE USO ESPECÍFICO',
-                etiqueta: 'Soporte para luces de uso específico',
-                key: 'radioCurvaRLucesEspecificas',
-              },
-              {
                 nombreMod: 'ESTRIBOS LATERALES O TALONERAS',
                 etiqueta: (m) =>
                   m?.detalle?.estribosotaloneras === 'taloneras'
@@ -604,6 +624,23 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
               'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES',
             );
 
+            const lucesEspecificasMod = findSelectedMod(
+              'SOPORTES PARA LUCES DE USO ESPECÍFICO',
+            );
+
+            const lucesEspecificasRows = resolveLucesEspecificasItems(
+              lucesEspecificasMod,
+            )
+              .map((item: any, index: number, arr: any[]) =>
+                buildCurvaturaRow(
+                  arr.length > 1
+                    ? `Soporte para luces de uso específico ${index + 1}`
+                    : 'Soporte para luces de uso específico',
+                  item?.curvatura,
+                ),
+              )
+              .filter((row): row is TableRow => row !== null);
+
             const claraboyaRows = (
               Array.isArray(claraboyaMod?.claraboyas)
                 ? claraboyaMod.claraboyas
@@ -673,6 +710,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                 .filter((row): row is TableRow => row !== null),
               ...claraboyaRows,
               ...placasRows,
+              ...lucesEspecificasRows,
               ...campoLibreRows,
             ];
 

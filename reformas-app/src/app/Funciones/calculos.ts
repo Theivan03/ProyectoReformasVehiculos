@@ -70,6 +70,45 @@ function getSeccionTensionPorMetrica(value: unknown): number {
   return SECCION_TENSION_POR_METRICA[metrica] ?? 0;
 }
 
+// Devuelve la lista de luces de uso específico de una modificación.
+// Si existe el array nuevo lo usa; si no, reconstruye un único item a partir
+// de los campos planos antiguos (compatibilidad con proyectos guardados).
+function resolveLucesEspecificasItems(mod: any): any[] {
+  // Si el array nuevo existe (aunque esté vacío) es la fuente de verdad.
+  if (Array.isArray(mod?.lucesEspecificasItems)) {
+    return mod.lucesEspecificasItems;
+  }
+
+  const hasLegacy =
+    mod?.ubicacionLucesEspecificas ||
+    mod?.medidasLucesEspecificas ||
+    mod?.pesoPiezaKgLucesEspecificas != null ||
+    mod?.metricaLucesEspecificas != null;
+
+  if (!hasLegacy) return [];
+
+  return [
+    {
+      ubicacion: mod.ubicacionLucesEspecificas,
+      medidas: mod.medidasLucesEspecificas,
+      pesoPiezaKg: mod.pesoPiezaKgLucesEspecificas,
+      anchuraPiezaM: mod.anchuraPiezaMLucesEspecificas,
+      alturaPiezaM: mod.alturaPiezaMLucesEspecificas,
+      metrica: mod.metricaLucesEspecificas,
+      nTornillos: mod.nTornillosLucesEspecificas,
+      calidadTornillo: mod.calidadTornilloLucesEspecificas,
+      seccionResistenteAs: mod.seccionResistenteAsLucesEspecificas,
+      resTraccionMinTornillo88Kgmm2:
+        mod.resTraccionMinTornillo88Kgmm2LucesEspecificas,
+      cwCoefAerodinamico: mod.cwCoefAerodinamicoLucesEspecificas,
+      densidadAireKgM3: mod.densidadAireKgM3LucesEspecificas,
+      velocidadAireV2ms: mod.velocidadAireV2msLucesEspecificas,
+      coefSeguridadK: mod.coefSeguridadKLucesEspecificas,
+      curvatura: mod.radioCurvaRLucesEspecificas,
+    },
+  ];
+}
+
 function pickFirstValue<T>(...values: T[]): T | null {
   return (
     values.find(
@@ -6914,8 +6953,7 @@ export async function buildCalculos(
           toFiniteNumber(aleron.anchuraAleron) ||
           medidasAleronParseadas.anchuraM,
         alturaPiezaM:
-          toFiniteNumber(aleron.alturaAleron) ||
-          medidasAleronParseadas.alturaM,
+          toFiniteNumber(aleron.alturaAleron) || medidasAleronParseadas.alturaM,
         superficieFrontalM2: toFiniteNumber(aleron.superficieFrontalM2Aleron),
         metrica: parseMetricaTornillo(aleron.metricaAleron),
         nTornillos: toPositiveInt(aleron.numTornillosAleron),
@@ -6927,8 +6965,7 @@ export async function buildCalculos(
           toFiniteNumber(aleron.resTraccionMinTornillo88Kgmm2Aleron) || 80,
         cwCoefAerodinamico:
           toFiniteNumber(aleron.coefAerodinamicoCwAleron) || 0.82,
-        densidadAireKgM3:
-          toFiniteNumber(aleron.densidadAireKgM3Aleron) || 1.29,
+        densidadAireKgM3: toFiniteNumber(aleron.densidadAireKgM3Aleron) || 1.29,
         velocidadAireV2ms:
           toFiniteNumber(aleron.velocidadAireV2msAleron) || 38.89,
         coefSeguridadK: toFiniteNumber(aleron.coefSeguridadKAleron) || 3,
@@ -6937,8 +6974,9 @@ export async function buildCalculos(
       contador++;
     }
 
-    const snorkel =
-      modificaciones.find((m) => m.nombre === 'SNORKEL' && m.seleccionado)!;
+    const snorkel = modificaciones.find(
+      (m) => m.nombre === 'SNORKEL' && m.seleccionado,
+    )!;
     // Legacy block kept disabled while the common aerodynamic helper drives output.
     if (false && snorkel) {
       out.push(new Paragraph({ text: '' }));
@@ -7367,7 +7405,8 @@ export async function buildCalculos(
           toFiniteNumber(snorkelCalc.seccionResistenteAsSnorkel) ||
           getAreaResistentePorMetrica(snorkelCalc.metricaSnorkel),
         resTraccionMinTornillo88Kgmm2:
-          toFiniteNumber(snorkelCalc.resTraccionMinTornillo88Kgmm2Snorkel) || 80,
+          toFiniteNumber(snorkelCalc.resTraccionMinTornillo88Kgmm2Snorkel) ||
+          80,
         cwCoefAerodinamico:
           toFiniteNumber(snorkelCalc.cwCoefAerodinamicoSnorkel) || 0.82,
         densidadAireKgM3:
@@ -7418,7 +7457,8 @@ export async function buildCalculos(
           38.89,
         coefSeguridadK:
           toFiniteNumber(lipDelanteroCalc.coefSeguridadKLipDelantero) || 3,
-        curvatura: toFiniteNumber(lipDelanteroCalc.radioCurvaRLipDelantero) || 8,
+        curvatura:
+          toFiniteNumber(lipDelanteroCalc.radioCurvaRLipDelantero) || 8,
       });
       contador++;
     }
@@ -7511,9 +7551,7 @@ export async function buildCalculos(
 
       appendAerodynamicCalculationSection(out, contador, {
         title: 'Luces de largo alcance',
-        pesoPiezaKg: toFiniteNumber(
-          lucesLargoAlcance.pesoPiezaKgLargoAlcance,
-        ),
+        pesoPiezaKg: toFiniteNumber(lucesLargoAlcance.pesoPiezaKgLargoAlcance),
         anchuraPiezaM:
           toFiniteNumber(lucesLargoAlcance.anchuraPiezaMLargoAlcance) ||
           medidasLargoAlcanceParseadas.anchuraM,
@@ -7566,7 +7604,8 @@ export async function buildCalculos(
           medidasPeldanosParseadas.alturaM,
         metrica: parseMetricaTornillo(peldanos.metricaPeldanos),
         nTornillos: toPositiveInt(peldanos.nTornillosPeldanos),
-        calidadTornillo: toFiniteNumber(peldanos.calidadTornilloPeldanos) || 8.8,
+        calidadTornillo:
+          toFiniteNumber(peldanos.calidadTornilloPeldanos) || 8.8,
         seccionResistenteAs:
           toFiniteNumber(peldanos.seccionResistenteAsPeldanos) ||
           getAreaResistentePorMetrica(peldanos.metricaPeldanos),
@@ -7578,8 +7617,7 @@ export async function buildCalculos(
           toFiniteNumber(peldanos.densidadAireKgM3Peldanos) || 1.29,
         velocidadAireV2ms:
           toFiniteNumber(peldanos.velocidadAireV2msPeldanos) || 38.89,
-        coefSeguridadK:
-          toFiniteNumber(peldanos.coefSeguridadKPeldanos) || 3,
+        coefSeguridadK: toFiniteNumber(peldanos.coefSeguridadKPeldanos) || 3,
         curvatura: toFiniteNumber(peldanos.radioCurvaRPeldanos) || 8,
       });
       contador++;
@@ -8316,60 +8354,34 @@ export async function buildCalculos(
         m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado,
     );
     if (soporteslucesespecificas) {
-      appendAerodynamicCalculationSection(out, contador, {
-        title: 'Soporte faros de trabajo',
-        pesoPiezaKg: toFiniteNumber(
-          soporteslucesespecificas.pesoPiezaKgLucesEspecificas,
-        ),
-        anchuraPiezaM: toFiniteNumber(
-          soporteslucesespecificas.anchuraPiezaMLucesEspecificas,
-        ),
-        alturaPiezaM: toFiniteNumber(
-          soporteslucesespecificas.alturaPiezaMLucesEspecificas,
-        ),
-        metrica: parseMetricaTornillo(
-          soporteslucesespecificas.metricaLucesEspecificas,
-        ),
-        nTornillos: toPositiveInt(
-          soporteslucesespecificas.nTornillosLucesEspecificas,
-        ),
-        calidadTornillo:
-          toFiniteNumber(
-            soporteslucesespecificas.calidadTornilloLucesEspecificas,
-          ) || 8.8,
-        seccionResistenteAs:
-          toFiniteNumber(
-            soporteslucesespecificas.seccionResistenteAsLucesEspecificas,
-          ) ||
-          getAreaResistentePorMetrica(
-            soporteslucesespecificas.metricaLucesEspecificas,
-          ),
-        resTraccionMinTornillo88Kgmm2:
-          toFiniteNumber(
-            soporteslucesespecificas.resTraccionMinTornillo88Kgmm2LucesEspecificas,
-          ) || 80,
-        cwCoefAerodinamico:
-          toFiniteNumber(
-            soporteslucesespecificas.cwCoefAerodinamicoLucesEspecificas,
-          ) || 0.82,
-        densidadAireKgM3:
-          toFiniteNumber(
-            soporteslucesespecificas.densidadAireKgM3LucesEspecificas,
-          ) || 1.29,
-        velocidadAireV2ms:
-          toFiniteNumber(
-            soporteslucesespecificas.velocidadAireV2msLucesEspecificas,
-          ) || 38.89,
-        coefSeguridadK:
-          toFiniteNumber(
-            soporteslucesespecificas.coefSeguridadKLucesEspecificas,
-          ) || 3,
-        curvatura:
-          toFiniteNumber(
-            soporteslucesespecificas.radioCurvaRLucesEspecificas,
-          ) || 8,
+      const lucesItems = resolveLucesEspecificasItems(soporteslucesespecificas);
+      lucesItems.forEach((item: any, index: number) => {
+        const title =
+          lucesItems.length > 1
+            ? `Luces de uso específico ${index + 1}`
+            : 'Luces de uso específico';
+
+        appendAerodynamicCalculationSection(out, contador, {
+          title,
+          pesoPiezaKg: toFiniteNumber(item?.pesoPiezaKg),
+          anchuraPiezaM: toFiniteNumber(item?.anchuraPiezaM),
+          alturaPiezaM: toFiniteNumber(item?.alturaPiezaM),
+          metrica: parseMetricaTornillo(item?.metrica),
+          nTornillos: toPositiveInt(item?.nTornillos),
+          calidadTornillo: toFiniteNumber(item?.calidadTornillo) || 8.8,
+          seccionResistenteAs:
+            toFiniteNumber(item?.seccionResistenteAs) ||
+            getAreaResistentePorMetrica(item?.metrica),
+          resTraccionMinTornillo88Kgmm2:
+            toFiniteNumber(item?.resTraccionMinTornillo88Kgmm2) || 80,
+          cwCoefAerodinamico: toFiniteNumber(item?.cwCoefAerodinamico) || 0.82,
+          densidadAireKgM3: toFiniteNumber(item?.densidadAireKgM3) || 1.29,
+          velocidadAireV2ms: toFiniteNumber(item?.velocidadAireV2ms) || 38.89,
+          coefSeguridadK: toFiniteNumber(item?.coefSeguridadK) || 3,
+          curvatura: toFiniteNumber(item?.curvatura) || 8,
+        });
+        contador++;
       });
-      contador++;
     }
 
     const antiempotramiento = modificaciones.find(

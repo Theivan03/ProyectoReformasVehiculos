@@ -11,6 +11,31 @@ import {
 } from 'docx';
 import { Modificacion } from '../interfaces/modificacion';
 
+// Devuelve la lista de luces de trabajo específico. Usa el array nuevo
+// (lucesEspecificasItems) o reconstruye uno desde los campos planos antiguos.
+function resolveLucesEspecificasItems(mod: any): any[] {
+  // Si el array nuevo existe (aunque esté vacío) es la fuente de verdad.
+  if (Array.isArray(mod?.lucesEspecificasItems)) {
+    return mod.lucesEspecificasItems;
+  }
+
+  const hasLegacy =
+    mod?.ubicacionLucesEspecificas ||
+    mod?.medidasLucesEspecificas ||
+    mod?.pesoPiezaKgLucesEspecificas != null ||
+    mod?.metricaLucesEspecificas != null;
+
+  if (!hasLegacy) return [];
+
+  return [
+    {
+      ubicacion: mod.ubicacionLucesEspecificas,
+      medidas: mod.medidasLucesEspecificas,
+      curvatura: mod.radioCurvaRLucesEspecificas,
+    },
+  ];
+}
+
 export function buildModificacionesParagraphs(
   modificaciones: Modificacion[],
   data: any,
@@ -684,17 +709,20 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       m.nombre === 'SOPORTES PARA LUCES DE USO ESPECÍFICO' && m.seleccionado,
   );
   if (soporteslucesespecificas) {
+    const lucesItems = resolveLucesEspecificasItems(soporteslucesespecificas);
     soporteslucesespecificas.acciones?.forEach((accion: string) => {
-      const raw = `- ${accion} de soporte para luces de uso específico en condiciones reglamentarias ${soporteslucesespecificas.ubicacionLucesEspecificas}, fabricado en acero de medidas ${soporteslucesespecificas.medidasLucesEspecificas} mm.`;
+      lucesItems.forEach((item: any) => {
+        const raw = `- ${accion} de soporte para luces de uso específico en condiciones reglamentarias ${item?.ubicacion ?? ''}, fabricado en acero de medidas ${item?.medidas ?? ''} mm.`;
 
-      const p = new Paragraph({
-        spacing: { line: 260, after: 120 },
-        indent: { left: 400 },
-        children: [new TextRun({ text: raw })],
+        const p = new Paragraph({
+          spacing: { line: 260, after: 120 },
+          indent: { left: 400 },
+          children: [new TextRun({ text: raw })],
+        });
+
+        (p as any)._rawText = raw;
+        out.push(p);
       });
-
-      (p as any)._rawText = raw;
-      out.push(p);
     });
   }
 

@@ -47,6 +47,33 @@ interface PlanoMarker {
   label: string;
 }
 
+// Devuelve la lista de luces de trabajo específico. Usa el array nuevo
+// (lucesEspecificasItems) o reconstruye uno desde los campos planos antiguos.
+function resolveLucesEspecificasItems(mod: any): any[] {
+  if (
+    Array.isArray(mod?.lucesEspecificasItems) &&
+    mod.lucesEspecificasItems.length > 0
+  ) {
+    return mod.lucesEspecificasItems;
+  }
+
+  const hasLegacy =
+    mod?.ubicacionLucesEspecificas ||
+    mod?.medidasLucesEspecificas ||
+    mod?.pesoPiezaKgLucesEspecificas != null ||
+    mod?.metricaLucesEspecificas != null;
+
+  if (!hasLegacy) return [];
+
+  return [
+    {
+      ubicacion: mod.ubicacionLucesEspecificas,
+      medidas: mod.medidasLucesEspecificas,
+      curvatura: mod.radioCurvaRLucesEspecificas,
+    },
+  ];
+}
+
 export function keepTableTogether(table: Table): Table {
   const tableOptions = (table as any).options || {};
   const tableRows: TableRow[] = tableOptions.rows || [];
@@ -1963,11 +1990,6 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 key: 'radioCurvaRAntiempotramiento',
               },
               {
-                nombreMod: 'SOPORTES PARA LUCES DE USO ESPECÍFICO',
-                etiqueta: 'Soporte para luces de uso específico',
-                key: 'radioCurvaRLucesEspecificas',
-              },
-              {
                 nombreMod: 'ESTRIBOS LATERALES O TALONERAS',
                 etiqueta: (m) =>
                   m?.detalle?.estribosotaloneras === 'taloneras'
@@ -2065,6 +2087,10 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES',
             );
 
+            const lucesEspecificasMod = findSelectedMod(
+              'SOPORTES PARA LUCES DE USO ESPECÍFICO',
+            );
+
             const claraboyaRows = (
               Array.isArray(claraboyaMod?.claraboyas)
                 ? claraboyaMod.claraboyas
@@ -2075,6 +2101,19 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                   item?.modelo
                     ? `Claraboya ${item.modelo}`
                     : `Claraboya ${index + 1}`,
+                  item?.curvatura,
+                ),
+              )
+              .filter((row): row is TableRow => row !== null);
+
+            const lucesEspecificasRows = resolveLucesEspecificasItems(
+              lucesEspecificasMod,
+            )
+              .map((item: any, index: number, arr: any[]) =>
+                buildCurvaturaRow(
+                  arr.length > 1
+                    ? `Soporte para luces de uso específico ${index + 1}`
+                    : 'Soporte para luces de uso específico',
                   item?.curvatura,
                 ),
               )
@@ -2133,6 +2172,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
                 .filter((row): row is TableRow => row !== null),
               ...claraboyaRows,
               ...placasRows,
+              ...lucesEspecificasRows,
               ...campoLibreRows,
             ];
 
