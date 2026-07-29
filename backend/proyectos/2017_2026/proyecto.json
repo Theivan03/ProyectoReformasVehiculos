@@ -1,10 +1,6 @@
 {
-  "tipoVehiculo": "coche",
+  "tipoVehiculo": "camper",
   "modificaciones": [
-    {
-      "nombre": "3ª LUZ DE FRENO",
-      "seleccionado": false
-    },
     {
       "nombre": "ALERÓN",
       "seleccionado": false
@@ -22,15 +18,20 @@
       "seleccionado": false
     },
     {
+      "nombre": "ANTENA",
+      "seleccionado": false
+    },
+    {
       "nombre": "ANTIEMPOTRAMIENTO",
       "seleccionado": false
     },
     {
-      "nombre": "ANTINIEBLA",
-      "seleccionado": false
+      "nombre": "AUMENTO O DISMINUCIÓN DE PLAZAS",
+      "seleccionado": false,
+      "tipoCambio": null
     },
     {
-      "nombre": "AUMENTO DE PLAZAS",
+      "nombre": "BANQUETA",
       "seleccionado": false
     },
     {
@@ -54,6 +55,10 @@
       "seleccionado": false
     },
     {
+      "nombre": "BOMBA DE AGUA",
+      "seleccionado": false
+    },
+    {
       "nombre": "CABRESTANTE",
       "seleccionado": false
     },
@@ -62,8 +67,16 @@
       "seleccionado": false
     },
     {
+      "nombre": "CALEFACCIÓN ESTACIONARIA",
+      "seleccionado": false
+    },
+    {
       "nombre": "CAMBIO DE ASIENTOS",
       "seleccionado": false
+    },
+    {
+      "nombre": "CAMBIO DE CLASIFICACIÓN",
+      "seleccionado": true
     },
     {
       "nombre": "CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES",
@@ -75,7 +88,19 @@
       "seleccionado": false
     },
     {
+      "nombre": "CLARABOYA",
+      "seleccionado": false
+    },
+    {
       "nombre": "DEFENSA DELANTERA",
+      "seleccionado": false
+    },
+    {
+      "nombre": "DEPÓSITO DE AGUA LIMPIA",
+      "seleccionado": false
+    },
+    {
+      "nombre": "DEPÓSITO DE AGUA SUCIA",
       "seleccionado": false
     },
     {
@@ -83,39 +108,56 @@
       "seleccionado": false
     },
     {
-      "nombre": "DIURNAS",
-      "seleccionado": false
+      "nombre": "DUCHA EXTERIOR",
+      "seleccionado": false,
+      "anotacion": false
+    },
+    {
+      "nombre": "ENGANCHE REMOLQUE",
+      "seleccionado": false,
+      "enEmplazamientoOriginalEnganche": true,
+      "contrasenaEnganche": "a",
+      "mmrEnganche": 50,
+      "marcaEnganche": "a",
+      "claseEnganche": "a",
+      "accionEnganche": "Sustitución",
+      "tipoEnganche": "x",
+      "mmrSinFrenoEnganche": 500,
+      "mmrConFrenoEnganche": 500,
+      "datosTecnicosDEnganche": 600,
+      "datosTecnicosSEnganche": 600,
+      "llevaBolaEnganche": true,
+      "marcaBolaEnganche": "1",
+      "tipoBolaEnganche": "2",
+      "claseBolaEnganche": "3",
+      "contrasenaBolaEnganche": "4",
+      "mmrSinFrenoBolaEnganche": 5,
+      "mmrConFrenoBolaEnganche": 6,
+      "datosTecnicosDBolaEnganche": 7,
+      "datosTecnicosSBolaEnganche": 8
     },
     {
       "nombre": "ESTRIBOS LATERALES O TALONERAS",
       "seleccionado": false,
       "detalle": {
-        "estribosotaloneras": "taloneras",
+        "estribosotaloneras": false,
         "anotacionAntideslizante": "2"
-      },
-      "coefAerodinamicoEstribos": 0.82,
-      "calidadTornilloEstribos": 8.8,
-      "seccionResistenteAsEstribos": 48.15,
-      "resTraccionMinTornillo88Kgmm2Estribos": 80,
-      "densidadAireKgM3Estribos": 1.29,
-      "velocidadAireV2msEstribos": 38.89,
-      "radioCurvaREstribos": 8,
-      "coefSeguridadKEstribos": 3,
-      "acciones": [
-        "Instalación"
-      ],
-      "marcataloneras": "a",
-      "materialEstribos": "acero",
-      "dimensionesTaloneras": "200x200",
-      "anchuraMEstribos": 0.2,
-      "alturaMEstribos": 0.2,
-      "pesoPiezaKgEstribos": 4,
-      "metricaTalonera": "9",
-      "nTornillosEstribos": 4
+      }
     },
     {
-      "nombre": "FAROS DELANTEROS PRINCIPALES",
+      "nombre": "INSTALACIÓN DE BASES GIRATORIAS",
       "seleccionado": false
+    },
+    {
+      "nombre": "INSTALACIÓN DE TERMO",
+      "seleccionado": false,
+      "anotacion": false
+    },
+    {
+      "nombre": "INSTALACIÓN ELÉCTRICA",
+      "seleccionado": false,
+      "anotacion": false,
+      "placasSolares": []
     },
     {
       "nombre": "INTERCOOLER",
@@ -123,12 +165,21 @@
     },
     {
       "nombre": "INTERMITENTES",
-      "seleccionado": false,
+      "seleccionado": true,
       "detalle": {
-        "interDelantero": false,
-        "interTrasero": false,
+        "interDelantero": true,
+        "interTrasero": true,
         "interLateral": false
-      }
+      },
+      "acciones": [
+        "Sustitución"
+      ],
+      "marcaintermitenteDelantero": "1",
+      "marcajesintermitenteDelantero": "2",
+      "homologacionintermitenteDelantero": "3",
+      "marcaintermitenteTrasero": "5",
+      "marcajesintermitenteTrasero": "4",
+      "homologacionintermitenteTrasero": "6"
     },
     {
       "nombre": "LATIGUILLOS",
@@ -168,6 +219,15 @@
       }
     },
     {
+      "nombre": "MOBILIARIO INTERIOR VEHÍCULO",
+      "seleccionado": false,
+      "opcionesMueble": {
+        "muebleBajo": false,
+        "muebleAlto": false,
+        "aseo": false
+      }
+    },
+    {
       "nombre": "MOTOR",
       "seleccionado": false
     },
@@ -183,75 +243,18 @@
     },
     {
       "nombre": "PARAGOLPES DELANTERO",
-      "seleccionado": false,
-      "seccionResistenteAsParagolpesDelantero": 48.15,
-      "resTraccionMinTornillo88Kgmm2ParagolpesDelantero": 80,
-      "cwCoefAerodinamicoParagolpesDelantero": 0.82,
-      "densidadAireKgM3ParagolpesDelantero": 1.29,
-      "velocidadAireV2msParagolpesDelantero": 38.89,
-      "radioCurvaRParagolpesDelantero": 8,
-      "coefSeguridadKParagolpesDelantero": 3,
-      "detalle": {
-        "aletines": false,
-        "sobrealetines": false
-      },
-      "calidadTornilloParagolpesDelantero": 8.8,
-      "tipoFabricacionParagolpesDelantero": "artesanal",
-      "medidasParagolpesDelantero": "200x200",
-      "superficieFrontalM2ParagolpesDelantero": 0.04,
-      "metricaParaDelantero": 9,
-      "ntornillosParaDelantero": 4,
-      "pesoPiezaKgParagolpesDelantero": 4,
-      "acciones": [
-        "Instalación"
-      ]
+      "seleccionado": false
     },
     {
       "nombre": "PARAGOLPES TRASERO",
-      "seleccionado": false,
-      "calidadTornilloParagolpesTrasero": 8.8,
-      "seccionResistenteAsParagolpesTrasero": 14.19,
-      "resTraccionMinTornillo88Kgmm2ParagolpesTrasero": 80,
-      "coefAerodinamicoParagolpesTrasero": 0.82,
-      "densidadAireKgM3ParagolpesTrasero": 1.29,
-      "velocidadAireV2msParagolpesTrasero": 38.89,
-      "radioCurvaRParagolpesTrasero": 8,
-      "coefSeguridadKParagolpesTrasero": 3,
-      "detalle": {
-        "aletines": false,
-        "sobrealetines": false
-      },
-      "acciones": [
-        "Instalación"
-      ],
-      "tipoFabricacionParagolpesTrasero": "artesanal",
-      "medidasParagolpesTrasero": "200x200",
-      "anchuraMParagolpesTrasero": 0.2,
-      "alturaMParagolpesTrasero": 0.2,
-      "metricaParaTrasero": "5",
-      "nTornillosParagolpesTrasero": 4,
-      "pesoPiezaKgParagolpesTrasero": 4
+      "seleccionado": false
     },
     {
       "nombre": "PELDAÑOS",
       "seleccionado": false
     },
     {
-      "nombre": "PILOTO TRASERO",
-      "seleccionado": false,
-      "detalle": {
-        "luzPosicionFreno": false,
-        "intermitente": false,
-        "marchaAtras": false,
-        "catadioptrico": false
-      }
-    },
-    {
       "nombre": "PLANCHA CAPÓ",
-      "seleccionado": false
-    },
-    {
-      "nombre": "PROTECTORES PARAGOLPES",
       "seleccionado": false
     },
     {
@@ -263,19 +266,11 @@
       "seleccionado": false
     },
     {
-      "nombre": "REDUCCIÓN DE PLAZAS",
+      "nombre": "REGISTRO DE LLENADO DE AGUA",
       "seleccionado": false
     },
     {
-      "nombre": "REFUERZO PARAGOLPES",
-      "seleccionado": false
-    },
-    {
-      "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO NO HOMOLOGADO",
-      "seleccionado": false
-    },
-    {
-      "nombre": "REMOLQUE HOMOLOGADO EN EMPLAZAMIENTO TAMBIÉN HOMOLOGADO",
+      "nombre": "REVESTIMIENTO INTERIOR",
       "seleccionado": false
     },
     {
@@ -292,65 +287,11 @@
     },
     {
       "nombre": "SOPORTES PARA LUCES DE USO ESPECÍFICO",
-      "seleccionado": true,
-      "calidadTornilloLucesEspecificas": 8.8,
-      "seccionResistenteAsLucesEspecificas": 115.52,
-      "resTraccionMinTornillo88Kgmm2LucesEspecificas": 80,
-      "cwCoefAerodinamicoLucesEspecificas": 0.82,
-      "densidadAireKgM3LucesEspecificas": 1.29,
-      "velocidadAireV2msLucesEspecificas": 38.89,
-      "radioCurvaRLucesEspecificas": 8,
-      "coefSeguridadKLucesEspecificas": 3,
-      "detalle": {
-        "aletines": false,
-        "sobrealetines": false
-      },
-      "acciones": [
-        "Instalación"
-      ],
-      "ubicacionLucesEspecificas": "a",
-      "medidasLucesEspecificas": "200x202",
-      "anchuraPiezaMLucesEspecificas": 0.2,
-      "alturaPiezaMLucesEspecificas": 0.202,
-      "pesoPiezaKgLucesEspecificas": 4,
-      "metricaLucesEspecificas": "14",
-      "nTornillosLucesEspecificas": 3,
-      "lucesEspecificasItems": [
-        {
-          "ubicacion": "a",
-          "medidas": "200x202",
-          "pesoPiezaKg": 4,
-          "anchuraPiezaM": 0.2,
-          "alturaPiezaM": 0.202,
-          "metrica": "14",
-          "nTornillos": 3,
-          "calidadTornillo": 8.8,
-          "seccionResistenteAs": 115.52,
-          "resTraccionMinTornillo88Kgmm2": 80,
-          "cwCoefAerodinamico": 0.82,
-          "densidadAireKgM3": 1.29,
-          "velocidadAireV2ms": 38.89,
-          "coefSeguridadK": 3,
-          "curvatura": 8
-        },
-        {
-          "ubicacion": "q",
-          "medidas": "300x300",
-          "pesoPiezaKg": 6,
-          "anchuraPiezaM": 0.3,
-          "alturaPiezaM": 0.3,
-          "metrica": "11",
-          "nTornillos": 5,
-          "calidadTornillo": 8.8,
-          "seccionResistenteAs": 72.32,
-          "resTraccionMinTornillo88Kgmm2": 80,
-          "cwCoefAerodinamico": 0.82,
-          "densidadAireKgM3": 1.29,
-          "velocidadAireV2ms": 38.89,
-          "coefSeguridadK": 3,
-          "curvatura": 8
-        }
-      ]
+      "seleccionado": false
+    },
+    {
+      "nombre": "SUSTITUCIÓN DE BANQUETA DE ASIENTOS POR ASIENTO INDIVIDUAL",
+      "seleccionado": false
     },
     {
       "nombre": "SUSTITUCIÓN DE DISCOS DE FRENO",
@@ -370,6 +311,10 @@
     },
     {
       "nombre": "SUSTITUCIÓN DE VOLANTE",
+      "seleccionado": false
+    },
+    {
+      "nombre": "TECHO ELEVABLE",
       "seleccionado": false
     },
     {
@@ -394,20 +339,28 @@
       }
     },
     {
-      "nombre": "VENTANA ABATIBLE",
+      "nombre": "TOLDO",
       "seleccionado": false
     },
     {
-      "nombre": "VENTANA LATERAL",
+      "nombre": "TOMA EXTERIOR 230V",
+      "seleccionado": false
+    },
+    {
+      "nombre": "VENTANA",
+      "seleccionado": false
+    },
+    {
+      "nombre": "VENTANA ABATIBLE",
       "seleccionado": false
     }
   ],
   "marcadores": [
     {
-      "x": 0.370583038869258,
-      "y": 0.3377186794582393,
+      "x": 0.4137661627407321,
+      "y": 0.4583563372505718,
       "label": "1",
-      "etiqueta": "SOPORTES PARA LUCES DE USO ESPECÍFICO",
+      "etiqueta": "CAMBIO DE CLASIFICACIÓN",
       "labelIndex": 0
     }
   ],
@@ -541,7 +494,7 @@
   "asientosDelanterosControlMasas": null,
   "asientos2FilaControlMasas": null,
   "asientos3FilaControlMasas": null,
-  "cargaUtilTotal": -75,
+  "cargaUtilTotal": -150,
   "distanciaEntreEjes": 0,
   "ocupantesAdicionales": 0,
   "cdgconductor": 0,

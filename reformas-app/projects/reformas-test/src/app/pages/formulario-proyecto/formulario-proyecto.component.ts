@@ -412,7 +412,10 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
     const totalKgOcupAdicionales = ocupantesAdicionales * PESO_OCUPANTE;
 
     const masaRealTotal = taraTotal + PESO_OCUPANTE;
-    const cargaUtilTotal = mma - masaRealTotal - totalKgOcupAdicionales;
+    // Se descuenta también el peso del conductor (75 kg) de la carga útil para
+    // que el valor mostrado no incluya este peso.
+    const cargaUtilTotal =
+      mma - masaRealTotal - totalKgOcupAdicionales - PESO_OCUPANTE;
 
     const repartirPorEjes = (pesoTotal: number, distanciaCDG: number) => {
       if (!distanciaEntreEjes) return { del: pesoTotal, tras: 0 };
@@ -509,10 +512,12 @@ export class FormularioProyectoComponent implements OnChanges, OnInit {
         : n(this.datos.taraTotal);
     const masaRealTotal = taraTotal + 75;
     const totalKgOcupAdicionales = n(this.datos.ocupantesAdicionales) * 75;
+    // Se descuenta también el peso del conductor (75 kg) de la carga útil
     this.datos.cargaUtilTotal =
       this.getControlMasasNumber('mmaControlMasas', 'mmaDespues') -
       masaRealTotal -
-      totalKgOcupAdicionales;
+      totalKgOcupAdicionales -
+      75;
 
     // Validaciones reglamentarias informativas
     this.comprobarCondicionesCarga();

@@ -7628,8 +7628,15 @@ export async function buildCalculos(
     );
     if (claraboya && Array.isArray(claraboya.claraboyas)) {
       claraboya.claraboyas.forEach((item, index) => {
+        const detalleClaraboya = [item?.marca, item?.medidas]
+          .map((v) => (v ?? '').toString().trim())
+          .filter(Boolean)
+          .join(' ');
+        const tituloClaraboya = detalleClaraboya
+          ? `Claraboya ${detalleClaraboya}`
+          : `Claraboya ${index + 1}`;
         appendAerodynamicCalculationSection(out, contador, {
-          title: `Claraboya ${index + 1}`,
+          title: tituloClaraboya,
           pesoPiezaKg: toFiniteNumber(item?.pesoPiezaKg),
           anchuraPiezaM: toFiniteNumber(item?.anchuraPiezaM),
           alturaPiezaM: toFiniteNumber(item?.alturaPiezaM),

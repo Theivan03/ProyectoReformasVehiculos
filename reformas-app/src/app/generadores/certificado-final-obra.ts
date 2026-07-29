@@ -149,7 +149,7 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
                       new TextRun({
                         text: 'CERTIFICADO FINAL DE OBRA POR REFORMA DE UN VEHÍCULO',
                         bold: true,
-                        size: 16,
+                        size: 14,
                       }),
                     ],
                   }),
@@ -875,6 +875,56 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
               })
               .filter((row): row is TableRow => row !== null);
 
+            // Reformas no contempladas (CAMPO LIBRE) con radio de curvatura
+            const campoLibreModMoto = modificaciones.find(
+              (m) =>
+                m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' &&
+                m.seleccionado,
+            );
+            const campoLibreRowsMoto = (
+              Array.isArray(campoLibreModMoto?.reformasAdicionalesItems)
+                ? campoLibreModMoto.reformasAdicionalesItems
+                : []
+            )
+              .map((item: any, index: number) => {
+                if (!item?.tieneCurvatura) return null;
+                if (
+                  item?.curvatura === undefined ||
+                  item?.curvatura === null ||
+                  item?.curvatura === ''
+                )
+                  return null;
+                const titulo = (item?.titulo ?? '').toString().trim();
+                const etiqueta = titulo || `Reforma adicional ${index + 1}`;
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 200, bottom: 200, left: 200, right: 200 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(item.curvatura))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null);
+
+            dataRows.push(...campoLibreRowsMoto);
+
             if (dataRows.length === 0) {
               return [];
             }
@@ -1599,7 +1649,8 @@ export async function generarDocumentoFinalObra(data: any): Promise<void> {
           },
           paragraph: {
             spacing: {
-              line: 360,
+              // Mismo interlineado que el documento de proyecto (260).
+              line: 260,
             },
           },
         },

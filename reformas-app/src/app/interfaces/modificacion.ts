@@ -27,6 +27,13 @@ export interface ClaraboyaItem {
   curvatura?: number;
 }
 
+export interface InversorItem {
+  marca?: string;
+  potencia?: string;
+  homologacion?: string;
+  ubicacion?: string;
+}
+
 export interface PlacaSolarItem {
   marca?: string;
   modelo?: string;
@@ -74,12 +81,15 @@ export interface VentanaItem {
   dimensiones?: string;
   descripcion?: string;
   homologacion?: string;
+  tipoApertura?: 'corredera' | 'abatible';
 }
 
 export interface ReformaAdicionalItem {
   titulo?: string;
   descripcion?: string;
   curvatura?: number;
+  tieneCurvatura?: boolean;
+  tipoReforma?: 'Instalación' | 'Sustitución' | 'Desinstalación';
 }
 
 export interface MuebleBajoItem {
@@ -124,27 +134,18 @@ export interface ReformaCampoCompartidoDefinicion {
 export const REFORMA_CAMPOS_COMPARTIDOS: readonly ReformaCampoCompartidoDefinicion[] =
   [
     {
+      // Cada claraboya debe poder tener información distinta (marca, modelo,
+      // medidas, cálculos...). Por eso no se comparte ningún campo entre las
+      // distintas claraboyas de la misma reforma.
       grupo: 'claraboya',
-      campos: [
-        'marca',
-        'modelo',
-        'descripcion',
-        'homologacion',
-        'medidas',
-        'pesoPiezaKg',
-        'metrica',
-        'nTornillos',
-        'resTraccionMinTornillo88Kgmm2',
-        'cwCoefAerodinamico',
-        'densidadAireKgM3',
-        'velocidadAireV2ms',
-        'coefSeguridadK',
-        'curvatura',
-      ],
+      campos: [],
     },
     {
+      // Cada ventana debe poder tener información distinta (marca, modelo,
+      // dimensiones, tipo de apertura...). Igual que en las claraboyas, no se
+      // comparte ningún campo entre las distintas ventanas de la reforma.
       grupo: 'ventana',
-      campos: ['homologacion', 'marca', 'modelo', 'dimensiones', 'descripcion'],
+      campos: [],
     },
     {
       grupo: 'placaSolar',
@@ -173,7 +174,6 @@ export const REFORMA_CAMPOS_COMPARTIDOS: readonly ReformaCampoCompartidoDefinici
       grupo: 'muebleBajo',
       campos: [
         'ubicacionMuebleBajo',
-        'configuracionMuebleBajo',
         'pesoMuebleBajo',
         'tornillosMuebleBajo',
         'metricaTornillosMuebleBajo',
@@ -183,7 +183,6 @@ export const REFORMA_CAMPOS_COMPARTIDOS: readonly ReformaCampoCompartidoDefinici
       grupo: 'muebleAlto',
       campos: [
         'ubicacionMuebleAlto',
-        'configuracionMuebleAlto',
         'pesoMuebleAlto',
         'tornillosMuebleAlto',
         'metricaTornillosMuebleAlto',
@@ -193,7 +192,6 @@ export const REFORMA_CAMPOS_COMPARTIDOS: readonly ReformaCampoCompartidoDefinici
       grupo: 'muebleAseo',
       campos: [
         'descripcion',
-        'configuracionMuebleAseo',
         'pesoMuebleAseo',
         'tornillosMuebleAseo',
         'metricaTornillosMuebleAseo',
@@ -309,6 +307,7 @@ export interface Modificacion {
   homologacionintermitenteTrasero?: string;
   curvaturaintermitenteTrasero?: number;
 
+  marcaintermitenteLateral?: string;
   marcajesintermitenteLateral?: string;
   homologacionintermitenteLateral?: string;
 
@@ -462,8 +461,10 @@ export interface Modificacion {
 
   ubicacionBombaFreno?: string;
   marcaBombaFrenoDel?: string;
+  modeloBombaFrenoDel?: string;
   referenciaBombaFrenoDel?: string;
   marcaBombaFrenoTras?: string;
+  modeloBombaFrenoTras?: string;
   referenciaBombaFrenoTras?: string;
 
   anclajesOriginalesDeposito?: boolean;
@@ -486,10 +487,25 @@ export interface Modificacion {
   modeloAntena?: string;
 
   enEmplazamientoOriginalEnganche?: boolean;
+  accionEnganche?: string;
   marcaEnganche?: string;
+  tipoEnganche?: string;
   claseEnganche?: string;
   contrasenaEnganche?: string;
   mmrEnganche?: number;
+  mmrSinFrenoEnganche?: number;
+  mmrConFrenoEnganche?: number;
+  datosTecnicosDEnganche?: number;
+  datosTecnicosSEnganche?: number;
+  llevaBolaEnganche?: boolean;
+  marcaBolaEnganche?: string;
+  tipoBolaEnganche?: string;
+  claseBolaEnganche?: string;
+  contrasenaBolaEnganche?: string;
+  mmrSinFrenoBolaEnganche?: number;
+  mmrConFrenoBolaEnganche?: number;
+  datosTecnicosDBolaEnganche?: number;
+  datosTecnicosSBolaEnganche?: number;
 
   numeroPlazasBanqueta?: number;
   esUsoEstacionarioBanqueta?: boolean;
@@ -618,6 +634,7 @@ export interface Modificacion {
   marcaAleron?: string;
   referenciaAleron?: string;
   medidasAleron?: string;
+  tipoFabricacionAleron?: string;
 
   tipoFabricacionLip?: string;
   materialLipDelantero?: string;
@@ -837,6 +854,11 @@ export interface Modificacion {
   manoDeObra?: number;
   totalPresupuesto?: number;
   plazasDespues?: number;
+  descripcionAumento?: string;
+  plazasAntesAumento?: number;
+  plazasDespuesAumento?: number;
+  tieneCinturonesAumento?: boolean;
+  usaAnclajesOriginalesAumento?: boolean;
   marcaAsientoIndividual?: string;
   marcajes?: string;
   denominacion?: string;
@@ -879,6 +901,8 @@ export interface Modificacion {
   homologacionVentanaAbatible?: string;
   litrosAguaSucia?: number;
   litrosAguaLimpia?: number;
+  ubicacionAguaSucia?: string;
+  ubicacionAguaLimpia?: string;
   longitudDelantero?: number;
   medidasAguaLimpia?: string;
   marcaBombaAgua?: string;
@@ -894,6 +918,8 @@ export interface Modificacion {
   cantidadBaterias?: number;
   potenciaBaterias?: string;
   ubicacionBaterias?: string;
+  inversores?: InversorItem[];
+  // Campos legacy (inversor único) mantenidos para migración de proyectos antiguos.
   potenciaInversor?: string;
   marcaInversor?: string;
   homologacionInversor?: string;

@@ -233,17 +233,6 @@ export class ResumenModificacionesComponent
             if (mueble?.metricaTornillosMuebleBajo === undefined) {
               mueble.metricaTornillosMuebleBajo = null;
             }
-            if (mueble?.configuracionMuebleBajo === undefined) {
-              mueble.configuracionMuebleBajo = '';
-            }
-            if (
-              !mueble.configuracionMuebleBajo &&
-              mueble?.cajones !== undefined &&
-              mueble?.cajones !== null &&
-              mueble?.cajones !== ''
-            ) {
-              mueble.configuracionMuebleBajo = `${mueble.cajones} cajones`;
-            }
           });
         }
 
@@ -252,9 +241,6 @@ export class ResumenModificacionesComponent
             if (mueble?.metricaTornillosMuebleAlto === undefined) {
               mueble.metricaTornillosMuebleAlto = null;
             }
-            if (mueble?.configuracionMuebleAlto === undefined) {
-              mueble.configuracionMuebleAlto = '';
-            }
           });
         }
 
@@ -262,9 +248,6 @@ export class ResumenModificacionesComponent
           m.mueblesAseo.forEach((mueble: any) => {
             if (mueble?.metricaTornillosMuebleAseo === undefined) {
               mueble.metricaTornillosMuebleAseo = null;
-            }
-            if (mueble?.configuracionMuebleAseo === undefined) {
-              mueble.configuracionMuebleAseo = '';
             }
           });
         }
@@ -1662,7 +1645,6 @@ export class ResumenModificacionesComponent
       const defaults = {
         cajones: 0,
         ubicacionMuebleBajo: '',
-        configuracionMuebleBajo: '',
         pesoMuebleBajo: '',
         tornillosMuebleBajo: '',
         metricaTornillosMuebleBajo: null,
@@ -1682,7 +1664,6 @@ export class ResumenModificacionesComponent
     if (tipo === 'alto') {
       const defaults = {
         ubicacionMuebleAlto: '',
-        configuracionMuebleAlto: '',
         pesoMuebleAlto: '',
         tornillosMuebleAlto: '',
         metricaTornillosMuebleAlto: null,
@@ -1701,7 +1682,6 @@ export class ResumenModificacionesComponent
 
     const defaults = {
       descripcion: '',
-      configuracionMuebleAseo: '',
       pesoMuebleAseo: '',
       tornillosMuebleAseo: '',
       metricaTornillosMuebleAseo: null,
@@ -1727,6 +1707,7 @@ export class ResumenModificacionesComponent
       modelo: '',
       dimensiones: '',
       descripcion: '',
+      tipoApertura: 'corredera',
     };
 
     Object.assign(item, defaults, incoming);
@@ -1847,24 +1828,18 @@ export class ResumenModificacionesComponent
   }
 
   private createReformaAdicionalItem(initial: any = {}): any {
-    const incoming = { ...(this.unwrapSharedEntity(initial) || {}) };
-    const item = this.unwrapSharedEntity(initial) || {};
-    const defaults = {
+    const incoming = this.unwrapSharedEntity(initial) || {};
+    // Las reformas adicionales no comparten ningún campo entre sí, por lo que se
+    // devuelven como objeto plano (sin proxy de campos compartidos) para evitar
+    // efectos secundarios al navegar/serializar que podían perder el texto.
+    return {
       titulo: '',
       descripcion: '',
       tieneCurvatura: false,
       curvatura: null,
+      tipoReforma: 'Instalación',
+      ...incoming,
     };
-    Object.assign(item, defaults, incoming);
-
-    this.registrarCamposCompartidosPorDefecto(
-      'reformaAdicional',
-      item,
-      incoming,
-      defaults,
-    );
-    this.aplicarValoresCompartidosEnEntidad('reformaAdicional', item);
-    return this.wrapEntidadCompartida('reformaAdicional', item);
   }
 
   private ensureClaraboyaDefaults(mod: any): void {
@@ -1929,6 +1904,17 @@ export class ResumenModificacionesComponent
     );
   }
 
+  private createInversorItem(initial: any = {}): any {
+    const incoming = this.unwrapSharedEntity(initial) || {};
+    return {
+      marca: '',
+      potencia: '',
+      homologacion: '',
+      ubicacion: '',
+      ...incoming,
+    };
+  }
+
   private ensureInstalacionElectricaDefaults(mod: any): void {
     if (!Array.isArray(mod.placasSolares)) {
       mod.placasSolares = [];
@@ -1936,6 +1922,32 @@ export class ResumenModificacionesComponent
 
     mod.placasSolares = mod.placasSolares.map((item: any) =>
       this.createPlacaSolarItem(item),
+    );
+
+    if (!Array.isArray(mod.inversores)) {
+      mod.inversores = [];
+    }
+
+    // Migración desde el inversor único (campos legacy) al array de inversores.
+    if (
+      mod.inversores.length === 0 &&
+      (mod.marcaInversor ||
+        mod.potenciaInversor ||
+        mod.homologacionInversor ||
+        mod.ubicacionInversor)
+    ) {
+      mod.inversores.push(
+        this.createInversorItem({
+          marca: mod.marcaInversor ?? '',
+          potencia: mod.potenciaInversor ?? '',
+          homologacion: mod.homologacionInversor ?? '',
+          ubicacion: mod.ubicacionInversor ?? '',
+        }),
+      );
+    }
+
+    mod.inversores = mod.inversores.map((item: any) =>
+      this.createInversorItem(item),
     );
   }
 
@@ -2363,6 +2375,21 @@ export class ResumenModificacionesComponent
     if (index < 0 || index >= mod.placasSolares.length) return;
     mod.placasSolares.splice(index, 1);
     this.rebuildCamposCompartidos();
+  }
+
+  anadirInversor(mod: any): void {
+    if (!Array.isArray(mod.inversores)) {
+      mod.inversores = [];
+    }
+
+    mod.inversores.push(this.createInversorItem());
+    this.formSubmitted = false;
+  }
+
+  borrarInversor(mod: any, index: number): void {
+    if (!Array.isArray(mod?.inversores)) return;
+    if (index < 0 || index >= mod.inversores.length) return;
+    mod.inversores.splice(index, 1);
   }
 
   anadirLuzEspecifica(mod: any): void {

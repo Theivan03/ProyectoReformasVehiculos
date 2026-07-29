@@ -128,18 +128,43 @@ export function keepTableTogether(table: Table): Table {
 }
 
 function buildCocheOptionParagraphs(data: any): Paragraph[] {
-  if (data.tipoVehiculo !== 'coche') {
-    return [];
+  // Coche: coletillas de seguridad seleccionadas en el componente coche-o-no.
+  if (data.tipoVehiculo === 'coche') {
+    return getCocheOptionTexts(data.opcionesCoche).map(
+      (texto) =>
+        new Paragraph({
+          bullet: { level: 0 },
+          spacing: { line: 260, after: 120 },
+          children: [new TextRun({ text: texto })],
+        }),
+    );
   }
 
-  return getCocheOptionTexts(data.opcionesCoche).map(
-    (texto) =>
+  // Camper y moto: mismas coletillas fijas que se incluyen en el CFO, para que
+  // ambos documentos (proyecto y certificado final de obra) coincidan.
+  if (data.tipoVehiculo === 'camper' || data.tipoVehiculo === 'moto') {
+    return [
       new Paragraph({
-        bullet: { level: 0 },
         spacing: { line: 260, after: 120 },
-        children: [new TextRun({ text: texto })],
+        children: [
+          new TextRun({
+            text: 'Ninguna de las piezas asociadas a las reformas a realizar en el vehículo presenta tipo alguno de aristas vivas o cortantes susceptibles de ser peligrosas.',
+            break: 1,
+          }),
+          new TextRun({
+            text: 'Ninguna de las piezas instaladas entorpece la entrada del flujo del aire al motor para su respectiva refrigeración.',
+            break: 1,
+          }),
+          new TextRun({
+            text: 'Se ha comprobado que se mantienen los anclajes de los sistemas originales de retención de carga después de la transformación.',
+            break: 1,
+          }),
+        ],
       }),
-  );
+    ];
+  }
+
+  return [];
 }
 
 async function applyTransparency(
@@ -1167,7 +1192,7 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
       default: header2,
     },
     footers: {
-      first: new Footer({ children: [] }), // footer invisible y sin espacio
+      first: makeFooter(), // ahora la primera página también muestra el número de página
       default: makeFooter(),
     },
     children: [
@@ -2330,6 +2355,57 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               })
               .filter((row): row is TableRow => row !== null);
 
+            // Reformas no contempladas (CAMPO LIBRE) con radio de curvatura
+            const campoLibreModMoto = modificaciones.find(
+              (m) =>
+                m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' &&
+                m.seleccionado,
+            );
+            const campoLibreRowsMoto = (
+              Array.isArray(campoLibreModMoto?.reformasAdicionalesItems)
+                ? campoLibreModMoto.reformasAdicionalesItems
+                : []
+            )
+              .map((item: any, index: number) => {
+                if (!item?.tieneCurvatura) return null;
+                if (
+                  item?.curvatura === undefined ||
+                  item?.curvatura === null ||
+                  item?.curvatura === ''
+                )
+                  return null;
+                const titulo = (item?.titulo ?? '').toString().trim();
+                const etiqueta =
+                  titulo || `Reforma adicional ${index + 1}`;
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(item.curvatura))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null);
+
+            dataRows.push(...campoLibreRowsMoto);
+
             if (dataRows.length === 0) {
               return [];
             }
@@ -2600,6 +2676,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
     return Number(value.toFixed(0)).toString();
   };
 
+  // Redondea igual que formatCalc para que las filas mostradas (enteros) sumen
+  // exactamente el total mostrado. Si no, cada fila se redondea por separado
+  // pero el total se calcula con decimales y las sumas "no cuadran".
+  const redondear = (value: number): number =>
+    Number.isFinite(value) ? Number(value.toFixed(0)) : 0;
+
   const PESO_OCUPANTE = 75;
   const distanciaEntreEjes = toNumber(data.distanciaEntreEjes);
   const mmaControlMasasRaw = pickFirstValue(
@@ -2656,9 +2738,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   // Hoja "TOTALES": Masa Real = Tara total + 75 kg (conductor)
   const masaRealTotal = taraTotal + PESO_OCUPANTE;
 
-  // Hoja "TOTALES": Carga útil = MMA - Masa Real - (75 * ocupantes adicionales)
+  // Hoja "TOTALES": Carga útil = MMA - Masa Real - (75 * ocupantes adicionales) - 75 (conductor)
+  // Se descuenta también el peso del conductor de la carga útil para que el
+  // valor mostrado no incluya este peso (el conductor no forma parte de la
+  // carga útil disponible aunque ya esté contabilizado en la masa real).
   const cargaUtilTotal =
-    mmaControlMasas - masaRealTotal - totalKgOcupAdicionales;
+    mmaControlMasas - masaRealTotal - totalKgOcupAdicionales - PESO_OCUPANTE;
 
   const repartirPorEjes = (pesoTotal: number, distanciaCDG: number) => {
     if (!distanciaEntreEjes || !Number.isFinite(pesoTotal)) {
@@ -2692,10 +2777,23 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const cargaUtilTras = cargaUtil.tras;
 
   const sumaTotal =
-    masaRealTotal + ocupDelTotal + ocup2Total + ocup3Total + cargaUtilTotal;
-  const sumaDel = masaRealDel + ocupDelDel + ocup2Del + ocup3Del + cargaUtilDel;
+    redondear(masaRealTotal) +
+    redondear(ocupDelTotal) +
+    redondear(ocup2Total) +
+    redondear(ocup3Total) +
+    redondear(cargaUtilTotal);
+  const sumaDel =
+    redondear(masaRealDel) +
+    redondear(ocupDelDel) +
+    redondear(ocup2Del) +
+    redondear(ocup3Del) +
+    redondear(cargaUtilDel);
   const sumaTras =
-    masaRealTras + ocupDelTras + ocup2Tras + ocup3Tras + cargaUtilTras;
+    redondear(masaRealTras) +
+    redondear(ocupDelTras) +
+    redondear(ocup2Tras) +
+    redondear(ocup3Tras) +
+    redondear(cargaUtilTras);
 
   const cargaVerticalAcopl = cargaVerticalAcoplControlMasas;
   const vertical = repartirPorEjes(
@@ -2714,26 +2812,26 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   const cargaUtilTrasConVertical = cargaUtilSinVertical.tras;
 
   const sumaTotalConVertical =
-    masaRealTotal +
-    ocupDelTotal +
-    ocup2Total +
-    ocup3Total +
-    cargaUtilSinVerticalTotal +
-    cargaVerticalAcopl;
+    redondear(masaRealTotal) +
+    redondear(ocupDelTotal) +
+    redondear(ocup2Total) +
+    redondear(ocup3Total) +
+    redondear(cargaUtilSinVerticalTotal) +
+    redondear(cargaVerticalAcopl);
   const sumaDelConVertical =
-    masaRealDel +
-    ocupDelDel +
-    ocup2Del +
-    ocup3Del +
-    cargaUtilDelConVertical +
-    vertdel;
+    redondear(masaRealDel) +
+    redondear(ocupDelDel) +
+    redondear(ocup2Del) +
+    redondear(ocup3Del) +
+    redondear(cargaUtilDelConVertical) +
+    redondear(vertdel);
   const sumaTrasConVertical =
-    masaRealTras +
-    ocupDelTras +
-    ocup2Tras +
-    ocup3Tras +
-    cargaUtilTrasConVertical +
-    verttras;
+    redondear(masaRealTras) +
+    redondear(ocupDelTras) +
+    redondear(ocup2Tras) +
+    redondear(ocup3Tras) +
+    redondear(cargaUtilTrasConVertical) +
+    redondear(verttras);
 
   function limpiarYParsear(valor: any): number | null {
     if (valor === null || valor === undefined) return null;

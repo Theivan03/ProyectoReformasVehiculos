@@ -54,6 +54,10 @@ export class CanvaComponent implements OnInit {
   @ViewChild('firmaCompleta') firmaRef!: ElementRef;
 
   labels: string[] = [];
+  labelsCompletas: string[] = [];
+  labelsOcultas: string[] = [];
+  private indicesVisibles: number[] = [];
+  private indicesOcultos: number[] = [];
   selectedIndex: number | null = null;
   markers: Marker[] = [];
   imageSrc = '';
@@ -100,6 +104,7 @@ export class CanvaComponent implements OnInit {
     'REDUCCION DE PLAZAS',
     'REDUCCION DE MMA',
     'REDUCCION DE MMTA',
+    'CAMBIO DE CLASIFICACION',
   ];
 
   private readonly CANVAS_HIDDEN_MOD_NAMES_NORMALIZED = new Set<string>(
@@ -149,6 +154,7 @@ export class CanvaComponent implements OnInit {
       (normalizedName.includes('INSTALACI') &&
         normalizedName.includes('CTRICA')) ||
       Array.isArray(mod?.placasSolares) ||
+      Array.isArray(mod?.inversores) ||
       this.hasValue(mod?.cantidadBaterias) ||
       this.hasValue(mod?.potenciaBaterias) ||
       this.hasValue(mod?.ubicacionBaterias) ||
@@ -169,6 +175,84 @@ export class CanvaComponent implements OnInit {
   ): string {
     const modelText = (model ?? '').toString().trim();
     return modelText ? `${prefix} ${modelText}` : prefix;
+  }
+
+  private buildMuebleLabel(
+    prefix: string,
+    ubicacion: any,
+    idx: number,
+  ): string {
+    const u = (ubicacion ?? '').toString().trim();
+    return u ? `${prefix} ${u}` : `${prefix} ${idx + 1}`;
+  }
+
+  // A partir de la lista completa de etiquetas, separa las visibles de las
+  // ocultadas por el usuario. La exclusión se guarda por ÍNDICE dentro de la
+  // lista completa (datosEntrada.etiquetasExcluidas = number[]) para que sea
+  // inequívoca aunque haya etiquetas repetidas (p.ej. varias "Ventana").
+  private aplicarEtiquetasExcluidas(labels: string[]): string[] {
+    this.labelsCompletas = [...labels];
+
+    const excluidos = new Set<number>(
+      (Array.isArray(this.datosEntrada?.etiquetasExcluidas)
+        ? this.datosEntrada.etiquetasExcluidas
+        : []
+      )
+        .map((n: any) => Number(n))
+        .filter((n: number) => Number.isInteger(n) && n >= 0 && n < labels.length),
+    );
+
+    const visibles: string[] = [];
+    const ocultas: string[] = [];
+    this.indicesVisibles = [];
+    this.indicesOcultos = [];
+
+    labels.forEach((label, idx) => {
+      if (excluidos.has(idx)) {
+        ocultas.push(label);
+        this.indicesOcultos.push(idx);
+      } else {
+        visibles.push(label);
+        this.indicesVisibles.push(idx);
+      }
+    });
+
+    this.labelsOcultas = ocultas;
+    return visibles;
+  }
+
+  private recomputarLabels(): void {
+    this.labels = this.aplicarEtiquetasExcluidas(this.labelsCompletas);
+    this.markers = this.normalizarMarcadoresGuardados(this.markers, this.labels);
+    this.emitAutosave();
+  }
+
+  ocultarEtiqueta(index: number): void {
+    const fullIdx = this.indicesVisibles[index];
+    if (fullIdx == null) return;
+
+    const excluidos = Array.isArray(this.datosEntrada?.etiquetasExcluidas)
+      ? [...this.datosEntrada.etiquetasExcluidas]
+      : [];
+    if (!excluidos.includes(fullIdx)) excluidos.push(fullIdx);
+    if (this.datosEntrada) this.datosEntrada.etiquetasExcluidas = excluidos;
+
+    if (this.selectedIndex === index) this.selectedIndex = null;
+    this.recomputarLabels();
+  }
+
+  restaurarEtiqueta(index: number): void {
+    const fullIdx = this.indicesOcultos[index];
+    if (fullIdx == null) return;
+
+    const excluidos = Array.isArray(this.datosEntrada?.etiquetasExcluidas)
+      ? [...this.datosEntrada.etiquetasExcluidas]
+      : [];
+    const pos = excluidos.indexOf(fullIdx);
+    if (pos >= 0) excluidos.splice(pos, 1);
+    if (this.datosEntrada) this.datosEntrada.etiquetasExcluidas = excluidos;
+
+    this.recomputarLabels();
   }
 
   private toPositiveInt(value: any): number {
@@ -399,14 +483,28 @@ export class CanvaComponent implements OnInit {
         mod?.seleccionado &&
         this.isMobiliarioInteriorMod(mod, normalizedName)
       ) {
-        mod.mueblesBajo?.forEach((_: any, idx: number) =>
-          nuevasLabels.push(`Mueble bajo ${idx + 1}`),
+        mod.mueblesBajo?.forEach((mueble: any, idx: number) =>
+          nuevasLabels.push(
+            this.buildMuebleLabel(
+              'Mueble bajo',
+              mueble?.ubicacionMuebleBajo,
+              idx,
+            ),
+          ),
         );
-        mod.mueblesAlto?.forEach((_: any, idx: number) =>
-          nuevasLabels.push(`Mueble alto ${idx + 1}`),
+        mod.mueblesAlto?.forEach((mueble: any, idx: number) =>
+          nuevasLabels.push(
+            this.buildMuebleLabel(
+              'Mueble alto',
+              mueble?.ubicacionMuebleAlto,
+              idx,
+            ),
+          ),
         );
-        mod.mueblesAseo?.forEach((_: any, idx: number) =>
-          nuevasLabels.push(`Aseo ${idx + 1}`),
+        mod.mueblesAseo?.forEach((aseo: any, idx: number) =>
+          nuevasLabels.push(
+            this.buildMuebleLabel('Aseo', aseo?.ubicacionMuebleAseo, idx),
+          ),
         );
         continue;
       }
@@ -459,12 +557,25 @@ export class CanvaComponent implements OnInit {
         continue;
       }
 
+      if (
+        mod?.seleccionado &&
+        normalizedName === 'AUMENTO O DISMINUCION DE PLAZAS'
+      ) {
+        const tipo = (mod?.tipoCambio || '').toString().trim().toLowerCase();
+        nuevasLabels.push(
+          tipo === 'aumento'
+            ? 'Aumento de plazas de asiento'
+            : 'Disminución de plazas de asiento',
+        );
+        continue;
+      }
+
       if (mod?.seleccionado) {
         nuevasLabels.push(mod.nombre);
       }
     }
 
-    this.labels = nuevasLabels;
+    this.labels = this.aplicarEtiquetasExcluidas(nuevasLabels);
     this.etiquetasAnteriores = [...nuevasLabels];
     this.markers = this.normalizarMarcadoresGuardados(
       this.markers,
@@ -536,15 +647,27 @@ export class CanvaComponent implements OnInit {
       });
     }
 
-    const hasBateriaData = hasValue(mod.cantidadBaterias) || hasValue(mod.potenciaBaterias) || hasValue(mod.ubicacionBaterias);
-    const hasInversorData = hasValue(mod.potenciaInversor) || hasValue(mod.marcaInversor) || hasValue(mod.homologacionInversor) || hasValue(mod.ubicacionInversor);
+    const hasBateriaData = hasValue(mod.cantidadBaterias) || hasValue(mod.ubicacionBaterias);
+    const inversores = Array.isArray(mod.inversores)
+      ? mod.inversores.filter((inv: any) => hasValue(inv))
+      : [];
+    const hasInversorLegacy =
+      hasValue(mod.potenciaInversor) ||
+      hasValue(mod.marcaInversor) ||
+      hasValue(mod.homologacionInversor) ||
+      hasValue(mod.ubicacionInversor);
     const hasControladorData = hasValue(mod.modeloControlador) || hasValue(mod.marcaControlador) || hasValue(mod.homologacionControlador) || hasValue(mod.ubicacionControlador);
 
     if (hasBateriaData) {
       out.push('Batería');
     }
 
-    if (hasInversorData) {
+    if (inversores.length > 0) {
+      inversores.forEach((inv: any, idx: number) => {
+        const marca = (inv?.marca ?? '').toString().trim();
+        out.push(marca ? `Inversor ${marca}` : `Inversor ${idx + 1}`);
+      });
+    } else if (hasInversorLegacy) {
       out.push('Inversor');
     }
 

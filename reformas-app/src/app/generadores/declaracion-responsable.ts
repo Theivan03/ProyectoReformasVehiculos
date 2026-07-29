@@ -171,63 +171,50 @@ export async function generarDocumentoResponsable(data: any): Promise<void> {
   }
 
   if (data.comunidad === 'murcia') {
-    // 1) Carga la plantilla .docx como ArrayBuffer
+    // Plantilla calcada del ejemplo "DECLARACION MURCIA EJEMPLO.doc"
+    // (mismo formato, cabecera y pie con imágenes). Solo se rellenan los datos.
     const arrayBuffer = await fetch('/assets/DRMurcia.docx').then((r) =>
       r.arrayBuffer()
     );
 
-    // 2) Descomprime con PizZip
     const zip = new PizZip(arrayBuffer);
 
-    // 3) Aísla cada placeholder en su propio <w:r> para que nunca
-    //    quede partido ni repita tags, y dejes intactas el resto de etiquetas
-    let xml = zip.file('word/document.xml')!.asText();
-
-    // a) Partimos por placeholders
-    const parts = xml.split(/({{[^}]+}})/g);
-
-    // b) Reconstruimos, envolviendo sólo los tokens {{…}}
-    const rebuilt = parts
-      .map((tok) => {
-        if (/^{{[^}]+}}$/.test(tok)) {
-          // token es un placeholder completo: lo metemos en su run
-          return `<w:r><w:rPr/><w:t>${tok}</w:t></w:r>`;
-        }
-        // cualquier otro fragmento de XML, sin tocar
-        return tok;
-      })
-      .join('');
-
-    // c) Guardamos el XML modificado
-    zip.file('word/document.xml', rebuilt);
-
-    // 4) Instancia Docxtemplater sobre el zip "flattened"
+    // La plantilla usa delimitadores {{ }} y cada placeholder ya está contenido
+    // en un único run, por lo que docxtemplater los resuelve directamente.
     const doc = new Docxtemplater(zip, {
       paragraphLoop: true,
       linebreaks: true,
+      delimiters: { start: '{{', end: '}}' },
     });
 
-    // 5) Formatea la fecha del proyecto en español
-    const fechaFormateada = new Date(data.fechaProyecto).toLocaleDateString(
-      'es-ES',
-      { day: 'numeric', month: 'long', year: 'numeric' }
-    );
+    // Fecha en español, p.ej. "23 de julio de 2026"
+    const fecha = new Date(data.fechaProyecto).toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
 
-    // 6) Construye el objeto final (fusión de defaults + data)
+    // Referencias del título, con el mismo formato que el ejemplo.
+    const refProy = `${data.referenciaProyecto} REV ${data.revision}`;
+    const refCert = `${data.referenciaProyecto} REV ${data.revision}/ ${data.referenciaCFO} REV ${data.revision}`;
+
     const templateData = {
-      universidad: ingeniero.universidad,
-      colegio: ingeniero.colegio,
-      colegiado: ingeniero.numero,
       nombre: ingeniero.nombre,
       dni: ingeniero.dni,
       direccion: ingeniero.direccionFiscal,
+      titulacion: ingeniero.titulacion,
+      universidad: ingeniero.universidad,
+      colegio: ingeniero.colegio,
+      colegiado: ingeniero.numero,
       marca: data.marca,
       modelo: data.modelo,
       vin: data.bastidor,
-      fechaFormateada: fechaFormateada,
+      fecha: fecha,
+      // Word puso estos placeholders en mayúsculas al crear la plantilla.
+      REFPROY: refProy,
+      REFCERT: refCert,
     };
 
-    // 7) Renderiza
     try {
       doc.render(templateData);
     } catch (error) {
@@ -235,7 +222,6 @@ export async function generarDocumentoResponsable(data: any): Promise<void> {
       throw error;
     }
 
-    // 8) Genera el blob y fuerza descarga
     const outBlob = doc.getZip().generate({
       type: 'blob',
       mimeType:

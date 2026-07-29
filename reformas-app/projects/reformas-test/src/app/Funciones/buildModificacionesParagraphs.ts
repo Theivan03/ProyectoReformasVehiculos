@@ -377,10 +377,24 @@ export function buildModificacionesParagraphs(
   );
   if (paradelante) {
     paradelante.acciones?.forEach((accion: string) => {
-      const fraseParagolpesDelantero =
-        paradelante.tipoFabricacionParagolpesDelantero === 'comercial'
-          ? `${accion} de paragolpes delantero marca ${paradelante.marcaParagolpes}, referencia ${paradelante.referenciaParagolpes} de medidas ${paradelante.medidasParagolpesDelantero} mm.`
-          : `${accion} de paragolpes delantero fabricado en acero de forma artesanal de medidas ${paradelante.medidasParagolpesDelantero} mm.`;
+      const marcaParaDelTexto = (paradelante.marcaParagolpes || '')
+        .toString()
+        .trim();
+      const refParaDelTexto = (paradelante.referenciaParagolpes || '')
+        .toString()
+        .trim();
+      const esArtesanalParaDel =
+        paradelante.tipoFabricacionParagolpesDelantero !== 'comercial' ||
+        !marcaParaDelTexto ||
+        marcaParaDelTexto.toLowerCase() === 'artesanal' ||
+        marcaParaDelTexto.toLowerCase() === 'sin marca' ||
+        !refParaDelTexto ||
+        refParaDelTexto.toLowerCase() === 'artesanal' ||
+        refParaDelTexto.toLowerCase() === 'sin referencia';
+
+      const fraseParagolpesDelantero = esArtesanalParaDel
+        ? `${accion} de paragolpes delantero fabricado en acero de forma artesanal de medidas ${paradelante.medidasParagolpesDelantero} mm.`
+        : `${accion} de paragolpes delantero marca ${marcaParaDelTexto}, referencia ${refParaDelTexto} de medidas ${paradelante.medidasParagolpesDelantero} mm.`;
 
       const raw = `- ${fraseParagolpesDelantero}`;
 
@@ -403,10 +417,24 @@ export function buildModificacionesParagraphs(
   );
   if (paratras) {
     paratras.acciones?.forEach((accion: string) => {
-      const fraseParagolpesTrasero =
-        paratras.tipoFabricacionParagolpesTrasero === 'comercial'
-          ? `${accion} de paragolpes trasero marca ${paratras.marcaParagolpesTrasero}, referencia ${paratras.referenciaParagolpesTrasero} de medidas ${paratras.medidasParagolpesTrasero} mm.`
-          : `${accion} de paragolpes trasero fabricado en acero de forma artesanal de medidas ${paratras.medidasParagolpesTrasero} mm.`;
+      const marcaParaTrasTexto = (paratras.marcaParagolpesTrasero || '')
+        .toString()
+        .trim();
+      const refParaTrasTexto = (paratras.referenciaParagolpesTrasero || '')
+        .toString()
+        .trim();
+      const esArtesanalParaTras =
+        paratras.tipoFabricacionParagolpesTrasero !== 'comercial' ||
+        !marcaParaTrasTexto ||
+        marcaParaTrasTexto.toLowerCase() === 'artesanal' ||
+        marcaParaTrasTexto.toLowerCase() === 'sin marca' ||
+        !refParaTrasTexto ||
+        refParaTrasTexto.toLowerCase() === 'artesanal' ||
+        refParaTrasTexto.toLowerCase() === 'sin referencia';
+
+      const fraseParagolpesTrasero = esArtesanalParaTras
+        ? `${accion} de paragolpes trasero fabricado en acero de forma artesanal de medidas ${paratras.medidasParagolpesTrasero} mm.`
+        : `${accion} de paragolpes trasero marca ${marcaParaTrasTexto}, referencia ${refParaTrasTexto} de medidas ${paratras.medidasParagolpesTrasero} mm.`;
 
       const raw = `- ${fraseParagolpesTrasero}`;
 
@@ -1181,16 +1209,23 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       }
     }
 
-    // 8) Nota final
-    if (mod.anotacion) {
-      raw = `Estos dispositivos no modifican las condiciones técnicas de dirección. Se asegura la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
+    // 8) Nota final: siempre aparece cuando hay casuística de suspensión.
+    // Existió un check sobre `mod.anotacion` pero ese campo no se rellena
+    // desde el formulario, así que la nota nunca llegaba al proyecto.
+    {
+      raw = `NOTA: Estos dispositivos no modifican las condiciones técnicas de dirección. Se asegura la no interferencia entre los neumáticos y ningún punto de la carrocería.`;
 
       pushCasuistica(
         out,
         new Paragraph({
           spacing: { line: 260, before: 120, after: 120 },
           indent: { left: 400 },
-          children: [new TextRun({ text: raw })],
+          children: [
+            new TextRun({ text: 'NOTA: ', bold: true }),
+            new TextRun({
+              text: 'Estos dispositivos no modifican las condiciones técnicas de dirección. Se asegura la no interferencia entre los neumáticos y ningún punto de la carrocería.',
+            }),
+          ],
         }),
         raw,
       );
@@ -1465,7 +1500,37 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   );
 
   if (aleron) {
-    const raw = `- Instalación de alerón ${aleron.ubicacionAleron}, fabricado en ${aleron.materialAleron}, de la marca ${aleron.marcaAleron}, con referencia ${aleron.referenciaAleron} y medidas ${aleron.medidasAleron}.`;
+    const marcaAleronTexto = (aleron.marcaAleron || '').toString().trim();
+    const referenciaAleronTexto = (aleron.referenciaAleron || '')
+      .toString()
+      .trim();
+    const materialAleronTexto = (aleron.materialAleron || '')
+      .toString()
+      .trim();
+    const tipoFabricacionAleron = (aleron.tipoFabricacionAleron || '')
+      .toString()
+      .trim()
+      .toLowerCase();
+
+    // Si está marcado como comercial usamos marca y referencia. En cualquier
+    // otro caso (artesanal, no informado, o con datos incompletos) la frase
+    // describe la fabricación artesanal indicando el material.
+    const esComercialAleron =
+      tipoFabricacionAleron === 'comercial' &&
+      !!marcaAleronTexto &&
+      marcaAleronTexto.toLowerCase() !== 'artesanal' &&
+      marcaAleronTexto.toLowerCase() !== 'sin marca' &&
+      !!referenciaAleronTexto &&
+      referenciaAleronTexto.toLowerCase() !== 'artesanal' &&
+      referenciaAleronTexto.toLowerCase() !== 'sin referencia';
+
+    const descripcionFabricacion = esComercialAleron
+      ? `de la marca ${marcaAleronTexto}, con referencia ${referenciaAleronTexto}`
+      : materialAleronTexto
+        ? `fabricado en ${materialAleronTexto} de forma artesanal`
+        : 'fabricado de forma artesanal';
+
+    const raw = `- Instalación de alerón ${aleron.ubicacionAleron}, ${descripcionFabricacion} y medidas ${aleron.medidasAleron}.`;
 
     const p = new Paragraph({
       spacing: { line: 260, after: 120 },
@@ -2294,6 +2359,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       {
         enabled: !!intermitentes.detalle?.interDelantero,
         posicion: 'delanteros',
+        marca: intermitentes.marcaintermitenteDelantero,
         marcaje:
           intermitentes.marcajesintermitenteDelantero ||
           intermitentes.marcajeIntermitentes,
@@ -2305,6 +2371,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       {
         enabled: !!intermitentes.detalle?.interTrasero,
         posicion: 'traseros',
+        marca: intermitentes.marcaintermitenteTrasero,
         marcaje:
           intermitentes.marcajesintermitenteTrasero ||
           intermitentes.marcajeIntermitentes,
@@ -2316,6 +2383,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       {
         enabled: !!intermitentes.detalle?.interLateral,
         posicion: 'laterales',
+        marca: intermitentes.marcaintermitenteLateral,
         marcaje:
           intermitentes.marcajesintermitenteLateral ||
           intermitentes.marcajeIntermitentes,
@@ -2330,6 +2398,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       elementos.push({
         enabled: true,
         posicion: '',
+        marca: undefined,
         marcaje: intermitentes.marcajeIntermitentes,
         homologacion: intermitentes.homologacionIntermitentes,
         notaFinal: '',
@@ -2344,10 +2413,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     acciones.forEach((accion: string) => {
       elementos.forEach((elemento) => {
         const posicionTexto = elemento.posicion ? ` ${elemento.posicion}` : '';
+        const marcaTexto = (elemento.marca || '').toString().trim();
+        const fragmentoMarca = marcaTexto ? ` marca ${marcaTexto},` : '';
         let texto = '';
 
         if (accion === 'Instalación') {
-          texto = `- Instalación de intermitentes${posicionTexto} con marcaje ${
+          texto = `- Instalación de intermitentes${posicionTexto}${fragmentoMarca} con marcaje ${
             elemento.marcaje || ''
           } y contraseña de homologación ${elemento.homologacion || ''}.${
             elemento.notaFinal
@@ -2355,7 +2426,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         } else if (accion === 'Desmontaje') {
           texto = `- Desmontaje de los intermitentes${posicionTexto}.`;
         } else {
-          texto = `- Sustitución de los intermitentes${posicionTexto} por otros con marcaje ${
+          texto = `- Sustitución de los intermitentes${posicionTexto} por otros${fragmentoMarca} con marcaje ${
             elemento.marcaje || ''
           } y contraseña de homologación ${elemento.homologacion || ''}.${
             elemento.notaFinal
@@ -2550,9 +2621,12 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
     const generarFraseBomba = (
       ubicacion: string,
       marca: string,
+      modelo: string,
       referencia: string,
     ) => {
-      return `Sustitución de la bomba de freno ${ubicacion} original por otra de la marca ${marca}, con referencia ${referencia} con un diámetro y longitud del pistón igual al de la bomba de freno original. La luz de frenado sigue operativa para el freno ${ubicacion}.`;
+      const modeloTexto = (modelo || '').toString().trim();
+      const fragmentoModelo = modeloTexto ? `, modelo ${modeloTexto}` : '';
+      return `Sustitución de la bomba de freno ${ubicacion} original por otra de la marca ${marca}${fragmentoModelo}, con referencia ${referencia} con un diámetro y longitud del pistón igual al de la bomba de freno original. La luz de frenado sigue operativa para el freno ${ubicacion}.`;
     };
 
     const parrafosBomba: string[] = [];
@@ -2563,6 +2637,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         generarFraseBomba(
           'delantera',
           bombaFreno.marcaBombaFrenoDel ?? '',
+          bombaFreno.modeloBombaFrenoDel ?? '',
           bombaFreno.referenciaBombaFrenoDel ?? '',
         ),
       );
@@ -2573,6 +2648,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         generarFraseBomba(
           'trasera',
           bombaFreno.marcaBombaFrenoTras ?? '',
+          bombaFreno.modeloBombaFrenoTras ?? '',
           bombaFreno.referenciaBombaFrenoTras ?? '',
         ),
       );
@@ -2584,6 +2660,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         generarFraseBomba(
           'delantera',
           bombaFreno.marcaBombaFrenoDel ?? '',
+          bombaFreno.modeloBombaFrenoDel ?? '',
           bombaFreno.referenciaBombaFrenoDel ?? '',
         ),
       );
@@ -2592,6 +2669,7 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
         generarFraseBomba(
           'trasera',
           bombaFreno.marcaBombaFrenoTras ?? '',
+          bombaFreno.modeloBombaFrenoTras ?? '',
           bombaFreno.referenciaBombaFrenoTras ?? '',
         ),
       );
@@ -3502,12 +3580,105 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
   );
 
   if (enganche) {
-    // Definimos el texto de ubicación según el checkbox
-    const ubicacionTexto = enganche.enEmplazamientoOriginalEnganche
-      ? 'en emplazamiento de homologación'
-      : 'en la parte trasera'; // Texto por defecto si no se marca el check
+    const accionEnganche = (enganche.accionEnganche || 'Instalación')
+      .toString()
+      .trim();
 
-    const fraseEnganche = `Instalación de enganche de remolque ${ubicacionTexto}, consistente en: barra y bola marca ${enganche.marcaEnganche}, clase ${enganche.claseEnganche}, contraseña de homologación ${enganche.contrasenaEnganche}, para una MMR en remolques de eje central ${enganche.mmrEnganche}Kg.`;
+    const fraseAccion =
+      accionEnganche === 'Sustitución'
+        ? 'Sustitución del enganche anotado en TITV por otro homologado'
+        : `${accionEnganche} de enganche de remolque homologado`;
+
+    const ubicacionTexto = enganche.enEmplazamientoOriginalEnganche
+      ? 'en emplazamiento también homologado'
+      : 'en emplazamiento no homologado';
+
+    const buildBloque = (
+      etiqueta: string,
+      marca: any,
+      tipo: any,
+      clase: any,
+      contrasena: any,
+      mmrSinFreno: any,
+      mmrConFreno: any,
+      datosD: any,
+      datosS: any,
+    ) => {
+      const partesDatos: string[] = [];
+
+      const marcaTxt = (marca || '').toString().trim();
+      const tipoTxt = (tipo || '').toString().trim();
+      const claseTxt = (clase || '').toString().trim();
+      const contrasenaTxt = (contrasena || '').toString().trim();
+
+      const partesIdentificacion: string[] = [];
+      if (marcaTxt) partesIdentificacion.push(`marca ${marcaTxt}`);
+      if (tipoTxt) partesIdentificacion.push(`tipo ${tipoTxt}`);
+      if (claseTxt) partesIdentificacion.push(`clase ${claseTxt}`);
+      if (contrasenaTxt)
+        partesIdentificacion.push(
+          `con contraseña de homologación ${contrasenaTxt}`,
+        );
+
+      const identificacionTexto = partesIdentificacion.length
+        ? `${etiqueta} ${partesIdentificacion.join(', ')}`
+        : etiqueta;
+
+      partesDatos.push(identificacionTexto);
+
+      const mmrSinFrenoTxt = (mmrSinFreno ?? '').toString().trim();
+      const mmrConFrenoTxt = (mmrConFreno ?? '').toString().trim();
+      if (mmrSinFrenoTxt || mmrConFrenoTxt) {
+        const partesMmr: string[] = [];
+        if (mmrSinFrenoTxt) partesMmr.push(`s/f de ${mmrSinFrenoTxt}Kg`);
+        if (mmrConFrenoTxt) partesMmr.push(`c/f de ${mmrConFrenoTxt}Kg`);
+        partesDatos.push(
+          `para una MMR ${partesMmr.join(' y ')} (remolques ejes centrales/barra de tracción)`,
+        );
+      }
+
+      const dTxt = (datosD ?? '').toString().trim();
+      const sTxt = (datosS ?? '').toString().trim();
+      if (dTxt || sTxt) {
+        const partesTecnicos: string[] = [];
+        if (dTxt) partesTecnicos.push(`D= ${dTxt}KN`);
+        if (sTxt) partesTecnicos.push(`S= ${sTxt}Kg`);
+        partesDatos.push(
+          `Datos técnicos enganche: ${partesTecnicos.join(' y ')}`,
+        );
+      }
+
+      return partesDatos.join('. ') + '.';
+    };
+
+    const bloqueSoporte = buildBloque(
+      'soporte',
+      enganche.marcaEnganche,
+      enganche.tipoEnganche,
+      enganche.claseEnganche,
+      enganche.contrasenaEnganche,
+      enganche.mmrSinFrenoEnganche ?? enganche.mmrEnganche,
+      enganche.mmrConFrenoEnganche,
+      enganche.datosTecnicosDEnganche,
+      enganche.datosTecnicosSEnganche,
+    );
+
+    let fraseEnganche = `${fraseAccion} ${ubicacionTexto}, consistente en: ${bloqueSoporte}`;
+
+    if (enganche.llevaBolaEnganche) {
+      const bloqueBola = buildBloque(
+        'bola',
+        enganche.marcaBolaEnganche,
+        enganche.tipoBolaEnganche,
+        enganche.claseBolaEnganche,
+        enganche.contrasenaBolaEnganche,
+        enganche.mmrSinFrenoBolaEnganche,
+        enganche.mmrConFrenoBolaEnganche,
+        enganche.datosTecnicosDBolaEnganche,
+        enganche.datosTecnicosSBolaEnganche,
+      );
+      fraseEnganche += ` // ${bloqueBola}`;
+    }
 
     const raw = `- ${fraseEnganche}`;
 
@@ -3578,6 +3749,45 @@ el antirrobo e inmovilizador siguen funcionando tras el cambio de volante.`;
       (p as any)._rawText = raw;
       out.push(p);
     }
+  }
+
+  //
+  // 2.b) AUMENTO DE PLAZAS (independiente)
+  //
+  const aumentoPlazasMod = modificaciones.find(
+    (m) => m.nombre === 'AUMENTO DE PLAZAS' && m.seleccionado,
+  );
+  if (aumentoPlazasMod) {
+    const descripcionAumento = (aumentoPlazasMod.descripcionAumento || '')
+      .toString()
+      .trim();
+    const plazasAntes = aumentoPlazasMod.plazasAntesAumento;
+    const plazasDespues = aumentoPlazasMod.plazasDespuesAumento;
+
+    const tieneCinturones = !!aumentoPlazasMod.tieneCinturonesAumento;
+    const usaAnclajesOriginales =
+      !!aumentoPlazasMod.usaAnclajesOriginalesAumento;
+
+    const fraseCinturones = tieneCinturones
+      ? ' Las nuevas plazas disponen de cinturones de seguridad'
+      : ' Las nuevas plazas no disponen de cinturones de seguridad';
+    const fraseAnclajes = usaAnclajesOriginales
+      ? ' instalados sobre los anclajes originales del vehículo.'
+      : '.';
+
+    const detalleDescripcion = descripcionAumento
+      ? ` ${descripcionAumento}.`
+      : '';
+
+    raw = `- Aumento de plazas de asiento pasando de ${plazasAntes} plazas a ${plazasDespues} plazas mediante la instalación de nuevas plazas.${detalleDescripcion}${fraseCinturones}${fraseAnclajes}`;
+
+    const p = new Paragraph({
+      spacing: { line: 260, after: 120 },
+      indent: { left: 400 },
+      children: [new TextRun({ text: raw })],
+    });
+    (p as any)._rawText = raw;
+    out.push(p);
   }
 
   //
@@ -4159,23 +4369,42 @@ export function generarDocumentoProyectoParagraphs(
     (p: any) => (p as any)._fromCasuistica !== true,
   );
 
-  let montajesBase = nonCasuisticaParas.filter(
-    (p) =>
-      ![
-        'Variación',
-        'Sustitución',
-        'Desmontaje',
-        'Disminución',
-        '',
-        ' ',
-      ].includes(first(p)),
-  );
-  let desmontajesBase = nonCasuisticaParas.filter(
-    (p) => first(p) === 'Desmontaje' || first(p) === 'Disminución',
-  );
-  let variacionesBase = nonCasuisticaParas.filter((p) =>
-    ['Variación', 'Sustitución'].includes(first(p)),
-  );
+  // Para mantener juntas las NOTAs (y otros párrafos sin verbo inicial) con su
+  // modificación padre, hacemos una pasada secuencial heredando la categoría
+  // del párrafo anterior cuando el actual no tiene verbo identificable.
+  let montajesBase: Paragraph[] = [];
+  let desmontajesBase: Paragraph[] = [];
+  let variacionesBase: Paragraph[] = [];
+
+  let lastCategory: 'montaje' | 'desmontaje' | 'variacion' = 'montaje';
+  for (const p of nonCasuisticaParas) {
+    const word = first(p);
+    let category: 'montaje' | 'desmontaje' | 'variacion';
+
+    if (word === 'Desmontaje' || word === 'Disminución') {
+      category = 'desmontaje';
+      lastCategory = category;
+    } else if (
+      word === 'Variación' ||
+      word === 'Sustitución' ||
+      word === 'Cambio' ||
+      word === 'Modificación' ||
+      word === 'Reubicación'
+    ) {
+      category = 'variacion';
+      lastCategory = category;
+    } else if (word === '' || word === ' ') {
+      // Párrafo sin verbo (típicamente una NOTA): heredar categoría del previo
+      category = lastCategory;
+    } else {
+      category = 'montaje';
+      lastCategory = category;
+    }
+
+    if (category === 'desmontaje') desmontajesBase.push(p);
+    else if (category === 'variacion') variacionesBase.push(p);
+    else montajesBase.push(p);
+  }
 
   const casuisticaInstHeader = casuisticaParas.filter(
     (p) => first(p) === 'Instalación',

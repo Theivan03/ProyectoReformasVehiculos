@@ -270,6 +270,7 @@ export interface Modificacion {
   homologacionintermitenteTrasero?: string;
   curvaturaintermitenteTrasero?: number;
 
+  marcaintermitenteLateral?: string;
   marcajesintermitenteLateral?: string;
   homologacionintermitenteLateral?: string;
 
@@ -422,8 +423,10 @@ export interface Modificacion {
 
   ubicacionBombaFreno?: string;
   marcaBombaFrenoDel?: string;
+  modeloBombaFrenoDel?: string;
   referenciaBombaFrenoDel?: string;
   marcaBombaFrenoTras?: string;
+  modeloBombaFrenoTras?: string;
   referenciaBombaFrenoTras?: string;
 
   anclajesOriginalesDeposito?: boolean;
@@ -446,10 +449,25 @@ export interface Modificacion {
   modeloAntena?: string;
 
   enEmplazamientoOriginalEnganche?: boolean;
+  accionEnganche?: string;
   marcaEnganche?: string;
+  tipoEnganche?: string;
   claseEnganche?: string;
   contrasenaEnganche?: string;
   mmrEnganche?: number;
+  mmrSinFrenoEnganche?: number;
+  mmrConFrenoEnganche?: number;
+  datosTecnicosDEnganche?: number;
+  datosTecnicosSEnganche?: number;
+  llevaBolaEnganche?: boolean;
+  marcaBolaEnganche?: string;
+  tipoBolaEnganche?: string;
+  claseBolaEnganche?: string;
+  contrasenaBolaEnganche?: string;
+  mmrSinFrenoBolaEnganche?: number;
+  mmrConFrenoBolaEnganche?: number;
+  datosTecnicosDBolaEnganche?: number;
+  datosTecnicosSBolaEnganche?: number;
 
   numeroPlazasBanqueta?: number;
   esUsoEstacionarioBanqueta?: boolean;
@@ -578,6 +596,7 @@ export interface Modificacion {
   marcaAleron?: string;
   referenciaAleron?: string;
   medidasAleron?: string;
+  tipoFabricacionAleron?: string;
 
   tipoFabricacionLip?: string;
   materialLipDelantero?: string;
@@ -797,6 +816,11 @@ export interface Modificacion {
   manoDeObra?: number;
   totalPresupuesto?: number;
   plazasDespues?: number;
+  descripcionAumento?: string;
+  plazasAntesAumento?: number;
+  plazasDespuesAumento?: number;
+  tieneCinturonesAumento?: boolean;
+  usaAnclajesOriginalesAumento?: boolean;
   marcaAsientoIndividual?: string;
   marcajes?: string;
   denominacion?: string;

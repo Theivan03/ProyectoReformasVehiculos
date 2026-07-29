@@ -2287,6 +2287,57 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
               })
               .filter((row): row is TableRow => row !== null);
 
+            // Reformas no contempladas (CAMPO LIBRE) con radio de curvatura
+            const campoLibreModMoto = modificaciones.find(
+              (m) =>
+                m.nombre === 'CAMPO LIBRE SOBRE REFORMAS NO EXISTENTES' &&
+                m.seleccionado,
+            );
+            const campoLibreRowsMoto = (
+              Array.isArray(campoLibreModMoto?.reformasAdicionalesItems)
+                ? campoLibreModMoto.reformasAdicionalesItems
+                : []
+            )
+              .map((item: any, index: number) => {
+                if (!item?.tieneCurvatura) return null;
+                if (
+                  item?.curvatura === undefined ||
+                  item?.curvatura === null ||
+                  item?.curvatura === ''
+                )
+                  return null;
+                const titulo = (item?.titulo ?? '').toString().trim();
+                const etiqueta =
+                  titulo || `Reforma adicional ${index + 1}`;
+                return new TableRow({
+                  children: [
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(etiqueta)],
+                        }),
+                      ],
+                    }),
+                    new TableCell({
+                      verticalAlign: VerticalAlign.CENTER,
+                      margins: { top: 50, bottom: 50, left: 50, right: 50 },
+                      children: [
+                        new Paragraph({
+                          alignment: AlignmentType.CENTER,
+                          children: [new TextRun(String(item.curvatura))],
+                        }),
+                      ],
+                    }),
+                  ],
+                });
+              })
+              .filter((row): row is TableRow => row !== null);
+
+            dataRows.push(...campoLibreRowsMoto);
+
             if (dataRows.length === 0) {
               return [];
             }
@@ -2615,9 +2666,12 @@ export async function generarDocumentoProyecto(data: any): Promise<Blob> {
   // Hoja "TOTALES": Masa Real = Tara total + 75 kg (conductor)
   const masaRealTotal = taraTotal + PESO_OCUPANTE;
 
-  // Hoja "TOTALES": Carga útil = MMA - Masa Real - (75 * ocupantes adicionales)
+  // Hoja "TOTALES": Carga útil = MMA - Masa Real - (75 * ocupantes adicionales) - 75 (conductor)
+  // Se descuenta también el peso del conductor de la carga útil para que el
+  // valor mostrado no incluya este peso (el conductor no forma parte de la
+  // carga útil disponible aunque ya esté contabilizado en la masa real).
   const cargaUtilTotal =
-    mmaControlMasas - masaRealTotal - totalKgOcupAdicionales;
+    mmaControlMasas - masaRealTotal - totalKgOcupAdicionales - PESO_OCUPANTE;
 
   const repartirPorEjes = (pesoTotal: number, distanciaCDG: number) => {
     if (!distanciaEntreEjes || !Number.isFinite(pesoTotal)) {
